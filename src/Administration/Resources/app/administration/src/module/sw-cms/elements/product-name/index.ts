@@ -1,5 +1,10 @@
 Shopware.Component.extend('sw-cms-el-product-name', 'sw-cms-el-text', () => import('./component'));
 Shopware.Component.extend('sw-cms-el-config-product-name', 'sw-cms-el-config-text', () => import('./config'));
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register('sw-cms-el-preview-product-name', () => import('./preview'));
 
 /**
  * @private
@@ -10,6 +15,8 @@ Shopware.Service('cmsService').registerCmsElement({
     label: 'sw-cms.elements.productHeading.name.label',
     component: 'sw-cms-el-product-name',
     configComponent: 'sw-cms-el-config-product-name',
+    previewComponent: 'sw-cms-el-preview-product-name',
+    allowedPageTypes: [Shopware.Constants.CMS.PAGE_TYPES.PRODUCT_DETAIL],
     defaultConfig: {
         content: {
             source: 'static',

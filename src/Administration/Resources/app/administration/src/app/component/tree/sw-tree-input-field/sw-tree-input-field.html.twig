@@ -3,10 +3,8 @@
     class="sw-tree-item sw-tree-input-field is--no-children"
     :class="classes"
 >
-
     {% block sw_tree_input_fieldelement %}
     <div class="sw-tree-item__element">
-
         {% block sw_tree_input_fieldelement_grip %}
         <div class="sw-tree-item__icon">
             <mt-icon
@@ -24,16 +22,17 @@
                 <sw-confirm-field
                     :value="currentValue"
                     :disabled="disabled"
-                    :placeholder="$tc('sw-tree.general.buttonCreate')"
+                    :placeholder="$t('sw-tree.general.buttonCreate')"
                     @input="createNewItem"
                 />
                 {% endblock %}
             </slot>
+
             <span
                 v-if="disabled"
                 class="sw-tree-input-field__language-warning"
             >
-                {{ $tc('sw-tree.general.actions.actionsDisabledInLanguage') }}.
+                {{ $t('sw-tree.general.actions.actionsDisabledInLanguage') }}.
             </span>
         </div>
         {% endblock %}

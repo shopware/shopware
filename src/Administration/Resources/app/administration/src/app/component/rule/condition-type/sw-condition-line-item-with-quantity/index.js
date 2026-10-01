@@ -1,9 +1,6 @@
 import template from './sw-condition-line-item-with-quantity.html.twig';
 import './sw-condition-line-item-with-quantity.scss';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
 /**
  * @public
  * @sw-package fundamentals@after-sales
@@ -13,7 +10,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-line-item-with-quantity :condition="condition" :level="0"></sw-condition-line-item-with-quantity>
  */
-Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base-line-item', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -57,15 +55,5 @@ Component.extend('sw-condition-line-item-with-quantity', 'sw-condition-base-line
                 this.condition.value = { ...this.condition.value, id };
             },
         },
-
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.quantity',
-            'value.id',
-        ]),
-
-        currentError() {
-            return this.conditionValueOperatorError || this.conditionValueQuantityError || this.conditionValueIdError;
-        },
     },
-});
+};

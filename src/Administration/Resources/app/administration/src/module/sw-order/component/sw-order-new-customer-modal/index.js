@@ -1,6 +1,6 @@
+import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-order-new-customer-modal.html.twig';
 import './sw-order-new-customer-modal.scss';
-import CUSTOMER from '../../../sw-customer/constant/sw-customer.constant';
 
 /**
  * @sw-package checkout
@@ -9,6 +9,7 @@ import CUSTOMER from '../../../sw-customer/constant/sw-customer.constant';
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { mapPageErrors } = Shopware.Component.getComponentHelper();
+const { CUSTOMER } = Shopware.Constants;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -19,16 +20,12 @@ export default {
         'numberRangeService',
         'systemConfigApiService',
         'customerValidationService',
+        'feature',
     ],
 
-    emits: [
-        'on-select-existing-customer',
-        'close',
-    ],
+    emits: ['on-select-existing-customer', 'close'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -36,6 +33,7 @@ export default {
             isLoading: false,
             customerNumberPreview: '',
             defaultSalutationId: null,
+            activeTab: 'details',
         };
     },
 
@@ -69,6 +67,26 @@ export default {
 
         addressRepository() {
             return this.repositoryFactory.create('customer_address');
+        },
+
+        newCustomerModalTabs() {
+            return [
+                {
+                    label: this.$t('sw-order.newCustomerModal.labelDetails'),
+                    name: 'details',
+                    hasError: this.swOrderNewCustomerDetailError,
+                },
+                {
+                    label: this.$t('sw-order.createBase.detailsBody.labelBillingAddress'),
+                    name: 'billingAddress',
+                    hasError: this.swOrderNewCustomerAddressError,
+                },
+                {
+                    label: this.$t('sw-order.createBase.detailsBody.labelShippingAddress'),
+                    name: 'shippingAddress',
+                    hasError: !this.isSameBilling && this.swOrderNewCustomerAddressError,
+                },
+            ];
         },
 
         shippingAddress() {
@@ -216,7 +234,7 @@ export default {
 
             if (hasError) {
                 this.createNotificationError({
-                    message: this.$tc('sw-customer.detail.messageSaveError'),
+                    message: this.$t('sw-customer.detail.messageSaveError'),
                 });
 
                 this.isLoading = false;
@@ -255,7 +273,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-customer.detail.messageSaveError'),
+                        message: this.$t('sw-customer.detail.messageSaveError'),
                     });
                     this.isLoading = false;
                 });
@@ -270,14 +288,32 @@ export default {
         },
 
         onClose() {
+            this.clearOwnApiErrors();
+
             this.$emit('close');
+        },
+
+        clearOwnApiErrors() {
+            const errorStore = Shopware.Store.get('error');
+
+            [this.billingAddress?.id, this.shippingAddress?.id].forEach((addressId) => {
+                if (!addressId) {
+                    return;
+                }
+
+                errorStore.removeApiError(`customer_address.${addressId}.company`);
+            });
+
+            if (this.customer?.id) {
+                errorStore.removeApiError(`customer.${this.customer.id}.email`);
+            }
         },
 
         createErrorMessageForCompanyField() {
             Shopware.Store.get('error').addApiError({
                 expression: `customer_address.${this.billingAddress.id}.company`,
                 error: new Shopware.Classes.ShopwareError({
-                    code: 'c1051bb4-d103-4f74-8988-acbcafc7fdc3',
+                    code: EntityValidationService.ERROR_CODE_REQUIRED,
                 }),
             });
         },

@@ -1,8 +1,6 @@
 import Sanitizer from 'src/core/helper/sanitizer.helper';
 import template from './sw-snippet-field-edit-modal.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -20,18 +18,12 @@ const { Component } = Shopware;
  *     \@save="onSave">
  * </sw-snippet-field-edit-modal>
  */
-Component.register('sw-snippet-field-edit-modal', {
+export default {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-    ],
+    inject: ['acl', 'repositoryFactory'],
 
-    emits: [
-        'modal-close',
-        'save',
-    ],
+    emits: ['modal-close', 'save'],
 
     props: {
         snippets: {
@@ -52,15 +44,9 @@ Component.register('sw-snippet-field-edit-modal', {
         fieldType: {
             type: String,
             required: true,
-            validValues: [
-                'text',
-                'textarea',
-            ],
+            validValues: ['text', 'textarea'],
             validator(value) {
-                return [
-                    'text',
-                    'textarea',
-                ].includes(value);
+                return ['text', 'textarea'].includes(value);
             },
         },
     },
@@ -74,7 +60,7 @@ Component.register('sw-snippet-field-edit-modal', {
 
     computed: {
         modalTitle() {
-            const title = this.$tc('global.sw-snippet-field-edit-modal.title');
+            const title = this.$t('global.sw-snippet-field-edit-modal.title');
 
             return `${title}: ${this.translationKey}`;
         },
@@ -144,7 +130,7 @@ Component.register('sw-snippet-field-edit-modal', {
                 appearance: 'dark',
                 showOnDisabledElements: true,
                 disabled: this.acl.can(role),
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
             };
         },
 
@@ -176,4 +162,4 @@ Component.register('sw-snippet-field-edit-modal', {
             });
         },
     },
-});
+};

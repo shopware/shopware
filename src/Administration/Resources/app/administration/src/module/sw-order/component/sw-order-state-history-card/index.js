@@ -2,6 +2,8 @@ import template from './sw-order-state-history-card.html.twig';
 
 /**
  * @sw-package checkout
+ *
+ * @deprecated tag:v6.8.0 - will be removed, no usages found
  */
 
 const { Mixin } = Shopware;
@@ -20,14 +22,9 @@ export default {
         'acl',
     ],
 
-    emits: [
-        'options-change',
-        'order-state-change',
-    ],
+    emits: ['options-change', 'order-state-change'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         title: {
@@ -74,21 +71,25 @@ export default {
         },
 
         transaction() {
-            for (let i = 0; i < this.order.transactions.length; i += 1) {
-                if (
-                    ![
-                        'cancelled',
-                        'failed',
-                    ].includes(this.order.transactions[i].stateMachineState.technicalName)
-                ) {
-                    return this.order.transactions[i];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                for (let i = 0; i < this.order.transactions.length; i += 1) {
+                    if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
+                        return this.order.transactions[i];
+                    }
                 }
+
+                return this.order.transactions.last();
             }
-            return this.order.transactions.last();
+
+            return this.order.primaryOrderTransaction;
         },
 
         delivery() {
-            return this.order.deliveries[0];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.deliveries[0];
+            }
+
+            return this.order.primaryOrderDelivery;
         },
 
         stateMachineHistoryCriteria() {
@@ -102,15 +103,12 @@ export default {
 
             criteria.addFilter(Criteria.equalsAny('state_machine_history.referencedId', entityIds));
             criteria.addFilter(
-                Criteria.equalsAny('state_machine_history.entityName', [
-                    'order',
-                    'order_transaction',
-                    'order_delivery',
-                ]),
+                Criteria.equalsAny('state_machine_history.entityName', ['order', 'order_transaction', 'order_delivery']),
             );
             criteria.addAssociation('fromStateMachineState');
             criteria.addAssociation('toStateMachineState');
             criteria.addAssociation('user');
+            criteria.addAssociation('integration');
             criteria.addSorting({
                 field: 'state_machine_history.createdAt',
                 order: 'ASC',
@@ -133,10 +131,7 @@ export default {
             this.statesLoading = true;
             this.modalConfirmed = false;
 
-            Promise.all([
-                this.getStateHistoryEntries(),
-                this.getTransitionOptions(),
-            ])
+            Promise.all([this.getStateHistoryEntries(), this.getTransitionOptions()])
                 .then(() => {
                     this.$emit('options-change', 'order.states', this.orderOptions);
                     if (this.transaction) {
@@ -218,9 +213,7 @@ export default {
         },
 
         getTransitionOptions() {
-            const statePromises = [
-                this.stateMachineService.getState('order', this.order.id),
-            ];
+            const statePromises = [this.stateMachineService.getState('order', this.order.id)];
             if (this.transaction) {
                 statePromises.push(this.stateMachineService.getState('order_transaction', this.transaction.id));
             }
@@ -228,10 +221,7 @@ export default {
                 statePromises.push(this.stateMachineService.getState('order_delivery', this.delivery.id));
             }
 
-            return Promise.all([
-                this.getAllStates(),
-                ...statePromises,
-            ]).then((data) => {
+            return Promise.all([this.getAllStates(), ...statePromises]).then((data) => {
                 const allStates = data[0];
                 const orderState = data[1];
                 this.orderOptions = this.buildTransitionOptions('order.state', allStates, orderState.data.transitions);
@@ -305,7 +295,7 @@ export default {
 
         async onOrderStateSelected(actionName) {
             if (!actionName) {
-                this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                this.createStateChangeErrorNotification(this.$t('sw-order.stateCard.labelErrorNoAction'));
                 return;
             }
 
@@ -331,7 +321,7 @@ export default {
 
         async onTransactionStateSelected(actionName) {
             if (!actionName) {
-                this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                this.createStateChangeErrorNotification(this.$t('sw-order.stateCard.labelErrorNoAction'));
                 return;
             }
 
@@ -352,7 +342,7 @@ export default {
 
         async onDeliveryStateSelected(actionName) {
             if (!actionName) {
-                this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                this.createStateChangeErrorNotification(this.$t('sw-order.stateCard.labelErrorNoAction'));
                 return;
             }
 
@@ -378,13 +368,14 @@ export default {
             this.showModal = false;
         },
 
-        onLeaveModalConfirm(docIds, sendMail = true) {
+        onLeaveModalConfirm(docIds, sendMail = true, internalComment = null) {
             this.showModal = false;
             if (this.currentStateType === 'orderTransactionState') {
                 this.orderStateMachineService
                     .transitionOrderTransactionState(this.transaction.id, this.currentActionName, {
                         documentIds: docIds,
                         sendMail,
+                        internalComment,
                     })
                     .then(() => {
                         this.$emit('order-state-change');
@@ -395,7 +386,11 @@ export default {
                     });
             } else if (this.currentStateType === 'orderState') {
                 this.orderStateMachineService
-                    .transitionOrderState(this.order.id, this.currentActionName, { documentIds: docIds, sendMail })
+                    .transitionOrderState(this.order.id, this.currentActionName, {
+                        documentIds: docIds,
+                        sendMail,
+                        internalComment,
+                    })
                     .then(() => {
                         this.$emit('order-state-change');
                         this.loadHistory();
@@ -408,6 +403,7 @@ export default {
                     .transitionOrderDeliveryState(this.delivery.id, this.currentActionName, {
                         documentIds: docIds,
                         sendMail,
+                        internalComment,
                     })
                     .then(() => {
                         this.$emit('order-state-change');
@@ -423,7 +419,7 @@ export default {
 
         createStateChangeErrorNotification(errorMessage) {
             this.createNotificationError({
-                message: this.$tc('sw-order.stateCard.labelErrorStateChange') + errorMessage,
+                message: this.$t('sw-order.stateCard.labelErrorStateChange') + errorMessage,
             });
         },
     },

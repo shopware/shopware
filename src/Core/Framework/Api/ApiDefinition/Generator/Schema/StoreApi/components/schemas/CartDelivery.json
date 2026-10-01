@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": [],
     "components": {
@@ -26,7 +26,7 @@
                         "properties": {
                             "apiAlias": {
                                 "type": "string",
-                                "enum": ["cart_delivery_shipping_location"]
+                                "const": "cart_delivery_shipping_location"
                             },
                             "country": {
                                 "$ref": "#/components/schemas/Country"

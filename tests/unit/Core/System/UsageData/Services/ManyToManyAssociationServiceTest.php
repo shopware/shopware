@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
@@ -75,22 +76,21 @@ class ManyToManyAssociationServiceTest extends TestCase
         $service = new ManyToManyAssociationService($connection);
 
         $mappingDefinition = new MappingDefinition();
-        new StaticDefinitionInstanceRegistry(
-            [$mappingDefinition],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+        $toManyDefinition = new ToManyDefinition();
+        $registry = new StaticDefinitionInstanceRegistry(
+            [$mappingDefinition, $toManyDefinition],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
-        /** @phpstan-ignore-next-line We want to mock this */
-        $associationField = $this->createMock(ManyToManyAssociationField::class);
-        $associationField->method('getPropertyName')
-            ->willReturn('propertyName');
-        $associationField->method('getMappingLocalColumn')
-            ->willReturn('localColumn');
-        $associationField->method('getMappingReferenceColumn')
-            ->willReturn('referenceColumn');
-        $associationField->method('getMappingDefinition')
-            ->willReturn($mappingDefinition);
+        $associationField = new ManyToManyAssociationField(
+            'propertyName',
+            ToManyDefinition::class,
+            MappingDefinition::class,
+            'localColumn',
+            'referenceColumn',
+        );
+        $associationField->compile($registry);
 
         $result = $service->getMappingIdsForAssociationFields(
             [$associationField],
@@ -102,7 +102,7 @@ class ManyToManyAssociationServiceTest extends TestCase
             'primaryKeyName'
         );
 
-        static::assertEquals([
+        static::assertSame([
             'propertyName' => [
                 Uuid::fromHexToBytes($ids->get('1')) => [
                     $ids->get('referenceColumn-1'),
@@ -135,6 +135,24 @@ class MappingDefinition extends MappingEntityDefinition
             (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
             (new ReferenceVersionField(ProductDefinition::class))->addFlags(new PrimaryKey()),
             new ManyToManyAssociationField('manyToMany', MockEntityDefinition::class, ManyToManyMappingEntityDefinition::class, 'manyToMany', 'manyToMany'),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class ToManyDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'to_many_entity';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey()),
         ]);
     }
 }

@@ -22,10 +22,7 @@ export default {
             type: Array,
             validator(value) {
                 const invalidElements = value.filter((element) => {
-                    return ![
-                        'media',
-                        'media_folder',
-                    ].includes(element.getEntityName());
+                    return !['media', 'media_folder'].includes(element.getEntityName());
                 });
                 return invalidElements.length === 0;
             },
@@ -97,7 +94,7 @@ export default {
         },
 
         getSelectedFilesCount() {
-            return `${this.$tc('sw-media.sidebar.labelHeadlineMultiple', this.items.length, { count: this.items.length })}`;
+            return `${this.$t('sw-media.sidebar.labelHeadlineMultiple', { count: this.items.length }, this.items.length)}`;
         },
 
         firstEntity() {
@@ -111,16 +108,11 @@ export default {
         filteredAttributes() {
             const filteredAttributes = {};
 
-            Object.entries(this.$attrs).forEach(
-                ([
-                    key,
-                    value,
-                ]) => {
-                    if (key.startsWith('on') && typeof value === 'function') {
-                        filteredAttributes[key] = value;
-                    }
-                },
-            );
+            Object.entries(this.$attrs).forEach(([key, value]) => {
+                if (key.startsWith('on') && typeof value === 'function') {
+                    filteredAttributes[key] = value;
+                }
+            });
 
             return filteredAttributes;
         },
@@ -165,11 +157,11 @@ export default {
                 Object.assign(this.items[0], newItem);
                 await this.mediaRepository.save(firstItem, Context.api);
                 this.createNotificationSuccess({
-                    message: this.$tc('global.sw-media-media-item.notification.settingsSuccess.message'),
+                    message: this.$t('global.sw-media-media-item.notification.settingsSuccess.message'),
                 });
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                    message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                 });
             } finally {
                 firstItem.isLoading = false;

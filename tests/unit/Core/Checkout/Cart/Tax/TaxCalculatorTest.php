@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(TaxCalculator::class)]
 #[Package('checkout')]
+#[CoversClass(TaxCalculator::class)]
 class TaxCalculatorTest extends TestCase
 {
     #[DataProvider('netPricesToGross')]
@@ -27,7 +27,7 @@ class TaxCalculatorTest extends TestCase
         $rules = new TaxRuleCollection([$taxRule]);
 
         $rounding = new CashRounding();
-        static::assertEquals(
+        static::assertSame(
             $expected,
             $rounding->cashRound(
                 $calculator->calculateGross($net, $rules),

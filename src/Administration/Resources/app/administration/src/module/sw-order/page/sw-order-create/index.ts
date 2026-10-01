@@ -1,3 +1,4 @@
+import type { TabItem } from '@shopware-ag/meteor-component-library/dist/esm/MtTabs';
 import type Repository from 'src/core/data/repository.data';
 import type { Cart, PromotionCodeTag } from '../../order.types';
 import '../../store/order.store';
@@ -15,13 +16,9 @@ const { Criteria } = Shopware.Data;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data(): {
         isLoading: boolean;
@@ -29,8 +26,8 @@ export default Shopware.Component.wrapComponentConfig({
         showInvalidCodeModal: boolean;
         showRemindPaymentModal: boolean;
         remindPaymentModalLoading: boolean;
-        orderId: string | null;
-        orderTransaction: { id: string; paymentMethodId: string } | null;
+        orderId: EntityKey<'order'> | null;
+        orderTransaction: { id: EntityKey<'order_transaction'>; paymentMethodId: EntityKey<'payment_method'> } | null;
         paymentMethodName: string;
     } {
         return {
@@ -55,15 +52,37 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         invalidPromotionCodes(): PromotionCodeTag[] {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             return Store.get('swOrder').invalidPromotionCodes;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use orderValidateErrorMessage() instead.
+         */
         isSaveOrderValid(): boolean {
             return (this.customer &&
                 this.cart.token &&
                 this.cart.lineItems.length &&
                 !this.invalidPromotionCodes.length) as boolean;
+        },
+
+        orderValidateErrorMessage(): string | null {
+            if (!this.customer) {
+                return this.$t('sw-order.create.saveError.noCustomer');
+            }
+
+            if (!this.cart.token) {
+                return this.$t('sw-order.create.saveError.noCart');
+            }
+
+            if (this.cart.lineItems.length === 0) {
+                return this.$t('sw-order.create.saveError.noLineItems');
+            }
+
+            if (this.invalidPromotionCodes.length > 0) {
+                return this.$t('sw-order.create.saveError.invalidPromotionCodes');
+            }
+
+            return null;
         },
 
         paymentMethodRepository(): Repository<'payment_method'> {
@@ -72,6 +91,23 @@ export default Shopware.Component.wrapComponentConfig({
 
         showInitialModal(): boolean {
             return this.$route.name === 'sw.order.create.initial';
+        },
+
+        orderCreateTabs(): TabItem[] {
+            const createRouteTab = (label: string, routeName: string) => {
+                return {
+                    label: this.$t(label),
+                    name: routeName,
+                    onClick: () => {
+                        void this.$router.push({ name: routeName });
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-order.detail.tabGeneral', 'sw.order.create.general'),
+                createRouteTab('sw-order.detail.tabDetails', 'sw.order.create.details'),
+            ];
         },
     },
 
@@ -98,7 +134,8 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.isSaveSuccessful = false;
             Shopware.Store.get('context').api.languageId =
-                localStorage.getItem('sw-admin-current-language') || Shopware.Defaults.systemLanguageId;
+                (localStorage.getItem('sw-admin-current-language') as EntityKey<'language'>) ||
+                Shopware.Defaults.systemLanguageId;
             void this.$router.push({
                 name: 'sw.order.detail',
                 params: { id: this.orderId },
@@ -106,49 +143,63 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async onSaveOrder(): Promise<void> {
-            if (this.isSaveOrderValid) {
-                this.isLoading = true;
-                this.isSaveSuccessful = false;
+            if (this.orderValidateErrorMessage) {
+                if (this.invalidPromotionCodes.length) {
+                    this.openInvalidCodeModal();
+                }
 
-                if (!this.customer) return;
-
-                await Store.get('swOrder')
-                    .saveOrder({
-                        salesChannelId: this.customer?.salesChannelId,
-                        contextToken: this.cart.token,
-                    })
-                    .then((response) => {
-                        // eslint-disable-next-line max-len
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                        this.orderId = response?.data?.id;
-                        // eslint-disable-next-line max-len
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                        this.orderTransaction = response?.data?.transactions?.[0];
-
-                        if (!this.orderTransaction) {
-                            return;
-                        }
-
-                        void this.paymentMethodRepository
-                            .get(this.orderTransaction.paymentMethodId, Context.api, new Criteria(1, 1))
-                            .then((paymentMethod) => {
-                                this.paymentMethodName = paymentMethod?.translated?.distinguishableName ?? '';
-                            });
-
-                        this.showRemindPaymentModal = true;
-                    })
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                    .catch((error) => this.showError(error))
-                    .finally(() => {
-                        this.isLoading = false;
-                    });
+                this.showError(this.orderValidateErrorMessage);
+                return;
             }
 
-            if (this.invalidPromotionCodes.length > 0) {
-                this.openInvalidCodeModal();
-            } else {
-                this.showError();
+            this.isLoading = true;
+            this.isSaveSuccessful = false;
+
+            try {
+                const { data } = (await Store.get('swOrder').saveOrder({
+                    salesChannelId: this.customer!.salesChannelId,
+                    contextToken: this.cart.token,
+                })) as {
+                    data: {
+                        id: EntityKey<'order'>;
+                        transactions: Array<{
+                            id: EntityKey<'order_transaction'>;
+                            paymentMethodId: EntityKey<'payment_method'>;
+                        }>;
+                    };
+                };
+
+                const [transaction] = data?.transactions || [];
+
+                if (!transaction) {
+                    throw new Error(this.$t('sw-order.create.saveError.noTransactionReturned'));
+                }
+
+                this.orderId = data?.id;
+                this.orderTransaction = transaction;
+
+                await this.fetchPaymentMethodName();
+
+                this.showRemindPaymentModal = true;
+            } catch (error) {
+                this.showError(error);
+            } finally {
+                this.isLoading = false;
             }
+        },
+
+        async fetchPaymentMethodName(): Promise<void> {
+            if (!this.orderTransaction) {
+                return;
+            }
+
+            const method = await this.paymentMethodRepository.get(
+                this.orderTransaction.paymentMethodId,
+                Context.api,
+                new Criteria(1, 1),
+            );
+
+            this.paymentMethodName = method?.translated?.distinguishableName ?? '';
         },
 
         onCancelOrder() {
@@ -172,7 +223,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.createNotificationError({
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                message: errorMessage || this.$tc('sw-order.create.messageSaveError'),
+                message: errorMessage || this.$t('sw-order.create.messageSaveError'),
             });
         },
 

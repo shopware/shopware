@@ -8,10 +8,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
-#[Package('framework')]
+#[Package('fundamentals@discovery')]
 class Migration1712309989DropLanguageLocaleUnique extends MigrationStep
 {
     public function getCreationTimestamp(): int

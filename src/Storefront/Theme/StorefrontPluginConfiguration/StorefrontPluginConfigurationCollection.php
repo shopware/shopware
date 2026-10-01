@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Struct\Collection;
 /**
  * @extends Collection<StorefrontPluginConfiguration>
  */
-#[Package('framework')]
+#[Package('discovery')]
 class StorefrontPluginConfigurationCollection extends Collection
 {
     public function __construct(iterable $elements = [])
@@ -31,17 +31,17 @@ class StorefrontPluginConfigurationCollection extends Collection
 
     public function getByTechnicalName(string $name): ?StorefrontPluginConfiguration
     {
-        return $this->filter(fn (StorefrontPluginConfiguration $config) => $config->getTechnicalName() === $name)->first();
+        return $this->filter(static fn (StorefrontPluginConfiguration $config) => $config->getTechnicalName() === $name)->first();
     }
 
     public function getThemes(): StorefrontPluginConfigurationCollection
     {
-        return $this->filter(fn (StorefrontPluginConfiguration $configuration) => $configuration->getIsTheme());
+        return $this->filter(static fn (StorefrontPluginConfiguration $configuration) => $configuration->getIsTheme() === true);
     }
 
     public function getNoneThemes(): StorefrontPluginConfigurationCollection
     {
-        return $this->filter(fn (StorefrontPluginConfiguration $configuration) => !$configuration->getIsTheme());
+        return $this->filter(static fn (StorefrontPluginConfiguration $configuration) => !$configuration->getIsTheme());
     }
 
     protected function getExpectedClass(): ?string

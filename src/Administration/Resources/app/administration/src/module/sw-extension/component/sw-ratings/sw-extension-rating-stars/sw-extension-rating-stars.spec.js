@@ -12,11 +12,6 @@ describe('src/module/sw-extension/component/sw-ratings/sw-extension-rating-stars
         );
     }
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it.each([
         0,
         1,

@@ -4,19 +4,22 @@ namespace Shopware\Tests\Unit\Core\Framework\Webhook;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\App\AppEvents;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\WebhookCacheClearer;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(WebhookCacheClearer::class)]
 class WebhookCacheClearerTest extends TestCase
 {
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
-            'acl_role.written' => 'clearPrivilegesCache',
+        static::assertSame([
+            AppEvents::APP_WRITTEN_EVENT => 'clearWebhookCache',
         ], WebhookCacheClearer::getSubscribedEvents());
     }
 
@@ -25,9 +28,6 @@ class WebhookCacheClearerTest extends TestCase
         $manager = $this->createMock(WebhookManager::class);
         $manager->expects($this->once())
             ->method('clearInternalWebhookCache');
-
-        $manager->expects($this->once())
-            ->method('clearInternalPrivilegesCache');
 
         $cacheClearer = new WebhookCacheClearer($manager);
         $cacheClearer->reset();
@@ -41,15 +41,5 @@ class WebhookCacheClearerTest extends TestCase
 
         $cacheClearer = new WebhookCacheClearer($manager);
         $cacheClearer->clearWebhookCache();
-    }
-
-    public function testClearPrivilegesCache(): void
-    {
-        $manager = $this->createMock(WebhookManager::class);
-        $manager->expects($this->once())
-            ->method('clearInternalPrivilegesCache');
-
-        $cacheClearer = new WebhookCacheClearer($manager);
-        $cacheClearer->clearPrivilegesCache();
     }
 }

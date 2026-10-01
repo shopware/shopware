@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Api;
 
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\MessageQueueException;
 use Shopware\Core\Framework\MessageQueue\Subscriber\CountHandledMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -22,8 +25,8 @@ use Symfony\Component\Messenger\Transport\Receiver\ReceiverInterface;
 use Symfony\Component\Messenger\Worker;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class ConsumeMessagesController extends AbstractController
 {
     /**
@@ -44,10 +47,10 @@ class ConsumeMessagesController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/message-queue/consume', name: 'api.action.message-queue.consume', methods: ['POST'])]
+    #[Route(path: '/api/_action/message-queue/consume', name: 'api.action.message-queue.consume', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system:queue:process']], methods: ['POST'])]
     public function consumeMessages(Request $request): JsonResponse
     {
-        $receiverName = $request->get('receiver');
+        $receiverName = RequestParamHelper::get($request, 'receiver');
 
         if (!$receiverName || !$this->receiverLocator->has($receiverName)) {
             throw MessageQueueException::validReceiverNameNotProvided();
@@ -77,7 +80,7 @@ class ConsumeMessagesController extends AbstractController
 
         $worker = new Worker([$this->defaultTransportName => $receiver], $this->bus, $workerDispatcher);
 
-        $worker->run(['sleep' => 50]);
+        $worker->run();
 
         $consumerLock->release();
 

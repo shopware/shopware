@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
@@ -16,21 +18,23 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 #[Package('framework')]
 class EntityGenerator implements ScaffoldingGenerator
 {
-    use HasCommandOption;
-
     public const OPTION_NAME = 'entities';
     private const OPTION_DESCRIPTION = 'list of entities to generate (PascalCase, comma separated)';
 
-    private string $servicesXmlEntry = <<<'EOL'
+    private string $servicesPhpEntry = <<<'EOL'
 
-            <service id="{{ namespace }}\Core\Content\{{ entityName }}\{{ entityName }}Definition">
-                <tag name="shopware.entity.definition" entity="{{ tableName }}" />
-            </service>
+    $services->set(\{{ namespace }}\Core\Content\{{ entityName }}\{{ entityName }}Entity::class)
+        ->tag('shopware.entity');
 
-    EOL;
+EOL;
 
-    public function __construct(private readonly \DateTimeImmutable $now = new \DateTimeImmutable())
+    public function __construct(private readonly ClockInterface $clock)
     {
+    }
+
+    public function getCommandOption(): InputOption
+    {
+        return new InputOption(self::OPTION_NAME, null, InputOption::VALUE_REQUIRED, self::OPTION_DESCRIPTION);
     }
 
     public function addScaffoldConfig(
@@ -40,7 +44,7 @@ class EntityGenerator implements ScaffoldingGenerator
     ): void {
         $entities = $input->getOption(self::OPTION_NAME);
 
-        if (!empty($entities)) {
+        if (\is_string($entities) && $entities !== '') {
             $this->processEntities($config, $entities);
 
             return;
@@ -48,7 +52,7 @@ class EntityGenerator implements ScaffoldingGenerator
 
         $entities = $this->askForEntities($io);
 
-        if (empty($entities)) {
+        if ($entities === null || $entities === '') {
             return;
         }
 
@@ -60,33 +64,46 @@ class EntityGenerator implements ScaffoldingGenerator
         StubCollection $stubCollection
     ): void {
         if (!$configuration->hasOption(self::OPTION_NAME)
-            || empty($configuration->getOption(self::OPTION_NAME))
+            || $configuration->getOption(self::OPTION_NAME) === []
             || !\is_array($configuration->getOption(self::OPTION_NAME))
         ) {
             return;
         }
 
         foreach ($configuration->getOption(self::OPTION_NAME) as $entityName) {
-            $stubCollection->add($this->createMigration($configuration, $entityName));
+            if (!$this->migrationAlreadyExists($configuration, $entityName)) {
+                $stubCollection->add($this->createMigration($configuration, $entityName));
+            }
+
             $stubCollection->add($this->createEntityClass($configuration, $entityName));
-            $stubCollection->add($this->createEntityDefinition($configuration, $entityName));
             $stubCollection->add($this->createEntityCollection($configuration, $entityName));
 
             $stubCollection->append(
-                'src/Resources/config/services.xml',
+                'src/Resources/config/services.php',
                 str_replace(
-                    ['{{ namespace }}', '{{ entityName }}', '{{ tableName }}'],
-                    [$configuration->namespace, $entityName, $this->getTableName($entityName)],
-                    $this->servicesXmlEntry
+                    ['{{ namespace }}', '{{ entityName }}'],
+                    [$configuration->namespace, $entityName],
+                    $this->servicesPhpEntry
                 )
             );
         }
     }
 
+    private function migrationAlreadyExists(
+        PluginScaffoldConfiguration $configuration,
+        string $entityName
+    ): bool {
+        $migrations = glob(
+            $configuration->directory . '/src/Migration/Migration*Create' . $entityName . 'Table.php'
+        );
+
+        return $migrations !== false && $migrations !== [];
+    }
+
     private function createMigration(PluginScaffoldConfiguration $configuration, string $entityName): Stub
     {
         $tableName = $this->getTableName($entityName);
-        $timeStamp = (string) $this->now->getTimestamp();
+        $timeStamp = (string) $this->clock->now()->getTimestamp();
 
         $migrationPath = \sprintf(
             'src/Migration/Migration%sCreate%sTable.php',
@@ -120,27 +137,7 @@ class EntityGenerator implements ScaffoldingGenerator
             [
                 'namespace' => $configuration->namespace,
                 'entityName' => $entityName,
-            ]
-        );
-    }
-
-    private function createEntityDefinition(PluginScaffoldConfiguration $configuration, string $entityName): Stub
-    {
-        $tableName = $this->getTableName($entityName);
-
-        $entityDefinitionPath = \sprintf(
-            'src/Core/Content/%s/%sDefinition.php',
-            $entityName,
-            $entityName
-        );
-
-        return Stub::template(
-            $entityDefinitionPath,
-            self::STUB_DIRECTORY . '/entity-definition.stub',
-            [
-                'namespace' => $configuration->namespace,
-                'entityName' => $entityName,
-                'tableName' => $tableName,
+                'tableName' => $this->getTableName($entityName),
             ]
         );
     }
@@ -172,7 +169,7 @@ class EntityGenerator implements ScaffoldingGenerator
     {
         $entitiesProvided = $io->confirm('Do you want to create entities?');
 
-        if (!$entitiesProvided) {
+        if ($entitiesProvided === false) {
             return null;
         }
 
@@ -183,7 +180,7 @@ class EntityGenerator implements ScaffoldingGenerator
     {
         $parsed = $this->parseEntities($entities);
 
-        if (!empty($parsed)) {
+        if ($parsed !== []) {
             $config->addOption(self::OPTION_NAME, $this->parseEntities($entities));
         }
     }
@@ -197,7 +194,7 @@ class EntityGenerator implements ScaffoldingGenerator
 
         $entities = explode(',', $entities);
 
-        return array_filter(array_map(function (string $entity) {
+        return array_filter(array_map(static function (string $entity) {
             return ucfirst(trim($entity));
         }, $entities));
     }

@@ -14,7 +14,7 @@ async function createWrapper() {
             },
             global: {
                 mocks: {
-                    $tc: (key, value) => {
+                    $t: (key, value) => {
                         if (!value) {
                             return key;
                         }
@@ -101,16 +101,12 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            missingElements: [
-                'buyBox',
-                'productDescriptionReviews',
-            ],
+            missingElements: ['buyBox', 'productDescriptionReviews'],
         });
 
         const title = await wrapper.find('.sw-cms-missing-element-modal__title');
 
         expect(title.text()).toBe(
-            // eslint-disable-next-line max-len
             'sw-cms.components.cmsMissingElementModal.title{"element":"sw-cms.elements.buyBox.label, sw-cms.elements.productDescriptionReviews.label"}',
         );
     });
@@ -119,17 +115,12 @@ describe('module/sw-cms/component/sw-cms-missing-element-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            missingElements: [
-                'buyBox',
-                'productDescriptionReviews',
-                'crossSelling',
-            ],
+            missingElements: ['buyBox', 'productDescriptionReviews', 'crossSelling'],
         });
 
         const title = wrapper.find('.sw-cms-missing-element-modal__title');
 
         expect(title.text()).toBe(
-            // eslint-disable-next-line max-len
             'sw-cms.components.cmsMissingElementModal.title{"element":"sw-cms.elements.buyBox.label, sw-cms.elements.productDescriptionReviews.label, sw-cms.elements.crossSelling.label"}',
         );
     });

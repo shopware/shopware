@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\Category\Repository;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -11,12 +12,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class CategoryRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -232,5 +236,41 @@ class CategoryRepositoryTest extends TestCase
         static::assertNotNull($firstChild);
         static::assertSame($recordC, $firstChild->getId());
         static::assertSame(3, $firstChild->getLevel());
+    }
+
+    #[DataProvider('seoFieldProvider')]
+    public function testSeoFieldLongerThan255CharactersIsRejected(string $field): void
+    {
+        $id = Uuid::randomHex();
+
+        try {
+            $this->repository->create([
+                ['id' => $id, 'name' => 'test', $field => str_repeat('a', 256)],
+            ], Context::createDefaultContext());
+
+            static::fail('A value longer than 255 characters must be rejected');
+        } catch (WriteException $e) {
+            $errors = iterator_to_array($e->getErrors());
+            static::assertCount(1, $errors);
+            static::assertStringEndsWith('/' . $field, $errors[0]['source']['pointer']);
+        }
+
+        $this->repository->create([
+            ['id' => $id, 'name' => 'test', $field => str_repeat('a', 255)],
+        ], Context::createDefaultContext());
+
+        $entity = $this->repository->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
+        static::assertNotNull($entity);
+        static::assertSame(str_repeat('a', 255), $entity->get($field));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function seoFieldProvider(): iterable
+    {
+        yield 'meta title' => ['metaTitle'];
+        yield 'meta description' => ['metaDescription'];
+        yield 'keywords' => ['keywords'];
     }
 }

@@ -37,9 +37,9 @@ class LandingPageControllerTest extends TestCase
     {
         $response = $this->request('GET', '/myUrl', []);
 
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(LandingPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -54,7 +54,7 @@ class LandingPageControllerTest extends TestCase
                     new EqualsFilter('domains.url', $_SERVER['APP_URL'])
                 ),
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
 
         $data = [
             'id' => $this->ids->create('landing-page'),

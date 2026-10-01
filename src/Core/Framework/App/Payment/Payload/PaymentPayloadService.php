@@ -4,11 +4,14 @@ namespace Shopware\Core\Framework\App\Payment\Payload;
 
 use GuzzleHttp\ClientInterface;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\App\Payload\SourcedPayloadInterface;
 use Shopware\Core\Framework\App\Payment\Response\AbstractResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Exception\JsonDecodingException;
+use Shopware\Core\Framework\Util\Json;
 
 /**
  * @internal only for use by the app-systems
@@ -48,9 +51,14 @@ class PaymentPayloadService
         );
 
         $response = $this->client->request('POST', $url, $optionRequest->jsonSerialize());
-
         $content = $response->getBody()->getContents();
 
-        return $responseClass::create(\json_decode($content, true, 512, \JSON_THROW_ON_ERROR));
+        try {
+            $decoded = Json::decodeToArray($content);
+        } catch (JsonDecodingException $e) {
+            throw AppException::paymentGatewayRequestFailed($app->getName(), $e);
+        }
+
+        return $responseClass::create($decoded);
     }
 }

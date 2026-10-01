@@ -162,7 +162,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         $customerId = $this->createCustomer($email);
 
         $newsletterRecipientIds = $newsletterRecipientClosure($context, $email, $this);
-        $criteria = empty($newsletterRecipientIds) ? $criteriaClosure(new Criteria(), $email) : $criteriaClosure(new Criteria(), $newsletterRecipientIds);
+        $criteria = $newsletterRecipientIds === [] ? $criteriaClosure(new Criteria(), $email) : $criteriaClosure(new Criteria(), $newsletterRecipientIds);
 
         /** @var EntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = static::getContainer()->get('customer.repository');
@@ -198,29 +198,91 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         }
     }
 
+    public function testEmailChangeRevokesConfirmedNewsletterOptIn(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $email = Uuid::randomHex() . '@example.com';
+        $customerId = $this->createCustomer($email);
+
+        $recipientId = $this->createNewsletterRecipient(
+            $context,
+            $email,
+            TestDefaults::SALES_CHANNEL,
+            NewsletterSubscribeRoute::STATUS_OPT_IN,
+            '2025-01-01 10:00:00'
+        );
+
+        /** @var EntityRepository<NewsletterRecipientCollection> $newsletterRecipientRepository */
+        $newsletterRecipientRepository = static::getContainer()->get('newsletter_recipient.repository');
+
+        $recipient = $newsletterRecipientRepository->search(new Criteria([$recipientId]), $context)->getEntities()->first();
+        static::assertNotNull($recipient);
+        static::assertSame(NewsletterSubscribeRoute::STATUS_OPT_IN, $recipient->getStatus());
+        static::assertNotNull($recipient->getConfirmedAt());
+
+        static::getContainer()->get('customer.repository')->upsert(
+            [['id' => $customerId, 'email' => 'someone-else@example.com']],
+            $context
+        );
+
+        $recipient = $newsletterRecipientRepository->search(new Criteria([$recipientId]), $context)->getEntities()->first();
+        static::assertNotNull($recipient);
+        static::assertSame('someone-else@example.com', $recipient->getEmail());
+        static::assertSame(NewsletterSubscribeRoute::STATUS_NOT_SET, $recipient->getStatus());
+        static::assertNull($recipient->getConfirmedAt());
+    }
+
+    public function testEmailChangeKeepsNewsletterStatusWithoutDoubleOptIn(): void
+    {
+        $context = Context::createDefaultContext();
+
+        $email = Uuid::randomHex() . '@example.com';
+        $customerId = $this->createCustomer($email);
+
+        $recipientId = $this->createNewsletterRecipient(
+            $context,
+            $email,
+            TestDefaults::SALES_CHANNEL,
+            NewsletterSubscribeRoute::STATUS_DIRECT
+        );
+
+        static::getContainer()->get('customer.repository')->upsert(
+            [['id' => $customerId, 'email' => 'someone-else@example.com']],
+            $context
+        );
+
+        /** @var EntityRepository<NewsletterRecipientCollection> $newsletterRecipientRepository */
+        $newsletterRecipientRepository = static::getContainer()->get('newsletter_recipient.repository');
+        $recipient = $newsletterRecipientRepository->search(new Criteria([$recipientId]), $context)->getEntities()->first();
+        static::assertNotNull($recipient);
+        static::assertSame('someone-else@example.com', $recipient->getEmail());
+        static::assertSame(NewsletterSubscribeRoute::STATUS_DIRECT, $recipient->getStatus());
+    }
+
     public static function createDataProvider(): \Generator
     {
         yield 'Email Newsletter Recipient Not Registered' => [
-            fn (Context $context, string $email): array => [],
-            fn (Criteria $criteria, string $email): Criteria => $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
+            static fn (Context $context, string $email): array => [],
+            static fn (Criteria $criteria, string $email): Criteria => $criteria->addFilter(new MultiFilter(MultiFilter::CONNECTION_OR, [
                 new EqualsFilter('email', $email),
                 new EqualsFilter('email', 'ytn@shopware.com'),
             ])),
         ];
 
         yield 'Email Newsletter Recipient Registered' => [
-            function (Context $context, string $email, self $me): array {
+            static function (Context $context, string $email, self $me): array {
                 $newsletterRecipientId = $me->createNewsletterRecipient($context, $email, TestDefaults::SALES_CHANNEL);
 
                 return [
                     $newsletterRecipientId,
                 ];
             },
-            fn (Criteria $criteria, array $ids): Criteria => $criteria->setIds($ids),
+            static fn (Criteria $criteria, array $ids): Criteria => $criteria->setIds($ids),
         ];
 
         yield 'Email Newsletter Recipient Registered Multiple' => [
-            function (Context $context, string $email, self $me): array {
+            static function (Context $context, string $email, self $me): array {
                 $salesChannel = $me->createSalesChannel();
 
                 $newsletterRecipientId = $me->createNewsletterRecipient($context, $email, TestDefaults::SALES_CHANNEL);
@@ -231,7 +293,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
                     $newsletterRecipientId2,
                 ];
             },
-            fn (Criteria $criteria, array $ids): Criteria => $criteria->setIds($ids),
+            static fn (Criteria $criteria, array $ids): Criteria => $criteria->setIds($ids),
         ];
     }
 
@@ -239,7 +301,8 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
         Context $context,
         string $email,
         string $salesChannelId,
-        string $status = NewsletterSubscribeRoute::STATUS_OPT_IN
+        string $status = NewsletterSubscribeRoute::STATUS_OPT_IN,
+        ?string $confirmedAt = null
     ): string {
         $id = Uuid::randomHex();
 
@@ -250,6 +313,7 @@ class CustomerNewsletterSalesChannelsUpdaterTest extends TestCase
             'hash' => Uuid::randomHex(),
             'salesChannelId' => $salesChannelId,
             'languageId' => Defaults::LANGUAGE_SYSTEM,
+            'confirmedAt' => $confirmedAt,
         ];
 
         static::getContainer()

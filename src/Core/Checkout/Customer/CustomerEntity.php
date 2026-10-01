@@ -14,6 +14,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollectio
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -300,7 +301,7 @@ class CustomerEntity extends Entity implements \Stringable
     /**
      * @internal
      */
-    public function setPassword(?string $password): void
+    public function setPassword(#[\SensitiveParameter] ?string $password): void
     {
         $this->password = $password;
     }
@@ -524,7 +525,7 @@ class CustomerEntity extends Entity implements \Stringable
     /**
      * @internal
      */
-    public function setLegacyPassword(?string $legacyPassword): void
+    public function setLegacyPassword(#[\SensitiveParameter] ?string $legacyPassword): void
     {
         $this->legacyPassword = $legacyPassword;
     }
@@ -609,7 +610,8 @@ class CustomerEntity extends Entity implements \Stringable
         return $this->activeBillingAddress ?? $this->defaultBillingAddress;
     }
 
-    public function setActiveBillingAddress(CustomerAddressEntity $activeBillingAddress): void
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'activeBillingAddress', newType: '?' . CustomerAddressEntity::class)]
+    public function setActiveBillingAddress(/* ? */ CustomerAddressEntity $activeBillingAddress): void
     {
         $this->activeBillingAddress = $activeBillingAddress;
     }
@@ -619,7 +621,8 @@ class CustomerEntity extends Entity implements \Stringable
         return $this->activeShippingAddress ?? $this->defaultShippingAddress;
     }
 
-    public function setActiveShippingAddress(CustomerAddressEntity $activeShippingAddress): void
+    #[ParameterTypeWidening(version: 'v6.8.0', parameterName: 'activeShippingAddress', newType: '?' . CustomerAddressEntity::class)]
+    public function setActiveShippingAddress(/* ? */ CustomerAddressEntity $activeShippingAddress): void
     {
         $this->activeShippingAddress = $activeShippingAddress;
     }

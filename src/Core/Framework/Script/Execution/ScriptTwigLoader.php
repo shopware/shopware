@@ -67,7 +67,7 @@ class ScriptTwigLoader implements LoaderInterface
         }
 
         foreach ($this->script->getIncludes() as $include) {
-            if ($include->getName() === $name) {
+            if ($include->getName() === $name && $include->isActive()) {
                 return $include;
             }
         }

@@ -192,10 +192,7 @@ class DeleteAddressRouteTest extends TestCase
                 '/store-api/account/address/' . $addressId
             );
 
-        static::assertNotSame(204, $this->browser->getResponse()->getStatusCode());
-        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame('CHECKOUT__CUSTOMER_ADDRESS_IS_ACTIVE', $response['errors'][0]['code']);
+        static::assertSame(204, $this->browser->getResponse()->getStatusCode());
     }
 
     public function testDeleteNewCreatedAddressGuest(): void

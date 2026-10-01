@@ -1,6 +1,7 @@
 /**
  * @sw-package fundamentals@framework
  */
+import useTheme from 'src/app/composables/use-theme';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
 
@@ -22,12 +23,10 @@ export default {
         'integrationService',
         'repositoryFactory',
         'acl',
+        'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('salutation'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('salutation')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -58,6 +57,8 @@ export default {
             timezoneOptions: [],
             mediaDefaultFolderId: null,
             showMediaModal: false,
+            // Only edited for the own user — the theme select is hidden otherwise.
+            userThemeSelection: null,
         };
     },
 
@@ -68,6 +69,15 @@ export default {
     },
 
     computed: {
+        userTheme: {
+            get() {
+                return this.userThemeSelection ?? useTheme().theme.value;
+            },
+            set(theme) {
+                this.userThemeSelection = theme;
+            },
+        },
+
         ...mapPropertyErrors('user', [
             'firstName',
             'lastName',
@@ -82,7 +92,7 @@ export default {
         },
 
         fullName() {
-            return this.salutation(this.user, this.$tc('sw-users-permissions.users.user-detail.labelNewUser'));
+            return this.salutation(this.user, this.$t('sw-users-permissions.users.user-detail.labelNewUser'));
         },
 
         userRepository() {
@@ -159,7 +169,7 @@ export default {
             return [
                 {
                     property: 'accessKey',
-                    label: this.$tc('sw-users-permissions.users.user-detail.labelAccessKey'),
+                    label: this.$t('sw-users-permissions.users.user-detail.labelAccessKey'),
                 },
             ];
         },
@@ -193,6 +203,14 @@ export default {
                 };
             });
         },
+
+        mcpGrantedPrivileges() {
+            if (!this.user?.aclRoles) {
+                return [];
+            }
+
+            return [...new Set(this.user.aclRoles.flatMap((role) => role.privileges ?? []))];
+        },
     },
 
     watch: {
@@ -207,6 +225,9 @@ export default {
 
     methods: {
         createdComponent() {
+            // Create the theme singleton before the first render — creating it inside a computed would trigger Vue's onMounted warning
+            useTheme();
+
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-users-permissions-user-detail__currentUser',
                 path: 'currentUser',
@@ -265,7 +286,7 @@ export default {
         },
 
         loadUser() {
-            this.userId = this.$route.params.id;
+            this.userId = this.$route.params.id?.toLowerCase();
 
             return this.userRepository.get(this.userId, Shopware.Context.api, this.userCriteria).then((user) => {
                 this.user = user;
@@ -303,19 +324,33 @@ export default {
             });
         },
 
-        checkEmail() {
+        async checkEmail() {
             if (!this.user.email) {
-                return Promise.resolve();
+                return true;
             }
 
-            return this.userValidationService
-                .checkUserEmail({
-                    email: this.user.email,
-                    id: this.user.id,
-                })
-                .then(({ emailIsUnique }) => {
-                    this.isEmailAlreadyInUse = !emailIsUnique;
+            const { emailIsUnique } = await this.userValidationService.checkUserEmail({
+                email: this.user.email,
+                id: this.user.id,
+            });
+
+            this.isEmailAlreadyInUse = !emailIsUnique;
+
+            if (this.isEmailAlreadyInUse) {
+                const expression = `user.${this.user.id}.email`;
+                const error = new ShopwareError({
+                    code: 'USER_EMAIL_ALREADY_EXISTS',
+                    detail: this.$t('sw-users-permissions.users.user-detail.errorEmailUsed'),
                 });
+
+                Shopware.Store.get('error').addApiError({
+                    expression,
+                    error,
+                });
+                return false;
+            }
+
+            return true;
         },
 
         checkUsername() {
@@ -378,80 +413,57 @@ export default {
             this.confirmPasswordModal = true;
         },
 
-        saveUser(context) {
+        async saveUser(context) {
             this.isSaveSuccessful = false;
             this.isLoading = true;
-            let promises = [];
 
-            if (this.currentUser.id === this.user.id) {
-                promises = [
-                    Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId),
-                ];
+            try {
+                if (this.currentUser.id === this.user.id) {
+                    await Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
+                }
+
+                const isEmailValid = await this.checkEmail();
+
+                if (!isEmailValid) {
+                    return;
+                }
+
+                await this.userRepository.save(this.user, context);
+
+                if (this.currentUser.id === this.user.id) {
+                    if (this.user.password) {
+                        await this.updateAuthToken();
+                    }
+                    await this.updateCurrentUser();
+                    await useTheme().saveUserTheme(this.userTheme);
+                    this.userThemeSelection = null;
+                }
+
+                this.createdComponent();
+
+                this.confirmPasswordModal = false;
+                this.isSaveSuccessful = true;
+            } catch (exception) {
+                this.createNotificationError({
+                    title: this.$t('global.default.error'),
+                    message: this.$t(
+                        'sw-users-permissions.users.user-detail.notification.saveError.message',
+                        { name: this.fullName },
+                        0,
+                    ),
+                });
+                warn(this._name, exception.message, exception.response);
+                throw exception;
+            } finally {
+                this.isLoading = false;
             }
-
-            return Promise.all(promises).then(
-                this.checkEmail()
-                    .then(() => {
-                        if (this.isEmailAlreadyInUse) {
-                            const expression = `user.${this.user.id}.email`;
-                            const error = new ShopwareError({
-                                code: 'USER_EMAIL_ALREADY_EXISTS',
-                                detail: this.$tc('sw-users-permissions.users.user-detail.errorEmailUsed'),
-                            });
-
-                            Shopware.Store.get('error').addApiError({
-                                expression,
-                                error,
-                            });
-
-                            return Promise.resolve();
-                        }
-
-                        this.isLoading = true;
-                        const titleSaveError = this.$tc('global.default.error');
-                        const messageSaveError = this.$tc(
-                            'sw-users-permissions.users.user-detail.notification.saveError.message',
-                            { name: this.fullName },
-                            0,
-                        );
-
-                        return this.userRepository
-                            .save(this.user, context)
-                            .then(() => {
-                                return this.updateCurrentUser();
-                            })
-                            .then(() => {
-                                this.createdComponent();
-
-                                this.confirmPasswordModal = false;
-                                this.isSaveSuccessful = true;
-                            })
-                            .catch((exception) => {
-                                this.createNotificationError({
-                                    title: titleSaveError,
-                                    message: messageSaveError,
-                                });
-                                warn(this._name, exception.message, exception.response);
-                                this.isLoading = false;
-                                throw exception;
-                            })
-                            .finally(() => {
-                                this.isLoading = false;
-                            });
-                    })
-                    .catch(() => Promise.reject())
-                    .finally(() => {
-                        this.isLoading = false;
-                    }),
-            );
         },
 
-        updateCurrentUser() {
-            return this.userService.getUser().then((response) => {
+        async updateCurrentUser() {
+            await this.userService.getUser().then((response) => {
                 const data = response.data;
                 delete data.password;
-
-                return Shopware.Store.get('session').setCurrentUser(data);
+                Shopware.Store.get('session').setCurrentUser(data);
             });
         },
 
@@ -495,6 +507,23 @@ export default {
             this.onCloseDetailModal();
         },
 
+        onMcpAllowlistUpdate(allowlist) {
+            if (!this.userId) {
+                return;
+            }
+
+            this.userService
+                .saveMcpAllowlist(this.userId, allowlist)
+                .then(() => {
+                    this.user.mcpAllowlist = allowlist;
+                })
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-users-permissions.users.user-detail.mcpAllowlistSaveError'),
+                    });
+                });
+        },
+
         onCloseDeleteModal() {
             this.showDeleteModal = null;
         },
@@ -510,6 +539,16 @@ export default {
 
         onCloseConfirmPasswordModal() {
             this.confirmPasswordModal = false;
+        },
+
+        async updateAuthToken() {
+            const verifiedToken = await this.loginService.verifyUserToken(this.user.password);
+            Shopware.Store.get('context').api.authToken.access = verifiedToken;
+            const authObject = {
+                ...this.loginService.getBearerAuthentication(),
+                access: verifiedToken,
+            };
+            this.loginService.setBearerAuthentication(authObject);
         },
     },
 };

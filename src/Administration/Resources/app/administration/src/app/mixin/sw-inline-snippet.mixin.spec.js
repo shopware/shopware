@@ -12,9 +12,7 @@ async function createWrapper() {
               <slot></slot>
             </div>
         `,
-            mixins: [
-                Shopware.Mixin.getByName('sw-inline-snippet'),
-            ],
+            mixins: [Shopware.Mixin.getByName('sw-inline-snippet')],
             data() {
                 return {
                     name: 'sw-mock-field',
@@ -43,10 +41,6 @@ describe('src/app/mixin/sw-inline-snippet.mixin.ts', () => {
         }
 
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should return the inline snippet', () => {

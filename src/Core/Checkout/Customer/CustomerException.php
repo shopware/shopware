@@ -17,7 +17,10 @@ use Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException;
 use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenException;
 use Shopware\Core\Checkout\Customer\Exception\PasswordPoliciesUpdatedException;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
+use Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException;
+use Shopware\Core\Checkout\Order\Exception\WrongGuestCredentialsException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -28,6 +31,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Exception\MissingOptionsException;
 use Symfony\Component\Validator\Exception\UnexpectedTypeException;
+use Symfony\Component\Validator\Exception\UnexpectedValueException;
+use Symfony\Component\Validator\Exception\ValidatorException;
 
 #[Package('checkout')]
 class CustomerException extends HttpException
@@ -42,6 +47,9 @@ class CustomerException extends HttpException
     public const PRODUCT_IDS_PARAMETER_IS_MISSING = 'CHECKOUT__PRODUCT_IDS_PARAMETER_IS_MISSING';
     public const CUSTOMER_ADDRESS_NOT_FOUND = 'CHECKOUT__CUSTOMER_ADDRESS_NOT_FOUND';
     public const CUSTOMER_AUTH_BAD_CREDENTIALS = 'CHECKOUT__CUSTOMER_AUTH_BAD_CREDENTIALS';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     public const CUSTOMER_ADDRESS_IS_ACTIVE = 'CHECKOUT__CUSTOMER_ADDRESS_IS_ACTIVE';
     public const CUSTOMER_ADDRESS_IS_DEFAULT = 'CHECKOUT__CUSTOMER_ADDRESS_IS_DEFAULT';
     public const CUSTOMER_IS_ALREADY_CONFIRMED = 'CHECKOUT__CUSTOMER_IS_ALREADY_CONFIRMED';
@@ -73,6 +81,9 @@ class CustomerException extends HttpException
     public const UNEXPECTED_TYPE = 'CHECKOUT__UNEXPECTED_TYPE';
     public const MISSING_OPTION = 'CONTENT__MISSING_OPTION';
     public const INVALID_OPTION = 'CONTENT__INVALID_OPTION';
+    public const REGISTERED_CUSTOMER_CANNOT_BE_CONVERTED = 'CHECKOUT__REGISTERED_CUSTOMER_CANNOT_BE_CONVERTED';
+    public const CUSTOMER_INACTIVE = 'CHECKOUT__CUSTOMER_INACTIVE';
+    public const SALES_CHANNEL_DOMAIN_NOT_FOUND = 'CHECKOUT__SALES_CHANNEL_DOMAIN_NOT_FOUND';
 
     public static function customerGroupNotFound(string $id): self
     {
@@ -174,8 +185,13 @@ class CustomerException extends HttpException
         return new BadCredentialsException();
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     public static function cannotDeleteActiveAddress(string $id): ShopwareHttpException
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.8.0.0'));
+
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::CUSTOMER_ADDRESS_IS_ACTIVE,
@@ -324,9 +340,7 @@ class CustomerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unsupportedOperator(string $operator, string $class): self|UnsupportedOperatorException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -341,9 +355,7 @@ class CustomerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unsupportedValue(string $type, string $class): self|UnsupportedValueException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -368,9 +380,7 @@ class CustomerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function productNotFound(string $productId): self|ProductNotFoundException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -385,9 +395,7 @@ class CustomerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function missingOption(string $option, string $constraint): self|MissingOptionsException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -402,9 +410,7 @@ class CustomerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unexpectedType(Constraint $constraint, string $class): self|UnexpectedTypeException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -419,9 +425,7 @@ class CustomerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function invalidOption(string $option, string $type, string $constraint): self|\InvalidArgumentException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -433,6 +437,56 @@ class CustomerException extends HttpException
             self::INVALID_OPTION,
             'Option "{{ option }}" must be of type "{{ type }}" for constraint {{ constraint }}',
             ['option' => $option, 'type' => $type, 'constraint' => $constraint]
+        );
+    }
+
+    public static function registeredCustomerCannotBeConverted(string $customerId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::REGISTERED_CUSTOMER_CANNOT_BE_CONVERTED,
+            'Customer with id "{{ customerId }}" is not a guest',
+            ['customerId' => $customerId],
+        );
+    }
+
+    public static function guestNotAuthenticated(): GuestNotAuthenticatedException
+    {
+        return new GuestNotAuthenticatedException();
+    }
+
+    public static function wrongGuestCredentials(): WrongGuestCredentialsException
+    {
+        return new WrongGuestCredentialsException();
+    }
+
+    public static function unexpectedConstraintType(Constraint $constraint, string $expectedType): ValidatorException
+    {
+        return new UnexpectedTypeException($constraint, $expectedType);
+    }
+
+    public static function unexpectedConstraintValue(mixed $value, string $expectedType): ValidatorException
+    {
+        return new UnexpectedValueException($value, $expectedType);
+    }
+
+    public static function inactive(string $customerId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CUSTOMER_INACTIVE,
+            'Customer with id "{{ customerId }}" is inactive',
+            ['customerId' => $customerId],
+        );
+    }
+
+    public static function salesChannelDomainNotFound(string $salesChannelId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::SALES_CHANNEL_DOMAIN_NOT_FOUND,
+            'No domain for sales channel with id "{{ salesChannelId }}" found',
+            ['salesChannelId' => $salesChannelId],
         );
     }
 }

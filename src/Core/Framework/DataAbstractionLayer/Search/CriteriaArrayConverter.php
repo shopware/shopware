@@ -18,49 +18,68 @@ class CriteriaArrayConverter
     }
 
     /**
+     * You will see many `@var` annotations in this method. Please leave them for now.
+     * Without them PHPStan needs 15s to analyze this file. This is because the array constructed here is very complex.
+     * In order to not exclude the whole file from the analysis, this is a reasonable workaround.
+     *
      * @return array<string, mixed>
      */
     public function convert(Criteria $criteria): array
     {
+        /** @var array<string, mixed> $array */
         $array = [
             'total-count-mode' => $criteria->getTotalCountMode(),
         ];
 
+        /** @var array<string, mixed> $array */
         if ($criteria->getLimit()) {
             $array['limit'] = $criteria->getLimit();
         }
 
-        if ($criteria->getOffset()) {
-            $array['page'] = ($criteria->getOffset() / $criteria->getLimit()) + 1;
+        /** @var array<string, mixed> $array */
+        if ($criteria->getOffset() && $criteria->getLimit()) {
+            $array['page'] = $criteria->getOffset() / $criteria->getLimit() + 1;
         }
 
+        /** @var array<string, mixed> $array */
         if ($criteria->getTerm()) {
             $array['term'] = $criteria->getTerm();
         }
 
+        /** @var array<string, mixed> $array */
         if ($criteria->getIncludes()) {
             $array['includes'] = $criteria->getIncludes();
         }
 
-        if (\count($criteria->getIds())) {
+        /** @var array<string, mixed> $array */
+        if ($criteria->getExcludes()) {
+            $array['excludes'] = $criteria->getExcludes();
+        }
+
+        /** @var array<string, mixed> $array */
+        if ($criteria->getIds() !== []) {
             $array['ids'] = $criteria->getIds();
         }
 
-        if (\count($criteria->getFilters())) {
+        /** @var array<string, mixed> $array */
+        if ($criteria->getFilters() !== []) {
             $array['filter'] = array_map(static fn (Filter $filter) => QueryStringParser::toArray($filter), $criteria->getFilters());
         }
 
-        if (\count($criteria->getPostFilters())) {
+        /** @var array<string, mixed> $array */
+        if ($criteria->getPostFilters() !== []) {
             $array['post-filter'] = array_map(static fn (Filter $filter) => QueryStringParser::toArray($filter), $criteria->getPostFilters());
         }
 
-        if (\count($criteria->getAssociations())) {
+        /** @var array<string, mixed> $array */
+        if ($criteria->getAssociations() !== []) {
             foreach ($criteria->getAssociations() as $assocName => $association) {
                 $array['associations'][$assocName] = $this->convert($association);
             }
         }
 
-        if (\count($criteria->getSorting())) {
+        /** @var array<string, mixed> $array */
+        if ($criteria->getSorting() !== []) {
             $array['sort'] = json_decode(json_encode($criteria->getSorting(), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
             foreach ($array['sort'] as &$sort) {
@@ -70,7 +89,8 @@ class CriteriaArrayConverter
             unset($sort);
         }
 
-        if (\count($criteria->getQueries())) {
+        /** @var array<string, mixed> $array */
+        if ($criteria->getQueries() !== []) {
             $array['query'] = [];
 
             foreach ($criteria->getQueries() as $query) {
@@ -84,7 +104,8 @@ class CriteriaArrayConverter
             }
         }
 
-        if (\count($criteria->getGroupFields())) {
+        /** @var array<string, mixed> $array */
+        if ($criteria->getGroupFields() !== []) {
             $array['grouping'] = [];
 
             foreach ($criteria->getGroupFields() as $groupField) {
@@ -92,7 +113,8 @@ class CriteriaArrayConverter
             }
         }
 
-        if (\count($criteria->getAggregations())) {
+        /** @var array<string, mixed> $array */
+        if ($criteria->getAggregations() !== []) {
             $array['aggregations'] = $this->aggregationParser->toArray($criteria->getAggregations());
         }
 

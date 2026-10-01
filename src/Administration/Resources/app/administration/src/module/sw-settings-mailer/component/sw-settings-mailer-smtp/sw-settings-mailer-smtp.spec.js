@@ -1,5 +1,5 @@
 /**
- * @sw-package framework
+ * @sw-package after-sales
  */
 import { mount } from '@vue/test-utils';
 
@@ -33,7 +33,7 @@ describe('src/module/sw-settings-mailer/component/sw-settings-mailer-smtp', () =
                         'sw-ai-copilot-badge': true,
                     },
                     mocks: {
-                        $tc(translationKey) {
+                        $t(translationKey) {
                             return translationKey;
                         },
                     },

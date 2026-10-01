@@ -13,11 +13,13 @@ use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductVariationBuilder::class)]
 class ProductVariationBuilderTest extends TestCase
 {
@@ -31,7 +33,7 @@ class ProductVariationBuilderTest extends TestCase
 
         $builder->build($product);
 
-        static::assertEquals($expected, $product->get('variation'));
+        static::assertSame($expected, $product->get('variation'));
     }
 
     public static function buildingProvider(): \Generator

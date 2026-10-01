@@ -1,16 +1,24 @@
-@import "~scss/variables";
-
-$sw-settings-shipping-list-color-error: $color-crimson-500;
-$sw-settings-shipping-list-color-success: $color-emerald-500;
-
 .sw-settings-shipping-list {
+    &__content {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+
+        &:has(.mt-empty-state) {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+
     .sw-data-grid__cell:not(.sw-data-grid__cell--header) {
         .is--inactive {
-            color: $sw-settings-shipping-list-color-error;
+            color: var(--color-icon-critical-default);
         }
 
         .is--active {
-            color: $sw-settings-shipping-list-color-success;
+            color: var(--color-icon-positive-default);
         }
     }
 }

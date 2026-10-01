@@ -1,17 +1,22 @@
 import { mount } from '@vue/test-utils';
 
-async function createWrapper() {
+async function createWrapper(methodOverrides = {}, mocks = {}) {
     const swLogin = await wrapTestComponent('sw-login', {
         sync: true,
     });
 
-    return mount(swLogin, {
+    const componentConfig =
+        Object.keys(methodOverrides).length > 0
+            ? { ...swLogin, methods: { ...swLogin.methods, ...methodOverrides } }
+            : swLogin;
+
+    return mount(componentConfig, {
         global: {
             stubs: {
                 'router-view': true,
                 'sw-loader': true,
             },
-            mocks: {},
+            mocks,
         },
     });
 }
@@ -23,11 +28,6 @@ describe('src/module/sw-login/page/index/index.js', () => {
     let wrapper;
 
     beforeEach(async () => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: jest.fn() },
-        });
-
         await flushPromises();
     });
 
@@ -40,48 +40,53 @@ describe('src/module/sw-login/page/index/index.js', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render the component', async () => {
         wrapper = await createWrapper();
         expect(wrapper.find('.sw-login').attributes('style')).toBeUndefined();
     });
 
     it('should not render the component', async () => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: jest.fn() },
-        });
-
         sessionStorage.setItem('refresh-after-logout', 'true');
 
-        wrapper = await createWrapper();
+        wrapper = await createWrapper({ _reloadPage: jest.fn() });
         expect(wrapper.find('.sw-login').attributes('style')).toBe('display: none;');
     });
 
     it('should not trigger reload when "refresh-after-logout" storage key is not set', async () => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: jest.fn() },
-        });
+        const reloadSpy = jest.fn();
 
-        wrapper = await createWrapper();
+        wrapper = await createWrapper({ _reloadPage: reloadSpy });
 
-        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(reloadSpy).not.toHaveBeenCalled();
     });
 
     it('should trigger reload when "refresh-after-logout" storage key is set to true', async () => {
-        Object.defineProperty(window, 'location', {
-            configurable: true,
-            value: { reload: jest.fn() },
-        });
-
         sessionStorage.setItem('refresh-after-logout', 'true');
-        wrapper = await createWrapper();
 
-        expect(window.location.reload).toHaveBeenCalled();
+        const reloadSpy = jest.fn();
+
+        wrapper = await createWrapper({ _reloadPage: reloadSpy });
+
+        expect(reloadSpy).toHaveBeenCalled();
+    });
+
+    it('should show the forgot password link once the login view reports a config with the password login', async () => {
+        wrapper = await createWrapper({}, { $route: { name: 'sw.login.index.login' } });
+
+        expect(wrapper.find('.sw-login__forgot-password-action').exists()).toBe(false);
+
+        wrapper.vm.setLoginConfig({ useDefault: true, url: '' });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-login__forgot-password-action').exists()).toBe(true);
+    });
+
+    it('should not show the forgot password link for an SSO-only config', async () => {
+        wrapper = await createWrapper({}, { $route: { name: 'sw.login.index.login' } });
+
+        wrapper.vm.setLoginConfig({ useDefault: false, url: 'https://sso.example' });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-login__forgot-password-action').exists()).toBe(false);
     });
 });

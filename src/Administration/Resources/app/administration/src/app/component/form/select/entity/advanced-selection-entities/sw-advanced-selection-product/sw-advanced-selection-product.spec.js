@@ -282,9 +282,6 @@ async function createWrapper() {
                         'sw-data-grid-settings': {
                             template: '<div></div>',
                         },
-                        'sw-empty-state': {
-                            template: '<div class="sw-empty-state"></div>',
-                        },
                         'sw-pagination': {
                             template: '<div></div>',
                         },
@@ -401,10 +398,7 @@ describe('components/sw-advanced-selection-product', () => {
     });
 
     it('should return true if product has variants', async () => {
-        const [
-            ,
-            product,
-        ] = getProductData(mockCriteria());
+        const [, product] = getProductData(mockCriteria());
         const productHasVariants = wrapper.vm.productHasVariants(product);
 
         expect(productHasVariants).toBe(true);

@@ -10,16 +10,9 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    emits: [
-        'modal-close',
-        'modal-save',
-        'base-item-change',
-    ],
+    emits: ['modal-close', 'modal-save', 'base-item-change'],
 
     props: {
         currencyDependsValue: {
@@ -84,13 +77,13 @@ export default {
                 },
                 {
                     property: 'amount',
-                    label: this.$tc('sw-settings-country.detail.taxFreeFrom'),
+                    label: this.$t('sw-settings-country.detail.taxFreeFrom'),
                     inlineEdit: 'string',
                     primary: true,
                 },
                 {
                     property: 'enabled',
-                    label: this.$tc('sw-settings-country.detail.baseCurrency'),
+                    label: this.$t('sw-settings-country.detail.baseCurrency'),
                     inlineEdit: 'string',
                 },
             ];
@@ -240,9 +233,7 @@ export default {
                 }
             });
 
-            this.userConfig.value[this.countryId][this.taxFreeType] = [
-                ...new Set(valuesUserConfig),
-            ];
+            this.userConfig.value[this.countryId][this.taxFreeType] = [...new Set(valuesUserConfig)];
         },
 
         getCurrencyNameById(currencyId) {

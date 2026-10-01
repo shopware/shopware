@@ -10,7 +10,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 class StaticSystemConfigService extends SystemConfigService
 {
     /**
-     * @param array<string, mixed> $config
+     * @param array<string, mixed>|array<string, array<string, mixed>> $config
      */
     public function __construct(private array $config = [])
     {
@@ -19,13 +19,13 @@ class StaticSystemConfigService extends SystemConfigService
     public function get(string $key, ?string $salesChannelId = null)
     {
         if ($salesChannelId) {
-            return $this->lookupValue($this->config[$salesChannelId] ?? [], $key);
+            return $this->lookupValue($this->config[$salesChannelId] ?? $this->config, $key);
         }
 
         return $this->lookupValue($this->config, $key);
     }
 
-    public function set(string $key, $value, ?string $salesChannelId = null): void
+    public function set(string $key, $value, ?string $salesChannelId = null, bool $silent = true): void
     {
         if ($salesChannelId) {
             $this->config[$salesChannelId][$key] = $value;
@@ -36,10 +36,10 @@ class StaticSystemConfigService extends SystemConfigService
         $this->config[$key] = $value;
     }
 
-    public function setMultiple(array $values, ?string $salesChannelId = null): void
+    public function setMultiple(array $values, ?string $salesChannelId = null, bool $silent = true): void
     {
         foreach ($values as $k => $v) {
-            $this->set($k, $v, $salesChannelId);
+            $this->set($k, $v, $salesChannelId, $silent);
         }
     }
 
@@ -64,7 +64,6 @@ class StaticSystemConfigService extends SystemConfigService
 
             $pointer = &$foundValues;
             foreach (explode('.', $formattedKey) as $part) {
-                // @phpstan-ignore-next-line
                 if (!\array_key_exists($part, $pointer)) {
                     $pointer[$part] = [];
                 }
@@ -74,12 +73,10 @@ class StaticSystemConfigService extends SystemConfigService
             $pointer = $configValue;
         }
 
-        // @phpstan-ignore-next-line
-        if (empty($foundValues)) {
+        if ($foundValues === []) {
             return null;
         }
 
-        // @phpstan-ignore-next-line
         return $foundValues;
     }
 }

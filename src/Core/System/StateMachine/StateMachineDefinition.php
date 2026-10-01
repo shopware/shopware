@@ -20,6 +20,9 @@ use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachi
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateDefinition;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class StateMachineDefinition extends EntityDefinition
 {
@@ -48,9 +51,9 @@ class StateMachineDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of state machine.'),
 
-            (new StringField('technical_name', 'technicalName'))->addFlags(new Required()),
+            (new StringField('technical_name', 'technicalName'))->addFlags(new Required())->setDescription('Technical name of state machine.'),
             (new TranslatedField('name'))->addFlags(new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
             new TranslatedField('customFields'),
 

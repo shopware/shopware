@@ -1,14 +1,14 @@
 import template from './sw-condition-operator-select.html.twig';
 import './sw-condition-operator-select.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @sw-package fundamentals@after-sales
  */
-Component.register('sw-condition-operator-select', {
+export default {
     template: template,
+
+    emits: ['change'],
 
     props: {
         operators: {
@@ -44,14 +44,15 @@ Component.register('sw-condition-operator-select', {
                 if (!this.condition.value) {
                     return null;
                 }
+
                 return this.condition.value.operator;
             },
+
             set(operator) {
                 if (!this.condition.value) {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.condition.value = {};
                 }
-                // eslint-disable-next-line vue/no-mutating-props
+
                 this.condition.value = { ...this.condition.value, operator };
             },
         },
@@ -60,7 +61,7 @@ Component.register('sw-condition-operator-select', {
             return this.operators.map(({ identifier, label }) => {
                 return {
                     identifier,
-                    label: this.plural ? this.$tc(label, 2) : this.$tc(label),
+                    label: this.plural ? this.$t(label, 2) : this.$t(label),
                 };
             });
         },
@@ -68,7 +69,16 @@ Component.register('sw-condition-operator-select', {
 
     methods: {
         changeOperator(event) {
-            this.operator = event;
+            this.condition.value = {
+                ...(this.condition.value ?? {}),
+                operator: event,
+            };
+
+            if (event === 'empty') {
+                this.condition.value = { operator: 'empty' };
+            }
+
+            this.$emit('change', this.condition);
         },
     },
-});
+};

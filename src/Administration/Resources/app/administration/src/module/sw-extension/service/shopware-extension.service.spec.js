@@ -41,6 +41,46 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
                 route: 'test.foo',
             },
         };
+
+        if (Shopware.Store.get('context')) {
+            Shopware.Store.unregister('context');
+        }
+
+        Shopware.Store.register({
+            id: 'context',
+            state: () => ({
+                app: {
+                    config: {
+                        settings: {
+                            disableExtensionManagement: false,
+                        },
+                    },
+                },
+                api: {
+                    assetPath: 'http://localhost:8000/bundles/administration/',
+                    authToken: {
+                        token: 'testToken',
+                    },
+                },
+            }),
+        });
+
+        // Ensure Shopware.Context.api.authToken is set for repository.data.ts
+        Shopware.Context.api.authToken = {
+            access: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImI0MTdkYjQ1MzMwNTY1MGIyY2QxMWVhYTBmZjRjNWJmZTVjZWYxYTI3NzBjY2JmY2M3MGY2Y2FiZDIzYWQyYmZiMzc1NTZhNDFlNGE3M2M5In0.test',
+            expiry: 1602840582,
+            refresh: 'def50200_test',
+        };
+
+        // Also set up installationPath and other required api context values
+        Shopware.Context.api.installationPath = 'installationPath';
+        Shopware.Context.api.apiPath = '/api';
+        Shopware.Context.api.apiResourcePath = '/api/v3';
+        Shopware.Context.api.assetsPath = '';
+        Shopware.Context.api.languageId = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+        Shopware.Context.api.inheritance = false;
+        Shopware.Context.api.systemLanguageId = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
+        Shopware.Context.api.liveVersionId = '0fa91ce3e96a4bc2be4bd9ce752c3425';
     });
 
     describe('it delegates lifecycle methods', () => {
@@ -77,9 +117,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
         function expectUpdateModulesCalled() {
             expect(mockedModuleService.fetchAppModules).toHaveBeenCalledTimes(1);
 
-            expect(Shopware.Store.get('shopwareApps').apps).toEqual([
-                'new app modules',
-            ]);
+            expect(Shopware.Store.get('shopwareApps').apps).toEqual(['new app modules']);
         }
 
         beforeEach(() => {
@@ -88,37 +126,10 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
         });
 
         it.each([
-            [
-                'installExtension',
-                [
-                    'someExtension',
-                    'app',
-                ],
-            ],
-            [
-                'updateExtension',
-                [
-                    'someExtension',
-                    'app',
-                    true,
-                ],
-            ],
-            [
-                'uninstallExtension',
-                [
-                    'someExtension',
-                    'app',
-                    true,
-                ],
-            ],
-            [
-                'removeExtension',
-                [
-                    'someExtension',
-                    'app',
-                    true,
-                ],
-            ],
+            ['installExtension', ['someExtension', 'app']],
+            ['updateExtension', ['someExtension', 'app', true]],
+            ['uninstallExtension', ['someExtension', 'app', true]],
+            ['removeExtension', ['someExtension', 'app', true]],
         ])('delegates %s correctly', async (lifecycleMethod, parameters) => {
             await mockedShopwareExtensionService[lifecycleMethod](...parameters);
 
@@ -135,10 +146,7 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
             expect(mockedExtensionStoreActionService.cancelLicense).toHaveBeenCalledWith(5);
         });
 
-        it.each([
-            ['activateExtension'],
-            ['deactivateExtension'],
-        ])('delegates %s correctly', async (lifecycleMethod) => {
+        it.each([['activateExtension'], ['deactivateExtension']])('delegates %s correctly', async (lifecycleMethod) => {
             await mockedShopwareExtensionService[lifecycleMethod]('someExtension', 'app');
 
             expect(mockedExtensionStoreActionService[lifecycleMethod]).toHaveBeenCalledTimes(1);
@@ -149,22 +157,30 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
     });
 
     describe('checkLogin', () => {
-        const checkLoginSpy = jest.spyOn(Shopware.Service('storeService'), 'checkLogin');
+        let checkLoginSpy;
 
         beforeEach(() => {
             Shopware.Store.get('shopwareExtensions').userInfo = true;
+            const storeService = Shopware.Service('storeService');
+            checkLoginSpy = jest.spyOn(storeService, 'checkLogin');
         });
 
-        it.each([
-            [{ userInfo: { email: 'user@shopware.com' } }],
-            [{ userInfo: null }],
-        ])('sets login status depending on checkLogin response', async (loginResponse) => {
-            checkLoginSpy.mockImplementationOnce(() => loginResponse);
-
-            await shopwareExtensionService.checkLogin();
-
-            expect(Shopware.Store.get('shopwareExtensions').userInfo).toStrictEqual(loginResponse.userInfo);
+        afterEach(() => {
+            if (checkLoginSpy) {
+                checkLoginSpy.mockRestore();
+            }
         });
+
+        it.each([[{ userInfo: { email: 'user@shopware.com' } }], [{ userInfo: null }]])(
+            'sets login status depending on checkLogin response',
+            async (loginResponse) => {
+                checkLoginSpy.mockImplementationOnce(() => Promise.resolve(loginResponse));
+
+                await shopwareExtensionService.checkLogin();
+
+                expect(Shopware.Store.get('shopwareExtensions').userInfo).toStrictEqual(loginResponse.userInfo);
+            },
+        );
 
         it('sets login status to false if checkLogin request fails', async () => {
             checkLoginSpy.mockImplementationOnce(() => {
@@ -319,28 +335,25 @@ describe('src/module/sw-extension/service/shopware-extension.service', () => {
 
     describe('mapVariantToRecommendation', () => {
         it.each([
-            [
-                'free',
-                0,
-            ],
-            [
-                'rent',
-                1,
-            ],
-            [
-                'buy',
-                2,
-            ],
-            [
-                'test',
-                3,
-            ],
+            ['free', 0],
+            ['rent', 1],
+            ['buy', 2],
+            ['test', 3],
         ])('maps variant %s to position %d', (type, expectedRecommendation) => {
             expect(shopwareExtensionService.mapVariantToRecommendation({ type })).toBe(expectedRecommendation);
         });
     });
 
     describe('getOpenLink', () => {
+        beforeEach(() => {
+            // Ensure authToken is set for repository calls
+            Shopware.Context.api.authToken = {
+                access: 'test-token',
+                expiry: 1602840582,
+                refresh: 'test-refresh',
+            };
+        });
+
         it('returns always a open link for theme', async () => {
             const themeId = Shopware.Utils.createId();
 

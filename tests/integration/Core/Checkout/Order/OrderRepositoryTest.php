@@ -85,12 +85,12 @@ class OrderRepositoryTest extends TestCase
         $criteria = new Criteria([$orderId]);
 
         /** @var OrderEntity|null $order */
-        $order = $this->orderRepository->search($criteria, $defaultContext)->first();
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities()->first();
 
         static::assertNotNull($order);
         static::assertNotNull($order->getOrderCustomer());
-        static::assertEquals($orderId, $order->get('id'));
-        static::assertEquals('test@example.com', $order->getOrderCustomer()->getEmail());
+        static::assertSame($orderId, $order->get('id'));
+        static::assertSame('test@example.com', $order->getOrderCustomer()->getEmail());
     }
 
     /**
@@ -117,7 +117,7 @@ class OrderRepositoryTest extends TestCase
 
         $criteria = new Criteria([$orderId]);
 
-        $order = $this->orderRepository->search($criteria, $defaultContext);
+        $order = $this->orderRepository->search($criteria, $defaultContext)->getEntities();
         static::assertCount(0, $order);
     }
 

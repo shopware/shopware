@@ -26,11 +26,11 @@ class EntityTelemetrySubscriberTest extends TestCase
         $criteria->addAssociation('association1');
         $criteria->addAssociation('association2');
 
-        $event = new EntitySearchedEvent($criteria, $this->createMock(EntityDefinition::class), Context::createDefaultContext());
+        $event = new EntitySearchedEvent($criteria, static::createStub(EntityDefinition::class), Context::createDefaultContext());
         $meter = $this->createMock(Meter::class);
         $meter->expects($this->once())
             ->method('emit')
-            ->with(static::callback(function (ConfiguredMetric $metric) {
+            ->with(static::callback(static function (ConfiguredMetric $metric) {
                 return $metric->name === 'dal.associations.count' && $metric->value === 2;
             }));
 

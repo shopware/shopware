@@ -65,14 +65,14 @@ class IsGuestCustomerRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
         $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
         $this->conditionRepository->delete([['id' => $id]], $this->context);
     }
 
     public function testThatFilledCompanyInformationMatchesToTrue(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customer = new CustomerEntity();
         $customer->setGuest(true);
 
@@ -87,7 +87,7 @@ class IsGuestCustomerRuleTest extends TestCase
 
     public function testThatUnfilledCompanyInformationMatchesToFalse(): void
     {
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $customer = new CustomerEntity();
         $customer->setGuest(false);
 

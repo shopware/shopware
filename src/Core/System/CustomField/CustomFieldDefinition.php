@@ -7,9 +7,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Immutable;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\IntField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -18,6 +20,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class CustomFieldDefinition extends EntityDefinition
 {
@@ -49,21 +54,32 @@ class CustomFieldDefinition extends EntityDefinition
             'allowCustomerWrites' => false,
             'allowCartExpose' => false,
             'storeApiAware' => true,
+            'includeInSearch' => false,
         ];
     }
 
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->addFlags(new Required()),
-            (new StringField('type', 'type'))->addFlags(new Required()),
-            new JsonField('config', 'config', [], []),
-            new BoolField('active', 'active'),
-            new FkField('set_id', 'customFieldSetId', CustomFieldSetDefinition::class),
-            new BoolField('allow_customer_write', 'allowCustomerWrite'),
-            new BoolField('allow_cart_expose', 'allowCartExpose'),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of a custom field.'),
+            (new StringField('name', 'name'))->addFlags(new Required(), new Immutable())->setDescription('Unique name of a custom field.'),
+            (new StringField('type', 'type'))->addFlags(new Required(), new Immutable())->setDescription('Custom field type can be selection, media , etc'),
+            (new JsonField('config', 'config', [
+                new StringField('componentName', 'componentName'),
+                new StringField('customFieldType', 'customFieldType'),
+                new IntField('customFieldPosition', 'customFieldPosition'),
+                new StringField('dateType', 'dateType'),
+                new StringField('entity', 'entity'),
+                new StringField('numberType', 'numberType'),
+                new StringField('type', 'type'),
+                new StringField('validation', 'validation'),
+            ], [], allowAdditionalProperties: true))->setDescription('Specifies detailed information about the component.'),
+            (new BoolField('active', 'active'))->setDescription('When boolean value is `true`, the custom field is enabled for use.'),
+            (new FkField('set_id', 'customFieldSetId', CustomFieldSetDefinition::class))->setDescription('Unique identity of customFieldSet.'),
+            (new BoolField('allow_customer_write', 'allowCustomerWrite'))->setDescription('When boolean value is `true`, then customers have permission to write data in the custom field.'),
+            (new BoolField('allow_cart_expose', 'allowCartExpose'))->setDescription('When boolean value is `true`, then the custom field\'s data can be exposed within the shopping cart or order process.'),
             new BoolField('store_api_aware', 'storeApiAware'),
+            new BoolField('include_in_search', 'includeInSearch'),
             new ManyToOneAssociationField('customFieldSet', 'set_id', CustomFieldSetDefinition::class, 'id', false),
             (new OneToManyAssociationField('productSearchConfigFields', ProductSearchConfigFieldDefinition::class, 'custom_field_id', 'id'))->addFlags(new CascadeDelete()),
         ]);

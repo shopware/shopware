@@ -11,14 +11,9 @@ export default {
 
     inject: ['acl'],
 
-    emits: [
-        'attribute-edit-cancel',
-        'attribute-edit-save',
-    ],
+    emits: ['attribute-edit-cancel', 'attribute-edit-save'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         countryState: {
@@ -30,16 +25,16 @@ export default {
     computed: {
         modalTitle() {
             if (this.countryState.isNew()) {
-                return this.$tc('sw-country-state-detail.titleNew');
+                return this.$t('sw-country-state-detail.titleNew');
             }
 
-            return this.$tc('sw-country-state-detail.titleEdit');
+            return this.$t('sw-country-state-detail.titleEdit');
         },
 
         tooltipSave() {
             if (!this.acl.can('country.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('country.editor'),
                     showOnDisabledElements: true,
                 };

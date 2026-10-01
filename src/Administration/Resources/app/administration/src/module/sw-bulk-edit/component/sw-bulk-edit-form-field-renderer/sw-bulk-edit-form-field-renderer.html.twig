@@ -5,22 +5,17 @@
     v-if="!config.hidden"
     v-bind="bind"
     ref="component"
-    v-model:value="currentValue"
+    v-model:[componentPropName]="currentValue"
     v-model:entity-collection="currentValue"
     class="sw-form-field-renderer"
     @update:value="emitUpdate"
+    @update:model-value="emitUpdate"
     @update:ids="emitUpdate"
     @update:entity-collection="emitUpdate"
+    @update:default-unit="onUpdateDefaultUnit"
 >
     {% block sw_form_field_renderer_inner %}
     {% parent %}
-
-    <template
-        v-if="suffixLabel"
-        #suffix
-    >
-        <span>{{ suffixLabel }}</span>
-    </template>
     {% endblock %}
 </component>
 {% endblock %}

@@ -33,8 +33,8 @@ class PaymentMethodValidatorTest extends TestCase
     {
         $this->definitionInstanceRegistry = new StaticDefinitionInstanceRegistry(
             [PaymentMethodDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 
@@ -102,8 +102,7 @@ class PaymentMethodValidatorTest extends TestCase
             )
             ->willReturn('pluginId');
 
-        $this->expectException(PaymentException::class);
-        $this->expectExceptionMessage('Plugin payment methods can not be deleted via API.');
+        $this->expectExceptionObject(PaymentException::pluginPaymentMethodDeleteRestriction());
         $subscriber = new PaymentMethodValidator($connection);
         $subscriber->validate($event);
     }

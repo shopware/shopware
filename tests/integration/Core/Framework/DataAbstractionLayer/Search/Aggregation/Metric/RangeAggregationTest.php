@@ -2,27 +2,30 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\RangeAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\RangeResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
-#[CoversClass(RangeAggregation::class)]
+#[Package('framework')]
 class RangeAggregationTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $repository;
 
     private Context $context;
@@ -34,27 +37,7 @@ class RangeAggregationTest extends TestCase
     }
 
     /**
-     * @return iterable<string, mixed>
-     */
-    public static function buildRangeKeyDataProvider(): iterable
-    {
-        yield 'empty from and empty to' => [null, null, '*-*'];
-        yield 'empty from and to' => [null, 10, '*-10'];
-        yield 'from and empty to' => [10, null, '10-*'];
-    }
-
-    #[DataProvider('buildRangeKeyDataProvider')]
-    public function testBuildRangeKey(?float $from, ?float $to, string $expectedKey): void
-    {
-        $method = ReflectionHelper::getMethod(RangeAggregation::class, 'buildRangeKey');
-
-        $aggregation = new RangeAggregation('test', 'test', []);
-
-        static::assertEquals($expectedKey, $method->invoke($aggregation, $from, $to));
-    }
-
-    /**
-     * @return array<string, array{rangesDefinition: mixed, rangesExpectedResult: mixed}>
+     * @return iterable<string, array{rangesDefinition: mixed, rangesExpectedResult: mixed}>
      */
     public static function rangeAggregationDataProvider(): iterable
     {
@@ -129,7 +112,7 @@ class RangeAggregationTest extends TestCase
         static::assertCount(\count($rangesDefinition), $rangesResult);
         foreach ($rangesResult as $key => $count) {
             static::assertArrayHasKey($key, $rangesExpectedResult);
-            static::assertEquals($rangesExpectedResult[$key], $count);
+            static::assertSame($rangesExpectedResult[$key], $count);
         }
     }
 }

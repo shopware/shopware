@@ -5,26 +5,20 @@
 import './sw-meteor-single-select.scss';
 import template from './sw-meteor-single-select.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 /**
  * @private
  */
-Component.register('sw-meteor-single-select', {
+export default {
     template,
 
     inject: ['feature'],
 
-    emits: [
-        'paginate',
-        'update:value',
-        'search',
-    ],
+    emits: ['paginate', 'update:value', 'search'],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error')],
 
     props: {
         options: {
@@ -32,7 +26,6 @@ Component.register('sw-meteor-single-select', {
             type: Array,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },
@@ -52,7 +45,6 @@ Component.register('sw-meteor-single-select', {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -185,4 +177,4 @@ Component.register('sw-meteor-single-select', {
             return get(object, keyPath, defaultValue);
         },
     },
-});
+};

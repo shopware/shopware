@@ -1,9 +1,6 @@
 import template from './sw-condition-goods-count.html.twig';
 import './sw-condition-goods-count.scss';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
 /**
  * @public
  * @sw-package fundamentals@after-sales
@@ -13,7 +10,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-goods-count :condition="condition" :level="0"></sw-condition-goods-count>
  */
-Component.extend('sw-condition-goods-count', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     data() {
@@ -37,14 +35,5 @@ Component.extend('sw-condition-goods-count', 'sw-condition-base', {
                 this.condition.value = { ...this.condition.value, count };
             },
         },
-
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.count',
-        ]),
-
-        currentError() {
-            return this.conditionValueOperatorError || this.conditionValueCountError;
-        },
     },
-});
+};

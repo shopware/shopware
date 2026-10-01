@@ -3,26 +3,29 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Filesystem;
 
 use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use League\Flysystem\StorageAttributes;
 use League\Flysystem\UrlGeneration\TemporaryUrlGenerator;
 use League\Flysystem\Visibility;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
-use Shopware\Core\Framework\Adapter\Filesystem\MemoryFilesystemAdapter;
 use Shopware\Core\Framework\Adapter\Filesystem\PrefixFilesystem;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PrefixFilesystem::class)]
 class PrefixFilesystemTest extends TestCase
 {
     public function testPrefix(): void
     {
-        $generator = $this->createMock(TemporaryUrlGenerator::class);
+        $generator = static::createStub(TemporaryUrlGenerator::class);
         $generator->method('temporaryUrl')->willReturn('http://example.com/temporary-url');
 
-        $fs = new Filesystem(new MemoryFilesystemAdapter(), ['public_url' => 'http://example.com'], null, null, $generator);
+        $fs = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://example.com'], null, null, $generator);
         $prefix = new PrefixFilesystem($fs, 'foo');
 
         $prefix->write('foo.txt', 'bla');
@@ -63,13 +66,17 @@ class PrefixFilesystemTest extends TestCase
 
         $prefix->createDirectory('test');
 
-        $files = $prefix->listContents('', true)->toArray();
-        static::assertCount(2, $files);
+        $filesAndDirectories = $prefix->listContents('', true)->toArray();
+        static::assertCount(2, $filesAndDirectories);
+        static::assertContainsOnlyInstancesOf(StorageAttributes::class, $filesAndDirectories);
+        foreach ($filesAndDirectories as $fileOrDirectory) {
+            static::assertStringStartsNotWith('foo/', $fileOrDirectory->path());
+        }
     }
 
     public function testWriteStream(): void
     {
-        $fs = new Filesystem(new MemoryFilesystemAdapter());
+        $fs = new Filesystem(new InMemoryFilesystemAdapter());
         $prefix = new PrefixFilesystem($fs, 'foo');
         $tmpFile = sys_get_temp_dir() . '/' . uniqid('test', true);
         file_put_contents($tmpFile, 'test');
@@ -85,7 +92,7 @@ class PrefixFilesystemTest extends TestCase
 
     public function testEmptyPrefix(): void
     {
-        static::expectExceptionObject(AdapterException::invalidArgument('The prefix must not be empty.'));
-        new PrefixFilesystem(new Filesystem(new MemoryFilesystemAdapter()), '');
+        $this->expectExceptionObject(AdapterException::invalidArgument('The prefix must not be empty.'));
+        new PrefixFilesystem(new Filesystem(new InMemoryFilesystemAdapter()), '');
     }
 }

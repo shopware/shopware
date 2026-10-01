@@ -45,9 +45,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
                                         },
                                         plugin_maintain: {
                                             dependencies: [],
-                                            privileges: [
-                                                'system:plugin:maintain',
-                                            ],
+                                            privileges: ['system:plugin:maintain'],
                                         },
                                     },
                                 },
@@ -58,9 +56,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
                                     roles: {
                                         create_discounts: {
                                             dependencies: [],
-                                            privileges: [
-                                                'order:create:discount',
-                                            ],
+                                            privileges: ['order:create:discount'],
                                         },
                                     },
                                 },
@@ -113,10 +109,6 @@ describe('module/sw-users-permissions/components/sw-users-permissions-additional
         );
 
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should display all keys from the category additional_permissions', async () => {

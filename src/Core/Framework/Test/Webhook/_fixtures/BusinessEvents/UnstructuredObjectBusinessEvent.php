@@ -12,6 +12,9 @@ use Shopware\Core\Framework\Event\FlowEventAware;
  */
 class UnstructuredObjectBusinessEvent implements FlowEventAware, BusinessEventEncoderTestInterface
 {
+    /**
+     * @var array{string: 'test', bool: true}
+     */
     private array $nested = [
         'string' => 'test',
         'bool' => true,
@@ -26,10 +29,7 @@ class UnstructuredObjectBusinessEvent implements FlowEventAware, BusinessEventEn
     public function getEncodeValues(string $shopwareVersion): array
     {
         return [
-            'nested' => [
-                'string' => 'test',
-                'bool' => true,
-            ],
+            'nested' => $this->getNested(),
         ];
     }
 
@@ -43,6 +43,9 @@ class UnstructuredObjectBusinessEvent implements FlowEventAware, BusinessEventEn
         return Context::createDefaultContext();
     }
 
+    /**
+     * @return array{string: 'test', bool: true}
+     */
     public function getNested(): array
     {
         return $this->nested;

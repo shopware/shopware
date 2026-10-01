@@ -10,8 +10,10 @@ use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductDescriptionReviewsStruc
 use Shopware\Core\Content\Product\SalesChannel\Review\AbstractProductReviewLoader;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewsWidgetLoadedHook;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 #[Package('discovery')]
 class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailCmsElementResolver
@@ -23,7 +25,8 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
      */
     public function __construct(
         private readonly AbstractProductReviewLoader $productReviewLoader,
-        private readonly ScriptExecutor $scriptExecutor
+        private readonly ScriptExecutor $scriptExecutor,
+        private readonly SystemConfigService $systemConfigService
     ) {
     }
 
@@ -43,7 +46,7 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
         }
 
         $request = $resolverContext->getRequest();
-        $ratingSuccess = (bool) $request->get('success', false);
+        $ratingSuccess = (bool) RequestParamHelper::get($request, 'success', false);
         $data->setRatingSuccess($ratingSuccess);
 
         $product = null;
@@ -56,12 +59,18 @@ class ProductDescriptionReviewsCmsElementResolver extends AbstractProductDetailC
             $product = $this->getSlotProduct($slot, $result, $productConfig->getStringValue());
         }
 
-        if ($product instanceof SalesChannelProductEntity) {
+        if (!$product instanceof SalesChannelProductEntity) {
+            // product can not be resolved, so we do not enrich the slot
+            return;
+        }
+
+        $data->setProduct($product);
+
+        if ($this->systemConfigService->getBool('core.listing.showReview', $resolverContext->getSalesChannelContext()->getSalesChannelId())) {
             $reviews = $this->productReviewLoader->load($request, $resolverContext->getSalesChannelContext(), $product->getId(), $product->getParentId());
 
             $this->scriptExecutor->execute(new ProductReviewsWidgetLoadedHook($reviews, $resolverContext->getSalesChannelContext()));
 
-            $data->setProduct($product);
             $data->setReviews($reviews);
         }
     }

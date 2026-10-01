@@ -4,14 +4,19 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntitySearcher;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
@@ -19,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Tax\TaxDefinition;
@@ -27,12 +33,19 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntitySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<PropertyGroupCollection>
+     */
     private EntityRepository $groupRepository;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     protected function setUp(): void
@@ -79,9 +92,9 @@ class EntitySearcherTest extends TestCase
 
         $result = static::getContainer()->get('product.repository')->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(100, $result->getScore($ids->get('john')));
-        static::assertEquals(200, $result->getScore($ids->get('john.doe')));
-        static::assertEquals(100, $result->getScore($ids->get('doe')));
+        static::assertSame(100.0, $result->getScore($ids->get('john')));
+        static::assertSame(200.0, $result->getScore($ids->get('john.doe')));
+        static::assertSame(100.0, $result->getScore($ids->get('doe')));
     }
 
     public function testIdSearchResultHelpers(): void
@@ -113,7 +126,7 @@ class EntitySearcherTest extends TestCase
         }
         static::assertInstanceOf(\RuntimeException::class, $exception);
 
-        static::assertEquals([], $result->getDataOfId('not-exists'));
+        static::assertSame([], $result->getDataOfId('not-exists'));
         static::assertSame($context, $result->getContext());
         static::assertEquals($criteria, $result->getCriteria());
     }
@@ -150,8 +163,8 @@ class EntitySearcherTest extends TestCase
         static::assertArrayHasKey($ids->get('p2'), $data);
         static::assertArrayHasKey('productNumber', $data[$ids->get('p2')]);
         static::assertArrayHasKey('autoIncrement', $data[$ids->get('p2')]);
-        static::assertEquals($increments[$ids->get('p1')], $data[$ids->get('p1')]['autoIncrement']);
-        static::assertEquals($increments[$ids->get('p2')], $data[$ids->get('p2')]['autoIncrement']);
+        static::assertSame((int) $increments[$ids->get('p1')], $data[$ids->get('p1')]['autoIncrement']);
+        static::assertSame((int) $increments[$ids->get('p2')], $data[$ids->get('p2')]['autoIncrement']);
     }
 
     public function testTotalCountWithSearchTerm(): void
@@ -202,6 +215,32 @@ class EntitySearcherTest extends TestCase
         static::assertSame(2, $result->getTotal());
         static::assertCount(2, $result->getEntities());
         static::assertSame(1, $result->getPage());
+    }
+
+    public function testNextPagesCountIsBoundedByTheLookaheadWindow(): void
+    {
+        $ids = new IdsCollection();
+        $products = [];
+
+        foreach (range(1, 8) as $number) {
+            $productNumber = 'next-pages-' . $number;
+            $products[] = (new ProductBuilder($ids, $productNumber))->price(100)->build();
+        }
+
+        $context = Context::createDefaultContext();
+        $this->productRepository->create($products, $context);
+
+        $criteria = new Criteria(array_values($ids->getList(array_map(
+            static fn (int $number): string => 'next-pages-' . $number,
+            range(1, 8)
+        ))));
+        $criteria->setLimit(1);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
+
+        $result = $this->productRepository->search($criteria, $context);
+
+        static::assertCount(1, $result->getEntities());
+        static::assertSame(7, $result->getTotal());
     }
 
     public function testSortingAndTotalCountWithManyAssociation(): void
@@ -319,6 +358,63 @@ class EntitySearcherTest extends TestCase
         static::assertCount(6, $result->getEntities());
     }
 
+    /**
+     * @param array{offset: int, limit: int|null, expectedEntities: int} $pagination
+     */
+    #[DataProvider('lastPagePaginationProvider')]
+    public function testExactTotalCountShortCircuitsOnTheLastPage(array $pagination): void
+    {
+        $context = Context::createDefaultContext();
+
+        $totalMatching = 3;
+        $productNumbers = [];
+        $products = [];
+        for ($i = 0; $i < $totalMatching; ++$i) {
+            $productNumbers[] = 'short-circuit-' . $i;
+            $products[] = [
+                'id' => Uuid::randomHex(),
+                'productNumber' => 'short-circuit-' . $i,
+                'name' => 'short circuit product ' . $i,
+                'stock' => 10,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+                'manufacturer' => ['name' => 'test'],
+                'tax' => ['name' => 'test', 'taxRate' => 15],
+            ];
+        }
+        $this->productRepository->create($products, $context);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.productNumber', $productNumbers));
+        $criteria->addSorting(new FieldSorting('product.productNumber'));
+        $criteria->setOffset($pagination['offset']);
+        $criteria->setLimit($pagination['limit']);
+        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+
+        $result = $this->productRepository->search($criteria, $context);
+
+        static::assertSame($totalMatching, $result->getTotal());
+        static::assertCount($pagination['expectedEntities'], $result->getEntities());
+    }
+
+    /**
+     * @return iterable<string, array{array{offset: int, limit: int|null, expectedEntities: int}}>
+     */
+    public static function lastPagePaginationProvider(): iterable
+    {
+        // Partial last page (offset 2 + 1 remaining item = 3 total).
+        yield 'partial last page' => [['offset' => 2, 'limit' => 2, 'expectedEntities' => 1]];
+        // First and only (partial) page.
+        yield 'single partial page' => [['offset' => 0, 'limit' => 25, 'expectedEntities' => 3]];
+        // No limit at all.
+        yield 'no limit' => [['offset' => 0, 'limit' => null, 'expectedEntities' => 3]];
+        // Full page with more pages remaining: total still requires the wrapped COUNT(*).
+        yield 'first of several full pages' => [['offset' => 0, 'limit' => 1, 'expectedEntities' => 1]];
+        // Full page that is exactly the last page.
+        yield 'exactly full last page' => [['offset' => 2, 'limit' => 1, 'expectedEntities' => 1]];
+        // Empty page past the end: total cannot be derived from the page and falls back to the wrapped COUNT(*).
+        yield 'empty page past the end' => [['offset' => 5, 'limit' => 1, 'expectedEntities' => 0]];
+    }
+
     public function testJsonListEqualsAnyFilter(): void
     {
         $redId = Uuid::randomHex();
@@ -424,28 +520,28 @@ class EntitySearcherTest extends TestCase
         $result = $this->productRepository->search($criteria, $context);
 
         static::assertSame(4, $result->getTotal());
-        static::assertTrue($result->has($variant1));
-        static::assertTrue($result->has($variant2));
-        static::assertTrue($result->has($variant5));
-        static::assertTrue($result->has($variant6));
+        static::assertTrue($result->getEntities()->has($variant1));
+        static::assertTrue($result->getEntities()->has($variant2));
+        static::assertTrue($result->getEntities()->has($variant5));
+        static::assertTrue($result->getEntities()->has($variant6));
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('product.optionIds', [$yellowId]));
 
         $result = $this->productRepository->search($criteria, $context);
         static::assertSame(2, $result->getTotal());
-        static::assertTrue($result->has($variant5));
-        static::assertTrue($result->has($variant6));
+        static::assertTrue($result->getEntities()->has($variant5));
+        static::assertTrue($result->getEntities()->has($variant6));
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('product.optionIds', [$yellowId, $smallId]));
 
         $result = $this->productRepository->search($criteria, $context);
         static::assertSame(4, $result->getTotal());
-        static::assertTrue($result->has($variant5));
-        static::assertTrue($result->has($variant6));
-        static::assertTrue($result->has($variant4));
-        static::assertTrue($result->has($variant2));
+        static::assertTrue($result->getEntities()->has($variant5));
+        static::assertTrue($result->getEntities()->has($variant6));
+        static::assertTrue($result->getEntities()->has($variant4));
+        static::assertTrue($result->getEntities()->has($variant2));
     }
 
     public function testSortingByProvidedIds(): void
@@ -480,7 +576,7 @@ class EntitySearcherTest extends TestCase
 
         $result = $searcher->search(static::getContainer()->get(TaxDefinition::class), $criteria, Context::createDefaultContext());
 
-        static::assertEquals($expected, $result->getIds());
+        static::assertSame($expected, $result->getIds());
     }
 
     public function testSortingWithToMany(): void
@@ -524,7 +620,7 @@ class EntitySearcherTest extends TestCase
         $result = static::getContainer()->get('product.repository')
             ->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertEquals(
+        static::assertSame(
             [$ids->get('product-2'), $ids->get('product-1')],
             $result->getIds()
         );
@@ -567,7 +663,7 @@ class EntitySearcherTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('productId', array_values($ids->getList(['product-1', 'product-2']))));
 
-        /** @var EntityRepository $productCategoryRepository */
+        /** @var EntityRepository<EntityCollection<Entity>> $productCategoryRepository */
         $productCategoryRepository = static::getContainer()->get('product_category.repository');
         $result = $productCategoryRepository
             ->searchIds($criteria, Context::createDefaultContext());
@@ -575,10 +671,10 @@ class EntitySearcherTest extends TestCase
         static::assertIsArray($result->getIds());
         static::assertNotEmpty($result->getIds());
 
-        foreach ($result->getIds() as $ids) {
-            static::assertIsArray($ids);
-            static::assertArrayHasKey('productId', $ids);
-            static::assertArrayHasKey('categoryId', $ids);
+        foreach ($result->getIds() as $resultIds) {
+            static::assertIsArray($resultIds);
+            static::assertArrayHasKey('productId', $resultIds);
+            static::assertArrayHasKey('categoryId', $resultIds);
         }
     }
 
@@ -614,6 +710,6 @@ class EntitySearcherTest extends TestCase
             Context::createDefaultContext()
         );
 
-        static::assertEquals(0, $result->getTotal());
+        static::assertSame(0, $result->getTotal());
     }
 }

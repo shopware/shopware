@@ -12,8 +12,8 @@ use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 /**
  * @internal
  */
-#[CoversClass(TaxRuleCollection::class)]
 #[Package('checkout')]
+#[CoversClass(TaxRuleCollection::class)]
 class TaxRuleCollectionTest extends TestCase
 {
     public function testLatestActivationDate(): void
@@ -35,7 +35,7 @@ class TaxRuleCollectionTest extends TestCase
             $rule3,
         ]);
 
-        static::assertEquals(
+        static::assertSame(
             $rule2,
             $collection->latestActivationDate()
         );
@@ -56,7 +56,7 @@ class TaxRuleCollectionTest extends TestCase
             $rule2,
         ]);
 
-        static::assertEquals(
+        static::assertSame(
             $rule2,
             $collection->highestTypePosition()
         );
@@ -82,7 +82,7 @@ class TaxRuleCollectionTest extends TestCase
             $rule3,
         ]);
 
-        static::assertEquals(
+        static::assertSame(
             ['rule1', 'rule3'],
             \array_values($collection->filterByTypePosition(2)->getIds())
         );

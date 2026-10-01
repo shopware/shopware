@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * Contains the result of the entity write process
+ *
+ * @template IDStructure of string|array<string, string> = string
  */
 #[Package('framework')]
 class EntityWriteResult
@@ -17,7 +19,7 @@ class EntityWriteResult
     final public const OPERATION_DELETE = 'delete';
 
     /**
-     * @param array<string, string>|string $primaryKey
+     * @param IDStructure $primaryKey
      * @param array<string, mixed> $payload
      */
     public function __construct(
@@ -31,12 +33,12 @@ class EntityWriteResult
         $this->operation = mb_strtolower($operation);
 
         if (!\in_array($this->operation, [self::OPERATION_DELETE, self::OPERATION_INSERT, self::OPERATION_UPDATE], true)) {
-            throw new \RuntimeException(\sprintf('Unexpected write result operation %s', $operation));
+            throw DataAbstractionLayerException::invalidWriteInput(\sprintf('Unexpected write result operation %s', $operation));
         }
     }
 
     /**
-     * @return array<string, string>|string
+     * @return IDStructure
      */
     public function getPrimaryKey(): array|string
     {

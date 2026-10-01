@@ -20,7 +20,7 @@ const mediaDataMock = [
     },
 ];
 
-async function createWrapper(activeTab = 'content') {
+async function createWrapper({ activeTab = 'content', featureActive = false } = {}) {
     return mount(
         await wrapTestComponent('sw-cms-el-config-image-gallery', {
             sync: true,
@@ -29,9 +29,17 @@ async function createWrapper(activeTab = 'content') {
             global: {
                 provide: {
                     cmsService: Shopware.Service('cmsService'),
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
+                    },
                     repositoryFactory: {
                         create: () => {
                             return {
+                                get: (id) =>
+                                    Promise.resolve({
+                                        id,
+                                        url: `http://shopware.com/${id}.jpg`,
+                                    }),
                                 search: () => Promise.resolve(mediaDataMock),
                             };
                         },
@@ -43,9 +51,29 @@ async function createWrapper(activeTab = 'content') {
                         data() {
                             return { active: activeTab };
                         },
-                        template: '<div><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
+                        template: '<div class="sw-tabs"><slot></slot><slot name="content" v-bind="{ active }"></slot></div>',
                     },
                     'sw-tabs-item': true,
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
+                    },
                     'sw-container': {
                         template: '<div class="sw-container"><slot></slot></div>',
                     },
@@ -54,13 +82,9 @@ async function createWrapper(activeTab = 'content') {
                     'sw-field': true,
 
                     'sw-select-field': {
-                        // eslint-disable-next-line max-len
                         template:
                             '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
-                        props: [
-                            'value',
-                            'options',
-                        ],
+                        props: ['value', 'options'],
                     },
                     'sw-text-field': true,
 
@@ -76,6 +100,15 @@ async function createWrapper(activeTab = 'content') {
                     'sw-context-menu-item': true,
                     'mt-popover-deprecated': {
                         template: '<div class="mt-popover-deprecated"><slot></slot></div>',
+                    },
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
                     },
                 },
             },
@@ -126,6 +159,10 @@ async function createWrapper(activeTab = 'content') {
                             source: 'static',
                             value: false,
                         },
+                        useFetchPriorityOnFirstItem: {
+                            source: 'static',
+                            value: false,
+                        },
                     },
                     data: {},
                 },
@@ -167,6 +204,47 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
         Shopware.Store.get('cmsPage').$reset();
     });
 
+    it('should render deprecated tabs when the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-tabs').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-element-config-image-gallery');
+        expect(tabs.props('defaultItem')).toBe('content');
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'sw-cms.elements.general.config.tab.content',
+                name: 'content',
+            },
+            {
+                label: 'sw-cms.elements.general.config.tab.settings',
+                name: 'settings',
+            },
+        ]);
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+        expect(wrapper.find('.sw-media-list-selection-v2').exists()).toBe(true);
+    });
+
+    it('should switch meteor tab content when the active tab changes', async () => {
+        const wrapper = await createWrapper({ featureActive: true });
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        await tabs.vm.$emit('new-item-active', 'settings');
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe('settings');
+        expect(wrapper.find('.sw-media-list-selection-v2').exists()).toBe(false);
+        expect(wrapper.find('.sw-cms-el-config-image-gallery__tab-settings').exists()).toBe(true);
+    });
+
     it('should media selection if sliderItems config source is static', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -178,6 +256,17 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
         expect(mediaList.exists()).toBeTruthy();
         expect(mappingValue.exists()).toBeFalsy();
         expect(mappingPreview.exists()).toBeFalsy();
+    });
+
+    it('should have upload listener with auto-upload', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const uploadListener = wrapper.find('sw-upload-listener-stub');
+
+        expect(uploadListener.exists()).toBeTruthy();
+        expect(uploadListener.attributes('upload-tag')).toBe(wrapper.vm.uploadTag);
+        expect(uploadListener.attributes('auto-upload')).toBeDefined();
     });
 
     it('should mapping value and preview mapping if sliderItems config source is mapped', async () => {
@@ -206,7 +295,7 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
     });
 
     it('should keep minHeight value when changing display mode', async () => {
-        const wrapper = await createWrapper('settings');
+        const wrapper = await createWrapper({ activeTab: 'settings' });
 
         await selectMtSelectOptionByText(
             wrapper,
@@ -227,7 +316,7 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
     });
 
     it('should sort the item list on drag and drop', async () => {
-        const wrapper = await createWrapper('content');
+        const wrapper = await createWrapper({ activeTab: 'content' });
         await flushPromises();
 
         const mediaListSelectionV2Vm = wrapper.findComponent('.sw-media-list-selection-v2').vm;
@@ -248,20 +337,36 @@ describe('src/module/sw-cms/elements/image-gallery/config', () => {
         expect(items.at(3).text()).toBe('3');
     });
 
+    it('should resolve media upload payloads via repository', async () => {
+        const wrapper = await createWrapper({ activeTab: 'content' });
+        await flushPromises();
+
+        await wrapper.vm.onImageUpload({ targetId: 'uploaded-id' });
+
+        expect(wrapper.vm.element.config.sliderItems.value).toEqual([
+            {
+                mediaId: 'uploaded-id',
+                mediaUrl: 'http://shopware.com/uploaded-id.jpg',
+                newTab: false,
+                url: null,
+            },
+        ]);
+    });
+
     it('should remove previous mediaItem if it already exists after upload', async () => {
-        const wrapper = await createWrapper('content');
+        const wrapper = await createWrapper({ activeTab: 'content' });
         await flushPromises();
 
         // Check length of sliderItems values
         expect(wrapper.vm.element.config.sliderItems.value).toHaveLength(0);
 
         // Simulate the upload of the first media item
-        wrapper.vm.onImageUpload(mediaDataMock[0].media);
+        await wrapper.vm.onImageUpload(mediaDataMock[0].media);
         expect(wrapper.vm.element.config.sliderItems.value).toHaveLength(1);
         expect(wrapper.vm.element.config.sliderItems.value[0].mediaUrl).toBe('http://shopware.com/image1.jpg');
 
         // Simulate the upload of the same media item with different URL (replacement)
-        wrapper.vm.onImageUpload({
+        await wrapper.vm.onImageUpload({
             ...mediaDataMock[0].media,
             url: 'http://shopware.com/image1-updated.jpg',
         });

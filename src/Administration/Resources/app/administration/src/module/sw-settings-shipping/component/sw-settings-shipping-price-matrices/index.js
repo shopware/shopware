@@ -15,15 +15,9 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'ruleConditionDataProviderService',
-    ],
+    inject: ['repositoryFactory', 'ruleConditionDataProviderService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     props: {
         disabled: {
@@ -82,7 +76,7 @@ export default {
         onAddNewPriceGroup() {
             const newShippingPrice = this.shippingPriceRepository.create(Context.api);
             newShippingPrice.shippingMethodId = this.shippingMethod.id;
-            newShippingPrice.quantityStart = 1;
+            newShippingPrice.quantityStart = 0;
             newShippingPrice.ruleId = null;
 
             // Create a flagged as new price matrix, if there is already an unrestricted.

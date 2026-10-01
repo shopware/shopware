@@ -5,14 +5,14 @@
 import template from './sw-product-settings-mode.html.twig';
 import './sw-product-settings-mode.scss';
 
+/**
+ * @deprecated tag:v6.8.0 - Component will be removed. No longer used.
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    emits: [
-        'settings-change',
-        'settings-item-change',
-    ],
+    emits: ['settings-change', 'settings-item-change'],
 
     props: {
         modeSettings: {
@@ -23,7 +23,6 @@ export default {
         isLoading: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },

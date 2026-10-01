@@ -13,12 +13,29 @@ $sw-category-tree-field-transition-results: all ease-in-out 0.2s;
         flex-wrap: wrap;
         box-sizing: border-box;
         padding: 0 8px;
+        height: auto;
     }
 
     .sw-category-tree__input-field {
         display: block;
+        flex: 1 1 300px;
         min-width: 300px;
-        width: 300px;
+    }
+
+    .sw-category-tree-field__expand-indicator {
+        flex-shrink: 0;
+        align-self: center;
+        margin: 0 var(--scale-size-8) 0 auto;
+        cursor: pointer;
+        transition: transform 0.3s ease-in-out;
+
+        &.is--collapsed {
+            transform: rotate(180deg);
+        }
+    }
+
+    &.is--disabled .sw-category-tree-field__expand-indicator {
+        cursor: default;
     }
 
     .sw-label {
@@ -32,7 +49,7 @@ $sw-category-tree-field-transition-results: all ease-in-out 0.2s;
     }
 
     .sw-category-tree-field__label-more .sw-category-tree-field__label-more-property {
-        color: $color-shopware-brand-500;
+        color: var(--color-text-brand-default);
     }
 
     .sw-category-tree-field__label-property {
@@ -75,18 +92,18 @@ $sw-category-tree-field-transition-results: all ease-in-out 0.2s;
 
     &.is--disabled {
         .sw-block-field__block {
-            background-color: $color-gray-100;
+            background-color: var(--color-background-tertiary-default);
         }
     }
 }
 
 .sw-category-tree-field__results_popover {
-    overflow-y: hidden;
+    overflow-x: hidden;
     height: 350px;
     z-index: 20;
-    border: 1px solid $color-gray-100;
+    border: 1px solid var(--color-border-secondary-default);
     box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 10%);
-    background-color: $color-white;
+    background-color: var(--color-elevation-surface-raised);
 
     &.sw-popover__wrapper.--placement-bottom-outside {
         transform: translate(0, calc(-100% - 90px));
@@ -124,11 +141,11 @@ $sw-category-tree-field-transition-results: all ease-in-out 0.2s;
         }
 
         li.sw-category-tree-field__search-result:hover {
-            background-color: lighten($color-shopware-brand-500, 40);
+            background-color: var(--color-background-brand-default);
         }
 
         li.sw-category-tree-field__search-result.is--focus {
-            background-color: lighten($color-shopware-brand-500, 40);
+            background-color: var(--color-background-brand-default);
         }
 
         li .sw-category-tree-field__search-results-checkbox {
@@ -150,10 +167,10 @@ $sw-category-tree-field-transition-results: all ease-in-out 0.2s;
     }
 
     &.is--disabled {
-        background-color: $color-gray-100;
+        background-color: var(--color-background-tertiary-default);
 
         .sw-label {
-            background-color: $color-gray-100;
+            background-color: var(--color-background-tertiary-default);
         }
 
         &::after {

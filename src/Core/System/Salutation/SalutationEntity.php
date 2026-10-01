@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Salutation\Aggregate\SalutationTranslation\SalutationTranslationCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class SalutationEntity extends Entity
 {
@@ -36,6 +39,8 @@ class SalutationEntity extends Entity
     protected ?OrderAddressCollection $orderAddresses = null;
 
     protected ?NewsletterRecipientCollection $newsletterRecipients = null;
+
+    protected int $position;
 
     public function getSalutationKey(): ?string
     {
@@ -125,5 +130,15 @@ class SalutationEntity extends Entity
     public function setNewsletterRecipients(NewsletterRecipientCollection $newsletterRecipients): void
     {
         $this->newsletterRecipients = $newsletterRecipients;
+    }
+
+    public function getPosition(): int
+    {
+        return $this->position;
+    }
+
+    public function setPosition(int $position): void
+    {
+        $this->position = $position;
     }
 }

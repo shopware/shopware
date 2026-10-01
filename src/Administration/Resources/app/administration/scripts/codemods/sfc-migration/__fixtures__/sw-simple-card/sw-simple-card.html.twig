@@ -1,0 +1,13 @@
+{% block sw_simple_card %}
+    <div class="sw-simple-card">
+        {% block sw_simple_card_header %}
+            <h1>{{ headline }}</h1>
+        {% endblock %}
+
+        {% block sw_simple_card_content %}
+            <button :disabled="isLoading" @click="onSave">
+                {{ $t('global.default.save') }}
+            </button>
+        {% endblock %}
+    </div>
+{% endblock %}

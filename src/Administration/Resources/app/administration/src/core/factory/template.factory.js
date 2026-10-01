@@ -5,6 +5,7 @@
 // eslint-disable
 import Twig from 'twig';
 import { cloneDeep } from 'src/core/service/utils/object.utils';
+import transformNativeLegacyBlockConditionals from './transform-legacy-block-conditionals';
 
 /**
  * @module core/factory/async-template
@@ -233,6 +234,7 @@ function registerNormalizedTemplate(item) {
     // Apply overrides
     templateDefinition = applyTemplateOverrides(templateDefinition.name);
     templateDefinition.html = templateDefinition.html.replace(parentRegExp, '');
+    templateDefinition.html = transformNativeLegacyBlockConditionals(templateDefinition.html, templateDefinition.name);
 
     // Final template will be written to the registry
     normalizedTemplateRegistry.set(templateDefinition.name, templateDefinition);
@@ -315,10 +317,7 @@ function resolveTokens(tokens, overrideTokens) {
 
     return tokens.reduce((acc, token) => {
         if (token.type !== 'logic' || !token.token || !token.token.blockName) {
-            return [
-                ...acc,
-                token,
-            ];
+            return [...acc, token];
         }
 
         const blockName = token.token.blockName;
@@ -329,40 +328,28 @@ function resolveTokens(tokens, overrideTokens) {
                 isInOverrides.token.output = mergeTokens(token, isInOverrides.token.output);
             }
 
-            return [
-                ...acc,
-                isInOverrides,
-            ];
+            return [...acc, isInOverrides];
         }
 
         const resolvedTokens = resolveTokens(token.token.output, overrideTokens);
 
         token.token.output = resolvedTokens;
 
-        return [
-            ...acc,
-            token,
-        ];
+        return [...acc, token];
     }, []);
 }
 
 function mergeTokens(token, tokens) {
     return tokens.reduce((acc, t) => {
         if (t.type === 'logic' && t.token.type === 'parent') {
-            return [
-                ...acc,
-                ...token.token.output,
-            ];
+            return [...acc, ...token.token.output];
         }
 
         if (t.token?.output) {
             t.token.output = resolveSubTokens(t.token.output, token.token.output);
         }
 
-        return [
-            ...acc,
-            t,
-        ];
+        return [...acc, t];
     }, []);
 }
 
@@ -375,16 +362,10 @@ function mergeTokens(token, tokens) {
 function resolveSubTokens(subToken, replacement) {
     return subToken.reduce((xs, s) => {
         if (s.type === 'logic' && s.token.type === 'parent') {
-            return [
-                ...xs,
-                ...replacement,
-            ];
+            return [...xs, ...replacement];
         }
 
-        return [
-            ...xs,
-            s,
-        ];
+        return [...xs, s];
     }, []);
 }
 
@@ -428,16 +409,10 @@ function resolveExtendTokens(tokens, item) {
 function normalizeTokens(tokens, extensionTokens) {
     const result = tokens.reduce((acc, token) => {
         if (token.token && !findNestedBlock(token.token.blockName, extensionTokens)) {
-            return [
-                ...acc,
-                ...token.token.output,
-            ];
+            return [...acc, ...token.token.output];
         }
 
-        return [
-            ...acc,
-            token,
-        ];
+        return [...acc, token];
     }, []);
 
     return result;
@@ -480,11 +455,7 @@ function resolveToken(token, itemTokens, name) {
     }
 
     // Vue 3 - if/else token support
-    const ifElseTokenTypes = [
-        'Twig.logic.type.if',
-        'Twig.logic.type.else',
-        'Twig.logic.type.endif',
-    ];
+    const ifElseTokenTypes = ['Twig.logic.type.if', 'Twig.logic.type.else', 'Twig.logic.type.endif'];
     if (token.type === 'logic' && ifElseTokenTypes.includes(token.token.type)) {
         return token;
     }

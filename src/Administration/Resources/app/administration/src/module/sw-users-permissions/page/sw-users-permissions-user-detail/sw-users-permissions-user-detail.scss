@@ -1,25 +1,35 @@
-@import "~scss/variables";
-
-$sw-settings-user-detail-change-password: $color-shopware-brand-500;
-$sw-field-help-font-size: $font-size-xs;
-$sw-field-help-line-height: 22px;
-$sw-field-help-color: $color-darkgray-200;
-
 .sw-settings-user-detail {
+    .sw-settings-user-detail__cards {
+        container: sw-user-detail-cards / inline-size;
+    }
+
     .sw-settings-user-detail__grid {
         width: 100%;
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-template-rows: auto;
+        grid-column-gap: var(--scale-size-32);
+    }
+
+    .sw-settings-user-detail__information-grid {
         grid-template-areas:
-            "FirstName LastName"
-            "EMail ProfilePicture"
-            "Username ProfilePicture"
-            "Password IsAdmin"
-            "ChangePassword none"
+            "FirstName ProfilePicture"
+            "LastName ProfilePicture"
+            "EMail EMail"
+            "Username Password"
+            "Active Active";
+    }
+
+    .sw-settings-user-detail__user-interface-grid {
+        grid-template-areas:
             "Language Timezone"
-            "JobTitle AclRoles";
-        grid-column-gap: 32px;
+            "Theme .";
+    }
+
+    .sw-settings-user-detail__roles-permissions-grid {
+        grid-template-areas:
+            "AclRoles JobTitle"
+            "IsAdmin IsAdmin";
     }
 
     .sw-settings-user-detail__grid-firstName {
@@ -40,26 +50,19 @@ $sw-field-help-color: $color-darkgray-200;
 
     .sw-settings-user-detail__grid-password {
         grid-area: Password;
-
-        .sw-settings-user-detail__new-password {
-            margin-top: 22px;
-            margin-bottom: 0;
-        }
     }
 
     .sw-settings-user-detail__grid-language {
         grid-area: Language;
     }
 
-    .sw-settings-user-detail__grid-profile-picture {
-        grid-area: ProfilePicture;
+    .sw-settings-user-detail__grid-theme {
+        grid-area: Theme;
     }
 
-    .sw-settings-user-detail__grid-change-password {
-        grid-area: ChangePassword;
-        color: $sw-settings-user-detail-change-password;
-        margin-left: auto;
-        cursor: pointer;
+    .sw-settings-user-detail__grid-profile-picture {
+        grid-area: ProfilePicture;
+        margin-bottom: var(--scale-size-32);
     }
 
     .sw-settings-user-detail__grid-jobTitle {
@@ -74,22 +77,49 @@ $sw-field-help-color: $color-darkgray-200;
         grid-area: IsAdmin;
     }
 
+    .sw-settings-user-detail__grid-active {
+        grid-area: Active;
+    }
+
+    .mt-switch {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
     &__grid-timezone {
         grid-area: Timezone;
         margin-top: 0;
     }
+}
 
-    .sw-settings-user-detail__detail {
-        .sw-field.sw-field__checkbox {
-            align-self: center;
-            margin: 0;
-        }
+// Stack every field to full width once the cards get too narrow for two columns.
+@container sw-user-detail-cards (max-width: 600px) {
+    .sw-settings-user-detail .sw-settings-user-detail__grid {
+        grid-template-columns: 1fr;
+    }
 
-        .sw-field__help {
-            font-size: $sw-field-help-font-size;
-            color: lighten($sw-field-help-color, 20);
-            line-height: $sw-field-help-line-height;
-            padding-top: 7px;
-        }
+    .sw-settings-user-detail .sw-settings-user-detail__information-grid {
+        grid-template-areas:
+            "ProfilePicture"
+            "FirstName"
+            "LastName"
+            "EMail"
+            "Username"
+            "Password"
+            "Active";
+    }
+
+    .sw-settings-user-detail .sw-settings-user-detail__user-interface-grid {
+        grid-template-areas:
+            "Language"
+            "Timezone"
+            "Theme";
+    }
+
+    .sw-settings-user-detail .sw-settings-user-detail__roles-permissions-grid {
+        grid-template-areas:
+            "AclRoles"
+            "JobTitle"
+            "IsAdmin";
     }
 }

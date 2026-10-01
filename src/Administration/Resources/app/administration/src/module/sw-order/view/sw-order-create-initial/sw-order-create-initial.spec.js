@@ -35,6 +35,7 @@ async function createWrapper(customerId = null) {
             },
             stubs: {
                 'sw-order-create-initial-modal': true,
+                'mt-loader': true,
             },
         },
     });
@@ -57,10 +58,6 @@ describe('src/module/sw-order/view/sw-order-create-initial', () => {
         }
 
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should not load a customer if no customerId query parameter has been passed', async () => {

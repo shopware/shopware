@@ -10,22 +10,16 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('placeholder')],
 
     data() {
         return {
             isLoading: false,
             limit: 10,
             salutations: null,
-            sortBy: 'salutationKey',
+            sortBy: 'position',
             sortDirection: 'ASC',
         };
     },
@@ -47,7 +41,7 @@ export default {
 
         tooltipAdd() {
             return {
-                message: this.$tc('sw-privileges.tooltip.warning'),
+                message: this.$t('sw-privileges.tooltip.warning'),
                 disabled: this.acl.can('salutation.creator'),
                 showOnDisabledElements: true,
             };
@@ -67,7 +61,7 @@ export default {
             this.isLoading = true;
             const criteria = new Criteria(this.page, this.limit);
             criteria.setTerm(this.term);
-            criteria.addSorting(Criteria.sort('salutationKey', 'ASC', false));
+            criteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection, this.naturalSorting));
 
             this.salutationRepository.search(criteria).then((searchResult) => {
                 this.total = searchResult.total;
@@ -78,6 +72,11 @@ export default {
 
         getColumns() {
             return [
+                {
+                    property: 'position',
+                    label: 'sw-settings-salutation.list.columnPosition',
+                    inlineEdit: 'number',
+                },
                 {
                     property: 'salutationKey',
                     label: 'sw-settings-salutation.list.columnSalutationKey',

@@ -69,7 +69,7 @@ class DynamicFieldFactory
             self::defineField($field, $collection, $entityName, $container);
         }
 
-        if (empty($translated)) {
+        if ($translated === []) {
             return $collection;
         }
 

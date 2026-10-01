@@ -1,7 +1,7 @@
 {% block sw_settings_state_machine_state_detail %}
 <sw-modal
     class="sw-settings-state-machine-state-modal__settings-modal"
-    :title="$tc('sw-settings-state-machine.state.detail.stateMachineStateCardTitle')"
+    :title="$t('sw-settings-state-machine.state.detail.stateMachineStateCardTitle')"
     @modal-close="$emit('modal-close')"
 >
     {% block sw_settings_state_machine_state_detail_content %}
@@ -13,7 +13,7 @@
 
         <mt-text-field
             v-model="stateMachineState.name"
-            :label="$tc('sw-settings-state-machine.state.detail.labelName')"
+            :label="$t('sw-settings-state-machine.state.detail.labelName')"
             :error="stateMachineStateNameError"
             required
         />
@@ -23,7 +23,7 @@
 
         <mt-text-field
             v-model="stateMachineState.technicalName"
-            :label="$tc('sw-settings-state-machine.state.detail.labelTechnicalName')"
+            :label="$t('sw-settings-state-machine.state.detail.labelTechnicalName')"
             :disabled="true"
             required
         />
@@ -39,7 +39,7 @@
             variant="secondary"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -49,7 +49,7 @@
             size="small"
             @click="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </mt-button>
         {% endblock %}
     </template>

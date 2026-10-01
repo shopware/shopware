@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoadedEvent;
 use Shopware\Storefront\Page\Navigation\NavigationPageLoader;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class NavigationPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -71,7 +73,7 @@ class NavigationPageTest extends TestCase
 
         $seoUrl = $seoUrlHandler->replace($canonical, $request->getHost(), $context);
 
-        static::assertEquals('/', $seoUrl);
+        static::assertSame('/', $seoUrl);
     }
 
     protected function getPageLoader(): NavigationPageLoader

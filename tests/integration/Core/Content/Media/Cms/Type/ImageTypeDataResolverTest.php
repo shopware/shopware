@@ -23,6 +23,7 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,6 +31,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ImageTypeDataResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -51,7 +53,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testCollectWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -66,7 +68,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testCollectWithMediaId(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_STATIC, 'media123'));
@@ -88,9 +90,39 @@ class ImageTypeDataResolverTest extends TestCase
         static::assertEquals($expectedCriteria, $mediaCriteria);
     }
 
+    public function testCollectWithMappedMediaCustomFieldId(): void
+    {
+        $product = new ProductEntity();
+        $product->setCustomFields(['heroImage' => 'media123']);
+
+        $resolverContext = new EntityResolverContext(
+            static::createStub(SalesChannelContext::class),
+            new Request(),
+            static::createStub(ProductDefinition::class),
+            $product,
+        );
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_MAPPED, 'product.customFields.heroImage'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('image');
+        $slot->setFieldConfig($fieldConfig);
+
+        $criteriaCollection = $this->imageResolver->collect($slot, $resolverContext);
+
+        static::assertNotNull($criteriaCollection);
+
+        $expectedCriteria = new Criteria(['media123']);
+        $mediaCriteria = $criteriaCollection->all()[MediaDefinition::class]['media_' . $slot->getUniqueIdentifier()];
+
+        static::assertEquals($expectedCriteria, $mediaCriteria);
+    }
+
     public function testEnrichWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();
@@ -110,7 +142,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testEnrichWithUrlOnly(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
@@ -133,7 +165,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testEnrichWithUrlAndNewTabOnly(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
@@ -158,7 +190,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testEnrichWithMediaOnly(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
@@ -196,7 +228,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testEnrichWithMediaAndUrl(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
@@ -235,7 +267,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testEnrichWithMissingMediaId(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
@@ -272,7 +304,7 @@ class ImageTypeDataResolverTest extends TestCase
 
     public function testEnrichWithDefaultConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $this->publicFilesystem->write('/bundles/core/assets/default/cms/shopware.jpg', '');
@@ -289,14 +321,14 @@ class ImageTypeDataResolverTest extends TestCase
         static::assertInstanceOf(ImageStruct::class, $imageStruct);
         $media = $imageStruct->getMedia();
         static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertEquals('shopware', $media->getFileName());
-        static::assertEquals('image/jpeg', $media->getMimeType());
-        static::assertEquals('jpg', $media->getFileExtension());
+        static::assertSame('shopware', $media->getFileName());
+        static::assertSame('image/jpeg', $media->getMimeType());
+        static::assertSame('jpg', $media->getFileExtension());
     }
 
     public function testMediaWithRemote(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $media = new MediaEntity();
         $media->setUniqueIdentifier('media123');
@@ -342,7 +374,7 @@ class ImageTypeDataResolverTest extends TestCase
         $product = new ProductEntity();
         $product->setCover($productMedia);
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $resolverContext = new EntityResolverContext(static::createStub(SalesChannelContext::class), new Request(), static::createStub(ProductDefinition::class), $product);
 
         $mediaSearchResult = new EntitySearchResult(
             'media',
@@ -373,6 +405,49 @@ class ImageTypeDataResolverTest extends TestCase
         static::assertSame($media, $imageStruct->getMedia());
     }
 
+    public function testMediaWithMappedCustomFieldId(): void
+    {
+        $media = new MediaEntity();
+        $media->setUniqueIdentifier('media123');
+
+        $product = new ProductEntity();
+        $product->setCustomFields(['heroImage' => 'media123']);
+
+        $resolverContext = new EntityResolverContext(
+            static::createStub(SalesChannelContext::class),
+            new Request(),
+            static::createStub(ProductDefinition::class),
+            $product,
+        );
+
+        $mediaSearchResult = new EntitySearchResult(
+            'media',
+            1,
+            new MediaCollection([$media]),
+            null,
+            new Criteria(),
+            Context::createDefaultContext()
+        );
+
+        $result = new ElementDataCollection();
+        $result->add('media_id', $mediaSearchResult);
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_MAPPED, 'product.customFields.heroImage'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('image');
+        $slot->setFieldConfig($fieldConfig);
+
+        $this->imageResolver->enrich($slot, $resolverContext, $result);
+
+        $imageStruct = $slot->getData();
+        static::assertInstanceOf(ImageStruct::class, $imageStruct);
+        static::assertSame('media123', $imageStruct->getMediaId());
+        static::assertSame($media, $imageStruct->getMedia());
+    }
+
     public function testUrlWithLocal(): void
     {
         $manufacturer = new ProductManufacturerEntity();
@@ -381,7 +456,7 @@ class ImageTypeDataResolverTest extends TestCase
         $product = new ProductEntity();
         $product->setManufacturer($manufacturer);
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(ProductDefinition::class), $product);
+        $resolverContext = new EntityResolverContext(static::createStub(SalesChannelContext::class), new Request(), static::createStub(ProductDefinition::class), $product);
 
         $result = new ElementDataCollection();
 

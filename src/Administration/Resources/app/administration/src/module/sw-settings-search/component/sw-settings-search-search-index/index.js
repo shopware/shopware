@@ -14,11 +14,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'productIndexService',
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['productIndexService', 'repositoryFactory', 'acl'],
 
     emits: ['edit-change'],
 
@@ -54,7 +50,6 @@ export default {
 
         productSearchKeywordsCriteria() {
             const criteria = new Criteria(1, 1);
-            criteria.addAggregation(Criteria.min('firstDate', 'createdAt'));
             criteria.addAggregation(Criteria.max('lastDate', 'createdAt'));
             return criteria;
         },
@@ -84,8 +79,11 @@ export default {
             this.productSearchKeywordRepository
                 .search(this.productSearchKeywordsCriteria, Context.api)
                 .then((result) => {
+                    if (!result.total) {
+                        return;
+                    }
+
                     this.latestIndex = {
-                        firstDate: result.aggregations.firstDate.min,
                         lastDate: result.aggregations.lastDate.max,
                     };
                 })
@@ -128,8 +126,10 @@ export default {
                         this.getLatestProductKeywordIndexed();
                         this.progressBarValue = 100;
                         this.createNotificationSuccess({
-                            message: this.$tc('sw-settings-search.notification.index.success'),
+                            message: this.$t('sw-settings-search.notification.index.success'),
                         });
+
+                        this.buildFinish();
                     } else {
                         this.progressBarValue = ((this.offset ?? 1) / this.totalProduct) * 100;
                         this.offset = data.offset.offset;
@@ -165,7 +165,7 @@ export default {
             this.$emit('edit-change', this.isRebuildInProgress);
             this.pollData();
             this.createNotificationInfo({
-                message: this.$tc('sw-settings-search.notification.index.started'),
+                message: this.$t('sw-settings-search.notification.index.started'),
             });
         },
 

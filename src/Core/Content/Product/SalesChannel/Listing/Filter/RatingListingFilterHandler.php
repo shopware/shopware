@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
 
 use Shopware\Core\Content\Product\SalesChannel\Listing\Filter;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MaxAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
@@ -27,7 +28,7 @@ class RatingListingFilterHandler extends AbstractListingFilterHandler
             return null;
         }
 
-        $filtered = $request->get('rating');
+        $filtered = RequestParamHelper::get($request, 'rating');
 
         return new Filter(
             'rating',

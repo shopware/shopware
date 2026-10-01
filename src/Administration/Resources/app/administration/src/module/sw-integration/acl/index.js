@@ -2,16 +2,24 @@
  * @sw-package fundamentals@framework
  */
 Shopware.Service('privileges').addPrivilegeMappingEntry({
+    category: 'additional_permissions',
+    parent: null,
+    key: 'integration_mcp',
+    roles: {
+        editor: {
+            privileges: ['api_action_integration_mcp-allowlist'],
+            dependencies: ['integration.viewer'],
+        },
+    },
+});
+
+Shopware.Service('privileges').addPrivilegeMappingEntry({
     category: 'permissions',
     parent: 'settings',
     key: 'integration',
     roles: {
         viewer: {
-            privileges: [
-                'integration:read',
-                'acl_role:read',
-                'app:read',
-            ],
+            privileges: ['integration:read', 'acl_role:read', 'app:read'],
             dependencies: [],
         },
         editor: {
@@ -21,26 +29,15 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'integration_role:create',
                 'integration_role:delete',
             ],
-            dependencies: [
-                'integration.viewer',
-            ],
+            dependencies: ['integration.viewer'],
         },
         creator: {
-            privileges: [
-                'integration:create',
-            ],
-            dependencies: [
-                'integration.viewer',
-                'integration.editor',
-            ],
+            privileges: ['integration:create'],
+            dependencies: ['integration.viewer', 'integration.editor'],
         },
         deleter: {
-            privileges: [
-                'integration:delete',
-            ],
-            dependencies: [
-                'integration.viewer',
-            ],
+            privileges: ['integration:delete'],
+            dependencies: ['integration.viewer'],
         },
     },
 });

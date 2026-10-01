@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Filter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EqualsFilter::class)]
 class EqualsFilterTest extends TestCase
 {
@@ -34,10 +36,10 @@ class EqualsFilterTest extends TestCase
         $filter = new EqualsFilter('foo', 'bar');
         $clone = clone $filter;
 
-        static::assertEquals($filter->jsonSerialize(), $clone->jsonSerialize());
-        static::assertEquals($filter->getField(), $clone->getField());
-        static::assertEquals($filter->getFields(), $clone->getFields());
-        static::assertEquals($filter->getValue(), $clone->getValue());
+        static::assertSame($filter->jsonSerialize(), $clone->jsonSerialize());
+        static::assertSame($filter->getField(), $clone->getField());
+        static::assertSame($filter->getFields(), $clone->getFields());
+        static::assertSame($filter->getValue(), $clone->getValue());
         static::assertNotSame($filter, $clone);
     }
 }

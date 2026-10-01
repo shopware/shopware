@@ -27,10 +27,34 @@ export default class BasicCaptchaPlugin extends Plugin {
 
         this.formPluginInstances = window.PluginManager.getPluginInstancesFromElement(this._form);
 
+        this.createFakeInput();
+
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */
         this._httpClient = new HttpClient();
         this._onLoadBasicCaptcha();
         this._registerEvents();
+    }
+
+    /**
+     * Creates a fake input which is required.
+     * This ensures that the form stays invalid until the captcha is solved correctly.
+     * It helps to create compatibility with other plugins that rely on the native `checkValidity()` method.
+     */
+    createFakeInput() {
+        this.fakeInput = document.createElement('input');
+        this.fakeInput.type = 'text';
+        this.fakeInput.id = 'shopware_basic_captcha_check';
+        this.fakeInput.name = 'shopware_basic_captcha_check';
+        this.fakeInput.required = true;
+        this.fakeInput.style.display = 'none';
+        this.fakeInput.tabIndex = -1;
+        this.fakeInput.ariaHidden = 'true';
+        this.fakeInput.value = null;
+
+        // Compatibility with the form validation helper and the form handler plugin.
+        this.fakeInput.setAttribute('data-validate-hidden', 'true');
+
+        this.el.appendChild(this.fakeInput);
     }
 
     /**
@@ -79,7 +103,8 @@ export default class BasicCaptchaPlugin extends Plugin {
     async validateCaptcha(event) {
         event.preventDefault();
 
-        const captchaValue = this.el.querySelector(this.options.basicCaptchaInputId).value;
+        const captchaInput = this.el.querySelector(this.options.basicCaptchaInputId);
+        const captchaValue = captchaInput.value;
         const data = JSON.stringify({
             formId: this.options.formId,
             shopware_basic_captcha_confirm: captchaValue,
@@ -93,12 +118,13 @@ export default class BasicCaptchaPlugin extends Plugin {
 
         const content = await response.json();
         const validCaptcha = !!content.session;
-        const validForm = this._form.checkValidity();
 
         if (!validCaptcha) {
             // Captcha input will be marked as invalid.
-            const captchaInput = this.el.querySelector(this.options.basicCaptchaInputId);
             window.formValidation.setFieldInvalid(captchaInput, ['basicCaptcha']);
+
+            // Reset the fake input value so the form stays invalid.
+            this.fakeInput.value = null;
 
             // Captcha code is always updated with new image if the validation failed.
             this._onLoadBasicCaptcha();
@@ -106,7 +132,14 @@ export default class BasicCaptchaPlugin extends Plugin {
             // Remove loading indicators in the case the form uses them.
             // This event is triggering the corresponding logic in the form handler plugin.
             this._form.dispatchEvent(new CustomEvent('removeLoader'));
+
+            return;
         }
+
+        // If the captcha is valid, the fake input is also filled so the native form validation succeeds.
+        this.fakeInput.value = captchaValue;
+
+        const validForm = this._form.checkValidity();
 
         if (validCaptcha && validForm) {
             if (this._isCmsForm()) {

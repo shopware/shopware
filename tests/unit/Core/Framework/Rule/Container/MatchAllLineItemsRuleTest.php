@@ -10,12 +10,17 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Checkout\Cart\Rule\LineItemTagRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
+use Shopware\Core\Test\Stub\Rule\CountingTrueRule;
+use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
@@ -25,8 +30,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 #[CoversClass(Container::class)]
 class MatchAllLineItemsRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     public function testAndRuleNameIsStillTheSame(): void
     {
         static::assertSame('allLineItemsContainer', (new MatchAllLineItemsRule())->getName());
@@ -59,11 +62,11 @@ class MatchAllLineItemsRuleTest extends TestCase
             $this->createLineItemWithCategories($categoryIdsProductB),
         ]);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $allLineItemsRule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -106,7 +109,7 @@ class MatchAllLineItemsRuleTest extends TestCase
 
         $match = $allLineItemsRule->match(new LineItemScope(
             $this->createLineItemWithCategories($categoryIdsProduct),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -147,7 +150,7 @@ class MatchAllLineItemsRuleTest extends TestCase
             'operator' => $operator,
         ]);
 
-        $allLineItemsRule = new MatchAllLineItemsRule([], null, 'product');
+        $allLineItemsRule = new MatchAllLineItemsRule([], null, ['product']);
         $allLineItemsRule->assign(['minimumShouldMatch' => 2]);
         $allLineItemsRule->addRule($lineItemRule);
 
@@ -157,14 +160,14 @@ class MatchAllLineItemsRuleTest extends TestCase
             $this->createLineItemWithCategories($categoryIdsProductC),
         ]);
 
-        $promotionLineItem = $this->createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO')->setPayloadValue('promotionId', 'A');
+        $promotionLineItem = CartRuleFixture::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO')->setPayloadValue('promotionId', 'A');
         $lineItemCollection->add($promotionLineItem);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $allLineItemsRule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -202,13 +205,13 @@ class MatchAllLineItemsRuleTest extends TestCase
             'operator' => $operator,
         ]);
 
-        $allLineItemsRule = new MatchAllLineItemsRule([], null, 'product');
+        $allLineItemsRule = new MatchAllLineItemsRule([], null, ['product']);
         $allLineItemsRule->assign(['minimumShouldMatch' => 1]);
         $allLineItemsRule->addRule($lineItemRule);
 
         $match = $allLineItemsRule->match(new LineItemScope(
             $this->createLineItemWithCategories($categoryIdsProduct),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -228,11 +231,123 @@ class MatchAllLineItemsRuleTest extends TestCase
         ];
     }
 
+    public function testReturnsFalseIfNoLineItemsArePresent(): void
+    {
+        $rule = new MatchAllLineItemsRule();
+
+        $match = $rule->match(new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection()),
+            static::createStub(SalesChannelContext::class)
+        ));
+
+        static::assertFalse($match);
+    }
+
+    public function testReturnsFalseWhenScopeIsNotCartOrLineItemScope(): void
+    {
+        $rule = new MatchAllLineItemsRule();
+
+        $match = $rule->match(static::createStub(RuleScope::class));
+
+        static::assertFalse($match);
+    }
+
+    public function testReturnsTrueWhenNoLineItemsOfFilteredTypeExist(): void
+    {
+        $rule = new MatchAllLineItemsRule([], null, ['product']);
+
+        $match = $rule->match(new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([
+                CartRuleFixture::createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE, 1, 'CUSTOM'),
+            ])),
+            static::createStub(SalesChannelContext::class)
+        ));
+
+        static::assertTrue($match);
+    }
+
+    public function testEvaluatesAllItemsWhenNoTypesSet(): void
+    {
+        $condition = new CountingTrueRule();
+
+        $rule = new MatchAllLineItemsRule([$condition], null, null);
+
+        $collection = new LineItemCollection([
+            CartRuleFixture::createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE, 1, 'CUSTOM'),
+            CartRuleFixture::createLineItem(LineItem::DISCOUNT_LINE_ITEM, 1, 'DISCOUNT'),
+            CartRuleFixture::createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'PRODUCT'),
+            CartRuleFixture::createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'PRODUCT'),
+        ]);
+
+        $match = $rule->match(new CartRuleScope(
+            CartRuleFixture::createCart($collection),
+            static::createStub(SalesChannelContext::class)
+        ));
+
+        static::assertTrue($match);
+        static::assertSame(4, $condition->matchCount);
+    }
+
+    public function testFiltersItemsByGivenTypes(): void
+    {
+        $condition = new CountingTrueRule();
+
+        $rule = new MatchAllLineItemsRule([$condition], null, ['discount', 'custom']);
+
+        $collection = new LineItemCollection([
+            CartRuleFixture::createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE, 1, 'CUSTOM'),
+            CartRuleFixture::createLineItem(LineItem::DISCOUNT_LINE_ITEM, 1, 'DISCOUNT'),
+            CartRuleFixture::createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 1, 'PRODUCT'),
+        ]);
+
+        $match = $rule->match(new CartRuleScope(
+            CartRuleFixture::createCart($collection),
+            static::createStub(SalesChannelContext::class)
+        ));
+
+        static::assertTrue($match);
+        static::assertSame(2, $condition->matchCount);
+    }
+
+    public function testCustomLineItemPassesNegatedTagRuleForProductAndCustomTypes(): void
+    {
+        $rule = new MatchAllLineItemsRule(
+            [new LineItemTagRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()])],
+            null,
+            [LineItem::PRODUCT_LINE_ITEM_TYPE, LineItem::CUSTOM_LINE_ITEM_TYPE]
+        );
+
+        $match = $rule->match(new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([
+                CartRuleFixture::createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE, 1, 'CUSTOM'),
+            ])),
+            static::createStub(SalesChannelContext::class)
+        ));
+
+        static::assertTrue($match);
+    }
+
+    public function testRuleConstraints(): void
+    {
+        $rule = new MatchAllLineItemsRule();
+
+        $constraints = $rule->getConstraints();
+
+        static::assertArrayHasKey('minimumShouldMatch', $constraints);
+        static::assertArrayHasKey('types', $constraints);
+
+        static::assertCount(1, $constraints['minimumShouldMatch']);
+        static::assertCount(1, $constraints['types']);
+
+        static::assertInstanceOf(Type::class, $constraints['minimumShouldMatch'][0]);
+        static::assertInstanceOf(Type::class, $constraints['types'][0]);
+    }
+
     /**
      * @param array<string> $categoryIds
      */
     private function createLineItemWithCategories(array $categoryIds): LineItem
     {
-        return $this->createLineItem()->setPayloadValue('categoryIds', $categoryIds);
+        return CartRuleFixture::createLineItem()->setPayloadValue('categoryIds', $categoryIds);
     }
 }

@@ -3,17 +3,20 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Event;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class EntityWrittenEventSerializationTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -34,7 +37,7 @@ class EntityWrittenEventSerializationTest extends TestCase
 
     private function writeTestProduct(): EntityWrittenContainerEvent
     {
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
 
         return $productRepository->create(

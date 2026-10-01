@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
@@ -140,7 +141,7 @@ class CartServiceTest extends TestCase
             $context
         );
 
-        /** @phpstan-ignore-next-line */
+        /** @phpstan-ignore staticMethod.impossibleType ($isMerged modified by listener) */
         static::assertTrue($isMerged);
     }
 
@@ -148,7 +149,7 @@ class CartServiceTest extends TestCase
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, AfterLineItemAddedEvent::class, $listener);
@@ -170,7 +171,7 @@ class CartServiceTest extends TestCase
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, BeforeLineItemRemovedEvent::class, $listener);
@@ -196,7 +197,7 @@ class CartServiceTest extends TestCase
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, AfterLineItemRemovedEvent::class, $listener);
@@ -222,7 +223,7 @@ class CartServiceTest extends TestCase
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, BeforeLineItemQuantityChangedEvent::class, $listener);
@@ -246,7 +247,7 @@ class CartServiceTest extends TestCase
     {
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = $this->getMockBuilder(CallableClass::class)->getMock();
+        $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
         $this->addEventListener($dispatcher, AfterLineItemQuantityChangedEvent::class, $listener);
@@ -300,7 +301,7 @@ class CartServiceTest extends TestCase
         $lineItem = $cart->getLineItems()->get($productId);
 
         static::assertInstanceOf(LineItem::class, $lineItem);
-        static::assertEquals(1, $lineItem->getQuantity());
+        static::assertSame(1, $lineItem->getQuantity());
         static::assertTrue($lineItem->isStackable());
         static::assertTrue($lineItem->isRemovable());
 
@@ -312,10 +313,10 @@ class CartServiceTest extends TestCase
             'removable' => false,
         ]], $context);
 
-        static::assertEquals(20, $lineItem->getQuantity());
+        static::assertSame(20, $lineItem->getQuantity());
         static::assertTrue($lineItem->isStackable());
         static::assertTrue($lineItem->isRemovable());
-        static::assertEquals('bar', $lineItem->getPayloadValue('foo'));
+        static::assertSame('bar', $lineItem->getPayloadValue('foo'));
     }
 
     public function testRemoveLineItems(): void
@@ -371,7 +372,7 @@ class CartServiceTest extends TestCase
 
         $remainingLineItem = $cart->getLineItems()->get($productId3);
         static::assertInstanceOf(LineItem::class, $remainingLineItem);
-        static::assertEquals($productId3, $remainingLineItem->getReferencedId());
+        static::assertSame($productId3, $remainingLineItem->getReferencedId());
     }
 
     public function testZeroPricedItemsCanBeAddedToCart(): void
@@ -408,16 +409,16 @@ class CartServiceTest extends TestCase
         $cart = $cartService->add($cart, $lineItem, $context);
 
         static::assertTrue($cart->has($productId));
-        static::assertEquals(0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(0.0, $cart->getPrice()->getTotalPrice());
 
         $calculatedLineItem = $cart->getLineItems()->get($productId);
         static::assertNotNull($calculatedLineItem);
         static::assertNotNull($calculatedLineItem->getPrice());
-        static::assertEquals(0, $calculatedLineItem->getPrice()->getTotalPrice());
+        static::assertSame(0.0, $calculatedLineItem->getPrice()->getTotalPrice());
 
         $calculatedTaxes = $calculatedLineItem->getPrice()->getCalculatedTaxes();
         static::assertNotNull($calculatedTaxes);
-        static::assertEquals(0, $calculatedTaxes->getAmount());
+        static::assertSame(0.0, $calculatedTaxes->getAmount());
     }
 
     public function testOrderCartSendMail(): void
@@ -459,16 +460,18 @@ class CartServiceTest extends TestCase
         /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $phpunit = $this;
         $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $phpunit): void {
+        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
             $eventDidRun = true;
-            $phpunit->assertStringContainsString('Shipping costs: €0.00', $event->getContents()['text/html']);
+            $htmlText = $event->getContents()['text/html'];
+            self::assertIsString($htmlText);
+            static::assertStringContainsString('Shipping costs: €0.00', $htmlText);
         };
 
         $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
 
         $cartService->order($cart, $context, new RequestDataBag());
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 

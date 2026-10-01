@@ -1,7 +1,6 @@
 import template from './sw-condition-script.html.twig';
 import './sw-condition-script.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -13,7 +12,8 @@ const { Criteria } = Shopware.Data;
  * @component-example
  * <sw-condition-script :condition="condition" :level="0"></sw-condition-script>
  */
-Component.extend('sw-condition-script', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
     inheritAttrs: false,
 
@@ -44,12 +44,7 @@ Component.extend('sw-condition-script', 'sw-condition-base', {
                             };
                         }
 
-                        if (
-                            [
-                                'sw-entity-multi-id-select',
-                                'sw-multi-select',
-                            ].includes(config.componentName)
-                        ) {
+                        if (['sw-entity-multi-id-select', 'sw-multi-select'].includes(config.componentName)) {
                             return this.condition.value[name] || [];
                         }
 
@@ -66,24 +61,6 @@ Component.extend('sw-condition-script', 'sw-condition-base', {
             });
 
             return values;
-        },
-
-        currentError() {
-            let error = null;
-
-            Object.values(this.config).forEach((config) => {
-                if (error) {
-                    return;
-                }
-
-                const errorProperty = Shopware.Store.get('error').getApiError(this.condition, `value.${config.name}`);
-
-                if (errorProperty) {
-                    error = errorProperty;
-                }
-            });
-
-            return error;
         },
 
         conditionClasses() {
@@ -130,4 +107,4 @@ Component.extend('sw-condition-script', 'sw-condition-base', {
             this.values[fieldName] = value;
         },
     },
-});
+};

@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Builder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Price\Struct\AbsolutePriceDefinition;
@@ -30,14 +30,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(PromotionItemBuilder::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionItemBuilder::class)]
 class PromotionItemBuilderTest extends TestCase
 {
     private PromotionEntity $promotion;
 
     /**
-     * @var MockObject&SalesChannelContext
+     * @var Stub&SalesChannelContext
      */
     private SalesChannelContext $salesChannelContext;
 
@@ -50,8 +50,8 @@ class PromotionItemBuilderTest extends TestCase
         $this->promotion->setUseIndividualCodes(false);
         $this->promotion->setUseSetGroups(false);
 
-        $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
-        $context = $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock();
+        $this->salesChannelContext = static::createStub(SalesChannelContext::class);
+        $context = static::createStub(Context::class);
 
         $this->salesChannelContext->method('getContext')->willReturn($context);
     }
@@ -79,7 +79,7 @@ class PromotionItemBuilderTest extends TestCase
 
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 'C1', $currencyFactor);
 
-        static::assertEquals(PromotionProcessor::LINE_ITEM_TYPE, $item->getType());
+        static::assertSame(PromotionProcessor::LINE_ITEM_TYPE, $item->getType());
     }
 
     /**
@@ -108,7 +108,7 @@ class PromotionItemBuilderTest extends TestCase
 
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, 'C1', $currencyFactor);
 
-        static::assertEquals('D5', $item->getId());
+        static::assertSame('D5', $item->getId());
     }
 
     /**
@@ -134,7 +134,7 @@ class PromotionItemBuilderTest extends TestCase
 
         $item = (new PromotionItemBuilder())->buildDiscountLineItem('individual-123', $this->promotion, $discount, 'C1', $currencyFactor);
 
-        static::assertEquals('individual-123', $item->getReferencedId());
+        static::assertSame('individual-123', $item->getReferencedId());
     }
 
     /**
@@ -434,15 +434,13 @@ class PromotionItemBuilderTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: string}>
+     * @return iterable<string, array{0: string}>
      */
-    public static function getDefaultCurrencyDataProvider(): array
+    public static function getDefaultCurrencyDataProvider(): iterable
     {
-        return [
-            'absolute' => [PromotionDiscountEntity::TYPE_ABSOLUTE],
-            'fixed' => [PromotionDiscountEntity::TYPE_FIXED],
-            'fixed_unit' => [PromotionDiscountEntity::TYPE_FIXED_UNIT],
-        ];
+        yield 'absolute' => [PromotionDiscountEntity::TYPE_ABSOLUTE];
+        yield 'fixed' => [PromotionDiscountEntity::TYPE_FIXED];
+        yield 'fixed_unit' => [PromotionDiscountEntity::TYPE_FIXED_UNIT];
     }
 
     /**

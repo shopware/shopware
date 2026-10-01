@@ -21,7 +21,7 @@ class ExtensionStoreLicensesControllerTest extends TestCase
 
     public function testCancelSubscription(): void
     {
-        $provider = $this->createMock(ExtensionStoreLicensesService::class);
+        $provider = static::createStub(ExtensionStoreLicensesService::class);
         $provider->method('cancelSubscription');
 
         $controller = new ExtensionStoreLicensesController(
@@ -29,12 +29,12 @@ class ExtensionStoreLicensesControllerTest extends TestCase
         );
 
         $response = $controller->cancelSubscription(1, Context::createDefaultContext());
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
     public function testRateLicensedExtension(): void
     {
-        $provider = $this->createMock(ExtensionStoreLicensesService::class);
+        $provider = static::createStub(ExtensionStoreLicensesService::class);
 
         $controller = new ExtensionStoreLicensesController(
             $provider
@@ -49,6 +49,6 @@ class ExtensionStoreLicensesControllerTest extends TestCase
         ]);
 
         $response = $controller->rateLicensedExtension(1, $request, Context::createDefaultContext());
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 }

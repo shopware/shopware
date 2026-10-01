@@ -3,7 +3,6 @@ import type RepositoryType from 'src/core/data/repository.data';
 import template from './sw-dynamic-url-field.html.twig';
 import './sw-dynamic-url-field.scss';
 
-const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 type LinkCategories = 'link' | 'detail' | 'navigation' | 'media' | 'email' | 'phone';
@@ -13,18 +12,21 @@ type LinkCategories = 'link' | 'detail' | 'navigation' | 'media' | 'email' | 'ph
  *
  * @private
  */
-Component.register('sw-dynamic-url-field', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         value: {
             type: String,
             required: false,
             default: '',
+        },
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -72,12 +74,12 @@ Component.register('sw-dynamic-url-field', {
 
         linkCategoryOptions() {
             return [
-                { value: 'link', label: this.$tc('sw-text-editor-toolbar.link.labelUrl') },
-                { value: 'detail', label: this.$tc('sw-text-editor-toolbar.link.labelProduct') },
-                { value: 'navigation', label: this.$tc('sw-text-editor-toolbar.link.labelCategory') },
-                { value: 'media', label: this.$tc('sw-text-editor-toolbar.link.labelMedia') },
-                { value: 'email', label: this.$tc('sw-text-editor-toolbar.link.labelEmail') },
-                { value: 'phone', label: this.$tc('sw-text-editor-toolbar.link.labelPhoneNumber') },
+                { value: 'link', label: this.$t('sw-text-editor-toolbar.link.labelUrl') },
+                { value: 'detail', label: this.$t('sw-text-editor-toolbar.link.labelProduct') },
+                { value: 'navigation', label: this.$t('sw-text-editor-toolbar.link.labelCategory') },
+                { value: 'media', label: this.$t('sw-text-editor-toolbar.link.labelMedia') },
+                { value: 'email', label: this.$t('sw-text-editor-toolbar.link.labelEmail') },
+                { value: 'phone', label: this.$t('sw-text-editor-toolbar.link.labelPhoneNumber') },
             ];
         },
     },
@@ -127,7 +129,7 @@ Component.register('sw-dynamic-url-field', {
             );
         },
 
-        getCategoryCollection(categoryId: string): Promise<EntityCollection<'category'>> {
+        getCategoryCollection(categoryId: EntityKey<'category'>): Promise<EntityCollection<'category'>> {
             const categoryCriteria = new Criteria(1, 25).addFilter(Criteria.equals('id', categoryId));
             return this.categoryRepository.search(categoryCriteria);
         },
@@ -135,16 +137,9 @@ Component.register('sw-dynamic-url-field', {
         async parseLink(link: string): Promise<{ type: LinkCategories; target: string }> {
             const slicedLink = link.slice(0, -1).split('/');
 
-            if (
-                link.startsWith(this.seoUrlReplacePrefix) &&
-                [
-                    'navigation',
-                    'detail',
-                    'mediaId',
-                ].includes(slicedLink[1])
-            ) {
+            if (link.startsWith(this.seoUrlReplacePrefix) && ['navigation', 'detail', 'mediaId'].includes(slicedLink[1])) {
                 if (slicedLink[1] === 'navigation') {
-                    this.categoryCollection = await this.getCategoryCollection(slicedLink[2]);
+                    this.categoryCollection = await this.getCategoryCollection(slicedLink[2] as EntityKey<'category'>);
                 } else if (slicedLink[1] === 'mediaId') {
                     slicedLink[1] = 'media';
                 }
@@ -174,7 +169,7 @@ Component.register('sw-dynamic-url-field', {
             };
         },
 
-        replaceCategorySelection(category: { id: string }): void {
+        replaceCategorySelection(category: { id: EntityKey<'category'> }): void {
             this.linkTarget = category.id;
         },
 

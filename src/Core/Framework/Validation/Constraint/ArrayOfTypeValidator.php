@@ -2,12 +2,11 @@
 
 namespace Shopware\Core\Framework\Validation\Constraint;
 
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Type;
 use Symfony\Component\Validator\ConstraintValidator;
-use Symfony\Component\Validator\Exception\UnexpectedTypeException;
 
 #[Package('framework')]
 class ArrayOfTypeValidator extends ConstraintValidator
@@ -15,7 +14,7 @@ class ArrayOfTypeValidator extends ConstraintValidator
     public function validate(mixed $value, Constraint $constraint): void
     {
         if (!$constraint instanceof ArrayOfType) {
-            throw new UnexpectedTypeException($constraint, Uuid::class);
+            throw FrameworkException::unexpectedType($constraint, ArrayOfType::class);
         }
 
         // custom constraints should ignore null and empty values to allow
@@ -37,11 +36,11 @@ class ArrayOfTypeValidator extends ConstraintValidator
             $isFunction = 'is_' . $type;
             $ctypeFunction = 'ctype_' . $type;
 
-            if (\function_exists($isFunction) && $isFunction($item)) { /* @phpstan-ignore-line */
+            if (\function_exists($isFunction) && $isFunction($item)) {
                 continue;
             }
 
-            if (\function_exists($ctypeFunction) && $ctypeFunction($item)) { /* @phpstan-ignore-line */
+            if (\function_exists($ctypeFunction) && $ctypeFunction($item)) {
                 continue;
             }
 

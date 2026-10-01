@@ -8,7 +8,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@framework')]
 class IntegrationEntity extends Entity
 {
@@ -23,6 +27,11 @@ class IntegrationEntity extends Entity
 
     protected bool $admin;
 
+    /**
+     * @var array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}|null
+     */
+    protected ?array $mcpAllowlist = null;
+
     protected ?\DateTimeInterface $lastUsageAt = null;
 
     protected ?AppEntity $app = null;
@@ -30,6 +39,8 @@ class IntegrationEntity extends Entity
     protected ?AclRoleCollection $aclRoles = null;
 
     protected ?\DateTimeInterface $deletedAt = null;
+
+    protected ?StateMachineHistoryCollection $stateMachineHistoryEntries = null;
 
     public function getLabel(): string
     {
@@ -101,6 +112,22 @@ class IntegrationEntity extends Entity
         $this->admin = $admin;
     }
 
+    /**
+     * @return array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}|null
+     */
+    public function getMcpAllowlist(): ?array
+    {
+        return $this->mcpAllowlist;
+    }
+
+    /**
+     * @param array{tools: list<string>|null, resources: list<string>|null, prompts: list<string>|null}|null $mcpAllowlist
+     */
+    public function setMcpAllowlist(?array $mcpAllowlist): void
+    {
+        $this->mcpAllowlist = $mcpAllowlist;
+    }
+
     public function getDeletedAt(): ?\DateTimeInterface
     {
         return $this->deletedAt;
@@ -109,5 +136,15 @@ class IntegrationEntity extends Entity
     public function setDeletedAt(\DateTimeInterface $deletedAt): void
     {
         $this->deletedAt = $deletedAt;
+    }
+
+    public function getStateMachineHistoryEntries(): ?StateMachineHistoryCollection
+    {
+        return $this->stateMachineHistoryEntries;
+    }
+
+    public function setStateMachineHistoryEntries(StateMachineHistoryCollection $stateMachineHistoryEntries): void
+    {
+        $this->stateMachineHistoryEntries = $stateMachineHistoryEntries;
     }
 }

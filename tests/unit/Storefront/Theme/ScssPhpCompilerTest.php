@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use ScssPhp\ScssPhp\OutputStyle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\CompilerConfiguration;
 use Shopware\Storefront\Theme\ScssPhpCompiler;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ScssPhpCompiler::class)]
 class ScssPhpCompilerTest extends TestCase
 {
@@ -23,7 +25,7 @@ class ScssPhpCompilerTest extends TestCase
             '$background: #123456; background-color: $background;'
         );
 
-        static::assertEquals('background-color: #123456; ', preg_replace('/\r?\n$/', ' ', $compiled), $compiled);
+        static::assertSame('background-color: #123456; ', preg_replace('/\r?\n$/', ' ', $compiled), $compiled);
     }
 
     public function testCompilesWithConfig(): void
@@ -40,6 +42,6 @@ class ScssPhpCompilerTest extends TestCase
             '$background: #123456; background-color: $background;'
         );
 
-        static::assertEquals('background-color:#123456', preg_replace('/\r?\n$/', ' ', $compiled), $compiled);
+        static::assertSame('background-color:#123456', preg_replace('/\r?\n$/', ' ', $compiled), $compiled);
     }
 }

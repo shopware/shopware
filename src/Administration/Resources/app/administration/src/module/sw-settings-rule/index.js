@@ -1,8 +1,9 @@
 import './acl';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register(
     'sw-settings-rule-add-assignment-modal',
     () => import('./component/sw-settings-rule-add-assignment-modal'),
@@ -30,7 +31,7 @@ Shopware.Component.register(
     'sw-settings-rule-detail-assignments',
     () => import('./view/sw-settings-rule-detail-assignments'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**
  * @private
@@ -41,17 +42,17 @@ Module.register('sw-settings-rule', {
     name: 'settings-rule',
     title: 'sw-settings-rule.general.mainMenuItemGeneral',
     description: 'sw-settings-rule.general.descriptionTextModule',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    color: 'var(--sw-color-module-red-default)',
+    icon: 'regular-rule',
+    favicon: 'icon-module-settings.svg',
     entity: 'rule',
+    defaultSearchConfiguration,
 
     routes: {
         index: {
             component: 'sw-settings-rule-list',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index',
                 privilege: 'rule.viewer',
             },
         },
@@ -65,7 +66,7 @@ Module.register('sw-settings-rule', {
             props: {
                 default(route) {
                     return {
-                        ruleId: route.params.id,
+                        ruleId: route.params.id.toLowerCase(),
                     };
                 },
             },
@@ -113,6 +114,28 @@ Module.register('sw-settings-rule', {
             },
         },
     },
+
+    // The child entry must stay first here, so the main menu active state is working correctly for rule builders
+    // sub routes (children of `sw.settings.index`). Settings menu entry would be active otherwise.
+    navigation: [
+        {
+            id: 'sw-settings-rule',
+            label: 'sw-settings-rule.general.mainMenuItemGeneral',
+            path: 'sw.settings.rule.index',
+            icon: 'regular-rule',
+            color: 'var(--sw-color-module-red-default)',
+            parent: 'sw-automation',
+            privilege: 'rule.viewer',
+            position: 10,
+        },
+        {
+            id: 'sw-automation',
+            label: 'global.sw-admin-menu.navigation.mainMenuItemAutomation',
+            icon: 'regular-rule',
+            color: 'var(--sw-color-module-red-default)',
+            position: 70,
+        },
+    ],
 
     settingsItem: {
         group: 'automation',

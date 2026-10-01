@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Framework\Event\EventData;
 
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('fundamentals@after-sales')]
+#[Package('framework')]
 class ScalarValueType implements EventDataType
 {
     final public const TYPE_STRING = 'string';
@@ -24,12 +26,19 @@ class ScalarValueType implements EventDataType
     public function __construct(string $type)
     {
         if (!\in_array($type, self::VALID_TYPES, true)) {
-            throw new \InvalidArgumentException(\sprintf('Invalid type "%s" provided, valid ones are: %s', $type, implode(', ', self::VALID_TYPES)));
+            $message = \sprintf('Invalid type "%s" provided, valid ones are: %s', $type, implode(', ', self::VALID_TYPES));
+            if (!Feature::isActive('v6.8.0.0')) {
+                throw new \InvalidArgumentException($message); /** @phpstan-ignore shopware.domainException (Will be fixed with next major) */
+            }
+            throw FrameworkException::invalidArgumentException($message);
         }
 
         $this->type = $type;
     }
 
+    /**
+     * @return array{type: self::TYPE_*}
+     */
     public function toArray(): array
     {
         return [

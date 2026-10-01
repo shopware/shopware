@@ -1,0 +1,57 @@
+<sw-container
+    columns="1fr 1fr 1fr"
+    gap="0 30px"
+>
+    <mt-select
+        v-model="measurementUnits.system"
+        required
+        hide-clearable-button
+        :label="labelUnitSystem"
+        :options="measurementSystemOptions"
+        :error="measurementUnitSystemError"
+        :disabled="!acl.can('sales_channel.editor')"
+        @update:model-value="onMeasurementSystemChange"
+    />
+
+    <mt-select
+        v-model="measurementUnits.units.length"
+        required
+        hide-clearable-button
+        :label="labelLengthUnit"
+        :options="lengthUnitOptions"
+        :error="measurementLengthUnitError"
+        :disabled="!acl.can('sales_channel.editor')"
+    >
+        <template #result-label-property="{ item, searchTerm }">
+            <sw-highlight-text
+                :text="item.translated.name || item.name"
+                :search-term="searchTerm"
+            />
+
+            <span class="mt-select-result-list-popover-wrapper__length-unit-short-name">
+                {{ item.shortName }}
+            </span>
+        </template>
+    </mt-select>
+
+    <mt-select
+        v-model="measurementUnits.units.weight"
+        required
+        :label="labelWeightUnit"
+        hide-clearable-button
+        :options="weightUnitOptions"
+        :error="measurementWeightUnitError"
+        :disabled="!acl.can('sales_channel.editor')"
+    >
+        <template #result-label-property="{ item, searchTerm }">
+            <sw-highlight-text
+                :text="item.translated.name || item.name"
+                :search-term="searchTerm"
+            />
+
+            <span class="mt-select-result-list-popover-wrapper__mass-unit-short-name">
+                {{ item.shortName }}
+            </span>
+        </template>
+    </mt-select>
+</sw-container>

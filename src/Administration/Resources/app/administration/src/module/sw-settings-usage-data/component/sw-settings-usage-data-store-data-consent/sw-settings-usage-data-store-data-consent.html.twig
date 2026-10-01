@@ -1,0 +1,24 @@
+<mt-card
+    class="sw-settings-usage-data-store-data-consent"
+    :title="$t('sw-settings-usage-data.consent-modal.title')"
+>
+    <div class="sw-settings-usage-data-store-data-consent__intro">
+        <img
+            alt=""
+            :src="unionPath"
+        >
+
+        <p>{{ $t('sw-settings-usage-data.consent-modal.share-store-data') }}</p>
+    </div>
+
+    <div class="sw-settings-usage-data-store-data-consent__consent">
+        <sw-settings-usage-data-store-data-consent-card
+            :is-loading="suspended || isLoading"
+            :consent="storeDataConsent"
+            @update:consent="updateConsent"
+            @legal-link-clicked="onLegalLinkClick"
+        />
+
+        <sw-settings-usage-data-consent-check-list />
+    </div>
+</mt-card>

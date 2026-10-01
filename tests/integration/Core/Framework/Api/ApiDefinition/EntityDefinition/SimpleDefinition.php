@@ -37,11 +37,11 @@ class SimpleDefinition extends EntityDefinition
     {
         return new FieldCollection(
             [
-                (new StringField('string_field', 'stringField'))->addFlags(new ApiAware()),
-                (new IntField('int_field', 'intField'))->addFlags(new ApiAware()),
-                (new FloatField('float_field', 'floatField'))->addFlags(new ApiAware()),
-                (new BoolField('bool_field', 'boolField'))->addFlags(new ApiAware()),
-                (new IdField('id_field', 'idField'))->addFlags(new ApiAware()),
+                (new StringField('string_field', 'stringField'))->addFlags(new ApiAware())->setDescription('A simple string field'),
+                (new IntField('int_field', 'intField'))->addFlags(new ApiAware())->setDescription('A simple int field'),
+                (new FloatField('float_field', 'floatField'))->addFlags(new ApiAware())->setDescription('A simple float field'),
+                (new BoolField('bool_field', 'boolField'))->addFlags(new ApiAware())->setDescription('A simple bool field'),
+                (new IdField('id_field', 'idField'))->addFlags(new ApiAware())->setDescription('A simple id field'),
                 (new StringField('i_am_a_new_field', 'i_am_a_new_field'))->addFlags(new ApiAware(), new Since('6.3.9.9')),
                 (new ChildCountField())->addFlags(new ApiAware()),
 

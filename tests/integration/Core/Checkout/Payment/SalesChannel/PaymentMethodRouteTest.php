@@ -18,8 +18,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Group('store-api')]
 #[Package('checkout')]
+#[Group('store-api')]
 class PaymentMethodRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -60,7 +60,7 @@ class PaymentMethodRouteTest extends TestCase
         static::assertContains($this->ids->get('payment2'), $ids);
         static::assertContains($this->ids->get('payment3'), $ids);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->browser->getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(PaymentMethodRouteHook::HOOK_NAME, $traces);
     }
 
@@ -103,8 +103,8 @@ class PaymentMethodRouteTest extends TestCase
                         [
                             'type' => 'dateRange',
                             'value' => [
-                                'fromDate' => '2000-06-07T11:37:51+02:00',
-                                'toDate' => '2099-06-07T11:37:51+02:00',
+                                'fromDate' => '2000-06-07T11:37:51',
+                                'toDate' => '2099-06-07T11:37:51',
                                 'useTime' => false,
                             ],
                         ],
@@ -125,8 +125,8 @@ class PaymentMethodRouteTest extends TestCase
                         [
                             'type' => 'dateRange',
                             'value' => [
-                                'fromDate' => '2000-06-07T11:37:51+02:00',
-                                'toDate' => '2099-06-07T11:37:51+02:00',
+                                'fromDate' => '2000-06-07T11:37:51',
+                                'toDate' => '2099-06-07T11:37:51',
                                 'useTime' => false,
                             ],
                         ],
@@ -147,8 +147,8 @@ class PaymentMethodRouteTest extends TestCase
                         [
                             'type' => 'dateRange',
                             'value' => [
-                                'fromDate' => '2000-06-07T11:37:51+02:00',
-                                'toDate' => '2000-06-07T11:37:51+02:00',
+                                'fromDate' => '2000-06-07T11:37:51',
+                                'toDate' => '2000-06-07T11:37:51',
                                 'useTime' => false,
                             ],
                         ],

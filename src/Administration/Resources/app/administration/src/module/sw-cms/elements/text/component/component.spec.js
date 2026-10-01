@@ -3,7 +3,6 @@
  */
 import { mount } from '@vue/test-utils';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
-import { MtTextEditor } from '@shopware-ag/meteor-component-library';
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-cms-el-text', { sync: true }), {
@@ -12,7 +11,9 @@ async function createWrapper() {
                 cmsService: Shopware.Service('cmsService'),
             },
             stubs: {
-                'mt-text-editor': MtTextEditor,
+                // Stub text-editor and code-editor to prevent crashes in test environment
+                // These components access DOM APIs that don't exist in jsdom
+                'sw-text-editor': true,
                 'sw-text-editor-toolbar': true,
                 'sw-text-editor-table-toolbar': true,
                 'sw-code-editor': true,
@@ -22,6 +23,7 @@ async function createWrapper() {
         },
         props: {
             element: {
+                type: 'text',
                 config: {
                     content: {
                         value: '',
@@ -47,6 +49,7 @@ describe('src/module/sw-cms/elements/text/component', () => {
 
         await wrapper.setProps({
             element: {
+                type: 'text',
                 config: {
                     content: {
                         source: 'mapped',
@@ -81,6 +84,7 @@ describe('src/module/sw-cms/elements/text/component', () => {
 
         await wrapper.setProps({
             element: {
+                type: 'text',
                 config: {
                     content: {
                         source: 'mapped',
@@ -92,5 +96,23 @@ describe('src/module/sw-cms/elements/text/component', () => {
 
         wrapper.vm.emitChanges('product.name');
         expect(wrapper.emitted()['element-update']).toBeUndefined();
+    });
+
+    it('sets demoValue correctly when source is mapped', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            element: {
+                type: 'text',
+                config: {
+                    content: {
+                        source: 'mapped',
+                        value: 'product.name',
+                    },
+                },
+            },
+        });
+
+        expect(wrapper.vm.demoValue).toContain('<strong>product.name</strong>');
     });
 });

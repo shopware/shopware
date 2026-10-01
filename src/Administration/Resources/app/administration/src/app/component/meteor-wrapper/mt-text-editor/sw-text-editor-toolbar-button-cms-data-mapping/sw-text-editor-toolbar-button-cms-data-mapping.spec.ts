@@ -3,10 +3,7 @@ import createSwTextEditorToolbarButtonCmsDataMapping from './index';
 
 describe('src/app/component/meteor-wrapper/mt-text-editor/mt-text-editor-toolbar-button-cms-data-mapping', () => {
     it('should return a custom button', () => {
-        const getAvailableDataMappings = jest.fn(() => [
-            'dataMapping1',
-            'dataMapping2',
-        ]);
+        const getAvailableDataMappings = jest.fn(() => ['dataMapping1', 'dataMapping2']);
         const button = createSwTextEditorToolbarButtonCmsDataMapping(getAvailableDataMappings);
 
         expect(button).toEqual({
@@ -14,6 +11,7 @@ describe('src/app/component/meteor-wrapper/mt-text-editor/mt-text-editor-toolbar
             name: 'cms-data-mapping',
             position: 14000,
             label: 'sw-text-editor-toolbar-button-cms-data-mapping.label',
+            disabled: expect.any(Function) as () => boolean,
             children: [
                 {
                     name: 'dataMapping1',
@@ -32,20 +30,14 @@ describe('src/app/component/meteor-wrapper/mt-text-editor/mt-text-editor-toolbar
     });
 
     it('should call getAvailableDataMappings', () => {
-        const getAvailableDataMappings = jest.fn(() => [
-            'dataMapping1',
-            'dataMapping2',
-        ]);
+        const getAvailableDataMappings = jest.fn(() => ['dataMapping1', 'dataMapping2']);
         createSwTextEditorToolbarButtonCmsDataMapping(getAvailableDataMappings);
 
         expect(getAvailableDataMappings).toHaveBeenCalled();
     });
 
     it('should insert the data mapping into the editor', () => {
-        const getAvailableDataMappings = jest.fn(() => [
-            'dataMapping1',
-            'dataMapping2',
-        ]);
+        const getAvailableDataMappings = jest.fn(() => ['dataMapping1', 'dataMapping2']);
         const button = createSwTextEditorToolbarButtonCmsDataMapping(getAvailableDataMappings);
 
         const editor = {

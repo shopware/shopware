@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
@@ -35,7 +36,8 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         private readonly OpenApiPathBuilder $pathBuilder,
         private readonly OpenApiDefinitionSchemaBuilder $definitionSchemaBuilder,
         array $bundles,
-        private readonly BundleSchemaPathCollection $bundleSchemaPathCollection
+        private readonly BundleSchemaPathCollection $bundleSchemaPathCollection,
+        private readonly ?OpenApiRouteDefaultsFilter $routeDefaultsFilter = null,
     ) {
         $this->schemaPath = $bundles['Framework']['path'] . '/Api/ApiDefinition/Generator/Schema/AdminApi';
     }
@@ -55,7 +57,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
         $openApi = new OpenApi([
-            'openapi' => '3.1.0',
+            'openapi' => '3.2.0',
         ]);
         $this->openApiBuilder->enrich($openApi, $api);
 
@@ -79,14 +81,14 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $apiType
             );
 
-            $openApi->components->merge($schema);
+            $openApi->components->merge(array_values($schema));
 
             if ($onlyFlat) {
                 continue;
             }
 
             if ($apiType === DefinitionService::TYPE_JSON_API) {
-                $openApi->merge($this->pathBuilder->getPathActions($definition, $this->getResourceUri($definition)));
+                $openApi->merge(array_values($this->pathBuilder->getPathActions($definition, $this->getResourceUri($definition))));
                 $openApi->merge([$this->pathBuilder->getTag($definition)]);
             }
         }
@@ -96,7 +98,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
 
         $schemaPaths = [$this->schemaPath];
 
-        if (!empty($bundleName)) {
+        if ($bundleName !== null && $bundleName !== '') {
             $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
             $data['paths'] = [];
         } else {
@@ -108,7 +110,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         /** @var OpenApiSpec $finalSpecs */
         $finalSpecs = array_replace_recursive($data, $loader->loadOpenapiSpecification());
 
-        return $finalSpecs;
+        return $this->routeDefaultsFilter?->filter($finalSpecs, $api) ?? $finalSpecs;
     }
 
     /**
@@ -143,7 +145,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
             $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel);
             $schema = array_shift($schema);
             if ($schema === null) {
-                throw new \RuntimeException('Invalid schema detected. Aborting');
+                throw ApiException::invalidSchemaForDefinition($definition, 'No schema found');
             }
             $schema = json_decode($schema->toJson(), true, 512, \JSON_THROW_ON_ERROR);
             $schema = $schema['allOf'][1]['properties'];
@@ -159,7 +161,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     } elseif ($type === 'array') {
                         $entity = $relationshipData['items']['properties']['type']['example'];
                     } else {
-                        throw new \RuntimeException('Invalid schema detected. Aborting');
+                        throw ApiException::invalidSchemaForDefinition($definition, 'Invalid type');
                     }
 
                     $relationships[$propertyName] = [
@@ -200,7 +202,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                     } elseif ($type === 'array') {
                         $entity = $data['items']['properties']['type']['example'];
                     } else {
-                        throw new \RuntimeException('Invalid schema detected. Aborting');
+                        throw ApiException::invalidSchemaForDefinition($definition, 'Invalid type');
                     }
 
                     $extensions[$propertyName] = ['type' => $type, 'entity' => $entity];
@@ -220,9 +222,9 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         return $schemaDefinitions;
     }
 
-    private function getResourceUri(EntityDefinition $definition, string $rootPath = '/'): string
+    private function getResourceUri(EntityDefinition $definition): string
     {
-        return ltrim('/', $rootPath) . '/' . str_replace('_', '-', $definition->getEntityName());
+        return '/' . str_replace('_', '-', $definition->getEntityName());
     }
 
     /**

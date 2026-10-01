@@ -34,6 +34,8 @@ class Cart extends Struct
 
     protected bool $modified = false;
 
+    protected bool $persisted = false;
+
     protected ?string $customerComment = null;
 
     protected ?string $affiliateCode = null;
@@ -73,6 +75,18 @@ class Cart extends Struct
         $this->price = new CartPrice(0, 0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_GROSS);
     }
 
+    public function __clone()
+    {
+        // cart errors extend \Exception and cannot be cloned - the clone shares the error instances instead,
+        // matching how the cart processor carries persistent errors over into recalculated carts
+        $errors = $this->errors;
+        $this->errors = new ErrorCollection();
+
+        parent::__clone();
+
+        $this->errors = new ErrorCollection($errors->getElements());
+    }
+
     public function getToken(): string
     {
         return $this->token;
@@ -80,6 +94,11 @@ class Cart extends Struct
 
     public function setToken(string $token): void
     {
+        if ($token !== $this->token) {
+            // the persisted state describes a storage entry for the previous token
+            $this->persisted = false;
+        }
+
         $this->token = $token;
     }
 
@@ -232,6 +251,16 @@ class Cart extends Struct
     public function markUnmodified(): void
     {
         $this->modified = false;
+    }
+
+    public function isPersisted(): bool
+    {
+        return $this->persisted;
+    }
+
+    public function setPersisted(bool $persisted): void
+    {
+        $this->persisted = $persisted;
     }
 
     public function getCustomerComment(): ?string

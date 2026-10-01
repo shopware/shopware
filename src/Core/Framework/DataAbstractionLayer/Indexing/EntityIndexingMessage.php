@@ -5,9 +5,11 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\AsyncMessageInterface;
+use Shopware\Core\Framework\MessageQueue\DeduplicatableMessageInterface;
+use Shopware\Core\Framework\Util\Hasher;
 
 #[Package('framework')]
-class EntityIndexingMessage implements AsyncMessageInterface
+class EntityIndexingMessage implements AsyncMessageInterface, DeduplicatableMessageInterface
 {
     protected string $indexer;
 
@@ -98,5 +100,31 @@ class EntityIndexingMessage implements AsyncMessageInterface
     public function allow(string $name): bool
     {
         return !\in_array($name, $this->getSkip(), true);
+    }
+
+    /**
+     * @experimental stableVersion:v6.8.0 feature:DEDUPLICATABLE_MESSAGES
+     */
+    public function deduplicationId(): ?string
+    {
+        $data = $this->data;
+        if (\is_array($data)) {
+            sort($data);
+        }
+
+        $sortedSkip = $this->skip;
+        sort($sortedSkip);
+
+        $data = serialize([
+            $this->indexer,
+            $sortedSkip,
+            $data,
+            $this->offset,
+            $this->context, // relying on __serialize() to skip extensions
+            $this->forceQueue,
+            $this->isFullIndexing,
+        ]);
+
+        return Hasher::hash($data);
     }
 }

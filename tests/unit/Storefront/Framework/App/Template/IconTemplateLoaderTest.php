@@ -6,15 +6,18 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Template\TemplateLoader;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Util\Filesystem;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Storefront\Framework\App\Template\IconTemplateLoader;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
+use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(IconTemplateLoader::class)]
 class IconTemplateLoaderTest extends TestCase
 {
@@ -33,8 +36,9 @@ class IconTemplateLoaderTest extends TestCase
         $this->templateLoader = new IconTemplateLoader(
             new TemplateLoader($sourceResolver),
             new StorefrontPluginConfigurationFactory(
-                $this->createMock(KernelPluginLoader::class),
-                $sourceResolver
+                static::createStub(KernelPluginLoader::class),
+                $sourceResolver,
+                new SymfonyFilesystem(),
             ),
             $sourceResolver,
         );
@@ -45,7 +49,7 @@ class IconTemplateLoaderTest extends TestCase
         $templates = $this->templateLoader->getTemplatePathsForApp($this->manifest);
         \sort($templates);
 
-        static::assertEquals(
+        static::assertSame(
             ['app/storefront/src/assets/icon-pack/custom-icons/activity.svg', 'storefront/layout/header/logo.html.twig'],
             $templates
         );

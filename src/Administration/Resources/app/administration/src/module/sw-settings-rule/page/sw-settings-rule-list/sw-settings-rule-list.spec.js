@@ -7,7 +7,14 @@ const { Criteria } = Shopware.Data;
  * @sw-package fundamentals@after-sales
  */
 
-async function createWrapper(privileges = []) {
+function createRuleCollection(items = [{ id: 'ruleId', name: 'Test rule', tags: [] }]) {
+    const rules = [...items];
+    rules.total = items.length;
+
+    return rules;
+}
+
+async function createWrapper(privileges = [], rules = createRuleCollection(), filterService = new FilterService()) {
     const wrapper = mount(await wrapTestComponent('sw-settings-rule-list', { sync: true }), {
         global: {
             stubs: {
@@ -35,23 +42,19 @@ async function createWrapper(privileges = []) {
                 'sw-sidebar-filter-panel': true,
                 'sw-sidebar': true,
                 'router-link': true,
+                'sw-time-ago': true,
             },
             provide: {
                 repositoryFactory: {
                     create: () => ({
-                        search: () => Promise.resolve([]),
+                        search: () => Promise.resolve(rules),
                         clone: (id) => Promise.resolve({ id }),
                     }),
                 },
                 filterFactory: {
                     create: (name, filters) => filters,
                 },
-                filterService: new FilterService({
-                    userConfigRepository: {
-                        search: () => Promise.resolve({ length: 0 }),
-                        create: () => ({}),
-                    },
-                }),
+                filterService,
                 ruleConditionDataProviderService: {
                     getConditions: () => {
                         return [{ type: 'foo', label: 'bar' }];
@@ -72,11 +75,21 @@ async function createWrapper(privileges = []) {
                         return privileges.includes(identifier);
                     },
                 },
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
             },
             mocks: {
                 $route: {
                     query: 'foo',
+                    meta: {
+                        $module: {
+                            icon: 'regular-rule',
+                            description: 'sw-settings-rule.general.descriptionTextModule',
+                        },
+                    },
                 },
             },
         },
@@ -84,8 +97,9 @@ async function createWrapper(privileges = []) {
     await flushPromises();
 
     const buttonAddRule = wrapper.findByText('button', 'sw-settings-rule.list.buttonAddRule');
-    const entityListing = wrapper.get('.sw-entity-listing');
-    const contextMenuItemDuplicate = wrapper.get('.sw-context-menu-item');
+    // both only exist while the listing renders, so an empty result yields empty wrappers
+    const entityListing = wrapper.find('.sw-entity-listing');
+    const contextMenuItemDuplicate = wrapper.find('.sw-context-menu-item');
 
     return {
         wrapper,
@@ -97,6 +111,10 @@ async function createWrapper(privileges = []) {
 
 describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     beforeEach(() => {
+        jest.restoreAllMocks();
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+
         Shopware.Application.view.router = {
             currentRoute: {
                 value: {
@@ -119,9 +137,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('should have enabled fields for creator', async () => {
-        const { buttonAddRule, entityListing, contextMenuItemDuplicate } = await createWrapper([
-            'rule.creator',
-        ]);
+        const { buttonAddRule, entityListing, contextMenuItemDuplicate } = await createWrapper(['rule.creator']);
 
         expect(buttonAddRule.attributes('disabled')).toBeUndefined();
         expect(entityListing.attributes()['show-selection']).toBeUndefined();
@@ -131,9 +147,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('only should have enabled fields for editor', async () => {
-        const { buttonAddRule, entityListing, contextMenuItemDuplicate } = await createWrapper([
-            'rule.editor',
-        ]);
+        const { buttonAddRule, entityListing, contextMenuItemDuplicate } = await createWrapper(['rule.editor']);
 
         expect(buttonAddRule.attributes('disabled') !== undefined).toBe(true);
         expect(entityListing.attributes()['show-selection']).toBeUndefined();
@@ -143,9 +157,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
     });
 
     it('should have enabled fields for deleter', async () => {
-        const { buttonAddRule, entityListing, contextMenuItemDuplicate } = await createWrapper([
-            'rule.deleter',
-        ]);
+        const { buttonAddRule, entityListing, contextMenuItemDuplicate } = await createWrapper(['rule.deleter']);
 
         expect(buttonAddRule.attributes('disabled') !== undefined).toBe(true);
         expect(entityListing.attributes()['show-selection']).toBe('true');
@@ -165,7 +177,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         await wrapper.vm.onDuplicate(ruleToDuplicate);
         expect(wrapper.vm.$router.push).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.$router.push).toHaveBeenCalledWith({
-            name: 'sw.settings.rule.detail',
+            name: 'sw.settings.rule.detail.base',
             params: {
                 id: ruleToDuplicate.id,
             },
@@ -177,9 +189,7 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         await flushPromises();
         const conditionFilterOptions = wrapper.vm.conditionFilterOptions;
 
-        expect(conditionFilterOptions).toEqual([
-            { label: 'bar', value: 'foo' },
-        ]);
+        expect(conditionFilterOptions).toEqual([{ label: 'bar', value: 'foo' }]);
     });
 
     it('should get filter options for groups', async () => {
@@ -214,7 +224,10 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
         const { wrapper } = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
     });
 
     it('should consider criteria filters via updateCriteria (triggered by sw-sidebar-filter-panel)', async () => {
@@ -277,6 +290,81 @@ describe('src/module/sw-settings-rule/page/sw-settings-rule-list', () => {
 
         expect(wrapper.vm.ruleRepository.search).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.isLoading).toBe(false);
+    });
+
+    it('should replace the listing with an empty state offering the create action when no rule exists', async () => {
+        const { wrapper } = await createWrapper(['rule.creator'], createRuleCollection([]));
+        await flushPromises();
+
+        // the repository resolves an empty collection, so the grid must give way to the empty state
+        expect(wrapper.find('.sw-entity-listing').exists()).toBe(false);
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-settings-rule.list.messageEmpty');
+
+        const createButton = wrapper.find('.mt-empty-state__button .mt-button');
+
+        expect(createButton.exists()).toBe(true);
+        expect(createButton.text()).toBe('sw-settings-rule.list.buttonAddRule');
+        expect(createButton.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should keep the listing and hide the empty state when rules exist', async () => {
+        const { wrapper } = await createWrapper(['rule.creator']);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-entity-listing').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(false);
+    });
+
+    it('should keep the listing when the page is out of range', async () => {
+        const outOfRangePage = createRuleCollection([]);
+        outOfRangePage.total = 50;
+
+        const { wrapper } = await createWrapper(['rule.creator'], outOfRangePage);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-entity-listing').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(false);
+    });
+
+    it('should disable the empty state create action without the creator privilege', async () => {
+        const { wrapper } = await createWrapper([], createRuleCollection([]));
+        await flushPromises();
+
+        const createButton = wrapper.find('.mt-empty-state__button .mt-button');
+
+        expect(createButton.exists()).toBe(true);
+        expect(createButton.attributes('disabled')).toBeDefined();
+    });
+
+    it('should not offer the create action when a search has no hits', async () => {
+        const { wrapper } = await createWrapper(['rule.creator'], createRuleCollection([]));
+        await flushPromises();
+
+        await wrapper.setData({ term: 'zzzqqqnothing' });
+
+        // a search without hits is not an empty rule set, so it points at the search preferences instead
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
+    });
+
+    it('should show the no result empty state when a stored filter has no hits', async () => {
+        const filterService = new FilterService();
+        filterService.mergeWithStoredFilters = (storeKey, criteria) => {
+            criteria.addFilter(Criteria.equals('tags.id', 'stored-tag-id'));
+
+            return Promise.resolve(criteria);
+        };
+
+        const { wrapper } = await createWrapper(['rule.creator'], createRuleCollection([]), filterService);
+        await flushPromises();
+
+        // the sidebar panel only fills filterCriteria after a user change, so a filter restored on load
+        // is only visible through activeFilterNumber
+        expect(wrapper.vm.filterCriteria).toEqual([]);
+        expect(wrapper.vm.activeFilterNumber).toBe(1);
+
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
     });
 
     it('should set languageId on language switch change', async () => {

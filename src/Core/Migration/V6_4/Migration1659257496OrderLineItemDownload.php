@@ -4,14 +4,12 @@ namespace Shopware\Core\Migration\V6_4;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\State;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1659257496OrderLineItemDownload extends MigrationStep
@@ -23,7 +21,7 @@ class Migration1659257496OrderLineItemDownload extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!EntityDefinitionQueryHelper::columnExists($connection, 'order_line_item', 'states')) {
+        if (!TableHelper::columnExists($connection, 'order_line_item', 'states')) {
             $connection->executeStatement('
                 ALTER TABLE `order_line_item`
                 ADD COLUMN `states` JSON NULL,
@@ -56,10 +54,5 @@ class Migration1659257496OrderLineItemDownload extends MigrationStep
                 REFERENCES `order_line_item` (`id`, `version_id`) ON DELETE CASCADE ON UPDATE CASCADE
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

@@ -6,9 +6,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\NestedEvent;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class FlowIndexerEvent extends NestedEvent
 {
+    /**
+     * @param list<string> $ids
+     */
     public function __construct(
         private readonly array $ids,
         private readonly Context $context
@@ -20,6 +26,9 @@ class FlowIndexerEvent extends NestedEvent
         return $this->context;
     }
 
+    /**
+     * @return list<string>
+     */
     public function getIds(): array
     {
         return $this->ids;

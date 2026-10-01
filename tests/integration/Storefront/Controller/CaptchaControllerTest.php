@@ -3,8 +3,8 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha;
@@ -13,6 +13,7 @@ use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 /**
  * @internal
  */
+#[Package('checkout')]
 class CaptchaControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -21,9 +22,9 @@ class CaptchaControllerTest extends TestCase
 
     public function testLoadBasicCaptchaContent(): void
     {
-        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser = $this->createCustomSalesChannelBrowser();
 
-        $browser->request('GET', $_SERVER['APP_URL'] . '/basic-captcha');
+        $browser->request('GET', '/basic-captcha');
 
         $response = $browser->getResponse();
 
@@ -32,7 +33,7 @@ class CaptchaControllerTest extends TestCase
 
     public function testValidateCaptcha(): void
     {
-        $browser = KernelLifecycleManager::createBrowser($this->getKernel());
+        $browser = $this->createCustomSalesChannelBrowser();
         $browser->setServerParameter('HTTP_X-Requested-With', 'XMLHttpRequest');
 
         $systemConfig = static::getContainer()->get(SystemConfigService::class);
@@ -54,7 +55,7 @@ class CaptchaControllerTest extends TestCase
         ];
 
         // Basic Captcha Valid
-        $browser->request('POST', $_SERVER['APP_URL'] . '/basic-captcha-validate', $this->tokenize('frontend.captcha.basic-captcha.validate', $payload));
+        $browser->request('POST', '/basic-captcha-validate', $this->tokenize('frontend.captcha.basic-captcha.validate', $payload));
 
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode());
@@ -62,7 +63,7 @@ class CaptchaControllerTest extends TestCase
 
         // BasicCaptcha Invalid
         $this->getSession()->set($formId . 'basic_captcha_session', 'invalid');
-        $browser->request('POST', $_SERVER['APP_URL'] . '/basic-captcha-validate', $payload);
+        $browser->request('POST', '/basic-captcha-validate', $payload);
 
         $response = $browser->getResponse();
         static::assertSame(200, $response->getStatusCode());

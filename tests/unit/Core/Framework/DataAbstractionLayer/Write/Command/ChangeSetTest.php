@@ -8,10 +8,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\ChangeSet;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ChangeSet::class)]
 final class ChangeSetTest extends TestCase
 {
@@ -56,7 +58,7 @@ final class ChangeSetTest extends TestCase
         $changeSet->merge(new ChangeSet(['bar' => 0], ['bar' => 1], false));
 
         static::assertCount(2, $changeSet->getAfter(null));
-        static::assertEquals(1, $changeSet->getAfter('foo'));
-        static::assertEquals(1, $changeSet->getAfter('bar'));
+        static::assertSame(1, $changeSet->getAfter('foo'));
+        static::assertSame(1, $changeSet->getAfter('bar'));
     }
 }

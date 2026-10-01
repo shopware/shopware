@@ -3,6 +3,8 @@
  */
 import { email } from 'src/core/service/validation.service';
 import { KEY_USER_SEARCH_PREFERENCE } from 'src/app/service/search-ranking.service';
+import useTheme from 'src/app/composables/use-theme';
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-profile-index.html.twig';
 import '../../store/sw-profile.store';
 
@@ -22,12 +24,12 @@ export default {
         'acl',
         'searchPreferencesService',
         'searchRankingService',
-        'userConfigService',
+        'ssoSettingsService',
+        'validationApiService',
+        'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -46,6 +48,8 @@ export default {
             mediaDefaultFolderId: null,
             showMediaModal: false,
             timezoneOptions: [],
+            userThemeSelection: null,
+            userModuleIconColors: useModuleIconColors().enabled.value,
         };
     },
 
@@ -56,12 +60,19 @@ export default {
     },
 
     computed: {
-        searchPreferences: () => Shopware.Store.get('swProfile').searchPreferences,
+        userTheme() {
+            return this.userThemeSelection ?? useTheme().theme.value;
+        },
 
-        ...mapPropertyErrors('user', [
-            'email',
-            'timeZone',
-        ]),
+        minSearchTermLength() {
+            return Store.get('swProfile').minSearchTermLength;
+        },
+
+        searchPreferences() {
+            return Store.get('swProfile').searchPreferences;
+        },
+
+        ...mapPropertyErrors('user', ['email', 'timeZone']),
 
         userSearchPreferences: {
             get() {
@@ -94,6 +105,24 @@ export default {
 
         languageId() {
             return Shopware.Store.get('session').languageId;
+        },
+
+        profileTabs() {
+            const createRouteTab = (label, routeName) => {
+                return {
+                    label: this.$t(label),
+                    name: routeName,
+                    onClick: () => {
+                        void this.$router.push({ name: routeName });
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-profile.tabGeneral.title', 'sw.profile.index.general'),
+                createRouteTab('sw-profile.tabSearchPreferences.title', 'sw.profile.index.searchPreferences'),
+                createRouteTab('sw-profile.tabPrivacyPreferences.title', 'sw.profile.index.privacyPreferences'),
+            ];
         },
     },
 
@@ -133,6 +162,9 @@ export default {
 
     methods: {
         createdComponent() {
+            // Create the theme singleton before the first render — creating it inside a computed would trigger Vue's onMounted warning
+            useTheme();
+
             this.isUserLoading = true;
 
             const languagePromise = new Promise((resolve) => {
@@ -142,10 +174,7 @@ export default {
             this.userPromise = this.getUserData();
             this.timezoneOptions = Shopware.Service('timezoneService').getTimezoneOptions();
 
-            const promises = [
-                languagePromise,
-                this.userPromise,
-            ];
+            const promises = [languagePromise, this.userPromise];
 
             if (this.acl.can('media.creator')) {
                 this.getMediaDefaultFolderId()
@@ -236,25 +265,40 @@ export default {
 
         onSave() {
             if (this.$route.name === 'sw.profile.index.searchPreferences') {
-                this.saveUserSearchPreferences();
+                Promise.all([this.saveMinSearchTermLength(), this.saveUserSearchPreferences()]);
 
                 return;
             }
 
-            if (this.checkEmail() === false) {
-                return;
-            }
+            this.ssoSettingsService.isSso().then(async (response) => {
+                if (response.isSso) {
+                    this.saveUser();
 
-            const passwordCheck = this.checkPassword();
+                    return;
+                }
 
-            if (passwordCheck === null || passwordCheck === true) {
-                this.confirmPasswordModal = true;
-            }
+                const isValid = await this.validationApiService.validateEmailAddress(this.user.email);
+
+                if (isValid) {
+                    const passwordCheck = this.checkPassword();
+                    if (passwordCheck === null || passwordCheck === true) {
+                        this.confirmPasswordModal = true;
+                    }
+
+                    return;
+                }
+
+                this.createErrorMessage(this.$t('sw-profile.index.notificationInvalidEmailErrorMessage'));
+            });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed.
+         * @returns {boolean}
+         */
         checkEmail() {
             if (!this.user.email || !email(this.user.email)) {
-                this.createErrorMessage(this.$tc('sw-profile.index.notificationInvalidEmailErrorMessage'));
+                this.createErrorMessage(this.$t('sw-profile.index.notificationInvalidEmailErrorMessage'));
 
                 return false;
             }
@@ -264,7 +308,7 @@ export default {
         checkPassword() {
             if (this.newPassword && this.newPassword.length > 0) {
                 if (this.newPassword !== this.newPasswordConfirm) {
-                    this.createErrorMessage(this.$tc('sw-profile.index.notificationPasswordErrorMessage'));
+                    this.createErrorMessage(this.$t('sw-profile.index.notificationPasswordErrorMessage'));
                     return false;
                 }
 
@@ -284,15 +328,24 @@ export default {
 
         saveUser(context) {
             if (!this.acl.can('user:editor')) {
-                const changes = this.userRepository.getSyncChangeset([
-                    this.user,
-                ]);
+                const changes = this.userRepository.getSyncChangeset([this.user]);
                 delete changes.changeset[0].changes.id;
 
                 this.userService
                     .updateUser(changes.changeset[0].changes)
                     .then(async () => {
+                        if (this.newPassword) {
+                            try {
+                                await this.loginService.loginByUsername(this.user.username, this.newPassword);
+                            } catch {
+                                this.loginService.logout();
+                                return;
+                            }
+                        }
+
                         await this.updateCurrentUser();
+                        await this.saveUserTheme();
+                        await this.saveUserModuleIconColors();
 
                         this.isLoading = false;
                         this.isSaveSuccessful = true;
@@ -300,12 +353,14 @@ export default {
                         Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
                     })
                     .catch((error) => {
-                        Shopware.Store.get('error').addApiError({
-                            expression: `user.${this.user?.id}.password`,
-                            error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
-                        });
+                        if (error?.response?.data?.errors?.[0]) {
+                            Shopware.Store.get('error').addApiError({
+                                expression: `user.${this.user?.id}.password`,
+                                error: new Shopware.Classes.ShopwareError(error.response.data.errors[0]),
+                            });
+                        }
                         this.createNotificationError({
-                            message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                            message: this.$t('sw-profile.index.notificationSaveErrorMessage'),
                         });
                         this.isLoading = false;
                         this.isSaveSuccessful = false;
@@ -317,26 +372,22 @@ export default {
             this.userRepository
                 .save(this.user, context)
                 .then(async () => {
+                    if (this.newPassword) {
+                        try {
+                            await this.loginService.loginByUsername(this.user.username, this.newPassword);
+                        } catch {
+                            this.loginService.logout();
+                            return;
+                        }
+                    }
+
                     await this.updateCurrentUser();
+                    await this.saveUserTheme();
+                    await this.saveUserModuleIconColors();
                     Shopware.Service('localeHelper').setLocaleWithId(this.user.localeId);
 
-                    if (this.newPassword) {
-                        // re-issue a valid jwt token, as all user tokens were invalidated on password change
-                        this.loginService
-                            .loginByUsername(this.user.username, this.newPassword)
-                            .then(() => {
-                                this.isSaveSuccessful = true;
-                            })
-                            .catch(() => {
-                                this.handleUserSaveError();
-                            })
-                            .finally(() => {
-                                this.isLoading = false;
-                            });
-                    } else {
-                        this.isLoading = false;
-                        this.isSaveSuccessful = true;
-                    }
+                    this.isLoading = false;
+                    this.isSaveSuccessful = true;
 
                     this.confirmPassword = '';
                     this.newPassword = '';
@@ -390,7 +441,7 @@ export default {
         handleUserSaveError() {
             if (this.$route.name.includes('sw.profile.index')) {
                 this.createNotificationError({
-                    message: this.$tc('sw-profile.index.notificationSaveErrorMessage'),
+                    message: this.$t('sw-profile.index.notificationSaveErrorMessage'),
                 });
             }
             this.isLoading = false;
@@ -404,6 +455,33 @@ export default {
             this.newPasswordConfirm = newPasswordConfirm;
         },
 
+        onChangeUserTheme(userTheme) {
+            this.userThemeSelection = userTheme;
+        },
+
+        onChangeUserModuleIconColors(userModuleIconColors) {
+            this.userModuleIconColors = userModuleIconColors;
+        },
+
+        saveUserTheme() {
+            return useTheme()
+                .saveUserTheme(this.userTheme)
+                .then(() => {
+                    this.userThemeSelection = null;
+                })
+                .catch(() => {
+                    this.createErrorMessage(this.$t('sw-profile.index.notificationSaveErrorMessage'));
+                });
+        },
+
+        saveUserModuleIconColors() {
+            return useModuleIconColors()
+                .saveUserModuleIconColors(this.userModuleIconColors)
+                .catch(() => {
+                    this.createErrorMessage(this.$t('sw-profile.index.notificationSaveErrorMessage'));
+                });
+        },
+
         onMediaSelectionChange([mediaEntity]) {
             this.avatarMediaItem = mediaEntity;
             this.user.avatarId = mediaEntity.id;
@@ -413,8 +491,11 @@ export default {
             return this.mediaDefaultFolderService.getDefaultFolderId('user');
         },
 
+        saveMinSearchTermLength() {
+            return this.searchRankingService.saveMinSearchTermLength(this.minSearchTermLength);
+        },
+
         saveUserSearchPreferences() {
-            // eslint-disable-next-line max-len
             this.userSearchPreferences =
                 this.userSearchPreferences ?? this.searchPreferencesService.createUserSearchPreferences();
             this.userSearchPreferences.value = this.searchPreferences.map(({ entityName, _searchable, fields }) => {
@@ -430,7 +511,7 @@ export default {
 
             this.isLoading = true;
             this.isSaveSuccessful = false;
-            return this.userConfigService
+            return Shopware.Service('userConfigService')
                 .upsert({
                     [KEY_USER_SEARCH_PREFERENCE]: this.userSearchPreferences.value,
                 })

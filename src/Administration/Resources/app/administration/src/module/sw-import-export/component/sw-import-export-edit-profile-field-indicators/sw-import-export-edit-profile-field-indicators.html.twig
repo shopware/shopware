@@ -1,13 +1,14 @@
 {% block sw_import_export_edit_profile_indicators %}
 <div class="sw-import-export-edit-profile-indicators">
-
     {% block sw_import_export_edit_profile_indicators_headline %}
-    <h3>{{ $tc('sw-import-export.profile.indicatorHeadline') }}</h3>
+    <h3 class="sw-import-export-edit-profile-indicators__headline">
+        {{ $t('sw-import-export.profile.indicatorHeadline') }}
+    </h3>
     {% endblock %}
 
     {% block sw_import_export_edit_profile_indicators_text %}
     <p class="sw-import-export-edit-profile-indicators__text">
-        {{ $tc('sw-import-export.profile.csvDescriptionBlock') }}
+        {{ $t('sw-import-export.profile.csvDescriptionBlock') }}
     </p>
     {% endblock %}
 
@@ -21,7 +22,7 @@
             required
             show-clearable-button
             class="sw-import-export-edit-profile-indicators__separator-select"
-            :label="$tc('sw-import-export.profile.separatorFieldLabel')"
+            :label="$t('sw-import-export.profile.separatorFieldLabel')"
             :error="profileDelimiterError"
             :disabled="profile.systemDefault"
             :options="supportedDelimiter"
@@ -34,7 +35,7 @@
             required
             show-clearable-button
             class="sw-import-export-edit-profile-indicators__enclosure-select"
-            :label="$tc('sw-import-export.profile.enclosureFieldLabel')"
+            :label="$t('sw-import-export.profile.enclosureFieldLabel')"
             :error="profileEnclosureError"
             :disabled="profile.systemDefault"
             :options="supportedEnclosures"

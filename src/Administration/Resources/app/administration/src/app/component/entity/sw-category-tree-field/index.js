@@ -5,14 +5,13 @@
 import template from './sw-category-tree-field.html.twig';
 import './sw-category-tree-field.scss';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-category-tree-field', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -21,6 +20,7 @@ Component.register('sw-category-tree-field', {
         'selection-add',
         'selection-remove',
         'categories-load-more',
+        'update:categoriesCollection',
     ],
 
     props: {
@@ -64,6 +64,11 @@ Component.register('sw-category-tree-field', {
             type: Boolean,
             required: false,
             default: false,
+        },
+
+        allowedTypes: {
+            type: Array,
+            default: null,
         },
     },
 
@@ -117,10 +122,7 @@ Component.register('sw-category-tree-field', {
                 const pathIds = item.path ? item.path.split('|').filter((pathId) => pathId.length > 0) : '';
 
                 // add parent id to accumulator
-                return [
-                    ...acc,
-                    ...pathIds,
-                ];
+                return [...acc, ...pathIds];
             }, []);
         },
 
@@ -175,6 +177,7 @@ Component.register('sw-category-tree-field', {
                 utils.debounce(() => {
                     const newElement = this.findTreeItemVNodeById(newValue.id).$el;
 
+                    if (!newElement) return;
                     let offsetValue = 0;
                     let foundTreeRoot = false;
                     let actualElement = newElement;
@@ -212,6 +215,7 @@ Component.register('sw-category-tree-field', {
 
             if (this.pageId) {
                 this.globalCategoryRepository.searchIds(this.pageCategoryCriteria).then((result) => {
+                    this.selectedCategories = result.data;
                     this.selectedCategoriesTotal = result.total;
                 });
             }
@@ -231,12 +235,18 @@ Component.register('sw-category-tree-field', {
 
             // search for categories
             return this.globalCategoryRepository.search(criteria, Shopware.Context.api).then((searchResult) => {
+                this.disableCategories(searchResult);
+
                 // when requesting root categories, replace the data
                 if (parentId === null) {
                     this.categories = searchResult;
                     this.isFetching = false;
 
-                    if (this.pageId && searchResult[0].cmsPageId === this.pageId) {
+                    if (
+                        this.pageId &&
+                        searchResult[0].cmsPageId === this.pageId &&
+                        !this.selectedCategories.includes(searchResult[0].id)
+                    ) {
                         this.selectedCategories.push(searchResult[0].id);
                     }
 
@@ -247,12 +257,28 @@ Component.register('sw-category-tree-field', {
                 searchResult.forEach((category) => {
                     this.categories.add(category);
 
-                    if (this.pageId && category.cmsPageId === this.pageId) {
+                    if (
+                        this.pageId &&
+                        category.cmsPageId === this.pageId &&
+                        !this.selectedCategories.includes(category.id)
+                    ) {
                         this.selectedCategories.push(category.id);
                     }
                 });
 
                 return Promise.resolve();
+            });
+        },
+
+        disableCategories(categories) {
+            if (!this.allowedTypes) {
+                return;
+            }
+
+            categories.forEach((category) => {
+                if (!this.allowedTypes.includes(category.type)) {
+                    category.disabled = true;
+                }
             });
         },
 
@@ -279,6 +305,8 @@ Component.register('sw-category-tree-field', {
                     this.$emit('selection-add', item);
                 }
 
+                this.emitCategoriesCollectionUpdate();
+
                 if (this.singleSelect) {
                     this.isExpanded = false;
                 }
@@ -304,11 +332,14 @@ Component.register('sw-category-tree-field', {
                 this.selectedCategoriesTotal -= 1;
             }
 
-            if (item.data) {
-                this.$emit('selection-remove', item.data);
-            } else {
-                this.$emit('selection-remove', item);
-            }
+            const removedItem = item.data ?? item;
+
+            this.emitCategoriesCollectionUpdate();
+            this.$emit('selection-remove', removedItem);
+        },
+
+        emitCategoriesCollectionUpdate() {
+            this.$emit('update:categoriesCollection', this.categoriesCollection);
         },
 
         searchCategories(term) {
@@ -333,7 +364,7 @@ Component.register('sw-category-tree-field', {
         },
 
         getBreadcrumb(item) {
-            if (item.breadcrumb) {
+            if (item.breadcrumb && item.breadcrumb.length > 1) {
                 return item.breadcrumb.join(' / ');
             }
             return item.translated?.name || item.name;
@@ -371,6 +402,21 @@ Component.register('sw-category-tree-field', {
 
         closeDropdown() {
             this.isExpanded = false;
+        },
+
+        toggleDropdown({ setFocusClass, removeFocusClass }) {
+            if (this.disabled) {
+                return;
+            }
+
+            if (this.isExpanded) {
+                this.closeDropdown();
+
+                return;
+            }
+
+            this.openDropdown({ setFocusClass, removeFocusClass });
+            this.$refs.searchInput.focus();
         },
 
         closeDropdownOnClickOutside(event) {
@@ -668,11 +714,13 @@ Component.register('sw-category-tree-field', {
             let foundInChildren = false;
 
             // recursion to find vnode
-            for (let i = 0; i < children.length; i += 1) {
-                foundInChildren = this.findTreeItemVNodeById(itemId, children[i].$children);
-                // stop when found in children
-                if (foundInChildren) {
-                    break;
+            if (children) {
+                for (let i = 0; i < children.length; i += 1) {
+                    foundInChildren = this.findTreeItemVNodeById(itemId, children[i].$children);
+                    // stop when found in children
+                    if (foundInChildren) {
+                        break;
+                    }
                 }
             }
 
@@ -686,11 +734,10 @@ Component.register('sw-category-tree-field', {
 
             this.categoriesCollection.forEach((category, index) => {
                 if (category.id !== keepId) {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.categoriesCollection.splice(index, 1);
                     index -= 1;
                 }
             });
         },
     },
-});
+};

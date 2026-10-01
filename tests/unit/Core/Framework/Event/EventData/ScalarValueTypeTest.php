@@ -5,10 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Event\EventData;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\FrameworkException;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ScalarValueType::class)]
 class ScalarValueTypeTest extends TestCase
 {
@@ -18,12 +22,20 @@ class ScalarValueTypeTest extends TestCase
             'type' => 'float',
         ];
 
-        static::assertEquals($expected, (new ScalarValueType(ScalarValueType::TYPE_FLOAT))->toArray());
+        static::assertSame($expected, (new ScalarValueType(ScalarValueType::TYPE_FLOAT))->toArray());
     }
 
     public function testThrowExceptionOnInvalidType(): void
     {
-        static::expectException(\InvalidArgumentException::class);
+        $this->expectExceptionObject(FrameworkException::invalidArgumentException('Invalid type "test" provided, valid ones are: string, int, float, bool'));
+
+        new ScalarValueType('test');
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testThrowExceptionOnInvalidTypeDeprecated(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
 
         new ScalarValueType('test');
     }

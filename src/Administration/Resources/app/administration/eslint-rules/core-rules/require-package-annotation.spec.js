@@ -2,7 +2,7 @@ const RuleTester = require('eslint').RuleTester
 const rule = require('./require-package-annotation');
 
 const tester = new RuleTester({
-    parserOptions: {
+    languageOptions: {
         ecmaVersion: 6,
     },
 })

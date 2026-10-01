@@ -1,0 +1,52 @@
+{% block sw_cms_el_form_revocation_request %}
+<div class="sw-cms-el-form-revocation-request">
+    <h3
+        v-if="formSettings.title.value"
+        class="sw-cms-el-form-headline"
+    >
+        {{ formSettings.title.value }}
+    </h3>
+
+    <div class="sw-cms-el-form-revocation-request__form-group two-items">
+        <mt-text-field
+            :label="$t('sw-cms.elements.form.element.label.firstName')"
+            :model-value="$t('sw-cms.elements.form.element.placeholder.firstName')"
+        />
+
+        <mt-text-field
+            :label="$t('sw-cms.elements.form.element.label.lastName')"
+            :model-value="$t('sw-cms.elements.form.element.placeholder.lastName')"
+        />
+    </div>
+
+    <mt-text-field
+        :label="$t('sw-cms.elements.form.element.label.email')"
+        :model-value="$t('sw-cms.elements.form.element.placeholder.email')"
+    />
+
+    <mt-text-field
+        :label="$t('sw-cms.elements.form.element.label.contractNumber')"
+        :model-value="$t('sw-cms.elements.form.element.placeholder.contractNumber')"
+    />
+
+    <mt-textarea
+        :label="$t('sw-cms.elements.form.element.label.comment')"
+        :model-value="$t('sw-cms.elements.form.element.placeholder.comment')"
+    />
+
+    <h4>{{ $t('sw-cms.elements.form.element.label.privacy') }}</h4>
+
+    <p
+        class="sw-cms-el-form-revocation-request__privacy"
+        v-html="$t('sw-cms.general.privacyNotice')"
+    ></p>
+
+    <p class="sw-cms-el-form-revocation-request__note">
+        {{ $t('sw-cms.elements.form.element.helpText.requiredFields') }}
+    </p>
+
+    <div class="sw-cms-el-form__action">
+        {{ $t('global.default.submit') }}
+    </div>
+</div>
+{% endblock %}

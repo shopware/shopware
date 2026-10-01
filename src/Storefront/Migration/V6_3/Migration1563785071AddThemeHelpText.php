@@ -8,10 +8,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
-#[Package('framework')]
+#[Package('discovery')]
 class Migration1563785071AddThemeHelpText extends MigrationStep
 {
     public function getCreationTimestamp(): int

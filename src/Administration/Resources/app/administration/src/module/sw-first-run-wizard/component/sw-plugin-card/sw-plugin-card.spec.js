@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import 'src/module/sw-extension/mixin/sw-extension-error.mixin';
-import SwExtensionIcon from 'src/app/asyncComponent/extension/sw-extension-icon';
+import SwExtensionIcon from 'src/app/component/extension/sw-extension-icon';
 
 Shopware.Component.register('sw-extension-icon', SwExtensionIcon);
 
@@ -28,7 +28,6 @@ async function createWrapper(plugin, showDescription) {
             },
             stubs: {
                 'sw-extension-icon': await Shopware.Component.build('sw-extension-icon'),
-                'sw-button-process': await wrapTestComponent('sw-button-process'),
                 'sw-loader': await wrapTestComponent('sw-loader'),
                 'router-link': true,
             },
@@ -53,14 +52,14 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         const wrapper = await createWrapper(pluginConfig, true);
         await flushPromises();
 
-        const extensionIcon = wrapper.getComponent('.sw-extension-icon');
+        const extensionIcon = wrapper.findComponent('.sw-extension-icon');
 
         expect(extensionIcon.vm).toBeDefined();
         expect(extensionIcon.props('src')).toBe(pluginConfig.iconPath);
 
-        expect(wrapper.get('.sw-plugin-card__label').text()).toBe(pluginConfig.label);
-        expect(wrapper.get('.sw-plugin-card__manufacturer').text()).toBe(pluginConfig.manufacturer);
-        expect(wrapper.get('.sw-plugin-card__short-description').text()).toBe(pluginConfig.shortDescription);
+        expect(wrapper.find('.sw-plugin-card__label').text()).toBe(pluginConfig.label);
+        expect(wrapper.find('.sw-plugin-card__manufacturer').text()).toBe(pluginConfig.manufacturer);
+        expect(wrapper.find('.sw-plugin-card__short-description').text()).toBe(pluginConfig.shortDescription);
     });
 
     it('hides description', async () => {
@@ -93,7 +92,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
 
         const wrapper = await createWrapper(pluginConfig, true);
 
-        const truncatedDescription = wrapper.get('.sw-plugin-card__short-description').text();
+        const truncatedDescription = wrapper.find('.sw-plugin-card__short-description').text();
 
         expect(truncatedDescription).toHaveLength(140);
         expect(truncatedDescription.endsWith('...')).toBe(true);
@@ -113,9 +112,9 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
             true,
         );
 
-        const isInstalled = wrapper.get('.plugin-installed');
+        const isInstalled = wrapper.find('.plugin-installed');
 
-        expect(isInstalled.get('.mt-icon').classes()).toContain('icon--regular-check-circle-s');
+        expect(isInstalled.find('.mt-icon').classes()).toContain('icon--regular-check-circle-s');
         expect(isInstalled.text()).toBe('sw-first-run-wizard.general.pluginInstalled');
     });
 
@@ -137,16 +136,14 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         const cacheApiSpy = jest.spyOn(wrapper.vm.cacheApiService, 'clear');
         const extensionServiceSpy = jest.spyOn(wrapper.vm.shopwareExtensionService, 'updateExtensionData');
 
-        await wrapper.get('.sw-button-process').trigger('click');
+        await wrapper.find('.button-plugin-install').trigger('click');
         await flushPromises();
 
         expect(downloadSpy).toHaveBeenCalled();
         expect(downloadSpy).toHaveBeenCalledWith('SwExamplePlugin', 'plugin');
         expect(cacheApiSpy).toHaveBeenCalled();
         expect(extensionServiceSpy).toHaveBeenCalled();
-        expect(wrapper.emitted('on-plugin-installed')).toEqual([
-            ['SwExamplePlugin'],
-        ]);
+        expect(wrapper.emitted('on-plugin-installed')).toEqual([['SwExamplePlugin']]);
     });
 
     it('can install an app', async () => {
@@ -167,7 +164,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         const cacheApiSpy = jest.spyOn(wrapper.vm.cacheApiService, 'clear');
         const extensionServiceSpy = jest.spyOn(wrapper.vm.shopwareExtensionService, 'updateExtensionData');
 
-        await wrapper.get('.sw-button-process').trigger('click');
+        await wrapper.find('.button-plugin-install').trigger('click');
         await flushPromises();
 
         expect(downloadSpy).toHaveBeenCalled();
@@ -175,9 +172,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         expect(cacheApiSpy).not.toHaveBeenCalled();
         expect(extensionServiceSpy).toHaveBeenCalled();
 
-        expect(wrapper.emitted('on-plugin-installed')).toEqual([
-            ['SwExampleApp'],
-        ]);
+        expect(wrapper.emitted('on-plugin-installed')).toEqual([['SwExampleApp']]);
     });
 
     it('displays errors on failed installation', async () => {
@@ -208,7 +203,7 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
 
         const extensionServiceSpy = jest.spyOn(wrapper.vm.shopwareExtensionService, 'updateExtensionData');
 
-        await wrapper.get('.sw-button-process').trigger('click');
+        await wrapper.find('.button-plugin-install').trigger('click');
         await flushPromises();
 
         expect(downloadSpy).toHaveBeenCalled();
@@ -218,8 +213,6 @@ describe('src/module/sw-first-run-wizard/component/sw-plugin-card', () => {
         expect(showExtensionErrorsSpy).toHaveBeenCalledWith(downloadError);
         expect(extensionServiceSpy).toHaveBeenCalled();
 
-        expect(wrapper.emitted('on-plugin-installed')).toEqual([
-            ['SwExamplePlugin'],
-        ]);
+        expect(wrapper.emitted('on-plugin-installed')).toEqual([['SwExamplePlugin']]);
     });
 });

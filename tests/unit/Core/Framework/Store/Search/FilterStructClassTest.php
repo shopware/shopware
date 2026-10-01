@@ -40,20 +40,20 @@ class FilterStructClassTest extends TestCase
             ],
         ]);
 
-        static::assertEquals('multi', $filter->getType());
+        static::assertSame('multi', $filter->getType());
 
         static::assertInstanceOf(MultiFilterStruct::class, $filter);
         static::assertCount(2, $filter->getQueries());
 
         $ratings = $filter->getQueries()[0];
         static::assertInstanceOf(EqualsFilterStruct::class, $ratings);
-        static::assertEquals('ratings', $ratings->getField());
-        static::assertEquals('2', $ratings->getValue());
+        static::assertSame('ratings', $ratings->getField());
+        static::assertSame('2', $ratings->getValue());
 
         $category = $filter->getQueries()[1];
         static::assertInstanceOf(EqualsFilterStruct::class, $category);
-        static::assertEquals('category', $category->getField());
-        static::assertEquals('5', $category->getValue());
+        static::assertSame('category', $category->getField());
+        static::assertSame('5', $category->getValue());
     }
 
     public function testGetQueryParametersFromMultiFilter(): void
@@ -74,7 +74,7 @@ class FilterStructClassTest extends TestCase
             ],
         ]);
 
-        static::assertEquals([
+        static::assertSame([
             'ratings' => '2',
             'category' => '5',
         ], $filter->getQueryParameter());
@@ -86,7 +86,7 @@ class FilterStructClassTest extends TestCase
         $filter->setField('field');
         $filter->setValue('value');
 
-        static::assertEquals('field', $filter->getField());
-        static::assertEquals('value', $filter->getValue());
+        static::assertSame('field', $filter->getField());
+        static::assertSame('value', $filter->getValue());
     }
 }

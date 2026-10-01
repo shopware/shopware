@@ -22,7 +22,7 @@ const defaultRanges = [
  * All further attributes on this component are passed down to the child "sw-chart".
  * Please refer to the documentation of "sw-chart" for proper configuration.
  */
-Shopware.Component.register('sw-chart-card', {
+export default {
     template,
 
     emits: ['sw-chart-card-range-update'],
@@ -58,14 +58,16 @@ Shopware.Component.register('sw-chart-card', {
             default: '',
         },
         helpText: {
-            type: [
-                String,
-                Object,
-            ],
+            type: [String, Object],
             required: false,
             default: () => {
                 return '';
             },
+        },
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 
@@ -79,11 +81,46 @@ Shopware.Component.register('sw-chart-card', {
         hasHeaderLink() {
             return !!this.$slots['header-link'];
         },
+
+        rangeOptions() {
+            return this.availableRanges.map((range, index) => {
+                const vnode = this.$slots['range-option']?.({
+                    range,
+                    index,
+                });
+
+                return {
+                    value: range,
+                    label: this.extractSlotText(vnode) || range,
+                };
+            });
+        },
     },
 
     methods: {
         dispatchRangeUpdate() {
             this.$emit('sw-chart-card-range-update', this.selectedRange);
         },
+
+        extractSlotText(vnodes) {
+            if (!Array.isArray(vnodes)) {
+                return '';
+            }
+
+            return vnodes
+                .map((vnode) => {
+                    if (typeof vnode === 'string' || typeof vnode === 'number') {
+                        return String(vnode);
+                    }
+
+                    if (Array.isArray(vnode.children)) {
+                        return this.extractSlotText(vnode.children);
+                    }
+
+                    return typeof vnode.children === 'string' ? vnode.children : '';
+                })
+                .join('')
+                .trim();
+        },
     },
-});
+};

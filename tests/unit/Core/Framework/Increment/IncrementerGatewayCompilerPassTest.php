@@ -8,14 +8,17 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\ArrayIncrementer;
 use Shopware\Core\Framework\Increment\IncrementerGatewayCompilerPass;
+use Shopware\Core\Framework\Increment\IncrementException;
 use Shopware\Core\Framework\Increment\MySQLIncrementer;
 use Shopware\Core\Framework\Increment\RedisIncrementer;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(IncrementerGatewayCompilerPass::class)]
 class IncrementerGatewayCompilerPassTest extends TestCase
 {
@@ -40,7 +43,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
 
         $container->register('shopware.increment.gateway.mysql', MySQLIncrementer::class)
             ->addArgument('')
-            ->addArgument($this->createMock(Connection::class));
+            ->addArgument(static::createStub(Connection::class));
 
         $entityCompilerPass = new IncrementerGatewayCompilerPass();
         $entityCompilerPass->process($container);
@@ -48,20 +51,20 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         // user_activity pool is registered
         static::assertTrue($container->hasDefinition('shopware.increment.user_activity.gateway.mysql'));
         $definition = $container->getDefinition('shopware.increment.user_activity.gateway.mysql');
-        static::assertEquals(MySQLIncrementer::class, $definition->getClass());
+        static::assertSame(MySQLIncrementer::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
 
         // message_queue pool is registered
         static::assertTrue($container->hasDefinition('shopware.increment.message_queue.redis_adapter'));
         static::assertTrue($container->hasDefinition('shopware.increment.message_queue.gateway.redis'));
         $definition = $container->getDefinition('shopware.increment.message_queue.gateway.redis');
-        static::assertEquals(RedisIncrementer::class, $definition->getClass());
+        static::assertSame(RedisIncrementer::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
 
         // another_pool is registered
         static::assertNotNull($container->hasDefinition('shopware.increment.message_queue.gateway.redis'));
         $definition = $container->getDefinition('shopware.increment.message_queue.gateway.redis');
-        static::assertEquals(RedisIncrementer::class, $definition->getClass());
+        static::assertSame(RedisIncrementer::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
     }
 
@@ -105,16 +108,14 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         // custom_pool pool is registered
         static::assertTrue($container->hasDefinition('shopware.increment.custom_pool.gateway.custom_type'));
         $definition = $container->getDefinition('shopware.increment.custom_pool.gateway.custom_type');
-        static::assertEquals($customGateway::class, $definition->getClass());
+        static::assertSame($customGateway::class, $definition->getClass());
         static::assertTrue($definition->hasTag('shopware.increment.gateway'));
     }
 
     public function testInvalidCustomPoolGateway(): void
     {
-        static::expectException(\RuntimeException::class);
         $container = new ContainerBuilder();
-        $container->setParameter('shopware.increment', ['custom_pool' => []]);
-        $container->setParameter('shopware.increment.custom_pool.type', 'custom_type');
+        $container->setParameter('shopware.increment', ['custom_pool' => ['type' => 'custom_type']]);
 
         $customGateway = new class {
             public function getPool(): string
@@ -126,19 +127,17 @@ class IncrementerGatewayCompilerPassTest extends TestCase
         $container->setDefinition('shopware.increment.custom_pool.gateway.custom_type', new Definition($customGateway::class));
 
         $entityCompilerPass = new IncrementerGatewayCompilerPass();
-        $entityCompilerPass->process($container);
 
-        // custom_pool pool is registered
-        static::assertTrue($container->hasDefinition('shopware.increment.custom_pool.gateway.custom_type'));
-        $definition = $container->getDefinition('shopware.increment.custom_pool.gateway.custom_type');
-        static::assertEquals($customGateway::class, $definition->getClass());
-        static::assertTrue($definition->hasTag('shopware.increment.gateway'));
+        static::expectExceptionObject(
+            IncrementException::wrongGatewayClass('shopware.increment.custom_pool.gateway.custom_type', AbstractIncrementer::class)
+        );
+
+        $entityCompilerPass->process($container);
     }
 
     public function testInvalidType(): void
     {
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Can not find increment gateway for configured type foo of pool custom_pool, expected service id shopware.increment.custom_pool.gateway.foo can not be found');
+        $this->expectExceptionObject(new \RuntimeException('Can not find increment gateway for configured type foo of pool custom_pool, expected service id shopware.increment.custom_pool.gateway.foo can not be found'));
         $container = new ContainerBuilder();
         $container->setParameter('shopware.increment', ['custom_pool' => [
             'type' => 'foo',
@@ -151,8 +150,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
 
     public function testInvalidAdapterClass(): void
     {
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Increment gateway with id shopware.increment.custom_pool.gateway.array, expected service instance of Shopware\Core\Framework\Increment\AbstractIncrementer');
+        $this->expectExceptionObject(new \RuntimeException('Increment gateway with id shopware.increment.custom_pool.gateway.array, expected service instance of Shopware\Core\Framework\Increment\AbstractIncrementer'));
         $container = new ContainerBuilder();
         $container->setParameter('shopware.increment', ['custom_pool' => ['type' => 'array']]);
         $container->setParameter('shopware.increment.custom_pool.type', 'custom_type');
@@ -164,8 +162,7 @@ class IncrementerGatewayCompilerPassTest extends TestCase
 
     public function testInvalidRedisAdapter(): void
     {
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Can not find increment gateway for configured type redis of pool custom_pool, expected service id shopware.increment.custom_pool.gateway.redis can not be found');
+        $this->expectExceptionObject(new \RuntimeException('Can not find increment gateway for configured type redis of pool custom_pool, expected service id shopware.increment.custom_pool.gateway.redis can not be found'));
 
         $container = new ContainerBuilder();
         $container->setParameter('shopware.increment', ['custom_pool' => ['type' => 'redis']]);

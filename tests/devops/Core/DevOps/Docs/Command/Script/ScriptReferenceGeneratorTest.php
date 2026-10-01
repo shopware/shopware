@@ -2,17 +2,17 @@
 
 namespace Shopware\Tests\DevOps\Core\DevOps\Docs\Command\Script;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceDataCollector;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceGenerator;
 use Shopware\Core\DevOps\Docs\Script\ScriptReferenceGeneratorCommand;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
-#[CoversClass(ScriptReferenceGeneratorCommand::class)]
+#[Package('framework')]
 class ScriptReferenceGeneratorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -28,7 +28,7 @@ class ScriptReferenceGeneratorTest extends TestCase
 
         foreach ($generators as $generator) {
             foreach ($generator->generate() as $filename => $content) {
-                static::assertEquals(
+                static::assertSame(
                     $content,
                     file_get_contents($filename),
                     <<<MSG

@@ -2,7 +2,6 @@ import { inject } from 'vue';
 import template from './sw-number-field.html.twig';
 import './sw-number-field.scss';
 
-const { Component } = Shopware;
 const { warn } = Shopware.Utils.debug;
 
 /**
@@ -16,7 +15,7 @@ const { warn } = Shopware.Utils.debug;
  * <sw-number-field type="number" label="Name" v-model="model" numberType="int"
  * :max="20" :min="5" :step="5"></sw-number-field>
  */
-Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
+export default {
     template,
     inheritAttrs: false,
 
@@ -35,15 +34,9 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
             type: String,
             required: false,
             default: 'float',
-            validValues: [
-                'float',
-                'int',
-            ],
+            validValues: ['float', 'int'],
             validator(value) {
-                return [
-                    'float',
-                    'int',
-                ].includes(value);
+                return ['float', 'int'].includes(value);
             },
         },
 
@@ -250,18 +243,29 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
         },
 
         getNumberFromString(value) {
-            let splits = value.split('e').shift();
-            splits = splits.replace(/,/g, '.').split('.');
+            const normalizedValue = value.toString().trim().replace(/\s/g, '');
 
-            if (splits.length === 1) {
-                return parseFloat(splits[0]);
+            if (normalizedValue.toLowerCase().includes('e')) {
+                return Number.parseFloat(normalizedValue.replace(/,/g, '.'));
             }
 
             if (this.numberType === 'int') {
-                return parseInt(splits.join(''), 10);
+                return parseInt(normalizedValue.replace(/[,.]/g, ''), 10);
             }
-            const decimals = splits[splits.length - 1].length;
-            const float = parseFloat(splits.join('.')).toFixed(decimals);
+
+            const commaIndex = normalizedValue.lastIndexOf(',');
+            const dotIndex = normalizedValue.lastIndexOf('.');
+            const decimalSeparatorIndex = Math.max(commaIndex, dotIndex);
+
+            if (decimalSeparatorIndex === -1) {
+                return Number.parseFloat(normalizedValue);
+            }
+
+            const integerPart = normalizedValue.slice(0, decimalSeparatorIndex).replace(/[,.]/g, '');
+            const decimalPart = normalizedValue.slice(decimalSeparatorIndex + 1).replace(/[,.]/g, '');
+            const decimals = decimalPart.length;
+            const float = Number.parseFloat(`${integerPart}.${decimalPart}`).toFixed(decimals);
+
             return decimals > this.digits ? Math.round(float * 10 ** this.digits) / 10 ** this.digits : Number(float);
         },
 
@@ -279,4 +283,4 @@ Component.extend('sw-number-field-deprecated', 'sw-text-field-deprecated', {
             return floor;
         },
     },
-});
+};

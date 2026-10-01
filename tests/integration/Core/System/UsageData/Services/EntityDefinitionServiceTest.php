@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\System\UsageData\Services;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\UsageData\Services\EntityDefinitionService;
 use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
@@ -11,6 +12,7 @@ use Shopware\Core\System\UsageData\Services\UsageDataAllowListService;
 /**
  * @internal
  */
+#[Package('data-services')]
 class EntityDefinitionServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -49,14 +51,14 @@ class EntityDefinitionServiceTest extends TestCase
                     }
                 }
 
-                if (\count($missingIdFields) !== 0) {
+                if ($missingIdFields !== []) {
                     $problematicEntities[] = $entityDefinition->getEntityName();
                 }
             }
         }
 
         // assert with an empty array in order to get the diff in the error message
-        static::assertEquals([], $problematicEntities, 'Expected that tagged entities with more than one primary key (without the VersionField) only have many-to-many associations with an corresponding ManyToManyIdField.');
+        static::assertSame([], $problematicEntities, 'Expected that tagged entities with more than one primary key (without the VersionField) only have many-to-many associations with an corresponding ManyToManyIdField.');
     }
 
     public function testTaggedEntitiesHaveCreatedAndUpdatedFields(): void
@@ -73,6 +75,6 @@ class EntityDefinitionServiceTest extends TestCase
         }
 
         // assert with an empty array in order to get the diff in the error message
-        static::assertEquals([], $problematicEntities, 'Expected that tagged entities have created_at and updated_at fields.');
+        static::assertSame([], $problematicEntities, 'Expected that tagged entities have created_at and updated_at fields.');
     }
 }

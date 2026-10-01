@@ -25,11 +25,6 @@ describe('module/sw-users-permissions/components/sw-users-permissions-configurat
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.element).toMatchSnapshot();
-    });
-
     it('should emit the event correctly', () => {
         wrapper.vm.onChangeLoading(true);
         expect(wrapper.emitted('loading-change')).toBeTruthy();

@@ -7,12 +7,14 @@ use OpenSearchDSL\Query\Compound\BoolQuery;
 use OpenSearchDSL\Query\FullText\MatchQuery;
 use OpenSearchDSL\Search;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Elasticsearch\ElasticsearchException;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
 
@@ -34,7 +36,8 @@ class ElasticsearchHelper
         private readonly Client $client,
         private readonly ElasticsearchRegistry $registry,
         private readonly CriteriaParser $parser,
-        private readonly LoggerInterface $logger
+        private readonly LoggerInterface $logger,
+        private readonly SystemConfigService $systemConfigService
     ) {
     }
 
@@ -63,7 +66,13 @@ class ElasticsearchHelper
             return false;
         }
 
-        if (!$this->client->ping()) {
+        try {
+            $reachable = $this->client->ping();
+        } catch (\Throwable $e) {
+            return $this->logAndThrowException($e);
+        }
+
+        if (!$reachable) {
             return $this->logAndThrowException(ElasticsearchException::serverNotAvailable());
         }
 
@@ -90,11 +99,10 @@ class ElasticsearchHelper
     {
         $ids = $criteria->getIds();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
-        /** @var list<string> $ids */
         $ids = array_values($ids);
 
         $query = $this->parser->parseFilter(
@@ -110,7 +118,7 @@ class ElasticsearchHelper
     public function addFilters(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
     {
         $filters = $criteria->getFilters();
-        if (empty($filters)) {
+        if ($filters === []) {
             return;
         }
 
@@ -127,7 +135,7 @@ class ElasticsearchHelper
     public function addPostFilters(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
     {
         $postFilters = $criteria->getPostFilters();
-        if (empty($postFilters)) {
+        if ($postFilters === []) {
             return;
         }
 
@@ -156,28 +164,49 @@ class ElasticsearchHelper
         $query = $esDefinition->buildTermQuery($context, $criteria);
 
         $search->addQuery($query);
+
+        $minScore = $this->resolveMinScore($context);
+        if ($minScore > 0.0) {
+            $search->setMinScore($minScore);
+        }
     }
 
     public function addQueries(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
     {
         $queries = $criteria->getQueries();
-        if (empty($queries)) {
+        if ($queries === []) {
             return;
         }
+
+        $hasTermQuery = $criteria->getTerm() !== null && $criteria->getTerm() !== '';
 
         $bool = new BoolQuery();
 
         foreach ($queries as $query) {
             $parsed = $this->parser->parseFilter($query->getQuery(), $definition, $definition->getEntityName(), $context);
 
-            if ($parsed instanceof MatchQuery) {
+            if ($query->getScore() && method_exists($parsed, 'addParameter')) {
                 $score = (string) $query->getScore();
-
                 $parsed->addParameter('boost', $score);
+            }
+
+            if ($parsed instanceof MatchQuery) {
                 $parsed->addParameter('fuzziness', '2');
             }
 
+            // in mysql implementation (@See: \Shopware\Core\Framework\DataAbstractionLayer\Dbal\CriteriaQueryBuilder::build), the term query is split into separate score queries and added to the main query with the OR operator.
+            // in Elasticsearch implementation, the term query can be added directly into the main query (@See: \Shopware\Elasticsearch\Framework\ElasticsearchHelper::addTerm, so the term query and score queries can co-exist (without extract term as mysql implementation) but if there is already a term query, we need to group it with other queries to the main query with the OR operator.
+            if ($hasTermQuery) {
+                $search->addQuery($parsed, BoolQuery::SHOULD);
+
+                continue;
+            }
+
             $bool->add($parsed, BoolQuery::SHOULD);
+        }
+
+        if ($hasTermQuery) {
+            return;
         }
 
         $bool->addParameter('minimum_should_match', '1');
@@ -196,7 +225,7 @@ class ElasticsearchHelper
     public function addAggregations(EntityDefinition $definition, Criteria $criteria, Search $search, Context $context): void
     {
         $aggregations = $criteria->getAggregations();
-        if (empty($aggregations)) {
+        if ($aggregations === []) {
             return;
         }
 
@@ -230,5 +259,16 @@ class ElasticsearchHelper
         $entityName = $definition->getEntityName();
 
         return $this->registry->has($entityName);
+    }
+
+    private function resolveMinScore(Context $context): float
+    {
+        $salesChannelId = null;
+        $source = $context->getSource();
+        if ($source instanceof SalesChannelApiSource) {
+            $salesChannelId = $source->getSalesChannelId();
+        }
+
+        return $this->systemConfigService->getFloat('core.search.minScore', $salesChannelId);
     }
 }

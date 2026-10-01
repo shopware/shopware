@@ -12,10 +12,7 @@ const { format } = Utils;
 export default {
     template,
 
-    emits: [
-        'update:value',
-        'on-remove-code',
-    ],
+    emits: ['update:value', 'on-remove-code'],
 
     props: {
         currency: {
@@ -34,6 +31,15 @@ export default {
         taggedFieldListClasses() {
             return {
                 'sw-tagged-field__tag-list--disabled': this.disabled,
+            };
+        },
+
+        // Unlike the base field, also hide a not yet submitted code on blur,
+        // so it is clear that it was not applied to the order.
+        taggedFieldInputClasses() {
+            return {
+                'sw-tagged-field__input--full-width': !this.hasValues,
+                'sw-tagged-field__input--hidden': !this.hasFocus && (this.hasValues || !!this.newTagName),
             };
         },
     },
@@ -58,10 +64,7 @@ export default {
                 code: this.newTagName,
             };
 
-            this.$emit('update:value', [
-                ...this.value,
-                newTagItem,
-            ]);
+            this.$emit('update:value', [...this.value, newTagItem]);
 
             this.newTagName = '';
         },
@@ -89,7 +92,7 @@ export default {
             const discountValue =
                 discountType === 'percentage' ? value : format.currency(Number(value), this.currency.isoCode);
 
-            return this.$tc(`sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`, 0, {
+            return this.$t(`sw-order.createBase.textPromotionDescription.${discountScope}.${discountType}`, {
                 value: discountValue,
                 groupId,
             });

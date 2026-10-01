@@ -1,13 +1,12 @@
 {% block sw_order_product_select %}
 <span class="sw-order-product-select">
     {% block sw_order_product_select_blank_item %}
-
     <mt-text-field
         v-if="isShownItemLabelInput"
         v-model="item.label"
         v-bind="$attrs"
         size="small"
-        :placeholder="$tc('sw-order.detailBase.columnProductName')"
+        :placeholder="$t('sw-order.detailBase.columnProductName')"
     />
     {% endblock %}
 

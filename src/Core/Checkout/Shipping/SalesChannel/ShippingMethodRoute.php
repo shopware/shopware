@@ -2,24 +2,29 @@
 
 namespace Shopware\Core\Checkout\Shipping\SalesChannel;
 
+use Shopware\Core\Checkout\Shipping\Extension\ShippingMethodRouteExtension;
 use Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ShippingMethodRoute extends AbstractShippingMethodRoute
 {
     final public const ALL_TAG = 'shipping-method-route';
@@ -31,9 +36,10 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
      */
     public function __construct(
         private readonly SalesChannelRepository $shippingMethodRepository,
-        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CacheTagCollector $cacheTagCollector,
         private readonly ScriptExecutor $scriptExecutor,
         private readonly RuleIdMatcher $ruleIdMatcher,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -47,23 +53,41 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
         return 'shipping-method-route-' . $salesChannelId;
     }
 
+    /**
+     * Though this is a GET route, caching was not added as the output may be altered depending on dynamic rules,
+     * which is not taken into account during the cache hash calculation.
+     */
     #[Route(
         path: '/store-api/shipping-method',
         name: 'store-api.shipping.method',
-        defaults: ['_entity' => 'shipping_method'],
-        methods: ['GET', 'POST']
+        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ShippingMethodDefinition::ENTITY_NAME],
+        methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
     {
-        $this->dispatcher->dispatch(new AddCacheTagEvent(
-            self::buildName($context->getSalesChannelId())
-        ));
+        return $this->extensions->publish(
+            name: ShippingMethodRouteExtension::NAME,
+            extension: new ShippingMethodRouteExtension($request, $context, $criteria),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(Request $request, SalesChannelContext $context, Criteria $criteria): ShippingMethodRouteResponse
+    {
+        $this->cacheTagCollector->addTag(self::buildName($context->getSalesChannelId()));
+
+        $onlyAvailable = $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable');
 
         $criteria
             ->addFilter(new EqualsFilter('active', true))
             ->addAssociation('media');
 
-        if (empty($criteria->getSorting())) {
+        if ($onlyAvailable) {
+            // Any bound excludes rows without currency values, which cannot resolve shipping costs
+            $criteria->addFilter(new RangeFilter('prices.currencyPrice', [RangeFilter::GTE => -\PHP_INT_MAX]));
+        }
+
+        if ($criteria->getSorting() === []) {
             $criteria->addSorting(new FieldSorting('position'), new FieldSorting('name', FieldSorting::ASCENDING));
         }
 
@@ -72,7 +96,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
         $shippingMethods = $result->getEntities();
         $shippingMethods->sortShippingMethodsByPreference($context);
 
-        if ($request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable')) {
+        if ($onlyAvailable) {
             $shippingMethods = $this->ruleIdMatcher->filterCollection($shippingMethods, $context->getRuleIds());
         }
 
@@ -80,7 +104,7 @@ class ShippingMethodRoute extends AbstractShippingMethodRoute
 
         $this->scriptExecutor->execute(new ShippingMethodRouteHook(
             $shippingMethods,
-            $request->query->getBoolean('onlyAvailable') || $request->request->getBoolean('onlyAvailable'),
+            $onlyAvailable,
             $context,
         ));
 

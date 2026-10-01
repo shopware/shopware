@@ -5,23 +5,18 @@
 import template from './sw-sales-channel-products-assignment-dynamic-product-groups.html.twig';
 import './sw-sales-channel-products-assignment-dynamic-product-groups.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sales-channel-products-assignment-dynamic-product-groups', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'selection-change',
-        'product-loading',
-    ],
+    emits: ['selection-change', 'product-loading'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         salesChannel: {
@@ -63,9 +58,7 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
             criteria.filters = this.productStreamFilter;
             criteria.addAssociation('visibilities.salesChannel');
             criteria.addFilter(
-                Criteria.not('AND', [
-                    Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
-                ]),
+                Criteria.not('AND', [Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)]),
             );
 
             return criteria;
@@ -74,6 +67,7 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
         productStreamCriteria() {
             const criteria = new Criteria(this.page, this.limit);
 
+            criteria.addFilter(Criteria.equals('internal', false));
             if (this.term) {
                 criteria.setTerm(this.term);
             }
@@ -85,12 +79,13 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.columnName'),
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.columnName'),
                     sortable: false,
                 },
             ];
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
@@ -199,4 +194,4 @@ Component.register('sw-sales-channel-products-assignment-dynamic-product-groups'
             });
         },
     },
-});
+};

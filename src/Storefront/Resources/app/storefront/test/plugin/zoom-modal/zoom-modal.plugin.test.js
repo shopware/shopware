@@ -181,6 +181,56 @@ describe('ZoomModalPlugin tests', () => {
         expect(window.focusHandler.setFocus).toHaveBeenCalledWith(activeModalImgElement);
     });
 
+    test('zoom modal registers listeners on triggers only once when init runs multiple times', () => {
+        const onClickSpy = jest.spyOn(ZoomModalPlugin.prototype, '_onClick').mockImplementation(() => {});
+        const onKeyDownSpy = jest.spyOn(ZoomModalPlugin.prototype, '_onKeyDown').mockImplementation(() => {});
+
+        const element = document.querySelector('[data-zoom-modal]');
+        const plugin = new ZoomModalPlugin(element);
+
+        // Re-run init multiple times to simulate repeated plugin initialization
+        plugin.init();
+        plugin.init();
+        plugin.init();
+
+        const triggerImgElement = document.getElementById('gallery-slider').querySelector('img');
+
+        triggerImgElement.dispatchEvent(new Event('click'));
+
+        const keydownEvent = new Event('keydown');
+        keydownEvent.key = 'Enter';
+        triggerImgElement.dispatchEvent(keydownEvent);
+
+        // Both listeners should only fire once even though init was called multiple times
+        expect(onClickSpy).toHaveBeenCalledTimes(1);
+        expect(onKeyDownSpy).toHaveBeenCalledTimes(1);
+    });
+
+    test('zoom modal re-registers trigger listeners after viewport changes', () => {
+        const registerEventsSpy = jest.spyOn(ZoomModalPlugin.prototype, '_registerEvents');
+        const onClickSpy = jest.spyOn(ZoomModalPlugin.prototype, '_onClick').mockImplementation(() => {});
+
+        const element = document.querySelector('[data-zoom-modal]');
+
+        const plugin = new ZoomModalPlugin(element);
+
+        expect(registerEventsSpy).toHaveBeenCalledTimes(1);
+
+        document.getElementById('gallery-slider').innerHTML = `
+            <img src="#" alt="" class="gallery-slider-image magnifier-image js-magnifier-image" tabindex="0" id="updated-trigger">
+        `;
+
+        document.dispatchEvent(new Event('Viewport/hasChanged'));
+
+        expect(registerEventsSpy).toHaveBeenCalledTimes(2);
+
+        document.getElementById('updated-trigger').dispatchEvent(new Event('click'));
+
+        expect(onClickSpy).toHaveBeenCalledTimes(1);
+
+        expect(plugin).toBeInstanceOf(ZoomModalPlugin);
+    });
+
     test('zoom modal closes via ESC key', () => {
         const triggerImgElement = document.querySelector('img');
         const modal = document.querySelector('.js-zoom-modal');

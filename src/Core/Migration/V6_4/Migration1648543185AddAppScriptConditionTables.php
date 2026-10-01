@@ -5,11 +5,10 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1648543185AddAppScriptConditionTables extends MigrationStep
@@ -54,17 +53,10 @@ class Migration1648543185AddAppScriptConditionTables extends MigrationStep
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
 
-        $columns = array_column($connection->fetchAllAssociative('SHOW COLUMNS FROM `rule_condition`'), 'Field');
-
-        if (!\in_array('script_id', $columns, true)) {
+        if (!TableHelper::columnExists($connection, 'rule_condition', 'script_id')) {
             $connection->executeStatement('ALTER TABLE `rule_condition` ADD `script_id` BINARY(16) NULL AFTER rule_id');
             $connection->executeStatement('ALTER TABLE `rule_condition` ADD CONSTRAINT `fk.rule_condition.script_id` FOREIGN KEY (`script_id`)
               REFERENCES `app_script_condition` (`id`) ON DELETE SET NULL ON UPDATE CASCADE');
         }
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
-        // implement update destructive
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\Framework\Store\InAppPurchase\Services;
 
+use Psr\Clock\ClockInterface;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\JWT\Constraints\HasValidRSAJWKSignature;
@@ -10,6 +12,7 @@ use Shopware\Core\Framework\JWT\JWTDecoder;
 use Shopware\Core\Framework\JWT\JWTException;
 use Shopware\Core\Framework\JWT\Struct\JWKStruct;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
 /**
@@ -18,14 +21,16 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  * @phpstan-import-type JSONWebKey from JWKStruct
  */
 #[Package('checkout')]
-final class InAppPurchaseProvider
+final readonly class InAppPurchaseProvider
 {
     public const CONFIG_STORE_IAP_KEY = 'core.store.iapKey';
 
     public function __construct(
-        private readonly SystemConfigService $systemConfig,
-        private readonly JWTDecoder $decoder,
-        private readonly KeyFetcher $keyFetcher
+        private SystemConfigService $systemConfig,
+        private JWTDecoder $decoder,
+        private KeyFetcher $keyFetcher,
+        private LoggerInterface $logger,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -34,15 +39,7 @@ final class InAppPurchaseProvider
      */
     public function getPurchases(): array
     {
-        $purchases = $this->systemConfig->getString(self::CONFIG_STORE_IAP_KEY);
-        if (!$purchases) {
-            return [];
-        }
-
-        $purchases = json_decode($purchases, true);
-        if (!\is_array($purchases)) {
-            return [];
-        }
+        $purchases = $this->getPurchasesJWT();
 
         return $this->filterActive($this->decodePurchases($purchases));
     }
@@ -52,12 +49,13 @@ final class InAppPurchaseProvider
      */
     public function getPurchasesJWT(): array
     {
-        $purchases = $this->systemConfig->getString(self::CONFIG_STORE_IAP_KEY);
-        if (!$purchases) {
-            return [];
+        $purchases = \json_decode($this->systemConfig->getString(self::CONFIG_STORE_IAP_KEY), true);
+
+        if (\is_array($purchases)) {
+            return $purchases;
         }
 
-        return json_decode($purchases, true);
+        return [];
     }
 
     /**
@@ -70,25 +68,35 @@ final class InAppPurchaseProvider
         if ($encodedPurchases === []) {
             return [];
         }
-        $decodedPurchases = [];
 
         $context = Context::createDefaultContext();
 
         try {
             $jwks = $this->keyFetcher->getKey($context, $retried);
-            $signatureValidator = new HasValidRSAJWKSignature($jwks);
-            $domainValidator = new MatchesLicenceDomain($this->systemConfig);
-            foreach ($encodedPurchases as $extensionName => $purchaseJwt) {
+        } catch (AppException|StoreException $e) { // only StoreException::jwksNotFound() is thrown
+            $this->logger->error('Unable to decode In-App purchases: {message}', ['message' => $e->getMessage()]);
+
+            return [];
+        }
+
+        $signatureValidator = new HasValidRSAJWKSignature($jwks);
+        $domainValidator = new MatchesLicenceDomain($this->systemConfig);
+
+        $decodedPurchases = [];
+
+        foreach ($encodedPurchases as $extensionName => $purchaseJwt) {
+            try {
                 $this->decoder->validate($purchaseJwt, $signatureValidator, $domainValidator);
                 $decodedPurchases[$extensionName][] = DecodedPurchasesCollectionStruct::fromArray($this->decoder->decode($purchaseJwt));
-            }
-        } catch (JWTException $e) {
-            if (!$retried) {
+            } catch (JWTException $e) {
+                if ($retried) {
+                    $this->logger->error('Unable to decode In-App purchases for extension "{extension}": {message}', ['extension' => $extensionName, 'message' => $e->getMessage()]);
+
+                    return [];
+                }
+
                 return $this->decodePurchases($encodedPurchases, true);
             }
-            // ignore if already retried
-        } catch (AppException $e) {
-            // ignore
         }
 
         return $decodedPurchases;
@@ -106,7 +114,7 @@ final class InAppPurchaseProvider
         foreach ($decodePurchases as $extensionName => $extensionPurchases) {
             foreach ($extensionPurchases as $purchases) {
                 foreach ($purchases as $purchase) {
-                    if (\is_string($purchase->nextBookingDate) && new \DateTime($purchase->nextBookingDate) < new \DateTime()) {
+                    if (\is_string($purchase->nextBookingDate) && new \DateTime($purchase->nextBookingDate) < $this->clock->now()) {
                         continue;
                     }
 

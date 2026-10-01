@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Manifest;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Manifest\XmlParserUtils;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(XmlParserUtils::class)]
 class XmlParserUtilsTest extends TestCase
 {
@@ -18,7 +20,25 @@ class XmlParserUtilsTest extends TestCase
 
         $result = XmlParserUtils::parseAttributes($element);
 
-        static::assertEquals(['attr1' => 'value1', 'attr2' => 'value2'], $result);
+        static::assertSame(['attr1' => 'value1', 'attr2' => 'value2'], $result);
+    }
+
+    public function testParseAttributesPhpizesValueEvenWhenTypeIsString(): void
+    {
+        $element = $this->createDOMElement([
+            'type' => 'string',
+            'value' => '{"foo":"bar"}',
+        ]);
+
+        $result = XmlParserUtils::parseAttributes($element);
+
+        static::assertSame(
+            [
+                'type' => 'string',
+                'value' => ['foo' => 'bar'],
+            ],
+            $result
+        );
     }
 
     public function testParseChildren(): void
@@ -29,7 +49,7 @@ class XmlParserUtilsTest extends TestCase
 
         $result = XmlParserUtils::parseChildren($element);
 
-        static::assertEquals(['child1' => 'value1', 'child2' => 'value2'], $result);
+        static::assertSame(['child1' => 'value1', 'child2' => 'value2'], $result);
     }
 
     public function testParseChildrenWithTransformer(): void
@@ -38,9 +58,9 @@ class XmlParserUtilsTest extends TestCase
         $element->appendChild(new \DOMElement('child1', 'value1'));
         $element->appendChild(new \DOMElement('child2', 'value2'));
 
-        $result = XmlParserUtils::parseChildren($element, fn (\DOMElement $e) => strtoupper($e->nodeValue ?? ''));
+        $result = XmlParserUtils::parseChildren($element, static fn (\DOMElement $e) => strtoupper($e->nodeValue ?? ''));
 
-        static::assertEquals(['child1' => 'VALUE1', 'child2' => 'VALUE2'], $result);
+        static::assertSame(['child1' => 'VALUE1', 'child2' => 'VALUE2'], $result);
     }
 
     public function testParseChildrenIgnoresNonDomElements(): void
@@ -61,7 +81,7 @@ class XmlParserUtilsTest extends TestCase
 
         $result = XmlParserUtils::parseChildrenAsList($element);
 
-        static::assertEquals(['value1', 'value2'], $result);
+        static::assertSame(['value1', 'value2'], $result);
     }
 
     public function testParseChildrenAsListWithTransformer(): void
@@ -70,9 +90,9 @@ class XmlParserUtilsTest extends TestCase
         $element->appendChild(new \DOMElement('child1', 'value1'));
         $element->appendChild(new \DOMElement('child2', 'value2'));
 
-        $result = XmlParserUtils::parseChildrenAsList($element, fn (\DOMElement $e) => strtoupper($e->nodeValue ?? ''));
+        $result = XmlParserUtils::parseChildrenAsList($element, static fn (\DOMElement $e) => strtoupper($e->nodeValue ?? ''));
 
-        static::assertEquals(['VALUE1', 'VALUE2'], $result);
+        static::assertSame(['VALUE1', 'VALUE2'], $result);
     }
 
     public function testParseChildrenAsListIgnoresNonDomElements(): void
@@ -124,7 +144,7 @@ class XmlParserUtilsTest extends TestCase
             'version' => '1.5',
         ];
 
-        static::assertEquals($expectedResult, $result);
+        static::assertSame($expectedResult, $result);
     }
 
     public function testMapTranslatedTag(): void
@@ -141,7 +161,7 @@ class XmlParserUtilsTest extends TestCase
 
         $result = XmlParserUtils::mapTranslatedTag($en, []);
 
-        static::assertEquals(
+        static::assertSame(
             [
                 'name' => [
                     'en-GB' => 'EnglishName',
@@ -156,7 +176,7 @@ class XmlParserUtilsTest extends TestCase
             ],
         ]);
 
-        static::assertEquals(
+        static::assertSame(
             [
                 'name' => [
                     'en-GB' => 'EnglishName',
@@ -169,8 +189,8 @@ class XmlParserUtilsTest extends TestCase
 
     public function testKebabCaseToCamelCase(): void
     {
-        static::assertEquals('someValue', XmlParserUtils::kebabCaseToCamelCase('some-value'));
-        static::assertEquals('someValue', XmlParserUtils::kebabCaseToCamelCase('some_value'));
+        static::assertSame('someValue', XmlParserUtils::kebabCaseToCamelCase('some-value'));
+        static::assertSame('someValue', XmlParserUtils::kebabCaseToCamelCase('some_value'));
     }
 
     /**

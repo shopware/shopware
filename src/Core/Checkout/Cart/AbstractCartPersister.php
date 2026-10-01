@@ -4,15 +4,37 @@ namespace Shopware\Core\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\Delivery\DeliveryProcessor;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 #[Package('checkout')]
 abstract class AbstractCartPersister
 {
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::PERSIST_CART_ERROR}
+     */
+    public const PERSIST_CART_ERROR_PERMISSION = CheckoutPermissions::PERSIST_CART_ERRORS;
+
     abstract public function getDecorated(): AbstractCartPersister;
 
     abstract public function load(string $token, SalesChannelContext $context): Cart;
+
+    /**
+     * Checks if a cart is stored for the given token, without loading and deserializing it.
+     */
+    #[BecomesAbstract(version: 'v6.8.0')]
+    public function exists(string $token, SalesChannelContext $context): bool
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'AbstractCartPersister::exists() will become abstract in v6.8.0.0. Please implement it in your cart persister class.'
+        );
+
+        return $this->getDecorated()->exists($token, $context);
+    }
 
     abstract public function save(Cart $cart, SalesChannelContext $context): void;
 
@@ -30,10 +52,12 @@ abstract class AbstractCartPersister
 
     protected function shouldPersist(Cart $cart): bool
     {
-        return $cart->getLineItems()->count() > 0
+        return ($cart->getLineItems()->count() > 0
+            || ($cart->getErrors()->count() > 0 && $cart->getBehavior()?->hasPermission(CheckoutPermissions::PERSIST_CART_ERRORS))
             || $cart->getAffiliateCode() !== null
             || $cart->getCampaignCode() !== null
             || $cart->getCustomerComment() !== null
-            || $cart->getExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS) instanceof CalculatedPrice;
+            || $cart->getExtension(DeliveryProcessor::MANUAL_SHIPPING_COSTS) instanceof CalculatedPrice)
+            && !$cart->getBehavior()?->hasPermission(CheckoutPermissions::SKIP_CART_PERSISTENCE);
     }
 }

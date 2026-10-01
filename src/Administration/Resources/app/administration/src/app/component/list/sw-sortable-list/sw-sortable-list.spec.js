@@ -6,11 +6,7 @@ import { shallowMount } from '@vue/test-utils';
 import { deepMergeObject } from 'src/core/service/utils/object.utils';
 import 'src/app/component/list/sw-sortable-list';
 
-const listItems = [
-    { id: 0 },
-    { id: 1 },
-    { id: 2 },
-];
+const listItems = [{ id: 0 }, { id: 1 }, { id: 2 }];
 
 async function createWrapper(userConfig = {}) {
     const defaultConfig = {
@@ -37,14 +33,14 @@ async function createWrapper(userConfig = {}) {
                 },
             },
             mocks: {
-                $tc: (v) => v,
+                $t: (v) => v,
             },
             sync: true,
         },
     };
 
     const wrapper = shallowMount(
-        await Shopware.Component.build('sw-sortable-list'),
+        await wrapTestComponent('sw-sortable-list', { sync: true }),
         deepMergeObject(defaultConfig, userConfig),
     );
 
@@ -56,11 +52,6 @@ async function createWrapper(userConfig = {}) {
 describe('src/component/list/sw-sortable-list', () => {
     /** @type Wrapper */
     let wrapper;
-
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
 
     it('should have a list of items', async () => {
         wrapper = await createWrapper();
@@ -92,11 +83,7 @@ describe('src/component/list/sw-sortable-list', () => {
 
     it('should return the sorted list after drop', async () => {
         wrapper = await createWrapper();
-        const expectedListItems = [
-            listItems[1],
-            listItems[2],
-            listItems[0],
-        ];
+        const expectedListItems = [listItems[1], listItems[2], listItems[0]];
 
         wrapper.vm.onDragEnter(listItems[0], listItems[2]);
 
@@ -161,11 +148,7 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should not sort items with same id', async () => {
-        const brokenItems = [
-            { id: 1 },
-            { id: 1 },
-            { id: 1 },
-        ];
+        const brokenItems = [{ id: 1 }, { id: 1 }, { id: 1 }];
 
         wrapper = await createWrapper({
             items: brokenItems,
@@ -185,11 +168,7 @@ describe('src/component/list/sw-sortable-list', () => {
     });
 
     it('should not sort items without id', async () => {
-        const brokenItems = [
-            { id: null },
-            { id: undefined },
-            { id: '' },
-        ];
+        const brokenItems = [{ id: null }, { id: undefined }, { id: '' }];
 
         wrapper = await createWrapper({
             items: brokenItems,
@@ -305,5 +284,61 @@ describe('src/component/list/sw-sortable-list', () => {
         await flushPromises();
 
         expect(scrollByOptions).toHaveLength(0);
+    });
+
+    it('should build mergedDragConfig without mutating the shared default config', async () => {
+        wrapper = await createWrapper();
+
+        const merged = wrapper.vm.mergedDragConfig;
+
+        expect(merged.onDragStart).toBe(wrapper.vm.onDragStart);
+        expect(merged.onDragEnter).toBe(wrapper.vm.onDragEnter);
+        expect(merged.onDrop).toBe(wrapper.vm.onDrop);
+
+        expect(wrapper.vm.defaultConfig.onDragStart).toBeUndefined();
+        expect(wrapper.vm.defaultConfig.onDragEnter).toBeUndefined();
+        expect(wrapper.vm.defaultConfig.onDrop).toBeUndefined();
+    });
+
+    it('should let caller-supplied dragConf override the built-in handlers', async () => {
+        const customOnDrop = jest.fn();
+
+        wrapper = await createWrapper({
+            props: {
+                dragConf: {
+                    dragGroup: 'custom-group',
+                    onDrop: customOnDrop,
+                },
+            },
+        });
+
+        const merged = wrapper.vm.mergedDragConfig;
+
+        // caller overrides win (spread last)...
+        expect(merged.dragGroup).toBe('custom-group');
+        expect(merged.onDrop).toBe(customOnDrop);
+        // ...while handlers the caller did not override fall back to the instance methods
+        expect(merged.onDragStart).toBe(wrapper.vm.onDragStart);
+        expect(merged.onDragEnter).toBe(wrapper.vm.onDragEnter);
+    });
+
+    it('should not trigger an infinite update loop when multiple lists are mounted', async () => {
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+        const wrapperA = await createWrapper();
+        const wrapperB = await createWrapper();
+
+        await flushPromises();
+
+        const recursiveWarnings = warnSpy.mock.calls.filter((call) =>
+            call.some((arg) => typeof arg === 'string' && arg.includes('Maximum recursive updates exceeded')),
+        );
+
+        expect(recursiveWarnings).toHaveLength(0);
+        expect(wrapperA.findAll('.sw-sortable-list__item')).toHaveLength(3);
+        expect(wrapperB.findAll('.sw-sortable-list__item')).toHaveLength(3);
+
+        warnSpy.mockRestore();
+        wrapperA.unmount();
+        wrapperB.unmount();
     });
 });

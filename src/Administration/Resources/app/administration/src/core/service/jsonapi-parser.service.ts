@@ -97,7 +97,7 @@ function convertRawDataToJson(data: string | object): false | Json {
     if (types.isString(data)) {
         try {
             jsonData = JSON.parse(data) as Json;
-        } catch (err) {
+        } catch (_err) {
             return false;
         }
     } else if (types.isObject(data) && !types.isArray(data)) {

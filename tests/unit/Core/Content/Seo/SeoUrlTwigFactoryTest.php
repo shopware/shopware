@@ -29,8 +29,13 @@ class SeoUrlTwigFactoryTest extends TestCase
         $tmpDir = Path::join(sys_get_temp_dir(), uniqid('twig-cache', false));
         $fs->mkdir($tmpDir);
 
+        $slugify = new Slugify();
         $factory = new SeoUrlTwigFactory();
-        $twig = $factory->createTwigEnvironment(new Slugify(), [], $tmpDir);
+        $twig = $factory->createTwigEnvironment($slugify, [
+            new SlugifyExtension($slugify),
+            new PhpSyntaxExtension(),
+            new SecurityExtension([]),
+        ], $tmpDir);
 
         static::assertTrue($twig->hasExtension(SlugifyExtension::class));
         static::assertTrue($twig->hasExtension(PhpSyntaxExtension::class));

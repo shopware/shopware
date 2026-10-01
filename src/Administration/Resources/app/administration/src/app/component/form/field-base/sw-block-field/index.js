@@ -4,12 +4,10 @@
 import template from './sw-block-field.html.twig';
 import './sw-block-field.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-block-field', {
+export default {
     template,
     inheritAttrs: false,
 
@@ -18,17 +16,9 @@ Component.register('sw-block-field', {
             type: String,
             required: false,
             default: 'default',
-            validValues: [
-                'small',
-                'medium',
-                'default',
-            ],
+            validValues: ['small', 'medium', 'default'],
             validator(val) {
-                return [
-                    'small',
-                    'medium',
-                    'default',
-                ].includes(val);
+                return ['small', 'medium', 'default'].includes(val);
             },
         },
     },
@@ -63,4 +53,4 @@ Component.register('sw-block-field', {
             this.hasFocus = false;
         },
     },
-});
+};

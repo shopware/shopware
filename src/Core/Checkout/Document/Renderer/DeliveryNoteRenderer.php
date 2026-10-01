@@ -3,23 +3,33 @@
 namespace Shopware\Core\Checkout\Document\Renderer;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Event\DeliveryNoteOrdersEvent;
 use Shopware\Core\Checkout\Document\Event\DocumentOrderCriteriaEvent;
 use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Provider\AbstractDocumentDataProvider;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\NumberRange\ValueGenerator\NumberRangeValueGeneratorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    replacement: AbstractDocumentDataProvider::class,
+    description: 'Register a data provider for DocumentType::DELIVERY_NOTE. Enrich the order criteria via enrichOrderCriteria() and the render data via provideRenderingData().',
+)]
 final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 {
     public const TYPE = 'delivery_note';
@@ -36,6 +46,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
         private readonly NumberRangeValueGeneratorInterface $numberRangeValueGenerator,
         private readonly Connection $connection,
         private readonly DocumentFileRendererRegistry $fileRendererRegistry,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -50,9 +61,9 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
         $template = '@Framework/documents/delivery_note.html.twig';
 
-        $ids = \array_map(fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
+        $ids = \array_map(static fn (DocumentGenerateOperation $operation) => $operation->getOrderId(), $operations);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return $result;
         }
 
@@ -60,8 +71,8 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
         $chunk = $this->getOrdersLanguageId(array_values($ids), $context->getVersionId(), $this->connection);
 
-        foreach ($chunk as ['language_id' => $languageId, 'ids' => $ids]) {
-            $criteria = OrderDocumentCriteriaFactory::create(\explode(',', (string) $ids), $rendererConfig->deepLinkCode, self::TYPE);
+        foreach ($chunk as ['language_id' => $languageId, 'ids' => $chunkIds]) {
+            $criteria = OrderDocumentCriteriaFactory::create(\explode(',', (string) $chunkIds), $rendererConfig->deepLinkCode, self::TYPE);
             $context = $context->assign([
                 'languageIdChain' => \array_values(\array_unique(\array_filter([$languageId, ...$languageIdChain]))),
             ]);
@@ -100,7 +111,7 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
 
                     $number = $config->getDocumentNumber() ?: $this->getNumber($context, $order, $operation);
 
-                    $now = (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT);
+                    $now = $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
                     $customConfig = $operation->getConfig()['custom'] ?? [];
 
                     $config->merge([
@@ -113,6 +124,9 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                         ],
                     ]);
 
+                    // create version of order to ensure the document stays the same even if the order changes
+                    $operation->setOrderVersionId($this->orderRepository->createVersion($orderId, $context, 'document'));
+
                     if ($operation->isStatic()) {
                         $doc = new RenderedDocument($number, $config->buildName(), $operation->getFileType(), $config->jsonSerialize());
                         $result->addSuccess($orderId, $doc);
@@ -120,14 +134,17 @@ final class DeliveryNoteRenderer extends AbstractDocumentRenderer
                         continue;
                     }
 
-                    $deliveries = null;
+                    $deliveries = $order->getPrimaryOrderDelivery();
+
                     if ($order->getDeliveries()) {
-                        $deliveries = $order->getDeliveries()->first();
+                        if (!Feature::isActive('v6.8.0.0')) {
+                            $deliveries = $order->getDeliveries()->first();
+                        }
                     }
 
                     $language = $order->getLanguage();
                     if ($language === null) {
-                        throw DocumentException::generationError('Can not generate credit note document because no language exists. OrderId: ' . $operation->getOrderId());
+                        throw DocumentException::generationError('Can not generate delivery note document because no language exists. OrderId: ' . $operation->getOrderId());
                     }
 
                     $doc = new RenderedDocument(

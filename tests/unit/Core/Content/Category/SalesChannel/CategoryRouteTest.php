@@ -2,6 +2,9 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Category\SalesChannel;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Query\QueryBuilder;
+use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
@@ -11,7 +14,10 @@ use Shopware\Core\Content\Category\Aggregate\CategoryTranslation\CategoryTransla
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
+use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Category\Extension\CategoryRouteExtension;
 use Shopware\Core\Content\Category\SalesChannel\CategoryRoute;
+use Shopware\Core\Content\Category\SalesChannel\CategoryRouteResponse;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSection\CmsSectionCollection;
@@ -22,15 +28,19 @@ use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\EntityResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
+use Shopware\Core\Content\Cms\Service\EntityCmsSlotConfigInheritanceBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -39,8 +49,8 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Group('store-api')]
 #[Package('discovery')]
+#[Group('store-api')]
 #[CoversClass(CategoryRoute::class)]
 class CategoryRouteTest extends TestCase
 {
@@ -94,7 +104,7 @@ class CategoryRouteTest extends TestCase
     {
         $request = new Request();
         $salesChannelContext = $this->buildSalesChannelContext($languageCodeChain);
-        $category = $this->buildCategory($languageCodeChain);
+        $category = $this->buildPageCategory($languageCodeChain);
         $cmsPage = $this->buildCmsPage();
 
         $cmsPageLoaderCriteria = new Criteria([$this->ids->get('cms-page')]);
@@ -115,7 +125,7 @@ class CategoryRouteTest extends TestCase
 
         $cmsPageLoader = $this->createMock(SalesChannelCmsPageLoaderInterface::class);
 
-        // Passively asserts, that the call of the cmsPageLoader mock using the slotConfig has been successful
+        // Passively asserts that the call of the cmsPageLoader mock using the slotConfig has been successful
         $cmsPageLoader
             ->expects($this->once())
             ->method('load')
@@ -125,12 +135,14 @@ class CategoryRouteTest extends TestCase
                 $salesChannelContext,
                 [
                     'content' => [
-                        'value' => $expected,
+                        'field' => [
+                            'value' => $expected,
+                        ],
                     ],
                 ],
                 new EntityResolverContext($salesChannelContext, $request, new CategoryDefinition(), $category),
             )->willReturn(new EntitySearchResult(
-                'cms-page',
+                'cms_page',
                 1,
                 new CmsPageCollection([$cmsPage]),
                 null,
@@ -141,8 +153,12 @@ class CategoryRouteTest extends TestCase
         $categoryRoute = new CategoryRoute(
             $categoryRepositoryMock,
             $cmsPageLoader,
+            new EntityCmsSlotConfigInheritanceBuilder(
+                $this->createConnectionWithParentLanguageIds($languageCodeChain),
+            ),
             new CategoryDefinition(),
-            new EventDispatcher(),
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $categoryRoute->load(
@@ -150,6 +166,125 @@ class CategoryRouteTest extends TestCase
             $request,
             $salesChannelContext,
         );
+    }
+
+    public function testLoadLinkPageType(): void
+    {
+        $request = new Request();
+        $salesChannelContext = $this->buildSalesChannelContext(['en']);
+        $category = $this->buildPageCategory(['en']);
+
+        $category->setType(CategoryDefinition::TYPE_LINK);
+
+        $response = $this->buildContentlessCategoryRepositoryMock(
+            $category,
+            $salesChannelContext,
+            $request
+        );
+
+        // Passively asserts that no exception has been thrown
+        static::assertSame(CategoryDefinition::TYPE_LINK, $response->getCategory()->getType());
+    }
+
+    public function testLoadFolderPageType(): void
+    {
+        $request = new Request();
+        $salesChannelContext = $this->buildSalesChannelContext(['en']);
+        $category = $this->buildPageCategory(['en']);
+
+        $category->setType(CategoryDefinition::TYPE_FOLDER);
+
+        $this->expectExceptionObject(new CategoryNotFoundException($this->ids->get('category')));
+
+        $this->buildContentlessCategoryRepositoryMock(
+            $category,
+            $salesChannelContext,
+            $request
+        );
+    }
+
+    public function testHomeRouteIsTaggedWithNavigationCategoryId(): void
+    {
+        $request = new Request();
+        $category = $this->buildPageCategory(['en']);
+        $cmsPage = $this->buildCmsPage();
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(Uuid::randomHex());
+        $salesChannel->setNavigationCategoryId($category->getId());
+        $salesChannel->setNavigationCategoryDepth(2);
+        $salesChannel->setTaxCalculationType(Generator::TAX_CALCULATION_TYPE);
+        $salesChannel->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
+        $salesChannelContext = Generator::generateSalesChannelContext(
+            new Context(new SalesChannelApiSource(Uuid::randomHex()), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]),
+            salesChannel: $salesChannel,
+        );
+
+        $categoryRepository = $this->createMock(SalesChannelRepository::class);
+        $categoryRepository
+            ->expects($this->once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                'category',
+                1,
+                new CategoryCollection([$category]),
+                null,
+                new Criteria(),
+                $salesChannelContext->getContext(),
+            ));
+
+        $cmsPageLoader = static::createStub(SalesChannelCmsPageLoaderInterface::class);
+        $cmsPageLoader->method('load')->willReturn(new EntitySearchResult(
+            'cms_page',
+            1,
+            new CmsPageCollection([$cmsPage]),
+            null,
+            new Criteria(),
+            $salesChannelContext->getContext(),
+        ));
+
+        $cacheTagCollector = $this->createMock(CacheTagCollector::class);
+        $cacheTagCollector
+            ->expects($this->once())
+            ->method('addTag')
+            ->with(CategoryRoute::buildName($category->getId()));
+
+        $categoryRoute = new CategoryRoute(
+            $categoryRepository,
+            $cmsPageLoader,
+            new EntityCmsSlotConfigInheritanceBuilder($this->createConnectionWithParentLanguageIds(['en'])),
+            new CategoryDefinition(),
+            $cacheTagCollector,
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $categoryRoute->load(CategoryRoute::HOME, $request, $salesChannelContext);
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $navigationId = Uuid::randomHex();
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $response = static::createStub(CategoryRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('category-route.load.pre', static function (CategoryRouteExtension $extension) use ($navigationId, $request, $context, $response): void {
+            static::assertSame(['navigationId' => $navigationId, 'request' => $request, 'context' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new CategoryRoute(
+            static::createStub(SalesChannelRepository::class),
+            static::createStub(SalesChannelCmsPageLoaderInterface::class),
+            static::createStub(EntityCmsSlotConfigInheritanceBuilder::class),
+            static::createStub(CategoryDefinition::class),
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($navigationId, $request, $context));
     }
 
     private function buildCmsPage(): CmsPageEntity
@@ -197,7 +332,7 @@ class CategoryRouteTest extends TestCase
     /**
      * @param non-empty-list<string> $languageCodeChain
      */
-    private function buildCategory(array $languageCodeChain): CategoryEntity
+    private function buildPageCategory(array $languageCodeChain): CategoryEntity
     {
         $category = new CategoryEntity();
         $category->setId($this->ids->create('category'));
@@ -205,7 +340,9 @@ class CategoryRouteTest extends TestCase
         $category->setType(CategoryDefinition::TYPE_PAGE);
         $category->addTranslated('slotConfig', [
             'content' => [
-                'value' => 'en config',
+                'field' => [
+                    'value' => 'en config',
+                ],
             ],
         ]);
 
@@ -215,7 +352,9 @@ class CategoryRouteTest extends TestCase
             $translation->setLanguageId(self::LANGUAGE_IDS[$languageCode]);
             $translation->setSlotConfig([
                 'content' => [
-                    'value' => $languageCode . ' config',
+                    'field' => [
+                        'value' => $languageCode . ' config',
+                    ],
                 ],
             ]);
 
@@ -225,5 +364,70 @@ class CategoryRouteTest extends TestCase
         $category->setTranslations(new CategoryTranslationCollection($categoryTranslations));
 
         return $category;
+    }
+
+    private function buildContentlessCategoryRepositoryMock(CategoryEntity $category, SalesChannelContext $salesChannelContext, Request $request): CategoryRouteResponse
+    {
+        $categoryRepositoryMock = $this->createMock(SalesChannelRepository::class);
+        $categoryRepositoryMock
+            ->expects($this->once())
+            ->method('search')
+            ->willReturn(new EntitySearchResult(
+                'category',
+                1,
+                new CategoryCollection([$category]),
+                null,
+                new Criteria(),
+                $salesChannelContext->getContext(),
+            ));
+
+        $categoryRoute = new CategoryRoute(
+            $categoryRepositoryMock,
+            static::createStub(SalesChannelCmsPageLoaderInterface::class),
+            new EntityCmsSlotConfigInheritanceBuilder(
+                $this->createConnectionWithParentLanguageIds(['en']),
+            ),
+            new CategoryDefinition(),
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        return $categoryRoute->load(
+            $this->ids->get('category'),
+            $request,
+            $salesChannelContext,
+        );
+    }
+
+    /**
+     * @param non-empty-list<string> $languageCodeChain
+     */
+    private function createConnectionWithParentLanguageIds(array $languageCodeChain): Connection
+    {
+        $connection = static::createStub(Connection::class);
+        $queryBuilder = static::createStub(QueryBuilder::class);
+
+        $queryBuilder->method('select')->willReturnSelf();
+        $queryBuilder->method('from')->willReturnSelf();
+        $queryBuilder->method('where')->willReturnSelf();
+        $queryBuilder->method('setParameter')->willReturnSelf();
+
+        $parentLanguageIds = [];
+        for ($i = \count($languageCodeChain) - 1; $i > 0; --$i) {
+            $parentLanguageIds[] = self::LANGUAGE_IDS[$languageCodeChain[$i - 1]];
+        }
+        $parentLanguageIds[] = null;
+
+        $results = array_map(function (?string $parentLanguageId): Result {
+            $result = $this->createStub(Result::class);
+            $result->method('fetchOne')->willReturn($parentLanguageId);
+
+            return $result;
+        }, $parentLanguageIds);
+
+        $queryBuilder->method('executeQuery')->willReturnOnConsecutiveCalls(...$results);
+        $connection->method('createQueryBuilder')->willReturn($queryBuilder);
+
+        return $connection;
     }
 }

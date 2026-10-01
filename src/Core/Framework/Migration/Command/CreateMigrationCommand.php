@@ -14,11 +14,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'database:create-migration',
     description: 'Creates a new migration file',
 )]
-#[Package('framework')]
 class CreateMigrationCommand extends Command
 {
     /**
@@ -111,7 +111,7 @@ class CreateMigrationCommand extends Command
     {
         $pluginBundles = array_filter($this->kernelPluginCollection->all(), static fn (Plugin $value) => mb_strpos($value->getName(), $pluginName) === 0);
 
-        if (\count($pluginBundles) === 0) {
+        if ($pluginBundles === []) {
             throw MigrationException::pluginNotFound($pluginName);
         }
 

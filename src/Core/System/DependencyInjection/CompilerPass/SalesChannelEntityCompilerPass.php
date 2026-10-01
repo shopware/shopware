@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\System\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\BulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
@@ -10,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\FilteredBulkEntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -62,7 +66,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
                 $container->setAlias(self::PREFIX . $serviceId, new Alias($serviceId, true));
             }
 
-            // if both mask base with extended extended as base
+            // if both mask base with extended as base
             if (isset($definitions['extended'], $definitions['base'])) {
                 $container->setAlias(self::PREFIX . $definitions['base'], new Alias($definitions['extended'], true));
             }
@@ -106,6 +110,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
                         new Reference(EntityAggregatorInterface::class),
                         new Reference('event_dispatcher'),
                         new Reference(EntityLoadedEventFactory::class),
+                        new Reference(DalSearchInstrumentor::class),
                     ]
                 );
                 $repository->setPublic(true);
@@ -135,7 +140,7 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
     /**
      * @param array<string, array<mixed>> $taggedServiceIds
      *
-     * @return array<string, array{entityName: string, fallback?: string}>
+     * @return array<string, array{entityName: string, fallBack?: string}>
      */
     private function formatData(
         array $taggedServiceIds,
@@ -148,8 +153,18 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
 
             /** @var string $class */
             $class = $service->getClass();
+
+            if (\in_array($class, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
+                if ($service->getArguments() === []) {
+                    continue;
+                }
+
+                $instance = new $class($service->getArguments()[0]);
+            } else {
+                $instance = new $class();
+            }
+
             /** @var EntityDefinition $instance */
-            $instance = new $class();
             $entityName = $instance->getEntityName();
             $result[$serviceId]['entityName'] = $entityName;
 
@@ -200,8 +215,8 @@ class SalesChannelEntityCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * @param array<string, array{entityName: string}> $baseEntityDefinitions
-     * @param array<string, array{entityName: string}> $salesChannelDefinitions
+     * @param array<string, array{entityName: string, fallBack?: string}> $baseEntityDefinitions
+     * @param array<string, array{entityName: string, fallBack?: string}> $salesChannelDefinitions
      */
     private function addExtensions(ContainerBuilder $container, array $baseEntityDefinitions, array $salesChannelDefinitions): void
     {

@@ -1,0 +1,64 @@
+{
+  "sw-login": {
+    "general": {
+      "mainMenuItemIndex": "Login",
+      "description": "Shopware login",
+      "logoAlt": "Shopware logo",
+      "linkBackToLogin": "Back to login",
+      "loadingLabel": "Loading..."
+    },
+    "index": {
+      "headlineForm": "Log in to Shopware",
+      "labelUsername": "Username",
+      "labelPassword": "Password",
+      "labelKeepLoggedIn": "Keep me logged in",
+      "buttonLogin": "Log in",
+      "buttonSsoLogin": "With Shopware Account",
+      "messageUnsupportedGrantType": "Authorisation grant type not supported by authorisation server.",
+      "messageInvalidRequest": "Invalid request.",
+      "messageInvalidClient": "Client authentication failed.",
+      "messageInvalidScope": "Invalid scope request.",
+      "messageInvalidCredentials": "Incorrect username or password.",
+      "messageServerError": "The authorisation server encountered an unexpected condition.",
+      "messageInvalidRefreshToken": "Invalid refresh token.",
+      "messageAccessDenied": "Request denied by authorisation server.",
+      "messageGeneralRequestError": "Something went wrong requesting \"{url}\".",
+      "messageGeneralError": "Something went wrong during login. Please try again.",
+      "messageAuthThrottled": "Too many login attempts. Please wait {seconds} seconds before trying to log in again.",
+      "forgottenPasswordLink": "Forgot password?",
+      "orContinueWith": "or continue with"
+    },
+    "recovery" : {
+      "info": {
+        "headline": "Email sent",
+        "info": "If {email} is linked to an account, you'll receive a password reset email shortly.",
+        "emailFallback": "your email address"
+      },
+      "recovery": {
+        "headline": "Set new password",
+        "text": "Choose a new password for your account.",
+        "newPasswordField": {
+          "label": "Enter new password"
+        },
+        "passwordConfirmField": {
+          "label": "Repeat new password"
+        },
+        "submit": {
+          "label": "Set new password"
+        }
+      },
+      "headline": "Forgot password?",
+      "text": "Enter the email address linked to your account to receive a password reset link.",
+      "email": {
+        "label": "Email address"
+      },
+      "submit": "Send password reset link",
+      "messageLinkExpired": "This password recovery link is expired or invalid. Please request a new link."
+    }
+  },
+  "global": {
+    "sw-admin-menu": {
+      "textShopwareAdmin": "Shopware Administration"
+    }
+  }
+}

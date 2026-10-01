@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\SystemConfig\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
@@ -14,6 +15,7 @@ use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppConfigReader::class)]
 class AppConfigReaderTest extends TestCase
 {

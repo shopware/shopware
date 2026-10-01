@@ -6,6 +6,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
@@ -61,17 +62,18 @@ class PromotionDeliveryCalculator
      */
     public function calculate(LineItemCollection $discountLineItems, Cart $original, Cart $toCalculate, SalesChannelContext $context): void
     {
-        $discountLineItems->sort(function (LineItem $a, LineItem $b) {
+        $discountLineItems->sort(static function (LineItem $a, LineItem $b) {
             return $b->getPayloadValue('priority') <=> $a->getPayloadValue('priority');
         });
 
-        $notDiscountedDeliveriesValue = $toCalculate->getDeliveries()->getShippingCosts()->sum()->getTotalPrice();
+        $notDiscountedDeliveriesValue = $toCalculate->getDeliveries()->getShippingCosts()->getTotalPriceAmount();
+
+        // build exclusions list before reducing line items
+        $exclusions = $this->buildExclusions($discountLineItems, $toCalculate, $context);
 
         // reduce discount lineItems if fixed price discounts are in collection
         $this->restorePriceDefinitions($discountLineItems);
-        $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($discountLineItems);
-
-        $exclusions = $this->buildExclusions($checkedDiscountLineItems, $toCalculate, $context);
+        $checkedDiscountLineItems = $this->reduceDiscountLineItemsIfFixedPresent($discountLineItems, $toCalculate, $context);
 
         foreach ($checkedDiscountLineItems as $discountItem) {
             if ($notDiscountedDeliveriesValue <= 0.0) {
@@ -88,8 +90,16 @@ class PromotionDeliveryCalculator
 
             if (!$this->isRequirementValid($discountItem, $toCalculate, $context)) {
                 // hide the notEligibleErrors on automatic discounts
-                if (!$this->isAutomaticDisount($discountItem)) {
-                    $this->addPromotionNotEligibleError($discountItem->getLabel() ?? $discountItem->getId(), $toCalculate);
+                if (!$this->isAutomaticDiscount($discountItem)) {
+                    $name = $discountItem->getLabel() ?? $discountItem->getId();
+                    if ($context->getCustomer() === null && $discountItem->getPayloadValue('hasPersonaRestriction')) {
+                        $toCalculate->addErrors(new PromotionNotEligibleError($name, 'not-logged-in'));
+                    } else {
+                        $ruleIds = \is_array($discountItem->getPayloadValue('conditionRuleIds'))
+                            ? array_values($discountItem->getPayloadValue('conditionRuleIds'))
+                            : [];
+                        $toCalculate->addErrors(new PromotionNotEligibleError($name, null, $ruleIds));
+                    }
                 }
 
                 continue;
@@ -139,7 +149,8 @@ class PromotionDeliveryCalculator
             $type = $item->getPayloadValue('discountType');
             $value = $item->getPayloadValue('value');
 
-            if (!$type || !$value) {
+            // "0" is a valid value (e.g. free shipping); skip only when unset or non-numeric
+            if ($type === null || !is_numeric($value)) {
                 continue;
             }
 
@@ -201,12 +212,13 @@ class PromotionDeliveryCalculator
      * If fixed price discount lineItems are in collection:
      * a collection with only one lineItem is returned.
      * if there are more than one fixed price lineItems the lowest fixed price discount lineItem is returned
+     * fixed price lineItems that do not apply to the current cart are ignored when picking that lowest one
      * if no fixed price discount lineItems are in collection all discounts are returned
      */
-    private function reduceDiscountLineItemsIfFixedPresent(LineItemCollection $discountLineItems): LineItemCollection
+    private function reduceDiscountLineItemsIfFixedPresent(LineItemCollection $discountLineItems, Cart $toCalculate, SalesChannelContext $context): LineItemCollection
     {
         // filter all discountLineItems by scope delivery and type fixed price
-        $fixedPricesDiscountLineItems = $discountLineItems->filter(function (LineItem $discountLineItem) {
+        $fixedPricesDiscountLineItems = $discountLineItems->filter(static function (LineItem $discountLineItem) {
             if (!$discountLineItem->hasPayloadValue('discountScope') || !$discountLineItem->hasPayloadValue('discountType')) {
                 return false;
             }
@@ -215,14 +227,19 @@ class PromotionDeliveryCalculator
                 return false;
             }
 
-            if ($discountLineItem->getPayloadValue('discountType') === PromotionDiscountEntity::TYPE_FIXED_UNIT) {
-                return true;
-            }
-
-            return false;
+            return $discountLineItem->getPayloadValue('discountType') === PromotionDiscountEntity::TYPE_FIXED_UNIT;
         });
 
         // if there are no fixed price lineItems we may return all discount line items and calculate them
+        if ($fixedPricesDiscountLineItems->count() === 0) {
+            return $discountLineItems;
+        }
+
+        $fixedPricesDiscountLineItems = $fixedPricesDiscountLineItems->filter(
+            fn (LineItem $discountLineItem) => $this->isRequirementValid($discountLineItem, $toCalculate, $context)
+        );
+
+        // none of them applies, so the remaining discounts keep their chance and the calculation loop reports the errors
         if ($fixedPricesDiscountLineItems->count() === 0) {
             return $discountLineItems;
         }
@@ -234,7 +251,7 @@ class PromotionDeliveryCalculator
 
         // if there are more than one fixed price lineitems in filtered collection
         // we are sorting all by lowest fixed price (lowest price to beginning)
-        $fixedPricesDiscountLineItems->sort(function (LineItem $discountA, LineItem $discountB) {
+        $fixedPricesDiscountLineItems->sort(static function (LineItem $discountA, LineItem $discountB) {
             $priceDefA = $discountA->getPriceDefinition();
             $priceDefB = $discountB->getPriceDefinition();
 
@@ -345,7 +362,7 @@ class PromotionDeliveryCalculator
         $reduceValue = abs($definition->getPrice());
 
         // get shipping costs
-        $maxReducedPrice = $deliveries->getShippingCosts()->sum()->getTotalPrice();
+        $maxReducedPrice = $deliveries->getShippingCosts()->getTotalPriceAmount();
 
         // make sure that discount value is not higher than shipping costs, reduce them if necessary
         if ($reduceValue > $maxReducedPrice) {
@@ -401,7 +418,7 @@ class PromotionDeliveryCalculator
         $reduceValue = abs($definition->getPercentage());
 
         // we may only discount the available shipping costs (these may be reduced by another discount before)
-        $maxReducedPrice = $deliveries->getShippingCosts()->sum()->getTotalPrice();
+        $maxReducedPrice = $deliveries->getShippingCosts()->getTotalPriceAmount();
 
         if ($maxValue !== '') {
             $castedMaxValue = (float) $maxValue;
@@ -441,7 +458,7 @@ class PromotionDeliveryCalculator
         $fixedPrice = abs($definition->getPrice());
 
         // get shipping costs and set them as maximum value that may be discounted
-        $maxReducedPrice = $deliveries->getShippingCosts()->sum()->getTotalPrice();
+        $maxReducedPrice = $deliveries->getShippingCosts()->getTotalPriceAmount();
 
         if ($maxReducedPrice <= $fixedPrice) {
             return $deliveryAdded;
@@ -505,8 +522,9 @@ class PromotionDeliveryCalculator
         $idStruct = $delivery->getExtensionOfType(OrderConverter::ORIGINAL_ADDRESS_ID, IdStruct::class);
         $versionIdStruct = $delivery->getExtensionOfType(OrderConverter::ORIGINAL_ADDRESS_VERSION_ID, IdStruct::class);
 
+        // Own empty positions: never share the base delivery's order_delivery_position rows.
         $delivery = new Delivery(
-            $delivery->getPositions(),
+            new DeliveryPositionCollection(),
             $delivery->getDeliveryDate(),
             $delivery->getShippingMethod(),
             $delivery->getLocation(),
@@ -532,7 +550,7 @@ class PromotionDeliveryCalculator
     private function addFakeLineitem(Cart $toCalculate, LineItem $discount, SalesChannelContext $context): void
     {
         // filter all cart line items with the code
-        $lineItems = $toCalculate->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->filter(fn (LineItem $discountLineItem) => $discountLineItem->getId() === $discount->getId());
+        $lineItems = $toCalculate->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE)->filter(static fn (LineItem $discountLineItem) => $discountLineItem->getId() === $discount->getId());
 
         // if we have a line item in cart for this discount, it is already stored and we do not need to add
         // another lineitem
@@ -548,8 +566,10 @@ class PromotionDeliveryCalculator
         $toCalculate->addLineItems(new LineItemCollection([$promotionItem]));
     }
 
-    private function isAutomaticDisount(LineItem $discountItem): bool
+    private function isAutomaticDiscount(LineItem $discountItem): bool
     {
-        return empty($discountItem->getPayloadValue('code'));
+        $code = $discountItem->getPayloadValue('code');
+
+        return $code === null || $code === '';
     }
 }

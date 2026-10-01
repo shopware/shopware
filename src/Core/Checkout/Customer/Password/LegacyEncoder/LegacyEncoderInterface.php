@@ -9,5 +9,5 @@ interface LegacyEncoderInterface
 {
     public function getName(): string;
 
-    public function isPasswordValid(string $password, string $hash): bool;
+    public function isPasswordValid(#[\SensitiveParameter] string $password, string $hash): bool;
 }

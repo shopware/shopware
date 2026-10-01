@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Sorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('inventory')]
@@ -32,13 +33,16 @@ class ProductSortingEntity extends Entity
     /**
      * @return array<FieldSorting>
      */
-    public function createDalSorting(): array
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'fallbackSorting', parameterType: '?' . FieldSorting::class, defaultValue: null)]
+    public function createDalSorting(/* ?FieldSorting $fallbackSorting = null */): array
     {
+        $fallbackSorting = \func_num_args() === 1 ? func_get_arg(0) : null;
+
         $sorting = [];
 
         $fields = $this->fields;
 
-        usort($fields, fn ($a, $b) => $b['priority'] <=> $a['priority']);
+        usort($fields, static fn ($a, $b) => $b['priority'] <=> $a['priority']);
 
         foreach ($fields as $field) {
             $direction = mb_strtoupper((string) $field['order']) === FieldSorting::ASCENDING
@@ -53,6 +57,10 @@ class ProductSortingEntity extends Entity
         }
 
         $flat = array_column($fields, 'field');
+
+        if ($fallbackSorting instanceof FieldSorting && !\in_array($fallbackSorting->getField(), $flat, true)) {
+            $sorting[] = $fallbackSorting;
+        }
 
         if (\in_array('id', $flat, true)) {
             return $sorting;

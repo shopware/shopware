@@ -16,6 +16,11 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                             page: 1,
                             limit: 25,
                         },
+                        meta: {
+                            $module: {
+                                icon: 'regular-content',
+                            },
+                        },
                     },
                 },
                 provide: {
@@ -65,7 +70,11 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                             return privileges.includes(identifier);
                         },
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                     systemConfigApiService: {
                         getConfig: () =>
                             Promise.resolve({
@@ -105,10 +114,10 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                 `,
                     },
                     'sw-entity-listing': {
-                        props: ['items'],
+                        props: ['items', 'dataSource'],
                         template: `
                     <div>
-                        <template v-for="item in items">
+                        <template v-for="item in (dataSource || items)">
                             <slot name="actions" v-bind="{ item }"></slot>
                             <slot name="column-taxRate" v-bind="{ item, isInlineEdit: true }"></slot>
                         </template>
@@ -127,9 +136,6 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
                     'sw-skeleton': true,
                     'sw-skeleton-bar': true,
                     'sw-settings-tax-provider-sorting-modal': true,
-                    'sw-empty-state': {
-                        template: '<div class="sw-empty-state"></div>',
-                    },
                     'sw-checkbox-field': true,
                     'mt-number-field': true,
                 },
@@ -139,17 +145,8 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
 }
 
 describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to create a new tax', async () => {
-        const wrapper = await createWrapper([
-            'tax.creator',
-        ]);
+        const wrapper = await createWrapper(['tax.creator']);
         await wrapper.vm.$nextTick();
 
         const addButton = wrapper.find('.sw-settings-tax-list__button-create');
@@ -167,9 +164,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
     });
 
     it('should be able to edit a tax', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ]);
+        const wrapper = await createWrapper(['tax.editor']);
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-tax-list__edit-action');
@@ -187,9 +182,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
     });
 
     it('should be able to delete a tax', async () => {
-        const wrapper = await createWrapper([
-            'tax.deleter',
-        ]);
+        const wrapper = await createWrapper(['tax.deleter']);
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-tax-list__delete-action');
@@ -207,9 +200,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
     });
 
     it('should be able to inline edit a tax', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ]);
+        const wrapper = await createWrapper(['tax.editor']);
         await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-settings-tax-list-grid');
@@ -229,9 +220,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
     });
 
     it('should be able to edit a tax provider', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ]);
+        const wrapper = await createWrapper(['tax.editor']);
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-tax-provider__show-detail-link');
@@ -249,9 +238,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
     });
 
     it('should render button change priority for tax providers', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ]);
+        const wrapper = await createWrapper(['tax.editor']);
         await wrapper.vm.$nextTick();
 
         const changePriorityButton = wrapper.find('.sw-settings-tax-provider-list-button__change-priority');
@@ -276,12 +263,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
                 },
             ],
         };
-        const wrapper = await createWrapper(
-            [
-                'tax.editor',
-            ],
-            optionalTaxProviders,
-        );
+        const wrapper = await createWrapper(['tax.editor'], optionalTaxProviders);
         await wrapper.vm.$nextTick();
 
         const changePriorityButton = wrapper.find('.sw-settings-tax-provider-list-button__change-priority');
@@ -290,9 +272,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
     });
 
     it('should be able to change tax provider active status', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ]);
+        const wrapper = await createWrapper(['tax.editor']);
         await wrapper.vm.$nextTick();
 
         const taxProviderActive = wrapper.find(
@@ -317,22 +297,15 @@ describe('module/sw-settings-tax/page/sw-settings-tax-list', () => {
         const optionalTaxProviders = {
             taxProviders: [],
         };
-        const wrapper = await createWrapper(
-            [
-                'tax.editor',
-            ],
-            optionalTaxProviders,
-        );
+        const wrapper = await createWrapper(['tax.editor'], optionalTaxProviders);
         await wrapper.vm.$nextTick();
 
         expect(wrapper.vm.noTaxProvidersFound).toBeTruthy();
-        expect(wrapper.find('.sw-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
     it('should have a tax rate field with a correct "digits" property', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ]);
+        const wrapper = await createWrapper(['tax.editor']);
 
         await wrapper.vm.$nextTick();
 

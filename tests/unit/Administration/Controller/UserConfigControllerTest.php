@@ -17,6 +17,7 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigCollection;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigDefinition;
 use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -41,7 +42,8 @@ class UserConfigControllerTest extends TestCase
         $this->userConfigRepository = new StaticEntityRepository([], new UserConfigDefinition());
         $this->userConfigController = new UserConfigController(
             $this->userConfigRepository,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
+            new NativeClock()
         );
         $this->context = Context::createDefaultContext(new AdminApiSource(Uuid::randomHex()));
     }
@@ -67,10 +69,7 @@ class UserConfigControllerTest extends TestCase
     {
         $this->expectExceptionObject(new InvalidContextSourceException(AdminApiSource::class, SystemSource::class));
 
-        $response = $this->userConfigController->getConfigMe(Context::createDefaultContext(), new Request());
-
-        static::assertNotFalse($response->getContent());
-        static::assertJsonStringEqualsJsonString('{"data":[]}', $response->getContent());
+        $this->userConfigController->getConfigMe(Context::createDefaultContext(), new Request());
     }
 
     public function testGetConfigMeReturnsDataWithKeys(): void
@@ -92,7 +91,7 @@ class UserConfigControllerTest extends TestCase
 
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{}', $response->getContent());
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
     public function testUpdateConfigPerformsMassUpsertEmptyWhenPostUpdateConfigs(): void
@@ -108,6 +107,6 @@ class UserConfigControllerTest extends TestCase
 
         static::assertNotFalse($response->getContent());
         static::assertJsonStringEqualsJsonString('{}', $response->getContent());
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 }

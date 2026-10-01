@@ -8,12 +8,14 @@ use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppUpdatedEvent::class)]
 class AppUpdatedEventTest extends TestCase
 {
@@ -27,8 +29,8 @@ class AppUpdatedEventTest extends TestCase
             $context
         );
 
-        static::assertEquals($app, $event->getApp());
-        static::assertEquals($context, $event->getContext());
+        static::assertSame($app, $event->getApp());
+        static::assertSame($context, $event->getContext());
         static::assertSame(AppUpdatedEvent::NAME, $event->getName());
         static::assertSame([
             'appVersion' => '1.0.0',

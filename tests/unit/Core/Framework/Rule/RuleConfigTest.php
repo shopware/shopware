@@ -27,41 +27,41 @@ class RuleConfigTest extends TestCase
     {
         $ruleConfig = new RuleConfig();
 
-        $ruleConfig->field('foo', 'int', []);
+        $ruleConfig->field('foo', 'int');
 
         $field = $ruleConfig->getField('foo');
 
         static::assertNotNull($field);
-        static::assertEquals('foo', $field['name']);
-        static::assertEquals('int', $field['type']);
+        static::assertSame('foo', $field['name']);
+        static::assertSame('int', $field['type']);
     }
 
     public function testFieldIsOverwritten(): void
     {
         $ruleConfig = new RuleConfig();
 
-        $ruleConfig->field('foo', 'int', []);
-        $ruleConfig->field('foo', 'string', []);
+        $ruleConfig->field('foo', 'int');
+        $ruleConfig->field('foo', 'string');
 
         $field = $ruleConfig->getField('foo');
 
         static::assertNotNull($field);
-        static::assertEquals('foo', $field['name']);
-        static::assertEquals('string', $field['type']);
+        static::assertSame('foo', $field['name']);
+        static::assertSame('string', $field['type']);
     }
 
     public function testNumberFieldDefaultDigits(): void
     {
         $ruleConfig = new RuleConfig();
 
-        $ruleConfig->numberField('foo', []);
+        $ruleConfig->numberField('foo');
 
         $field = $ruleConfig->getField('foo');
 
         static::assertNotNull($field);
-        static::assertEquals('foo', $field['name']);
-        static::assertEquals('float', $field['type']);
-        static::assertEquals(RuleConfig::DEFAULT_DIGITS, $field['config']['digits']);
+        static::assertSame('foo', $field['name']);
+        static::assertSame('float', $field['type']);
+        static::assertSame(RuleConfig::DEFAULT_DIGITS, $field['config']['digits']);
     }
 
     public function testNotOverrideNumberFieldDigits(): void
@@ -75,9 +75,9 @@ class RuleConfigTest extends TestCase
         $field = $ruleConfig->getField('foo');
 
         static::assertNotNull($field);
-        static::assertEquals('foo', $field['name']);
-        static::assertEquals('float', $field['type']);
-        static::assertEquals(5, $field['config']['digits']);
+        static::assertSame('foo', $field['name']);
+        static::assertSame('float', $field['type']);
+        static::assertSame(5, $field['config']['digits']);
     }
 
     public function testDateFieldConfig(): void
@@ -91,9 +91,9 @@ class RuleConfigTest extends TestCase
         $field = $ruleConfig->getField('foo');
 
         static::assertNotNull($field);
-        static::assertEquals('foo', $field['name']);
-        static::assertEquals('date', $field['type']);
-        static::assertEquals('bar', $field['config']['someConfig']);
+        static::assertSame('foo', $field['name']);
+        static::assertSame('date', $field['type']);
+        static::assertSame('bar', $field['config']['someConfig']);
     }
 
     public function testDateTimeFieldConfig(): void
@@ -107,8 +107,8 @@ class RuleConfigTest extends TestCase
         $field = $ruleConfig->getField('foo');
 
         static::assertNotNull($field);
-        static::assertEquals('foo', $field['name']);
-        static::assertEquals('datetime', $field['type']);
-        static::assertEquals('bar', $field['config']['someConfig']);
+        static::assertSame('foo', $field['name']);
+        static::assertSame('datetime', $field['type']);
+        static::assertSame('bar', $field['config']['someConfig']);
     }
 }

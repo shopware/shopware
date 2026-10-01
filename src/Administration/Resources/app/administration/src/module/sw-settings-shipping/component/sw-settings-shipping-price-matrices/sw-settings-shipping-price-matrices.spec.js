@@ -1,5 +1,8 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import EntityCollection from 'src/core/data/entity-collection.data';
 
 /**
  * @sw-package checkout
@@ -18,7 +21,9 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                         'sw-settings-shipping-price-matrix': await wrapTestComponent('sw-settings-shipping-price-matrix', {
                             sync: true,
                         }),
-                        'mt-card': true,
+                        'mt-card': {
+                            template: '<div><slot /><slot name="grid" /></div>',
+                        },
                         'sw-container': true,
                         'sw-select-rule-create': true,
                         'sw-single-select': true,
@@ -31,10 +36,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
                         'mt-number-field': {
                             template: '<input type="number" v-model="modelValue" v-bind="$attrs" />',
-                            props: [
-                                'modelValue',
-                                'size',
-                            ],
+                            props: ['modelValue', 'size'],
                         },
                         'sw-context-menu': await wrapTestComponent('sw-context-menu'),
                         'sw-context-menu-item': await wrapTestComponent('sw-context-menu-item'),
@@ -154,21 +156,12 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         };
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render one shipping price matrix', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
         Shopware.Store.get('swShippingDetail').shippingMethod = {
-            prices: [
-                { ruleId: '1' },
-                { ruleId: '1' },
-            ],
+            prices: [{ ruleId: '1' }, { ruleId: '1' }],
         };
 
         await flushPromises();
@@ -183,10 +176,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         await flushPromises();
 
         Shopware.Store.get('swShippingDetail').shippingMethod = {
-            prices: [
-                { ruleId: '1' },
-                { ruleId: '2' },
-            ],
+            prices: [{ ruleId: '1' }, { ruleId: '2' }],
         };
 
         await nextTick();
@@ -222,10 +212,7 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         await flushPromises();
 
         Shopware.Store.get('swShippingDetail').shippingMethod = {
-            prices: [
-                { ruleId: '1' },
-                { ruleId: '2' },
-            ],
+            prices: [{ ruleId: '1' }, { ruleId: '2' }],
         };
 
         const addPriceMatrixButton = wrapper.findByText(
@@ -341,6 +328,17 @@ describe('module/sw-settings-shipping/component/sw-settings-shipping-price-matri
         wrapper.vm.onAddNewPriceGroup();
 
         expect(Object.keys(wrapper.vm.shippingPriceGroups)).toContain('null');
+    });
+
+    it('should set quantityStart to 0 when creating a new price group', async () => {
+        const wrapper = await createWrapper();
+        const shippingMethod = {
+            prices: new EntityCollection(),
+        };
+        wrapper.vm.$data.shippingMethod = shippingMethod;
+
+        wrapper.vm.onAddNewPriceGroup();
+        expect(shippingMethod.prices[0].quantityStart).toBe(0);
     });
 
     it('should show all rules with matching prices', async () => {

@@ -3,9 +3,14 @@
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -13,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
@@ -20,6 +26,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -53,8 +60,14 @@ class AccountOrderControllerTest extends TestCase
         $this->salesChannelRepository = static::getContainer()->get('sales_channel.repository');
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     public function testAjaxOrderDetail(): void
     {
+        // the route throws under the flag (triggerDeprecationOrThrow), leaving the render-event assertions unreached
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $context = Context::createDefaultContext();
         $customer = $this->createCustomer($context);
         $browser = $this->login($customer->getEmail());
@@ -85,7 +98,7 @@ class AccountOrderControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event): void {
+            static function (StorefrontRenderEvent $event): void {
                 $data = $event->getParameters();
 
                 $orderLineItemCollection = $data['orderDetails'];
@@ -109,7 +122,7 @@ class AccountOrderControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event): void {
+            static function (StorefrontRenderEvent $event): void {
                 $data = $event->getParameters();
 
                 $orderLineItemCollection = $data['orderDetails'];
@@ -160,7 +173,7 @@ class AccountOrderControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event): void {
+            static function (StorefrontRenderEvent $event): void {
                 $data = $event->getParameters();
                 static::assertSame('frontend.account.order.single.page', $data['redirectTo']);
                 static::assertSame('BwvdEInxOHBbwfRw6oHF1Q_orfYeo9RY', $data['redirectParameters']['deepLinkCode']);
@@ -248,7 +261,7 @@ class AccountOrderControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event) use ($differentShippingMethodId): void {
+            static function (StorefrontRenderEvent $event) use ($differentShippingMethodId): void {
                 static::assertSame($differentShippingMethodId, $event->getSalesChannelContext()->getShippingMethod()->getId());
             },
             0,
@@ -264,7 +277,7 @@ class AccountOrderControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             StorefrontRenderEvent::class,
-            function (StorefrontRenderEvent $event) use ($orderShippingMethodId): void {
+            static function (StorefrontRenderEvent $event) use ($orderShippingMethodId): void {
                 static::assertSame($orderShippingMethodId, $event->getSalesChannelContext()->getShippingMethod()->getId());
             },
             0,
@@ -292,7 +305,7 @@ class AccountOrderControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountOrderPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -320,13 +333,138 @@ class AccountOrderControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountOrderPageLoadedHook::HOOK_NAME, $traces);
     }
 
+    public function testOrderOverviewShowsCancelActionOnlyForOpenOrders(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+
+        $openOrderId = Uuid::randomHex();
+        $openOrderData = $this->getOrderData($openOrderId, $context);
+        $openOrderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
+        $openOrderData[0]['orderCustomer']['customer']['guest'] = false;
+        $openOrderData[0]['salesChannelId'] = $this->getStorefrontSalesChannelId($context);
+        $openOrderData[0]['deepLinkCode'] = Uuid::randomHex();
+
+        $completedOrderId = Uuid::randomHex();
+        $completedOrderData = $this->getOrderData($completedOrderId, $context);
+        $completedOrderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
+        $completedOrderData[0]['orderCustomer']['customer']['guest'] = false;
+        $completedOrderData[0]['salesChannelId'] = $this->getStorefrontSalesChannelId($context);
+        $completedOrderData[0]['deepLinkCode'] = Uuid::randomHex();
+        $completedOrderData[0]['stateId'] = $this->getStateMachineState(OrderStates::STATE_MACHINE, OrderStates::STATE_COMPLETED);
+
+        static::getContainer()->get('order.repository')->create([$openOrderData[0]], $context);
+        static::getContainer()->get('order.repository')->create([$completedOrderData[0]], $context);
+
+        static::getContainer()->get(SystemConfigService::class)->set('core.cart.enableOrderRefunds', true);
+
+        $browser = $this->login($customer->getEmail());
+        $browser->request('GET', '/account/order');
+
+        $response = $browser->getResponse();
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+        static::assertStringContainsString('cancelOrderModal-' . $openOrderId, $content);
+        static::assertStringNotContainsString('cancelOrderModal-' . $completedOrderId, $content);
+    }
+
+    public function testEditOrderPageShowsCancelActionOnlyForOpenOrders(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+
+        $openOrderId = Uuid::randomHex();
+        $openOrderData = $this->getOrderData($openOrderId, $context);
+        $openOrderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
+        $openOrderData[0]['orderCustomer']['customer']['guest'] = false;
+        $openOrderData[0]['salesChannelId'] = $this->getStorefrontSalesChannelId($context);
+        $openOrderData[0]['deepLinkCode'] = Uuid::randomHex();
+
+        $completedOrderId = Uuid::randomHex();
+        $completedOrderData = $this->getOrderData($completedOrderId, $context);
+        $completedOrderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
+        $completedOrderData[0]['orderCustomer']['customer']['guest'] = false;
+        $completedOrderData[0]['salesChannelId'] = $this->getStorefrontSalesChannelId($context);
+        $completedOrderData[0]['deepLinkCode'] = Uuid::randomHex();
+        $completedOrderData[0]['stateId'] = $this->getStateMachineState(OrderStates::STATE_MACHINE, OrderStates::STATE_COMPLETED);
+
+        static::getContainer()->get('order.repository')->create([$openOrderData[0]], $context);
+        static::getContainer()->get('order.repository')->create([$completedOrderData[0]], $context);
+
+        static::getContainer()->get(SystemConfigService::class)->set('core.cart.enableOrderRefunds', true);
+
+        $browser = $this->login($customer->getEmail());
+
+        $browser->request('GET', '/account/order/edit/' . $openOrderId);
+        $openContent = (string) $browser->getResponse()->getContent();
+
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $openContent);
+        static::assertStringContainsString('edit-order-cancel-order-modal-toggle-btn', $openContent);
+
+        $browser->request('GET', '/account/order/edit/' . $completedOrderId);
+        $completedContent = (string) $browser->getResponse()->getContent();
+
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $completedContent);
+        static::assertStringNotContainsString('edit-order-cancel-order-modal-toggle-btn', $completedContent);
+    }
+
+    public function testEditOrderPagePreselectsThePaymentMethodOfTheOrder(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+        $salesChannelId = $this->getStorefrontSalesChannelId($context);
+
+        $paymentMethodId = $this->createAfterOrderPaymentMethod($context, $salesChannelId, 'Payment method of the order');
+        $orderId = $this->createOrderWithTransaction($context, $customer, $salesChannelId, $paymentMethodId);
+
+        // the context of the logged in customer uses the default payment method of the sales channel
+        $browser = $this->login($customer->getEmail());
+        $crawler = $browser->request('GET', '/account/order/edit/' . $orderId);
+
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+
+        static::assertSame('checked', $crawler->filter('#paymentMethod' . $paymentMethodId)->attr('checked'));
+        static::assertSame($paymentMethodId, $crawler->filter('#confirmOrderForm input[name="paymentMethodId"]')->attr('value'));
+    }
+
+    public function testEditOrderPageShowsThePaymentMethodTheCustomerSelected(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+        $salesChannelId = $this->getStorefrontSalesChannelId($context);
+
+        $paymentMethodId = $this->createAfterOrderPaymentMethod($context, $salesChannelId, 'Payment method of the order');
+        $selectedPaymentMethodId = $this->createAfterOrderPaymentMethod($context, $salesChannelId, 'Payment method of the customer');
+        $orderId = $this->createOrderWithTransaction($context, $customer, $salesChannelId, $paymentMethodId);
+
+        $browser = $this->login($customer->getEmail());
+        $browser->followRedirects();
+
+        $crawler = $browser->request(
+            'POST',
+            '/account/order/payment/' . $orderId,
+            $this->tokenize('frontend.account.edit-order.change-payment-method', ['paymentMethodId' => $selectedPaymentMethodId])
+        );
+
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
+
+        static::assertSame('checked', $crawler->filter('#paymentMethod' . $selectedPaymentMethodId)->attr('checked'));
+        static::assertSame($selectedPaymentMethodId, $crawler->filter('#confirmOrderForm input[name="paymentMethodId"]')->attr('value'));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     public function testAccountOrderDetailPageLoadedScriptsAreExecuted(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $context = Context::createDefaultContext();
         $customer = $this->createCustomer($context);
 
@@ -347,7 +485,6 @@ class AccountOrderControllerTest extends TestCase
 
         $orderRepo = static::getContainer()->get('order.repository');
         $orderRepo->create($orderData, $context);
-
         $browser = $this->login($customer->getEmail());
         $browser->request(
             'GET',
@@ -357,7 +494,7 @@ class AccountOrderControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountOrderDetailPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -396,9 +533,38 @@ class AccountOrderControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $url . $response->getContent());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountEditOrderPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    public function testOrderPageRendersWithMalformedTrackingUrl(): void
+    {
+        $context = Context::createDefaultContext();
+        $customer = $this->createCustomer($context);
+
+        $orderId = Uuid::randomHex();
+        $orderData = $this->getOrderData($orderId, $context);
+        $orderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
+        $orderData[0]['orderCustomer']['customer']['guest'] = false;
+        $orderData[0]['salesChannelId'] = $this->getStorefrontSalesChannelId($context);
+
+        static::getContainer()->get('order.repository')->create([$orderData[0]], $context);
+
+        // Malformed tracking URL: a stray "%" that is not a valid sprintf specifier
+        static::getContainer()->get('shipping_method.repository')->update([
+            [
+                'id' => $orderData[0]['deliveries'][0]['shippingMethodId'],
+                'trackingUrl' => 'https://tracking.com/test?t=%',
+            ],
+        ], $context);
+
+        $browser = $this->login($customer->getEmail());
+        $browser->request('GET', '/account/order');
+
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
     }
 
     private function login(string $email): KernelBrowser
@@ -453,7 +619,7 @@ class AccountOrderControllerTest extends TestCase
         $repo->create([$customer], $context);
 
         /** @var CustomerEntity|null $customer */
-        $customer = $repo->search(new Criteria([$customerId]), $context)->first();
+        $customer = $repo->search(new Criteria([$customerId]), $context)->getEntities()->first();
 
         static::assertNotNull($customer);
 
@@ -481,5 +647,63 @@ class AccountOrderControllerTest extends TestCase
         static::getContainer()->get('product.repository')->create([$data], $context);
 
         return $productId;
+    }
+
+    private function createAfterOrderPaymentMethod(Context $context, string $salesChannelId, string $name): string
+    {
+        $paymentMethodId = Uuid::randomHex();
+
+        static::getContainer()->get('payment_method.repository')->create([
+            [
+                'id' => $paymentMethodId,
+                'name' => $name,
+                'technicalName' => 'payment_test_' . $paymentMethodId,
+                'active' => true,
+                'afterOrderEnabled' => true,
+                'salesChannels' => [
+                    ['id' => $salesChannelId],
+                ],
+            ],
+        ], $context);
+
+        return $paymentMethodId;
+    }
+
+    private function createOrderWithTransaction(Context $context, CustomerEntity $customer, string $salesChannelId, string $paymentMethodId): string
+    {
+        $orderId = Uuid::randomHex();
+        $transactionId = Uuid::randomHex();
+
+        $orderData = $this->getOrderData($orderId, $context);
+        $orderData[0]['orderCustomer']['customer']['id'] = $customer->getId();
+        $orderData[0]['orderCustomer']['customer']['guest'] = false;
+        $orderData[0]['salesChannelId'] = $salesChannelId;
+        $orderData[0]['primaryOrderTransactionId'] = $transactionId;
+        $orderData[0]['transactions'] = [
+            [
+                'id' => $transactionId,
+                'paymentMethodId' => $paymentMethodId,
+                'stateId' => $this->getStateMachineState(OrderTransactionStates::STATE_MACHINE, OrderTransactionStates::STATE_OPEN),
+                'amount' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+            ],
+        ];
+
+        static::getContainer()->get('order.repository')->create([$orderData[0]], $context);
+
+        return $orderId;
+    }
+
+    private function getStorefrontSalesChannelId(Context $context): string
+    {
+        $criteria = new Criteria();
+        $criteria
+            ->addFilter(new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
+            ->addFilter(new EqualsFilter('active', true))
+            ->addFilter(new EqualsFilter('domains.url', $_SERVER['APP_URL']));
+
+        $salesChannel = $this->salesChannelRepository->search($criteria, $context)->getEntities()->first();
+        static::assertNotNull($salesChannel);
+
+        return $salesChannel->getId();
     }
 }

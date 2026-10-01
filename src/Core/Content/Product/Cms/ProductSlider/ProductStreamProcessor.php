@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cms\ProductSlider;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
 use Shopware\Core\Content\Cms\DataResolver\CriteriaCollection;
 use Shopware\Core\Content\Cms\DataResolver\Element\ElementDataCollection;
@@ -9,18 +10,24 @@ use Shopware\Core\Content\Cms\DataResolver\FieldConfig;
 use Shopware\Core\Content\Cms\DataResolver\FieldConfigCollection;
 use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ProductSliderStruct;
+use Shopware\Core\Content\Product\Events\ProductSliderStreamCriteriaEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('discovery')]
 class ProductStreamProcessor extends AbstractProductSliderProcessor
@@ -33,8 +40,12 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
      * @param SalesChannelRepository<ProductCollection> $productRepository
      */
     public function __construct(
-        private readonly ProductStreamBuilderInterface $productStreamBuilder,
+        private readonly ProductStreamBuilderInterface|AbstractProductStreamBuilder $productStreamBuilder,
         private readonly SalesChannelRepository $productRepository,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
+        private readonly SystemConfigService $systemConfigService,
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
     ) {
     }
 
@@ -53,6 +64,11 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         $products = $config->get('products');
         \assert($products instanceof FieldConfig);
         $criteria = $this->collectByProductStream($resolverContext, $products, $config);
+        if ($criteria === null) {
+            return null;
+        }
+
+        $this->eventDispatcher->dispatch(new ProductSliderStreamCriteriaEvent($slot, $criteria, $resolverContext->getSalesChannelContext()));
 
         $collection = new CriteriaCollection();
         $collection->add(self::PRODUCT_SLIDER_ENTITY_FALLBACK . '_' . $slot->getUniqueIdentifier(), ProductDefinition::class, $criteria);
@@ -75,13 +91,22 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         $slider = new ProductSliderStruct();
         $slot->setData($slider);
 
-        $slider->setProducts(
-            $this->handleProductStream(
-                $streamResult,
-                $resolverContext->getSalesChannelContext(),
-                $entitySearchResult->getCriteria()
-            )
+        $context = $resolverContext->getSalesChannelContext();
+
+        $products = $this->handleProductStream(
+            $streamResult,
+            $context,
+            $entitySearchResult->getCriteria()
         );
+
+        // Safety net: handleProductStream() can remap stream hits to their display
+        // parent or main variant, which may itself be a hidden closeout product even
+        // though the stream criteria already filtered unavailable closeout products.
+        if ($this->hideUnavailableProducts($context)) {
+            $products = $this->filterOutOutOfStockHiddenCloseoutProducts($products);
+        }
+
+        $slider->setProducts($products);
 
         $config = $slot->getFieldConfig();
 
@@ -95,19 +120,51 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         ResolverContext $resolverContext,
         FieldConfig $config,
         FieldConfigCollection $elementConfig
-    ): Criteria {
-        $filters = $this->productStreamBuilder->buildFilters(
-            $config->getStringValue(),
-            $resolverContext->getSalesChannelContext()->getContext()
-        );
-
+    ): ?Criteria {
         $limit = $elementConfig->get('productStreamLimit')?->getIntValue() ?? self::FALLBACK_LIMIT;
 
         $criteria = new Criteria();
-        $criteria->addFilter(...$filters);
+        $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+        $criteria->addAssociation('options.group');
+
+        try {
+            $productStreamBuilder = $this->productStreamBuilder;
+            if ($productStreamBuilder instanceof AbstractProductStreamBuilder) {
+                $productStreamBuilder->enrichCriteria(
+                    $criteria,
+                    $config->getStringValue(),
+                    $resolverContext->getSalesChannelContext()->getContext()
+                );
+            } else {
+                $criteria->addFilter(...$productStreamBuilder->buildFilters(
+                    $config->getStringValue(),
+                    $resolverContext->getSalesChannelContext()->getContext()
+                ));
+            }
+        } catch (EntityNotFoundException $exception) {
+            $this->logger->warning(
+                'Product stream configured for CMS product slider could not be found.',
+                [
+                    'productStreamId' => $config->getStringValue(),
+                    'exception' => $exception,
+                ]
+            );
+
+            return null;
+        }
+
+        // Exclude unavailable closeout products before the limit is applied, so they
+        // do not consume slider slots (same handling as listing and cross-selling).
+        $context = $resolverContext->getSalesChannelContext();
+        if ($this->hideUnavailableProducts($context)) {
+            $criteria->addFilter($this->productCloseoutFilterFactory->create($context));
+        }
+
         $criteria->setLimit($limit);
 
-        $this->addGrouping($criteria);
+        if (!$this->shouldSkipGrouping($criteria)) {
+            $this->addGrouping($criteria);
+        }
         $sorting = $elementConfig->get('productStreamSorting')?->getStringValue() ?? 'name:' . FieldSorting::ASCENDING;
 
         if ($sorting === 'random') {
@@ -123,13 +180,25 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         return $criteria;
     }
 
+    private function hideUnavailableProducts(SalesChannelContext $context): bool
+    {
+        return $this->systemConfigService->getBool(
+            'core.listing.hideCloseoutProductsWhenOutOfStock',
+            $context->getSalesChannelId()
+        );
+    }
+
     private function handleProductStream(
         ProductCollection $streamResult,
         SalesChannelContext $context,
         Criteria $originCriteria
     ): ProductCollection {
+        if ($this->shouldSkipGrouping($originCriteria)) {
+            return $streamResult;
+        }
+
         $finalProductIds = $this->collectFinalProductIds($streamResult);
-        if (\count($finalProductIds) === 0) {
+        if ($finalProductIds === []) {
             return new ProductCollection();
         }
 
@@ -167,24 +236,20 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
     private function addGrouping(Criteria $criteria): void
     {
         $criteria->addGroupField(new FieldGrouping('displayGroup'));
-        $criteria->addFilter(
-            new NotFilter(
-                NotFilter::CONNECTION_AND,
-                [new EqualsFilter('displayGroup', null)]
-            )
-        );
+        $criteria->addFilter(new NotEqualsFilter('displayGroup', null));
     }
 
     private function addRandomSort(Criteria $criteria): void
     {
+        // these fields should be compatible with Elasticsearch mapped fields for sorting, see: \Shopware\Elasticsearch\Product\ElasticsearchProductDefinition::getMapping
         $fields = [
             'id',
             'stock',
             'releaseDate',
-            'manufacturer.id',
-            'unit.id',
-            'tax.id',
-            'cover.id',
+            'manufacturerId',
+            'deliveryTimeId',
+            'taxId',
+            'coverId',
         ];
         shuffle($fields);
         $fields = \array_slice($fields, 0, 2);
@@ -194,5 +259,10 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         foreach ($fields as $field) {
             $criteria->addSorting(new FieldSorting($field, $direction));
         }
+    }
+
+    private function shouldSkipGrouping(Criteria $criteria): bool
+    {
+        return $criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING);
     }
 }

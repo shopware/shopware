@@ -70,8 +70,8 @@
 
                 <sw-category-tree-field
                     v-if="linkType === 'navigation'"
-                    :label="$tc('sw-text-editor-toolbar-button-link.linkTo')"
-                    :placeholder="$tc('sw-text-editor-toolbar-button-link.categoryPlaceholder')"
+                    :label="$t('sw-text-editor-toolbar-button-link.linkTo')"
+                    :placeholder="$t('sw-text-editor-toolbar-button-link.categoryPlaceholder')"
                     :categories-collection="categoryCollection"
                     single-select
                     @selection-add="replaceCategorySelection"
@@ -81,7 +81,7 @@
                 <sw-media-field
                     v-if="linkType === 'media'"
                     v-model:value="linkHref"
-                    :label="$tc('sw-text-editor-toolbar-button-link.linkTo')"
+                    :label="$t('sw-text-editor-toolbar-button-link.linkTo')"
                     :criteria="entityFilter"
                     single-select
                 />
@@ -101,7 +101,7 @@
 
                 <mt-switch
                     v-model="displayAsButton"
-                    :label="$tc('sw-text-editor-toolbar-button-link.displayAsButton')"
+                    :label="$t('sw-text-editor-toolbar-button-link.displayAsButton')"
                     class="sw-text-editor-toolbar-button-link__display-as-button-switch"
                 />
 

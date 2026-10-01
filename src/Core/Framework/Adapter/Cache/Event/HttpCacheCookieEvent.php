@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Adapter\Cache\Event;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -12,11 +13,24 @@ class HttpCacheCookieEvent
     public const RULE_IDS = 'rule-ids';
     public const VERSION_ID = 'version-id';
     public const CURRENCY_ID = 'currency-id';
+    public const LANGUAGE_ID = 'language-id';
     public const TAX_STATE = 'tax-state';
     public const LOGGED_IN_STATE = 'logged-in';
 
+    public const NOT_CACHEABLE = 'not-cacheable';
+
     /**
-     * @param array<string|int, mixed> $parts
+     * @var bool set to false to bypass the cache for further requests by setting the cache cookie to `uncacheable`, the cache will be passed until this is set to true again for the cache state
+     */
+    public bool $isCacheable = true;
+
+    /**
+     * @var bool set to true to not store the current response in the cache, however it won't change the cache cookie itself, therefore the cache will be used for further requests
+     */
+    public bool $doNotStore = false;
+
+    /**
+     * @param array<string, string|array<string>|null> $parts
      */
     public function __construct(
         public readonly Request $request,
@@ -25,12 +39,18 @@ class HttpCacheCookieEvent
     ) {
     }
 
-    public function get(string $key): ?string
+    /**
+     * @return string|array<string>|null
+     */
+    public function get(string $key): string|array|null
     {
         return $this->parts[$key] ?? null;
     }
 
-    public function add(string $key, string $value): void
+    /**
+     * @param string|array<string> $value
+     */
+    public function add(string $key, string|array $value): void
     {
         $this->parts[$key] = $value;
     }
@@ -41,10 +61,27 @@ class HttpCacheCookieEvent
     }
 
     /**
-     * @return array<string|int, mixed>
+     * @return array<string, string|array<string>|null>
      */
     public function getParts(): array
     {
-        return $this->parts;
+        $parts = $this->parts;
+        ksort($parts);
+
+        return $parts;
+    }
+
+    public function getHash(): string
+    {
+        if (!$this->isCacheable) {
+            return self::NOT_CACHEABLE;
+        }
+
+        return Hasher::hash($this->getParts());
+    }
+
+    public function shouldResponseBeCached(): bool
+    {
+        return $this->isCacheable && !$this->doNotStore;
     }
 }

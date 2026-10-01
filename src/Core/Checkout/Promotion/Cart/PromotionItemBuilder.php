@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscountPrice\PromotionD
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Content\Rule\RuleCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -45,6 +46,8 @@ class PromotionItemBuilder
      */
     public function buildPlaceholderItem(string $code): LineItem
     {
+        $code = mb_trim($code);
+
         // void duplicate codes with other items
         // that might not be from the promotion scope
         $uniqueKey = self::PLACEHOLDER_PREFIX . $code;
@@ -132,7 +135,7 @@ class PromotionItemBuilder
         $promotionItem->setLabel($promotion->getTranslation('name'));
         $promotionItem->setDescription($promotion->getTranslation('name'));
         $promotionItem->setGood(false);
-        $promotionItem->setRemovable(true);
+        $promotionItem->setRemovable($code !== '' || !Feature::isActive('PERMANENT_AUTOMATIC_PROMOTIONS'));
         $promotionItem->setPriceDefinition($promotionDefinition);
 
         // always make sure we have a valid code entry.
@@ -205,6 +208,17 @@ class PromotionItemBuilder
         // to save how many times a promotion has been used, we need to know the promotion's id during checkout
         $payload['promotionId'] = $promotion->getId();
 
+        // indicates whether the promotion restricts usage to specific customers or customer groups
+        $payload['hasPersonaRestriction'] = ($promotion->getPersonaRules()?->count() > 0)
+            || ($promotion->getPersonaCustomers()?->count() > 0);
+
+        // all condition rule entity IDs (cart, order, persona) for rule-specific snippet fallback
+        $payload['conditionRuleIds'] = array_values(array_unique(array_merge(
+            $promotion->getCartRules()?->getIds() ?? [],
+            $promotion->getOrderRules()?->getIds() ?? [],
+            $promotion->getPersonaRules()?->getIds() ?? [],
+        )));
+
         // set promotion priority for sorting
         $payload['priority'] = $promotion->getPriority();
 
@@ -243,6 +257,13 @@ class PromotionItemBuilder
         // specifies if the promotion is not combinable with any other promotion
         $payload['preventCombination'] = $promotion->isPreventCombination();
 
+        // set whether the promotion has limited redemptions
+        $payload['limitedRedemptions'] = $promotion->getMaxRedemptionsGlobal()
+            || $promotion->getMaxRedemptionsPerCustomer()
+            || $promotion->isUseIndividualCodes();
+        $payload['hasGlobalRedemptionLimit'] = $promotion->getMaxRedemptionsGlobal() !== null
+            && $promotion->getMaxRedemptionsGlobal() > 0;
+
         // If all combinations are prevented the exclusions dont matter
         // otherwise sets a list of excluded promotion ids
         $payload['exclusions'] = $payload['preventCombination'] ? [] : $promotion->getExclusionIds();
@@ -272,6 +293,7 @@ class PromotionItemBuilder
         }
 
         $payload['filter'] = [
+            'considerAdvancedRules' => false,
             'sorterKey' => null,
             'applierKey' => null,
             'usageKey' => null,
@@ -280,6 +302,7 @@ class PromotionItemBuilder
 
         if ($discount->isConsiderAdvancedRules()) {
             $payload['filter'] = [
+                'considerAdvancedRules' => true,
                 'sorterKey' => $discount->getSorterKey(),
                 'applierKey' => $discount->getApplierKey(),
                 'usageKey' => $discount->getUsageKey(),

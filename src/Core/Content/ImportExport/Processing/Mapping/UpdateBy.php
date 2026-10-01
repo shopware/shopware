@@ -24,6 +24,9 @@ class UpdateBy extends Struct
         return $this->mappedKey;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public static function fromArray(array $data): self
     {
         if (!isset($data['entityName'])) {

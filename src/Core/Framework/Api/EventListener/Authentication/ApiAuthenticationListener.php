@@ -3,17 +3,14 @@
 namespace Shopware\Core\Framework\Api\EventListener\Authentication;
 
 use League\OAuth2\Server\AuthorizationServer;
-use League\OAuth2\Server\Grant\ClientCredentialsGrant;
-use League\OAuth2\Server\Grant\PasswordGrant;
-use League\OAuth2\Server\Grant\RefreshTokenGrant;
-use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
-use League\OAuth2\Server\Repositories\UserRepositoryInterface;
+use Shopware\Core\Framework\Api\OAuth\GrantTypeFactory;
 use Shopware\Core\Framework\Api\OAuth\SymfonyBearerTokenValidator;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiContextRouteScopeDependant;
 use Shopware\Core\Framework\Routing\KernelListenerPriorities;
 use Shopware\Core\Framework\Routing\RouteScopeCheckTrait;
 use Shopware\Core\Framework\Routing\RouteScopeRegistry;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
@@ -33,11 +30,9 @@ class ApiAuthenticationListener implements EventSubscriberInterface
     public function __construct(
         private readonly SymfonyBearerTokenValidator $symfonyBearerTokenValidator,
         private readonly AuthorizationServer $authorizationServer,
-        private readonly UserRepositoryInterface $userRepository,
-        private readonly RefreshTokenRepositoryInterface $refreshTokenRepository,
+        private readonly GrantTypeFactory $grantTypeFactory,
         private readonly RouteScopeRegistry $routeScopeRegistry,
         private readonly string $accessTokenTtl = 'PT10M',
-        private readonly string $refreshTokenTtl = 'P1W'
     ) {
     }
 
@@ -60,17 +55,10 @@ class ApiAuthenticationListener implements EventSubscriberInterface
         }
 
         $accessTokenInterval = new \DateInterval($this->accessTokenTtl);
-        $refreshTokenInterval = new \DateInterval($this->refreshTokenTtl);
 
-        $passwordGrant = new PasswordGrant($this->userRepository, $this->refreshTokenRepository);
-        $passwordGrant->setRefreshTokenTTL($refreshTokenInterval);
-
-        $refreshTokenGrant = new RefreshTokenGrant($this->refreshTokenRepository);
-        $refreshTokenGrant->setRefreshTokenTTL($refreshTokenInterval);
-
-        $this->authorizationServer->enableGrantType($passwordGrant, $accessTokenInterval);
-        $this->authorizationServer->enableGrantType($refreshTokenGrant, $accessTokenInterval);
-        $this->authorizationServer->enableGrantType(new ClientCredentialsGrant(), $accessTokenInterval);
+        foreach ($this->grantTypeFactory->createGrantTypes() as $grantType) {
+            $this->authorizationServer->enableGrantType($grantType, $accessTokenInterval);
+        }
     }
 
     public function validateRequest(ControllerEvent $event): void
@@ -79,6 +67,10 @@ class ApiAuthenticationListener implements EventSubscriberInterface
 
         if (!$request->attributes->get('auth_required', true)) {
             return;
+        }
+
+        if ($request->attributes->get(PlatformRequest::ATTRIBUTE_OAUTH_PRE_AUTHENTICATED, false)) { // @codeCoverageIgnore
+            return; // @codeCoverageIgnore
         }
 
         if (!$this->isRequestScoped($request, ApiContextRouteScopeDependant::class)) {

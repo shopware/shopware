@@ -61,15 +61,15 @@ class AppScriptConditionDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('identifier', 'identifier'))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of app\'s script condition.'),
+            (new StringField('identifier', 'identifier'))->addFlags(new Required())->setDescription('It is a unique identity of an AppScriptCondition.'),
             new TranslatedField('name'),
-            (new BoolField('active', 'active'))->addFlags(new Required()),
-            new StringField('group', 'group'),
-            (new LongTextField('script', 'script'))->addFlags(new AllowHtml(false)),
+            (new BoolField('active', 'active'))->addFlags(new Required())->setDescription('When boolean value is `true`, defined app script conditions are available for selection.'),
+            (new StringField('group', 'group'))->setDescription('Categorizes script conditions within a specific group.'),
+            (new LongTextField('script', 'script'))->addFlags(new AllowHtml(false))->setDescription('Internal field.'),
             (new BlobField('constraints', 'constraints'))->removeFlag(ApiAware::class)->addFlags(new WriteProtected(Context::SYSTEM_SCOPE)),
-            new JsonField('config', 'config'),
-            (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new CascadeDelete(), new Required()),
+            (new JsonField('config', 'config'))->setDescription('Specifies detailed information about the component.'),
+            (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new CascadeDelete(), new Required())->setDescription('Unique identity of app.'),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class),
             (new OneToManyAssociationField('ruleConditions', RuleConditionDefinition::class, 'script_id', 'id'))->addFlags(new SetNullOnDelete()),
             (new TranslationsAssociationField(AppScriptConditionTranslationDefinition::class, 'app_script_condition_id'))->addFlags(new Required()),

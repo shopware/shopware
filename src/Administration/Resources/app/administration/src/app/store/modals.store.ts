@@ -5,8 +5,12 @@
 import type { uiModalOpen } from '@shopware-ag/meteor-admin-sdk/es/ui/modal';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-export type ModalItemEntry = Omit<uiModalOpen, 'responseType'> & {
+export type ModalItemEntry = Omit<uiModalOpen, 'responseType' | 'variant' | 'zIndex'> & {
     baseUrl: string;
+    // Keep these fields local so Admin can support newer Meteor messages while
+    // still compiling against older Meteor SDK versions.
+    variant?: 'default' | 'small' | 'large' | 'x-large' | 'full';
+    zIndex?: number;
 };
 
 const modalsStore = Shopware.Store.register({
@@ -17,7 +21,18 @@ const modalsStore = Shopware.Store.register({
     }),
 
     actions: {
-        openModal({ locationId, title, closable, showHeader, showFooter, variant, baseUrl, buttons }: ModalItemEntry) {
+        openModal({
+            locationId,
+            title,
+            closable,
+            showHeader,
+            showFooter,
+            variant,
+            baseUrl,
+            buttons,
+            textContent,
+            zIndex,
+        }: ModalItemEntry) {
             this.modals.push({
                 title,
                 closable,
@@ -27,6 +42,8 @@ const modalsStore = Shopware.Store.register({
                 locationId,
                 buttons: buttons ?? [],
                 baseUrl,
+                textContent,
+                ...(zIndex !== undefined ? { zIndex } : {}),
             });
         },
 
@@ -34,6 +51,14 @@ const modalsStore = Shopware.Store.register({
             this.modals = this.modals.filter((modal) => {
                 return modal.locationId !== locationId;
             });
+        },
+
+        closeLastModalWithoutLocationId(): void {
+            const lastModalWithoutLocationId = this.modals.filter((modal) => !modal.locationId).at(-1);
+
+            if (lastModalWithoutLocationId) {
+                this.modals = this.modals.filter((modal) => modal !== lastModalWithoutLocationId);
+            }
         },
     },
 });

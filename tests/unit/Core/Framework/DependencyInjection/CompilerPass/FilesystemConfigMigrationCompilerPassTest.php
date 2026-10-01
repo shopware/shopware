@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\PassConfig;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FilesystemConfigMigrationCompilerPass::class)]
 class FilesystemConfigMigrationCompilerPassTest extends TestCase
 {
@@ -28,7 +30,7 @@ class FilesystemConfigMigrationCompilerPassTest extends TestCase
 
     public function testConfigMigration(): void
     {
-        $this->builder->compile(false);
+        $this->builder->compile();
 
         static::assertSame($this->builder->getParameter('shopware.filesystem.public'), $this->builder->getParameter('shopware.filesystem.theme'));
         static::assertSame($this->builder->getParameter('shopware.filesystem.public'), $this->builder->getParameter('shopware.filesystem.asset'));
@@ -46,6 +48,8 @@ class FilesystemConfigMigrationCompilerPassTest extends TestCase
         static::assertSame('', $this->builder->getParameter('shopware.filesystem.theme.url'));
         static::assertSame('', $this->builder->getParameter('shopware.filesystem.asset.url'));
         static::assertSame('', $this->builder->getParameter('shopware.filesystem.sitemap.url'));
+
+        static::assertTrue($this->builder->hasParameter('shopware.filesystem.theme.visibility'));
     }
 
     public function testSetCustomConfigForTheme(): void
@@ -55,7 +59,7 @@ class FilesystemConfigMigrationCompilerPassTest extends TestCase
         $this->builder->setParameter('shopware.filesystem.theme.config', ['test' => 'test']);
         $this->builder->setParameter('shopware.filesystem.theme.url', 'http://cdn.de');
 
-        $this->builder->compile(false);
+        $this->builder->compile();
 
         static::assertNotSame($this->builder->getParameter('shopware.filesystem.public'), $this->builder->getParameter('shopware.filesystem.theme'));
         static::assertNotSame($this->builder->getParameter('shopware.filesystem.public.type'), $this->builder->getParameter('shopware.filesystem.theme.type'));
@@ -64,6 +68,7 @@ class FilesystemConfigMigrationCompilerPassTest extends TestCase
         static::assertSame('amazon-s3', $this->builder->getParameter('shopware.filesystem.theme.type'));
         static::assertSame('http://cdn.de', $this->builder->getParameter('shopware.filesystem.theme.url'));
         static::assertSame(['test' => 'test'], $this->builder->getParameter('shopware.filesystem.theme.config'));
+        static::assertTrue($this->builder->hasParameter('shopware.filesystem.theme.visibility'));
 
         static::assertSame($this->builder->getParameter('shopware.filesystem.public'), $this->builder->getParameter('shopware.filesystem.asset'));
         static::assertSame($this->builder->getParameter('shopware.filesystem.public.type'), $this->builder->getParameter('shopware.filesystem.asset.type'));

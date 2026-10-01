@@ -15,6 +15,7 @@
 /storefront/element/cms-element-image-slider.html.twig
 /storefront/element/cms-element-text.html.twig
 /storefront/element/cms-element-product-name.html.twig
+/storefront/element/cms-element-category-name.html.twig
 /storefront/element/cms-element-image.html.twig
 /storefront/element/cms-element-product-slider.html.twig
 /storefront/element/cms-element-product-description-reviews.html.twig
@@ -40,6 +41,8 @@
 /storefront/component/line-item/type/generic.html.twig
 /storefront/component/line-item/type/container.html.twig
 /storefront/component/product/card/box-standard.html.twig
+# @deprecated tag:v6.8.0 - Will be removed when footer is updated to use list elements
+/storefront/layout/footer/footer.html.twig
 
 # break statement in for loop is not vanilla twig
 # this should be fixed with: https://shopware.atlassian.net/browse/NEXT-39634
@@ -49,6 +52,3 @@
 # Ludtwig related parser errors below.
 # These are ignored until this syntax is supported in ludtwig
 # -------------------------------------------
-
-# Twig whitespace support https://github.com/MalteJanz/ludtwig/issues/56
-/storefront/utilities/icon.html.twig

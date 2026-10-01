@@ -3,6 +3,11 @@
 namespace Shopware\Core\Content\Cms\Command;
 
 use Faker\Factory;
+use Shopware\Core\Content\Category\CategoryCollection;
+use Shopware\Core\Content\Cms\CmsException;
+use Shopware\Core\Content\Cms\CmsPageCollection;
+use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -14,25 +19,31 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-#[AsCommand('cms:page:create')]
 #[Package('discovery')]
+#[AsCommand('cms:page:create')]
 class CreatePageCommand extends Command
 {
     /**
-     * @var array<string>
+     * @var non-empty-list<string>|null
      */
-    private array $products;
+    private ?array $products = null;
 
     /**
-     * @var array<string>
+     * @var non-empty-list<string>|null
      */
-    private array $categories;
+    private ?array $categories = null;
 
     /**
-     * @var array<string>
+     * @var non-empty-list<string>|null
      */
-    private array $media;
+    private ?array $media = null;
 
+    /**
+     * @param EntityRepository<CmsPageCollection> $cmsPageRepository
+     * @param EntityRepository<ProductCollection> $productRepository
+     * @param EntityRepository<CategoryCollection> $categoryRepository
+     * @param EntityRepository<MediaCollection> $mediaRepository
+     */
     public function __construct(
         private readonly EntityRepository $cmsPageRepository,
         private readonly EntityRepository $productRepository,
@@ -104,15 +115,12 @@ class CreatePageCommand extends Command
         $criteria = new Criteria();
         $criteria->setLimit(999);
 
-        $pages = $this->cmsPageRepository->searchIds($criteria, $context);
-
-        if ($pages->getTotal() === 0) {
+        $pages = $this->cmsPageRepository->searchIds($criteria, $context)->getPrimaryKeyData();
+        if ($pages === []) {
             return;
         }
 
-        $keys = array_map(fn ($id) => ['id' => $id], $pages->getIds());
-
-        $this->cmsPageRepository->delete($keys, $context);
+        $this->cmsPageRepository->delete($pages, $context);
     }
 
     private function getRandomImageUrl(): string
@@ -122,12 +130,14 @@ class CreatePageCommand extends Command
 
     private function getRandomProductId(Context $context): string
     {
-        if (empty($this->products)) {
+        if ($this->products === null) {
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            /** @var list<string> $productIds */
             $productIds = $this->productRepository->searchIds($criteria, $context)->getIds();
+            if ($productIds === []) {
+                throw CmsException::pageCreationFailure('No products found');
+            }
             $this->products = $productIds;
         }
 
@@ -136,12 +146,14 @@ class CreatePageCommand extends Command
 
     private function getRandomCategoryId(Context $context): string
     {
-        if (empty($this->categories)) {
+        if ($this->categories === null) {
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            /** @var list<string> $categoryIds */
             $categoryIds = $this->categoryRepository->searchIds($criteria, $context)->getIds();
+            if ($categoryIds === []) {
+                throw CmsException::pageCreationFailure('No categories found');
+            }
             $this->categories = $categoryIds;
         }
 
@@ -150,12 +162,14 @@ class CreatePageCommand extends Command
 
     private function getRandomMediaId(Context $context): string
     {
-        if (empty($this->media)) {
+        if ($this->media === null) {
             $criteria = new Criteria();
             $criteria->setLimit(100);
 
-            /** @var list<string> $mediaIds */
             $mediaIds = $this->mediaRepository->searchIds($criteria, $context)->getIds();
+            if ($mediaIds === []) {
+                throw CmsException::pageCreationFailure('No medias found');
+            }
             $this->media = $mediaIds;
         }
 

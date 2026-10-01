@@ -7,10 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FilterAggregation::class)]
 class FilterAggregationTest extends TestCase
 {
@@ -57,7 +59,7 @@ class FilterAggregationTest extends TestCase
     {
         $aggregation = new FilterAggregation('foo', new TermsAggregation('foo', 'name'), [new EqualsFilter('name', 'test')]);
         $clone = clone $aggregation;
-        static::assertEquals($aggregation->getName(), $clone->getName());
+        static::assertSame($aggregation->getName(), $clone->getName());
         static::assertEquals($aggregation->getAggregation(), $clone->getAggregation());
         static::assertEquals($aggregation->getFilter(), $clone->getFilter());
         static::assertEquals($aggregation->jsonSerialize(), $clone->jsonSerialize());

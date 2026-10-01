@@ -35,7 +35,7 @@ class FlowTemplateConfigFieldSerializerTest extends TestCase
         parent::setUp();
 
         $validator = Validation::createValidatorBuilder()->enableAttributeMapping()->getValidator();
-        $definitionRegistry = $this->createMock(DefinitionInstanceRegistry::class);
+        $definitionRegistry = static::createStub(DefinitionInstanceRegistry::class);
 
         $this->serializer = new FlowTemplateConfigFieldSerializer($validator, $definitionRegistry);
     }
@@ -79,9 +79,9 @@ class FlowTemplateConfigFieldSerializerTest extends TestCase
         static::assertArrayHasKey('displayGroup', $data['sequences'][0]);
         static::assertArrayHasKey('trueCase', $data['sequences'][0]);
 
-        static::assertEquals(1, $data['sequences'][0]['position']);
-        static::assertEquals(1, $data['sequences'][0]['displayGroup']);
-        static::assertEquals(0, $data['sequences'][0]['trueCase']);
+        static::assertSame(1, $data['sequences'][0]['position']);
+        static::assertSame(1, $data['sequences'][0]['displayGroup']);
+        static::assertSame(0, $data['sequences'][0]['trueCase']);
     }
 
     public function testFieldArgumentNotInstanceOfFlowTemplateConfigField(): void
@@ -110,7 +110,7 @@ class FlowTemplateConfigFieldSerializerTest extends TestCase
         $existence = new EntityExistence('config', ['someId' => true], true, false, false, []);
         $keyPair = new KeyValuePair('someId', $data, false);
         $bag = new WriteParameterBag(
-            $this->createMock(FlowTemplateDefinition::class),
+            static::createStub(FlowTemplateDefinition::class),
             WriteContext::createFromContext(Context::createDefaultContext()),
             '',
             new WriteCommandQueue()

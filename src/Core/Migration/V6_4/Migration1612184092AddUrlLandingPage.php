@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1612184092AddUrlLandingPage extends MigrationStep
@@ -32,12 +30,14 @@ class Migration1612184092AddUrlLandingPage extends MigrationStep
             'SELECT id
             FROM `seo_url_template`
             WHERE `seo_url_template`.`route_name` = :routeName',
+            /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Legacy usage in old migration) */
             ['routeName' => 'frontend.landing.page']
         );
 
-        if (empty($seoUrlTemplate)) {
+        if ($seoUrlTemplate === []) {
             $connection->insert('seo_url_template', [
                 'id' => Uuid::randomBytes(),
+                /** @phpstan-ignore shopware.storefrontRouteUsage (Do not use Storefront routes in the core. Legacy usage in old migration) */
                 'route_name' => 'frontend.landing.page',
                 'entity_name' => 'landing_page',
                 'template' => '{{ landingPage.translated.url }}',

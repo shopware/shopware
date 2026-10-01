@@ -48,6 +48,10 @@ class LineItemOfManufacturerRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('manufacturerId', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchesOneOfManufacturers($lineItem)) {
                 return true;
             }

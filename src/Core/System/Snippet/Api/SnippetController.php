@@ -4,6 +4,8 @@ namespace Shopware\Core\System\Snippet\Api;
 
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetService;
@@ -13,8 +15,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('discovery')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class SnippetController extends AbstractController
 {
     /**
@@ -48,7 +50,9 @@ class SnippetController extends AbstractController
                 $request->request->getInt('page', 1),
                 $limit,
                 $context,
+                /** @phpstan-ignore argument.type (To fix this issue, the request parameter array would need to be validated to contain only allowed values. Should be fixed, once proper Request -> DTO mapping is applied) */
                 $filters,
+                /** @phpstan-ignore argument.type (To fix this issue, the request parameter array would need to be validated to contain only allowed values. Should be fixed, once proper Request -> DTO mapping is applied) */
                 $request->request->all('sort')
             )
         );

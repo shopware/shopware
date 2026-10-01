@@ -10,7 +10,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: ['main-category-add'],
+    emits: ['main-category-add', 'main-category-remove'],
 
     props: {
         currentSalesChannelId: {
@@ -34,7 +34,6 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         overwriteLabel: {
@@ -91,7 +90,11 @@ export default {
             this.refreshMainCategoryForSalesChannel();
         },
         onMainCategorySelected(categoryId) {
-            if (categoryId === null) {
+            if (!categoryId) {
+                if (this.mainCategoryForSalesChannel) {
+                    this.$emit('main-category-remove', this.mainCategoryForSalesChannel);
+                    this.mainCategoryForSalesChannel = null;
+                }
                 return;
             }
 

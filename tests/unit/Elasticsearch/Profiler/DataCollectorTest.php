@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Elasticsearch\Profiler\ClientProfiler;
 use Shopware\Elasticsearch\Profiler\DataCollector;
@@ -17,12 +18,13 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DataCollector::class)]
 class DataCollectorTest extends TestCase
 {
     public function testCollect(): void
     {
-        $client = $this->createMock(ClientProfiler::class);
+        $client = static::createStub(ClientProfiler::class);
         $client
             ->method('getCalledRequests')
             ->willReturn([
@@ -31,7 +33,7 @@ class DataCollectorTest extends TestCase
                 ['time' => 0.3],
             ]);
 
-        $adminClient = $this->createMock(ClientProfiler::class);
+        $adminClient = static::createStub(ClientProfiler::class);
         $adminClient
             ->method('getCalledRequests')
             ->willReturn([
@@ -39,12 +41,12 @@ class DataCollectorTest extends TestCase
                 ['time' => 0.5],
             ]);
 
-        $clusterMock = $this->createMock(ClusterNamespace::class);
+        $clusterMock = static::createStub(ClusterNamespace::class);
         $clusterMock
             ->method('health')
             ->willReturn(['status' => 'green']);
 
-        $catMock = $this->createMock(CatNamespace::class);
+        $catMock = static::createStub(CatNamespace::class);
         $catMock
             ->method('indices')
             ->willReturn(['indices' => ['index1' => ['status' => 'green'], 'index2' => ['status' => 'green']]]);
@@ -79,16 +81,16 @@ class DataCollectorTest extends TestCase
             new Response()
         );
 
-        static::assertEquals(1500, $collector->getTime());
-        static::assertEquals(5, $collector->getRequestAmount());
+        static::assertSame(1500.0, $collector->getTime());
+        static::assertSame(5, $collector->getRequestAmount());
         static::assertCount(5, $collector->getRequests());
-        static::assertEquals(['status' => 'green'], $collector->getClusterInfo());
-        static::assertEquals(['indices' => ['index1' => ['status' => 'green'], 'index2' => ['status' => 'green']]], $collector->getIndices());
+        static::assertSame(['status' => 'green'], $collector->getClusterInfo());
+        static::assertSame(['indices' => ['index1' => ['status' => 'green'], 'index2' => ['status' => 'green']]], $collector->getIndices());
     }
 
     public function testReset(): void
     {
-        $client = $this->createMock(ClientProfiler::class);
+        $client = static::createStub(ClientProfiler::class);
         $client
             ->method('getCalledRequests')
             ->willReturn([
@@ -109,11 +111,11 @@ class DataCollectorTest extends TestCase
             new Response()
         );
 
-        static::assertEquals(1200, $collector->getTime());
+        static::assertSame(1200.0, $collector->getTime());
 
         $collector->reset();
         static::assertCount(0, $collector->getRequests());
-        static::assertEquals(0, $collector->getTime());
+        static::assertSame(0.0, $collector->getTime());
     }
 
     public function testDisabled(): void
@@ -135,17 +137,17 @@ class DataCollectorTest extends TestCase
             new Response()
         );
 
-        static::assertEquals(0, $collector->getTime());
+        static::assertSame(0.0, $collector->getTime());
     }
 
     public function testCollectAdminSource(): void
     {
-        $client = $this->createMock(ClientProfiler::class);
+        $client = static::createStub(ClientProfiler::class);
         $client
             ->method('getCalledRequests')
             ->willReturn([]);
 
-        $adminClient = $this->createMock(ClientProfiler::class);
+        $adminClient = static::createStub(ClientProfiler::class);
         $adminClient
             ->method('getCalledRequests')
             ->willReturn([
@@ -153,12 +155,12 @@ class DataCollectorTest extends TestCase
                 ['time' => 0.5],
             ]);
 
-        $clusterMock = $this->createMock(ClusterNamespace::class);
+        $clusterMock = static::createStub(ClusterNamespace::class);
         $clusterMock
             ->method('health')
             ->willReturn(['status' => 'green']);
 
-        $catMock = $this->createMock(CatNamespace::class);
+        $catMock = static::createStub(CatNamespace::class);
         $catMock
             ->method('indices')
             ->willReturn(['indices' => ['index1' => ['status' => 'green'], 'index2' => ['status' => 'green']]]);
@@ -195,11 +197,11 @@ class DataCollectorTest extends TestCase
             new Response()
         );
 
-        static::assertEquals(900, $collector->getTime());
-        static::assertEquals(2, $collector->getRequestAmount());
+        static::assertSame(900.0, $collector->getTime());
+        static::assertSame(2, $collector->getRequestAmount());
         static::assertCount(2, $collector->getRequests());
 
-        $client = $this->createMock(ClientProfiler::class);
+        $client = static::createStub(ClientProfiler::class);
         $client
             ->method('getCalledRequests')
             ->willReturn([
@@ -228,8 +230,8 @@ class DataCollectorTest extends TestCase
             new Response()
         );
 
-        static::assertEquals(1500, $collector->getTime());
-        static::assertEquals(5, $collector->getRequestAmount());
+        static::assertSame(1500.0, $collector->getTime());
+        static::assertSame(5, $collector->getRequestAmount());
         static::assertCount(5, $collector->getRequests());
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Store;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\JWT\JWTDecoder;
 use Shopware\Core\Framework\Log\Package;
@@ -12,12 +11,12 @@ use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseProvider;
 use Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(InAppPurchase::class)]
 class InAppPurchaseTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -56,8 +55,10 @@ class InAppPurchaseTest extends TestCase
                     static::getContainer()->get(StoreRequestOptionsProvider::class),
                     new StaticSystemConfigService(),
                     static::getContainer()->get('logger')
-                )
-            )
+                ),
+                static::getContainer()->get('logger'),
+                new NativeClock()
+            ),
         );
 
         static::assertFalse($iap->isActive('ExtensionName', 'inactivePurchase'));
@@ -103,8 +104,10 @@ class InAppPurchaseTest extends TestCase
                     static::getContainer()->get(StoreRequestOptionsProvider::class),
                     $this->staticSystemConfigService,
                     static::getContainer()->get('logger')
-                )
-            )
+                ),
+                static::getContainer()->get('logger'),
+                new NativeClock()
+            ),
         );
     }
 }

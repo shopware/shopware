@@ -1,7 +1,7 @@
 import template from './sw-simple-search-field.html.twig';
 import './sw-simple-search-field.scss';
 
-const { Component, Utils } = Shopware;
+const { Utils } = Shopware;
 
 /**
  * @sw-package framework
@@ -18,34 +18,23 @@ const { Component, Utils } = Shopware;
  *   @search-term-change="debouncedInputEvent"
  *  />
  */
-Component.register('sw-simple-search-field', {
+export default {
     template,
     inheritAttrs: false,
 
-    emits: [
-        'update:value',
-        'search-term-change',
-    ],
+    emits: ['update:value', 'search-term-change'],
 
     props: {
         variant: {
             type: String,
             required: false,
             default: 'default',
-            validValues: [
-                'default',
-                'inverted',
-                'form',
-            ],
+            validValues: ['default', 'inverted', 'form'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
-                return [
-                    'default',
-                    'inverted',
-                    'form',
-                ].includes(value);
+                return ['default', 'inverted', 'form'].includes(value);
             },
         },
 
@@ -53,6 +42,12 @@ Component.register('sw-simple-search-field', {
             type: String,
             default: null,
             required: false,
+        },
+
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
         },
 
         delay: {
@@ -78,13 +73,11 @@ Component.register('sw-simple-search-field', {
 
     computed: {
         fieldClasses() {
-            return [
-                `sw-simple-search-field--${this.variant}`,
-            ];
+            return [`sw-simple-search-field--${this.variant}`];
         },
 
         placeholder() {
-            return this.$attrs.placeholder || this.$tc('global.sw-simple-search-field.defaultPlaceholder');
+            return this.$attrs.placeholder || this.$t('global.sw-simple-search-field.defaultPlaceholder');
         },
     },
 
@@ -94,4 +87,4 @@ Component.register('sw-simple-search-field', {
             this.onSearchTermChanged(input);
         },
     },
-});
+};

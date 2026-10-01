@@ -11,9 +11,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         disabled: {
@@ -40,6 +38,14 @@ export default {
 
         showModeSetting() {
             return Shopware.Store.get('swProductDetail').showModeSetting;
+        },
+
+        showStockSetting() {
+            if (this.product.isCloseout !== null || !this.parentProduct?.id) {
+                return this.product.isCloseout;
+            }
+
+            return this.parentProduct.isCloseout;
         },
 
         ...mapPropertyErrors('product', [

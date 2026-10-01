@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\CompilerConfiguration;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CompilerConfiguration::class)]
 class CompilerConfigurationTest extends TestCase
 {
@@ -25,7 +27,7 @@ class CompilerConfigurationTest extends TestCase
             'test' => 'value',
         ]);
 
-        static::assertEquals('value', $config->getValue('test'));
+        static::assertSame('value', $config->getValue('test'));
     }
 
     public function testGetWholeConfiguration(): void
@@ -34,7 +36,7 @@ class CompilerConfigurationTest extends TestCase
             'test' => 'value',
         ]);
 
-        static::assertEquals([
+        static::assertSame([
             'test' => 'value',
         ], $config->getConfiguration());
     }

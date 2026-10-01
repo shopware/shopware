@@ -3,25 +3,24 @@
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Cache;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[Group('redis')]
+#[Package('framework')]
 class RedisConnectionFactoryTest extends TestCase
 {
     #[DataProvider('prefixProvider')]
     public function testPrefix(?string $aPrefix, ?string $bPrefix, bool $equals): void
     {
-        /** @var string $url */
-        $url = EnvironmentHelper::getVariable('REDIS_URL');
+        $url = (string) EnvironmentHelper::getVariable('REDIS_URL');
 
-        if (!$url) {
-            static::markTestSkipped('No redis server configured');
+        if ($url === '') {
+            static::markTestSkipped('Redis is not available');
         }
 
         $a = (new RedisConnectionFactory($aPrefix))->create($url);
@@ -30,7 +29,7 @@ class RedisConnectionFactoryTest extends TestCase
         $a->set('foo', 'bar');
         $b->set('foo', 'foo');
 
-        static::assertEquals($equals, $a->get('foo') === $b->get('foo'));
+        static::assertSame($equals, $a->get('foo') === $b->get('foo'));
     }
 
     public static function prefixProvider(): \Generator

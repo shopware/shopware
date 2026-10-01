@@ -258,9 +258,7 @@ const cmsElements = {
             if (slot.config.products?.entity) {
                 return {
                     'entity-products': {
-                        value: [
-                            '0190e3b777b078d4a4097dff345ec692',
-                        ],
+                        value: ['0190e3b777b078d4a4097dff345ec692'],
                         key: 'products',
                         name: 'product',
                     },
@@ -291,9 +289,7 @@ const cmsElements = {
 
                 return {
                     'entity-categories': {
-                        value: [
-                            '0190e3b777b078d4a4097dff345ec692',
-                        ],
+                        value: ['0190e3b777b078d4a4097dff345ec692'],
                         key: 'categories',
                         name: 'category',
                         searchCriteria,
@@ -307,9 +303,7 @@ const cmsElements = {
 
                 return {
                     'entity-invalid': {
-                        value: [
-                            '0190e3b777b078d4a4097dff345ec692',
-                        ],
+                        value: ['0190e3b777b078d4a4097dff345ec692'],
                         key: 'invalid',
                         name: 'invalid',
                         searchCriteria: slot.config.invalidNoCriteria?.entity ? undefined : searchCriteria,
@@ -340,7 +334,7 @@ Shopware.Service().register('cmsService', () => {
                     defaultConfig: {
                         backgroundColor: '#FFFFFF',
                         backgroundMedia: {
-                            url: '/bundles/administration/administration/static/img/cms/preview_mountain_large.jpg',
+                            url: '/bundles/administration/administration/static/img/cms/preview_mountain_large.webp',
                         },
                         marginTop: '20px',
                         marginBottom: '20px',
@@ -450,6 +444,17 @@ describe('module/sw-cms/service/cmsDataResolver.service.js', () => {
             tablet: true,
             mobile: true,
         });
+    });
+
+    it('should keep cleared block margins while filling other missing block defaults', async () => {
+        const pageMock = createPageMock();
+        const block = Object.assign(pageMock.sections[0].blocks[0], { type: 'text-on-image', backgroundMedia: null });
+        Object.assign(block, { marginTop: null, marginBottom: '', marginRight: '5px' });
+
+        await service.resolve(pageMock);
+
+        expect(block).toMatchObject({ marginTop: null, marginBottom: '', marginRight: '5px', backgroundColor: '#FFFFFF' });
+        expect(block.backgroundMedia).toEqual(expect.objectContaining({ url: expect.stringContaining('preview_mountain') }));
     });
 
     it('should enrich cmsElements if entities are attached', async () => {

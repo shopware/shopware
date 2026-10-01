@@ -4,8 +4,6 @@
     {% sw_include '@Storefront/storefront/layout/header/header-minimal.html.twig' %}
 {% endblock %}
 
-{% block base_navigation %}{% endblock %}
-
 {% block page_checkout_main_content %}
     {% block page_checkout_address %}
         {% block page_checkout_address_header %}
@@ -20,13 +18,13 @@
                 <a href="#loginCollapse"
                    class="login-collapse-toggle"
                    data-bs-toggle="collapse"
-                   aria-expanded="false">
+                   aria-expanded="{{ loginError ? 'true' : 'false' }}">
                     <strong>{{ 'checkout.addressLoginToggle'|trans|sw_sanitize }}</strong> </a>
             </div>
         {% endblock %}
 
         {% block page_checkout_address_login %}
-            <div class="collapse" id="loginCollapse">
+            <div class="collapse{% if loginError %} show{% endif %}" id="loginCollapse">
                 {% block page_checkout_address_login_card %}
                     {% sw_include '@Storefront/storefront/component/account/login.html.twig' with {
                         cardTitle: 'account.loginHeader'|trans|sw_sanitize

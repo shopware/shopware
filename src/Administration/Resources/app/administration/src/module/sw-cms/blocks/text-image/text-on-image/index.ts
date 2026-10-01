@@ -2,12 +2,6 @@
  * @private
  * @sw-package discovery
  */
-import CMS from '../../../constant/sw-cms.constant';
-
-/**
- * @private
- * @sw-package discovery
- */
 Shopware.Component.register('sw-cms-preview-text-on-image', () => import('./preview'));
 
 /**
@@ -33,7 +27,7 @@ Shopware.Service('cmsService').registerCmsBlock({
         marginRight: null,
         sizingMode: 'boxed',
         backgroundMedia: {
-            url: '/administration/administration/static/img/cms/preview_mountain_large.jpg',
+            url: '/administration/administration/static/img/cms/preview_mountain_large.webp',
         },
     },
     slots: {
@@ -53,7 +47,7 @@ Shopware.Service('cmsService').registerCmsBlock({
                 },
                 data: {
                     media: {
-                        value: CMS.MEDIA.previewMountain,
+                        value: Shopware.Constants.CMS.MEDIA.previewMountain,
                         source: 'default',
                     },
                 },

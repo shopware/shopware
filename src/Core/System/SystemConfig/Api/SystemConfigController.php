@@ -3,9 +3,12 @@
 namespace Shopware\Core\System\SystemConfig\Api;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,8 +17,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('framework')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class SystemConfigController extends AbstractController
 {
     /**
@@ -28,70 +31,132 @@ class SystemConfigController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/system-config/check', name: 'api.action.core.system-config.check', defaults: ['_acl' => ['system_config:read']], methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/system-config/check',
+        name: 'api.action.core.system-config.check',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:read']],
+        methods: [Request::METHOD_GET]
+    )]
     public function checkConfiguration(Request $request, Context $context): JsonResponse
     {
-        $domain = (string) $request->query->get('domain');
+        $domain = $request->query->getString('domain');
 
         if ($domain === '') {
-            return new JsonResponse(false);
+            throw SystemConfigException::missingRequestParameter('domain');
         }
 
         return new JsonResponse($this->configurationService->checkConfiguration($domain, $context));
     }
 
-    #[Route(path: '/api/_action/system-config/schema', name: 'api.action.core.system-config', methods: ['GET'])]
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed. Use {@see getSchema} instead.
+     */
+    #[Route(
+        path: '/api/_action/system-config/schema',
+        name: 'api.action.core.system-config',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:read']],
+        methods: [Request::METHOD_GET]
+    )]
     public function getConfiguration(Request $request, Context $context): JsonResponse
     {
-        $domain = (string) $request->query->get('domain');
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'Route "/api/_action/system-config/schema" is deprecated and will be removed in v6.8.0.0. Use "/api/_action/system-config/get-schema" instead.',
+        );
+
+        $domain = $request->query->getString('domain');
 
         if ($domain === '') {
-            throw RoutingException::missingRequestParameter('domain');
+            throw SystemConfigException::missingRequestParameter('domain');
         }
 
-        return new JsonResponse($this->configurationService->getConfiguration($domain, $context));
+        return Feature::silent('v6.8.0.0', fn () => new JsonResponse($this->configurationService->getConfiguration($domain, $context)));
     }
 
-    #[Route(path: '/api/_action/system-config', name: 'api.action.core.system-config.value', defaults: ['_acl' => ['system_config:read']], methods: ['GET'])]
+    #[Route(
+        path: '/api/_action/system-config/get-schema',
+        name: 'api.action.core.system-config.get-schema',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:read']],
+        methods: [Request::METHOD_GET]
+    )]
+    public function getSchema(Request $request, Context $context): JsonResponse
+    {
+        $domain = $request->query->getString('domain');
+
+        if ($domain === '') {
+            throw SystemConfigException::missingRequestParameter('domain');
+        }
+
+        return new JsonResponse($this->configurationService->getSystemConfigDefinition($domain, $context));
+    }
+
+    #[Route(
+        path: '/api/_action/system-config',
+        name: 'api.action.core.system-config.value',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:read']],
+        methods: [Request::METHOD_GET]
+    )]
     public function getConfigurationValues(Request $request): JsonResponse
     {
-        $domain = (string) $request->query->get('domain');
+        $domain = $request->query->getString('domain');
+
         if ($domain === '') {
-            throw RoutingException::missingRequestParameter('domain');
+            throw SystemConfigException::missingRequestParameter('domain');
         }
 
         $salesChannelId = $request->query->get('salesChannelId');
+
         if (!\is_string($salesChannelId)) {
             $salesChannelId = null;
         }
 
         $inherit = $request->query->getBoolean('inherit');
-
         $values = $this->systemConfig->getDomain($domain, $salesChannelId, $inherit);
-        if (empty($values)) {
+
+        if ($values === []) {
             $json = '{}';
         } else {
             $json = json_encode($values, \JSON_PRESERVE_ZERO_FRACTION);
         }
 
-        return new JsonResponse($json, 200, [], true);
+        return new JsonResponse($json, Response::HTTP_OK, [], true);
     }
 
-    #[Route(path: '/api/_action/system-config', name: 'api.action.core.save.system-config', defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']], methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/system-config',
+        name: 'api.action.core.save.system-config',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:update', 'system_config:create', 'system_config:delete']],
+        methods: [Request::METHOD_POST]
+    )]
     public function saveConfiguration(Request $request): JsonResponse
     {
         $salesChannelId = $request->query->get('salesChannelId');
+
         if (!\is_string($salesChannelId)) {
             $salesChannelId = null;
         }
 
         $kvs = $request->request->all();
-        $this->systemConfig->setMultiple($kvs, $salesChannelId);
+
+        // Keep omitted ?silent aligned with the feature-flagged SystemConfigService default during the 6.7/6.8 transition.
+        // @deprecated tag:v6.8.0 - remove the legacy branch and keep the feature-active path.
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            $this->systemConfig->setMultiple($kvs, $salesChannelId, $request->query->getBoolean('silent', true));
+        } elseif ($request->query->has('silent')) {
+            $this->systemConfig->setMultiple($kvs, $salesChannelId, $request->query->getBoolean('silent'));
+        } else {
+            $this->systemConfig->setMultiple($kvs, $salesChannelId);
+        }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 
-    #[Route(path: '/api/_action/system-config/batch', name: 'api.action.core.save.system-config.batch', defaults: ['_acl' => ['system_config:update', 'system_config:create', 'system_config:delete']], methods: ['POST'])]
+    #[Route(
+        path: '/api/_action/system-config/batch',
+        name: 'api.action.core.save.system-config.batch',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['system_config:update', 'system_config:create', 'system_config:delete']],
+        methods: [Request::METHOD_POST]
+    )]
     public function batchSaveConfiguration(Request $request, Context $context): JsonResponse
     {
         $this->systemConfigValidator->validate($request->request->all(), $context);
@@ -105,7 +170,15 @@ class SystemConfigController extends AbstractController
                 $salesChannelId = null;
             }
 
-            $this->systemConfig->setMultiple($kvs, $salesChannelId);
+            // Keep omitted ?silent aligned with the feature-flagged SystemConfigService default during the 6.7/6.8 transition.
+            // @deprecated tag:v6.8.0 - remove the legacy branch and keep the feature-active path.
+            if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+                $this->systemConfig->setMultiple($kvs, $salesChannelId, $request->query->getBoolean('silent', true));
+            } elseif ($request->query->has('silent')) {
+                $this->systemConfig->setMultiple($kvs, $salesChannelId, $request->query->getBoolean('silent'));
+            } else {
+                $this->systemConfig->setMultiple($kvs, $salesChannelId);
+            }
         }
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);

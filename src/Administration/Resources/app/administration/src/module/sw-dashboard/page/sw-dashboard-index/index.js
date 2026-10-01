@@ -24,7 +24,7 @@ export default Shopware.Component.wrapComponentConfig({
     computed: {
         welcomeMessage() {
             const greetingName = this.greetingName;
-            const welcomeMessage = this.$tc(
+            const welcomeMessage = this.$t(
                 this.cachedHeadlineGreetingKey,
                 {
                     greetingName,
@@ -44,7 +44,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         welcomeSubline() {
-            return this.$tc(this.getGreetingTimeKey('daytimeWelcomeText'));
+            return this.$t(this.getGreetingTimeKey('daytimeWelcomeText'));
         },
 
         greetingName() {

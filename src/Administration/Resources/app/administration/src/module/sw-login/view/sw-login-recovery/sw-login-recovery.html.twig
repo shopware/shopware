@@ -1,23 +1,41 @@
 {% block sw_login_recovery %}
 <div class="sw-login-recovery">
     {% block sw_login_recovery_headline %}
-    <h2 class="sw-login__form-headline">
-        <router-link
-            class="sw-login__back"
-            :to="{ name: 'sw.login.index.login' }"
-        >
-            <mt-icon
-                class="sw-login__back-arrow"
-                name="regular-long-arrow-left"
-                size="16px"
-            />
-        </router-link>
-        {{ $tc('sw-login.recovery.headline') }}
-    </h2>
+    <div class="sw-login__heading">
+        <h1 class="sw-login__content-headline">
+            {{ $t('sw-login.recovery.headline') }}
+        </h1>
+
+        {% block sw_login_recovery_text %}
+        <p class="sw-login__content-description">
+            {{ $t('sw-login.recovery.text') }}
+        </p>
+        {% endblock %}
+    </div>
     {% endblock %}
 
-    {% block sw_login_recovery_text %}
-    <p>{{ $tc('sw-login.recovery.text') }}</p>
+    {% block sw_login_recovery_alert %}
+    <mt-banner
+        v-if="isRateLimited"
+        class="sw-login__alert-banner"
+        variant="attention"
+        :show-icon="true"
+        :closable="false"
+    >
+        {{ rateLimitMessage }}
+    </mt-banner>
+    {% endblock %}
+
+    {% block sw_login_recovery_link_expired %}
+    <mt-banner
+        v-if="showLinkExpiredError"
+        class="sw-login__alert-banner"
+        variant="critical"
+        :show-icon="true"
+        :closable="false"
+    >
+        {{ $t('sw-login.recovery.messageLinkExpired') }}
+    </mt-banner>
     {% endblock %}
 
     {% block sw_login_recovery_form %}
@@ -26,12 +44,13 @@
         @submit.prevent="sendRecoveryMail"
     >
         {% block sw_login_recovery_form_email_field %}
-
         <mt-text-field
             ref="swLoginRecoveryEmailField"
             v-model="email"
-            :label="$tc('sw-login.recovery.email.label')"
-            :placeholder="$tc('sw-login.recovery.email.placeholder')"
+            :label="$t('sw-login.recovery.email.label')"
+            :disabled="isRateLimited"
+            required
+            @input="debouncedEmailValidation"
         />
         {% endblock %}
 
@@ -39,9 +58,12 @@
         <div class="sw-login__submit">
             <mt-button
                 variant="primary"
-                :disabled="!isEmailValid()"
+                size="default"
+                :block="true"
+                :disabled="!isEmailValid || isRateLimited"
+                type="submit"
             >
-                {{ $tc('sw-login.recovery.submit') }}
+                {{ $t('sw-login.recovery.submit') }}
             </mt-button>
         </div>
         {% endblock %}

@@ -4,19 +4,19 @@ namespace Shopware\Core\Framework\Adapter\Command;
 
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\StorageAttributes;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 's3:set-visibility',
     description: 'Sets the visibility of all files in the s3 filesystem to public',
 )]
-#[Package('framework')]
 class S3FilesystemVisibilityCommand extends Command
 {
     /**
@@ -41,13 +41,13 @@ class S3FilesystemVisibilityCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $style = new ShopwareStyle($input, $output);
+        $style = new SymfonyStyle($input, $output);
 
         $style->warning('If both private and public objects are stored in the same bucket, this command will set all of them public.');
         $continue = $style->confirm('Continue?');
 
         if (!$continue) {
-            return (int) Command::SUCCESS;
+            return Command::SUCCESS;
         }
 
         $style->comment('Setting visibility to private in private bucket.');
@@ -66,11 +66,11 @@ class S3FilesystemVisibilityCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function setVisibility(FilesystemOperator $filesystem, ShopwareStyle $style, string $visibility): void
+    private function setVisibility(FilesystemOperator $filesystem, SymfonyStyle $style, string $visibility): void
     {
-        $files = array_filter($filesystem->listContents('/', true)->toArray(), fn (StorageAttributes $object): bool => $object->type() === 'file');
+        $files = array_filter($filesystem->listContents('/', true)->toArray(), static fn (StorageAttributes $object): bool => $object->type() === 'file');
         ProgressBar::setFormatDefinition('custom', '[%bar%] %current%/%max% -- %message%');
-        $progressBar = new ProgressBar($style, \count((array) $files));
+        $progressBar = new ProgressBar($style, \count($files));
         $progressBar->setFormat('custom');
         $progressBar->setMessage('');
 

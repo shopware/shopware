@@ -6,44 +6,70 @@
 
     {% block sw_landing_page_view_language_info %}
     <sw-language-info
-        :entity-description="placeholder(landingPage, 'name', $tc('sw-manufacturer.detail.textHeadline'))"
+        :entity-description="placeholder(landingPage, 'name', $t('sw-manufacturer.detail.textHeadline'))"
     />
     {% endblock %}
 
     {% block sw_landing_page_view_tabs %}
-    <sw-tabs
-        v-if="!isLoading"
-        class="sw-customer-detail-page__tabs"
-        position-identifier="sw-landing-page-view"
-    >
-
-        {% block sw_landing_page_view_tabs_general %}
-        <sw-tabs-item
-            class="sw-category-detail__tab-base"
-            :route="{ name: 'sw.category.landingPageDetail.base' }"
-            :title="$tc('sw-landing-page.view.general')"
-        >
-            {{ $tc('sw-landing-page.view.general') }}
-        </sw-tabs-item>
+    <template v-if="feature.isActive('v6.8.0.0')">
+        {% block sw_landing_page_view_mt_tabs %}
+        <mt-tabs
+            v-if="!isLoading"
+            class="sw-customer-detail-page__tabs"
+            position-identifier="sw-landing-page-view"
+            :default-item="$route.name"
+            :items="landingPageViewTabs"
+            :small="true"
+        />
         {% endblock %}
 
-        {% block sw_landing_page_view_tabs_cms %}
-        <sw-tabs-item
-            v-tooltip="{
-                message: $tc('sw-privileges.tooltip.warning'),
-                disabled: acl.can('landing_page.editor'),
-                showOnDisabledElements: true
-            }"
-            :disabled="!acl.can('landing_page.editor')"
-            class="sw-landing-page-detail__tab-cms"
-            :route="{ name: 'sw.category.landingPageDetail.cms' }"
-            :title="$tc('sw-landing-page.view.cms')"
+        {% block sw_landing_page_view_mt_tabs_permission_warning %}
+        {# TODO: Replace this temporary banner with MtTabs item tooltip metadata once Meteor supports badge/disabled tab tooltips. #}
+        <mt-banner
+            v-if="!acl.can('landing_page.editor')"
+            class="sw-landing-page-view__cms-permission-warning"
+            variant="attention"
         >
-            {{ $tc('sw-landing-page.view.cms') }}
-        </sw-tabs-item>
+            {{ $t('sw-privileges.tooltip.warning') }}
+        </mt-banner>
         {% endblock %}
+    </template>
 
-    </sw-tabs>
+    <template v-else>
+        <sw-tabs
+            v-if="!isLoading"
+            class="sw-customer-detail-page__tabs"
+            position-identifier="sw-landing-page-view"
+        >
+
+            {% block sw_landing_page_view_tabs_general %}
+            <sw-tabs-item
+                class="sw-category-detail__tab-base"
+                :route="{ name: 'sw.category.landingPageDetail.base' }"
+                :title="$t('sw-landing-page.view.general')"
+            >
+                {{ $t('sw-landing-page.view.general') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            {% block sw_landing_page_view_tabs_cms %}
+            <sw-tabs-item
+                v-tooltip="{
+                    message: $t('sw-privileges.tooltip.warning'),
+                    disabled: acl.can('landing_page.editor'),
+                    showOnDisabledElements: true
+                }"
+                :disabled="!acl.can('landing_page.editor')"
+                class="sw-landing-page-detail__tab-cms"
+                :route="{ name: 'sw.category.landingPageDetail.cms' }"
+                :title="$t('sw-landing-page.view.cms')"
+            >
+                {{ $t('sw-landing-page.view.cms') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+        </sw-tabs>
+    </template>
     {% endblock %}
 
     {% block sw_landing_page_view_content %}

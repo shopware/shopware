@@ -19,18 +19,48 @@ describe('error.store', () => {
     describe('actions', () => {
         describe('addApiError', () => {
             it('adds an API error', () => {
-                const error = new ShopwareError({ code: 'TEST-001', detail: 'Test error' });
-                store.addApiError({ expression: 'entity.field', error });
+                const base = { code: 'TEST-001', detail: 'Test error' };
+
+                store.addApiError({
+                    expression: 'entity.field',
+                    error: new ShopwareError(base),
+                });
+
                 // @ts-expect-error
-                expect(store.api.entity.field).toEqual({ ...error, selfLink: 'entity.field' });
+                const actual = store.api.entity.field as ShopwareError;
+
+                expect(actual).toBeInstanceOf(ShopwareError);
+                expect(actual).toMatchObject({
+                    selfLink: 'entity.field',
+                    _code: base.code,
+                    _detail: base.detail,
+                    _status: '',
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    _id: expect.any(String),
+                });
             });
 
             it('adds a nested API error', () => {
-                const error = new ShopwareError({ code: 'TEST-002', detail: 'Nested error' });
-                store.addApiError({ expression: 'entity.nested.field', error });
+                const base = { code: 'TEST-002', detail: 'Nested error' };
+
+                store.addApiError({
+                    expression: 'entity.nested.field',
+                    error: new ShopwareError(base),
+                });
+
                 // @ts-expect-error
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                expect(store.api.entity.nested.field).toEqual({ ...error, selfLink: 'entity.nested.field' });
+                const actual = store.api.entity.nested.field as ShopwareError;
+
+                expect(actual).toBeInstanceOf(ShopwareError);
+                expect(actual).toMatchObject({
+                    selfLink: 'entity.nested.field',
+                    _code: base.code,
+                    _detail: base.detail,
+                    _status: '',
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    _id: expect.any(String),
+                });
             });
         });
 
@@ -113,23 +143,13 @@ describe('error.store', () => {
 
         describe('getApiErrorFromPath', () => {
             it('returns null if no error exists at the path', () => {
-                expect(
-                    store.getApiErrorFromPath('entity', 'id', [
-                        'nonexistent',
-                        'path',
-                    ]),
-                ).toBeNull();
+                expect(store.getApiErrorFromPath('entity', 'id', ['nonexistent', 'path'])).toBeNull();
             });
 
             it('returns the error at the specified path', () => {
                 const error = new ShopwareError({ code: 'PATH-001', detail: 'Nested error' });
                 store.addApiError({ expression: 'entity.id.nested.field', error });
-                expect(
-                    store.getApiErrorFromPath('entity', 'id', [
-                        'nested',
-                        'field',
-                    ]),
-                ).toEqual(error);
+                expect(store.getApiErrorFromPath('entity', 'id', ['nested', 'field'])).toEqual(error);
             });
         });
 
@@ -144,13 +164,15 @@ describe('error.store', () => {
 
         describe('getSystemConfigApiError', () => {
             it('returns null if no error exists', () => {
-                expect(store.getSystemConfigApiError('entity', 'channel', 'key')).toBeNull();
+                expect(store.getSystemConfigApiError('entity', 'channel' as EntityKey<'sales_channel'>, 'key')).toBeNull();
             });
 
             it('returns the system config API error', () => {
                 const error = new ShopwareError({ code: 'CONFIG-001', detail: 'Config error' });
                 store.addApiError({ expression: 'entity.channel.key', error });
-                expect(store.getSystemConfigApiError('entity', 'channel', 'key')).toEqual(error);
+                expect(store.getSystemConfigApiError('entity', 'channel' as EntityKey<'sales_channel'>, 'key')).toEqual(
+                    error,
+                );
             });
         });
 

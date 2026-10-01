@@ -12,10 +12,7 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    emits: [
-        'modal-confirm',
-        'modal-close',
-    ],
+    emits: ['modal-confirm', 'modal-close'],
 
     computed: {
         ...mapState(() => Store.get('swFlow'), ['sequences']),

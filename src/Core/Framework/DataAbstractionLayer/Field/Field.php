@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Flag;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\FieldSerializerInterface;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -28,6 +29,8 @@ abstract class Field extends Struct
     private ?FieldAccessorBuilderInterface $accessorBuilder = null;
 
     private ?DefinitionInstanceRegistry $registry = null;
+
+    private string $description = '';
 
     public function __construct(protected string $propertyName)
     {
@@ -49,6 +52,10 @@ abstract class Field extends Struct
         return 0;
     }
 
+    /**
+     * @return static
+     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'static')]
     public function setFlags(Flag ...$flags): self
     {
         $this->flags = [];
@@ -62,6 +69,10 @@ abstract class Field extends Struct
         return $this;
     }
 
+    /**
+     * @return static
+     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'static')]
     public function addFlags(Flag ...$flags): self
     {
         foreach ($flags as $flag) {
@@ -73,7 +84,10 @@ abstract class Field extends Struct
 
     /**
      * @param class-string<Flag> $class
+     *
+     * @return static
      */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'static')]
     public function removeFlag(string $class): self
     {
         unset($this->flags[$class]);
@@ -121,6 +135,22 @@ abstract class Field extends Struct
     public function getFlags(): array
     {
         return array_values($this->flags);
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+
+    /**
+     * @return static
+     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'static')]
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+
+        return $this;
     }
 
     public function getSerializer(): FieldSerializerInterface

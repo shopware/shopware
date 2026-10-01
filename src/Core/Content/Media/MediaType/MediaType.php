@@ -34,6 +34,9 @@ abstract class MediaType extends Struct
         return $this;
     }
 
+    /**
+     * @param array<string> $flags
+     */
     public function addFlags(array $flags): self
     {
         $this->flags = array_merge($this->flags, $flags);
@@ -43,15 +46,12 @@ abstract class MediaType extends Struct
 
     public function is(string $input): bool
     {
-        foreach ($this->flags as $flag) {
-            if ($flag === $input) {
-                return true;
-            }
-        }
-
-        return false;
+        return \in_array($input, $this->flags, true);
     }
 
+    /**
+     * @return array<string>
+     */
     public function getFlags(): array
     {
         return $this->flags;

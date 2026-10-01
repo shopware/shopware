@@ -70,6 +70,8 @@ const orderMock = {
     lineItems: [],
 };
 
+orderMock.primaryOrderDelivery = orderMock.deliveries[0];
+
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-order-detail-general', { sync: true }), {
         global: {
@@ -77,8 +79,6 @@ async function createWrapper() {
                 'sw-container': await wrapTestComponent('sw-container', {
                     sync: true,
                 }),
-                'sw-card-section': await wrapTestComponent('sw-card-section', { sync: true }),
-                'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
                 'mt-card': {
                     template: `
                         <div class="mt-card">
@@ -103,9 +103,10 @@ async function createWrapper() {
                 'sw-extension-component-section': true,
                 'router-link': true,
                 'sw-loader': true,
+                'sw-number-field-deprecated': true,
             },
             mocks: {
-                $tc: (key, value) => {
+                $t: (key, value) => {
                     if (!value) {
                         return key;
                     }
@@ -128,7 +129,6 @@ async function createWrapper() {
         },
         props: {
             orderId: '1a2b3c',
-            isSaveSuccessful: false,
         },
     });
 }
@@ -141,40 +141,62 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         Shopware.Store.get('swOrderDetail').order = orderMock;
     });
 
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should tax description correctly for shipping cost if taxStatus is not tax-free', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
 
-        const shippingCostField = wrapper.find('.sw-order-detail__summary div[role="button"]');
+        const shippingCostField = wrapper.find('.sw-order-detail-general__summary div[role="button"]');
         expect(shippingCostField.attributes()['tooltip-message']).toBe(
             'sw-order.detailBase.tax<br>sw-order.detailBase.shippingCostsTax{"taxRate":10,"tax":"€1.00"}<br>sw-order.detailBase.shippingCostsTax{"taxRate":19,"tax":"€1.90"}',
         );
     });
 
+    it('should show the discount amount for additional deliveries', async () => {
+        global.activeAclRoles = [];
+        const store = Shopware.Store.get('swOrderDetail');
+        store.order = {
+            ...orderMock,
+            deliveries: [
+                ...orderMock.deliveries,
+                {
+                    id: 'discount-delivery',
+                    shippingCosts: {
+                        calculatedTaxes: [],
+                        totalPrice: -5,
+                    },
+                },
+            ],
+        };
+        wrapper = await createWrapper();
+
+        const discountRow = wrapper
+            .findAll('.sw-order-detail-general__summary-row')
+            .find((row) => row.text().includes('sw-order.detailBase.discountLabelShippingCosts'));
+
+        expect(discountRow.findAll('span')[1].text()).toBe('-€5.00');
+
+        store.order = orderMock;
+    });
+
     it('should tax description correctly if taxStatus is not tax-free', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
-        const descriptionTitles = wrapper.findAll('dt');
-        const descriptionInfos = wrapper.findAll('dd');
+        const summaryRows = wrapper.findAll('.sw-order-detail-general__summary-row');
+        const [firstTaxLabel, firstTaxValue] = summaryRows[3].findAll('span');
+        const [secondTaxLabel, secondTaxValue] = summaryRows[4].findAll('span');
 
-        expect(descriptionTitles[3].text()).toBe('sw-order.detailBase.summaryLabelTaxes{"taxRate":10}');
-        expect(descriptionInfos[3].text()).toBe('€10.00');
+        expect(firstTaxLabel.text()).toBe('sw-order.detailBase.summaryLabelTaxes{"taxRate":10}');
+        expect(firstTaxValue.text()).toBe('€10.00');
 
-        expect(descriptionTitles[4].text()).toBe('sw-order.detailBase.summaryLabelTaxes{"taxRate":19}');
-        expect(descriptionInfos[4].text()).toBe('€19.00');
+        expect(secondTaxLabel.text()).toBe('sw-order.detailBase.summaryLabelTaxes{"taxRate":19}');
+        expect(secondTaxValue.text()).toBe('€19.00');
     });
 
     it('should able to edit shipping cost', async () => {
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
 
-        let button = wrapper.find('.sw-order-detail__summary div[role="button"]');
+        let button = wrapper.find('.sw-order-detail-general__summary div[role="button"]');
         await button.trigger('click');
         await flushPromises();
 
@@ -217,13 +239,14 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         expect(wrapper.emitted('recalculate-and-reload')).toBeTruthy();
     });
 
-    it('should emit event recalculate-and-reload when cancel editing line item successfully', async () => {
+    it('should reload without recalculating when cancel editing line item successfully', async () => {
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
         const generalInfo = wrapper.findComponent('sw-order-line-items-grid-stub');
         await generalInfo.vm.$emit('item-cancel');
 
-        expect(wrapper.emitted('recalculate-and-reload')).toBeTruthy();
+        expect(wrapper.emitted('recalculate-and-reload')).toBeFalsy();
+        expect(wrapper.emitted('reload-entity-data')).toEqual([[false]]);
     });
 
     it('should emit event save-and-recalculate when editing line item successfully', async () => {

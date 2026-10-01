@@ -1,12 +1,3 @@
-@import "~scss/variables";
-
-$sw-field-color-text: $color-darkgray-200;
-$sw-field-color-focus: $color-shopware-brand-500;
-$sw-field-color-background: $color-white;
-$sw-field-color-border: $color-gray-300;
-$sw-field-color-error: $color-crimson-500;
-$sw-field-color-inherited: $color-module-purple-900;
-
 .sw-field--checkbox {
     margin-bottom: 22px;
 
@@ -23,7 +14,7 @@ $sw-field-color-inherited: $color-module-purple-900;
         &.is--bordered {
             margin-top: 24px;
             border-radius: 4px;
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-secondary-default);
             padding: 15px;
         }
     }
@@ -71,16 +62,16 @@ $sw-field-color-inherited: $color-module-purple-900;
             }
 
             &:disabled ~ .sw-field__checkbox-state {
-                background: $color-gray-100;
-                border-color: $color-gray-300;
-                color: lighten($sw-field-color-text, 40%);
+                background: var(--color-background-tertiary-default);
+                border-color: var(--color-border-primary-default);
+                color: var(--color-text-primary-disabled);
             }
 
             &:checked,
             &:indeterminate {
                 ~ .sw-field__checkbox-state {
-                    background: $sw-field-color-focus;
-                    border-color: $sw-field-color-focus;
+                    background: var(--color-interaction-primary-default);
+                    border-color: var(--color-interaction-primary-default);
 
                     /* stylelint-disable-next-line max-nesting-depth */
                     .mt-icon {
@@ -90,18 +81,18 @@ $sw-field-color-inherited: $color-module-purple-900;
             }
 
             &:checked:disabled ~ .sw-field__checkbox-state {
-                background: $color-gray-100;
-                border-color: $color-gray-300;
-                color: lighten($sw-field-color-text, 40%);
+                background: var(--color-background-tertiary-default);
+                border-color: var(--color-border-primary-default);
+                color: var(--color-text-primary-disabled);
 
                 .mt-icon {
                     display: inline-block;
-                    color: lighten($sw-field-color-text, 40%);
+                    color: var(--color-icon-primary-disabled);
                 }
             }
 
             &:focus ~ .sw-field__checkbox-state {
-                outline: 2px solid $sw-field-color-focus;
+                outline: 2px solid var(--color-border-brand-default);
                 outline-offset: 2px;
             }
         }
@@ -112,9 +103,9 @@ $sw-field-color-inherited: $color-module-purple-900;
             height: 100%;
             z-index: 1;
             text-align: center;
-            background: $sw-field-color-background;
-            color: $sw-field-color-text;
-            border: 1px solid $sw-field-color-border;
+            background: var(--color-background-primary-default);
+            color: var(--color-text-primary-default);
+            border: 1px solid var(--color-border-primary-default);
             border-radius: 4px;
 
             .mt-icon {
@@ -128,41 +119,41 @@ $sw-field-color-inherited: $color-module-purple-900;
                 position: absolute;
                 top: -1px;
                 left: -1px;
-                color: $sw-field-color-background;
+                color: var(--color-static-white);
             }
         }
     }
 
     &.has--error {
         .sw-field__checkbox-state {
-            border: 1px solid $sw-field-color-error;
+            border: 1px solid var(--color-interaction-critical-default);
         }
 
         input[type="checkbox"] {
             &:disabled ~ .sw-field__checkbox-state {
-                border: 1px solid $sw-field-color-error, 5%;
+                border: 1px solid var(--color-border-critical-disabled);
             }
 
             &:checked ~ .sw-field__checkbox-state {
-                border: 1px solid $sw-field-color-error;
-                background-color: $sw-field-color-error;
+                border: 1px solid var(--color-interaction-critical-default);
+                background-color: var(--color-interaction-critical-default);
             }
 
             &:checked:disabled ~ .sw-field__checkbox-state {
-                border: 1px solid $sw-field-color-error;
+                border: 1px solid var(--color-interaction-critical-default);
             }
         }
 
         .sw-field__label {
-            color: $color-crimson-500;
+            color: var(--color-text-critical-default);
         }
     }
 
     &.is--inherited {
         input[type="checkbox"] {
             &:checked ~ .sw-field__checkbox-state {
-                border-color: $sw-field-color-border;
-                background: $sw-field-color-border;
+                border-color: var(--color-border-primary-default);
+                background: var(--color-background-secondary-default);
             }
         }
     }
@@ -183,20 +174,20 @@ $sw-field-color-inherited: $color-module-purple-900;
 .sw-field--checkbox.sw-field__checkbox--ghost {
     .sw-field__checkbox input[type="checkbox"]:not(:checked) ~ .sw-field__checkbox-state {
         background-color: transparent;
-        border: 1px solid $color-shopware-brand-500;
+        border: 1px solid var(--color-border-brand-default);
 
         .mt-icon {
             display: inline-block;
-            color: $color-shopware-brand-500;
+            color: var(--color-icon-brand-default);
         }
     }
 
     &.is--disabled {
         .sw-field__checkbox input[type="checkbox"]:not(:checked) ~ .sw-field__checkbox-state {
-            border: 1px solid $color-gray-300;
+            border: 1px solid var(--color-border-primary-default);
 
             .mt-icon {
-                color: $color-gray-300;
+                color: var(--color-icon-primary-disabled);
             }
         }
     }

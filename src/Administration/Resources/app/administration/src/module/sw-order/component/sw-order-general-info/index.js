@@ -46,9 +46,7 @@ export default {
 
     emits: ['save-edits'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         order: {
@@ -82,7 +80,7 @@ export default {
                     return this.liveOrder.updatedBy;
                 }
 
-                if (this.liveOrder.createdBy) {
+                if (this.liveOrder.createdBy && !this.liveOrder.updatedAt) {
                     return this.liveOrder.createdBy;
                 }
             }
@@ -141,27 +139,34 @@ export default {
         },
 
         transaction() {
-            for (let i = 0; i < this.order.transactions.length; i += 1) {
-                if (
-                    ![
-                        'cancelled',
-                        'failed',
-                    ].includes(this.order.transactions[i].stateMachineState.technicalName)
-                ) {
-                    return this.order.transactions[i];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                for (let i = 0; i < this.order.transactions.length; i += 1) {
+                    if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
+                        return this.order.transactions[i];
+                    }
                 }
+
+                return this.order.transactions.last();
             }
-            return this.order.transactions.last();
+
+            return this.order.primaryOrderTransaction;
         },
 
         delivery() {
-            return this.order.deliveries[0];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.deliveries[0];
+            }
+
+            return this.order.primaryOrderDelivery;
         },
 
         currencyFilter() {
             return Shopware.Filter.getByName('currency');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -175,11 +180,16 @@ export default {
         savedSuccessful() {
             if (this.savedSuccessful) {
                 this.getLiveOrder();
+                Store.get('swOrderDetail').setLoading(['states', false]);
             }
         },
 
         'order.id'() {
             this.createdComponent();
+        },
+
+        'order.tags'() {
+            this.syncTagCollection();
         },
     },
 
@@ -189,6 +199,12 @@ export default {
 
     methods: {
         createdComponent() {
+            this.syncTagCollection();
+            this.getLiveOrder();
+            this.getTransitionOptions();
+        },
+
+        syncTagCollection() {
             const tags = cloneDeep(this.order.tags);
 
             this.tagCollection = new EntityCollection(
@@ -199,9 +215,6 @@ export default {
                 tags,
                 tags.length,
             );
-
-            this.getLiveOrder();
-            this.getTransitionOptions();
         },
 
         getLiveOrder() {
@@ -256,6 +269,9 @@ export default {
             return options;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement, `sw-order-state-select-v2` derives the state color from `stateName`
+         */
         backgroundStyle(stateType) {
             let technicalName;
 
@@ -277,14 +293,9 @@ export default {
         },
 
         getTransitionOptions() {
-            Store.get('swOrderDetail').setLoading([
-                'states',
-                true,
-            ]);
+            Store.get('swOrderDetail').setLoading(['states', true]);
 
-            const statePromises = [
-                this.stateMachineService.getState('order', this.order.id),
-            ];
+            const statePromises = [this.stateMachineService.getState('order', this.order.id)];
 
             if (this.transaction) {
                 statePromises.push(this.stateMachineService.getState('order_transaction', this.transaction.id));
@@ -294,10 +305,7 @@ export default {
                 statePromises.push(this.stateMachineService.getState('order_delivery', this.delivery.id));
             }
 
-            return Promise.all([
-                this.getAllStates(),
-                ...statePromises,
-            ])
+            return Promise.all([this.getAllStates(), ...statePromises])
                 .then((data) => {
                     const allStates = data[0];
                     const orderState = data[1];
@@ -329,16 +337,13 @@ export default {
                     return Promise.resolve();
                 })
                 .finally(() => {
-                    Store.get('swOrderDetail').setLoading([
-                        'states',
-                        false,
-                    ]);
+                    Store.get('swOrderDetail').setLoading(['states', false]);
                 });
         },
 
         async onStateSelected(stateType, actionName) {
             if (!stateType || !actionName) {
-                this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                this.createStateChangeErrorNotification(this.$t('sw-order.stateCard.labelErrorNoAction'));
                 return;
             }
 
@@ -364,10 +369,13 @@ export default {
             this.currentActionName = null;
             this.currentStateType = null;
             this.showModal = false;
+
+            Store.get('swOrderDetail').setLoading(['states', false]);
         },
 
-        onLeaveModalConfirm(docIds, sendMail = true) {
+        onLeaveModalConfirm(docIds, sendMail = true, internalComment = null) {
             this.showModal = false;
+            Store.get('swOrderDetail').setLoading(['states', true]);
 
             let transition = null;
 
@@ -376,25 +384,34 @@ export default {
                     transition = this.orderStateMachineService.transitionOrderTransactionState(
                         this.transaction.id,
                         this.currentActionName,
-                        { documentIds: docIds, sendMail },
+                        {
+                            documentIds: docIds,
+                            sendMail,
+                            internalComment,
+                        },
                     );
                     break;
                 case 'order_delivery':
                     transition = this.orderStateMachineService.transitionOrderDeliveryState(
                         this.delivery.id,
                         this.currentActionName,
-                        { documentIds: docIds, sendMail },
+                        {
+                            documentIds: docIds,
+                            sendMail,
+                            internalComment,
+                        },
                     );
                     break;
                 case 'order':
                     transition = this.orderStateMachineService.transitionOrderState(this.order.id, this.currentActionName, {
                         documentIds: docIds,
                         sendMail,
+                        internalComment,
                     });
                     break;
                 default:
                     this.createNotificationError({
-                        message: this.$tc('sw-order.stateCard.labelErrorStateChange'),
+                        message: this.$t('sw-order.stateCard.labelErrorStateChange'),
                     });
                     return;
             }
@@ -406,6 +423,9 @@ export default {
                     })
                     .catch((error) => {
                         this.createStateChangeErrorNotification(error);
+                    })
+                    .finally(() => {
+                        Store.get('swOrderDetail').setLoading(['states', false]);
                     });
             }
 
@@ -432,7 +452,7 @@ export default {
 
         createStateChangeErrorNotification(errorMessage) {
             this.createNotificationError({
-                message: this.$tc('sw-order.stateCard.labelErrorStateChange') + errorMessage,
+                message: this.$t('sw-order.stateCard.labelErrorStateChange') + errorMessage,
             });
         },
     },

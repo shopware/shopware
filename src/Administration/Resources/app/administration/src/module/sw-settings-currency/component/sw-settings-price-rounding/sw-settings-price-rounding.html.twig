@@ -6,7 +6,7 @@
         class="sw-settings-price-rounding__header-warning"
         variant="attention"
     >
-        {{ $tc('sw-settings-currency.price-rounding.headerWarning') }}
+        {{ $t('sw-settings-currency.price-rounding.headerWarning') }}
     </mt-banner>
     {% endblock %}
 
@@ -16,13 +16,13 @@
         aria-level="3"
         class="sw-settings-price-rounding__headline"
     >
-        {{ $tc('sw-settings-currency.price-rounding.itemsHeadline') }}
+        {{ $t('sw-settings-currency.price-rounding.itemsHeadline') }}
     </div>
     {% endblock %}
 
     {% block sw_settings_price_rounding_subline_items %}
     <p class="sw-settings-price-rounding__info-text">
-        {{ $tc('sw-settings-currency.price-rounding.itemsSubline') }}
+        {{ $t('sw-settings-currency.price-rounding.itemsSubline') }}
     </p>
     {% endblock %}
 
@@ -35,8 +35,8 @@
         {% block sw_settings_price_rounding_container_items_decimals %}
         <mt-number-field
             v-model="itemRounding.decimals"
-            :label="$tc('sw-settings-currency.price-rounding.labelDecimals')"
-            :help-text="$tc('sw-settings-currency.price-rounding.helpTextDecimals')"
+            :label="$t('sw-settings-currency.price-rounding.labelDecimals')"
+            :help-text="$t('sw-settings-currency.price-rounding.helpTextDecimals')"
             required
             number-type="int"
             :step="1"
@@ -50,13 +50,13 @@
         <sw-single-select
             v-model:value="itemRounding.interval"
             v-tooltip="{
-                message: $tc('sw-settings-currency.price-rounding.tooltipIntervalDisabled'),
+                message: $t('sw-settings-currency.price-rounding.tooltipIntervalDisabled'),
                 disabled: !itemIntervalDisabled,
                 showOnDisabledElements: true
             }"
             class="sw-settings-price-rounding__item-interval-select"
-            :label="$tc('sw-settings-currency.price-rounding.labelInterval')"
-            :help-text="$tc('sw-settings-currency.price-rounding.helpTextInterval')"
+            :label="$t('sw-settings-currency.price-rounding.labelInterval')"
+            :help-text="$t('sw-settings-currency.price-rounding.helpTextInterval')"
             :disabled="itemIntervalDisabled"
             required
             :options="intervalOptions"
@@ -68,8 +68,8 @@
         <mt-switch
             v-model="itemRounding.roundForNet"
             class="sw-settings-price-rounding__round-for-net-checkbox"
-            :label="$tc('sw-settings-currency.price-rounding.labelRoundForNet')"
-            :help-text="$tc('sw-settings-currency.price-rounding.helpTextRoundForNet')"
+            :label="$t('sw-settings-currency.price-rounding.labelRoundForNet')"
+            :help-text="$t('sw-settings-currency.price-rounding.helpTextRoundForNet')"
         />
         {% endblock %}
     </sw-container>
@@ -85,13 +85,13 @@
         aria-level="3"
         class="sw-settings-price-rounding__headline"
     >
-        {{ $tc('sw-settings-currency.price-rounding.grandHeadline') }}
+        {{ $t('sw-settings-currency.price-rounding.grandHeadline') }}
     </div>
     {% endblock %}
 
     {% block sw_settings_price_rounding_subline_grand %}
     <p class="sw-settings-price-rounding__info-text">
-        {{ $tc('sw-settings-currency.price-rounding.grandSubline') }}
+        {{ $t('sw-settings-currency.price-rounding.grandSubline') }}
     </p>
     {% endblock %}
 
@@ -101,7 +101,7 @@
         class="sw-settings-price-rounding__header-info"
         variant="info"
     >
-        {{ $tc('sw-settings-currency.price-rounding.headerInfo') }}
+        {{ $t('sw-settings-currency.price-rounding.headerInfo') }}
     </mt-banner>
     {% endblock %}
 
@@ -114,8 +114,8 @@
         {% block sw_settings_price_rounding_container_grand_decimals %}
         <mt-number-field
             v-model="totalRounding.decimals"
-            :label="$tc('sw-settings-currency.price-rounding.labelDecimals')"
-            :help-text="$tc('sw-settings-currency.price-rounding.helpTextDecimals')"
+            :label="$t('sw-settings-currency.price-rounding.labelDecimals')"
+            :help-text="$t('sw-settings-currency.price-rounding.helpTextDecimals')"
             required
             number-type="int"
             :step="1"
@@ -129,13 +129,13 @@
         <sw-single-select
             v-model:value="totalRounding.interval"
             v-tooltip="{
-                message: $tc('sw-settings-currency.price-rounding.tooltipIntervalDisabled'),
+                message: $t('sw-settings-currency.price-rounding.tooltipIntervalDisabled'),
                 disabled: !totalIntervalDisabled,
                 showOnDisabledElements: true
             }"
             class="sw-settings-price-rounding__grand-interval-select"
-            :label="$tc('sw-settings-currency.price-rounding.labelInterval')"
-            :help-text="$tc('sw-settings-currency.price-rounding.helpTextInterval')"
+            :label="$t('sw-settings-currency.price-rounding.labelInterval')"
+            :help-text="$t('sw-settings-currency.price-rounding.helpTextInterval')"
             required
             :disabled="totalIntervalDisabled"
             :options="intervalOptions"
@@ -147,8 +147,8 @@
         <mt-switch
             v-model="totalRounding.roundForNet"
             class="sw-settings-price-rounding__round-for-net-checkbox"
-            :label="$tc('sw-settings-currency.price-rounding.labelRoundForNet')"
-            :help-text="$tc('sw-settings-currency.price-rounding.helpTextRoundForNet')"
+            :label="$t('sw-settings-currency.price-rounding.labelRoundForNet')"
+            :help-text="$t('sw-settings-currency.price-rounding.helpTextRoundForNet')"
         />
         {% endblock %}
     </sw-container>

@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Content\Product\DataAbstractionLayer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\VariantListingConfig;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(VariantListingConfig::class)]
 class VariantListingConfigTest extends TestCase
 {
@@ -16,7 +18,9 @@ class VariantListingConfigTest extends TestCase
     {
         $displayParent = true;
         $mainVariantId = '1';
-        $configuratorGroupConfig = ['key' => 'value'];
+        $configuratorGroupConfig = [
+            ['id' => 'group-a', 'representation' => 'box', 'expressionForListings' => true],
+        ];
 
         $variantListingConfig = new VariantListingConfig($displayParent, $mainVariantId, $configuratorGroupConfig);
 

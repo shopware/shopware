@@ -1,10 +1,9 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 import ImportExportUpdateByMappingService from 'src/module/sw-import-export/service/importExportUpdateByMapping.service';
-// eslint-disable-next-line import/no-unresolved
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
 
 describe('module/sw-import-export/components/sw-import-export-edit-profile-modal-identifiers', () => {
@@ -51,14 +50,9 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
     }
 
     async function createWrapper(profile) {
-        Object.entries(entitySchemaMock).forEach(
-            ([
-                entityName,
-                entityDefinition,
-            ]) => {
-                Shopware.EntityDefinition.add(entityName, entityDefinition);
-            },
-        );
+        Object.entries(entitySchemaMock).forEach(([entityName, entityDefinition]) => {
+            Shopware.EntityDefinition.add(entityName, entityDefinition);
+        });
 
         return mount(
             await wrapTestComponent('sw-import-export-edit-profile-modal-identifiers', {
@@ -139,12 +133,6 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper(getProfileMock());
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have identifier entries for all entities in mapping', async () => {
         const profileMock = getProfileMock();
 
@@ -166,7 +154,8 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--mapped .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const productNumberOption = wrapper.find('.sw-select-option--0');
+        const documentBody = new DOMWrapper(document.body);
+        const productNumberOption = documentBody.find('.sw-select-option--0');
         expect(productNumberOption.exists()).toBeTruthy();
 
         expect(
@@ -186,10 +175,10 @@ describe('module/sw-import-export/components/sw-import-export-edit-profile-modal
         await wrapper.find('.sw-data-grid__row--3 .sw-data-grid__cell--mapped .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const taxIdOption = wrapper.find('.sw-select-result-list__item-list .sw-select-option--id');
+        const taxIdOption = documentBody.find('.sw-select-result-list__item-list .sw-select-option--id');
         expect(taxIdOption.exists()).toBeTruthy();
 
-        const taxRateOption = wrapper.find('.sw-select-result-list__item-list .sw-select-option--taxRate');
+        const taxRateOption = documentBody.find('.sw-select-result-list__item-list .sw-select-option--taxRate');
         expect(taxRateOption.exists()).toBeTruthy();
     });
 });

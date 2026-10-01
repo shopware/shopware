@@ -76,7 +76,11 @@ async function createWrapper(privileges = []) {
                     repositoryFactory: {
                         create: () => ({ search: () => Promise.resolve([]) }),
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                 },
                 mocks: {
                     $route: { query: '' },
@@ -87,11 +91,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('src/module/sw-settings-document/page/sw-settings-document-list/', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have an enabled create button', async () => {
         const wrapper = await createWrapper(['document.creator']);
         const addButton = wrapper.find('.sw-settings-document-list__add-document');
@@ -105,9 +104,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-list/', () =
     });
 
     it('should be able to edit', async () => {
-        const wrapper = await createWrapper([
-            'document.editor',
-        ]);
+        const wrapper = await createWrapper(['document.editor']);
         await flushPromises();
 
         const editButton = wrapper.findComponent('.sw-document-list__edit-action');
@@ -125,9 +122,7 @@ describe('src/module/sw-settings-document/page/sw-settings-document-list/', () =
     });
 
     it('should be able to delete', async () => {
-        const wrapper = await createWrapper([
-            'document.deleter',
-        ]);
+        const wrapper = await createWrapper(['document.deleter']);
         await flushPromises();
 
         const deleteButton = wrapper.findComponent('.sw-document-list__delete-action');

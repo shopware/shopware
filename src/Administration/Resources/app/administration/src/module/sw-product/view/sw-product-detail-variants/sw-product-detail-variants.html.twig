@@ -6,119 +6,81 @@
         class="sw-product-detail-variants__generated-variants"
         position-identifier="sw-product-detail-variants-generated-variants"
         :class="{'is--loading': isLoading}"
-        :title="$tc('sw-product.variations.generatedVariationCardTitle')"
+        :title="$t('sw-product.variations.generatedVariationCardTitle')"
         large
     >
         <template
             v-if="!isLoading && propertiesAvailable"
             #tabs
         >
-            <sw-tabs
-                position-identifier="sw-variant-card-tabs"
-                :small="false"
-                :default-item="defaultTab"
-                @new-item-active="setActiveTab($event.name)"
-            >
-                <sw-tabs-item
-                    name="all"
-                    :active-tab="activeTab"
-                >
-                    {{ $tc('sw-product.variations.variationCard.tabs.allProducts') }}
-                </sw-tabs-item>
+            <template v-if="feature.isActive('v6.8.0.0')">
+                <mt-tabs
+                    position-identifier="sw-variant-card-tabs"
+                    :default-item="activeTab"
+                    :items="variantCardTabs"
+                    :small="true"
+                    @new-item-active="setActiveTab($event)"
+                />
+            </template>
 
-                <sw-tabs-item
-                    name="is-physical"
-                    :active-tab="activeTab"
+            <template v-else>
+                <sw-tabs
+                    position-identifier="sw-variant-card-tabs"
+                    :small="false"
+                    :default-item="defaultTab"
+                    @new-item-active="setActiveTab($event.name)"
                 >
-                    {{ $tc('sw-product.variations.variationCard.tabs.physicalProducts') }}
-                </sw-tabs-item>
+                    <sw-tabs-item
+                        name="all"
+                        :active-tab="activeTab"
+                    >
+                        {{ $t('sw-product.variations.variationCard.tabs.allProducts') }}
+                    </sw-tabs-item>
 
-                <sw-tabs-item
-                    name="is-download"
-                    :active-tab="activeTab"
-                >
-                    {{ $tc('sw-product.variations.variationCard.tabs.digitalProducts') }}
-                </sw-tabs-item>
-            </sw-tabs>
+                    <sw-tabs-item
+                        name="physical"
+                        :active-tab="activeTab"
+                    >
+                        {{ $t('sw-product.variations.variationCard.tabs.physicalProducts') }}
+                    </sw-tabs-item>
+
+                    <sw-tabs-item
+                        name="digital"
+                        :active-tab="activeTab"
+                    >
+                        {{ $t('sw-product.variations.variationCard.tabs.digitalProducts') }}
+                    </sw-tabs-item>
+                </sw-tabs>
+            </template>
         </template>
 
         <sw-skeleton v-if="isLoading" />
 
         {% block sw_product_detail_variants_sw_card_empty_state %}
-        <sw-empty-state
-            v-else-if="!propertiesAvailable"
-            class="sw-product-detail-variants__generated-variants-empty-state"
-            :absolute="false"
-            :title="$tc('sw-product.variations.emptyStatePropertyTitle')"
-            :subline="$tc('sw-product.variations.emptyStatePropertyDescription')"
+        <mt-empty-state
+            v-if="!isLoading && !propertiesAvailable"
+            centered
+            icon="regular-products"
+            :headline="$t('sw-product.variations.emptyStatePropertyTitle')"
+            :description="$t('sw-product.variations.emptyStatePropertyDescription')"
         >
-
-            <template #icon>
-                {% block sw_product_properties_empty_state_image %}
-                <img
-                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                    :alt="$tc('sw-product.properties.titleEmptyState')"
-                >
-                {% endblock %}
-            </template>
-
-            <template #actions>
+            <template #button>
                 {% block sw_product_properties_empty_state_button_property %}
                 <mt-button
                     v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
+                        message: $t('sw-privileges.tooltip.warning'),
                         disabled: acl.can('product.editor'),
                         showOnDisabledElements: true
                     }"
-                    ghost
                     :disabled="!acl.can('product.editor')"
                     variant="secondary"
                     @click="openAddPropertiesModal"
                 >
-                    {{ $tc('sw-product.properties.buttonAddProperties') }}
+                    {{ $t('sw-product.properties.buttonAddProperties') }}
                 </mt-button>
                 {% endblock %}
             </template>
-        </sw-empty-state>
-        {% endblock %}
-
-        {% block sw_product_detail_variants_sw_card_empty_state_variant %}
-        <sw-empty-state
-            v-if="!isLoading && propertiesAvailable && variants.length === 0"
-            class="sw-product-detail-variants__generated-variants-empty-state"
-            :absolute="false"
-            :title="$tc('sw-product.variations.emptyStateTitle')"
-            :subline="$tc('sw-product.variations.emptyStateDescription')"
-        >
-
-            <template #icon>
-                {% block sw_product_properties_empty_state_image %}
-                <img
-                    :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                    :alt="$tc('sw-product.properties.titleEmptyState')"
-                >
-                {% endblock %}
-            </template>
-
-            <template #actions>
-                {% block sw_product_properties_empty_state_button %}
-                <mt-button
-                    v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
-                        disabled: acl.can('product.creator'),
-                        showOnDisabledElements: true
-                    }"
-                    class="sw-product-detail-variants__generated-variants-empty-state-button"
-                    ghost
-                    :disabled="!acl.can('product.creator')"
-                    variant="secondary"
-                    @click="openModal('variantGeneration')"
-                >
-                    {{ $tc('sw-product.variations.emptyStateButton') }}
-                </mt-button>
-                {% endblock %}
-            </template>
-        </sw-empty-state>
+        </mt-empty-state>
         {% endblock %}
 
         {% block sw_product_detail_variants_sw_card_generated_variants_overview %}
@@ -127,6 +89,7 @@
             v-show="variantListHasContent && !isLoading"
             ref="generatedVariants"
             :product-states="currentProductStates"
+            :product-type="currentProductType"
             :groups="groups"
             :selected-groups="configSettingGroups"
             :product-entity="productEntity"
@@ -136,6 +99,33 @@
         />
         {% endblock %}
 
+        {% block sw_product_detail_variants_sw_card_empty_state_variant %}
+        <mt-empty-state
+            v-if="!isLoading && propertiesAvailable && variants.length === 0"
+            centered
+            icon="regular-products"
+            :headline="$t('sw-product.variations.emptyStateTitle')"
+            :description="$t('sw-product.variations.emptyStateDescription')"
+        >
+            <template #button>
+                {% block sw_product_properties_empty_state_button %}
+                <mt-button
+                    v-tooltip="{
+                        message: $t('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('product.creator'),
+                        showOnDisabledElements: true
+                    }"
+                    class="sw-product-detail-variants__generated-variants-empty-state-button"
+                    :disabled="!acl.can('product.creator')"
+                    variant="secondary"
+                    @click="openModal('variantGeneration')"
+                >
+                    {{ $t('sw-product.variations.emptyStateButton') }}
+                </mt-button>
+                {% endblock %}
+            </template>
+        </mt-empty-state>
+        {% endblock %}
     </mt-card>
     {% endblock %}
 

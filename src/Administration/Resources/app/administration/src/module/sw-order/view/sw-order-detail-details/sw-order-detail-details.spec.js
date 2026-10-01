@@ -70,6 +70,8 @@ const orderMock = {
     ],
 };
 
+orderMock.primaryOrderDelivery = orderMock.deliveries[0];
+
 async function createWrapper() {
     orderMock.transactions.last = () => ({
         stateMachineState: {
@@ -111,6 +113,7 @@ async function createWrapper() {
                 'sw-order-state-history-modal': true,
             },
             provide: {
+                customFieldDataProviderService: { getCustomFieldSets: () => Promise.resolve([]) },
                 repositoryFactory: {
                     create: () => ({
                         search: () => Promise.resolve([]),
@@ -120,7 +123,6 @@ async function createWrapper() {
         },
         props: {
             orderId: '1a2b3c',
-            isSaveSuccessful: false,
         },
     });
 }
@@ -131,12 +133,6 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
     beforeAll(() => {
         setActivePinia(createPinia());
         Shopware.Store.get('swOrderDetail').order = orderMock;
-    });
-
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have a disabled on transaction card', async () => {
@@ -225,12 +221,30 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         expect(campaignCodeField.attributes().disabled).toBeUndefined();
     });
 
-    it('should able to edit shipping cost', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with shipping-cost editing in the Details view.
+    it.deprecated('v6.8.0.0')('should able to edit shipping cost', async () => {
         jest.useFakeTimers();
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
         const shippingCostField = wrapper.findComponent('.sw-order-detail-details__shipping-cost');
         await shippingCostField.setValue(20);
+
+        jest.advanceTimersByTime(1000);
+
+        expect(wrapper.vm.delivery.shippingCosts.unitPrice).toBe(20);
+        expect(wrapper.vm.delivery.shippingCosts.totalPrice).toBe(20);
+        expect(wrapper.emitted('save-and-recalculate')).toBeTruthy();
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with shipping-cost editing in the Details view.
+    it.deprecated('v6.8.0.0')('should recalculate shipping cost while the field is not out of focus yet', async () => {
+        jest.useFakeTimers();
+        global.activeAclRoles = ['order.editor'];
+        wrapper = await createWrapper();
+        const shippingCostInput = wrapper.find('.sw-order-detail-details__shipping-cost input');
+
+        shippingCostInput.element.value = '20';
+        await shippingCostInput.trigger('input');
 
         jest.advanceTimersByTime(1000);
 

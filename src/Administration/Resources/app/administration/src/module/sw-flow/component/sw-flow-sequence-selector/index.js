@@ -25,28 +25,28 @@ export default {
     computed: {
         title() {
             if (!this.sequence.parentId && this.sequence.position > 1) {
-                return this.$tc('sw-flow.detail.sequence.selectorTitleAddSequence');
+                return this.$t('sw-flow.detail.sequence.selectorTitleAddSequence');
             }
 
-            return this.$tc('sw-flow.detail.sequence.selectorTitle');
+            return this.$t('sw-flow.detail.sequence.selectorTitle');
         },
 
         helpText() {
             const { parentId, position, trueCase } = this.sequence;
 
             if (!parentId && position === 1) {
-                return this.$tc('sw-flow.detail.sequence.selectorHelpText');
+                return this.$t('sw-flow.detail.sequence.selectorHelpText');
             }
 
             if (!parentId && position > 1) {
-                return this.$tc('sw-flow.detail.sequence.selectorHelpTextAddSequence');
+                return this.$t('sw-flow.detail.sequence.selectorHelpTextAddSequence');
             }
 
             if (trueCase) {
-                return this.$tc('sw-flow.detail.sequence.selectorHelpTextTrueCondition');
+                return this.$t('sw-flow.detail.sequence.selectorHelpTextTrueCondition');
             }
 
-            return this.$tc('sw-flow.detail.sequence.selectorHelpTextFalseCondition');
+            return this.$t('sw-flow.detail.sequence.selectorHelpTextFalseCondition');
         },
     },
 

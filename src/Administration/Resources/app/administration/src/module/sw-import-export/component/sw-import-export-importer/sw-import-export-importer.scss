@@ -1,31 +1,27 @@
-@import "~scss/variables";
-
 .sw-import-export-importer {
     &__title {
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
     }
 
     &__text {
-        margin-top: 8px;
-        font-size: $font-size-xs;
-        line-height: $line-height-sm;
-        color: $color-darkgray-200;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        color: var(--color-text-primary-default);
+        margin-top: var(--scale-size-8);
+    }
+
+    &__profile-select {
+        margin-bottom: var(--scale-size-18) !important;
     }
 
     .sw-file-input {
-        margin-bottom: 32px;
-
-        .sw-file-input__dropzone {
-            border: 1px solid $color-gray-300;
-        }
+        margin-bottom: var(--scale-size-32);
     }
 
-    .sw-import-export-importer__link {
-        text-decoration: underline;
-        color: $color-darkgray-200;
-
-        &:hover {
-            color: $color-shopware-brand-500;
-        }
+    &__variants-warning-links {
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-2);
+        margin-top: var(--scale-size-8);
     }
 }

@@ -20,7 +20,8 @@ class HookableEventFactory
      */
     public function __construct(
         private readonly BusinessEventEncoder $eventEncoder,
-        private readonly WriteResultMerger $writeResultMerger
+        private readonly WriteResultMerger $writeResultMerger,
+        private readonly HookableEventCollector $hookableEventCollector
     ) {
     }
 
@@ -63,7 +64,7 @@ class HookableEventFactory
     private function wrapEntityWrittenEvent(EntityWrittenContainerEvent $event): array
     {
         $hookables = [];
-        foreach (HookableEventCollector::HOOKABLE_ENTITIES as $entity) {
+        foreach ($this->hookableEventCollector->getHookableEntities() as $entity) {
             $writtenEvent = $event->getEventByEntityName($entity);
 
             if (!$writtenEvent) {

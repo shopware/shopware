@@ -1,9 +1,7 @@
 import type { NotificationVariant } from 'src/app/store/notification.store';
-import type { PropType } from 'vue';
 import template from './sw-alert-deprecated.html.twig';
 import './sw-alert-deprecated.scss';
 
-const { Component } = Shopware;
 type AppearanceType = 'default' | 'notification' | 'system';
 type CssClassesObject = { [key: string]: boolean };
 type CssClasses = Array<string | CssClassesObject> | CssClassesObject;
@@ -24,7 +22,7 @@ type CssClasses = Array<string | CssClassesObject> | CssClassesObject;
  * </sw-alert>
  * @deprecated tag:v6.8.0 - Will be removed, use mt-banner instead.
  */
-Component.register('sw-alert-deprecated', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
@@ -53,17 +51,9 @@ Component.register('sw-alert-deprecated', {
             type: String as PropType<AppearanceType>,
             required: false,
             default: 'default',
-            validValues: [
-                'default',
-                'notification',
-                'system',
-            ],
+            validValues: ['default', 'notification', 'system'],
             validator(value: string) {
-                return [
-                    'default',
-                    'notification',
-                    'system',
-                ].includes(value);
+                return ['default', 'notification', 'system'].includes(value);
             },
         },
         title: {
@@ -74,7 +64,6 @@ Component.register('sw-alert-deprecated', {
         showIcon: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         closable: {

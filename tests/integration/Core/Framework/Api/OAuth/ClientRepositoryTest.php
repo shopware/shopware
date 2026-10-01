@@ -10,14 +10,17 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class ClientRepositoryTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -46,14 +49,42 @@ class ClientRepositoryTest extends TestCase
         ];
 
         $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
-        static::assertEquals(Response::HTTP_UNAUTHORIZED, $browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_UNAUTHORIZED, $browser->getResponse()->getStatusCode());
+    }
+
+    public function testSoftDeletedIntegrationCredentialsStillAuthenticateForActiveApp(): void
+    {
+        $fixturesPath = __DIR__ . '/../../App/Manifest/_fixtures/test';
+
+        $this->loadAppsFromDir($fixturesPath);
+
+        $browser = $this->createClient();
+        $app = $this->fetchApp('test');
+        static::assertNotNull($app);
+
+        $accessKey = AccessKeyHelper::generateAccessKey('integration');
+        $secret = AccessKeyHelper::generateSecretAccessKey();
+
+        $this->setAccessTokenForIntegration($app->getIntegrationId(), $accessKey, $secret);
+        $this->softDeleteIntegration($app->getIntegrationId());
+
+        $authPayload = [
+            'grant_type' => 'client_credentials',
+            'client_id' => $accessKey,
+            'client_secret' => $secret,
+        ];
+
+        $browser->request('POST', '/api/oauth/token', $authPayload, [], [], json_encode($authPayload, \JSON_THROW_ON_ERROR));
+        $responseContent = $browser->getResponse()->getContent();
+        static::assertNotFalse($responseContent);
+        static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), $responseContent);
     }
 
     public function testDoesntAffectLoggedInUser(): void
     {
         $this->getBrowser()->request('GET', '/api/product');
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     private function fetchApp(string $appName): ?AppEntity
@@ -69,7 +100,7 @@ class ClientRepositoryTest extends TestCase
 
     private function setAccessTokenForIntegration(string $integrationId, string $accessKey, string $secret): void
     {
-        /** @var EntityRepository $integrationRepository */
+        /** @var EntityRepository<IntegrationCollection> $integrationRepository */
         $integrationRepository = static::getContainer()->get('integration.repository');
 
         $integrationRepository->update([
@@ -77,6 +108,19 @@ class ClientRepositoryTest extends TestCase
                 'id' => $integrationId,
                 'accessKey' => $accessKey,
                 'secretAccessKey' => $secret,
+            ],
+        ], Context::createDefaultContext());
+    }
+
+    private function softDeleteIntegration(string $integrationId): void
+    {
+        /** @var EntityRepository<IntegrationCollection> $integrationRepository */
+        $integrationRepository = static::getContainer()->get('integration.repository');
+
+        $integrationRepository->update([
+            [
+                'id' => $integrationId,
+                'deletedAt' => new \DateTimeImmutable(),
             ],
         ], Context::createDefaultContext());
     }

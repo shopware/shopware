@@ -14,18 +14,13 @@ const { Criteria } = Shopware.Data;
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         taxProviderId: {
-            type: String,
+            type: String as unknown as PropType<EntityKey<'tax_provider'>>,
             required: false,
             default: '',
         },
@@ -132,9 +127,8 @@ export default Component.wrapComponentConfig({
                     return this.loadTaxProvider();
                 })
                 .catch(() => {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-tax.detail.messageSaveError'),
+                        message: this.$t('sw-settings-tax.detail.messageSaveError'),
                     });
 
                     this.isLoading = false;
@@ -145,7 +139,7 @@ export default Component.wrapComponentConfig({
             void this.$router.push({ name: 'sw.settings.tax.index' });
         },
 
-        onSaveRule(ruleId: string): void {
+        onSaveRule(ruleId: EntityKey<'rule'>): void {
             if (!this.taxProvider) {
                 return;
             }

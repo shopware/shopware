@@ -10,10 +10,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Content\Category\DataAbstractionLayer\CategoryNonExistentExceptionHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ExceptionHandlerInterface;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CategoryNonExistentExceptionHandler::class)]
 class CategoryNonExistentExceptionHandlerTest extends TestCase
 {
@@ -21,7 +23,7 @@ class CategoryNonExistentExceptionHandlerTest extends TestCase
     {
         $handler = new CategoryNonExistentExceptionHandler();
 
-        static::assertEquals(ExceptionHandlerInterface::PRIORITY_DEFAULT, $handler->getPriority());
+        static::assertSame(ExceptionHandlerInterface::PRIORITY_DEFAULT, $handler->getPriority());
 
         $afterException = new ForeignKeyConstraintViolationException(
             Exception::new(new \PDOException('SQLSTATE[23000]: Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails (`shopware`.`category`, CONSTRAINT `fk.category.after_category_id` FOREIGN KEY (`after_category_id`, `after_category_version_id`) REFERENCES `category` (`id`, `version_id`) ON DELETE SET NULL O)')),
@@ -31,7 +33,7 @@ class CategoryNonExistentExceptionHandlerTest extends TestCase
         $matched = $handler->matchException($afterException);
 
         static::assertInstanceOf(CategoryException::class, $matched);
-        static::assertEquals('Category to insert after not found.', $matched->getMessage());
+        static::assertSame('Category to insert after not found.', $matched->getMessage());
 
         static::assertNull($handler->matchException(new \Exception('Some other exception')));
     }

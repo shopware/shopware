@@ -42,7 +42,7 @@ class UserRecoveryControllerTest extends TestCase
             ]
         );
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     public function testUpdateUserPasswordWithInvalidHash(): void
@@ -59,7 +59,7 @@ class UserRecoveryControllerTest extends TestCase
             ]
         );
 
-        static::assertEquals(400, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(400, $this->getBrowser()->getResponse()->getStatusCode());
     }
 
     public function testCreateUserRecovery(): void
@@ -77,7 +77,7 @@ class UserRecoveryControllerTest extends TestCase
         $this->addEventListener(
             static::getContainer()->get('event_dispatcher'),
             UserRecoveryRequestEvent::EVENT_NAME,
-            function (UserRecoveryRequestEvent $event) use (&$dispatchedEvent): void {
+            static function (UserRecoveryRequestEvent $event) use (&$dispatchedEvent): void {
                 $dispatchedEvent = $event;
             },
         );
@@ -89,7 +89,7 @@ class UserRecoveryControllerTest extends TestCase
             ]
         );
 
-        static::assertEquals(200, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(200, $this->getBrowser()->getResponse()->getStatusCode());
 
         $criteria = new Criteria();
         $criteria->setLimit(1);
@@ -98,7 +98,7 @@ class UserRecoveryControllerTest extends TestCase
         $userRecovery = static::getContainer()->get('user_recovery.repository')->search(
             $criteria,
             Context::createDefaultContext()
-        )->first();
+        )->getEntities()->first();
 
         static::assertNotNull($userRecovery);
         static::assertNotNull($dispatchedEvent);
@@ -114,7 +114,7 @@ class UserRecoveryControllerTest extends TestCase
         $logEntries = static::getContainer()->get('log_entry.repository')->search(
             $logCriteria,
             Context::createDefaultContext()
-        );
+        )->getEntities();
 
         static::assertCount(0, $logEntries);
 
@@ -138,7 +138,7 @@ class UserRecoveryControllerTest extends TestCase
         static::assertInstanceOf(UserRecoveryEntity::class, $recovery = static::getContainer()->get('user_recovery.repository')->search(
             $criteria,
             Context::createDefaultContext()
-        )->first());
+        )->getEntities()->first());
 
         return $recovery->getHash();
     }

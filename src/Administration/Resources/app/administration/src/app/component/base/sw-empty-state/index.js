@@ -1,14 +1,14 @@
 import template from './sw-empty-state.html.twig';
 import './sw-empty-state.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
+ *
+ * @deprecated tag:v6.8.0 - Will be removed
  */
-Component.register('sw-empty-state', {
+export default {
     template,
 
     props: {
@@ -24,7 +24,6 @@ Component.register('sw-empty-state', {
         },
         showDescription: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -40,7 +39,6 @@ Component.register('sw-empty-state', {
         },
         absolute: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
             required: false,
         },
@@ -57,12 +55,13 @@ Component.register('sw-empty-state', {
     },
 
     computed: {
+        // An explicitly passed color still wins; the module accent color is no longer used
         moduleColor() {
-            return this.color ?? this.$route.meta.$module.color;
+            return this.color ?? 'var(--color-icon-primary-default)';
         },
 
         moduleDescription() {
-            return this.subline ?? this.$tc(this.$route.meta.$module.description);
+            return this.subline ?? this.$t(this.$route.meta.$module.description);
         },
 
         moduleIcon() {
@@ -81,4 +80,4 @@ Component.register('sw-empty-state', {
             };
         },
     },
-});
+};

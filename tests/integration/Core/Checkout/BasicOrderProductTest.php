@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -43,6 +44,7 @@ class BasicOrderProductTest extends TestCase
 
         $orderId = $this->mailListener(function (MailEventListener $listener) use ($cart, $context) {
             $orderId = $this->order($cart, $context);
+            static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
             $listener->assertSent('order_confirmation_mail');
 
@@ -51,9 +53,9 @@ class BasicOrderProductTest extends TestCase
 
         $item = $this->assertProductInOrder($orderId, $product->id);
 
-        static::assertEquals(100, $item->getUnitPrice());
+        static::assertSame(100.0, $item->getUnitPrice());
 
-        static::assertEquals(100, $item->getTotalPrice());
+        static::assertSame(100.0, $item->getTotalPrice());
 
         $this->assertStock($product->id, 99, 99);
     }

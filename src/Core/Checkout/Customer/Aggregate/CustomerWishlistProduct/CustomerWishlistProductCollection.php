@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CustomerWishlistProductEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class CustomerWishlistProductCollection extends EntityCollection
@@ -19,7 +21,7 @@ class CustomerWishlistProductCollection extends EntityCollection
 
     public function getProducts(): ?ProductCollection
     {
-        return new ProductCollection($this->fmap(fn (CustomerWishlistProductEntity $wishlistProductEntity) => $wishlistProductEntity->getProduct()));
+        return new ProductCollection($this->fmap(static fn (CustomerWishlistProductEntity $wishlistProductEntity) => $wishlistProductEntity->getProduct()));
     }
 
     public function getByProductId(string $productId): ?CustomerWishlistProductEntity

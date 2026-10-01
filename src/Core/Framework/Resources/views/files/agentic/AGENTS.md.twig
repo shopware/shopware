@@ -1,0 +1,40 @@
+{% block agentic_agents_md %}{% apply remove_leading_spaces %}
+    {% block agentic_agents_header %}
+        # Agent instructions for {{ salesChannel.translated.name|default(salesChannel.name) }}
+    {% endblock %}
+
+    {% block agentic_agents_summary %}
+        This file describes how AI agents and assistants should interact with this public Shopware shop.
+        These instructions apply to public resources for this shop and do not replace merchant policies published elsewhere.
+    {% endblock %}
+
+    {% block agentic_agents_principles %}
+        ## General principles
+
+        - Act only on behalf of a user and follow the user's explicit intent.
+        - Use public shop content as the source of truth.
+        - Respect `robots.txt`, published access rules, rate limits, and applicable laws.
+        - Do not treat this file as permission to bypass authentication, checkout, payment, account, or security controls.
+    {% endblock %}
+
+    {% block agentic_agents_shopping %}
+        ## Shopping interactions
+
+        - You may help users discover products, compare publicly available information, and navigate to relevant shop pages.
+        - Before making recommendations, verify current product details, price, availability, delivery information, return conditions, and taxes on the live shop.
+        - Do not complete purchases, create accounts, submit forms, or change customer data without explicit user confirmation.
+        - Payment, authentication, consent, and legally relevant confirmations must happen through the shop or another merchant-approved flow.
+    {% endblock %}
+
+    {% block agentic_agents_data %}
+        ## Data handling
+
+        - Do not request or expose personal data unless it is necessary for the user's requested action.
+        - Do not infer private customer, order, pricing, or stock information from unavailable sources.
+        - Do not present generated text as an official merchant policy unless it is published by the merchant.
+    {% endblock %}
+
+    {% block agentic_agents_extensions %}{% endblock %}
+
+    {% block user_provided_content %}{% endblock %}
+{% endapply %}{% endblock %}

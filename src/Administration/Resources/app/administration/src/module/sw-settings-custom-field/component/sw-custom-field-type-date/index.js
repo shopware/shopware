@@ -10,31 +10,31 @@ export default {
     data() {
         return {
             propertyNames: {
-                label: this.$tc('sw-settings-custom-field.customField.detail.labelLabel'),
-                helpText: this.$tc('sw-settings-custom-field.customField.detail.labelHelpText'),
+                label: this.$t('sw-settings-custom-field.customField.detail.labelLabel'),
+                helpText: this.$t('sw-settings-custom-field.customField.detail.labelHelpText'),
             },
             types: [
                 {
-                    id: 'datetime',
-                    name: this.$tc('sw-settings-custom-field.customField.detail.labelDatetime'),
+                    value: 'datetime',
+                    label: this.$t('sw-settings-custom-field.customField.detail.labelDatetime'),
                 },
                 {
-                    id: 'date',
-                    name: this.$tc('sw-settings-custom-field.customField.detail.labelDate'),
+                    value: 'date',
+                    label: this.$t('sw-settings-custom-field.customField.detail.labelDate'),
                 },
                 {
-                    id: 'time',
-                    name: this.$tc('sw-settings-custom-field.customField.detail.labelTime'),
+                    value: 'time',
+                    label: this.$t('sw-settings-custom-field.customField.detail.labelTime'),
                 },
             ],
             timeForms: [
                 {
-                    id: 'true',
-                    name: this.$tc('global.default.yes'),
+                    value: 'true',
+                    label: this.$t('global.default.yes'),
                 },
                 {
-                    id: 'false',
-                    name: this.$tc('global.default.no'),
+                    value: 'false',
+                    label: this.$t('global.default.no'),
                 },
             ],
         };

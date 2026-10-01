@@ -3,10 +3,15 @@
 namespace Shopware\Tests\Unit\Core\Installer\Controller;
 
 use Doctrine\DBAL\Connection;
+use GuzzleHttp\Psr7\Uri;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Installer\Configuration\AdminConfigurationService;
 use Shopware\Core\Installer\Configuration\EnvConfigWriter;
 use Shopware\Core\Installer\Configuration\ShopConfigurationService;
@@ -14,6 +19,10 @@ use Shopware\Core\Installer\Controller\ShopConfigurationController;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
 use Shopware\Core\Maintenance\System\Service\DatabaseConnectionFactory;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
+use Shopware\Core\System\Snippet\DataTransfer\Language\Language;
+use Shopware\Core\System\Snippet\DataTransfer\Language\LanguageCollection;
+use Shopware\Core\System\Snippet\DataTransfer\PluginMapping\PluginMappingCollection;
+use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -26,6 +35,7 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ShopConfigurationController::class)]
 class ShopConfigurationControllerTest extends TestCase
 {
@@ -36,7 +46,7 @@ class ShopConfigurationControllerTest extends TestCase
 
     private MockObject&RouterInterface $router;
 
-    private Connection&MockObject $connection;
+    private Connection&Stub $connection;
 
     private MockObject&EnvConfigWriter $envConfigWriter;
 
@@ -47,7 +57,7 @@ class ShopConfigurationControllerTest extends TestCase
     private ShopConfigurationController $controller;
 
     /**
-     * @var TranslatorInterface&MockObject
+     * @var TranslatorInterface&Stub
      */
     private TranslatorInterface $translator;
 
@@ -56,45 +66,77 @@ class ShopConfigurationControllerTest extends TestCase
         $this->twig = $this->createMock(Environment::class);
         $this->router = $this->createMock(RouterInterface::class);
 
-        $this->connection = $this->createMock(Connection::class);
-        $connectionFactory = $this->createMock(DatabaseConnectionFactory::class);
+        $this->connection = static::createStub(Connection::class);
+        $connectionFactory = static::createStub(DatabaseConnectionFactory::class);
         $connectionFactory->method('getConnection')->willReturn($this->connection);
 
         $this->envConfigWriter = $this->createMock(EnvConfigWriter::class);
         $this->shopConfigService = $this->createMock(ShopConfigurationService::class);
         $this->adminConfigService = $this->createMock(AdminConfigurationService::class);
-        $this->translator = $this->createMock(TranslatorInterface::class);
+        $this->translator = static::createStub(TranslatorInterface::class);
 
+        $translationConfig = new TranslationConfig(
+            new Uri('http://localhost:8000'),
+            [],
+            [],
+            new LanguageCollection([
+                new Language('en-US', 'English (US)'),
+            ]),
+            new PluginMappingCollection(),
+            new Uri('http://localhost:8000/metadata.json'),
+            []
+        );
         $this->controller = new ShopConfigurationController(
             $connectionFactory,
             $this->envConfigWriter,
             $this->shopConfigService,
             $this->adminConfigService,
             $this->translator,
-            ['de' => 'de-DE', 'en' => 'en-GB'],
-            ['EUR', 'USD']
+            $translationConfig,
+            [
+                'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
+                'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
+                'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
+                'de-AT' => ['id' => 'de-AT', 'label' => 'Deutsch (Österreich)'],
+                'de-CH' => ['id' => 'de-CH', 'label' => 'Deutsch (Schweiz)'],
+            ],
+            ['EUR', 'USD', 'GBP']
         );
         $this->controller->setContainer($this->getInstallerContainer($this->twig, ['router' => $this->router]));
     }
 
-    public function testGetConfigurationRoute(): void
-    {
+    #[DataProvider('shopConfigurationPresetProvider')]
+    public function testGetConfigurationRoute(
+        string $requestLocale,
+        string $expectedShopLanguage,
+        string $expectedPresetCurrency,
+        string $expectedCountryIsoDefault
+    ): void {
         $request = new Request();
         $session = new Session(new MockArraySessionStorage());
         $session->set(DatabaseConnectionInformation::class, new DatabaseConnectionInformation());
         $session->set(BlueGreenDeploymentService::ENV_NAME, true);
         $request->setMethod('GET');
         $request->setSession($session);
-        $request->attributes->set('_locale', 'de');
+        $request->attributes->set('_locale', $requestLocale);
 
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->router->expects($this->never())->method('generate');
+        $this->envConfigWriter->expects($this->never())->method('writeConfig');
+        $this->shopConfigService->expects($this->never())->method('updateShop');
+        $this->adminConfigService->expects($this->never())->method('createAdmin');
+
+        $this->connection->method('fetchAllAssociative')
             ->willReturn([
                 ['iso3' => 'DEU', 'iso' => 'DE'],
                 ['iso3' => 'GBR', 'iso' => 'GB'],
+                ['iso3' => 'USA', 'iso' => 'US'],
             ]);
 
-        $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
+        $this->translator->method('trans')->willReturnCallback(
+            function (string $key): string {
+                return $this->getLanguageTranslations()[$key] ?? $key;
+            }
+        );
 
         $this->twig->expects($this->once())->method('render')
             ->with(
@@ -102,12 +144,28 @@ class ShopConfigurationControllerTest extends TestCase
                 array_merge($this->getDefaultViewParams(), [
                     'error' => null,
                     'countryIsos' => [
-                        ['iso3' => 'DEU', 'default' => true, 'translated' => 'shopware.installer.select_country_deu'],
-                        ['iso3' => 'GBR', 'default' => false, 'translated' => 'shopware.installer.select_country_gbr'],
+                        ['iso3' => 'DEU', 'default' => $expectedCountryIsoDefault === 'DEU', 'translated' => 'shopware.installer.select_country_deu'],
+                        ['iso3' => 'GBR', 'default' => $expectedCountryIsoDefault === 'GBR', 'translated' => 'shopware.installer.select_country_gbr'],
+                        ['iso3' => 'USA', 'default' => $expectedCountryIsoDefault === 'USA', 'translated' => 'shopware.installer.select_country_usa'],
                     ],
-                    'currencyIsos' => ['EUR', 'USD'],
-                    'languageIsos' => ['de' => 'de-DE', 'en' => 'en-GB'],
-                    'parameters' => ['config_shop_language' => 'de-DE'],
+                    'currencyIsos' => ['EUR', 'USD', 'GBP'],
+                    'languageIsos' => [
+                        'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
+                        'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
+                        'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
+                        'de-AT' => ['id' => 'de-AT', 'label' => 'Deutsch (Österreich)'],
+                        'de-CH' => ['id' => 'de-CH', 'label' => 'Deutsch (Schweiz)'],
+                    ],
+                    'allAvailableLanguages' => [
+                        'de-DE' => ['id' => 'de-DE', 'label' => 'Deutsch'],
+                        'en-GB' => ['id' => 'en-GB', 'label' => 'English'],
+                        'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
+                    ],
+                    'parameters' => [
+                        'config_shop_language' => $expectedShopLanguage,
+                        'config_shop_currency' => $expectedPresetCurrency,
+                    ],
+                    'selectedLanguages' => [],
                 ])
             )
             ->willReturn('config');
@@ -122,6 +180,10 @@ class ShopConfigurationControllerTest extends TestCase
         $session = new Session(new MockArraySessionStorage());
         $request->setMethod('GET');
         $request->setSession($session);
+
+        $this->envConfigWriter->expects($this->never())->method('writeConfig');
+        $this->shopConfigService->expects($this->never())->method('updateShop');
+        $this->adminConfigService->expects($this->never())->method('createAdmin');
 
         $this->router->expects($this->once())->method('generate')
             ->with('installer.database-configuration', [], UrlGeneratorInterface::ABSOLUTE_PATH)
@@ -156,7 +218,7 @@ class ShopConfigurationControllerTest extends TestCase
         $request->request->set('config_shop_country', 'DEU');
         $request->request->set('config_shopName', 'shop');
         $request->request->set('config_mail', 'info@test.com');
-        $request->request->set('available_currencies', ['EUR', 'USD']);
+        $request->request->set('available_currencies', ['EUR', 'USD', 'GBP']);
 
         $this->setEnvVars([
             'HTTPS' => 'on',
@@ -168,7 +230,7 @@ class ShopConfigurationControllerTest extends TestCase
             'name' => 'shop',
             'locale' => 'de-DE',
             'currency' => 'EUR',
-            'additionalCurrencies' => ['EUR', 'USD'],
+            'additionalCurrencies' => ['EUR', 'USD', 'GBP'],
             'country' => 'DEU',
             'email' => 'info@test.com',
             'host' => 'localhost',
@@ -180,30 +242,33 @@ class ShopConfigurationControllerTest extends TestCase
         $this->envConfigWriter->expects($this->once())->method('writeConfig')->with($connectionInfo, $expectedShopInfo);
         $this->shopConfigService->expects($this->once())->method('updateShop')->with($expectedShopInfo, $this->connection);
 
+        $localeId = Uuid::randomHex();
+        $this->connection->method('fetchOne')->willReturn($localeId);
+
         $expectedAdmin = [
             'email' => 'test@test.com',
             'username' => 'admin',
             'firstName' => 'first',
             'lastName' => 'last',
             'password' => 'shopware',
-            'locale' => 'de-DE',
+            'localeId' => $localeId,
         ];
         $this->adminConfigService->expects($this->once())->method('createAdmin')->with($expectedAdmin, $this->connection);
 
-        $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
+        $this->translator->method('trans')->willReturnCallback(static fn (string $key): string => $key);
 
         $this->router->expects($this->once())->method('generate')
-            ->with('installer.finish', [], UrlGeneratorInterface::ABSOLUTE_PATH)
-            ->willReturn('/installer/finish');
+            ->with('installer.finish', ['completed' => true], UrlGeneratorInterface::ABSOLUTE_PATH)
+            ->willReturn('/installer/finish?completed=1');
 
         $this->twig->expects($this->never())->method('render');
 
         $response = $this->controller->shopConfiguration($request);
         static::assertInstanceOf(RedirectResponse::class, $response);
-        static::assertSame('/installer/finish', $response->getTargetUrl());
+        static::assertSame('/installer/finish?completed=1', $response->getTargetUrl());
 
         static::assertFalse($session->has(DatabaseConnectionInformation::class));
-        static::assertEquals($expectedAdmin, $session->get('ADMIN_USER'));
+        static::assertSame($expectedAdmin, $session->get('ADMIN_USER'));
     }
 
     public function testPostConfigurationRouteOnError(): void
@@ -222,17 +287,25 @@ class ShopConfigurationControllerTest extends TestCase
             'SCRIPT_NAME' => '/shop/index.php',
         ]);
 
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willReturn([
                 ['iso3' => 'DEU', 'iso' => 'DE'],
                 ['iso3' => 'GBR', 'iso' => 'GB'],
+                ['iso3' => 'USA', 'iso' => 'US'],
             ]);
+        $this->connection->method('fetchOne')->willReturn('not-relevant');
+
+        $this->router->expects($this->never())->method('generate');
+        $this->shopConfigService->expects($this->never())->method('updateShop');
+        $this->adminConfigService->expects($this->never())->method('createAdmin');
 
         $this->envConfigWriter->expects($this->once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 
-        $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $key);
-
+        $this->translator->method('trans')->willReturnCallback(
+            function (string $key): string {
+                return $this->getLanguageTranslations()[$key] ?? $key;
+            }
+        );
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/shop-configuration.html.twig',
@@ -241,10 +314,26 @@ class ShopConfigurationControllerTest extends TestCase
                     'countryIsos' => [
                         ['iso3' => 'DEU', 'default' => true, 'translated' => 'shopware.installer.select_country_deu'],
                         ['iso3' => 'GBR', 'default' => false, 'translated' => 'shopware.installer.select_country_gbr'],
+                        ['iso3' => 'USA', 'default' => false, 'translated' => 'shopware.installer.select_country_usa'],
                     ],
-                    'currencyIsos' => ['EUR', 'USD'],
-                    'languageIsos' => ['de' => 'de-DE', 'en' => 'en-GB'],
-                    'parameters' => ['config_shop_language' => 'de-DE'],
+                    'currencyIsos' => ['EUR', 'USD', 'GBP'],
+                    'languageIsos' => [
+                        'de' => ['id' => 'de-DE', 'label' => 'Deutsch'],
+                        'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
+                        'en' => ['id' => 'en-GB', 'label' => 'English (UK)'],
+                        'de-AT' => ['id' => 'de-AT', 'label' => 'Deutsch (Österreich)'],
+                        'de-CH' => ['id' => 'de-CH', 'label' => 'Deutsch (Schweiz)'],
+                    ],
+                    'allAvailableLanguages' => [
+                        'de-DE' => ['id' => 'de-DE', 'label' => 'Deutsch'],
+                        'en-GB' => ['id' => 'en-GB', 'label' => 'English'],
+                        'en-US' => ['id' => 'en-US', 'label' => 'English (US)'],
+                    ],
+                    'parameters' => [
+                        'config_shop_language' => 'de-DE',
+                        'config_shop_currency' => 'EUR',
+                    ],
+                    'selectedLanguages' => [],
                 ])
             )
             ->willReturn('config');
@@ -278,24 +367,29 @@ class ShopConfigurationControllerTest extends TestCase
             ['iso3' => 'DEU', 'iso' => 'DE'],
         ];
 
-        $translations = [
-            'shopware.installer.select_country_gbr' => 'Great Britain',
-            'shopware.installer.select_country_bgr' => 'Bulgaria',
-            'shopware.installer.select_country_est' => 'Estonia',
-            'shopware.installer.select_country_hrv' => 'Croatia',
-            'shopware.installer.select_country_deu' => 'Germany',
-        ];
-
-        $this->connection->expects($this->once())
-            ->method('fetchAllAssociative')
+        $this->connection->method('fetchAllAssociative')
             ->willReturn($countries);
+        $this->connection->method('fetchOne')->willReturn('not-relevant');
+
+        $this->router->expects($this->never())->method('generate');
+        $this->shopConfigService->expects($this->never())->method('updateShop');
+        $this->adminConfigService->expects($this->never())->method('createAdmin');
 
         $this->envConfigWriter->expects($this->once())->method('writeConfig')->willThrowException(new \Exception('Test Exception'));
 
-        $this->translator->method('trans')->willReturnCallback(fn (string $key): string => $translations[$key]);
+        $this->translator->method('trans')->willReturnCallback(
+            function (string $key): string {
+                $allTranslations = array_merge(
+                    $this->getLanguageTranslations(),
+                    $this->getCountryTranslations()
+                );
 
-        $this->twig->expects($this->once())->method('render')->willReturnCallback(function (string $view, array $parameters): string {
-            static::assertEquals('@Installer/installer/shop-configuration.html.twig', $view);
+                return $allTranslations[$key] ?? $key;
+            }
+        );
+
+        $this->twig->expects($this->once())->method('render')->willReturnCallback(static function (string $view, array $parameters): string {
+            static::assertSame('@Installer/installer/shop-configuration.html.twig', $view);
             static::assertArrayHasKey('countryIsos', $parameters);
 
             $countryIsos = $parameters['countryIsos'];
@@ -312,5 +406,38 @@ class ShopConfigurationControllerTest extends TestCase
         });
 
         $this->controller->shopConfiguration($request);
+    }
+
+    public static function shopConfigurationPresetProvider(): \Generator
+    {
+        yield ['de', 'de-DE', 'EUR', 'DEU'];
+        yield ['en-US', 'en-US', 'USD', 'USA'];
+        yield ['en', 'en-GB', 'GBP', 'GBR'];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getLanguageTranslations(): array
+    {
+        return [
+            'shopware.installer.select_language_de-DE' => 'Deutsch',
+            'shopware.installer.select_language_en-GB' => 'English',
+            'shopware.installer.select_language_en-US' => 'English (US)',
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    private function getCountryTranslations(): array
+    {
+        return [
+            'shopware.installer.select_country_gbr' => 'Great Britain',
+            'shopware.installer.select_country_bgr' => 'Bulgaria',
+            'shopware.installer.select_country_est' => 'Estonia',
+            'shopware.installer.select_country_hrv' => 'Croatia',
+            'shopware.installer.select_country_deu' => 'Germany',
+        ];
     }
 }

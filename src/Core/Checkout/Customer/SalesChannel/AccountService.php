@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -13,12 +14,15 @@ use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerOptinNotCompletedException;
+use Shopware\Core\Checkout\Customer\Extension\LoginByCredentialsExtension;
 use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
+use Shopware\Core\Checkout\Customer\Service\DoubleOptInService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -26,11 +30,19 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Context\CartRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\PasswordHasher\Hasher\CheckPasswordLengthTrait;
 use Symfony\Component\Validator\ConstraintViolation;
 
 #[Package('checkout')]
 class AccountService
 {
+    use CheckPasswordLengthTrait;
+
+    /**
+     * Bcrypt hash of a static placeholder password used to equalize timing when the login cannot succeed.
+     */
+    private const PLACEHOLDER_PASSWORD_HASH = '$2y$12$PVcA5R6ri9kS.7FnFUBRIOLwqU//bCicx5RFxwecAAccbmZ7V7PKu';
+
     /**
      * @internal
      *
@@ -41,7 +53,10 @@ class AccountService
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LegacyPasswordVerifier $legacyPasswordVerifier,
         private readonly AbstractSwitchDefaultAddressRoute $switchDefaultAddressRoute,
-        private readonly CartRestorer $restorer
+        private readonly CartRestorer $restorer,
+        private readonly DoubleOptInService $doubleOptInService,
+        private readonly ClockInterface $clock,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -87,11 +102,87 @@ class AccountService
     }
 
     /**
-     * @throws CustomerNotFoundException
      * @throws BadCredentialsException
      * @throws CustomerOptinNotCompletedException
      */
-    public function loginByCredentials(string $email, string $password, SalesChannelContext $context): string
+    public function loginByCredentials(string $email, #[\SensitiveParameter] string $password, SalesChannelContext $context): string
+    {
+        return $this->extensions->publish(
+            name: LoginByCredentialsExtension::NAME,
+            extension: new LoginByCredentialsExtension($email, $password, $context),
+            function: $this->_loginByCredentials(...),
+        );
+    }
+
+    /**
+     * @throws BadCredentialsException
+     * @throws CustomerOptinNotCompletedException
+     */
+    public function getCustomerByLogin(string $email, #[\SensitiveParameter] string $password, SalesChannelContext $context): CustomerEntity
+    {
+        if ($this->isPasswordTooLong($password)) {
+            throw CustomerException::badCredentials();
+        }
+
+        try {
+            $customer = $this->getCustomerByEmail($email, $context);
+        } catch (CustomerNotFoundException) {
+            // Prevent customer enumeration via timing attacks by always running password_verify().
+            password_verify($password, self::PLACEHOLDER_PASSWORD_HASH);
+
+            throw CustomerException::badCredentials();
+        }
+
+        if ($customer->hasLegacyPassword()) {
+            if (!$this->legacyPasswordVerifier->verify($password, $customer)) {
+                // Legacy md5/sha256 verification is far cheaper than bcrypt; match its cost so a wrong password does not reveal migrated accounts.
+                password_verify($password, self::PLACEHOLDER_PASSWORD_HASH);
+
+                throw CustomerException::badCredentials();
+            }
+
+            $this->updatePasswordHash($password, $customer, $context->getContext());
+
+            return $customer;
+        }
+
+        $passwordHash = $customer->getPassword();
+        if ($passwordHash === null) {
+            password_verify($password, self::PLACEHOLDER_PASSWORD_HASH);
+
+            throw CustomerException::badCredentials();
+        }
+
+        if (!password_verify($password, $passwordHash)) {
+            throw CustomerException::badCredentials();
+        }
+
+        if (!$this->isCustomerConfirmed($customer)) {
+            // Make sure to only resend after it has been verified it was a valid login
+            $this->doubleOptInService->resendDoubleOptInMail($customer, $context);
+            throw CustomerException::customerOptinNotCompleted($customer->getId());
+        }
+
+        return $customer;
+    }
+
+    /**
+     * @throws CustomerNotFoundException
+     */
+    public function getCustomerByEmail(string $email, SalesChannelContext $context): CustomerEntity
+    {
+        $criteria = (new Criteria())
+            ->addFilter(new EqualsFilter('email', $email));
+
+        $customer = $this->fetchCustomer($criteria, $context);
+        if ($customer === null) {
+            throw CustomerException::customerNotFound($email);
+        }
+
+        return $customer;
+    }
+
+    private function _loginByCredentials(string $email, #[\SensitiveParameter] string $password, SalesChannelContext $context): string
     {
         if ($email === '' || $password === '') {
             throw CustomerException::badCredentials();
@@ -105,38 +196,6 @@ class AccountService
         return $this->loginByCustomer($customer, $context);
     }
 
-    /**
-     * @throws CustomerNotFoundException
-     * @throws BadCredentialsException
-     * @throws CustomerOptinNotCompletedException
-     */
-    public function getCustomerByLogin(string $email, string $password, SalesChannelContext $context): CustomerEntity
-    {
-        $customer = $this->getCustomerByEmail($email, $context);
-
-        if ($customer->hasLegacyPassword()) {
-            if (!$this->legacyPasswordVerifier->verify($password, $customer)) {
-                throw CustomerException::badCredentials();
-            }
-
-            $this->updatePasswordHash($password, $customer, $context->getContext());
-
-            return $customer;
-        }
-
-        if ($customer->getPassword() === null
-            || !password_verify($password, $customer->getPassword())) {
-            throw CustomerException::badCredentials();
-        }
-
-        if (!$this->isCustomerConfirmed($customer)) {
-            // Make sure to only throw this exception after it has been verified it was a valid login
-            throw CustomerException::customerOptinNotCompleted($customer->getId());
-        }
-
-        return $customer;
-    }
-
     private function isCustomerConfirmed(CustomerEntity $customer): bool
     {
         return !$customer->getDoubleOptInRegistration() || $customer->getDoubleOptInConfirmDate();
@@ -147,7 +206,7 @@ class AccountService
         $this->customerRepository->update([
             [
                 'id' => $customer->getId(),
-                'lastLogin' => new \DateTimeImmutable(),
+                'lastLogin' => $this->clock->now(),
             ],
         ], $context->getContext());
 
@@ -158,22 +217,6 @@ class AccountService
         $this->eventDispatcher->dispatch($event);
 
         return $newToken;
-    }
-
-    /**
-     * @throws CustomerNotFoundException
-     */
-    private function getCustomerByEmail(string $email, SalesChannelContext $context): CustomerEntity
-    {
-        $criteria = (new Criteria())
-            ->addFilter(new EqualsFilter('email', $email));
-
-        $customer = $this->fetchCustomer($criteria, $context);
-        if ($customer === null) {
-            throw CustomerException::customerNotFound($email);
-        }
-
-        return $customer;
     }
 
     /**
@@ -188,15 +231,15 @@ class AccountService
         $criteria->setTitle('account-service::fetchCustomer');
 
         $result = $this->customerRepository->search($criteria, $context->getContext())->getEntities();
-        $result = $result->filter(function (CustomerEntity $customer) use ($includeGuest, $context): ?bool {
+        $result = $result->filter(static function (CustomerEntity $customer) use ($includeGuest, $context): bool {
             // Skip not active users
             if (!$customer->getActive()) {
-                return null;
+                return false;
             }
 
             // Skip guest if not required
             if (!$includeGuest && $customer->getGuest()) {
-                return null;
+                return false;
             }
 
             // If not bound, we still need to consider it
@@ -206,7 +249,7 @@ class AccountService
 
             // It is bound, but not to the current one. Skip it
             if ($customer->getBoundSalesChannelId() !== $context->getSalesChannelId()) {
-                return null;
+                return false;
             }
 
             return true;
@@ -216,13 +259,13 @@ class AccountService
         // for guest accounts, real customer accounts should only occur once, otherwise the
         // wrong password will be validated
         if ($result->count() > 1) {
-            $result->sort(fn (CustomerEntity $a, CustomerEntity $b) => ($a->getCreatedAt() <=> $b->getCreatedAt()) * -1);
+            $result->sort(static fn (CustomerEntity $a, CustomerEntity $b) => ($a->getCreatedAt() <=> $b->getCreatedAt()) * -1);
         }
 
         return $result->first();
     }
 
-    private function updatePasswordHash(string $password, CustomerEntity $customer, Context $context): void
+    private function updatePasswordHash(#[\SensitiveParameter] string $password, CustomerEntity $customer, Context $context): void
     {
         try {
             $this->customerRepository->update([

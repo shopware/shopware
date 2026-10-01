@@ -13,11 +13,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class DomainsDeltaProviderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -47,7 +49,7 @@ class DomainsDeltaProviderTest extends TestCase
         $delta = (new DomainsDeltaProvider())->getReport($manifest, $app);
 
         static::assertCount(8, $delta);
-        static::assertEquals([
+        static::assertSame([
             'my.app.com',
             'test.com',
             'base-url.com',

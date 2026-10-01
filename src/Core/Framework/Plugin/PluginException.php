@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Plugin;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -11,15 +12,13 @@ use Shopware\Core\Framework\Plugin\Exception\PluginBaseClassNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerRemoveException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerRequireException;
+use Shopware\Core\Framework\Plugin\Exception\PluginExtractionException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotActivatedException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginNotInstalledException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('framework')]
 class PluginException extends HttpException
 {
@@ -30,9 +29,8 @@ class PluginException extends HttpException
     public const NO_PLUGIN_IN_ZIP = 'FRAMEWORK__PLUGIN_NO_PLUGIN_FOUND_IN_ZIP';
     public const STORE_NOT_AVAILABLE = 'FRAMEWORK__STORE_NOT_AVAILABLE';
     public const CANNOT_CREATE_TEMPORARY_DIRECTORY = 'FRAMEWORK__PLUGIN_CANNOT_CREATE_TEMPORARY_DIRECTORY';
-
     /**
-     * @deprecated tag:v6.8.0 - Will be removed with next major, as it is unused
+     * @deprecated tag:v6.8.0 - Will be removed with the next major, as it is unused
      */
     public const PROJECT_DIR_IS_NOT_A_STRING = 'FRAMEWORK__PROJECT_DIR_IS_NOT_A_STRING';
 
@@ -40,10 +38,17 @@ class PluginException extends HttpException
     public const PLUGIN_INVALID_CONTAINER_PARAMETER = 'FRAMEWORK__PLUGIN_INVALID_CONTAINER_PARAMETER';
     public const PLUGIN_KERNEL_REBOOT_FAILED = 'FRAMEWORK__PLUGIN_KERNEL_REBOOT_FAILED';
     public const PLUGIN_WRONG_BASE_CLASS = 'FRAMEWORK__PLUGIN_WRONG_BASE_CLASS';
+    public const PLUGIN_COMPOSER_JSON_MISSING = 'FRAMEWORK__PLUGIN_COMPOSER_JSON_MISSING';
     public const COULD_NOT_DETECT_COMPOSER_VERSION = 'FRAMEWORK__PLUGIN_COULD_NOT_DETECT_COMPOSER_VERSION';
     public const PLUGIN_COMPOSER_REQUIRE = 'FRAMEWORK__PLUGIN_COMPOSER_REQUIRE';
     public const PLUGIN_COMPOSER_REMOVE = 'FRAMEWORK__PLUGIN_COMPOSER_REMOVE';
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed with the next major, as it is unused
+     */
     public const KERNEL_PLUGIN_LOADER_ERROR = 'FRAMEWORK__KERNEL_PLUGIN_LOADER_ERROR';
+    public const PLUGIN_EXTRACTION_FAILED = 'FRAMEWORK__PLUGIN_EXTRACTION_FAILED';
+    public const PLUGIN_CREATION_INVALID_ENTRY = 'FRAMEWORK__PLUGIN_CREATION_INVALID_ENTRY';
+    public const SYMFONY_CONSOLE_APPLICATION_NOT_FOUND = 'FRAMEWORK__PLUGIN_SYMFONY_CONSOLE_APPLICATION_NOT_FOUND';
 
     /**
      * @internal will be removed once store extensions are installed over composer
@@ -124,7 +129,7 @@ class PluginException extends HttpException
         if (!Feature::isActive('v6.8.0.0')) {
             Feature::triggerDeprecationOrThrow(
                 'v6.8.0.0',
-                Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.8.0.0', 'PluginException::invalidContainerParameter')
+                Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'PluginException::invalidContainerParameter')
             );
 
             return new self(
@@ -211,6 +216,16 @@ class PluginException extends HttpException
         );
     }
 
+    public static function composerJsonMissing(string $pluginName, string $composerJsonPath): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::PLUGIN_COMPOSER_JSON_MISSING,
+            'Plugin "{{ pluginName }}" has no composer.json at "{{ composerJsonPath }}".',
+            ['pluginName' => $pluginName, 'composerJsonPath' => $composerJsonPath]
+        );
+    }
+
     /**
      * @param array<string, string> $checkedComposerPaths
      */
@@ -229,9 +244,7 @@ class PluginException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function pluginComposerRequire(string $pluginName, string $pluginComposerName, string $output): self|PluginComposerRequireException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -250,9 +263,7 @@ class PluginException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function pluginComposerRemove(string $pluginName, string $pluginComposerName, string $output): self|PluginComposerRemoveException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -271,9 +282,7 @@ class PluginException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return `self` in the future
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function kernelPluginLoaderError(string $pluginName, string $reason): self|KernelPluginLoaderException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -282,9 +291,38 @@ class PluginException extends HttpException
 
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::PLUGIN_COMPOSER_REMOVE,
+            self::KERNEL_PLUGIN_LOADER_ERROR,
             'Failed to load plugin "{{ plugin }}". Reason: {{ reason }}',
             ['plugin' => $pluginName, 'reason' => $reason]
+        );
+    }
+
+    public static function pluginExtractionError(string $message): self
+    {
+        return new PluginExtractionException($message);
+    }
+
+    public static function invalidPluginCreationInputError(string $reason): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::PLUGIN_CREATION_INVALID_ENTRY,
+            'Invalid input provided during plugin creation. Error: {{ reason }}',
+            [
+                'reason' => $reason,
+            ]
+        );
+    }
+
+    /**
+     * @codeCoverageIgnore
+     */
+    public static function consoleApplicationNotFound(): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SYMFONY_CONSOLE_APPLICATION_NOT_FOUND,
+            'Symfony console application not found'
         );
     }
 }

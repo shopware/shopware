@@ -4,8 +4,10 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -16,7 +18,7 @@ use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -30,8 +32,6 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Group('rules')]
 class LineItemDimensionWidthRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private LineItemDimensionWidthRule $rule;
 
     protected function setUp(): void
@@ -67,12 +67,12 @@ class LineItemDimensionWidthRuleTest extends TestCase
 
         $lineItem = self::createLineItemWithWidth($lineItemAmount);
         if ($lineItemWithoutDeliveryInfo) {
-            $lineItem = self::createLineItem();
+            $lineItem = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $match = $this->rule->match(new LineItemScope(
             $lineItem,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -122,7 +122,8 @@ class LineItemDimensionWidthRuleTest extends TestCase
         ?float $lineItemAmount2,
         bool $expected,
         bool $lineItem1WithoutDeliveryInfo = false,
-        bool $lineItem2WithoutDeliveryInfo = false
+        bool $lineItem2WithoutDeliveryInfo = false,
+        ?float $containerLineItemWidth = null
     ): void {
         $this->rule->assign([
             'amount' => $amount,
@@ -131,12 +132,12 @@ class LineItemDimensionWidthRuleTest extends TestCase
 
         $lineItem1 = self::createLineItemWithWidth($lineItemAmount1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = self::createLineItem();
+            $lineItem1 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItem2 = self::createLineItemWithWidth($lineItemAmount2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = self::createLineItem();
+            $lineItem2 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
@@ -144,11 +145,11 @@ class LineItemDimensionWidthRuleTest extends TestCase
             $lineItem2,
         ]);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -172,12 +173,12 @@ class LineItemDimensionWidthRuleTest extends TestCase
 
         $lineItem1 = self::createLineItemWithWidth($lineItemAmount1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = self::createLineItem();
+            $lineItem1 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItem2 = self::createLineItemWithWidth($lineItemAmount2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = self::createLineItem();
+            $lineItem2 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
@@ -185,16 +186,16 @@ class LineItemDimensionWidthRuleTest extends TestCase
             $lineItem2,
         ]);
 
-        $containerLineItem = self::createLineItem();
+        $containerLineItem = CartRuleFixture::createLineItem();
         if ($containerLineItemWidth !== null) {
             $containerLineItem = self::createLineItemWithWidth($containerLineItemWidth);
         }
         $containerLineItem->setChildren($lineItemCollection);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -206,43 +207,238 @@ class LineItemDimensionWidthRuleTest extends TestCase
     public static function getCartRuleScopeTestData(): \Traversable
     {
         // OPERATOR_EQ
-        yield 'match / operator equals / same width' => [Rule::OPERATOR_EQ, 100, 100, 200, true];
-        yield 'no match / operator equals / different width' => [Rule::OPERATOR_EQ, 200, 100, 300, false];
-        yield 'no match / operator equals / item 1 without delivery info' => [Rule::OPERATOR_EQ, 200, 100, 300, false, true];
-        yield 'no match / operator equals / item 2 without delivery info' => [Rule::OPERATOR_EQ, 200, 100, 300, false, false, true];
-        yield 'no match / operator equals / item 1 and 2 without delivery info' => [Rule::OPERATOR_EQ, 200, 100, 300, false, true, true];
+        yield 'match / operator equals / same width' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'amount' => 100,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 200,
+            'expected' => true,
+        ];
+        yield 'no match / operator equals / different width' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'amount' => 200,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 300,
+            'expected' => false,
+        ];
+        yield 'no match / operator equals / item 1 without delivery info' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'amount' => 200,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 300,
+            'expected' => false,
+            'lineItem1WithoutDeliveryInfo' => true,
+        ];
+        yield 'no match / operator equals / item 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'amount' => 200,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 300,
+            'expected' => false,
+            'lineItem1WithoutDeliveryInfo' => false,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
+        yield 'no match / operator equals / item 1 and 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'amount' => 200,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 300,
+            'expected' => false,
+            'lineItem1WithoutDeliveryInfo' => true,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
         // OPERATOR_NEQ
-        yield 'no match / operator not equals / same width' => [Rule::OPERATOR_NEQ, 100, 100, 100, false, false, false, 100];
-        yield 'match / operator not equals / different width' => [Rule::OPERATOR_NEQ, 200, 100, 200, true];
-        yield 'match / operator not equals / different width 2' => [Rule::OPERATOR_NEQ, 200, 100, 300, true];
+        yield 'no match / operator not equals / same width' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'amount' => 100,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 100,
+            'expected' => false,
+            'lineItem1WithoutDeliveryInfo' => false,
+            'lineItem2WithoutDeliveryInfo' => false,
+            'containerLineItemWidth' => 100,
+        ];
+        yield 'match / operator not equals / different width' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'amount' => 200,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 200,
+            'expected' => true,
+        ];
+        yield 'match / operator not equals / different width 2' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'amount' => 200,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 300,
+            'expected' => true,
+        ];
         // OPERATOR_GT
-        yield 'no match / operator greater than / lower width' => [Rule::OPERATOR_GT, 100, 50, 70, false];
-        yield 'no match / operator greater than / same width' => [Rule::OPERATOR_GT, 100, 100, 70, false];
-        yield 'match / operator greater than / higher width' => [Rule::OPERATOR_GT, 100, 200, 70, true];
+        yield 'no match / operator greater than / lower width' => [
+            'operator' => Rule::OPERATOR_GT,
+            'amount' => 100,
+            'lineItemAmount1' => 50,
+            'lineItemAmount2' => 70,
+            'expected' => false,
+        ];
+        yield 'no match / operator greater than / same width' => [
+            'operator' => Rule::OPERATOR_GT,
+            'amount' => 100,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 70,
+            'expected' => false,
+        ];
+        yield 'match / operator greater than / higher width' => [
+            'operator' => Rule::OPERATOR_GT,
+            'amount' => 100,
+            'lineItemAmount1' => 200,
+            'lineItemAmount2' => 70,
+            'expected' => true,
+        ];
         // OPERATOR_GTE
-        yield 'no match / operator greater than equals / lower width' => [Rule::OPERATOR_GTE, 100, 50, 70, false];
-        yield 'match / operator greater than equals / same width' => [Rule::OPERATOR_GTE, 100, 100, 70, true];
-        yield 'match / operator greater than equals / higher width' => [Rule::OPERATOR_GTE, 100, 200, 70, true];
+        yield 'no match / operator greater than equals / lower width' => [
+            'operator' => Rule::OPERATOR_GTE,
+            'amount' => 100,
+            'lineItemAmount1' => 50,
+            'lineItemAmount2' => 70,
+            'expected' => false,
+        ];
+        yield 'match / operator greater than equals / same width' => [
+            'operator' => Rule::OPERATOR_GTE,
+            'amount' => 100,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 70,
+            'expected' => true,
+        ];
+        yield 'match / operator greater than equals / higher width' => [
+            'operator' => Rule::OPERATOR_GTE,
+            'amount' => 100,
+            'lineItemAmount1' => 200,
+            'lineItemAmount2' => 70,
+            'expected' => true,
+        ];
         // OPERATOR_LT
-        yield 'match / operator lower than / lower width' => [Rule::OPERATOR_LT, 100, 50, 120, true];
-        yield 'no match / operator lower  than / same width' => [Rule::OPERATOR_LT, 100, 100, 120, false];
-        yield 'no match / operator lower than / higher width' => [Rule::OPERATOR_LT, 100, 200, 120, false];
+        yield 'match / operator lower than / lower width' => [
+            'operator' => Rule::OPERATOR_LT,
+            'amount' => 100,
+            'lineItemAmount1' => 50,
+            'lineItemAmount2' => 120,
+            'expected' => true,
+        ];
+        yield 'no match / operator lower  than / same width' => [
+            'operator' => Rule::OPERATOR_LT,
+            'amount' => 100,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 120,
+            'expected' => false,
+        ];
+        yield 'no match / operator lower than / higher width' => [
+            'operator' => Rule::OPERATOR_LT,
+            'amount' => 100,
+            'lineItemAmount1' => 200,
+            'lineItemAmount2' => 120,
+            'expected' => false,
+        ];
         // OPERATOR_LTE
-        yield 'match / operator lower than equals / lower width' => [Rule::OPERATOR_LTE, 100, 50, 120, true];
-        yield 'match / operator lower than equals / same width' => [Rule::OPERATOR_LTE, 100, 100, 120, true];
-        yield 'no match / operator lower than equals / higher width' => [Rule::OPERATOR_LTE, 100, 200, 120, false];
+        yield 'match / operator lower than equals / lower width' => [
+            'operator' => Rule::OPERATOR_LTE,
+            'amount' => 100,
+            'lineItemAmount1' => 50,
+            'lineItemAmount2' => 120,
+            'expected' => true,
+        ];
+        yield 'match / operator lower than equals / same width' => [
+            'operator' => Rule::OPERATOR_LTE,
+            'amount' => 100,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 120,
+            'expected' => true,
+        ];
+        yield 'no match / operator lower than equals / higher width' => [
+            'operator' => Rule::OPERATOR_LTE,
+            'amount' => 100,
+            'lineItemAmount1' => 200,
+            'lineItemAmount2' => 120,
+            'expected' => false,
+        ];
         // OPERATOR_EMPTY
-        yield 'match / operator empty / lower width' => [Rule::OPERATOR_EMPTY, 100, null, 120, true];
-        yield 'match / operator empty / same width' => [Rule::OPERATOR_EMPTY, 100, 100, null, true];
-        yield 'no match / operator empty / higher width' => [Rule::OPERATOR_EMPTY, 100, 200, 120, false, false, false, 200];
+        yield 'match / operator empty / lower width' => [
+            'operator' => Rule::OPERATOR_EMPTY,
+            'amount' => 100,
+            'lineItemAmount1' => null,
+            'lineItemAmount2' => 120,
+            'expected' => true,
+        ];
+        yield 'match / operator empty / same width' => [
+            'operator' => Rule::OPERATOR_EMPTY,
+            'amount' => 100,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => null,
+            'expected' => true,
+        ];
+        yield 'no match / operator empty / higher width' => [
+            'operator' => Rule::OPERATOR_EMPTY,
+            'amount' => 100,
+            'lineItemAmount1' => 200,
+            'lineItemAmount2' => 120,
+            'expected' => false,
+            'lineItem1WithoutDeliveryInfo' => false,
+            'lineItem2WithoutDeliveryInfo' => false,
+            'containerLineItemWidth' => 200,
+        ];
 
-        yield 'match / operator not equals / item 1 and 2 without delivery info' => [Rule::OPERATOR_NEQ, 200, 100, 300, true, true, true];
-        yield 'match / operator not equals / item 1 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, true, true];
-        yield 'match / operator not equals / item 2 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, true, false, true];
+        yield 'match / operator not equals / item 1 and 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'amount' => 200,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 300,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => true,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
+        yield 'match / operator not equals / item 1 without delivery info' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'amount' => 100,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 100,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => true,
+        ];
+        yield 'match / operator not equals / item 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'amount' => 100,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 100,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => false,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
 
-        yield 'match / operator empty / item 1 and 2 without delivery info' => [Rule::OPERATOR_EMPTY, 200, 100, 300, true, true, true];
-        yield 'match / operator empty / item 1 without delivery info' => [Rule::OPERATOR_EMPTY, 100, 100, 100, true, true];
-        yield 'match / operator empty / item 2 without delivery info' => [Rule::OPERATOR_EMPTY, 100, 100, 100, true, false, true];
+        yield 'match / operator empty / item 1 and 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_EMPTY,
+            'amount' => 200,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 300,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => true,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
+        yield 'match / operator empty / item 1 without delivery info' => [
+            'operator' => Rule::OPERATOR_EMPTY,
+            'amount' => 100,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 100,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => true,
+        ];
+        yield 'match / operator empty / item 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_EMPTY,
+            'amount' => 100,
+            'lineItemAmount1' => 100,
+            'lineItemAmount2' => 100,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => false,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
     }
 
     /**
@@ -258,16 +454,16 @@ class LineItemDimensionWidthRuleTest extends TestCase
             'operator' => $operator,
             'amount' => 100,
         ]);
-        $allLineItemsRule = new MatchAllLineItemsRule([], null, 'product');
+        $allLineItemsRule = new MatchAllLineItemsRule([], null, ['product']);
         $allLineItemsRule->addRule($this->rule);
 
         $lineItemCollection = new LineItemCollection($lineItems);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $allLineItemsRule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -330,7 +526,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
             [
                 self::createLineItemWithWidth(100),
                 self::createLineItemWithWidth(100),
-                self::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO')->setPayloadValue('promotionId', 'A'),
+                CartRuleFixture::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO')->setPayloadValue('promotionId', 'A'),
             ],
             MatchAllLineItemsRule::OPERATOR_EQ, true,
         ];
@@ -353,7 +549,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
         static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
         $operators = $ruleConstraints['operator'];
         static::assertEquals(new NotBlank(), $operators[0]);
-        static::assertEquals(new Choice($expectedOperators), $operators[1]);
+        static::assertEquals(new Choice(choices: $expectedOperators), $operators[1]);
 
         $this->rule->assign(['operator' => Rule::OPERATOR_EQ]);
         static::assertArrayHasKey('amount', $ruleConstraints, 'Constraint amount not found in Rule');
@@ -364,7 +560,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
 
     public function testMatchWithUnsupportedScopeShouldReturnFalse(): void
     {
-        $scope = new TestRuleScope($this->createMock(SalesChannelContext::class));
+        $scope = new TestRuleScope(static::createStub(SalesChannelContext::class));
 
         $lineItemDimensionWidthRule = new LineItemDimensionWidthRule();
 
@@ -397,8 +593,49 @@ class LineItemDimensionWidthRuleTest extends TestCase
         static::assertSame('amount', $result->getData()['fields']['amount']['name']);
     }
 
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemWithoutProductDataProvider')]
+    public function testLineItemWithoutProductData(string $type, bool $lineItemScope, bool $expected): void
+    {
+        $rule = new LineItemDimensionWidthRule(Rule::OPERATOR_NEQ, 5.0);
+
+        $lineItem = CartRuleFixture::createLineItem($type);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertSame($expected, $rule->match($scope));
+    }
+
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
+    public function testLineItemWithDeliveryInformationIsEvaluated(string $type, bool $lineItemScope): void
+    {
+        $rule = new LineItemDimensionWidthRule(Rule::OPERATOR_EQ, 5.0);
+        $lineItem = CartRuleFixture::createLineItem($type)->setDeliveryInformation(CartRuleFixture::createLineItemWithDeliveryInfo(false, 1, 50.0, null, 5.0, null)->getDeliveryInformation());
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertTrue($rule->match($scope));
+    }
+
+    public function testCustomLineItemWithDeliveryInformationIsEvaluatedInCart(): void
+    {
+        $rule = new LineItemDimensionWidthRule(Rule::OPERATOR_NEQ, 5.0);
+        $lineItem = CartRuleFixture::createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE)->setDeliveryInformation(new DeliveryInformation(1, 0, false));
+        $scope = new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$lineItem])),
+            static::createStub(SalesChannelContext::class),
+        );
+
+        static::assertTrue($rule->match($scope));
+    }
+
     private static function createLineItemWithWidth(?float $width): LineItem
     {
-        return self::createLineItemWithDeliveryInfo(false, 1, 50.0, null, $width);
+        return CartRuleFixture::createLineItemWithDeliveryInfo(false, 1, 50.0, null, $width);
     }
 }

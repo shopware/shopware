@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Content\ImportExport\Strategy\Import;
 
+use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportBatchEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\ImportExport;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\ImportExport\Struct\ImportResult;
 use Shopware\Core\Content\ImportExport\Struct\Progress;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -26,6 +29,9 @@ class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterfa
      */
     protected array $toImport = [];
 
+    /**
+     * @param EntityRepository<covariant EntityCollection<covariant Entity>> $repository
+     */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
         EntityRepository $repository,
@@ -59,7 +65,7 @@ class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterfa
 
     public function commit(Config $config, Progress $progress, Context $context): ImportResult
     {
-        $records = array_map(fn (array $data) => $data['record'], $this->toImport);
+        $records = array_map(static fn (array $data) => $data['record'], $this->toImport);
 
         $createEntities = $config->get('createEntities') ?? true;
         $updateEntities = $config->get('updateEntities') ?? true;
@@ -80,12 +86,20 @@ class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterfa
                 $this->eventDispatcher->dispatch($afterRecord);
             }
 
+            $this->eventDispatcher->dispatch(
+                new ImportExportAfterImportBatchEvent(
+                    $config,
+                    $context,
+                    new ImportResult([$result], []),
+                )
+            );
+
             $progress->addProcessedRecords(\count($this->toImport));
 
             $this->reset();
 
             return new ImportResult([$result], []);
-        } catch (\Throwable $exception) {
+        } catch (\Throwable) {
             // If we have an error, we will try to import one by one
             $results = [];
             $failedRecords = [];
@@ -97,6 +111,14 @@ class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterfa
                 $failedRecords = array_merge($failedRecords, $importResult->failedRecords);
             }
 
+            $this->eventDispatcher->dispatch(
+                new ImportExportAfterImportBatchEvent(
+                    $config,
+                    $context,
+                    new ImportResult($results, $failedRecords),
+                )
+            );
+
             $this->reset();
 
             return new ImportResult($results, $failedRecords);
@@ -106,5 +128,6 @@ class BatchImportStrategy extends OneByOneImportStrategy implements ResetInterfa
     public function reset(): void
     {
         $this->toImport = [];
+        parent::reset();
     }
 }

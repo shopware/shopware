@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CustomerGroupEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('discovery')]
 class CustomerGroupCollection extends EntityCollection

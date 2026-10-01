@@ -1,3 +1,5 @@
+import CookieStorageHelper from './storage/cookie-storage.helper';
+
 /**
  * @module FormValidation
  *
@@ -91,10 +93,13 @@ export default class FormValidation {
      * @private
      */
     _initDefaultValidators() {
-        this.addValidator('required', this.validateRequired, window.validationMessages['required']);
-        this.addValidator('email', this.validateEmail, window.validationMessages['email']);
-        this.addValidator('confirmation', this.validateConfirmation, window.validationMessages['confirmation']);
-        this.addValidator('minLength', this.validateMinLength, window.validationMessages['minLength']);
+        const validationMessages = window.validationMessages;
+        this.addValidator('required', this.validateRequired, validationMessages['required']);
+        this.addValidator('email', this.validateEmail, validationMessages['email']);
+        this.addValidator('confirmation', this.validateConfirmation, validationMessages['confirmation']);
+        this.addValidator('minLength', this.validateMinLength, validationMessages['minLength']);
+        this.addValidator('pattern', this.validatePattern, validationMessages['pattern']);
+        this.addValidator('grecaptcha', this.validateGrecaptcha, validationMessages['grecaptcha']);
     }
 
     /**
@@ -116,7 +121,7 @@ export default class FormValidation {
             return false;
         }
 
-        if (errorMessage && errorMessage.length) {
+        if (errorMessage?.length) {
             this.errorMessages.set(validatorName, errorMessage);
         }
 
@@ -175,7 +180,7 @@ export default class FormValidation {
         let fields = formFields;
 
         if (!formFields) {
-            fields = form.querySelectorAll('[data-validation], [required]');
+            fields = form.querySelectorAll('[data-validation], [required], [pattern]');
         }
 
         fields.forEach((field) => {
@@ -227,10 +232,16 @@ export default class FormValidation {
         const validationConfig = field.getAttribute('data-validation');
         const validationRules = validationConfig ? validationConfig.split(',') : [];
         const hasRequiredAttribute = field.hasAttribute('required');
+        const hasPatternAttribute = field.hasAttribute('pattern');
 
         // Support for the native `required` attribute.
         if (hasRequiredAttribute && !validationRules.includes('required')) {
             validationRules.push('required');
+        }
+
+        // Support for the native `pattern` attribute.
+        if (hasPatternAttribute && !validationRules.includes('pattern')) {
+            validationRules.push('pattern');
         }
 
         // Field has no validation rules.
@@ -279,19 +290,51 @@ export default class FormValidation {
             return field.checked;
         }
 
+        if (fieldType && fieldType === 'radio') {
+            const radios = field.form.querySelectorAll(`[type="radio"][name="${field.name}"]`);
+            return [...radios].some(radioField => radioField.checked);
+        }
+
         return !!value && value.length && value.length > 0;
     }
 
     /**
      * Checks if the value is a valid email address.
+     * Supports IDN
      *
      * @param {string} value
      * @returns {boolean}
      */
     validateEmail(value) {
-        const emailRegEx = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!value || value.length === 0) {
+            return true;
+        }
 
-        return emailRegEx.test(value);
+        // https://regex101.com/r/bfI8Ea/1
+        const emailRegEx = /^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+
+        if (!value || value.length === 0) {
+            return true;
+        }
+
+        let emailAddress = value;
+
+        if (emailAddress.includes('@')) {
+            const [user, domain] = emailAddress.split('@');
+
+            // eslint-disable-next-line no-control-regex
+            if (domain && /[^\u0000-\u007F]/.test(domain)) {
+                try {
+                    const url = new URL(`https://${domain}`);
+                    const asciiDomain = url.hostname;
+                    emailAddress = `${user}@${asciiDomain}`;
+                } catch (e) {
+                    // If URL parsing fails, fall back to standard validation
+                }
+            }
+        }
+
+        return emailRegEx.test(emailAddress);
     }
 
     /**
@@ -340,6 +383,116 @@ export default class FormValidation {
         const minLength = minLengthAttr ? minLengthAttr : this.config.defaultMinLength;
 
         return value.length >= minLength;
+    }
+
+    /**
+     * Validates the value against a regex pattern specified in the pattern attribute.
+     * The pattern attribute should contain a valid regex pattern.
+     * Empty values are considered valid (use the required validator for emptiness checks).
+     *
+     * @param {string} value
+     * @param {HTMLElement} field
+     * @return {boolean}
+     */
+    validatePattern(value, field) {
+        if (!(field instanceof HTMLElement)) {
+            console.error('[FormValidation]: Missing or invalid required parameter "field".');
+            return true;
+        }
+
+        const patternAttr = field.getAttribute('pattern');
+        if (!patternAttr) {
+            return true;
+        }
+
+        // Empty values are valid for pattern validation.
+        if (!value || value.length === 0) {
+            return true;
+        }
+
+        try {
+            const pattern = new RegExp(`^(?:${patternAttr})$`);
+
+            return pattern.test(value);
+        } catch (e) {
+            console.error(`[FormValidation]: Invalid regex pattern "${patternAttr}" for field.`, field, e);
+
+            return true;
+        }
+    }
+
+    /**
+     * Guards the reCAPTCHA field so a form can never be submitted without a token.
+     * Only the hidden reCAPTCHA fields ('_grecaptcha_v3' / '_grecaptcha_v2') are checked;
+     * every other field passes straight through.
+     *
+     * The gate has two independent parts:
+     *  1. Cookie consent, only when the shop uses Shopware's default cookie consent.
+     *     The reCAPTCHA plugin is registered once 'cookie-preference' is accepted
+     *     (see `registerGoogleReCaptchaPlugins()` in main.js), so without consent no token
+     *     can ever be generated. Show the cookie bar to guide the user, with the default
+     *     cookie message. A custom consent solution manages its own cookies, so this part is
+     *     skipped, but the token check below still runs.
+     *  2. Token presence, always. The reCAPTCHA submit handler initializes asynchronously,
+     *     so the field can still be empty while the plugin is loading. An empty value is the
+     *     empty-token case the server rejects as a failed captcha. Block the
+     *     submit with a token-specific message and do not show the cookie bar, since consent
+     *     is not the problem here.
+     *
+     * The token check uses the field's own value, i.e. the actual token that would be
+     * submitted, rather than the '_GRECAPTCHA' cookie. That cookie is Google-owned, is not
+     * removed when consent is revoked (root cause of #18239) and can be blocked by browser
+     * privacy settings, so it is not a reliable signal.
+     *
+     * @param {string} value - The field value, i.e. the reCAPTCHA token
+     * @param {HTMLElement} field
+     * @returns {boolean}
+     */
+    validateGrecaptcha(value, field) {
+        if (!(field instanceof HTMLElement)) {
+            console.error('[FormValidation]: Missing or invalid required parameter "field".');
+            return true;
+        }
+
+        const fieldName = field.getAttribute('name');
+
+        // Only the reCAPTCHA token fields are guarded here.
+        if (fieldName !== '_grecaptcha_v3' && fieldName !== '_grecaptcha_v2') {
+            return true;
+        }
+
+        // The cookie-consent gate only applies with Shopware's default cookie consent.
+        // A custom consent solution manages its own cookies, so we cannot read
+        // 'cookie-preference' and skip this gate, but the token check below still runs.
+        if (window.useDefaultCookieConsent) {
+            const consentGiven = CookieStorageHelper.getItem('cookie-preference') === '1';
+
+            if (!consentGiven) {
+                // No token can exist yet, so restore the default cookie message and
+                // guide the user to the cookie bar.
+                field.removeAttribute('data-form-validation-error-message');
+                document.dispatchEvent(new CustomEvent('showCookieBar'));
+
+                return false;
+            }
+        }
+
+        // Consent is not the blocker (given, or managed by a custom solution). A reCAPTCHA
+        // field must still carry a token. Block an empty token with a token-specific message,
+        // without showing the cookie bar.
+        if (value.length === 0) {
+            const tokenMessage = window.validationMessages?.grecaptchaToken;
+
+            if (tokenMessage) {
+                field.setAttribute('data-form-validation-error-message', tokenMessage);
+            }
+
+            return false;
+        }
+
+        field.removeAttribute('data-form-validation-error-message');
+
+        return true;
     }
 
     /**
@@ -430,7 +583,7 @@ export default class FormValidation {
         const label = document.querySelector(`[for="${field.id}"]`);
         const requiredLabel = label.querySelector('.form-required-label');
 
-        if (validationRules) {
+        if (validationRules && validationRules.includes('required')) {
             const rules = validationRules.split(',');
             rules.splice(rules.indexOf('required'), 1);
             field.setAttribute('data-validation', rules.join(','));
@@ -446,6 +599,7 @@ export default class FormValidation {
     /**
      * Sets the validation message within the feedback text of the form field.
      * Only the error message with the highest validation priority will be shown.
+     * Checks for a `data-form-validation-error-message` on the field to override.
      *
      * @param {HTMLElement} field
      * @param {string[]} validationErrors
@@ -484,9 +638,13 @@ export default class FormValidation {
          * You can define the validation priority simply by the order of validation rules.
          */
         const highestPriorityError = validationErrors[0];
-        const errorMessage = this.errorMessages.get(highestPriorityError);
 
-        if (errorMessage && errorMessage.length) {
+        let errorMessage = field.getAttribute('data-form-validation-error-message');
+        if (!errorMessage) {
+            errorMessage = this.errorMessages.get(highestPriorityError) || '';
+        }
+
+        if (errorMessage.length) {
             const errorText = document.createElement('div');
             errorText.classList.add(this.config.invalidFeedbackClass);
             errorText.textContent = errorMessage;

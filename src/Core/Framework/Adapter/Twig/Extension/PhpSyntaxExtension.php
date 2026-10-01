@@ -3,13 +3,16 @@
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
 use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Adapter\Twig\NodeVisitor\MacroCallNodeVisitor;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\MacroOverrideTokenParserMacro;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\ReturnNodeTokenParser;
 use Shopware\Core\Framework\Adapter\Twig\TokenParser\SwMacroFunctionTokenParser;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Facade\ArrayFacade;
 use Shopware\Core\Framework\Util\Hasher;
+use Squirrel\TwigPhpSyntax\ExpressionParser\BinaryOperatorExpressionParser;
 use Squirrel\TwigPhpSyntax\Operator\NotSameAsBinary;
 use Squirrel\TwigPhpSyntax\Operator\SameAsBinary;
 use Squirrel\TwigPhpSyntax\Test\ArrayTest;
@@ -25,7 +28,6 @@ use Squirrel\TwigPhpSyntax\Test\TrueTest;
 use Squirrel\TwigPhpSyntax\TokenParser\BreakTokenParser;
 use Squirrel\TwigPhpSyntax\TokenParser\ContinueTokenParser;
 use Squirrel\TwigPhpSyntax\TokenParser\ForeachTokenParser;
-use Twig\ExpressionParser;
 use Twig\Extension\AbstractExtension;
 use Twig\Node\Expression\Binary\AndBinary;
 use Twig\Node\Expression\Binary\OrBinary;
@@ -34,6 +36,7 @@ use Twig\TwigFunction;
 use Twig\TwigTest;
 
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')] // Class should be renamed after that, as it is no longer only about PHP syntax
 class PhpSyntaxExtension extends AbstractExtension
 {
     public function getTokenParsers(): array
@@ -46,6 +49,11 @@ class PhpSyntaxExtension extends AbstractExtension
             new SwMacroFunctionTokenParser(),
             new MacroOverrideTokenParserMacro(), /** @deprecated tag:v6.8.0 - Will be removed use `sw_macro_function` instead of macro in app scripts */
         ];
+    }
+
+    public function getNodeVisitors(): array
+    {
+        return [new MacroCallNodeVisitor()];
     }
 
     /**
@@ -95,7 +103,7 @@ class PhpSyntaxExtension extends AbstractExtension
                 /**
                  * @param int<1, max> $depth
                  */
-                function (mixed $var, int $options = 0, $depth = 512) {
+                static function (mixed $var, int $options = 0, $depth = 512) {
                     try {
                         FieldVisibility::$isInTwigRenderingContext = true;
 
@@ -105,19 +113,8 @@ class PhpSyntaxExtension extends AbstractExtension
                     }
                 }
             ),
-            new TwigFilter('md5', function (mixed $var) {
-                if (\is_array($var)) {
-                    $var = \json_encode($var, \JSON_THROW_ON_ERROR);
-                }
-
-                if (!\is_string($var)) {
-                    throw AdapterException::invalidArgument(
-                        \sprintf('The md5 filter expects a string or array as input, %s given', $var::class)
-                    );
-                }
-
-                return Hasher::hash($var, 'md5');
-            }),
+            new TwigFilter('md5', fn (mixed $var) => $this->hashValue($var, 'md5')),
+            new TwigFilter('sha256', fn (mixed $var) => $this->hashValue($var, 'sha256')),
         ];
     }
 
@@ -174,19 +171,41 @@ class PhpSyntaxExtension extends AbstractExtension
     public function getOperators(): array
     {
         return [
-            [
-            ],
-            [
-                // instead of "or" the PHP operator "||" does the same
-                '||' => ['precedence' => 10, 'class' => OrBinary::class, 'associativity' => ExpressionParser::OPERATOR_LEFT],
-                // instead of "and" the PHP operator "&&" does the same
-                '&&' => ['precedence' => 15, 'class' => AndBinary::class, 'associativity' => ExpressionParser::OPERATOR_LEFT],
-                // instead of "is same as(expression)" it becomes "=== expression"
-                '===' => ['precedence' => 20, 'class' => SameAsBinary::class, 'associativity' => ExpressionParser::OPERATOR_LEFT],
-                // instead of "is not same as(expression)" it becomes "!== expression"
-                '!==' => ['precedence' => 20, 'class' => NotSameAsBinary::class, 'associativity' => ExpressionParser::OPERATOR_LEFT],
-            ],
+            [],
+            [],
         ];
+    }
+
+    /**
+     * @return list<BinaryOperatorExpressionParser>
+     */
+    public function getExpressionParsers(): array
+    {
+        return [
+            new BinaryOperatorExpressionParser(OrBinary::class, '||', 10),
+            new BinaryOperatorExpressionParser(AndBinary::class, '&&', 15),
+            new BinaryOperatorExpressionParser(SameAsBinary::class, '===', 20),
+            new BinaryOperatorExpressionParser(NotSameAsBinary::class, '!==', 20),
+        ];
+    }
+
+    private function hashValue(mixed $var, string $algorithm): string
+    {
+        if (\is_array($var)) {
+            try {
+                $var = \json_encode($var, \JSON_THROW_ON_ERROR);
+            } catch (\JsonException $e) {
+                throw AdapterException::invalidArgument(\sprintf('The %s filter failed to encode array input: %s', $algorithm, $e->getMessage()));
+            }
+        }
+
+        if (!\is_string($var)) {
+            throw AdapterException::invalidArgument(
+                \sprintf('The %s filter expects a string or array as input, %s given', $algorithm, get_debug_type($var))
+            );
+        }
+
+        return Hasher::hash($var, $algorithm);
     }
 
     /**

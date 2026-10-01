@@ -17,7 +17,7 @@ const mtEmailFieldValidTests = [
 
 const mtEmailFieldInvalidTests = [
     {
-        name: '"mt-email-field" wrong "value" prop usage should be replaced with "modelValue"',
+        name: '"mt-email-field" wrong "value" prop usage should be replaced with "model-value"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -25,14 +25,14 @@ const mtEmailFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-email-field modelValue="Hello World" />
+                <mt-email-field model-value="Hello World" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-email-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-email-field" wrong "value" prop usage should be replaced with "modelValue" [disableFix]',
+        name: '"mt-email-field" wrong "value" prop usage should be replaced with "model-value" [disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -40,11 +40,11 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field value="Hello World" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-email-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-email-field" wrong "value" prop usage should be replaced with "modelValue" [expression]',
+        name: '"mt-email-field" wrong "value" prop usage should be replaced with "model-value" [expression]',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -52,14 +52,14 @@ const mtEmailFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-email-field :modelValue="myValue" />
+                <mt-email-field :model-value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-email-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-email-field" wrong "value" prop usage should be replaced with "modelValue" [expression, disableFix]',
+        name: '"mt-email-field" wrong "value" prop usage should be replaced with "model-value" [expression, disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -67,7 +67,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-email-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -82,7 +82,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-email-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -94,7 +94,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-email-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -233,7 +233,7 @@ const mtEmailFieldInvalidTests = [
         }]
     },
     {
-        name: '"mt-email-field" wrong "update:value" event usage should be replaced with "update:modelValue"',
+        name: '"mt-email-field" wrong "update:value" event usage should be replaced with "update:mode-value"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -241,14 +241,14 @@ const mtEmailFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-email-field @update:modelValue="updateValue" />
+                <mt-email-field @update:model-value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "update:value" event is deprecated. Use "update:modelValue" instead.',
+            message: '[mt-email-field] The "update:value" event is deprecated. Use "update:mode-value" instead.',
         }],
     },
     {
-        name: '"mt-email-field" wrong "update:value" event usage should be replaced with "update:modelValue" [disableFix]',
+        name: '"mt-email-field" wrong "update:value" event usage should be replaced with "update:mode-value" [disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -256,7 +256,7 @@ const mtEmailFieldInvalidTests = [
                 <mt-email-field @update:value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-email-field] The "update:value" event is deprecated. Use "update:modelValue" instead.',
+            message: '[mt-email-field] The "update:value" event is deprecated. Use "update:mode-value" instead.',
         }],
     },
     {

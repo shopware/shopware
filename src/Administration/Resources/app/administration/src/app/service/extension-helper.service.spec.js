@@ -14,9 +14,7 @@ describe('src/app/service/extension-helper.service.js', () => {
         extensionHelperService = new ExtensionHelperService({
             extensionStoreActionService: {
                 getMyExtensions: () => {
-                    return Promise.resolve([
-                        extensionMock,
-                    ]);
+                    return Promise.resolve([extensionMock]);
                 },
                 downloadExtension: jest.fn(() => Promise.resolve()),
                 installExtension: jest.fn(() => Promise.resolve()),

@@ -68,7 +68,7 @@ class StatementHelperTest extends TestCase
             'name' => 'test',
         ];
 
-        $expectedResult = $this->createMock(Result::class);
+        $expectedResult = static::createStub(Result::class);
         $this->expectBinds($parameters);
         $this->stmt->expects($this->once())
             ->method('executeQuery')
@@ -86,7 +86,7 @@ class StatementHelperTest extends TestCase
         $keys = array_keys($parameters);
         $this->stmt->expects($matcher)
             ->method('bindValue')
-            ->willReturnCallback(function ($key, $value) use ($parameters, $keys, $matcher): void {
+            ->willReturnCallback(static function ($key, $value) use ($parameters, $keys, $matcher): void {
                 $expectedKey = $keys[$matcher->numberOfInvocations() - 1];
                 static::assertSame($expectedKey, $key);
                 static::assertSame($parameters[$key], $value);

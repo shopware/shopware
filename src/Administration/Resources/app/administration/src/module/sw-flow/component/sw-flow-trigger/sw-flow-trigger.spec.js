@@ -1,11 +1,14 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 import { mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
-import { ACTION } from 'src/module/sw-flow/constant/flow.constant';
 import { createPinia, setActivePinia } from 'pinia';
 
 /**
  * @sw-package after-sales
  */
+
+const { ACTION } = Shopware.Constants.FLOW;
 
 function getSequencesCollection(collection = []) {
     return new EntityCollection(
@@ -87,7 +90,7 @@ async function createWrapper(propsData) {
             global: {
                 plugins: [pinia],
                 mocks: {
-                    $tc(translationKey) {
+                    $t(translationKey) {
                         return mockTranslations[translationKey] ? mockTranslations[translationKey] : translationKey;
                     },
 
@@ -528,9 +531,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         const emittedEvent = wrapper.emitted()['option-select'];
         expect(emittedEvent).toBeTruthy();
-        expect(emittedEvent[0]).toEqual([
-            'checkout.customer.changed-payment-method',
-        ]);
+        expect(emittedEvent[0]).toEqual(['checkout.customer.changed-payment-method']);
     });
 
     it('should be able to navigate search results with arrow keys', async () => {
@@ -827,9 +828,7 @@ describe('src/module/sw-flow/component/sw-flow-trigger', () => {
 
         emittedEvent = wrapper.emitted()['option-select'];
         expect(emittedEvent).toBeTruthy();
-        expect(emittedEvent[0]).toEqual([
-            'checkout.customer.changed-payment-method',
-        ]);
+        expect(emittedEvent[0]).toEqual(['checkout.customer.changed-payment-method']);
 
         eventSelection = wrapper.find('.sw-flow-trigger__event-selection');
         expect(eventSelection.exists()).toBeFalsy();

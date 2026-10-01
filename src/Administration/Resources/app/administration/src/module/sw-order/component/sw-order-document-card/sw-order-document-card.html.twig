@@ -1,78 +1,138 @@
 {% block sw_order_document_card %}
 <mt-card
-    v-if="!isDataLoading"
     position-identifier="sw-order-document-card"
-    :title="$tc('sw-order.documentCard.cardTitle')"
+    :title="$t('sw-order.documentCard.cardTitle')"
     :class="documentCardStyles"
-    :is-loading="isDataLoading"
     class="sw-order-detail-base__document-grid"
 >
     <template #grid>
         {% block sw_order_document_card_header %}
         <sw-card-section
-            divider="bottom"
             :secondary="showCardFilter"
             slim
         >
-
             {% block sw_order_document_card_header_filter %}
             <sw-card-filter
                 v-if="showCardFilter"
-                :placeholder="$tc('sw-order.documentCard.searchBarPlaceholder')"
+                :placeholder="$t('sw-order.documentCard.searchBarPlaceholder')"
                 @sw-card-filter-term-change="onSearchTermChange"
             >
-
                 <template #filter>
                     {% block sw_order_document_card_header_create_document_context_button %}
+                    <sw-button-group
+                        v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && !attachView"
+                        split-button
+                    >
+                        <mt-button
+                            v-tooltip="{
+                                message: tooltipCreateDocumentButton,
+                                disabled: acl.can('document.viewer') && !isEditing,
+                                showOnDisabledElements: true
+                            }"
+                            size="small"
+                            :disabled="!acl.can('document.viewer') || isEditing"
+                            class="sw-order-document-grid-button"
+                            variant="secondary"
+                            data-analytics-id="sw-order-document-card.show-select-document-type-modal-from-filter"
+                            @click="onShowSelectDocumentTypeModal"
+                        >
+                            {% block sw_order_document_card_header_create_document_button_label %}
+                            {{ $t('sw-order.components.createDocumentModal.openButtonLabel') }}
+                            {% endblock %}
+                        </mt-button>
+
+                        <sw-context-button
+                            class="sw-order-document-grid-button-arrow"
+                            :disabled="!acl.can('document.viewer') || isEditing"
+                        >
+                            <template #button>
+                                <mt-button
+                                    square
+                                    size="small"
+                                    variant="secondary"
+                                    :disabled="!acl.can('document.viewer') || isEditing"
+                                >
+                                    <mt-icon
+                                        name="regular-chevron-down-xs"
+                                        size="16"
+                                    />
+                                </mt-button>
+                            </template>
+
+                            <sw-context-menu-item
+                                class="sw-order-document-grid-button-upload"
+                                @click="onShowUploadDocumentModal"
+                            >
+                                {{ $t('sw-order.components.uploadDocumentModal.openAction') }}
+                            </sw-context-menu-item>
+                        </sw-context-button>
+                    </sw-button-group>
+
                     <mt-button
-                        v-if="!attachView"
+                        v-else-if="!attachView"
                         v-tooltip="{
                             message: tooltipCreateDocumentButton,
                             disabled: acl.can('document.viewer') && !isEditing,
                             showOnDisabledElements: true
                         }"
                         size="small"
-                        ghost
                         :disabled="!acl.can('document.viewer') || isEditing"
                         class="sw-order-document-grid-button"
                         variant="secondary"
+                        data-analytics-id="sw-order-document-card.show-select-document-type-modal-from-filter"
                         @click="onShowSelectDocumentTypeModal"
                     >
-
-                        {% block sw_order_document_card_header_create_document_button_label %}
-                        {{ $tc('sw-order.documentCard.labelCreateNew') }}
-                        {% endblock %}
-
+                    {% block sw_order_document_card_header_create_document_button_label %}
+                        {{ $t('sw-order.documentCard.labelCreateNew') }}
+                    {% endblock %}
                     </mt-button>
                     {% endblock %}
-
                 </template>
             </sw-card-filter>
             {% endblock %}
-
         </sw-card-section>
         {% endblock %}
 
         {% block sw_order_document_card_grid %}
-        <sw-data-grid
+        <sw-entity-listing
             v-if="!documentsEmpty"
+            ref="entityListing"
+            class="sw-order-document-card__grid"
+            :repository="documentRepository"
             :data-source="documents"
+            :is-loading="documentsLoading"
             :columns="getDocumentColumns"
-            :full-page="false"
             :show-settings="false"
             :show-selection="false"
-            :show-actions="!attachView"
-            :is-loading="isLoading"
             :allow-column-edit="false"
-            :allow-inline-edit="false"
-            identifier="sw-order-document-grid"
+            :full-page="false"
+            :plain-appearance="true"
+            :allow-delete="!attachView"
+            :show-actions="attachView || !feature.isActive('DOCUMENT_GENERATION_REWORK')"
         >
-
             {% block sw_order_document_card_grid_column_date %}
             <template #column-createdAt="{ item }">
                 {% block sw_order_document_card_grid_column_date_label %}
-                {{ dateFilter(item.createdAt, { hour: '2-digit', minute: '2-digit' }) }}
+                <sw-time-ago
+                    :date="item.createdAt"
+                    :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                />
                 {% endblock %}
+            </template>
+            {% endblock %}
+
+            {% block sw_order_document_card_grid_column_type %}
+            <template
+                v-if="!feature.isActive('DOCUMENT_GENERATION_REWORK')"
+                #[`column-documentType.name`]="{ item }"
+            >
+                {{ documentTypeLabel(item) }}
+            </template>
+            <template
+                v-else
+                #column-typeName="{ item }"
+            >
+                {{ documentTypeLabel(item) }}
             </template>
             {% endblock %}
 
@@ -95,6 +155,262 @@
             </template>
             {% endblock %}
 
+            {% block sw_order_document_card_grid_actions %}
+            <template
+                v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && !attachView"
+                #column-documentActions="{ item }"
+            >
+                <mt-dropdown-menu-root>
+                    <mt-dropdown-menu-trigger as-child>
+                        <mt-button
+                            class="sw-order-document-card__actions-button"
+                            variant="tertiary"
+                            size="x-small"
+                            square
+                            :aria-label="$t('global.sw-data-grid.actionsMenu')"
+                        >
+                            <mt-icon name="solid-ellipsis-h-s" />
+                        </mt-button>
+                    </mt-dropdown-menu-trigger>
+
+                    <mt-dropdown-menu-portal>
+                        {% block sw_order_document_card_grid_actions_menu %}
+                        <mt-action-menu>
+                            <mt-action-menu-group>
+                                <mt-dropdown-menu-sub>
+                                    <mt-action-menu-item
+                                        is-sub-trigger
+                                        :disabled="!acl.can('document.viewer')"
+                                        class="sw-order-document-card__context-button-open-pdf"
+                                        data-analytics-id="sw-order-document-card.open-document"
+                                    >
+                                        {{ $t('sw-order.documentCard.labelOpenDocument') }}
+                                    </mt-action-menu-item>
+
+                                    <mt-dropdown-menu-portal>
+                                        <mt-action-menu is-sub-menu>
+                                            <mt-action-menu-item
+                                                v-for="format in getDocumentActionFormats(item)"
+                                                :key="`open-${item.id}-${format}`"
+                                                :disabled="!acl.can('document.viewer')"
+                                                class="sw-order-document-card__context-button-open-format"
+                                                data-analytics-id="sw-order-document-card.open-document-format"
+                                                @select="onOpenDocument(item.id, item.deepLinkCode, format)"
+                                            >
+                                                {{ $t('sw-order.documentCard.labelOpenFormat', {
+                                                format: $t(documentV2Service.getFileFormatSnippet(format)),
+                                                }) }}
+                                            </mt-action-menu-item>
+                                        </mt-action-menu>
+                                    </mt-dropdown-menu-portal>
+                                </mt-dropdown-menu-sub>
+
+                                <mt-dropdown-menu-sub>
+                                    <mt-action-menu-item
+                                        is-sub-trigger
+                                        :disabled="!acl.can('document.viewer')"
+                                        class="sw-order-document-card__context-button-download-pdf"
+                                        data-analytics-id="sw-order-document-card.download-document"
+                                    >
+                                        {{ $t('sw-order.documentCard.labelDownloadPdf') }}
+                                    </mt-action-menu-item>
+
+                                    <mt-dropdown-menu-portal>
+                                        <mt-action-menu is-sub-menu>
+                                            <mt-action-menu-group>
+                                                <mt-action-menu-item
+                                                    v-for="format in getDocumentActionFormats(item)"
+                                                    :key="`download-${item.id}-${format}`"
+                                                    icon="download"
+                                                    :disabled="!acl.can('document.viewer')"
+                                                    class="sw-order-document-card__context-button-download-format"
+                                                    data-analytics-id="sw-order-document-card.download-document-format"
+                                                    @select="onDownload(item.id, item.deepLinkCode, format)"
+                                                >
+                                                    {{ $t('sw-order.documentCard.labelDownloadFormat', {
+                                                    format: $t(documentV2Service.getFileFormatSnippet(format)),
+                                                    }) }}
+                                                </mt-action-menu-item>
+                                            </mt-action-menu-group>
+
+                                            <mt-action-menu-group v-if="hasMultipleDocumentActionFormats(item)">
+                                                <mt-action-menu-item
+                                                    icon="download"
+                                                    :disabled="!acl.can('document.viewer')"
+                                                    class="sw-order-document-card__context-button-download-all-formats"
+                                                    data-analytics-id="sw-order-document-card.download-all-document-formats"
+                                                    @select="onDownloadAll(item)"
+                                                >
+                                                    {{ $t('sw-order.documentCard.labelDownloadAllFormats') }}
+                                                </mt-action-menu-item>
+                                            </mt-action-menu-group>
+                                        </mt-action-menu>
+                                    </mt-dropdown-menu-portal>
+                                </mt-dropdown-menu-sub>
+
+                                <mt-action-menu-item
+                                    :disabled="!acl.can('document.viewer') || !acl.can('api_send_email')"
+                                    class="sw-order-document-card__context-button-send"
+                                    data-analytics-id="sw-order-document-card.send-document"
+                                    @select="onSendDocument(item.id)"
+                                >
+                                    {{ $t('sw-order.documentCard.labelSendDocument') }}
+                                </mt-action-menu-item>
+
+                                <mt-action-menu-item
+                                    :disabled="!acl.can('document.viewer') || item.sent"
+                                    class="sw-order-document-card__context-button-mark-sent"
+                                    data-analytics-id="sw-order-document-card.mark-document-as-sent"
+                                    @select="onMarkDocumentAsSent(item.id)"
+                                >
+                                    {{ $t('sw-order.documentCard.labelMarkAsSent') }}
+                                </mt-action-menu-item>
+
+                                <mt-action-menu-item
+                                    :disabled="!acl.can('document.viewer') || !item.sent"
+                                    class="sw-order-document-card__context-button-mark-unsent"
+                                    data-analytics-id="sw-order-document-card.mark-document-as-unsent"
+                                    @select="onMarkDocumentAsUnsent(item.id)"
+                                >
+                                    {{ $t('sw-order.documentCard.labelMarkAsUnsent') }}
+                                </mt-action-menu-item>
+                            </mt-action-menu-group>
+
+                            <mt-action-menu-group>
+                                <mt-action-menu-item
+                                    :disabled="!acl.can('document.deleter')"
+                                    variant="critical"
+                                    class="sw-order-document-card__context-button-delete"
+                                    data-analytics-id="sw-order-document-card.delete-document"
+                                    @select="onShowDeleteDocumentModal(item.id)"
+                                >
+                                    {{ $t('global.default.delete') }}
+                                </mt-action-menu-item>
+                            </mt-action-menu-group>
+                        </mt-action-menu>
+                        {% endblock %}
+                    </mt-dropdown-menu-portal>
+                </mt-dropdown-menu-root>
+
+                <sw-modal
+                    v-if="documentDeleteId === item.id"
+                    :title="$t('global.default.warning')"
+                    variant="small"
+                    @modal-close="onCloseDeleteDocumentModal"
+                >
+                    <mt-banner variant="attention">
+                        {{ $t('sw-order.documentCard.confirmDeleteText') }}
+                    </mt-banner>
+
+                    <p class="sw-listing__confirm-delete-text">
+                        <span>{{ $t('global.entity-components.deleteMessage') }}</span>
+                    </p>
+
+                    <template #modal-footer>
+                        <mt-button
+                            size="small"
+                            variant="secondary"
+                            @click="onCloseDeleteDocumentModal"
+                        >
+                            {{ $t('global.default.cancel') }}
+                        </mt-button>
+
+                        <mt-button
+                            variant="critical"
+                            size="small"
+                            @click="onDeleteDocument(item.id)"
+                        >
+                            {{ $t('global.default.delete') }}
+                        </mt-button>
+                    </template>
+                </sw-modal>
+            </template>
+
+            {# @deprecated tag:v6.9.0 - Will be removed once DOCUMENT_GENERATION_REWORK becomes the default #}
+            <template
+                v-else-if="!attachView"
+                #actions="{ item }"
+            >
+                {% block sw_order_document_card_grid_action_open %}
+                <sw-context-menu-item
+                    :disabled="!acl.can('document.viewer')"
+                    class="sw-order-document-card__context-button-open-pdf"
+                    data-analytics-id="sw-order-document-card.open-document"
+                    @click="onOpenDocument(item.id, item.deepLinkCode, resolveOpenFileType(item))"
+                >
+                    {% block sw_order_document_card_grid_action_open_label %}
+                    {{ $t('sw-order.documentCard.labelOpenDocument') }}
+                    {% endblock %}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_action_download %}
+                <sw-context-menu-item
+                    :disabled="!acl.can('document.viewer')"
+                    class="sw-order-document-card__context-button-download-pdf"
+                    data-analytics-id="sw-order-document-card.download-document"
+                    @click="onDownload(item.id, item.deepLinkCode, resolveDownloadFileType(item))"
+                >
+                    {% block sw_order_document_card_grid_action_download_label %}
+                    {{ $t('sw-order.documentCard.labelDownloadPdf') }}
+                    {% endblock %}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_action_send %}
+                <sw-context-menu-item
+                    :disabled="!acl.can('document.viewer') || !acl.can('api_send_email')"
+                    class="sw-order-document-card__context-button-send"
+                    data-analytics-id="sw-order-document-card.send-document"
+                    @click="onSendDocument(item.id)"
+                >
+                    {% block sw_order_document_card_grid_action_send_label %}
+                    {{ $t('sw-order.documentCard.labelSendDocument') }}
+                    {% endblock %}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_action_mark_sent %}
+                <sw-context-menu-item
+                    :disabled="!acl.can('document.viewer') || item.sent"
+                    class="sw-order-document-card__context-button-mark-sent"
+                    data-analytics-id="sw-order-document-card.mark-document-as-sent"
+                    @click="onMarkDocumentAsSent(item.id)"
+                >
+                    {% block sw_order_document_card_grid_action_mark_sent_label %}
+                    {{ $t('sw-order.documentCard.labelMarkAsSent') }}
+                    {% endblock %}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_action_mark_unsent %}
+                <sw-context-menu-item
+                    :disabled="!acl.can('document.viewer') || !item.sent"
+                    class="sw-order-document-card__context-button-mark-unsent"
+                    data-analytics-id="sw-order-document-card.mark-document-as-unsent"
+                    @click="onMarkDocumentAsUnsent(item.id)"
+                >
+                    {% block sw_order_document_card_grid_action_mark_unsent_label %}
+                    {{ $t('sw-order.documentCard.labelMarkAsUnsent') }}
+                    {% endblock %}
+                </sw-context-menu-item>
+                {% endblock %}
+
+                {% block sw_order_document_card_grid_action_delete %}
+                <sw-context-menu-item
+                    :disabled="!acl.can('document.deleter')"
+                    class="sw-order-document-card__context-button-delete"
+                    data-analytics-id="sw-order-document-card.delete-document"
+                    @click="$refs.entityListing.showDelete(item.id)"
+                >
+                    {% block sw_order_document_card_grid_action_delete_label %}
+                    {{ $t('global.default.delete') }}
+                    {% endblock %}
+                </sw-context-menu-item>
+                {% endblock %}
+            </template>
+            {% endblock %}
+
             {% block sw_order_document_card_grid_column_attach %}
             <template
                 v-if="attachView"
@@ -109,78 +425,19 @@
             </template>
             {% endblock %}
 
-            {% block sw_order_document_card_grid_actions %}
-            <template
-                v-if="!attachView"
-                #actions="{ item }"
-            >
-                {% block sw_order_document_card_grid_action_open %}
-                <sw-context-menu-item
-                    :disabled="!acl.can('document.viewer')"
-                    class="sw-order-document-card__context-button-open-pdf"
-                    @click="onOpenDocument(item.id, item.deepLinkCode, item.documentMediaFile?.fileExtension)"
+            <template #delete-confirm-text>
+                <mt-banner
+                    variant="attention"
                 >
-                    {% block sw_order_document_card_grid_action_open_label %}
-                    {{ $tc('sw-order.documentCard.labelOpenDocument') }}
-                    {% endblock %}
-                </sw-context-menu-item>
-                {% endblock %}
-
-                {% block sw_order_document_card_grid_action_download %}
-                <sw-context-menu-item
-                    :disabled="!acl.can('document.viewer')"
-                    class="sw-order-document-card__context-button-download-pdf"
-                    @click="onDownload(item.id, item.deepLinkCode, item.documentMediaFile?.fileExtension)"
-                >
-                    {% block sw_order_document_card_grid_action_download_label %}
-                    {{ $tc('sw-order.documentCard.labelDownloadPdf') }}
-                    {% endblock %}
-                </sw-context-menu-item>
-                {% endblock %}
-
-                {% block sw_order_document_card_grid_action_send %}
-                <sw-context-menu-item
-                    :disabled="!acl.can('document.viewer') || !acl.can('api_send_email')"
-                    class="sw-order-document-card__context-button-send"
-                    @click="onSendDocument(item.id)"
-                >
-                    {% block sw_order_document_card_grid_action_send_label %}
-                    {{ $tc('sw-order.documentCard.labelSendDocument') }}
-                    {% endblock %}
-                </sw-context-menu-item>
-                {% endblock %}
-
-                {% block sw_order_document_card_grid_action_mark_sent %}
-                <sw-context-menu-item
-                    :disabled="!acl.can('document.viewer') || item.sent"
-                    class="sw-order-document-card__context-button-mark-sent"
-                    @click="onMarkDocumentAsSent(item.id)"
-                >
-                    {% block sw_order_document_card_grid_action_mark_sent_label %}
-                    {{ $tc('sw-order.documentCard.labelMarkAsSent') }}
-                    {% endblock %}
-                </sw-context-menu-item>
-                {% endblock %}
-
-                {% block sw_order_document_card_grid_action_mark_unsent %}
-                <sw-context-menu-item
-                    :disabled="!acl.can('document.viewer') || !item.sent"
-                    class="sw-order-document-card__context-button-mark-unsent"
-                    @click="onMarkDocumentAsUnsent(item.id)"
-                >
-                    {% block sw_order_document_card_grid_action_mark_unsent_label %}
-                    {{ $tc('sw-order.documentCard.labelMarkAsUnsent') }}
-                    {% endblock %}
-                </sw-context-menu-item>
-                {% endblock %}
+                    {{ $t('sw-order.documentCard.confirmDeleteText') }}
+                </mt-banner>
+                <span>{{ $t('global.entity-components.deleteMessage') }}</span>
             </template>
-            {% endblock %}
-
-        </sw-data-grid>
+        </sw-entity-listing>
         {% endblock %}
-
     </template>
 
+    {# @deprecated tag:v6.9.0 - Removed with document generation v1. #}
     {% block sw_order_document_card_grid_column_modal %}
     <div v-if="showModal">
         <component
@@ -199,8 +456,29 @@
     {% endblock %}
 
     {% block sw_order_document_card_grid_column_document_type_modal %}
+    <sw-order-create-document-modal
+        v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && showSelectDocumentTypeModal"
+        v-model:document-type="currentDocumentType"
+        :order="order"
+        :is-loading-document="isLoadingDocument"
+        :is-loading-preview="isLoadingPreview"
+        @page-leave="onCloseCreateDocumentModal"
+        @document-create="onCreateDocument"
+        @preview-show="onPreview"
+    />
+    <sw-order-upload-document-modal
+        v-else-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && showUploadDocumentModal"
+        v-model:document-type="currentDocumentType"
+        :order="order"
+        :is-loading-document="isLoadingDocument"
+        @loading-document="onLoadingDocument"
+        @page-leave="onCloseUploadDocumentModal"
+        @document-upload="onUploadDocument"
+    />
+
+    {# @deprecated tag:v6.9.0 - Removed with document generation v1. #}
     <sw-order-select-document-type-modal
-        v-if="showSelectDocumentTypeModal"
+        v-else-if="showSelectDocumentTypeModal"
         v-model:value="currentDocumentType"
         :order="order"
         @modal-close="onCloseSelectDocumentTypeModal"
@@ -218,42 +496,83 @@
     {% endblock %}
 
     {% block sw_order_document_card_empty_state %}
-    <sw-empty-state
-        v-if="documentsEmpty"
-        :title="emptyStateTitle"
-        :show-description="false"
-        :absolute="false"
-    >/
-        <template #icon>
-            <img
-                :src="assetFilter('/administration/administration/static/img/empty-states/order-empty-state.svg')"
-                :alt="$tc('sw-order.list.messageEmpty')"
+    <mt-empty-state
+        v-if="documentsEmpty && !isDataLoading && !term"
+        class="sw-order-document-card__empty-state"
+        :icon="$route.meta.$module.icon"
+        :headline="emptyStateTitle"
+        description=""
+        centered
+    >
+        <template
+            v-if="showCreateDocumentButton"
+            #button
+        >
+            <sw-button-group
+                v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')"
+                split-button
             >
-        </template>
+                <mt-button
+                    v-tooltip="{
+                        message: tooltipCreateDocumentButton,
+                        disabled: acl.can('document.viewer') && !isEditing,
+                        showOnDisabledElements: true
+                    }"
+                    size="small"
+                    :disabled="!acl.can('document.viewer') || isEditing"
+                    class="sw-order-document-grid-button"
+                    variant="secondary"
+                    data-analytics-id="sw-order-document-card.show-select-document-type-modal"
+                    @click="onShowSelectDocumentTypeModal"
+                >
+                    {{ $t('sw-order.components.createDocumentModal.openButtonLabel') }}
+                </mt-button>
 
-        <template #actions>
+                <sw-context-button
+                    class="sw-order-document-grid-button-arrow"
+                    :disabled="!acl.can('document.viewer') || isEditing"
+                >
+                    <template #button>
+                        <mt-button
+                            square
+                            size="small"
+                            variant="secondary"
+                            :disabled="!acl.can('document.viewer') || isEditing"
+                        >
+                            <mt-icon
+                                name="regular-chevron-down-xs"
+                                size="16"
+                            />
+                        </mt-button>
+                    </template>
+
+                    <sw-context-menu-item
+                        class="sw-order-document-grid-button-upload"
+                        @click="onShowUploadDocumentModal"
+                    >
+                        {{ $t('sw-order.components.uploadDocumentModal.openAction') }}
+                    </sw-context-menu-item>
+                </sw-context-button>
+            </sw-button-group>
+
             <mt-button
-                v-if="showCreateDocumentButton"
+                v-else
                 v-tooltip="{
                     message: tooltipCreateDocumentButton,
                     disabled: acl.can('document.viewer') && !isEditing,
                     showOnDisabledElements: true
                 }"
                 size="small"
-                ghost
                 :disabled="!acl.can('document.viewer') || isEditing"
                 class="sw-order-document-grid-button"
                 variant="secondary"
+                data-analytics-id="sw-order-document-card.show-select-document-type-modal"
                 @click="onShowSelectDocumentTypeModal"
             >
-
-                {% block sw_order_document_card_header_create_document_button_label %}
-                {{ $tc('sw-order.documentCard.labelCreateNew') }}
-                {% endblock %}
-
+                {{ $t('sw-order.documentCard.labelCreateNew') }}
             </mt-button>
         </template>
-    </sw-empty-state>
+    </mt-empty-state>
     {% endblock %}
 </mt-card>
 {% endblock %}

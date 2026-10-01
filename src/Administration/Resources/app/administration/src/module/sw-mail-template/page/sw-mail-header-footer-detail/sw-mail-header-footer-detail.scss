@@ -1,10 +1,25 @@
-@import "~scss/variables";
+.sw-mail-header-footer-detail {
+    &__code-editor--header-html,
+    &__code-editor--footer-html,
+    &__sales-channel {
+        margin-bottom: 0;
 
-.sw-mail-header-footer-detail__sales-channel-list {
-    margin-top: 10px;
-}
+        .sw-field {
+            margin-bottom: 0;
+        }
+    }
 
-.sw-mail-header-footer-detail__sales-channel-list-entry {
-    margin-bottom: 5px;
-    font-weight: $font-weight-semi-bold;
+    &__sales-channel-list {
+        margin-top: var(--scale-size-10);
+
+        &-label {
+            margin-top: var(--scale-size-20);
+            margin-bottom: var(--scale-size-4);
+        }
+    }
+
+    &__sales-channel-list-entry {
+        margin-bottom: var(--scale-size-2);
+        font-weight: var(--font-weight-semibold);
+    }
 }

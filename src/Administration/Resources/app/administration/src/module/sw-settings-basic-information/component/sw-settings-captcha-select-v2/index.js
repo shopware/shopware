@@ -10,16 +10,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'feature',
-        'captchaService',
-    ],
+    inject: ['feature', 'captchaService'],
 
     emits: ['update:value'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet')],
 
     props: {
         value: {
@@ -99,17 +94,13 @@ export default {
 
         renderCaptchaOption(technicalName) {
             return {
-                label: this.$tc(`sw-settings-basic-information.captcha.label.${technicalName}`),
+                label: this.$t(`sw-settings-basic-information.captcha.label.${technicalName}`),
                 value: technicalName,
             };
         },
 
         getTranslations() {
-            return [
-                'label',
-                'placeholder',
-                'helpText',
-            ]
+            return ['label', 'placeholder', 'helpText']
                 .filter((name) => !!this.$attrs[name])
                 .reduce(
                     (translations, name) => ({

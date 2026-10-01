@@ -13,21 +13,11 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'mailService',
-        'entityMappingService',
-        'repositoryFactory',
-    ],
+    inject: ['mailService', 'entityMappingService', 'repositoryFactory'],
 
-    emits: [
-        'modal-close',
-        'process-finish',
-    ],
+    emits: ['modal-close', 'process-finish'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     data() {
         return {
@@ -115,12 +105,12 @@ export default {
 
                     if (error.response.data.errors.length > 0) {
                         const errorDetailMsg = error.response.data.errors[0].detail;
-                        errorMsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
+                        errorMsg = `<br/> ${this.$t('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
                     }
 
                     this.createNotificationError({
                         message:
-                            this.$tc('sw-mail-template.detail.messageSaveError', { subject: mailTemplateSubject }, 0) +
+                            this.$t('sw-mail-template.detail.messageSaveError', { subject: mailTemplateSubject }, 0) +
                             errorMsg,
                     });
                 });
@@ -149,7 +139,7 @@ export default {
                 let errorMsg = '';
                 if (e.response.data.errors.length > 0) {
                     const errorDetailMsg = e.response.data.errors[0].detail;
-                    errorMsg = `<br/> ${this.$tc('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
+                    errorMsg = `<br/> ${this.$t('sw-mail-template.detail.textErrorMessage')}: "${errorDetailMsg}"`;
                 }
 
                 this.createNotificationError({

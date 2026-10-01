@@ -16,6 +16,7 @@ describe('src/module/sw-settings-usage-data', () => {
 
         const manifest = module.manifest;
         expect(manifest.name).toBe('usage-data');
+        expect(manifest.settingsItem[0].icon).toBe('regular-shield');
     });
 
     it('should register the components', () => {

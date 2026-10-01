@@ -1,6 +1,5 @@
 import type ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import type Repository from 'src/core/data/repository.data';
-import type { PropType } from 'vue';
 
 import Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
 import template from './sw-generic-cms-page-assignment.html.twig';
@@ -19,14 +18,11 @@ interface CmsSlotOverrides {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-        'cmsPageTypeService',
-    ],
+    inject: ['repositoryFactory', 'cmsPageTypeService'],
 
     props: {
         cmsPageId: {
-            type: String as PropType<string | null>,
+            type: String as unknown as PropType<EntityKey<'cms_page'> | null>,
             required: false,
             default: null,
         },
@@ -80,14 +76,14 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         pageTypeTitle(name?: string): string {
-            const fallback = this.$tc('sw-category.base.cms.defaultDesc');
+            const fallback = this.$t('sw-category.base.cms.defaultDesc');
 
             if (!name) {
                 return fallback;
             }
 
             const pageType = this.cmsPageTypeService.getType(this.cmsPage?.type);
-            return pageType ? this.$tc(pageType.title) : fallback;
+            return pageType ? this.$t(pageType.title) : fallback;
         },
     },
 
@@ -119,7 +115,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.showLayoutSelection = false;
         },
 
-        onLayoutSelect(selectedLayoutId: string | null): void {
+        onLayoutSelect(selectedLayoutId: EntityKey<'cms_page'> | null): void {
             this.$emit('update:cms-page-id', selectedLayoutId);
         },
 
@@ -215,7 +211,6 @@ export default Shopware.Component.wrapComponentConfig({
                             if (configField.entity) {
                                 delete configField.entity;
                             }
-                            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
                             if (configField.hasOwnProperty('required')) {
                                 delete configField.required;
                             }

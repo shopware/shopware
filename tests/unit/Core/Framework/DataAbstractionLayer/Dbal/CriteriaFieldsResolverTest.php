@@ -17,12 +17,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CriteriaFieldsResolver::class)]
 class CriteriaFieldsResolverTest extends TestCase
 {
@@ -35,13 +37,13 @@ class CriteriaFieldsResolverTest extends TestCase
                 TestDefinition::class,
                 RelatedTestDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 
     /**
-     * @param array<int, mixed> $expected
+     * @param array<string, array{}|array<string, array{}>> $expected
      */
     #[DataProvider('resolveFieldsProvider')]
     public function testResolveFields(Criteria $criteria, array $expected): void
@@ -50,7 +52,7 @@ class CriteriaFieldsResolverTest extends TestCase
 
         $result = $resolver->resolve($criteria, $this->registry->get(TestDefinition::class));
 
-        static::assertEquals($expected, $result);
+        static::assertSame($expected, $result);
     }
 
     public static function resolveFieldsProvider(): \Generator

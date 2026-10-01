@@ -57,7 +57,7 @@ class ScriptFileReader
 
         try {
             $content = $fs->read(self::SCRIPT_DIR, $path);
-        } catch (\Exception $e) {
+        } catch (\Exception) {
             throw AppException::cannotReadFile($fs->path(self::SCRIPT_DIR, $path));
         }
 

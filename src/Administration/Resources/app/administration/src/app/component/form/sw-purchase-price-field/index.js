@@ -4,12 +4,10 @@
 
 import template from './sw-purchase-price-field.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-purchase-price-field', {
+export default {
     template,
 
     emits: ['update:value'],
@@ -37,13 +35,11 @@ Component.register('sw-purchase-price-field', {
             default: null,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         label: {
             required: false,
             default: true,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         disabled: {
             required: false,
             default: false,
@@ -78,7 +74,6 @@ Component.register('sw-purchase-price-field', {
                 if (priceForCurrency) {
                     priceForCurrency = newPurchasePrice;
                 } else {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.price.push(newPurchasePrice);
                 }
 
@@ -92,4 +87,4 @@ Component.register('sw-purchase-price-field', {
             this.purchasePrice = value;
         },
     },
-});
+};

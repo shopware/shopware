@@ -6,7 +6,6 @@ use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchStartEvent;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\MemorySizeCalculator;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -16,13 +15,14 @@ use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'media:delete-unused',
     description: 'Deletes all media files which are not used in any entity',
 )]
-#[Package('discovery')]
 class DeleteNotUsedMediaCommand extends Command
 {
     /**
@@ -43,7 +43,7 @@ class DeleteNotUsedMediaCommand extends Command
         $this->addOption('folder-entity', null, InputOption::VALUE_REQUIRED, 'Restrict deletion of not used media in default location folders of the provided entity name');
         $this->addOption('limit', null, InputOption::VALUE_OPTIONAL, 'The limit of media entries to query');
         $this->addOption('offset', null, InputOption::VALUE_OPTIONAL, 'The offset to start from');
-        $this->addOption('grace-period-days', null, InputOption::VALUE_REQUIRED, 'The offset to start from', 20);
+        $this->addOption('grace-period-days', null, InputOption::VALUE_REQUIRED, 'Restrict deletion of not used media uploaded in the last n days', 20);
         $this->addOption('dry-run', description: 'Show list of files to be deleted');
         $this->addOption('report', description: 'Generate a list of files to be deleted');
     }
@@ -53,7 +53,7 @@ class DeleteNotUsedMediaCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         if ($input->getOption('report') && $input->getOption('dry-run')) {
             $io->error('The options --report and --dry-run cannot be used together, pick one or the other.');
@@ -69,7 +69,9 @@ class DeleteNotUsedMediaCommand extends Command
             return $this->dryRun($input, $output);
         }
 
-        $confirm = $io->confirm('Are you sure that you want to delete unused media files?', false);
+        $confirm = $input->isInteractive()
+            ? $io->confirm('Are you sure that you want to delete unused media files?', false)
+            : true;
 
         if (!$confirm) {
             $io->caution('Aborting due to user input.');
@@ -87,8 +89,8 @@ class DeleteNotUsedMediaCommand extends Command
             private int $totalMediaDeletionCandidates = 0;
 
             public function __construct(
-                private ShopwareStyle $io,
-                private int $limit,
+                private readonly SymfonyStyle $io,
+                private readonly int $limit,
             ) {
             }
 
@@ -151,7 +153,7 @@ class DeleteNotUsedMediaCommand extends Command
             $input->getOption('folder-entity'),
         );
 
-        $output->write(implode(',', array_map(fn ($col) => \sprintf('"%s"', $col), ['Filename', 'Title', 'Uploaded At', 'File Size'])));
+        $output->write(implode(',', array_map(static fn ($col) => \sprintf('"%s"', $col), ['Filename', 'Title', 'Uploaded At', 'File Size'])));
         foreach ($mediaBatches as $mediaBatch) {
             foreach ($mediaBatch as $media) {
                 $row = [
@@ -161,7 +163,7 @@ class DeleteNotUsedMediaCommand extends Command
                     MemorySizeCalculator::formatToBytes($media->getFileSize() ?? 0),
                 ];
 
-                $output->write(\sprintf("\n%s", implode(',', array_map(fn ($col) => \sprintf('"%s"', $col), $row))));
+                $output->write(\sprintf("\n%s", implode(',', array_map(static fn ($col) => \sprintf('"%s"', (string) $col), $row))));
             }
         }
 
@@ -172,7 +174,7 @@ class DeleteNotUsedMediaCommand extends Command
     {
         $cursor = new Cursor($output);
 
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         $mediaBatches = $this->unusedMediaPurger->getNotUsedMedia(
             $input->getOption('limit') ? (int) $input->getOption('limit') : 50,
@@ -182,8 +184,8 @@ class DeleteNotUsedMediaCommand extends Command
         );
 
         $totalCount = 0;
-        $finished = $this->consumeGeneratorInBatches($mediaBatches, 20, function ($batchNum, array $medias) use ($io, $cursor, &$totalCount) {
-            if ($batchNum === 0 && \count($medias) === 0) {
+        $finished = $this->consumeGeneratorInBatches($mediaBatches, 20, static function ($batchNum, array $medias) use ($io, $cursor, &$totalCount, $input) {
+            if ($batchNum === 0 && $medias === []) {
                 return true;
             }
 
@@ -208,7 +210,7 @@ class DeleteNotUsedMediaCommand extends Command
             $io->table(
                 ['Filename', 'Title', 'Uploaded At', 'File Size'],
                 array_map(
-                    fn (MediaEntity $media) => [
+                    static fn (MediaEntity $media) => [
                         $media->getFileNameIncludingExtension(),
                         $media->getTitle(),
                         $media->getUploadedAt()?->format('F jS, Y'),
@@ -223,7 +225,9 @@ class DeleteNotUsedMediaCommand extends Command
                 return true;
             }
 
-            return $io->confirm('Show next page?', false);
+            return $input->isInteractive()
+                ? $io->confirm('Show next page?', false)
+                : true;
         });
 
         if ($totalCount === 0) {
@@ -240,6 +244,7 @@ class DeleteNotUsedMediaCommand extends Command
     /**
      * Given a generator which yields arrays of items, this method will consume the generator in batches of the given size.
      *
+     * @param \Generator<list<MediaEntity>> $generator
      * @param callable(int, array<mixed>): bool $callback
      */
     private function consumeGeneratorInBatches(\Generator $generator, int $batchSize, callable $callback): bool
@@ -259,7 +264,7 @@ class DeleteNotUsedMediaCommand extends Command
         }
 
         // last remaining batch
-        if (\count($batch) > 0) {
+        if ($batch !== []) {
             return $callback($i++, $batch);
         }
 

@@ -11,8 +11,10 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -21,11 +23,12 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\CartLineItemController;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class CartLineItemControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -64,7 +67,7 @@ class CartLineItemControllerTest extends TestCase
             static::assertNotNull($cartLineItem);
         } else {
             static::assertArrayHasKey('danger', $flashBagEntries);
-            static::assertSame(static::getContainer()->get('translator')->trans('error.productNotFound', ['%number%' => \strip_tags($productNumber)]), $flashBagEntries['danger'][0]);
+            static::assertSame(static::getContainer()->get('translator')->trans('error.productNotFound', ['%number%' => static::getContainer()->get(HtmlSanitizer::class)->sanitize($productNumber, null, true)]), $flashBagEntries['danger'][0]);
             static::assertNull($cartLineItem);
         }
         static::assertSame(200, $response->getStatusCode());
@@ -118,7 +121,7 @@ class CartLineItemControllerTest extends TestCase
         } else {
             $flashes = $flashBag->get('danger');
             static::assertNotEmpty($flashes);
-            static::assertSame(static::getContainer()->get('translator')->trans('error.productNotFound', ['%number%' => \strip_tags($productNumber)]), $flashes[0]);
+            static::assertSame(static::getContainer()->get('translator')->trans('error.productNotFound', ['%number%' => static::getContainer()->get(HtmlSanitizer::class)->sanitize($productNumber, null, true)]), $flashes[0]);
             static::assertNull($cartLineItem);
         }
         static::assertSame(200, $response->getStatusCode());
@@ -190,14 +193,74 @@ class CartLineItemControllerTest extends TestCase
         $flashBagEntries = $this->getFlashBag()->all();
 
         static::assertArrayHasKey('danger', $flashBagEntries);
-        static::assertSame(static::getContainer()->get('translator')->trans('checkout.promotion-not-found', ['%code%' => \strip_tags('testCode')]), $flashBagEntries['danger'][0]);
+        static::assertSame(static::getContainer()->get('translator')->trans('checkout.promotion-not-found', ['%code%' => 'testCode']), $flashBagEntries['danger'][0]);
         static::assertCount(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems());
     }
 
-    private function getFlashBag(): FlashBag
+    public function testAddPromotionWithEmptyInputAddsValidationFlash(): void
     {
-        /** @var FlashBag $sessionBag */
+        $contextToken = Uuid::randomHex();
+
+        $cartService = static::getContainer()->get(CartService::class);
+        $request = $this->createRequest(['code' => '   ']);
+        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+
+        $response = static::getContainer()->get(CartLineItemController::class)->addPromotion(
+            $cartService->getCart($contextToken, $salesChannelContext),
+            $request,
+            $salesChannelContext
+        );
+
+        static::assertSame(200, $response->getStatusCode());
+
+        $flashBagEntries = $this->getFlashBag()->all();
+
+        static::assertArrayHasKey('danger', $flashBagEntries);
+        static::assertSame(static::getContainer()->get('translator')->trans('error.VIOLATION::IS_BLANK_ERROR'), $flashBagEntries['danger'][0]);
+        static::assertCount(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems());
+    }
+
+    public function testAddProductByNumberTrimsInputBeforeLookup(): void
+    {
+        $contextToken = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+
+        $this->createProduct($productId, ' test.123 ');
+
+        $cartService = static::getContainer()->get(CartService::class);
+        $request = $this->createRequest(['number' => ' test.123 ']);
+        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+
+        $response = static::getContainer()->get(CartLineItemController::class)->addProductByNumber($request, $salesChannelContext);
+
+        static::assertSame(200, $response->getStatusCode());
+        static::assertArrayHasKey('success', $this->getFlashBag()->all());
+        static::assertNotNull($cartService->getCart($contextToken, $salesChannelContext)->getLineItems()->get($productId));
+    }
+
+    public function testAddProductByNumberWithEmptyInputAddsDangerFlash(): void
+    {
+        $contextToken = Uuid::randomHex();
+
+        $cartService = static::getContainer()->get(CartService::class);
+        $request = $this->createRequest(['number' => '   ']);
+        $salesChannelContext = $this->createSalesChannelContext($contextToken);
+
+        $response = static::getContainer()->get(CartLineItemController::class)->addProductByNumber($request, $salesChannelContext);
+
+        static::assertSame(200, $response->getStatusCode());
+
+        $flashBagEntries = $this->getFlashBag()->all();
+
+        static::assertArrayHasKey('danger', $flashBagEntries);
+        static::assertSame(static::getContainer()->get('translator')->trans('error.VIOLATION::IS_BLANK_ERROR'), $flashBagEntries['danger'][0]);
+        static::assertCount(0, $cartService->getCart($contextToken, $salesChannelContext)->getLineItems());
+    }
+
+    private function getFlashBag(): FlashBagInterface
+    {
         $sessionBag = $this->getSession()->getBag('flashes');
+        static::assertInstanceOf(FlashBagInterface::class, $sessionBag);
 
         return $sessionBag;
     }

@@ -10,10 +10,7 @@ const { Context, Filter } = Shopware;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: ['update:currentFolderId'],
 
@@ -25,6 +22,12 @@ export default {
         },
 
         small: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+
+        disabled: {
             type: Boolean,
             required: false,
             default: false,
@@ -44,7 +47,7 @@ export default {
         },
         rootFolder() {
             const root = this.mediaFolderRepository.create(Context.api);
-            root.name = this.$tc('sw-media.index.rootFolderName');
+            root.name = this.$t('sw-media.index.rootFolderName');
             root.id = null;
             return root;
         },
@@ -91,6 +94,10 @@ export default {
         },
 
         onBreadcrumbsItemClicked(id) {
+            if (this.disabled) {
+                return;
+            }
+
             this.$emit('update:currentFolderId', id);
         },
     },

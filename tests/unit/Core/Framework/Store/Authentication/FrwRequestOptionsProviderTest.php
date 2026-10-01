@@ -20,7 +20,7 @@ use Shopware\Core\System\User\Aggregate\UserConfig\UserConfigEntity;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(FrwRequestOptionsProvider::class)]
 class FrwRequestOptionsProviderTest extends TestCase
 {
@@ -48,14 +48,14 @@ class FrwRequestOptionsProviderTest extends TestCase
             ->method('search')
             ->willReturn($result);
 
-        $innerOptionsProvider = static::createMock(AbstractStoreRequestOptionsProvider::class);
+        $innerOptionsProvider = static::createStub(AbstractStoreRequestOptionsProvider::class);
 
         $frwRequestOptionsProvider = new FrwRequestOptionsProvider(
             $innerOptionsProvider,
             $userConfigRepositoryMock
         );
 
-        static::assertEquals([
+        static::assertSame([
             'X-Shopware-Token' => 'frw-user-token',
         ], $frwRequestOptionsProvider->getAuthenticationHeader($context));
     }
@@ -82,14 +82,14 @@ class FrwRequestOptionsProviderTest extends TestCase
             ->method('search')
             ->willReturn($result);
 
-        $innerOptionsProvider = static::createMock(AbstractStoreRequestOptionsProvider::class);
+        $innerOptionsProvider = static::createStub(AbstractStoreRequestOptionsProvider::class);
 
         $frwRequestOptionsProvider = new FrwRequestOptionsProvider(
             $innerOptionsProvider,
             $userConfigRepositoryMock
         );
 
-        static::assertEquals([], $frwRequestOptionsProvider->getAuthenticationHeader($context));
+        static::assertSame([], $frwRequestOptionsProvider->getAuthenticationHeader($context));
     }
 
     public function testGetAuthenticationHeaderReturnsEmptyArrayIfUserConfigCanNotBeFound(): void
@@ -110,14 +110,14 @@ class FrwRequestOptionsProviderTest extends TestCase
             ->method('search')
             ->willReturn($result);
 
-        $innerOptionsProvider = static::createMock(AbstractStoreRequestOptionsProvider::class);
+        $innerOptionsProvider = static::createStub(AbstractStoreRequestOptionsProvider::class);
 
         $frwRequestOptionsProvider = new FrwRequestOptionsProvider(
             $innerOptionsProvider,
             $userConfigRepositoryMock
         );
 
-        static::assertEquals([], $frwRequestOptionsProvider->getAuthenticationHeader($context));
+        static::assertSame([], $frwRequestOptionsProvider->getAuthenticationHeader($context));
     }
 
     public function testGetAuthenticationHeaderThrowsIfContextIsNoAdminApiSource(): void
@@ -128,7 +128,7 @@ class FrwRequestOptionsProviderTest extends TestCase
         $userConfigRepositoryMock->expects($this->never())
             ->method('search');
 
-        $innerOptionsProvider = static::createMock(AbstractStoreRequestOptionsProvider::class);
+        $innerOptionsProvider = static::createStub(AbstractStoreRequestOptionsProvider::class);
 
         $frwRequestOptionsProvider = new FrwRequestOptionsProvider(
             $innerOptionsProvider,
@@ -143,7 +143,7 @@ class FrwRequestOptionsProviderTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $userConfigRepositoryMock = static::createMock(EntityRepository::class);
+        $userConfigRepositoryMock = static::createStub(EntityRepository::class);
 
         $innerOptionsProvider = static::createMock(AbstractStoreRequestOptionsProvider::class);
         $innerOptionsProvider->expects($this->once())
@@ -160,7 +160,7 @@ class FrwRequestOptionsProviderTest extends TestCase
 
         $queries = $frwRequestOptionsProvider->getDefaultQueryParameters($context);
 
-        static::assertEquals([
+        static::assertSame([
             'queries' => 'some-queries',
         ], $queries);
     }

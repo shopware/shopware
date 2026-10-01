@@ -115,10 +115,6 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
             wrapper = await (await init('tax.editor', [{}])).wrapper;
         });
 
-        it('should be a Vue.JS component', async () => {
-            expect(wrapper.vm).toBeTruthy();
-        });
-
         it('should be able to add a new country from data grid', async () => {
             const addButton = wrapper.find('.sw-tax-rule-grid-button');
 
@@ -143,10 +139,6 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
 
         beforeEach(async () => {
             wrapper = await (await init('', [{}])).wrapper;
-        });
-
-        it('should be a Vue.JS component', async () => {
-            expect(wrapper.vm).toBeTruthy();
         });
 
         it('should not be able to add a new country from data grid', async () => {
@@ -175,10 +167,6 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
             wrapper = await (await init('tax.editor', [])).wrapper;
         });
 
-        it('should be a Vue.JS component', async () => {
-            expect(wrapper.vm).toBeTruthy();
-        });
-
         it('should be able to add a new country from empty card', async () => {
             const addButton = wrapper.find('.sw-settings-tax-rule-card__empty-state--button');
 
@@ -193,10 +181,6 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
             wrapper = await (await init('', [])).wrapper;
         });
 
-        it('should be a Vue.JS component', async () => {
-            expect(wrapper.vm).toBeTruthy();
-        });
-
         it('should not be able to add a new country from empty card', async () => {
             const addButton = wrapper.find('.sw-settings-tax-rule-card__empty-state--button');
 
@@ -205,9 +189,7 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
     });
 
     it('should have a tax rate field with a correct "digits" property', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ]);
+        const wrapper = await createWrapper(['tax.editor']);
 
         await wrapper.vm.$nextTick();
 

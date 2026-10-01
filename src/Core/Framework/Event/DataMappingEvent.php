@@ -7,7 +7,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
-#[Package('fundamentals@after-sales')]
+/**
+ * @codeCoverageIgnore
+ */
+#[Package('framework')]
 class DataMappingEvent extends Event implements ShopwareEvent
 {
     /**

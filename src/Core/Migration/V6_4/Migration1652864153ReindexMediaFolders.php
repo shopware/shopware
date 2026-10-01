@@ -9,15 +9,10 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1652864153ReindexMediaFolders extends MigrationStep
 {
-    /**
-     * @codeCoverageIgnore
-     */
     public function getCreationTimestamp(): int
     {
         return 1652864153;

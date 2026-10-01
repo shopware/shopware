@@ -7,12 +7,19 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Api\Controller\CacheController;
+use Shopware\Core\Framework\Api\Event\InvalidateExpiredCacheRequestEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Stub\EventDispatcher\AssertingEventDispatcher;
+use Shopware\Elasticsearch\Framework\Indexing\IndexManager;
 use Symfony\Component\Cache\Adapter\NullAdapter;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CacheController::class)]
 class CacheControllerTest extends TestCase
 {
@@ -24,9 +31,10 @@ class CacheControllerTest extends TestCase
 
         $controller = new CacheController(
             $cacheClearerMock,
-            $this->createMock(CacheInvalidator::class),
+            static::createStub(CacheInvalidator::class),
             new NullAdapter(),
-            $this->createMock(EntityIndexerRegistry::class),
+            static::createStub(EntityIndexerRegistry::class),
+            new EventDispatcher()
         );
 
         $controller->clearCache();
@@ -38,13 +46,22 @@ class CacheControllerTest extends TestCase
         $cacheInvalidatorMock->expects($this->once())
             ->method('invalidateExpired');
 
+        $indexManager = $this->createMock(IndexManager::class);
+        $indexManager->expects($this->never())
+            ->method('refreshIndices');
+
+        $eventDispatcher = new AssertingEventDispatcher($this, [
+            InvalidateExpiredCacheRequestEvent::class => 1,
+        ]);
+
         $controller = new CacheController(
-            $this->createMock(CacheClearer::class),
+            static::createStub(CacheClearer::class),
             $cacheInvalidatorMock,
             new NullAdapter(),
-            $this->createMock(EntityIndexerRegistry::class),
+            static::createStub(EntityIndexerRegistry::class),
+            $eventDispatcher,
         );
 
-        $controller->clearDelayedCache();
+        $controller->clearDelayedCache(new Request());
     }
 }

@@ -7,13 +7,16 @@ use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\Event\CustomerDeletedEvent;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -25,11 +28,13 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
 {
     /**
      * @param EntityRepository<CustomerCollection> $customerRepository
+     * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
      *
      * @internal
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
+        private readonly EntityRepository $salesChannelRepository,
         private readonly SalesChannelContextServiceInterface $salesChannelContextService,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly JsonEntityEncoder $jsonEntityEncoder
@@ -52,7 +57,7 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
 
         $ids = $event->getIds(CustomerDefinition::ENTITY_NAME);
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -76,13 +81,26 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
 
         $customers = $this->customerRepository->search($criteria, $context)->getEntities();
 
-        $event->addSuccess(function () use ($customers, $context, $salesChannelId, $criteria): void {
+        $salesChannelLanguages = $this->loadSalesChannelLanguages($customers, $salesChannelId, $context);
+
+        $event->addSuccess(function () use ($customers, $context, $salesChannelId, $criteria, $salesChannelLanguages): void {
             foreach ($customers as $customer) {
+                $languageId = $customer->getLanguageId();
+
+                $effectiveSalesChannelId = $salesChannelId ?? $customer->getSalesChannelId();
+
+                $effectiveLanguageId = $salesChannelLanguages
+                    ->get($effectiveSalesChannelId)
+                    ?->getLanguages()
+                    ?->has($languageId)
+                        ? $languageId
+                        : null;
+
                 $salesChannelContext = $this->salesChannelContextService->get(
                     new SalesChannelContextServiceParameters(
-                        $salesChannelId ?? $customer->getSalesChannelId(),
+                        $effectiveSalesChannelId,
                         Random::getAlphanumericString(32),
-                        $customer->getLanguageId(),
+                        $effectiveLanguageId,
                         null,
                         null,
                         $context,
@@ -101,5 +119,19 @@ class CustomerBeforeDeleteSubscriber implements EventSubscriberInterface
                 ));
             }
         });
+    }
+
+    private function loadSalesChannelLanguages(CustomerCollection $customers, ?string $salesChannelIdFromSource, Context $context): SalesChannelCollection
+    {
+        $salesChannelIds = $salesChannelIdFromSource ? [$salesChannelIdFromSource] : $customers->getSalesChannelIds();
+
+        $criteria = new Criteria($salesChannelIds);
+        $association = $criteria->getAssociation('languages');
+
+        $association
+            ->addFields(['id'])
+            ->addFilter(new EqualsAnyFilter('id', $customers->getLanguageIds()));
+
+        return $this->salesChannelRepository->search($criteria, $context)->getEntities();
     }
 }

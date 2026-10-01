@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Scaffolding\Generato
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ComposerGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ComposerGenerator::class)]
 class ComposerGeneratorTest extends TestCase
 {
@@ -19,15 +21,13 @@ class ComposerGeneratorTest extends TestCase
     {
         $generator = new ComposerGenerator();
 
-        static::assertFalse($generator->hasCommandOption());
-        static::assertEmpty($generator->getCommandOptionName());
-        static::assertEmpty($generator->getCommandOptionDescription());
+        static::assertNull($generator->getCommandOption());
     }
 
     public function testGenerateStubs(): void
     {
         $generator = new ComposerGenerator();
-        $configuration = new PluginScaffoldConfiguration('TestPlugin', 'MyNamespace', '/path/to/directory');
+        $configuration = new PluginScaffoldConfiguration('TestPlugin', 'My\\Namespace', '/path/to/directory');
         $stubCollection = new StubCollection();
 
         $generator->generateStubs($configuration, $stubCollection);
@@ -40,9 +40,10 @@ class ComposerGeneratorTest extends TestCase
         $stub = $stubCollection->get('composer.json');
 
         static::assertNotNull($stub->getContent());
+        static::assertJson($stub->getContent());
         static::assertStringContainsString('"name": "my-namespace/test-plugin"', $stub->getContent());
-        static::assertStringContainsString('"shopware-plugin-class": "MyNamespace\\\\TestPlugin"', $stub->getContent());
-        static::assertStringContainsString('"MyNamespace\\\\": "src/"', $stub->getContent());
-        static::assertStringContainsString('"MyNamespace\\\\Tests\\\\": "tests/"', $stub->getContent());
+        static::assertStringContainsString('"shopware-plugin-class": "My\\\\Namespace\\\\TestPlugin"', $stub->getContent());
+        static::assertStringContainsString('"My\\\\Namespace\\\\": "src/"', $stub->getContent());
+        static::assertStringContainsString('"My\\\\Namespace\\\\Tests\\\\": "tests/"', $stub->getContent());
     }
 }

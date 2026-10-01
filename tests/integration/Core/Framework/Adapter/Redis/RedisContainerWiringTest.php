@@ -2,13 +2,13 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Redis;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionProvider;
 use Shopware\Core\Framework\Increment\RedisIncrementer;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestKernel;
+use Shopware\Tests\Integration\Core\Framework\Trait\CustomKernelTestBehavior;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -18,7 +18,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * @internal
  */
 #[Package('framework')]
-#[Group('slow')]
 class RedisContainerWiringTest extends TestCase
 {
     /** @use CustomKernelTestBehavior<RedisTestKernel> */
@@ -36,6 +35,11 @@ class RedisContainerWiringTest extends TestCase
 
     public static function tearDownAfterClass(): void
     {
+        $redisUrl = (string) EnvironmentHelper::getVariable('REDIS_URL');
+        if ($redisUrl === '') {
+            return;
+        }
+
         self::unloadKernel();
     }
 
@@ -47,7 +51,7 @@ class RedisContainerWiringTest extends TestCase
 
         // Validate config is read correctly
         static::assertTrue($container->hasParameter('shopware.redis.connections.ephemeral.dsn'));
-        static::assertEquals($redisUrl, $container->getParameter('shopware.redis.connections.ephemeral.dsn'));
+        static::assertSame($redisUrl, $container->getParameter('shopware.redis.connections.ephemeral.dsn'));
 
         // Validate that connection provider is correctly set
         static::assertTrue($container->has(RedisConnectionProvider::class));
@@ -85,7 +89,7 @@ class RedisContainerWiringTest extends TestCase
         static::assertArrayHasKey('count', $list2['test']);
 
         // Compare the 'count' values
-        static::assertEquals($list1['test']['count'] + 1, $list2['test']['count']);
+        static::assertSame($list1['test']['count'] + 1, $list2['test']['count']);
     }
 
     public function testCacheInvalidatorAdapter(): void

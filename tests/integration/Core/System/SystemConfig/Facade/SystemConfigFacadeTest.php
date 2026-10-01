@@ -54,7 +54,7 @@ class SystemConfigFacadeTest extends TestCase
             new Script('test', '', new \DateTimeImmutable())
         );
 
-        static::assertEquals($result, $facade->get('test.value', $salesChannelId));
+        static::assertSame($result, $facade->get('test.value', $salesChannelId));
     }
 
     /**
@@ -115,7 +115,7 @@ class SystemConfigFacadeTest extends TestCase
             new Script('test', '', new \DateTimeImmutable(), $appInfo)
         );
 
-        static::assertEquals('generic', $facade->get('test.value'));
+        static::assertSame('generic', $facade->get('test.value'));
     }
 
     public function testGetAppConfigForAppWithoutPermission(): void
@@ -129,7 +129,7 @@ class SystemConfigFacadeTest extends TestCase
             new Script('test', '', new \DateTimeImmutable(), $appInfo)
         );
 
-        static::assertEquals('test', $facade->app('testValue'));
+        static::assertSame('test', $facade->app('testValue'));
     }
 
     public function testGetAppConfigForApp(): void
@@ -143,7 +143,7 @@ class SystemConfigFacadeTest extends TestCase
             new Script('test', '', new \DateTimeImmutable(), $appInfo)
         );
 
-        static::assertEquals('test', $facade->app('testValue'));
+        static::assertSame('test', $facade->app('testValue'));
     }
 
     public function testGetAppConfigThrowsWithoutApp(): void
@@ -184,8 +184,8 @@ class SystemConfigFacadeTest extends TestCase
         $extension = $page->getExtension('systemConfigExtension');
         static::assertInstanceOf(ArrayStruct::class, $extension);
 
-        static::assertEquals('system_config', $extension->get('systemConfig'));
-        static::assertEquals('app_config', $extension->get('appConfig'));
+        static::assertSame('system_config', $extension->get('systemConfig'));
+        static::assertSame('app_config', $extension->get('appConfig'));
     }
 
     private function installApp(string $appDir): ScriptAppInformation
@@ -193,11 +193,12 @@ class SystemConfigFacadeTest extends TestCase
         $this->loadAppsFromDir($appDir);
 
         /** @var AppEntity $app */
-        $app = static::getContainer()->get('app.repository')->search(new Criteria(), Context::createDefaultContext())->first();
+        $app = static::getContainer()->get('app.repository')->search(new Criteria(), Context::createDefaultContext())->getEntities()->first();
 
         return new ScriptAppInformation(
             $app->getId(),
             $app->getName(),
+            $app->getVersion(),
             $app->getIntegrationId()
         );
     }

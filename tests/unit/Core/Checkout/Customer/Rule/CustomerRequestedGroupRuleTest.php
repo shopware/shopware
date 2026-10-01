@@ -62,13 +62,13 @@ class CustomerRequestedGroupRuleTest extends TestCase
     public function testGetConfig(): void
     {
         $config = $this->rule->getConfig();
-        static::assertEquals([
+        static::assertSame([
             'operatorSet' => [
                 'operators' => [
                     ...RuleConfig::OPERATOR_SET_STRING,
                     Rule::OPERATOR_EMPTY,
                 ],
-                'isMatchAny' => true,
+                'isMatchAny' => false,
             ],
             'fields' => [
                 'customerGroupIds' => [
@@ -101,7 +101,7 @@ class CustomerRequestedGroupRuleTest extends TestCase
             }
         }
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
         $scope = new CheckoutRuleScope($context);
 
@@ -112,7 +112,7 @@ class CustomerRequestedGroupRuleTest extends TestCase
 
     public function testInvalidScopeIsFalse(): void
     {
-        $invalidScope = $this->createMock(RuleScope::class);
+        $invalidScope = static::createStub(RuleScope::class);
         $this->rule->assign(['customerGroupIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }

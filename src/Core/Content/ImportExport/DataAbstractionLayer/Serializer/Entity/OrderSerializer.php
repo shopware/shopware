@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Entity;
 
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
@@ -52,6 +53,10 @@ class OrderSerializer extends EntitySerializer
             if (!empty($entity['deliveries']['trackingCodes'])) {
                 $entity['deliveries']['trackingCodes'] = implode('|', $entity['deliveries']['trackingCodes']);
             }
+
+            if (isset($entity['deliveries']['shippingCosts']) && $entity['deliveries']['shippingCosts'] instanceof CalculatedPrice) {
+                $entity['deliveries']['shippingCosts'] = $entity['deliveries']['shippingCosts']->getTotalPrice();
+            }
         }
 
         if (isset($entity['transactions']) && $entity['transactions'] instanceof OrderTransactionCollection && $entity['transactions']->count() > 0) {
@@ -59,6 +64,10 @@ class OrderSerializer extends EntitySerializer
 
             if (!empty($entity['transactions']['stateMachineState']) && $entity['transactions']['stateMachineState'] instanceof StateMachineStateEntity) {
                 $entity['transactions']['stateMachineState'] = $entity['transactions']['stateMachineState']->jsonSerialize();
+            }
+
+            if (isset($entity['transactions']['amount']) && $entity['transactions']['amount'] instanceof CalculatedPrice) {
+                $entity['transactions']['amount'] = $entity['transactions']['amount']->getTotalPrice();
             }
         }
 
@@ -68,6 +77,10 @@ class OrderSerializer extends EntitySerializer
 
         if (isset($entity['totalRounding']) && $entity['totalRounding'] instanceof CashRoundingConfig) {
             $entity['totalRounding'] = $entity['totalRounding']->jsonSerialize();
+        }
+
+        if (isset($entity['shippingCosts']) && $entity['shippingCosts'] instanceof CalculatedPrice) {
+            $entity['shippingCosts'] = $entity['shippingCosts']->getTotalPrice();
         }
 
         yield from $entity;

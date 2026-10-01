@@ -2,11 +2,6 @@
 
 namespace Shopware\Core\Framework\Rule;
 
-use Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension;
-use Shopware\Core\Framework\Adapter\Twig\Extension\PcreExtension;
-use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
-use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
-use Shopware\Core\Framework\Adapter\Twig\SecurityExtension;
 use Shopware\Core\Framework\Adapter\Twig\TwigEnvironment;
 use Shopware\Core\Framework\App\Event\Hooks\AppScriptConditionHook;
 use Shopware\Core\Framework\Log\Package;
@@ -14,13 +9,13 @@ use Shopware\Core\Framework\Script\Debugging\Debug;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\Script\Execution\Script;
-use Shopware\Core\Framework\Script\Execution\ScriptTwigLoader;
+use Shopware\Core\Framework\Script\Execution\ScriptEnvironmentFactory;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Validator\Constraint;
 use Twig\Cache\FilesystemCache;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use Twig\Extension\DebugExtension;
 
 /**
  * @final
@@ -33,7 +28,7 @@ class ScriptRule extends Rule
     protected string $script = '';
 
     /**
-     * @var array<string, Constraint[]>
+     * @var array<string, list<Constraint>>
      */
     protected array $constraints = [];
 
@@ -46,24 +41,20 @@ class ScriptRule extends Rule
 
     protected ?string $identifier = null;
 
+    // Following properties are set while unserialization in `configureDependencies()`
     protected ?ScriptTraces $traces = null;
 
     protected ?string $cacheDir = null;
 
     protected bool $debug = true;
 
+    private ScriptEnvironmentFactory $scriptEnvironmentFactory;
+
     public function match(RuleScope $scope): bool
     {
+        $name = $this->identifier ?? $this->getName();
         $context = [...['scope' => $scope], ...$this->values];
         $lastModified = $this->lastModified ?? $scope->getCurrentTime();
-        $name = $this->identifier ?? $this->getName();
-
-        $options = ['auto_reload' => true];
-        if (!$this->debug) {
-            $options['cache'] = new FilesystemCache($this->cacheDir . '/' . $name);
-        } else {
-            $options['debug'] = true;
-        }
 
         $script = new Script(
             $name,
@@ -76,25 +67,17 @@ class ScriptRule extends Rule
                 {{- var -}}
             ', implode(', ', array_keys($context)), $this->script),
             $lastModified,
-            null,
-            $options
         );
 
-        $twig = new TwigEnvironment(
-            new ScriptTwigLoader($script),
-            $script->getTwigOptions()
-        );
-
-        $twig->addExtension(new PhpSyntaxExtension());
-        $twig->addExtension(new ComparisonExtension());
-        $twig->addExtension(new PcreExtension());
-        $twig->addExtension(new ReplaceRecursiveFilter());
-
-        if ($this->debug) {
-            $twig->addExtension(new DebugExtension());
+        $twigOptions = ['auto_reload' => true];
+        if (!$this->debug) {
+            $twigOptions['cache'] = new FilesystemCache($this->cacheDir . '/' . $name);
+        } else {
+            $twigOptions['debug'] = true;
         }
+        $script->setTwigOptions($twigOptions);
 
-        $twig->addExtension(new SecurityExtension([]));
+        $twig = $this->scriptEnvironmentFactory->initEnv($script);
 
         $hook = new AppScriptConditionHook($scope->getContext());
 
@@ -105,16 +88,13 @@ class ScriptRule extends Rule
         }
     }
 
-    /**
-     * @return array<string, Constraint[]>
-     */
     public function getConstraints(): array
     {
         return $this->constraints;
     }
 
     /**
-     * @param array<string, Constraint[]> $constraints
+     * @param array<string, list<Constraint>> $constraints
      */
     public function setConstraints(array $constraints): void
     {
@@ -123,8 +103,6 @@ class ScriptRule extends Rule
 
     /**
      * @param array<string, mixed> $options
-     *
-     * @return $this
      */
     public function assignValues(array $options): ScriptRule
     {
@@ -141,6 +119,14 @@ class ScriptRule extends Rule
         return $this->values;
     }
 
+    public function configureDependencies(ContainerInterface $container): void
+    {
+        $this->scriptEnvironmentFactory = $container->get(ScriptEnvironmentFactory::class);
+        $this->traces = $container->get(ScriptTraces::class);
+        $this->cacheDir = $container->getParameter('twig.cache');
+        $this->debug = $container->getParameter('kernel.debug');
+    }
+
     /**
      * @param array<string, mixed> $context
      *
@@ -151,11 +137,11 @@ class ScriptRule extends Rule
     private function render(TwigEnvironment $twig, Script $script, Hook $hook, string $name, array $context): bool
     {
         if (!$this->traces) {
-            return filter_var(trim((string) $twig->render($name, $context)), \FILTER_VALIDATE_BOOLEAN);
+            return filter_var(trim($twig->render($name, $context)), \FILTER_VALIDATE_BOOLEAN);
         }
 
         $match = false;
-        $this->traces->trace($hook, $script, function (Debug $debug) use ($twig, $name, $context, &$match): void {
+        $this->traces->trace($hook, $script, static function (Debug $debug) use ($twig, $name, $context, &$match): void {
             $twig->addGlobal('debug', $debug);
 
             $rendered = $twig->render($name, $context);

@@ -6,6 +6,7 @@ import { watch } from 'vue';
 import { publish } from '@shopware-ag/meteor-admin-sdk/es/channel';
 import '../store/context.store';
 import useSession from '../composables/use-session';
+import useTheme from '../composables/use-theme';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function initializeContext(): void {
@@ -39,6 +40,10 @@ export default function initializeContext(): void {
         return Shopware.Context.app.config.version ?? '';
     });
 
+    Shopware.ExtensionAPI.handle('contextTheme', () => {
+        return useTheme().resolvedTheme.value;
+    });
+
     Shopware.ExtensionAPI.handle('contextUserTimezone', () => {
         return Shopware.Store.get('session').currentUser?.timeZone ?? 'UTC';
     });
@@ -54,7 +59,6 @@ export default function initializeContext(): void {
             };
         }
 
-        // eslint-disable-next-line max-len,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         const modules = Shopware.Store.get('extensionSdkModules').getRegisteredModuleInformation(
             extension.baseUrl,
         ) as Array<{
@@ -67,6 +71,14 @@ export default function initializeContext(): void {
         return {
             modules,
         };
+    });
+
+    Shopware.ExtensionAPI.handle('contextIsService', (_, { _event_ }) => {
+        const extension = Object.values(Shopware.Store.get('extensions').extensionsState).find((ext) =>
+            ext.baseUrl.startsWith(_event_.origin),
+        );
+
+        return extension?.sourceType === 'service';
     });
 
     Shopware.ExtensionAPI.handle('contextUserInformation', (_, { _event_ }) => {
@@ -89,7 +101,7 @@ export default function initializeContext(): void {
             aclRoles: currentUser?.aclRoles as unknown as Array<{
                 name: string;
                 type: string;
-                id: string;
+                id: EntityKey<'acl_role'>;
                 privileges: Array<string>;
             }>,
             active: !!currentUser?.active,
@@ -109,26 +121,28 @@ export default function initializeContext(): void {
 
     Shopware.ExtensionAPI.handle('contextAppInformation', (_, { _event_ }) => {
         const appOrigin = _event_.origin;
-        const extension = Object.entries(Shopware.Store.get('extensions').extensionsState).find((ext) => {
+        const extensionEntry = Object.entries(Shopware.Store.get('extensions').extensionsState).find((ext) => {
             return ext[1].baseUrl.startsWith(appOrigin);
         });
 
-        if (!extension || !extension[0] || !extension[1]) {
-            const type: 'app' | 'plugin' = 'app';
-
+        if (extensionEntry === undefined) {
             return {
                 name: 'unknown',
-                type: type,
+                type: 'app' as const,
                 version: '0.0.0',
-                inAppPurchases: null,
+                inAppPurchases: [],
+                privileges: {},
             };
         }
 
+        const [extensionName, extension] = extensionEntry;
+
         return {
-            name: extension[0],
-            type: extension[1].type,
-            version: extension[1].version ?? '',
-            inAppPurchases: Shopware.InAppPurchase.getByExtension(extension[1].name),
+            name: extensionName,
+            type: extension.type,
+            version: extension.version ?? '',
+            inAppPurchases: Shopware.InAppPurchase.getByExtension(extension.name),
+            privileges: extension.permissions,
         };
     });
 
@@ -178,11 +192,19 @@ export default function initializeContext(): void {
         });
     });
 
+    watch(useTheme().resolvedTheme, (resolvedTheme) => {
+        void publish('contextTheme', resolvedTheme);
+    });
+
     Shopware.ExtensionAPI.handle('windowGetId', () => {
         if (!contextStore.app.windowId) {
             contextStore.app.windowId = Shopware.Utils.createId();
         }
 
         return contextStore.app.windowId;
+    });
+
+    Shopware.ExtensionAPI.handle('contextShopId', () => {
+        return contextStore.app.config.shopId;
     });
 }

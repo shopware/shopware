@@ -55,7 +55,8 @@ class CustomerFlowEventsSubscriber implements EventSubscriberInterface
 
         foreach ($payloads as $payload) {
             try {
-                if (!empty($payload['createdAt'])) {
+                $createdAt = $payload['createdAt'] ?? null;
+                if ($createdAt !== null && $createdAt !== '') {
                     $this->dispatchCustomerRegisterEvent($payload['id'], $event);
                 }
             } catch (SalesChannelException $exception) {

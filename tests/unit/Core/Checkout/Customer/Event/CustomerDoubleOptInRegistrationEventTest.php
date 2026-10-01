@@ -16,15 +16,15 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(CustomerDoubleOptInRegistrationEvent::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerDoubleOptInRegistrationEvent::class)]
 class CustomerDoubleOptInRegistrationEventTest extends TestCase
 {
     public function testRestoreScalarValuesCorrectly(): void
     {
         $event = new CustomerDoubleOptInRegistrationEvent(
             new CustomerEntity(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             'my-confirm-url'
         );
 
@@ -37,7 +37,7 @@ class CustomerDoubleOptInRegistrationEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('confirmUrl', $flow->data());
-        static::assertEquals('my-confirm-url', $flow->data()['confirmUrl']);
+        static::assertSame('my-confirm-url', $flow->data()['confirmUrl']);
     }
 
     public function testCrud(): void

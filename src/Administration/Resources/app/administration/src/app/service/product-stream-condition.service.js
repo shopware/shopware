@@ -13,34 +13,16 @@ const utils = Shopware.Utils;
  * @returns {Object}
  */
 export default function conditionService() {
-    const allowedProperties = [
-        'id',
-    ];
+    const allowedProperties = ['id'];
 
     const entityAllowedProperties = {
-        tag: [
-            'id',
-        ],
-        category: [
-            'id',
-        ],
-        product_manufacturer: [
-            'id',
-        ],
-        property_group_option: [
-            'id',
-            'group',
-        ],
-        property_group: [
-            'id',
-        ],
-        product_visibility: [
-            'id',
-            'salesChannel',
-        ],
-        sales_channel: [
-            'id',
-        ],
+        tag: ['id'],
+        category: ['id'],
+        product_manufacturer: ['id'],
+        property_group_option: ['id', 'group'],
+        property_group: ['id'],
+        product_visibility: ['id', 'salesChannel'],
+        sales_channel: ['id'],
         product: [
             'id',
             'active',
@@ -72,8 +54,46 @@ export default function conditionService() {
             'createdAt',
             'coverId',
             'markAsTopseller',
-            'states',
+            'type',
         ],
+    };
+
+    if (!Shopware.Feature.isActive('v6.8.0.0')) {
+        entityAllowedProperties.product.push('states');
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - remove from stream & deprecation list
+     */
+    const productStatesDeprecation = {
+        version: 'v6.8.0',
+        label: 'sw-product-stream.filter.values.states',
+        replacement: {
+            field: 'type',
+            label: 'sw-product-stream.filter.values.type',
+        },
+    };
+
+    /**
+     * Registry of deprecated filter fields. `getDeprecationsInTree` reads this to
+     * render the deprecation notice on the detail page.
+     *
+     * To deprecate a field, add an entry:
+     *
+     *   <fieldName>: {
+     *       version: 'v6.8.0',                                   // version it is removed in
+     *       label: 'sw-product-stream.filter.values.<field>',    // snippet key, shown as the field name
+     *       replacement: {                                       // optional; omit if there is none
+     *           field: '<replacementField>',
+     *           label: 'sw-product-stream.filter.values.<replacementField>',
+     *       },
+     *   }
+     *
+     * @type {Object<string, { version: string, label: string, replacement?: { field: string, label: string } }>}
+     */
+    const deprecatedFields = {
+        states: productStatesDeprecation,
+        'product.states': productStatesDeprecation,
     };
 
     const allowedJsonAccessors = {
@@ -187,13 +207,9 @@ export default function conditionService() {
     };
 
     const operatorSets = {
-        boolean: [
-            productFilterTypes.equals,
-        ],
+        boolean: [productFilterTypes.equals],
 
-        empty: [
-            productFilterTypes.equals,
-        ],
+        empty: [productFilterTypes.equals],
 
         string: [
             productFilterTypes.equals,
@@ -255,6 +271,15 @@ export default function conditionService() {
             productFilterTypes.range,
         ],
 
+        text: [
+            productFilterTypes.equals,
+            productFilterTypes.notEquals,
+            productFilterTypes.equalsAny,
+            productFilterTypes.notEqualsAny,
+            productFilterTypes.contains,
+            productFilterTypes.notContains,
+        ],
+
         default: [
             productFilterTypes.equals,
             productFilterTypes.notEquals,
@@ -282,6 +307,7 @@ export default function conditionService() {
         isNegatedType,
         isRangeType,
         isRelativeTimeType,
+        getDeprecationsInTree,
         allowedJsonAccessors,
     };
 
@@ -453,9 +479,61 @@ export default function conditionService() {
     }
 
     function isRelativeTimeType(type) {
-        return [
-            productFilterTypes.since.identifier,
-            productFilterTypes.until.identifier,
-        ].includes(type);
+        return [productFilterTypes.since.identifier, productFilterTypes.until.identifier].includes(type);
+    }
+
+    function getDeprecationsInTree(filters) {
+        const uniqueFields = [...new Set(collectFilterFields(filters))];
+
+        return uniqueFields.flatMap((field) => {
+            const deprecation = deprecatedFields[field];
+
+            if (!deprecation) {
+                return [];
+            }
+
+            return [
+                {
+                    field,
+                    label: deprecation.label,
+                    version: deprecation.version,
+                    replacement: deprecation.replacement ?? null,
+                },
+            ];
+        });
+    }
+
+    function collectFilterFields(filters) {
+        return normalizeFilterCollection(filters).flatMap((condition) => {
+            if (!condition) {
+                return [];
+            }
+
+            return [
+                ...(condition.field ? [condition.field] : []),
+                ...collectFilterFields(condition.queries),
+                ...collectFilterFields(condition.children),
+            ];
+        });
+    }
+
+    function normalizeFilterCollection(filters) {
+        if (!filters) {
+            return [];
+        }
+
+        if (Array.isArray(filters)) {
+            return filters.filter(Boolean);
+        }
+
+        if (typeof filters.toArray === 'function') {
+            return filters.toArray();
+        }
+
+        if (typeof filters[Symbol.iterator] === 'function') {
+            return [...filters];
+        }
+
+        return [];
     }
 }

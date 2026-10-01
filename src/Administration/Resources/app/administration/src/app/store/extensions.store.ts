@@ -3,6 +3,7 @@
  * @private
  */
 import { setExtensions } from '@shopware-ag/meteor-admin-sdk/es/channel';
+import type { privileges } from '@shopware-ag/meteor-admin-sdk/es/_internals/privileges';
 
 /**
  * @private
@@ -10,10 +11,11 @@ import { setExtensions } from '@shopware-ag/meteor-admin-sdk/es/channel';
 export interface Extension {
     name: string;
     baseUrl: string;
-    permissions: Record<string, unknown>;
+    permissions: privileges;
     version?: string;
     type: 'app' | 'plugin';
-    integrationId?: string;
+    sourceType?: string;
+    integrationId?: EntityKey<'integration'>;
     active?: boolean;
 }
 
@@ -32,7 +34,7 @@ const extensions = Shopware.Store.register({
     }),
 
     actions: {
-        addExtension({ name, baseUrl, permissions, version, type, integrationId, active }: Extension) {
+        addExtension({ name, baseUrl, permissions, version, type, sourceType, integrationId, active }: Extension) {
             if (!this.extensionsState[name]) {
                 this.extensionsState[name] = {
                     name,
@@ -40,6 +42,7 @@ const extensions = Shopware.Store.register({
                     permissions,
                     version,
                     type,
+                    sourceType,
                     integrationId,
                     active,
                 };

@@ -31,12 +31,12 @@ class CronIntervalFieldTest extends TestCase
 
     public function testGetSerializerWillReturnFieldSerializerInterfaceInstance(): void
     {
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry
             ->method('getSerializer')
             ->willReturn(
                 new CronIntervalFieldSerializer(
-                    $this->createMock(ValidatorInterface::class),
+                    static::createStub(ValidatorInterface::class),
                     $registry
                 )
             );

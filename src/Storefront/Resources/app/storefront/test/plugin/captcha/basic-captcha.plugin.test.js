@@ -47,6 +47,20 @@ describe('BasicCaptchaPlugin tests', () => {
         expect(loadBasicCaptchaSpy).toHaveBeenCalled();
     });
 
+    test('Plugin should create a fake input', () => {
+        basicCaptchaPlugin = new BasicCaptchaPlugin(captchaElement);
+
+        const fakeInput = basicCaptchaPlugin.el.querySelector('#shopware_basic_captcha_check');
+
+        expect(fakeInput).toBeDefined();
+        expect(fakeInput.required).toBe(true);
+        expect(fakeInput.value).toBe('');
+        expect(fakeInput.type).toBe('text');
+        expect(fakeInput.style.display).toBe('none');
+        expect(fakeInput.tabIndex).toBe(-1);
+        expect(fakeInput.ariaHidden).toBe('true');
+    });
+
     test('Captcha should be updated if reload button is clicked', () => {
         const captchaReloadSpy = jest.spyOn(BasicCaptchaPlugin.prototype, '_onLoadBasicCaptcha');
 
@@ -77,6 +91,9 @@ describe('BasicCaptchaPlugin tests', () => {
         basicCaptchaPlugin._form.submit = jest.fn();
 
         const captchaInput = basicCaptchaPlugin._form.querySelector(basicCaptchaPlugin.options.basicCaptchaInputId);
+        const fakeInput = basicCaptchaPlugin.fakeInput;
+
+        captchaInput.value = 'test';
 
         await basicCaptchaPlugin.validateCaptcha(new Event('submit'));
 
@@ -84,6 +101,8 @@ describe('BasicCaptchaPlugin tests', () => {
         await expect(basicCaptchaPlugin._form.submit).toHaveBeenCalledTimes(0);
 
         expect(captchaInput.classList).toContain(window.formValidation.config.invalidClass);
+        expect(fakeInput.value).toBe('');
+        expect(basicCaptchaPlugin._form.checkValidity()).toBe(false);
     });
 
     test('Form should be submitted if captcha is valid', async () => {
@@ -102,12 +121,17 @@ describe('BasicCaptchaPlugin tests', () => {
         basicCaptchaPlugin._form.submit = jest.fn();
 
         const captchaInput = basicCaptchaPlugin._form.querySelector(basicCaptchaPlugin.options.basicCaptchaInputId);
+        const fakeInput = basicCaptchaPlugin.fakeInput;
+
+        captchaInput.value = 'test';
 
         await basicCaptchaPlugin.validateCaptcha(new Event('submit'));
 
         await expect(validationSpy).toHaveBeenCalledTimes(1);
         await expect(basicCaptchaPlugin._form.submit).toHaveBeenCalledTimes(1);
-
+        
         expect(captchaInput.classList).not.toContain(window.formValidation.config.invalidClass);
+        expect(fakeInput.value).toBe('test');
+        expect(basicCaptchaPlugin._form.checkValidity()).toBe(true);
     });
 });

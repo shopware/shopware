@@ -18,14 +18,9 @@ export default {
         'cmsPageTypeService',
     ],
 
-    emits: [
-        'modal-layout-select',
-        'modal-close',
-    ],
+    emits: ['modal-layout-select', 'modal-close'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('listing')],
 
     props: {
         headline: {
@@ -89,21 +84,21 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-cms.list.gridHeaderName'),
+                    label: this.$t('sw-cms.list.gridHeaderName'),
                     inlineEdit: 'string',
                     primary: true,
                 },
                 {
                     property: 'type',
-                    label: this.$tc('sw-cms.list.gridHeaderType'),
+                    label: this.$t('sw-cms.list.gridHeaderType'),
                 },
                 {
                     property: 'createdAt',
-                    label: this.$tc('sw-cms.list.gridHeaderCreated'),
+                    label: this.$t('sw-cms.list.gridHeaderCreated'),
                 },
                 {
                     property: 'updatedAt',
-                    label: this.$tc('sw-cms.list.gridHeaderUpdated'),
+                    label: this.$t('sw-cms.list.gridHeaderUpdated'),
                 },
             ];
         },
@@ -116,6 +111,9 @@ export default {
             return { [this.selectedPageObject.id]: this.selectedPageObject };
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -204,12 +202,9 @@ export default {
         },
 
         getPageType(page) {
-            const isDefault = [
-                this.defaultProductId,
-                this.defaultCategoryId,
-            ].includes(page.id);
-            const defaultText = this.$tc('sw-cms.components.cmsListItem.defaultLayout');
-            const typeLabel = this.$tc(this.cmsPageTypeService.getType(page.type)?.title);
+            const isDefault = [this.defaultProductId, this.defaultCategoryId].includes(page.id);
+            const defaultText = this.$t('sw-cms.components.cmsListItem.defaultLayout');
+            const typeLabel = this.$t(this.cmsPageTypeService.getType(page.type)?.title);
             return isDefault ? `${defaultText} - ${typeLabel}` : typeLabel;
         },
 

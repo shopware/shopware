@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Api\Response\Type;
 
 use Shopware\Core\Framework\Api\Response\ResponseFactoryInterface;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -34,9 +35,7 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
     }
 
     /**
-     * @template TEntityCollection of EntityCollection
-     *
-     * @param EntitySearchResult<covariant TEntityCollection> $searchResult
+     * @param EntitySearchResult<covariant EntityCollection<covariant Entity>> $searchResult
      * @param array<string, mixed> $parameters
      *
      * @return array{first?: string, prev?: string, next?: string, last?: string}
@@ -80,11 +79,11 @@ abstract class JsonFactoryBase implements ResponseFactoryInterface
 
             case Criteria::TOTAL_COUNT_MODE_NEXT_PAGES:
                 $remaining = $searchResult->getTotal();
-                $maxFetchCount = $limit * 5 + 1;
+                $maxLastPageCount = $searchResult->getCriteria()->getNextPagesLimit();
                 if ($remaining && $remaining > $limit) {
                     $pagination['next'] = $this->buildPaginationUrl($uri, $parameters, $limit, $currentPage + 1);
                 }
-                if ($remaining > 0 && $remaining < $maxFetchCount) {
+                if ($remaining > 0 && $remaining < $maxLastPageCount) {
                     $lastPage = $currentPage - 1 + (int) ceil($remaining / $limit);
                     $pagination['last'] = $this->buildPaginationUrl($uri, $parameters, $limit, $lastPage);
                 }

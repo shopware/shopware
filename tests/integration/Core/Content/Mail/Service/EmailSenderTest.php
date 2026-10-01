@@ -6,6 +6,7 @@ use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\MailFactory;
 use Shopware\Core\Content\Mail\Service\MailSender;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
@@ -16,6 +17,7 @@ use Symfony\Component\Mime\Email;
 /**
  * @internal
  */
+#[Package('after-sales')]
 class EmailSenderTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -42,12 +44,14 @@ class EmailSenderTest extends TestCase
         static::assertInstanceOf(MailFactory::class, $mailFactory);
         $filesystem = $container->get('shopware.filesystem.private');
         static::assertInstanceOf(FilesystemOperator::class, $filesystem);
+        $maxMessageSizeKiB = $container->getParameter('shopware.messenger.message_max_kib_size');
+        static::assertIsInt($maxMessageSizeKiB);
 
         $subject = 'mail create test';
         $sender = ['testSender@example.org' => 'Sales Channel'];
         $recipients = ['testReceiver@example.org' => 'Receiver name', 'null-name@example.org' => null];
         // We need a large email object, otherwise the mail will not be stored in the filesystem, but sent directly to the transport.
-        $text = str_repeat('a', MailSender::MAIL_MESSAGE_SIZE_LIMIT);
+        $text = str_repeat('a', $maxMessageSizeKiB * 1024);
         $contents = ['text/html' => $text];
         $attachments = ['test'];
 
@@ -77,7 +81,7 @@ class EmailSenderTest extends TestCase
             ->method('send')
             ->with(
                 static::callback(
-                    fn (Email $email) => $email->getSubject() === $mail->getSubject() && $email->getHtmlBody() === $mail->getHtmlBody()
+                    static fn (Email $email) => $email->getSubject() === $mail->getSubject() && $email->getHtmlBody() === $mail->getHtmlBody()
                 )
             );
 

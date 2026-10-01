@@ -1,21 +1,17 @@
-@import "~scss/variables";
-
 .sw-import-export-edit-profile-modal-mapping {
     display: flex;
     flex-direction: column;
-    border-top: 1px solid $color-gray-300;
+    border-top: 1px solid var(--color-border-secondary-default);
 
     &__toolbar {
-        z-index: 10;
-        height: 83px;
         display: flex;
-        padding: 25px 35px;
-        background-color: $color-gray-100;
-        border-bottom: 1px solid $color-gray-300;
+        padding: var(--scale-size-24) var(--scale-size-32);
+        background-color: var(--color-elevation-surface-sunken);
+        border-bottom: 1px solid var(--color-border-secondary-default);
 
-        .sw-simple-search-field {
+        .mt-search {
             flex-basis: 100%;
-            margin-right: 16px;
+            margin-right: var(--scale-size-16);
         }
     }
 
@@ -24,12 +20,12 @@
         flex-grow: 1;
     }
 
-    .sw-data-grid__cell-content .sw-field--switch {
-        margin-top: 22px;
+    .sw-data-grid__cell-content .mt-switch {
+        margin-top: 0;
     }
 
     &__default-value-switch {
-        margin-right: 12px;
+        margin-right: var(--scale-size-12);
     }
 
     .sw-data-grid__cell-content .mt-switch,

@@ -1,0 +1,81 @@
+{
+  "sw-review": {
+    "general": {
+      "mainMenuItemList": "Bewertungen",
+      "mainMenuItemGeneral": "Bewertungen",
+      "placeholderSearchBar": "Durchsuche alle Bewertungen ...",
+      "descriptionTextModule": "Verwaltung von Bewertungen."
+    },
+    "list": {
+      "textReviewOverview": "Bewertungen",
+      "columnProduct": "Produkt",
+      "columnPoints": "Sterne",
+      "columnUser": "Kunde",
+      "columnStatus": "Freigegeben",
+      "columnCreatedAt": "Erstellt am",
+      "columnComment": "Kommentiert",
+      "columnTitle": "Titel",
+      "placeholderSearchBar": "Durchsuche alle Bewertungen ...",
+      "messageEmpty": "Noch keine Bewertungen",
+      "messageEmptySubline": "Verwalte Bewertungen hier",
+      "titleSidebarItemRefresh": "Aktualisieren"
+    },
+    "filters": {
+      "salesChannelFilter": {
+        "label": "Verkaufskanal",
+        "placeholder": "Nach Verkaufskanal filtern ..."
+      },
+      "statusFilter": {
+        "label": "Freigegeben"
+      },
+      "languageFilter": {
+        "label": "Sprache",
+        "placeholder": "Nach Sprache filtern ..."
+      },
+      "customerFilter": {
+        "label": "Kunde",
+        "placeholder": "Nach Kunde filtern ..."
+      },
+      "productFilter": {
+        "label": "Produkt",
+        "placeholder": "Nach Produkt filtern ..."
+      },
+      "pointsFilter": {
+        "label": "Bewertung (Sterne)"
+      }
+    },
+    "detail": {
+      "textHeadline": "Bewertung",
+      "cardTitleReviewInfo": "Bewertung",
+      "cardTitleReviewProperties": "Eigenschaften",
+      "labelTitle": "Titel",
+      "labelPoints": "Sterne",
+      "labelUser": "Kunde",
+      "labelSalesChannel": "Verkaufskanal",
+      "labelCreatedAt": "Erstelldatum",
+      "labelProduct": "Produkt",
+      "labelEmail": "E-Mail-Adresse",
+      "labelLanguage": "Sprache",
+      "labelPositive": "Positive Bewertungen",
+      "labelNegative": "Negative Bewertungen",
+      "labelStatus": "Freigegeben",
+      "labelContent": "Inhalt",
+      "labelComment": "Kommentar",
+      "labelCustomer": "Kunde",
+      "titleCardComment": "Kommentar",
+      "placeholderComment": "Kommentar eingeben ...",
+      "review1PointRatingText": "Unbefriedigend",
+      "review2PointRatingText": "Akzeptierbar",
+      "review3PointRatingText": "Gut",
+      "review4PointRatingText": "Sehr gut",
+      "review5PointRatingText": "Exzellent"
+    }
+  },
+  "sw-privileges": {
+    "permissions": {
+      "review": {
+        "label": "Bewertungen"
+      }
+    }
+  }
+}

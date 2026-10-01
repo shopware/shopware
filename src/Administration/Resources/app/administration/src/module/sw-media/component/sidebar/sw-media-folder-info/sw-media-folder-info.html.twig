@@ -3,7 +3,7 @@
     {% block sw_media_quickinfo_folder_quickactions %}
     <sw-media-collapse
         v-if="editable"
-        :title="$tc('sw-media.sidebar.sections.actions')"
+        :title="$t('sw-media.sidebar.sections.actions')"
         :expand-on-loading="true"
     >
 
@@ -13,7 +13,7 @@
                 {% block sw_media_quickinfo_folder_quickactions_move %}
                 <li
                     v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
+                        message: $t('sw-privileges.tooltip.warning'),
                         disabled: acl.can('media.editor'),
                         showOnDisabledElements: true
                     }"
@@ -29,7 +29,7 @@
                         size="16px"
                         name="regular-file-export"
                     />
-                    {{ $tc('sw-media.sidebar.actions.move') }}
+                    {{ $t('sw-media.sidebar.actions.move') }}
                 </li>
                 {% endblock %}
 
@@ -46,14 +46,14 @@
                         size="16px"
                         name="regular-cog"
                     />
-                    {{ $tc('sw-media.sidebar.actions.settings') }}
+                    {{ $t('sw-media.sidebar.actions.settings') }}
                 </li>
                 {% endblock %}
 
                 {% block sw_media_quickinfo_folder_quickactions_dissolve %}
                 <li
                     v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
+                        message: $t('sw-privileges.tooltip.warning'),
                         disabled: acl.can('media.editor'),
                         showOnDisabledElements: true
                     }"
@@ -69,14 +69,14 @@
                         size="16px"
                         name="regular-spinner-star"
                     />
-                    {{ $tc('sw-media.sidebar.actions.dissolve') }}
+                    {{ $t('sw-media.sidebar.actions.dissolve') }}
                 </li>
                 {% endblock %}
 
                 {% block sw_media_quickinfo_folder_quickactions_delete %}
                 <li
                     v-tooltip="{
-                        message: $tc('sw-privileges.tooltip.warning'),
+                        message: $t('sw-privileges.tooltip.warning'),
                         disabled: acl.can('media.deleter'),
                         showOnDisabledElements: true
                     }"
@@ -92,7 +92,7 @@
                         size="16px"
                         name="regular-trash"
                     />
-                    {{ $tc('sw-media.sidebar.actions.delete') }}
+                    {{ $t('sw-media.sidebar.actions.delete') }}
                 </li>
                 {% endblock %}
             </ul>
@@ -104,7 +104,7 @@
     {% block sw_media_quickinfo_folder_metadata %}
     <sw-media-collapse
         :expand-on-loading="true"
-        :title="$tc('sw-media.sidebar.sections.metadata')"
+        :title="$t('sw-media.sidebar.sections.metadata')"
     >
 
         {% block sw_media_quickinfo_folder_metadata_content %}
@@ -114,7 +114,7 @@
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-name"
                     :class="nameItemClasses"
-                    :label-name="$tc('sw-media.sidebar.metadata.name')"
+                    :label-name="$t('sw-media.sidebar.metadata.name')"
                     :truncated="false"
                 >
                     <sw-confirm-field
@@ -133,7 +133,7 @@
 
                 <sw-media-quickinfo-metadata-item
                     class="sw-media-quickinfo-metadata-createdAt"
-                    :label-name="$tc('sw-media.sidebar.metadata.createdAt')"
+                    :label-name="$t('sw-media.sidebar.metadata.createdAt')"
                 >
                     {{ createdAt }}
                 </sw-media-quickinfo-metadata-item>

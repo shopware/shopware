@@ -8,7 +8,6 @@ use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -17,6 +16,10 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber\CustomerMetaFieldSubscriberTest
  */
 #[Package('checkout')]
 class CustomerMetaFieldSubscriber implements EventSubscriberInterface
@@ -60,12 +63,8 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
         }
 
         $orderIds = [];
-        foreach ($event->getCommands() as $command) {
-            if ($command->getEntityName() === OrderDefinition::ENTITY_NAME
-                && $command instanceof DeleteCommand
-            ) {
-                $orderIds[] = Uuid::fromBytesToHex($command->getPrimaryKey()['id']);
-            }
+        foreach ($event->getDeletedPrimaryKeys(OrderDefinition::ENTITY_NAME) as $primaryKey) {
+            $orderIds[] = Uuid::fromBytesToHex($primaryKey['id']);
         }
 
         $this->updateCustomer($orderIds, true);
@@ -76,7 +75,7 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
      */
     private function updateCustomer(array $orderIds, bool $isDelete = false): void
     {
-        if (empty($orderIds)) {
+        if ($orderIds === []) {
             return;
         }
 
@@ -86,7 +85,7 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        if (empty($customerIds)) {
+        if ($customerIds === []) {
             return;
         }
 
@@ -107,7 +106,8 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
         }
 
         $select = '
-            SELECT `order_customer`.customer_id as id,
+            SELECT LOWER(HEX(`order_customer`.customer_id)) as customer_id,
+                   `order_customer`.customer_id as id,
                    COUNT(`order`.id) as order_count,
                    ROUND(SUM(`order`.amount_total / `order`.currency_factor), 2) as order_total_amount,
                    MAX(`order`.order_date_time) as last_order_date
@@ -128,18 +128,20 @@ class CustomerMetaFieldSubscriber implements EventSubscriberInterface
             GROUP BY `order_customer`.customer_id
         ';
 
-        $data = $this->connection->fetchAllAssociative($select, $parameters, $types);
-
-        if (empty($data)) {
-            foreach ($customerIds as $customerId) {
-                $data[] = [
-                    'id' => Uuid::fromHexToBytes($customerId),
-                    'order_count' => 0,
-                    'order_total_amount' => 0,
-                    'last_order_date' => null,
-                ];
-            }
+        $data = [];
+        foreach ($customerIds as $customerId) {
+            $data[$customerId] = [
+                'id' => Uuid::fromHexToBytes($customerId),
+                'order_count' => 0,
+                'order_total_amount' => 0,
+                'last_order_date' => null,
+            ];
         }
+
+        // indexed by the hex customer id (first column), matching the keys of the reset values above
+        $aggregated = $this->connection->fetchAllAssociativeIndexed($select, $parameters, $types);
+
+        $data = array_replace($data, $aggregated);
 
         $update = new RetryableQuery(
             $this->connection,

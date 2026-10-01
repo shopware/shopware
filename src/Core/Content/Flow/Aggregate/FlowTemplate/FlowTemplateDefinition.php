@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class FlowTemplateDefinition extends EntityDefinition
 {
@@ -39,9 +42,9 @@ class FlowTemplateDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name', 255))->addFlags(new Required()),
-            new FlowTemplateConfigField('config', 'config'),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of flow template.'),
+            (new StringField('name', 'name', 255))->addFlags(new Required())->setDescription('Name of the flow template.'),
+            (new FlowTemplateConfigField('config', 'config'))->setDescription('Specifies detailed information about the component.'),
         ]);
     }
 }

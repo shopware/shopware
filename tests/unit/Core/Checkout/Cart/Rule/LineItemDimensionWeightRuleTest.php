@@ -4,8 +4,10 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -15,7 +17,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -28,8 +30,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Group('rules')]
 class LineItemDimensionWeightRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private LineItemDimensionWeightRule $rule;
 
     protected function setUp(): void
@@ -65,12 +65,12 @@ class LineItemDimensionWeightRuleTest extends TestCase
 
         $lineItem = $this->createLineItemWithWeight($lineItemWeight);
         if ($lineItemWithoutDeliveryInfo) {
-            $lineItem = $this->createLineItem();
+            $lineItem = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $match = $this->rule->match(new LineItemScope(
             $lineItem,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -119,7 +119,8 @@ class LineItemDimensionWeightRuleTest extends TestCase
         ?float $lineItemWeight2,
         bool $expected,
         bool $lineItem1WithoutDeliveryInfo = false,
-        bool $lineItem2WithoutDeliveryInfo = false
+        bool $lineItem2WithoutDeliveryInfo = false,
+        ?float $containerLineItemWeight = null
     ): void {
         $this->rule->assign([
             'amount' => $weight,
@@ -128,23 +129,23 @@ class LineItemDimensionWeightRuleTest extends TestCase
 
         $lineItem1 = $this->createLineItemWithWeight($lineItemWeight1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = $this->createLineItem();
+            $lineItem1 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItem2 = $this->createLineItemWithWeight($lineItemWeight2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = $this->createLineItem();
+            $lineItem2 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
             $lineItem1,
             $lineItem2,
         ]);
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -168,28 +169,28 @@ class LineItemDimensionWeightRuleTest extends TestCase
 
         $lineItem1 = $this->createLineItemWithWeight($lineItemWeight1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = $this->createLineItem();
+            $lineItem1 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItem2 = $this->createLineItemWithWeight($lineItemWeight2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = $this->createLineItem();
+            $lineItem2 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
             $lineItem1,
             $lineItem2,
         ]);
-        $containerLineItem = $this->createLineItem();
+        $containerLineItem = CartRuleFixture::createLineItem();
         if ($containerLineItemWeight !== null) {
             $containerLineItem = $this->createLineItemWithWeight($containerLineItemWeight);
         }
         $containerLineItem->setChildren($lineItemCollection);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -201,46 +202,229 @@ class LineItemDimensionWeightRuleTest extends TestCase
     public static function getCartRuleScopeTestData(): \Traversable
     {
         // OPERATOR_EQ
-        yield 'match / operator equals / same weight' => [Rule::OPERATOR_EQ, 100, 100, 200, true];
-        yield 'no match / operator equals / different weight' => [Rule::OPERATOR_EQ, 200, 100, 300, false];
-        yield 'no match / operator equals / item 1 without delivery info' => [Rule::OPERATOR_EQ, 200, 100, 300, false, true];
-        yield 'no match / operator equals / item 2 without delivery info' => [Rule::OPERATOR_EQ, 200, 100, 300, false, false, true];
-        yield 'no match / operator equals / item 1 and 2 without delivery info' => [Rule::OPERATOR_EQ, 200, 100, 300, false, true, true];
+        yield 'match / operator equals / same weight' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'weight' => 100,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 200,
+            'expected' => true,
+        ];
+        yield 'no match / operator equals / different weight' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'weight' => 200,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 300,
+            'expected' => false,
+        ];
+        yield 'no match / operator equals / item 1 without delivery info' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'weight' => 200,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 300,
+            'expected' => false,
+            'lineItem1WithoutDeliveryInfo' => true,
+        ];
+        yield 'no match / operator equals / item 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'weight' => 200,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 300,
+            'expected' => false,
+            'lineItem1WithoutDeliveryInfo' => false,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
+        yield 'no match / operator equals / item 1 and 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_EQ,
+            'weight' => 200,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 300,
+            'expected' => false,
+            'lineItem1WithoutDeliveryInfo' => true,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
         // OPERATOR_NEQ
-        yield 'no match / operator not equals / same weight' => [Rule::OPERATOR_NEQ, 100, 100, 100, false, false, false, 100];
-        yield 'match / operator not equals / different weight' => [Rule::OPERATOR_NEQ, 200, 100, 200, true];
-        yield 'match / operator not equals / different weight 2' => [Rule::OPERATOR_NEQ, 200, 100, 300, true];
+        yield 'no match / operator not equals / same weight' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'weight' => 100,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 100,
+            'expected' => false,
+            'lineItem1WithoutDeliveryInfo' => false,
+            'lineItem2WithoutDeliveryInfo' => false,
+            'containerLineItemWeight' => 100,
+        ];
+        yield 'match / operator not equals / different weight' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'weight' => 200,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 200,
+            'expected' => true,
+        ];
+        yield 'match / operator not equals / different weight 2' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'weight' => 200,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 300,
+            'expected' => true,
+        ];
         // OPERATOR_GT
-        yield 'no match / operator greater than / lower weight' => [Rule::OPERATOR_GT, 100, 50, 70, false];
-        yield 'no match / operator greater than / same weight' => [Rule::OPERATOR_GT, 100, 100, 70, false];
-        yield 'match / operator greater than / higher weight' => [Rule::OPERATOR_GT, 100, 200, 70, true];
+        yield 'no match / operator greater than / lower weight' => [
+            'operator' => Rule::OPERATOR_GT,
+            'weight' => 100,
+            'lineItemWeight1' => 50,
+            'lineItemWeight2' => 70,
+            'expected' => false,
+        ];
+        yield 'no match / operator greater than / same weight' => [
+            'operator' => Rule::OPERATOR_GT,
+            'weight' => 100,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 70,
+            'expected' => false,
+        ];
+        yield 'match / operator greater than / higher weight' => [
+            'operator' => Rule::OPERATOR_GT,
+            'weight' => 100,
+            'lineItemWeight1' => 200,
+            'lineItemWeight2' => 70,
+            'expected' => true,
+        ];
         // OPERATOR_GTE
-        yield 'no match / operator greater than equals / lower weight' => [Rule::OPERATOR_GTE, 100, 50, 70, false];
-        yield 'match / operator greater than equals / same weight' => [Rule::OPERATOR_GTE, 100, 100, 70, true];
-        yield 'match / operator greater than equals / higher weight' => [Rule::OPERATOR_GTE, 100, 200, 70, true];
+        yield 'no match / operator greater than equals / lower weight' => [
+            'operator' => Rule::OPERATOR_GTE,
+            'weight' => 100,
+            'lineItemWeight1' => 50,
+            'lineItemWeight2' => 70,
+            'expected' => false,
+        ];
+        yield 'match / operator greater than equals / same weight' => [
+            'operator' => Rule::OPERATOR_GTE,
+            'weight' => 100,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 70,
+            'expected' => true,
+        ];
+        yield 'match / operator greater than equals / higher weight' => [
+            'operator' => Rule::OPERATOR_GTE,
+            'weight' => 100,
+            'lineItemWeight1' => 200,
+            'lineItemWeight2' => 70,
+            'expected' => true,
+        ];
         // OPERATOR_LT
-        yield 'match / operator lower than / lower weight' => [Rule::OPERATOR_LT, 100, 50, 120, true];
-        yield 'no match / operator lower  than / same weight' => [Rule::OPERATOR_LT, 100, 100, 120, false];
-        yield 'no match / operator lower than / higher weight' => [Rule::OPERATOR_LT, 100, 200, 120, false];
+        yield 'match / operator lower than / lower weight' => [
+            'operator' => Rule::OPERATOR_LT,
+            'weight' => 100,
+            'lineItemWeight1' => 50,
+            'lineItemWeight2' => 120,
+            'expected' => true,
+        ];
+        yield 'no match / operator lower  than / same weight' => [
+            'operator' => Rule::OPERATOR_LT,
+            'weight' => 100,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 120,
+            'expected' => false,
+        ];
+        yield 'no match / operator lower than / higher weight' => [
+            'operator' => Rule::OPERATOR_LT,
+            'weight' => 100,
+            'lineItemWeight1' => 200,
+            'lineItemWeight2' => 120,
+            'expected' => false,
+        ];
         // OPERATOR_LTE
-        yield 'match / operator lower than equals / lower weight' => [Rule::OPERATOR_LTE, 100, 50, 120, true];
-        yield 'match / operator lower than equals / same weight' => [Rule::OPERATOR_LTE, 100, 100, 120, true];
-        yield 'no match / operator lower than equals / higher weight' => [Rule::OPERATOR_LTE, 100, 200, 120, false];
+        yield 'match / operator lower than equals / lower weight' => [
+            'operator' => Rule::OPERATOR_LTE,
+            'weight' => 100,
+            'lineItemWeight1' => 50,
+            'lineItemWeight2' => 120,
+            'expected' => true,
+        ];
+        yield 'match / operator lower than equals / same weight' => [
+            'operator' => Rule::OPERATOR_LTE,
+            'weight' => 100,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 120,
+            'expected' => true,
+        ];
+        yield 'no match / operator lower than equals / higher weight' => [
+            'operator' => Rule::OPERATOR_LTE,
+            'weight' => 100,
+            'lineItemWeight1' => 200,
+            'lineItemWeight2' => 120,
+            'expected' => false,
+        ];
         // OPERATOR_EMPTY
-        yield 'no match / operator empty / with weight' => [Rule::OPERATOR_EMPTY, null, 200, 120, false, false, false, 100];
+        yield 'no match / operator empty / with weight' => [
+            'operator' => Rule::OPERATOR_EMPTY,
+            'weight' => null,
+            'lineItemWeight1' => 200,
+            'lineItemWeight2' => 120,
+            'expected' => false,
+            'lineItem1WithoutDeliveryInfo' => false,
+            'lineItem2WithoutDeliveryInfo' => false,
+            'containerLineItemWeight' => 100,
+        ];
 
-        yield 'match / operator not equals / item 1 and 2 without delivery info' => [Rule::OPERATOR_NEQ, 200, 100, 300, true, true, true];
-        yield 'match / operator not equals / item 1 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, true, true];
-        yield 'match / operator not equals / item 2 without delivery info' => [Rule::OPERATOR_NEQ, 100, 100, 100, true, false, true];
+        yield 'match / operator not equals / item 1 and 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'weight' => 200,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 300,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => true,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
+        yield 'match / operator not equals / item 1 without delivery info' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'weight' => 100,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 100,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => true,
+        ];
+        yield 'match / operator not equals / item 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_NEQ,
+            'weight' => 100,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 100,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => false,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
 
-        yield 'match / operator empty / item 1 and 2 without delivery info' => [Rule::OPERATOR_EMPTY, 200, 100, 300, true, true, true];
-        yield 'match / operator empty / item 1 without delivery info' => [Rule::OPERATOR_EMPTY, 100, 100, 100, true, true];
-        yield 'match / operator empty / item 2 without delivery info' => [Rule::OPERATOR_EMPTY, 100, 100, 100, true, false, true];
+        yield 'match / operator empty / item 1 and 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_EMPTY,
+            'weight' => 200,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 300,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => true,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
+        yield 'match / operator empty / item 1 without delivery info' => [
+            'operator' => Rule::OPERATOR_EMPTY,
+            'weight' => 100,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 100,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => true,
+        ];
+        yield 'match / operator empty / item 2 without delivery info' => [
+            'operator' => Rule::OPERATOR_EMPTY,
+            'weight' => 100,
+            'lineItemWeight1' => 100,
+            'lineItemWeight2' => 100,
+            'expected' => true,
+            'lineItem1WithoutDeliveryInfo' => false,
+            'lineItem2WithoutDeliveryInfo' => true,
+        ];
     }
 
     public function testMatchWithUnsupportedScopeShouldReturnFalse(): void
     {
-        $scope = new TestRuleScope($this->createMock(SalesChannelContext::class));
+        $scope = new TestRuleScope(static::createStub(SalesChannelContext::class));
 
         $lineItemDimensionWeightRule = new LineItemDimensionWeightRule();
 
@@ -270,8 +454,50 @@ class LineItemDimensionWeightRuleTest extends TestCase
         static::assertSame(RuleConfig::UNIT_WEIGHT, $result->getData()['fields']['amount']['config']['unit']);
     }
 
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemWithoutProductDataProvider')]
+    public function testLineItemWithoutProductData(string $type, bool $lineItemScope, bool $expected): void
+    {
+        $rule = new LineItemDimensionWeightRule(Rule::OPERATOR_NEQ, 5.0);
+
+        $lineItem = CartRuleFixture::createLineItem($type);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertSame($expected, $rule->match($scope));
+    }
+
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
+    public function testLineItemWithWeightIsEvaluated(string $type, bool $lineItemScope): void
+    {
+        $rule = new LineItemDimensionWeightRule(Rule::OPERATOR_EQ, 5.0);
+
+        $lineItem = CartRuleFixture::createLineItem($type)->setDeliveryInformation($this->createLineItemWithWeight(5.0)->getDeliveryInformation());
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertTrue($rule->match($scope));
+    }
+
+    public function testCustomLineItemWithDeliveryInformationIsEvaluatedInCart(): void
+    {
+        $rule = new LineItemDimensionWeightRule(Rule::OPERATOR_NEQ, 5.0);
+        $lineItem = CartRuleFixture::createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE)->setDeliveryInformation(new DeliveryInformation(1, 0, false));
+        $scope = new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$lineItem])),
+            static::createStub(SalesChannelContext::class),
+        );
+
+        static::assertTrue($rule->match($scope));
+    }
+
     private function createLineItemWithWeight(?float $weight): LineItem
     {
-        return $this->createLineItemWithDeliveryInfo(false, 1, $weight);
+        return CartRuleFixture::createLineItemWithDeliveryInfo(false, 1, $weight);
     }
 }

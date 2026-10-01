@@ -59,20 +59,24 @@ class OrderTransactionStatusRuleTest extends TestCase
     #[DataProvider('getMatchingValues')]
     public function testOrderPaymentStatusRuleMatching(bool $expected, string $orderStateId, array $selectedOrderStateIds, string $operator): void
     {
+        $orderTransactionId = Uuid::randomHex();
+
         $stateMachineState = new StateMachineStateEntity();
         $stateMachineState->setTechnicalName(OrderTransactionStates::STATE_IN_PROGRESS);
         $orderTransactionCollection = new OrderTransactionCollection();
         $orderTransaction = new OrderTransactionEntity();
-        $orderTransaction->setId(Uuid::randomHex());
+        $orderTransaction->setId($orderTransactionId);
         $orderTransaction->setStateId($orderStateId);
         $orderTransaction->setStateMachineState($stateMachineState);
         $orderTransactionCollection->add($orderTransaction);
         $order = new OrderEntity();
         $order->setTransactions($orderTransactionCollection);
+        $order->setPrimaryOrderTransactionId($orderTransactionId);
+        $order->setPrimaryOrderTransaction($orderTransaction);
         $scope = new FlowRuleScope(
             $order,
             new Cart('test'),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $this->rule->assign(['stateIds' => $selectedOrderStateIds, 'operator' => $operator]);
@@ -81,7 +85,7 @@ class OrderTransactionStatusRuleTest extends TestCase
 
     public function testInvalidScopeIsFalse(): void
     {
-        $invalidScope = $this->createMock(RuleScope::class);
+        $invalidScope = static::createStub(RuleScope::class);
         $this->rule->assign(['salutationIds' => [Uuid::randomHex()], 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }
@@ -94,9 +98,9 @@ class OrderTransactionStatusRuleTest extends TestCase
         static::assertArrayHasKey('operatorSet', $configData);
         $operators = RuleConfig::OPERATOR_SET_STRING;
 
-        static::assertEquals([
+        static::assertSame([
             'operators' => $operators,
-            'isMatchAny' => true,
+            'isMatchAny' => false,
         ], $configData['operatorSet']);
     }
 

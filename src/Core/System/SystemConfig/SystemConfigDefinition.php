@@ -15,6 +15,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class SystemConfigDefinition extends EntityDefinition
 {
@@ -43,10 +46,10 @@ class SystemConfigDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
-            (new StringField('configuration_key', 'configurationKey'))->addFlags(new ApiAware(), new Required()),
-            (new ConfigJsonField('configuration_value', 'configurationValue'))->addFlags(new ApiAware(), new Required()),
-            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of system configuration.'),
+            (new StringField('configuration_key', 'configurationKey'))->addFlags(new ApiAware(), new Required())->setDescription('Config key for shop configurations.'),
+            (new ConfigJsonField('configuration_value', 'configurationValue'))->addFlags(new ApiAware(), new Required())->setDescription('Config value for shop configurations.'),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new ApiAware())->setDescription('Unique identity of sales channel.'),
             (new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class, 'id', false))->addFlags(new ApiAware()),
         ]);
     }

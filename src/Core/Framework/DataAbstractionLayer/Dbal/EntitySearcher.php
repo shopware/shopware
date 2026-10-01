@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StorageAware;
@@ -20,6 +21,10 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
  * Used for all search operations in the system.
  * The dbal entity searcher only joins and select fields which defined in sorting, filter or query classes.
  * Fields which are not necessary to determines which ids are affected are not fetched.
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search\EntitySearcherTest
  *
  * @internal
  */
@@ -71,11 +76,15 @@ class EntitySearcher implements EntitySearcherInterface
 
         $query = $this->criteriaQueryBuilder->build($query, $definition, $criteria, $context);
 
-        if (!empty($criteria->getIds())) {
+        if ($criteria->getIds() !== []) {
             $this->queryHelper->addIdCondition($criteria, $definition, $query);
         }
 
-        $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);
+        if ($query->hasState(Criteria::SCORE_FIELD) && $criteria->getGroupFields() !== []) {
+            $query = $this->buildScoreRankedQuery($query, $definition, $criteria, $context, $table, $fields);
+        } else {
+            $this->queryHelper->addGroupBy($definition, $criteria, $context, $query, $table);
+        }
 
         // add pagination
         if ($criteria->getOffset() !== null) {
@@ -145,13 +154,78 @@ class EntitySearcher implements EntitySearcherInterface
         return new IdSearchResult($total, $converted, $criteria, $context);
     }
 
+    /**
+     * Wraps a scored query with ROW_NUMBER() OVER(PARTITION BY ... ORDER BY _score DESC)
+     * to guarantee the highest-scoring row is selected for each group.
+     *
+     * Grouping the scored query directly would aggregate the score over all entities of a group instead, so that
+     * a group would score higher the more entities it contains - product variants grouped by `displayGroup` for
+     * example, where a product with three variants scored three times as high as a comparable single product.
+     *
+     * @param array<string, Field> $fields keyed by storage name
+     */
+    private function buildScoreRankedQuery(QueryBuilder $query, EntityDefinition $definition, Criteria $criteria, Context $context, string $table, array $fields): QueryBuilder
+    {
+        $rankingOrder = [];
+        foreach ($fields as $storageName => $field) {
+            if (!$field->is(PrimaryKey::class)) {
+                continue;
+            }
+
+            $rankingOrder[] = 'inner_q.' . EntityDefinitionQueryHelper::escape($storageName) . ' ASC';
+            $query->addGroupBy(
+                EntityDefinitionQueryHelper::escape($table) . '.' . EntityDefinitionQueryHelper::escape($storageName)
+            );
+        }
+
+        $partitionColumns = [];
+        foreach (array_values($criteria->getGroupFields()) as $i => $grouping) {
+            $accessor = $this->queryHelper->getFieldAccessor($grouping->getField(), $definition, $table, $context);
+            $alias = '_group_' . $i;
+            $query->addSelect($accessor . ' as `' . $alias . '`');
+            $partitionColumns[] = 'inner_q.`' . $alias . '`';
+        }
+
+        $outer = new QueryBuilder($this->connection);
+
+        foreach ($query->getOrderByPairs() as $i => [$expression, $direction]) {
+            // the outer query cannot reach the table aliases the expression is built from, so it travels as a column
+            $alias = Criteria::SCORE_FIELD;
+            if ($expression !== Criteria::SCORE_FIELD) {
+                $alias = '_sort_' . $i;
+                $query->addSelect($expression . ' as ' . EntityDefinitionQueryHelper::escape($alias));
+            }
+
+            $outer->addOrderBy('ranked.' . EntityDefinitionQueryHelper::escape($alias), $direction);
+        }
+
+        $query->resetOrderBy();
+
+        $innerSql = $query->getSQL();
+
+        foreach ([...array_keys($fields), Criteria::SCORE_FIELD] as $column) {
+            $outer->addSelect('ranked.' . EntityDefinitionQueryHelper::escape($column));
+        }
+
+        $outer->from(\sprintf(
+            '(SELECT inner_q.*, ROW_NUMBER() OVER(PARTITION BY %s ORDER BY inner_q._score DESC, %s) as _rn FROM (%s) inner_q)',
+            implode(', ', $partitionColumns),
+            implode(', ', $rankingOrder),
+            $innerSql
+        ), 'ranked')->andWhere('ranked._rn = 1');
+
+        $outer->setParameters($query->getParameters(), $query->getParameterTypes());
+
+        return $outer;
+    }
+
     private function addTotalCountMode(Criteria $criteria, QueryBuilder $query): void
     {
         if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_NEXT_PAGES) {
             return;
         }
 
-        $query->setMaxResults($criteria->getLimit() * 6 + 1);
+        $query->setMaxResults($criteria->getNextPagesLimit());
     }
 
     /**
@@ -161,6 +235,15 @@ class EntitySearcher implements EntitySearcherInterface
     {
         if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_EXACT) {
             return \count($data);
+        }
+
+        $offset = $criteria->getOffset() ?? 0;
+        $isPartialPage = $criteria->getLimit() === null || \count($data) < $criteria->getLimit();
+        // A partial page is the last page, so the fetched rows already determine the exact total and no separate
+        // COUNT(*) query is needed. An empty page with an offset does not: the total could be anything up to the
+        // offset, so fall through to the count query for that case.
+        if ($isPartialPage && ($data !== [] || $offset === 0)) {
+            return $offset + \count($data);
         }
 
         $query->resetOrderBy();
@@ -177,9 +260,9 @@ class EntitySearcher implements EntitySearcherInterface
 
     /**
      * @param array<string>|array<array<string, string>> $ids
-     * @param array<string, mixed> $data
+     * @param array<string, array{primaryKey: string|array<string, string>, data: array<string, mixed>}> $data
      *
-     * @return array<string, array<string, mixed>>
+     * @return array<string, array{primaryKey: string|array<string, string>, data: array<string, mixed>}>
      */
     private function sortByIdArray(array $ids, array $data): array
     {

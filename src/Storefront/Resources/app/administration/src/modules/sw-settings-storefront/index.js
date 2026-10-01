@@ -1,9 +1,21 @@
-import './page/sw-settings-storefront-index';
-import './component/sw-settings-storefront-configuration';
-
 /**
  * @sw-package framework
  */
+
+/**
+ * @deprecated tag:v6.8.0 - Will be @private
+ */
+Shopware.Component.register('sw-settings-storefront-index', () => import('./page/sw-settings-storefront-index'));
+
+/**
+ * @deprecated tag:v6.8.0 - Will be removed without replacement.
+ */
+Shopware.Component.register(
+    'sw-settings-storefront-configuration',
+    () => import('./component/sw-settings-storefront-configuration'),
+);
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-settings-storefront', {
     type: 'core',
     name: 'sw-settings-storefront',
@@ -11,7 +23,7 @@ Shopware.Module.register('sw-settings-storefront', {
     description: 'sw-settings-storefront.general.description',
     color: '#9AA8B5',
     icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    favicon: 'icon-module-settings.svg',
 
     routes: {
         index: {

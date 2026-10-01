@@ -12,6 +12,8 @@ use Shopware\Core\Framework\Struct\JsonSerializableTrait;
 
 /**
  * @phpstan-import-type MappingArray from Mapping
+ *
+ * @method array{mapping: MappingCollection, updateBy: UpdateByCollection, parameters: array<string, mixed>} jsonSerialize()
  */
 #[Package('fundamentals@after-sales')]
 class Config
@@ -59,6 +61,14 @@ class Config
     public function get(string $key): mixed
     {
         return $this->parameters[$key] ?? null;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getParameters(): array
+    {
+        return $this->parameters;
     }
 
     public static function fromLog(ImportExportLogEntity $log): self

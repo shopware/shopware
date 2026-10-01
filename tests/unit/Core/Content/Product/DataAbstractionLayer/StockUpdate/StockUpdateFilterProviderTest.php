@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\StockUpdate\StockUpdateFilterProvider;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(StockUpdateFilterProvider::class)]
 class StockUpdateFilterProviderTest extends TestCase
 {
@@ -21,6 +23,6 @@ class StockUpdateFilterProviderTest extends TestCase
 
         $provider = new StockUpdateFilterProvider([$filter]);
 
-        static::assertEquals(['id3'], $provider->filterProductIdsForStockUpdates($ids, Context::createDefaultContext()));
+        static::assertSame(['id3'], $provider->filterProductIdsForStockUpdates($ids, Context::createDefaultContext()));
     }
 }

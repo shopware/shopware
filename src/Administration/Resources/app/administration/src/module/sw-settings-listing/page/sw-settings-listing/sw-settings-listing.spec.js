@@ -1,4 +1,6 @@
-import { mount } from '@vue/test-utils';
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 /**
  * @sw-package inventory
@@ -317,6 +319,50 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                 id: '23456787654321234567876577',
                 translations: [],
             },
+            {
+                locked: false,
+                key: 'creation-date',
+                value: 'creation-date',
+                position: 1,
+                active: true,
+                fields: [
+                    {
+                        field: 'product.createdAt',
+                        order: 'asc',
+                        position: 1,
+                        naturalSorting: 0,
+                    },
+                ],
+                label: 'Creation Date',
+                createdAt: '2020-08-10T06:19:53.126+00:00',
+                updatedAt: null,
+                translated: { label: 'Creation Date' },
+                apiAlias: null,
+                id: '23456787654321234567876566',
+                translations: [],
+            },
+            {
+                locked: false,
+                key: 'availability',
+                value: 'availability',
+                position: 1,
+                active: true,
+                fields: [
+                    {
+                        field: 'product.available',
+                        order: 'desc',
+                        position: 1,
+                        naturalSorting: 0,
+                    },
+                ],
+                label: 'Availability',
+                createdAt: '2020-08-10T06:19:53.126+00:00',
+                updatedAt: null,
+                translated: { label: 'Availability' },
+                apiAlias: null,
+                id: '23456787654321234567876555',
+                translations: [],
+            },
         ];
 
         entities.total = entities.length;
@@ -360,6 +406,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.number': 'Number',
         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.ratingAverage': 'Rating Average',
         'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.clearanceSale': 'Clearance sale',
+        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.createdAt': 'Creation date',
+        'sw-settings-listing.general.productSortingCriteriaGrid.options.label.product.available': 'Available',
     };
 
     async function createWrapper() {
@@ -400,10 +448,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                             batchSave: () => {},
                         },
                     },
-                    mixins: [
-                        notificationMixinMock,
-                        Shopware.Mixin.getByName('sw-inline-snippet'),
-                    ],
+                    mixins: [notificationMixinMock, Shopware.Mixin.getByName('sw-inline-snippet')],
                     stubs: {
                         'sw-page': {
                             template: '<div><slot name="smart-bar-actions"></slot><slot name="content"></slot></div>',
@@ -411,10 +456,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-system-config': {
                             data() {
                                 return {
-                                    singleConfig: [
-                                        true,
-                                        true,
-                                    ],
+                                    singleConfig: [true, true],
                                     actualConfigData: {
                                         null: {
                                             'core.listing.defaultSorting': 'name-asc',
@@ -460,7 +502,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                             template: '<button @click="$emit(\'click\', $event)"><slot></slot></button>',
                         },
                         'sw-data-grid': await wrapTestComponent('sw-data-grid'),
-                        'sw-empty-state': true,
                         'sw-pagination': await wrapTestComponent('sw-pagination'),
                         'sw-single-select': await wrapTestComponent('sw-single-select'),
                         'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -517,11 +558,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-skeleton': true,
                         'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                         'sw-popover': await wrapTestComponent('sw-popover'),
-                        'sw-popover-deprecated': {
-                            template: `
-                            <div class="sw-popover"><slot></slot></div>
-                        `,
-                        },
+                        'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                         'sw-select-result': await wrapTestComponent('sw-select-result'),
                         'sw-search-bar': true,
                         'sw-field-error': true,
@@ -541,7 +578,7 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
                         'sw-provide': { template: `<slot/>`, inheritAttrs: false },
                     },
                     mocks: {
-                        $tc: (param) => {
+                        $t: (param) => {
                             if (snippets[param]) {
                                 return snippets[param];
                             }
@@ -564,10 +601,6 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         };
 
         await flushPromises();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have a pagination', async () => {
@@ -617,16 +650,11 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
 
         const productSortings = wrapper.vm.productSortingOptions;
 
-        Object.entries(productSortings).forEach(
-            ([
-                ,
-                productSorting,
-            ]) => {
-                if (productSorting.id === testedSortingId) {
-                    defaultSorting = productSorting;
-                }
-            },
-        );
+        Object.entries(productSortings).forEach(([, productSorting]) => {
+            if (productSorting.id === testedSortingId) {
+                defaultSorting = productSorting;
+            }
+        });
 
         expect(defaultSorting).toBeDefined();
         expect(defaultSorting.active).toBeFalsy();
@@ -697,9 +725,8 @@ describe('src/module/sw-settings-listing/page/sw-settings-listing', () => {
         await defaultSortingSelectInput.trigger('click');
         await flushPromises();
 
-        await wrapper
-            .find('.sw-inherit-wrapper .sw-settings-listing-index__default-sorting-select .sw-select-option--rating')
-            .trigger('click');
+        const ratingOption = new DOMWrapper(document.body).get('.sw-select-option--rating');
+        await ratingOption.trigger('click');
         await flushPromises();
 
         await wrapper.find('.sw-settings-listing__save-action').trigger('click');

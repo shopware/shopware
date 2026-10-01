@@ -53,7 +53,7 @@ class IndexerOffset
 
     public function hasNextDefinition(): bool
     {
-        return !empty($this->definitions);
+        return $this->definitions !== [];
     }
 
     /**

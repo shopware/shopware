@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Content\Product\Stock;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Stock\StockLoadRequest;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(StockLoadRequest::class)]
 class StockLoadRequestTest extends TestCase
 {
@@ -16,6 +18,6 @@ class StockLoadRequestTest extends TestCase
     {
         $stockRequest = new StockLoadRequest(['product-1', 'product-2']);
 
-        static::assertEquals(['product-1', 'product-2'], $stockRequest->productIds);
+        static::assertSame(['product-1', 'product-2'], $stockRequest->productIds);
     }
 }

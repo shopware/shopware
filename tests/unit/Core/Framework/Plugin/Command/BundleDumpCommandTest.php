@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\BundleConfigGenerator;
 use Shopware\Core\Framework\Plugin\Command\BundleDumpCommand;
 use Symfony\Component\Console\Input\StringInput;
@@ -14,12 +15,13 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(BundleConfigGenerator::class)]
 class BundleDumpCommandTest extends TestCase
 {
     public function testDumperWritesFile(): void
     {
-        $generator = $this->createMock(BundleConfigGenerator::class);
+        $generator = static::createStub(BundleConfigGenerator::class);
         $generator->method('getConfig')->willReturn([]);
         $tempDir = \sys_get_temp_dir() . '/' . uniqid(__FUNCTION__, true);
         (new Filesystem())->mkdir([$tempDir, $tempDir . '/var/']);
@@ -37,7 +39,7 @@ class BundleDumpCommandTest extends TestCase
 
     public function testDumperWritesFileToSpecifiedFilePath(): void
     {
-        $generator = $this->createMock(BundleConfigGenerator::class);
+        $generator = static::createStub(BundleConfigGenerator::class);
         $generator->method('getConfig')->willReturn([]);
         $tempDir = \sys_get_temp_dir() . '/' . uniqid(__FUNCTION__, true);
         (new Filesystem())->mkdir([$tempDir, $tempDir . '/var/']);

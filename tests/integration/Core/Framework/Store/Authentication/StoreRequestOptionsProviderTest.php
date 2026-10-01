@@ -4,12 +4,12 @@ namespace Shopware\Tests\Integration\Core\Framework\Store\Authentication;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
-use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Authentication\AbstractStoreRequestOptionsProvider;
 use Shopware\Core\Framework\Store\Authentication\StoreRequestOptionsProvider;
+use Shopware\Core\Framework\Store\StoreException;
 use Shopware\Core\Framework\Test\Store\StoreClientBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -40,7 +40,7 @@ class StoreRequestOptionsProviderTest extends TestCase
         $this->setShopSecret($shopSecret);
         $headers = $this->storeRequestOptionsProvider->getAuthenticationHeader($this->storeContext);
 
-        static::assertEquals([
+        static::assertSame([
             'X-Shopware-Platform-Token' => $this->getStoreTokenFromContext($this->storeContext),
             'X-Shopware-Shop-Secret' => $shopSecret,
         ], $headers);
@@ -53,7 +53,7 @@ class StoreRequestOptionsProviderTest extends TestCase
         $this->setShopSecret($shopSecret);
         $headers = $this->storeRequestOptionsProvider->getAuthenticationHeader(Context::createDefaultContext());
 
-        static::assertEquals([
+        static::assertSame([
             'X-Shopware-Platform-Token' => $this->getStoreTokenFromContext($this->storeContext),
             'X-Shopware-Shop-Secret' => $shopSecret,
         ], $headers);
@@ -63,7 +63,7 @@ class StoreRequestOptionsProviderTest extends TestCase
     {
         $context = new Context(new AdminApiSource(null, Uuid::randomHex()));
 
-        static::expectException(InvalidContextSourceUserException::class);
+        $this->expectExceptionObject(StoreException::invalidContextSourceUser(AdminApiSource::class));
         $this->storeRequestOptionsProvider->getAuthenticationHeader($context);
     }
 
@@ -72,7 +72,7 @@ class StoreRequestOptionsProviderTest extends TestCase
         $queries = $this->storeRequestOptionsProvider->getDefaultQueryParameters($this->storeContext);
 
         static::assertArrayHasKey('language', $queries);
-        static::assertEquals(
+        static::assertSame(
             $this->getLanguageFromContext($this->storeContext),
             $queries['language']
         );
@@ -83,7 +83,7 @@ class StoreRequestOptionsProviderTest extends TestCase
         $queries = $this->storeRequestOptionsProvider->getDefaultQueryParameters($this->storeContext);
 
         static::assertArrayHasKey('shopwareVersion', $queries);
-        static::assertEquals($this->getShopwareVersion(), $queries['shopwareVersion']);
+        static::assertSame($this->getShopwareVersion(), $queries['shopwareVersion']);
     }
 
     public function testGetDefaultQueriesDoesHaveDomainSetEvenIfLicenseDomainIsNull(): void
@@ -93,7 +93,7 @@ class StoreRequestOptionsProviderTest extends TestCase
         $queries = $this->storeRequestOptionsProvider->getDefaultQueryParameters($this->storeContext);
 
         static::assertArrayHasKey('domain', $queries);
-        static::assertEquals('', $queries['domain']);
+        static::assertSame('', $queries['domain']);
     }
 
     public function testGetDefaultQueriesDoesHaveDomainSetIfLicenseDomainIsSet(): void
@@ -103,7 +103,7 @@ class StoreRequestOptionsProviderTest extends TestCase
         $queries = $this->storeRequestOptionsProvider->getDefaultQueryParameters($this->storeContext);
 
         static::assertArrayHasKey('domain', $queries);
-        static::assertEquals('shopware.swag', $queries['domain']);
+        static::assertSame('shopware.swag', $queries['domain']);
     }
 
     public function testGetDefaultQueriesWithLicenseDomain(): void
@@ -113,7 +113,7 @@ class StoreRequestOptionsProviderTest extends TestCase
         $queries = $this->storeRequestOptionsProvider->getDefaultQueryParameters($this->storeContext);
 
         static::assertArrayHasKey('domain', $queries);
-        static::assertEquals('new-license-domain', $queries['domain']);
+        static::assertSame('new-license-domain', $queries['domain']);
     }
 
     private function getLanguageFromContext(Context $context): string

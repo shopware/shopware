@@ -2,7 +2,7 @@ import { inject } from 'vue';
 import template from './sw-textarea-field.html.twig';
 import './sw-textarea-field.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
  * @sw-package framework
@@ -14,7 +14,7 @@ const { Component, Mixin } = Shopware;
  * @component-example
  * <sw-textarea-field-deprecated type="textarea" label="Name" placeholder="placeholder goes here..."></sw-textarea-field>
  */
-Component.register('sw-textarea-field-deprecated', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -28,10 +28,7 @@ Component.register('sw-textarea-field-deprecated', {
         'inheritance-remove',
     ],
 
-    mixins: [
-        Mixin.getByName('sw-form-field'),
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('sw-form-field'), Mixin.getByName('remove-api-error')],
 
     props: {
         value: {
@@ -76,4 +73,4 @@ Component.register('sw-textarea-field-deprecated', {
             this.$emit('change', event.target.value);
         },
     },
-});
+};

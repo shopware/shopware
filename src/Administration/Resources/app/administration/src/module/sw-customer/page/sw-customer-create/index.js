@@ -1,5 +1,4 @@
 import template from './sw-customer-create.html.twig';
-import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
  * @sw-package checkout
@@ -9,6 +8,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
+const { CUSTOMER } = Shopware.Constants;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -21,9 +21,7 @@ export default {
         'customerValidationService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -36,9 +34,7 @@ export default {
     },
 
     computed: {
-        ...mapPropertyErrors('address', [
-            'company',
-        ]),
+        ...mapPropertyErrors('address', ['company']),
 
         customerRepository() {
             return this.repositoryFactory.create('customer');
@@ -91,6 +87,22 @@ export default {
                     this.customer.boundSalesChannelId = salesChannelId;
                 }
             });
+
+            const currentSalesChannelId = salesChannelId;
+
+            this.loadLanguage(currentSalesChannelId)
+                .then((languageId) => {
+                    if (!this.customer || this.customer.salesChannelId !== currentSalesChannelId) {
+                        return;
+                    }
+
+                    this.customer.languageId = languageId || Shopware.Context.api.languageId;
+                })
+                .catch(() => {
+                    if (this.customer && this.customer.salesChannelId === currentSalesChannelId) {
+                        this.customer.languageId = Shopware.Context.api.languageId;
+                    }
+                });
         },
 
         'customer.accountType'(value) {
@@ -127,6 +139,7 @@ export default {
             this.customer.password = '';
             this.customer.vatIds = [];
             this.customer.salutationId = defaultSalutationId;
+            this.customer.languageId = Shopware.Context.api.languageId;
             this.address.salutationId = defaultSalutationId;
         },
 
@@ -189,7 +202,7 @@ export default {
 
             if (hasError) {
                 this.createNotificationError({
-                    message: this.$tc('sw-customer.detail.messageSaveError'),
+                    message: this.$t('sw-customer.detail.messageSaveError'),
                 });
                 this.isLoading = false;
                 return false;
@@ -209,7 +222,7 @@ export default {
                     })
                     .catch((exception) => {
                         this.createNotificationError({
-                            message: this.$tc('sw-customer.detail.messageSaveError'),
+                            message: this.$t('sw-customer.detail.messageSaveError'),
                         });
                         this.isLoading = false;
                         throw exception;
@@ -235,7 +248,7 @@ export default {
             });
 
             this.createNotificationError({
-                message: this.$tc('sw-customer.error.COMPANY_IS_REQUIRED'),
+                message: this.$t('sw-customer.error.COMPANY_IS_REQUIRED'),
             });
         },
 

@@ -5,17 +5,13 @@ import './sw-tax-rule-card.scss';
  * @sw-package checkout
  */
 
-const { Context } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         tax: {
@@ -114,6 +110,7 @@ export default {
             ];
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
@@ -135,7 +132,7 @@ export default {
         getList() {
             this.taxRulesLoading = true;
 
-            return this.taxRuleRepository.search(this.taxRuleCriteria, Context.api).then((response) => {
+            return this.taxRuleRepository.search(this.taxRuleCriteria).then((response) => {
                 this.total = response.total;
                 this.taxRules = response;
                 this.taxRulesLoading = false;
@@ -187,15 +184,19 @@ export default {
         onConfirmDelete(id) {
             this.showDeleteModal = false;
 
-            return this.taxRuleRepository.delete(id, Context.api).then(() => {
+            return this.taxRuleRepository.delete(id).then(() => {
                 this.getList();
             });
         },
 
-        getTypeCellComponent(taxRule) {
-            const subComponentName = taxRule.type.technicalName.replace(/_/g, '-');
+        hasTypeCellComponent(taxRule) {
+            const subComponentName = `sw-settings-tax-rule-type-${taxRule.type.technicalName.replace(/_/g, '-')}-cell`;
 
-            return Shopware.Component.getComponentRegistry().get(`sw-settings-tax-rule-type-${subComponentName}-cell`);
+            return Shopware.Component.getComponentRegistry().has(subComponentName);
+        },
+
+        getTypeCellComponent(taxRule) {
+            return `sw-settings-tax-rule-type-${taxRule.type.technicalName.replace(/_/g, '-')}-cell`;
         },
     },
 };

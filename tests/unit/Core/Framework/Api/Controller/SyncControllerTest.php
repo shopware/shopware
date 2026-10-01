@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncResult;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Serializer\Encoder\JsonDecode;
@@ -19,6 +20,7 @@ use Symfony\Component\Serializer\Serializer;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SyncController::class)]
 class SyncControllerTest extends TestCase
 {
@@ -47,7 +49,7 @@ class SyncControllerTest extends TestCase
         $service = $this->createMock(SyncService::class);
         $service->expects($this->once())
             ->method('sync')
-            ->willReturnCallback(function ($operations) use ($criteria) {
+            ->willReturnCallback(static function ($operations) use ($criteria) {
                 static::assertCount(1, $operations);
                 static::assertInstanceOf(SyncOperation::class, $operations[0]);
 
@@ -55,7 +57,7 @@ class SyncControllerTest extends TestCase
                 static::assertSame('delete-mapping', $operation->getKey());
                 static::assertSame('product', $operation->getEntity());
                 static::assertSame('delete', $operation->getAction());
-                static::assertEquals($criteria, $operation->getCriteria());
+                static::assertSame($criteria, $operation->getCriteria());
 
                 return new SyncResult([]);
             });
@@ -82,24 +84,23 @@ class SyncControllerTest extends TestCase
         $request = new Request([], [], [], [], [], [], $validJson);
 
         $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
-        $service = $this->createMock(SyncService::class);
+        $service = static::createStub(SyncService::class);
 
         $controller = new SyncController($service, $serializer);
 
         $response = $controller->sync($request, Context::createDefaultContext());
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
     }
 
     public function testSyncWithInvalidJson(): void
     {
-        $this->expectException(ApiException::class);
-        $this->expectExceptionMessage('Parameter type json is invalid.');
+        $this->expectExceptionObject(ApiException::invalidApiType('json'));
 
         $invalidJson = 'this is not json';
         $request = new Request([], [], [], [], [], [], $invalidJson);
 
         $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
-        $service = $this->createMock(SyncService::class);
+        $service = static::createStub(SyncService::class);
 
         $controller = new SyncController($service, $serializer);
 
@@ -108,15 +109,14 @@ class SyncControllerTest extends TestCase
 
     public function testSyncWithInvalidOperation(): void
     {
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage('Invalid payload format. Expected an array of operations.');
+        $this->expectExceptionObject(new BadRequestHttpException('Invalid payload format. Expected an array of operations.'));
 
         $operations = ['delete-mapping' => 'action:delete'];
 
         $request = new Request([], [], [], [], [], [], (string) \json_encode($operations));
 
         $serializer = new Serializer([], [new JsonEncoder(), new JsonDecode()]);
-        $service = $this->createMock(SyncService::class);
+        $service = static::createStub(SyncService::class);
 
         $controller = new SyncController($service, $serializer);
 

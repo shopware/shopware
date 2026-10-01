@@ -46,7 +46,6 @@ class PaymentHandlerIdentifierSubscriber implements EventSubscriberInterface
             return $entity->get('handlerIdentifier');
         }
 
-        /** @var string|null $firstHandlerIdentifier */
         $firstHandlerIdentifier = array_shift($explodedHandlerIdentifier);
         $lastHandlerIdentifier = array_pop($explodedHandlerIdentifier);
         if ($firstHandlerIdentifier === null || $lastHandlerIdentifier === null) {

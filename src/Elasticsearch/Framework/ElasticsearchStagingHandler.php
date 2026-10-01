@@ -24,7 +24,7 @@ readonly class ElasticsearchStagingHandler
             return;
         }
 
-        if (!empty($this->detector->getAllUsedIndices())) {
+        if ($this->detector->getAllUsedIndices() !== []) {
             $event->io->error('Found existing Elasticsearch indices, please delete them before setting up a staging environment or consider setting a index prefix');
             $event->canceled = true;
         }

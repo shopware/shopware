@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_5;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -27,7 +28,7 @@ class Migration1678969082DropVariantListingFields extends MigrationStep
 
         $this->dropColumnIfExists($connection, 'product', 'configurator_group_config');
 
-        if ($this->columnExists($connection, 'product', 'main_variant_id')) {
+        if (TableHelper::columnExists($connection, 'product', 'main_variant_id')) {
             // Maybe FK still exists, so we need to drop it first
             $this->dropForeignKeyIfExists($connection, 'product', 'fk.product.main_variant_id');
 

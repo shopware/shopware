@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderDefinition;
 use Shopware\Core\Content\Media\Event\MediaFolderIndexerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
@@ -17,8 +18,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Content\Media\DataAbstractionLayer\Indexing\MediaFolderIndexerTest;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @see MediaFolderIndexerTest
+ */
 #[Package('discovery')]
 class MediaFolderIndexer extends EntityIndexer
 {
@@ -27,6 +34,8 @@ class MediaFolderIndexer extends EntityIndexer
 
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaFolderCollection> $folderRepository
      */
     public function __construct(
         private readonly IteratorFactory $iteratorFactory,
@@ -49,7 +58,7 @@ class MediaFolderIndexer extends EntityIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 
@@ -59,18 +68,14 @@ class MediaFolderIndexer extends EntityIndexer
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
         $updates = $event->getPrimaryKeys(MediaFolderDefinition::ENTITY_NAME);
-        $mediaFolderEvent = $event->getEventByEntityName(MediaFolderDefinition::ENTITY_NAME);
 
-        if (empty($updates) || !$mediaFolderEvent) {
+        if ($updates === []) {
             return null;
         }
 
         $idsWithChangedParentIds = [];
-        foreach ($mediaFolderEvent->getWriteResults() as $result) {
-            $payload = $result->getPayload();
-            if (\array_key_exists('parentId', $payload)) {
-                $idsWithChangedParentIds[] = $payload['id'];
-            }
+        foreach ($event->getResults(MediaFolderDefinition::ENTITY_NAME)->withPayloadProperties('parentId') as $result) {
+            $idsWithChangedParentIds[] = $result->getProperty('id');
         }
 
         if ($idsWithChangedParentIds !== []) {
@@ -94,8 +99,8 @@ class MediaFolderIndexer extends EntityIndexer
             return;
         }
 
-        $ids = array_filter(array_unique($ids));
-        if (empty($ids)) {
+        $ids = array_values(array_filter(array_unique($ids)));
+        if ($ids === []) {
             return;
         }
 
@@ -104,6 +109,7 @@ class MediaFolderIndexer extends EntityIndexer
             $this->connection->prepare('UPDATE media_folder SET media_folder_configuration_id = :configId WHERE id = :id')
         );
 
+        $children = [];
         foreach ($ids as $id) {
             $folder = $this->connection->fetchAssociative(
                 'SELECT LOWER(HEX(child.id)) as id,
@@ -117,7 +123,7 @@ class MediaFolderIndexer extends EntityIndexer
                 ['id' => Uuid::fromHexToBytes($id)]
             );
 
-            if (empty($folder)) {
+            if ($folder === false) {
                 continue;
             }
 
@@ -135,7 +141,7 @@ class MediaFolderIndexer extends EntityIndexer
             $this->childCountUpdater->update(MediaFolderDefinition::ENTITY_NAME, $ids, $message->getContext());
         }
 
-        if (!empty($children) && $message->allow(self::TREE_UPDATER)) {
+        if ($children !== [] && $message->allow(self::TREE_UPDATER)) {
             $this->treeUpdater->batchUpdate(
                 $children,
                 MediaFolderDefinition::ENTITY_NAME,
@@ -144,7 +150,7 @@ class MediaFolderIndexer extends EntityIndexer
             );
         }
 
-        $this->eventDispatcher->dispatch(new MediaFolderIndexerEvent($ids, $message->getContext(), $message->getSkip()));
+        $this->eventDispatcher->dispatch(new MediaFolderIndexerEvent($ids, $message->getContext(), array_values($message->getSkip())));
     }
 
     public function getOptions(): array
@@ -180,7 +186,7 @@ class MediaFolderIndexer extends EntityIndexer
 
         $childIds = array_column($childIds, 'id');
 
-        if (!empty($childIds)) {
+        if ($childIds !== []) {
             $childIds = array_merge($childIds, $this->fetchChildren($childIds));
         }
 
@@ -194,7 +200,7 @@ class MediaFolderIndexer extends EntityIndexer
      */
     private function getParentIds(array $ids): array
     {
-        /** @var array<string> $parentIds */
+        /** @var list<string> $parentIds */
         $parentIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(media_folder.parent_id)) as id FROM media_folder WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids)],

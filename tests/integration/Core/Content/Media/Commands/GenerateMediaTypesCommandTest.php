@@ -14,12 +14,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class GenerateMediaTypesCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -35,7 +37,7 @@ class GenerateMediaTypesCommandTest extends TestCase
     private Context $context;
 
     /**
-     * @var array<string>
+     * @var list<string>
      */
     private array $initialMediaIds;
 
@@ -47,7 +49,6 @@ class GenerateMediaTypesCommandTest extends TestCase
 
         $this->context = Context::createDefaultContext();
 
-        /** @var array<string> $ids */
         $ids = $this->mediaRepository->searchIds(new Criteria(), $this->context)->getIds();
         $this->initialMediaIds = $ids;
     }
@@ -98,8 +99,7 @@ class GenerateMediaTypesCommandTest extends TestCase
 
     public function testExecuteThrowsExceptionOnInvalidBatchSize(): void
     {
-        $this->expectException(MediaException::class);
-        $this->expectExceptionMessage('Provided batch size is invalid.');
+        $this->expectExceptionObject(MediaException::invalidBatchSize());
 
         $this->createValidMediaFiles();
 
@@ -156,7 +156,7 @@ class GenerateMediaTypesCommandTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsAnyFilter('id', $this->initialMediaIds));
         $result = $this->mediaRepository->searchIds($criteria, $this->context);
-        static::assertEquals(\count($this->initialMediaIds), $result->getTotal());
+        static::assertSame(\count($this->initialMediaIds), $result->getTotal());
 
         $criteria = new Criteria();
         $criteria->addFilter(new NotFilter(

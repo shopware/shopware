@@ -11,12 +11,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class OrderConverterController extends AbstractController
 {
     /**
@@ -31,10 +33,11 @@ class OrderConverterController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/order/{orderId}/convert-to-cart/', name: 'api.action.order.convert-to-cart', methods: ['POST'])]
+    #[Route(path: '/api/_action/order/{orderId}/convert-to-cart/', name: 'api.action.order.convert-to-cart', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['order:read']], methods: ['POST'])]
     public function convertToCart(string $orderId, Context $context): JsonResponse
     {
         $criteria = (new Criteria([$orderId]))
+            ->addAssociation('primaryOrderDelivery')
             ->addAssociation('lineItems')
             ->addAssociation('transactions.stateMachineState')
             ->addAssociation('deliveries.shippingMethod')

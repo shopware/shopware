@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
 
@@ -24,12 +26,10 @@ async function createWrapper() {
                     'sw-checkbox-field': true,
                     'sw-loader': true,
                     'sw-extension-component-section': true,
-
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,
                     'router-link': true,
                 },
-
                 provide: {
                     repositoryFactory: {
                         create: () => ({
@@ -41,14 +41,6 @@ async function createWrapper() {
                             },
                         }),
                     },
-                    userConfigService: {
-                        upsert: () => {
-                            return Promise.resolve();
-                        },
-                        search: () => {
-                            return Promise.resolve();
-                        },
-                    },
                     searchPreferencesService: {
                         getDefaultSearchPreferences: () => {},
                         getUserSearchPreferences: () => {},
@@ -59,6 +51,9 @@ async function createWrapper() {
                                 userId: 'userId',
                             };
                         },
+                    },
+                    searchRankingService: {
+                        getMinSearchTermLength: () => Promise.resolve(2),
                     },
                 },
                 attachTo: document.body,
@@ -74,6 +69,18 @@ describe('src/module/sw-profile/view/sw-profile-index-search-preferences', () =>
 
     beforeEach(() => {
         Shopware.Application.view.deleteReactive = () => {};
+    });
+
+    it('should get minSearchTermLength once component created', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.getMinSearchTermLength = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.getMinSearchTermLength).toHaveBeenCalledTimes(1);
+        wrapper.vm.getMinSearchTermLength.mockRestore();
     });
 
     it('should get data source once component created', async () => {

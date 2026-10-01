@@ -2,10 +2,14 @@
 
 namespace Shopware\Core\Content\Cms\Exception;
 
+use Shopware\Core\Content\Cms\CmsException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use {@see CmsException::pageNotFound} instead
+ */
 #[Package('discovery')]
 class PageNotFoundException extends ShopwareHttpException
 {

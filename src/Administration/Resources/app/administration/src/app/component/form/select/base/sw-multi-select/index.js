@@ -1,6 +1,6 @@
 import template from './sw-multi-select.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 /**
@@ -24,7 +24,7 @@ const { debounce, get } = Shopware.Utils;
  *     value="">
  * </sw-multi-select>
  */
-Component.register('sw-multi-select', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -40,9 +40,7 @@ Component.register('sw-multi-select', {
         'paginate',
     ],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error')],
 
     props: {
         options: {
@@ -83,7 +81,6 @@ Component.register('sw-multi-select', {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         // Used to implement a custom search function.
@@ -102,6 +99,11 @@ Component.register('sw-multi-select', {
             },
         },
         label: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
+        autocomplete: {
             type: String,
             required: false,
             default: undefined,
@@ -186,10 +188,7 @@ Component.register('sw-multi-select', {
 
             this.$emit('item-add', item);
 
-            this.currentValue = [
-                ...this.currentValue,
-                identifier,
-            ];
+            this.currentValue = [...this.currentValue, identifier];
 
             this.$refs.selectionList.focus();
             this.$refs.selectionList.select();
@@ -251,4 +250,4 @@ Component.register('sw-multi-select', {
             return get(object, keyPath, defaultValue);
         },
     },
-});
+};

@@ -18,17 +18,17 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[AsMessageHandler]
 #[Package('fundamentals@after-sales')]
-final class ImportExportHandler
+#[AsMessageHandler]
+final readonly class ImportExportHandler
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly MessageBusInterface $messageBus,
-        private readonly ImportExportFactory $importExportFactory,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private MessageBusInterface $messageBus,
+        private ImportExportFactory $importExportFactory,
+        private EventDispatcherInterface $eventDispatcher
     ) {
     }
 
@@ -59,7 +59,7 @@ final class ImportExportHandler
                 throw ImportExportException::unknownActivity($logEntity->getActivity());
             }
         } catch (\Throwable $exception) {
-            $event = new ImportExportExceptionImportExportHandlerEvent($exception, $message);
+            $event = new ImportExportExceptionImportExportHandlerEvent($exception, $message, $context);
             $this->eventDispatcher->dispatch($event);
 
             $exception = $event->getException();

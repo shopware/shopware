@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Rule;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\FlowRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -50,22 +51,34 @@ class OrderDeliveryStatusRule extends FlowRule
             return false;
         }
 
-        if (!$deliveries = $scope->getOrder()->getDeliveries()) {
+        if (!Feature::isActive('v6.8.0.0')) {
+            if (!$deliveries = $scope->getOrder()->getDeliveries()) {
+                return false;
+            }
+
+            $deliveryStateIds = [];
+            foreach ($deliveries->getElements() as $delivery) {
+                $deliveryStateIds[] = $delivery->getStateId();
+            }
+
+            return RuleComparison::uuids($deliveryStateIds, $this->stateIds, $this->operator);
+        }
+
+        if (!$scope->getOrder()->getPrimaryOrderDelivery()) {
             return false;
         }
 
-        $deliveryStateIds = [];
-        foreach ($deliveries->getElements() as $delivery) {
-            $deliveryStateIds[] = $delivery->getStateId();
-        }
-
-        return RuleComparison::uuids($deliveryStateIds, $this->stateIds, $this->operator);
+        return RuleComparison::uuids(
+            [$scope->getOrder()->getPrimaryOrderDelivery()->getStateId()],
+            $this->stateIds,
+            $this->operator,
+        );
     }
 
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
             ->entitySelectField(
                 'stateIds',
                 StateMachineStateDefinition::ENTITY_NAME,

@@ -1,5 +1,4 @@
 import template from './sw-order-create-details.html.twig';
-// eslint-disable-next-line max-len
 import type {
     Cart,
     LineItem,
@@ -24,15 +23,9 @@ const { Criteria } = Shopware.Data;
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-        'cartStoreService',
-    ],
+    inject: ['repositoryFactory', 'cartStoreService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('cart-notification'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('cart-notification')],
 
     data(): {
         isLoading: boolean;
@@ -45,19 +38,19 @@ export default Component.wrapComponentConfig({
             promotionError: null,
             isLoading: false,
             context: {
-                currencyId: '',
-                paymentMethodId: '',
-                shippingMethodId: '',
-                languageId: '',
-                billingAddressId: '',
-                shippingAddressId: '',
+                currencyId: '' as EntityKey<'currency'>,
+                paymentMethodId: '' as EntityKey<'payment_method'>,
+                shippingMethodId: '' as EntityKey<'shipping_method'>,
+                languageId: '' as EntityKey<'language'>,
+                billingAddressId: '' as EntityKey<'customer_address'>,
+                shippingAddressId: '' as EntityKey<'customer_address'>,
             },
         };
     },
 
     computed: {
-        salesChannelId(): string {
-            return this.salesChannelContext?.salesChannel.id || '';
+        salesChannelId(): EntityKey<'sales_channel'> {
+            return this.salesChannelContext?.salesChannel.id || ('' as EntityKey<'sales_channel'>);
         },
 
         customer(): Entity<'customer'> | null {
@@ -136,7 +129,6 @@ export default Component.wrapComponentConfig({
         },
 
         isCartTokenAvailable(): boolean {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             return Store.get('swOrder').isCartTokenAvailable;
         },
 
@@ -190,7 +182,7 @@ export default Component.wrapComponentConfig({
             handler: 'handlePromotionCodeTags',
         },
 
-        'context.languageId'(languageId: string) {
+        'context.languageId'(languageId: EntityKey<'language'>) {
             if (!languageId) {
                 return;
             }
@@ -217,12 +209,10 @@ export default Component.wrapComponentConfig({
                 languageId: this.salesChannelContext.context.languageIdChain[0],
                 shippingMethodId: this.salesChannelContext.shippingMethod.id,
                 paymentMethodId: this.salesChannelContext.paymentMethod.id,
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
-                billingAddressId: this.salesChannelContext.customer?.activeBillingAddress?.id ?? '',
-                // eslint-disable-next-line max-len
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
-                shippingAddressId: this.salesChannelContext.customer?.activeShippingAddress?.id ?? '',
+                billingAddressId:
+                    this.salesChannelContext.customer?.activeBillingAddress?.id ?? ('' as EntityKey<'customer_address'>),
+                shippingAddressId:
+                    this.salesChannelContext.customer?.activeShippingAddress?.id ?? ('' as EntityKey<'customer_address'>),
             };
         },
 
@@ -286,20 +276,22 @@ export default Component.wrapComponentConfig({
         },
 
         updatePromotionList() {
-            // Update data and isInvalid flag for each item in promotionCodeTags
-            this.promotionCodeTags = this.promotionCodeTags.map((tag: PromotionCodeTag): PromotionCodeTag => {
+            // Synchronize the tags with the applied promotion line items and discard rejected codes
+            this.promotionCodeTags = this.promotionCodeTags.flatMap((tag: PromotionCodeTag): PromotionCodeTag[] => {
                 const matchedItem = this.promotionCodeLineItems.find(
                     (lineItem: LineItem): boolean => lineItem.payload?.code === tag.code,
                 );
 
                 if (matchedItem) {
-                    return {
-                        ...matchedItem.payload,
-                        isInvalid: false,
-                    } as PromotionCodeTag;
+                    return [
+                        {
+                            ...matchedItem.payload,
+                            isInvalid: false,
+                        } as PromotionCodeTag,
+                    ];
                 }
 
-                return { ...tag, isInvalid: true } as PromotionCodeTag;
+                return [];
             });
 
             // Add new items from promotionCodeLineItems which promotionCodeTags doesn't contain
@@ -395,7 +387,7 @@ export default Component.wrapComponentConfig({
 
             if (promotionCodeLength > 0 && latestTag.isInvalid) {
                 this.promotionError = {
-                    detail: this.$tc('sw-order.createBase.textInvalidPromotionCode'),
+                    detail: this.$t('sw-order.createBase.textInvalidPromotionCode'),
                 } as ShopwareHttpError;
             }
         },

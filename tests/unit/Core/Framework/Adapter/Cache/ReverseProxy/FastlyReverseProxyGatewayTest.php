@@ -15,12 +15,14 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\FastlyReverseProxyGateway;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FastlyReverseProxyGateway::class)]
 class FastlyReverseProxyGatewayTest extends TestCase
 {
@@ -105,7 +107,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
     }
 
     /**
-     * @return array<string, array<int, string|string[]>>
+     * @return iterable<string, array<int, string|string[]>>
      */
     public static function providerTags(): iterable
     {
@@ -179,7 +181,7 @@ class FastlyReverseProxyGatewayTest extends TestCase
     }
 
     /**
-     * @return array<string, array<\Throwable|string>>
+     * @return iterable<string, array<\Throwable|string>>
      */
     public static function providerExceptions(): iterable
     {

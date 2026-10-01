@@ -5,9 +5,16 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Subscriber;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
+use Shopware\Core\Framework\Increment\IncrementException;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\Event\SendMessageToTransportsEvent;
 use Symfony\Component\Messenger\Event\WorkerMessageFailedEvent;
@@ -16,6 +23,7 @@ use Symfony\Component\Messenger\Event\WorkerMessageHandledEvent;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MessageQueueStatsSubscriber::class)]
 class MessageQueueStatsSubscriberTest extends TestCase
 {
@@ -25,17 +33,99 @@ class MessageQueueStatsSubscriberTest extends TestCase
 
     private MockObject&AbstractIncrementer $incrementer;
 
+    private StatsService&MockObject $statsService;
+
     protected function setUp(): void
     {
         $this->gatewayRegistry = $this->createMock(IncrementGatewayRegistry::class);
+        $this->statsService = $this->createMock(StatsService::class);
         $this->incrementer = $this->createMock(AbstractIncrementer::class);
-        $this->subscriber = new MessageQueueStatsSubscriber($this->gatewayRegistry);
+        $this->subscriber = new MessageQueueStatsSubscriber(
+            $this->gatewayRegistry,
+            $this->statsService,
+            new NullLogger(),
+        );
     }
 
+    public function testOnMessageHandledLogsFailingStatsInsteadOfStoppingTheWorker(): void
+    {
+        $envelope = new Envelope(new \stdClass());
+        $failure = new \RuntimeException('Connection lost');
+
+        $this->gatewayRegistry->expects($this->never())->method('get');
+        $this->incrementer->expects($this->never())->method('decrement');
+        $this->statsService->expects($this->once())->method('registerMessage')->willThrowException($failure);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(static::isString(), ['exception' => $failure]);
+
+        $subscriber = new MessageQueueStatsSubscriber($this->gatewayRegistry, $this->statsService, $logger);
+        $subscriber->onMessageHandled(new WorkerMessageHandledEvent($envelope, 'theReceiver'));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Test will be removed along with increment-based stats
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testMissingIncrementGatewayIsLoggedAndStatsAreStillRecorded(): void
+    {
+        $envelope = new Envelope(new \stdClass());
+
+        $this->gatewayRegistry->expects($this->exactly(3))
+            ->method('get')
+            ->willThrowException(IncrementException::gatewayNotFound(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL));
+        $this->incrementer->expects($this->never())->method('decrement');
+        $this->statsService->expects($this->once())->method('registerMessage')->with($envelope);
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->exactly(3))->method('warning');
+
+        $subscriber = new MessageQueueStatsSubscriber($this->gatewayRegistry, $this->statsService, $logger);
+        $subscriber->onMessageHandled(new WorkerMessageHandledEvent($envelope, 'theReceiver'));
+        $subscriber->onMessageFailed(new WorkerMessageFailedEvent($envelope, 'theReceiver', new \Exception()));
+        $subscriber->onMessageSent(new SendMessageToTransportsEvent($envelope, []));
+    }
+
+    public function testGetSubscribedEvents(): void
+    {
+        $this->gatewayRegistry->expects($this->never())->method('get');
+        $this->incrementer->expects($this->never())->method('increment');
+        $this->incrementer->expects($this->never())->method('decrement');
+        $this->statsService->expects($this->never())->method('registerMessage');
+
+        static::assertSame([
+            WorkerMessageHandledEvent::class => 'onMessageHandled',
+        ], MessageQueueStatsSubscriber::getSubscribedEvents());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Test will be removed along with increment-based stats
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testGetGetSubscribedDeprecated(): void
+    {
+        $this->gatewayRegistry->expects($this->never())->method('get');
+        $this->incrementer->expects($this->never())->method('increment');
+        $this->incrementer->expects($this->never())->method('decrement');
+        $this->statsService->expects($this->never())->method('registerMessage');
+
+        static::assertSame([
+            WorkerMessageHandledEvent::class => 'onMessageHandled',
+            WorkerMessageFailedEvent::class => ['onMessageFailed', 99],
+            SendMessageToTransportsEvent::class => ['onMessageSent', 99],
+        ], MessageQueueStatsSubscriber::getSubscribedEvents());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Test will be removed along with increment-based stats
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testOnMessageFailed(): void
     {
         $envelope = new Envelope(new \stdClass());
         $event = new WorkerMessageFailedEvent($envelope, 'receiver', new \Exception());
+
+        $this->statsService->expects($this->never())->method('registerMessage');
 
         $this->handleCommonExpectations($envelope, false);
 
@@ -44,24 +134,56 @@ class MessageQueueStatsSubscriberTest extends TestCase
 
     public function testOnMessageHandled(): void
     {
+        $envelope = new Envelope(new \stdClass(), [
+            new SentAtStamp(new \DateTimeImmutable('@' . 1726567204)),
+        ]);
+        $event = new WorkerMessageHandledEvent($envelope, 'theReceiver');
+
+        $this->gatewayRegistry->expects($this->never())->method('get');
+        $this->incrementer->expects($this->never())->method('increment');
+        $this->incrementer->expects($this->never())->method('decrement');
+        $this->statsService->expects($this->once())
+            ->method('registerMessage')
+            ->with($envelope);
+
+        $this->subscriber->onMessageHandled($event);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Test will be removed along with increment-based stats
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testOnMessageHandledUpdateIncrementStats(): void
+    {
         $envelope = new Envelope(new \stdClass());
-        $event = new WorkerMessageHandledEvent($envelope, 'receiver');
+        $event = new WorkerMessageHandledEvent($envelope, 'theReceiver');
+
+        $this->statsService->expects($this->once())->method('registerMessage');
 
         $this->handleCommonExpectations($envelope, false);
 
         $this->subscriber->onMessageHandled($event);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Test will be removed along with increment-based stats
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testOnMessageSent(): void
     {
         $envelope = new Envelope(new \stdClass());
         $event = new SendMessageToTransportsEvent($envelope, []);
+
+        $this->statsService->expects($this->never())->method('registerMessage');
 
         $this->handleCommonExpectations($envelope, true);
 
         $this->subscriber->onMessageSent($event);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Method will be removed along with increment-based stats
+     */
     protected function handleCommonExpectations(Envelope $envelope, bool $increment): void
     {
         $this->gatewayRegistry->expects($this->once())

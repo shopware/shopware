@@ -1,7 +1,6 @@
 import template from './sw-url-field.html.twig';
 import './sw-url-field.scss';
 
-const { Component } = Shopware;
 const { ShopwareError } = Shopware.Classes;
 
 const URL_REGEX = {
@@ -22,18 +21,14 @@ const URL_REGEX = {
  * <sw-field type="url" label="Name" placeholder="Placeholder"
  * switchLabel="My shop uses https"></sw-field>
  */
-Component.extend('sw-url-field-deprecated', 'sw-text-field-deprecated', {
+export default {
     template,
 
     inheritAttrs: false,
 
     inject: ['feature'],
 
-    emits: [
-        'update:value',
-        'inheritance-restore',
-        'inheritance-remove',
-    ],
+    emits: ['update:value', 'inheritance-restore', 'inheritance-remove'],
 
     props: {
         error: {
@@ -210,4 +205,4 @@ Component.extend('sw-url-field-deprecated', 'sw-text-field-deprecated', {
             });
         },
     },
-});
+};

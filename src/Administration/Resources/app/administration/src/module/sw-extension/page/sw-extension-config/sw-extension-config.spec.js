@@ -35,6 +35,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
                     'sw-form-field-renderer': true,
                     'sw-inherit-wrapper': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-ai-copilot-badge': true,
                 },
                 provide: {
@@ -42,6 +43,60 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
                         updateExtensionData: jest.fn(),
                     },
                     systemConfigApiService: {
+                        getSchema: () => {
+                            return Promise.resolve([
+                                {
+                                    title: null,
+                                    name: null,
+                                    cards: [
+                                        {
+                                            title: {
+                                                'en-GB': 'Store',
+                                            },
+                                            name: null,
+                                            elements: [
+                                                {
+                                                    name: 'apiUri',
+                                                    type: 'text',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'API URI',
+                                                        },
+                                                    },
+                                                },
+                                                {
+                                                    name: 'licenseHost',
+                                                    type: 'text',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'License host',
+                                                        },
+                                                    },
+                                                },
+                                                {
+                                                    name: 'shopSecret',
+                                                    type: 'text',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'Shop secret',
+                                                        },
+                                                    },
+                                                },
+                                                {
+                                                    name: 'shopwareId',
+                                                    type: 'text',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'Shopware ID',
+                                                        },
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            ]);
+                        },
                         getValues: () => {
                             return Promise.resolve({
                                 'core.store.apiUri': 'https://api.shopware.com',
@@ -126,7 +181,7 @@ describe('src/module/sw-extension/page/sw-extension-config.spec', () => {
 
         const iconComponent = wrapper.get('.sw-extension-config__extension-icon img');
         expect(iconComponent.attributes().src).toBe(
-            'administration/administration/static/img/theme/default_theme_preview.jpg',
+            'administration/administration/static/img/theme/default_theme_preview.webp',
         );
         expect(iconComponent.attributes().alt).toBe('sw-extension-store.component.sw-extension-config.imageDescription');
 

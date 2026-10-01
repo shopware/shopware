@@ -98,10 +98,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                     'sw-list-price-field': await wrapTestComponent('sw-list-price-field'),
                     'sw-inheritance-switch': {
-                        props: [
-                            'isInherited',
-                            'disabled',
-                        ],
+                        props: ['isInherited', 'disabled'],
                         template: `
                           <div class="sw-inheritance-switch">
                           <div v-if="isInherited"
@@ -137,7 +134,6 @@ describe('module/sw-product/component/sw-product-price-form', () => {
     /** @type Wrapper */
     let wrapper;
 
-    // eslint-disable-next-line max-len
     it('should disable all price fields and toggle inheritance switch on if product price and purchase price are null', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -191,7 +187,6 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         });
     });
 
-    // eslint-disable-next-line max-len
     it('should enable all price fields and toggle inheritance switch off when user clicks on remove inheritance button', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -218,7 +213,6 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         expect(wrapper.vm.prices.price[0].regulationPrice.gross).toBe(100);
     });
 
-    // eslint-disable-next-line max-len
     it('should enable all price fields and toggle inheritance switch off when user clicks on remove inheritance button (using empty purchasePrices)', async () => {
         wrapper = await createWrapper();
         await flushPromises();
@@ -246,7 +240,6 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         });
     });
 
-    // eslint-disable-next-line max-len
     it('should disable all price fields and toggle inheritance switch on when user clicks on restore inheritance button', async () => {
         wrapper = await createWrapper({
             price: [
@@ -280,10 +273,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        const priceFieldsClassName = [
-            '.sw-purchase-price-field',
-            '.sw-list-price-field__list-price sw-price-field-stub',
-        ];
+        const priceFieldsClassName = ['.sw-purchase-price-field', '.sw-list-price-field__list-price sw-price-field-stub'];
 
         priceFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBeTruthy();
@@ -308,10 +298,7 @@ describe('module/sw-product/component/sw-product-price-form', () => {
 
         await nextTick();
 
-        const priceFieldsClassName = [
-            '.sw-purchase-price-field',
-            '.sw-list-price-field__list-price sw-price-field-stub',
-        ];
+        const priceFieldsClassName = ['.sw-purchase-price-field', '.sw-list-price-field__list-price sw-price-field-stub'];
 
         priceFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBeFalsy();

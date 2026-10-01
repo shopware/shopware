@@ -5,21 +5,25 @@ namespace Shopware\Tests\Integration\Core\Framework\Seo;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandler;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Bundle\FrameworkBundle\Routing\Router;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 class SeoUrlPlaceholderHandlerTest extends TestCase
 {
     use BasicTestDataBehaviour;
@@ -33,10 +37,10 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
     protected function setUp(): void
     {
         /** @var Router|MockObject $router */
-        $router = $this->createMock(Router::class);
+        $router = static::createStub(Router::class);
         $router->method('generate')
-            ->willReturnCallback(fn ($name, $params) => match ($name) {
-                'frontend.detail.page' => '/detail/' . ($params['productId'] ?? ''),
+            ->willReturnCallback(static fn ($name, $params) => match ($name) {
+                ProductPageSeoUrlRoute::ROUTE_NAME => '/detail/' . ($params['productId'] ?? ''),
                 'frontend.navigation.page' => '/navigation/' . ($params['navigationId'] ?? ''),
                 default => '',
             });
@@ -56,7 +60,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
 
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test storefront');
 
-        $generated = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId]);
+        $generated = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId]);
 
         $content = \sprintf($template, $generated);
         $actual = $this->seoUrlPlaceholderHandler->replace($content, $host, $salesChannelContext);
@@ -74,7 +78,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
 
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test storefront');
 
-        $generated = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId]);
+        $generated = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId]);
 
         $content = \sprintf($template, $generated);
         $actual = $this->seoUrlPlaceholderHandler->replace($content, $host, $salesChannelContext);
@@ -93,8 +97,8 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
 
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test storefront');
 
-        $generated1 = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId1]);
-        $generated2 = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId2]);
+        $generated1 = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId1]);
+        $generated2 = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId2]);
 
         $content = \sprintf($template, $generated1, $generated2);
         $actual = $this->seoUrlPlaceholderHandler->replace($content, $host, $salesChannelContext);
@@ -113,8 +117,8 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
 
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test storefront');
 
-        $generated1 = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId]);
-        $generated2 = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId]);
+        $generated1 = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId]);
+        $generated2 = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId]);
 
         $content = \sprintf($template, $generated1, $generated2);
         $actual = $this->seoUrlPlaceholderHandler->replace($content, $host, $salesChannelContext);
@@ -133,7 +137,7 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
 
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test storefront');
 
-        $generated1 = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId]);
+        $generated1 = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId]);
         $generated2 = $this->seoUrlPlaceholderHandler->generate('frontend.navigation.page', ['navigationId' => $categoryId]);
 
         $content = \sprintf($template, $generated1, $generated2);
@@ -183,14 +187,14 @@ class SeoUrlPlaceholderHandlerTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepository $repo */
+        /** @var EntityRepository<SeoUrlCollection> $repo */
         $repo = static::getContainer()->get('seo_url.repository');
         $repo->create($seoUrls, Context::createDefaultContext());
 
         $host = 'http://foo.text:8000/de';
         $template = 'SEO 1: %s and SEO 2: %s';
 
-        $generated1 = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId]);
+        $generated1 = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId]);
         $generated2 = $this->seoUrlPlaceholderHandler->generate('frontend.navigation.page', ['navigationId' => $categoryId]);
 
         $content = \sprintf($template, $generated1, $generated2);

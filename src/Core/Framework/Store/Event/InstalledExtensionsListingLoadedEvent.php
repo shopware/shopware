@@ -9,6 +9,8 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class InstalledExtensionsListingLoadedEvent extends Event

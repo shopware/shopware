@@ -27,7 +27,9 @@ use Shopware\Core\Checkout\Document\Renderer\RendererResult;
 use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerator as DocumentV2Generator;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
+use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderStates;
 use Shopware\Core\Content\Flow\Dispatching\Action\GenerateDocumentAction;
@@ -37,6 +39,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
@@ -47,7 +50,9 @@ use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 use Shopware\Core\Migration\Traits\Translations;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Integration\Core\Checkout\DocumentV2\DocumentV2Trait;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -57,15 +62,23 @@ use Symfony\Component\HttpFoundation\Response;
 class GenerateDocumentActionTest extends TestCase
 {
     use AdminApiTestBehaviour;
+    use DocumentV2Trait;
     use ImportTranslationsTrait;
     use IntegrationTestBehaviour;
-    use SalesChannelApiTestBehaviour;
+    use SalesChannelApiTestBehaviour {
+        SalesChannelApiTestBehaviour::createCustomer insteadof DocumentV2Trait;
+    }
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<OrderCollection>
+     */
     private EntityRepository $orderRepository;
 
     private DocumentGenerator $documentGenerator;
+
+    private DocumentV2Generator $documentV2Generator;
 
     private Logger $logger;
 
@@ -73,6 +86,7 @@ class GenerateDocumentActionTest extends TestCase
     {
         $this->connection = static::getContainer()->get(Connection::class);
         $this->documentGenerator = static::getContainer()->get(DocumentGenerator::class);
+        $this->documentV2Generator = static::getContainer()->get(DocumentV2Generator::class);
         $this->orderRepository = static::getContainer()->get('order.repository');
         $this->logger = static::getContainer()->get('logger');
     }
@@ -80,12 +94,14 @@ class GenerateDocumentActionTest extends TestCase
     #[DataProvider('genDocumentProvider')]
     public function testGenerateDocument(string $documentType, string $documentRangerType, bool $autoGenInvoiceDoc = false, bool $multipleDoc = false): void
     {
+        Feature::skipTestIfActive('DOCUMENT_GENERATION_REWORK', $this);
+
         $context = Context::createDefaultContext();
         $customerId = $this->createCustomer();
         $order = $this->createOrder($customerId, $context);
 
         $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
-        $subscriber = new GenerateDocumentAction($this->documentGenerator, $this->logger);
+        $subscriber = new GenerateDocumentAction($this->documentGenerator, $this->documentV2Generator, $this->logger);
 
         if ($multipleDoc) {
             $config = [
@@ -129,7 +145,7 @@ class GenerateDocumentActionTest extends TestCase
         $subscriber->handleFlow($flow);
 
         $referenceDoctype = $documentType === StornoRenderer::TYPE || $documentType === CreditNoteRenderer::TYPE;
-        if ($referenceDoctype && !$autoGenInvoiceDoc && empty($multipleDoc)) {
+        if ($referenceDoctype && !$autoGenInvoiceDoc && $multipleDoc === false) {
             static::assertEmpty($this->getDocumentId($order->getId()));
         } else {
             static::assertNotEmpty($this->getDocumentId($order->getId()));
@@ -137,14 +153,16 @@ class GenerateDocumentActionTest extends TestCase
     }
 
     #[DataProvider('genErrorDocumentProvider')]
-    public function testGenerateDocumentError(string $documentType, string $documentRangerType): void
+    public function testGenerateDocumentError(string $documentType, string $documentRangerType, string $documentTypeName): void
     {
+        Feature::skipTestIfActive('DOCUMENT_GENERATION_REWORK', $this);
+
         $context = Context::createDefaultContext();
         $customerId = $this->createCustomer();
         $order = $this->createOrder($customerId, $context);
 
         $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
-        $subscriber = new GenerateDocumentAction($this->documentGenerator, $this->logger);
+        $subscriber = new GenerateDocumentAction($this->documentGenerator, $this->documentV2Generator, $this->logger);
 
         $config = array_filter([
             'documentType' => $documentType,
@@ -170,10 +188,10 @@ class GenerateDocumentActionTest extends TestCase
 
         static::assertNotEmpty($handler->getRecords());
         static::assertNotEmpty($record = $handler->getRecords()[0]);
-        static::assertEquals(
+        static::assertSame(
             \sprintf(
                 'Unable to generate document. Can not generate %s document because no invoice document exists. OrderId: %s',
-                str_replace('_', ' ', $documentType),
+                $documentTypeName,
                 $order->getId(),
             ),
             $record->message
@@ -182,12 +200,14 @@ class GenerateDocumentActionTest extends TestCase
 
     public function testGenerateCustomDocument(): void
     {
+        Feature::skipTestIfActive('DOCUMENT_GENERATION_REWORK', $this);
+
         $context = Context::createDefaultContext();
         $customerId = $this->createCustomer();
         $order = $this->createOrder($customerId, $context);
 
         $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
-        $subscriber = new GenerateDocumentAction($this->documentGenerator, $this->logger);
+        $subscriber = new GenerateDocumentAction($this->documentGenerator, $this->documentV2Generator, $this->logger);
 
         $config = [
             'documentType' => 'customDoc',
@@ -204,7 +224,6 @@ class GenerateDocumentActionTest extends TestCase
         $customDocGenerator = new CustomDocRenderer();
         $class = new \ReflectionClass($registry);
         $property = $class->getProperty('documentRenderers');
-        $property->setAccessible(true);
         $oldValue = $property->getValue($registry);
         $property->setValue(
             $registry,
@@ -229,6 +248,38 @@ class GenerateDocumentActionTest extends TestCase
         );
     }
 
+    public function testGenerateDocumentViaV2WhenReworkIsActive(): void
+    {
+        $context = Context::createDefaultContext();
+        $this->seedInvoiceBaseConfig($context);
+
+        $customerId = $this->createCustomer();
+        $order = $this->createOrder($customerId, $context);
+
+        $event = new OrderStateMachineStateChangeEvent('state_enter.order.state.in_progress', $order, $context);
+        $subscriber = new GenerateDocumentAction($this->documentGenerator, $this->documentV2Generator, $this->logger);
+
+        $config = [
+            'documentType' => InvoiceRenderer::TYPE,
+            'fileFormats' => [FileTypes::PDF],
+        ];
+
+        $before = $this->getDocumentId($order->getId());
+        static::assertEmpty($before);
+
+        Feature::fake(['DOCUMENT_GENERATION_REWORK'], function () use ($event, $config, $subscriber): void {
+            /** @var FlowFactory $flowFactory */
+            $flowFactory = static::getContainer()->get(FlowFactory::class);
+            $flow = $flowFactory->create($event);
+            $flow->setConfig($config);
+
+            $subscriber->handleFlow($flow);
+        });
+
+        $after = $this->getDocumentId($order->getId());
+        static::assertNotEmpty($after);
+    }
+
     /**
      * @return iterable<string, array<int, string|bool>>
      */
@@ -246,8 +297,8 @@ class GenerateDocumentActionTest extends TestCase
      */
     public static function genErrorDocumentProvider(): iterable
     {
-        yield 'Generate storno with invoice not exist' => ['storno', 'document_storno'];
-        yield 'Generate credit with invoice not exist' => ['credit_note', 'document_credit_note'];
+        yield 'Generate storno with invoice not exist' => ['storno', 'document_storno', 'cancellation invoice'];
+        yield 'Generate credit with invoice not exist' => ['credit_note', 'document_credit_note', 'credit note'];
     }
 
     /**
@@ -282,6 +333,22 @@ class GenerateDocumentActionTest extends TestCase
                 'orderId' => $orderId,
             ]
         );
+    }
+
+    private function seedInvoiceBaseConfig(Context $context): void
+    {
+        $this->context = $context;
+        $countryId = $this->loadCompanyCountry()->getId();
+
+        // The V2 config loader prefers `core.basicInformation` system config over the legacy
+        // document_base_config JSON blob, so the company info needed by DocumentCompanyInfo
+        // must be seeded here rather than via the document_base_config table.
+        $systemConfigService = static::getContainer()->get(SystemConfigService::class);
+        $systemConfigService->set('core.basicInformation.companyName', 'Example Company');
+        $systemConfigService->set('core.basicInformation.companyStreet', 'Example Street 1');
+        $systemConfigService->set('core.basicInformation.companyZipcode', '12345');
+        $systemConfigService->set('core.basicInformation.companyCity', 'Example City');
+        $systemConfigService->set('core.basicInformation.companyCountryId', $countryId);
     }
 
     private function addCreditItemToVersionedOrder(string $orderId, Context $context): void
@@ -320,13 +387,13 @@ class GenerateDocumentActionTest extends TestCase
         );
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertEmpty($response->getContent());
 
         // read versioned order
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
-        $order = $this->orderRepository->search($criteria, $context->createWithVersionId($versionId))->get($orderId);
+        $order = $this->orderRepository->search($criteria, $context->createWithVersionId($versionId))->getEntities()->get($orderId);
 
         static::assertNotEmpty($order);
     }
@@ -342,11 +409,11 @@ class GenerateDocumentActionTest extends TestCase
         );
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
         $content = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
         $versionId = $content['versionId'];
-        static::assertEquals($orderId, $content['id']);
-        static::assertEquals('order', $content['entity']);
+        static::assertSame($orderId, $content['id']);
+        static::assertSame('order', $content['entity']);
         static::assertTrue(Uuid::isValid($versionId));
 
         return $versionId;
@@ -409,7 +476,7 @@ class GenerateDocumentActionTest extends TestCase
         ];
 
         $this->orderRepository->upsert([$order], $context);
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->first();
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $context)->getEntities()->first();
 
         static::assertInstanceOf(OrderEntity::class, $order);
 

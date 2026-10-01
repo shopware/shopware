@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search\Parser;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -18,11 +19,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AggregationParser;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class AggregationParserTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -75,13 +78,13 @@ class AggregationParserTest extends TestCase
 
         $maxAggregation = $criteria->getAggregation('max_agg');
         static::assertInstanceOf(MaxAggregation::class, $maxAggregation);
-        static::assertEquals('max_agg', $maxAggregation->getName());
-        static::assertEquals('product.tax.taxRate', $maxAggregation->getField());
+        static::assertSame('max_agg', $maxAggregation->getName());
+        static::assertSame('product.tax.taxRate', $maxAggregation->getField());
 
         $avgAggregation = $criteria->getAggregation('avg_agg');
         static::assertInstanceOf(AvgAggregation::class, $avgAggregation);
-        static::assertEquals('avg_agg', $avgAggregation->getName());
-        static::assertEquals('product.stock', $avgAggregation->getField());
+        static::assertSame('avg_agg', $avgAggregation->getName());
+        static::assertSame('product.stock', $avgAggregation->getField());
     }
 
     public function testBuildAggregationsWithSameName(): void
@@ -112,13 +115,53 @@ class AggregationParserTest extends TestCase
 
         $maxAggregation = $criteria->getAggregation('max');
         static::assertInstanceOf(MaxAggregation::class, $maxAggregation);
-        static::assertEquals('max', $maxAggregation->getName());
-        static::assertEquals('product.tax.taxRate', $maxAggregation->getField());
+        static::assertSame('max', $maxAggregation->getName());
+        static::assertSame('product.tax.taxRate', $maxAggregation->getField());
 
         $avgAggregation = $criteria->getAggregation('avg');
         static::assertInstanceOf(AvgAggregation::class, $avgAggregation);
-        static::assertEquals('avg', $avgAggregation->getName());
-        static::assertEquals('product.stock', $avgAggregation->getField());
+        static::assertSame('avg', $avgAggregation->getName());
+        static::assertSame('product.stock', $avgAggregation->getField());
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function provideControlCharacterNames(): \Generator
+    {
+        yield 'line break' => ["invalid\r\nname"];
+        yield 'null byte' => ["invalid\0name"];
+    }
+
+    #[DataProvider('provideControlCharacterNames')]
+    public function testControlCharacterNotAllowedInAggregationName(string $name): void
+    {
+        $criteria = new Criteria();
+        $searchRequestException = new SearchRequestException();
+
+        $this->parser->buildAggregations(
+            static::getContainer()->get(ProductDefinition::class),
+            [
+                'aggregations' => [
+                    [
+                        'name' => $name,
+                        'type' => 'avg',
+                        'field' => 'stock',
+                    ],
+                ],
+            ],
+            $criteria,
+            $searchRequestException
+        );
+
+        $errors = iterator_to_array($searchRequestException->getErrors(), false);
+        static::assertCount(1, $errors);
+
+        $error = array_shift($errors);
+
+        static::assertNotNull($error);
+        static::assertSame('The aggregation name should not contain a backtick, question mark, colon, or control character.', $error['detail']);
+        static::assertCount(0, $criteria->getAggregations());
     }
 
     public function testICanCreateNestedAggregations(): void
@@ -249,8 +292,8 @@ class AggregationParserTest extends TestCase
 
         $entity = $criteria->getAggregation('entity_test');
         static::assertInstanceOf(EntityAggregation::class, $entity);
-        static::assertEquals('product.manufacturerId', $entity->getField());
-        static::assertEquals(ProductManufacturerDefinition::ENTITY_NAME, $entity->getEntity());
+        static::assertSame('product.manufacturerId', $entity->getField());
+        static::assertSame(ProductManufacturerDefinition::ENTITY_NAME, $entity->getEntity());
     }
 
     public function testThrowExceptionByEntityAggregationWithoutDefinition(): void
@@ -308,8 +351,8 @@ class AggregationParserTest extends TestCase
         static::assertInstanceOf(RangeAggregation::class, $agg);
         $computedRanges = $agg->getRanges();
 
-        static::assertEquals($expectedRanges[0] + ['key' => '1-2'], $computedRanges[0]);
-        static::assertEquals($expectedRanges[1] + ['key' => '2-3'], $computedRanges[1]);
+        static::assertSame($expectedRanges[0] + ['key' => '1-2'], $computedRanges[0]);
+        static::assertSame($expectedRanges[1] + ['key' => '2-3'], $computedRanges[1]);
     }
 
     public function testQuestionMarkNotAllowedInAggregationName(): void
@@ -338,6 +381,49 @@ class AggregationParserTest extends TestCase
 
         static::assertNotNull($error);
 
-        static::assertSame('The aggregation name should not contain a question mark or colon.', $error['detail']);
+        static::assertSame('The aggregation name should not contain a backtick, question mark, colon, or control character.', $error['detail']);
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function provideDisallowedRangeKeys(): \Generator
+    {
+        yield 'backtick' => ['foo`foo'];
+        yield 'question mark' => ['foo?foo'];
+        yield 'colon' => ['foo:foo'];
+        yield 'control character' => ["foo\nfoo"];
+    }
+
+    #[DataProvider('provideDisallowedRangeKeys')]
+    public function testDisallowedCharsNotAllowedInRangeAggregationKey(string $key): void
+    {
+        $criteria = new Criteria();
+        $searchRequestException = new SearchRequestException();
+
+        $this->parser->buildAggregations(
+            static::getContainer()->get(ProductDefinition::class),
+            [
+                'aggregations' => [
+                    [
+                        'name' => 'range_test',
+                        'type' => 'range',
+                        'field' => 'stock',
+                        'ranges' => [['key' => $key, 'from' => 0]],
+                    ],
+                ],
+            ],
+            $criteria,
+            $searchRequestException
+        );
+
+        $errors = iterator_to_array($searchRequestException->getErrors(), false);
+        static::assertCount(1, $errors);
+
+        $error = array_shift($errors);
+
+        static::assertNotNull($error);
+        static::assertSame('The range aggregation key should not contain a backtick, question mark, colon, or control character.', $error['detail']);
+        static::assertCount(0, $criteria->getAggregations());
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
@@ -20,15 +19,16 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:install',
     description: 'Installs an app',
 )]
-#[Package('framework')]
 class InstallAppCommand extends Command
 {
     public function __construct(
@@ -43,7 +43,7 @@ class InstallAppCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $context = Context::createCLIContext();
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         $names = $input->getArgument('name');
 
@@ -54,7 +54,7 @@ class InstallAppCommand extends Command
         $manifests = $this->getMatchingManifests($names);
         $success = self::SUCCESS;
 
-        if (\count($manifests) === 0) {
+        if ($manifests === []) {
             $io->info('Could not find any app with this name');
 
             return self::SUCCESS;
@@ -66,7 +66,7 @@ class InstallAppCommand extends Command
                     $this->checkPermissions($manifest, $io);
 
                     $this->appPrinter->checkHosts($manifest, $io);
-                } catch (UserAbortedCommandException $e) {
+                } catch (UserAbortedCommandException) {
                     $io->error('Aborting due to user input.');
 
                     return self::FAILURE;
@@ -86,10 +86,9 @@ class InstallAppCommand extends Command
             }
 
             try {
-                // in the future: if it was forced then it counts as not accepted
                 $this->appLifecycle->install(
                     $manifest,
-                    new AppInstallParameters(activate: $input->getOption('activate')),
+                    new AppInstallParameters(activate: $input->getOption('activate'), acceptPermissions: true),
                     $context
                 );
             } catch (AppAlreadyInstalledException) {
@@ -101,7 +100,7 @@ class InstallAppCommand extends Command
             $io->success(\sprintf('App %s has been successfully installed.', $name));
         }
 
-        return (int) $success;
+        return $success;
     }
 
     protected function configure(): void
@@ -148,7 +147,7 @@ class InstallAppCommand extends Command
         return $manifests;
     }
 
-    private function checkPermissions(Manifest $manifest, ShopwareStyle $io): void
+    private function checkPermissions(Manifest $manifest, SymfonyStyle $io): void
     {
         if ($manifest->getPermissions()) {
             $this->appPrinter->printPermissions($manifest, $io, true);

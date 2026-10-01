@@ -20,6 +20,7 @@ if (process.env.IPV4FIRST) {
 const isProdMode = process.env.NODE_ENV === 'production';
 const isHotMode = process.env.MODE === 'hot';
 const isDevMode = process.env.NODE_ENV !== 'production' && process.env.MODE !== 'hot';
+const isDebugMode = process.env.DEBUG === 'true';
 
 const projectRootPath = process.env.PROJECT_ROOT
     ? path.resolve(process.env.PROJECT_ROOT)
@@ -105,7 +106,7 @@ const coreConfig = {
         }
 
         if (isProdMode) {
-            return false;
+            return process.env.GENERATE_SOURCEMAPS === 'true' ? 'source-map' : false;
         }
 
         return 'inline-cheap-source-map';
@@ -170,6 +171,15 @@ const coreConfig = {
                     },
                 ],
             },
+            {
+                // three.js/DRACO ships a .wasm decoder that dive imports as a URL (`?url`).
+                // Emit it as an asset so its public URL can be fetched by the DRACOLoader at runtime.
+                test: /\.wasm$/,
+                type: 'asset/resource',
+                generator: {
+                    filename: 'assets/wasm/[name].[contenthash:8][ext]',
+                },
+            },
             ...(() => {
                 if (isHotMode) {
                     return [
@@ -200,6 +210,17 @@ const coreConfig = {
                                     loader: 'sass-loader',
                                     options: {
                                         sourceMap: true,
+                                        sassOptions: {
+                                            ...(!isDebugMode ? {
+                                                silenceDeprecations: [
+                                                    'import',
+                                                    'global-builtin',
+                                                    'color-functions',
+                                                    'mixed-decls',
+                                                    'slash-div',
+                                                ],
+                                            } : {}),
+                                        },
                                     },
                                 },
                             ],
@@ -303,6 +324,7 @@ const coreConfig = {
         modules: [
             // statically add the storefront node_modules folder, so sw plugins can resolve it
             path.resolve(__dirname, 'node_modules'),
+            path.resolve(__dirname, 'node_modules/@shopware-ag/dive/node_modules'),
         ],
         alias: {
             src: path.resolve(__dirname, 'src'),
@@ -312,6 +334,9 @@ const coreConfig = {
         },
     },
     stats: 'minimal',
+    infrastructureLogging: {
+        level: 'warn',
+    },
     target: 'web',
 };
 
@@ -365,6 +390,11 @@ const pluginConfigs = pluginEntries.map((plugin) => {
                 [plugin.technicalName]: plugin.filePath,
             },
             output: {
+                // Without an explicit unique name every build shares the default `webpackChunk` chunk
+                // loading global, which lets one build's runtime process another build's chunks and
+                // resolve a dynamic import to the wrong module. The core build keeps the default on
+                // purpose: renaming its global would change the runtime every shop already ships.
+                uniqueName: plugin.technicalName,
                 // In dev mode use same path as the core storefront to be able to access all files in multi-compiler-mode
                 path: isHotMode ? path.resolve(__dirname, 'dist') : path.resolve(plugin.path, '../dist/storefront'),
                 filename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js`,
@@ -426,7 +456,7 @@ if (isHotMode) {
     const scssDumpedThemeVariables = path.resolve(projectRootPath, `var/theme-variables/${themeId}.scss`);
     const scssDumpedVariables = (fs.existsSync(scssDumpedThemeVariables)) ? scssDumpedThemeVariables : scssDumpedFallbackVariables;
 
-    if (fs.existsSync(scssDumpedThemeVariables)) {
+    if (fs.existsSync(scssDumpedThemeVariables) && isDebugMode) {
         console.log(chalk.bgCyanBright.black(`# Theme variable file: ${scssDumpedVariables}`));
     }
     if (!fs.existsSync(scssDumpedThemeVariables)) {
@@ -481,9 +511,7 @@ const mergedCoreConfig = merge([
                     open: false,
                     devMiddleware: {
                         publicPath: `${hostName}/`,
-                        stats: {
-                            colors: true,
-                        },
+                        stats: 'none',
                     },
                     hot: false,
                     compress: false,
@@ -500,6 +528,7 @@ const mergedCoreConfig = merge([
                         overlay: {
                             warnings: false,
                             errors: true,
+                            runtimeErrors: false,
                         },
                     },
                     headers: {
@@ -531,3 +560,5 @@ const mergedCoreConfig = merge([
 
 // Use multi-compiler
 module.exports = [mergedCoreConfig, ...pluginConfigs];
+// Default is infinity @see https://github.com/webpack/webpack/blob/c109f97b1bf5eceb2e0e498d399f46321f40b07f/lib/MultiCompiler.js#L83
+module.exports.parallelism = process.env.SHOPWARE_BUILD_PARALLELISM ? parseInt(process.env.SHOPWARE_BUILD_PARALLELISM, 10) : Infinity;

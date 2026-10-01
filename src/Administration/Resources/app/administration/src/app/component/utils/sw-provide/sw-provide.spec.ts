@@ -18,12 +18,6 @@ async function createWrapper({ template = '<sw-provide />', components = {}, dat
 }
 
 describe('src/app/component/base/sw-provide', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('renders the children without adding extra HTML', async () => {
         const wrapper = await createWrapper({
             template: `
@@ -44,10 +38,7 @@ describe('src/app/component/base/sw-provide', () => {
             components: {
                 'child-component': {
                     template: '<div>{{ foo }} {{ bar }}</div>',
-                    inject: [
-                        'foo',
-                        'bar',
-                    ],
+                    inject: ['foo', 'bar'],
                 },
             },
         });
@@ -86,10 +77,7 @@ describe('src/app/component/base/sw-provide', () => {
             components: {
                 'child-component': {
                     template: '<div>{{ fooBar }} {{ barFoo }}</div>',
-                    inject: [
-                        'fooBar',
-                        'barFoo',
-                    ],
+                    inject: ['fooBar', 'barFoo'],
                 },
             },
         });

@@ -5,6 +5,9 @@ namespace Shopware\Core\Framework\Rule\Exception;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@after-sales')]
 class InvalidConditionException extends ShopwareHttpException
 {

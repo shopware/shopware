@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Api;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 class VersionTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -27,24 +29,22 @@ class VersionTest extends TestCase
     }
 
     /**
-     * @return array<array{string, string}>
+     * @return iterable<array{string, string}>
      */
-    public static function protectedRoutesDataProvider(): array
+    public static function protectedRoutesDataProvider(): iterable
     {
-        return [
-            ['GET', '/api/product'],
-            ['GET', '/api/tax'],
-            ['POST', '/api/_action/sync'],
-            ['GET', '/api/_info/stoplightio.html'],
-            ['GET', '/api/_info/entity-schema.json'],
-            ['GET', '/api/_info/events.json'],
-        ];
+        yield 'protected routes get api product' => ['GET', '/api/product'];
+        yield 'protected routes get api tax' => ['GET', '/api/tax'];
+        yield 'protected routes post api action sync' => ['POST', '/api/_action/sync'];
+        yield 'protected routes get api info stoplightio html' => ['GET', '/api/_info/stoplightio.html'];
+        yield 'protected routes get api info entity schema json' => ['GET', '/api/_info/entity-schema.json'];
+        yield 'protected routes get api info events json' => ['GET', '/api/_info/events.json'];
     }
 
     public function testAuthShouldNotBeProtected(): void
     {
         $this->unauthorizedClient->request('POST', '/api/oauth/token');
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_BAD_REQUEST,
             $this->unauthorizedClient->getResponse()->getStatusCode(),
             'Route should be protected. (URL: /api/oauth/token)'
@@ -53,16 +53,16 @@ class VersionTest extends TestCase
         $content = (string) $this->unauthorizedClient->getResponse()->getContent();
         $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEquals('false', $content);
-        static::assertEquals('The authorization grant type is not supported by the authorization server.', $response['errors'][0]['title']);
-        static::assertEquals('Check that all required parameters have been provided', $response['errors'][0]['detail']);
+        static::assertNotSame('false', $content);
+        static::assertSame('The authorization grant type is not supported by the authorization server.', $response['errors'][0]['title']);
+        static::assertSame('Check that all required parameters have been provided', $response['errors'][0]['detail']);
     }
 
     #[DataProvider('protectedRoutesDataProvider')]
     public function testRoutesAreProtected(string $method, string $url): void
     {
         $this->unauthorizedClient->request($method, $url);
-        static::assertEquals(
+        static::assertSame(
             Response::HTTP_UNAUTHORIZED,
             $this->unauthorizedClient->getResponse()->getStatusCode(),
             'Route should be protected. (URL: ' . $url . ')'

@@ -4,12 +4,12 @@ namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Composer\IO\NullIO;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Depends;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Asset\AssetService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationSource;
@@ -20,24 +20,25 @@ use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\Requirement\RequirementsValidator;
-use Shopware\Core\Framework\Plugin\Util\AssetService;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\Framework\Test\Migration\MigrationTestBehaviour;
 use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
+use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class PluginLifecycleServiceMigrationTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -68,7 +69,9 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $connection->executeStatement('DELETE FROM migration WHERE `class` LIKE "SwagManualMigrationTest%"');
         $connection->executeStatement('DELETE FROM plugin');
 
-        KernelLifecycleManager::bootKernel();
+        // shut down only: the next class boots its kernel lazily inside a test context,
+        // which recompiles without the test plugin added by this class
+        KernelLifecycleManager::ensureKernelShutdown();
     }
 
     protected function setUp(): void
@@ -82,7 +85,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $this->pluginLifecycleService = $this->createPluginLifecycleService();
         $this->context = Context::createDefaultContext();
 
-        $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+        $this->fixturePath = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/';
 
         $this->pluginService = $this->createPluginService(
             $this->fixturePath . 'plugins',
@@ -102,10 +105,17 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $this->connection->executeStatement('DELETE FROM plugin WHERE `name` = "SwagTest"');
     }
 
-    public function testInstall(): MigrationCollection
+    /**
+     * Exercises the full plugin lifecycle (install -> activate -> update -> deactivate -> uninstall) as
+     * a single ordered scenario. This was previously a #[Depends] chain of separate tests threading the
+     * MigrationCollection through return values; collapsed into one test so it no longer pins execution
+     * order (the steps are inherently sequential and only meaningful together).
+     */
+    public function testPluginMigrationLifecycle(): void
     {
         static::assertSame(0, $this->connection->getTransactionNestingLevel());
 
+        // install
         $migrationPlugin = $this->getMigrationTestPlugin();
         static::assertNull($migrationPlugin->getInstalledAt());
 
@@ -113,42 +123,22 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $migrationCollection = $this->getMigrationCollection('SwagManualMigrationTestPlugin');
         $this->assertMigrationState($migrationCollection, 4, 1);
 
-        return $migrationCollection;
-    }
-
-    #[Depends('testInstall')]
-    public function testActivate(MigrationCollection $migrationCollection): MigrationCollection
-    {
+        // activate
         $migrationPlugin = $this->getMigrationTestPlugin();
         $this->pluginLifecycleService->activatePlugin($migrationPlugin, $this->context);
         $this->assertMigrationState($migrationCollection, 4, 2);
 
-        return $migrationCollection;
-    }
-
-    #[Depends('testActivate')]
-    public function testUpdate(MigrationCollection $migrationCollection): MigrationCollection
-    {
+        // update
         $migrationPlugin = $this->getMigrationTestPlugin();
         $this->pluginLifecycleService->updatePlugin($migrationPlugin, $this->context);
         $this->assertMigrationState($migrationCollection, 4, 3, 1);
 
-        return $migrationCollection;
-    }
-
-    #[Depends('testUpdate')]
-    public function testDeactivate(MigrationCollection $migrationCollection): MigrationCollection
-    {
+        // deactivate
         $migrationPlugin = $this->getMigrationTestPlugin();
         $this->pluginLifecycleService->deactivatePlugin($migrationPlugin, $this->context);
         $this->assertMigrationState($migrationCollection, 4, 3, 1);
 
-        return $migrationCollection;
-    }
-
-    #[Depends('testDeactivate')]
-    public function testUninstallKeepUserData(MigrationCollection $migrationCollection): void
-    {
+        // uninstall, keeping user data
         $migrationPlugin = $this->getMigrationTestPlugin();
         $this->pluginLifecycleService->uninstallPlugin($migrationPlugin, $this->context, true);
         $this->assertMigrationCount($migrationCollection, 4);
@@ -159,7 +149,7 @@ class PluginLifecycleServiceMigrationTest extends TestCase
         $connection = static::getContainer()->get(Connection::class);
 
         /** @var MigrationSource $migrationSource */
-        $migrationSource = ReflectionHelper::getPropertyValue($migrationCollection, 'migrationSource');
+        $migrationSource = (new \ReflectionProperty(MigrationCollection::class, 'migrationSource'))->getValue($migrationCollection);
 
         $dbMigrations = $connection
             ->fetchAllAssociative(
@@ -189,6 +179,9 @@ class PluginLifecycleServiceMigrationTest extends TestCase
             $this->container->get(PluginService::class),
             $this->container->get(VersionSanitizer::class),
             $this->container->get(DefinitionInstanceRegistry::class),
+            new RequestStack(),
+            $this->container->get(CustomFieldSetPersister::class),
+            new NativeClock()
         );
     }
 

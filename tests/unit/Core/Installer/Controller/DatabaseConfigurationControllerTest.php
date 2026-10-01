@@ -6,6 +6,8 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Installer\Controller\DatabaseConfigurationController;
 use Shopware\Core\Installer\Controller\InstallerController;
 use Shopware\Core\Installer\Database\BlueGreenDeploymentService;
@@ -26,10 +28,12 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DatabaseConfigurationController::class)]
 #[CoversClass(InstallerController::class)]
 class DatabaseConfigurationControllerTest extends TestCase
 {
+    use EnvTestBehaviour;
     use InstallerControllerTestTrait;
 
     private MockObject&Environment $twig;
@@ -66,6 +70,56 @@ class DatabaseConfigurationControllerTest extends TestCase
 
     public function testDatabaseGetConfigurationRoute(): void
     {
+        $this->translator->expects($this->never())->method('trans');
+        $this->blueGreenDeploymentService->expects($this->never())->method('setEnvironmentVariable');
+        $this->setupDatabaseAdapter->expects($this->never())->method('getTableCount');
+        $this->router->expects($this->never())->method('generate');
+
+        $this->setEnvVars([
+            'DATABASE_URL' => 'mysql://shopware:secret@db.example:3307/shopware_prefill',
+        ]);
+
+        $expectedConnectionInfo = (new DatabaseConnectionInformation())->assign([
+            'hostname' => 'db.example',
+            'port' => 3307,
+            'username' => 'shopware',
+            'password' => null,
+            'databaseName' => 'shopware_prefill',
+        ]);
+
+        $this->twig->expects($this->once())->method('render')
+            ->with(
+                '@Installer/installer/database-configuration.html.twig',
+                array_merge($this->getDefaultViewParams(), [
+                    'connectionInfo' => $expectedConnectionInfo,
+                    'error' => null,
+                ])
+            )
+            ->willReturn('config');
+
+        $this->connectionFactory->expects($this->never())->method('getConnection');
+
+        $request = Request::create('/installer/database-configuration');
+        $session = new Session(new MockArraySessionStorage());
+        $request->setSession($session);
+
+        $response = $this->controller->databaseConfiguration($request);
+        static::assertSame('config', $response->getContent());
+
+        static::assertFalse($session->has(DatabaseConnectionInformation::class));
+    }
+
+    public function testDatabaseGetConfigurationRouteFallsBackOnInvalidDatabaseUrl(): void
+    {
+        $this->translator->expects($this->never())->method('trans');
+        $this->blueGreenDeploymentService->expects($this->never())->method('setEnvironmentVariable');
+        $this->setupDatabaseAdapter->expects($this->never())->method('getTableCount');
+        $this->router->expects($this->never())->method('generate');
+
+        $this->setEnvVars([
+            'DATABASE_URL' => 'not-a-valid-url',
+        ]);
+
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/database-configuration.html.twig',
@@ -90,7 +144,9 @@ class DatabaseConfigurationControllerTest extends TestCase
 
     public function testDatabaseGetConfigurationRoutePostWithEmptyExistingDB(): void
     {
-        $connection = $this->createMock(Connection::class);
+        $this->translator->expects($this->never())->method('trans');
+
+        $connection = static::createStub(Connection::class);
 
         $this->connectionFactory->expects($this->once())
             ->method('getConnection')
@@ -124,6 +180,8 @@ class DatabaseConfigurationControllerTest extends TestCase
 
     public function testDatabaseGetConfigurationRoutePostWithNonEmptyExistingDB(): void
     {
+        $this->router->expects($this->never())->method('generate');
+
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/database-configuration.html.twig',
@@ -139,7 +197,7 @@ class DatabaseConfigurationControllerTest extends TestCase
             ->with('shopware.installer.database-configuration_non_empty_database')
             ->willReturn('translated error');
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $this->connectionFactory->expects($this->once())
             ->method('getConnection')
@@ -166,8 +224,10 @@ class DatabaseConfigurationControllerTest extends TestCase
 
     public function testDatabaseGetConfigurationRoutePostWithNonExistingDB(): void
     {
-        $connectionWithoutDb = $this->createMock(Connection::class);
-        $connection = $this->createMock(Connection::class);
+        $this->translator->expects($this->never())->method('trans');
+
+        $connectionWithoutDb = static::createStub(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $this->connectionFactory->expects($this->exactly(3))
             ->method('getConnection')
@@ -209,6 +269,9 @@ class DatabaseConfigurationControllerTest extends TestCase
 
     public function testDatabaseGetConfigurationRoutePostWithUnexpectedException(): void
     {
+        $this->translator->expects($this->never())->method('trans');
+        $this->router->expects($this->never())->method('generate');
+
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/database-configuration.html.twig',
@@ -241,6 +304,8 @@ class DatabaseConfigurationControllerTest extends TestCase
 
     public function testDatabaseGetConfigurationRoutePostWithDatabaseSetupException(): void
     {
+        $this->router->expects($this->never())->method('generate');
+
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/database-configuration.html.twig',
@@ -278,6 +343,11 @@ class DatabaseConfigurationControllerTest extends TestCase
 
     public function testDatabaseInformationRouteWithIncompleteConnectionInformation(): void
     {
+        $this->translator->expects($this->never())->method('trans');
+        $this->blueGreenDeploymentService->expects($this->never())->method('setEnvironmentVariable');
+        $this->router->expects($this->never())->method('generate');
+        $this->twig->expects($this->never())->method('render');
+
         $request = Request::create('/installer/database-information', 'POST');
 
         $this->connectionFactory->expects($this->once())
@@ -294,6 +364,10 @@ class DatabaseConfigurationControllerTest extends TestCase
 
     public function testDatabaseInformationRouteWithWrongMysqlVersion(): void
     {
+        $this->blueGreenDeploymentService->expects($this->never())->method('setEnvironmentVariable');
+        $this->router->expects($this->never())->method('generate');
+        $this->twig->expects($this->never())->method('render');
+
         $request = Request::create('/installer/database-information', 'POST');
 
         $this->connectionFactory->expects($this->once())
@@ -315,9 +389,14 @@ class DatabaseConfigurationControllerTest extends TestCase
 
     public function testDatabaseInformationRoute(): void
     {
+        $this->translator->expects($this->never())->method('trans');
+        $this->blueGreenDeploymentService->expects($this->never())->method('setEnvironmentVariable');
+        $this->router->expects($this->never())->method('generate');
+        $this->twig->expects($this->never())->method('render');
+
         $request = Request::create('/installer/database-information', 'POST');
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $this->connectionFactory->expects($this->once())
             ->method('getConnection')

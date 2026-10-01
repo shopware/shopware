@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 
 /**
@@ -7,6 +9,7 @@ const mockItems = [
     {
         id: '1',
         type: 'product',
+        productId: 'product-id',
         label: 'Product item',
         quantity: 1,
         payload: {
@@ -286,7 +289,7 @@ async function createWrapper() {
                 'sw-provide': { template: '<slot/>', inheritAttrs: false },
             },
             mocks: {
-                $tc: (t, value) => {
+                $t: (t, value) => {
                     if (t === 'sw-order.detailBase.taxDetail') {
                         return `${value.taxRate}%: ${value.tax}`;
                     }
@@ -347,11 +350,18 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     it('only product item should have redirect link', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
+        const deletedProductItem = {
+            ...mockItems[0],
+            id: '5',
+            type: 'custom',
+            productId: null,
+            referencedId: null,
+        };
 
         await wrapper.setProps({
             order: {
                 ...wrapper.props().order,
-                lineItems: [...mockItems],
+                lineItems: [...mockItems, deletedProductItem],
             },
         });
 
@@ -375,6 +385,22 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         expect(creditLabel.find('.router-link').exists()).toBeFalsy();
         expect(showProductButton3.attributes().disabled).toBeTruthy();
+
+        const deletedProduct = wrapper.find('.sw-data-grid__row--4');
+        const deletedProductLabel = deletedProduct.find('.sw-data-grid__cell--label');
+        const showProductButton4 = deletedProduct.find('.sw-context-menu-item');
+
+        expect(deletedProductLabel.find('.router-link').exists()).toBeFalsy();
+        expect(showProductButton4.attributes().disabled).toBeTruthy();
+
+        expect(wrapper.vm.getProductRoute(mockItems[0])).toEqual({
+            name: 'sw.product.detail',
+            params: {
+                id: 'product-id',
+            },
+        });
+        expect(wrapper.vm.getProductRoute(deletedProductItem)).toBeNull();
+        expect(wrapper.vm.getProductRoute(mockItems[1])).toBeNull();
     });
 
     it('should not show tooltip if only items which have single tax', async () => {
@@ -481,10 +507,10 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const columnVat = header.find('.sw-data-grid__cell--4');
-        const columnPrice = header.find('.sw-data-grid__cell--1');
+        const firstRow = wrapper.find('.sw-data-grid__row--0');
+        const columnVat = firstRow.find('.sw-data-grid__cell--price-taxRules\\[0\\]');
         expect(columnVat.exists()).toBe(true);
-        expect(columnPrice.text()).not.toBe('sw-order.createBase.columnPriceTaxFree');
+        expect(header.text()).not.toContain('sw-order.createBase.columnPriceTaxFree');
     });
 
     it('should not have vat column and price label is tax free when tax status is tax free', async () => {
@@ -499,13 +525,12 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const columnVat = header.find('.sw-data-grid__cell--5');
-        const columnPrice = header.find('.sw-data-grid__cell--3');
+        const firstRow = wrapper.find('.sw-data-grid__row--0');
+        const columnVat = firstRow.find('.sw-data-grid__cell--price-taxRules\\[0\\]');
         expect(columnVat.exists()).toBe(false);
-        expect(columnPrice.text()).toBe('sw-order.detailBase.columnPriceTaxFree');
+        expect(header.text()).toContain('sw-order.detailBase.columnPriceTaxFree');
     });
 
-    // eslint-disable-next-line max-len
     it('should automatically set price definition quantity value of custom item when the user enters a change quantity value', async () => {
         global.activeAclRoles = [];
         const wrapper = await createWrapper();
@@ -534,7 +559,6 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         const wrapper = await createWrapper();
 
         let header;
-        let columnTotal;
 
         await wrapper.setProps({
             order: {
@@ -545,8 +569,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--4');
-        expect(columnTotal.text()).toBe('sw-order.detailBase.columnTotalPriceNet');
+        expect(header.text()).toContain('sw-order.detailBase.columnTotalPriceNet');
 
         await wrapper.setProps({
             order: {
@@ -557,8 +580,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--5');
-        expect(columnTotal.text()).toBe('sw-order.detailBase.columnTotalPriceGross');
+        expect(header.text()).toContain('sw-order.detailBase.columnTotalPriceGross');
 
         await wrapper.setProps({
             order: {
@@ -569,15 +591,11 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         header = wrapper.find('.sw-data-grid__header');
-        columnTotal = header.find('.sw-data-grid__cell--5');
-        expect(columnTotal.text()).toBe('sw-order.detailBase.columnTotalPriceNet');
+        expect(header.text()).toContain('sw-order.detailBase.columnTotalPriceNet');
     });
 
     it('should able to create new empty line item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
@@ -591,17 +609,16 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         expect(itemRows).toHaveLength(1);
 
         const firstRow = itemRows.at(0);
-        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toBe('1 x');
+        expect(firstRow.classes()).toContain('is--inline-edit');
+        expect(firstRow.find('.sw-order-product-select').exists()).toBe(true);
         expect(firstRow.find('.sw-data-grid__cell--unitPrice').text()).toBe('...');
         expect(firstRow.find('.sw-data-grid__cell--price-taxRules\\[0\\]').text()).toBe('0 %');
         expect(firstRow.find('.sw-data-grid__cell--totalPrice').text()).toBe('...');
+        expect(wrapper.vm.order.lineItems[0].quantity).toBe(1);
     });
 
     it('should able to create new product line item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
@@ -621,10 +638,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to create new custom line item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         const buttonAddCustomItem = wrapper.find('.sw-order-line-items-grid__create-custom-item');
@@ -641,11 +655,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to create new credit line item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-            'orders.create_discounts',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor', 'orders.create_discounts'];
         const wrapper = await createWrapper();
 
         const buttonAddCreditItem = wrapper.find('.sw-order-line-items-grid__can-create-discounts-button');
@@ -662,14 +672,16 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to cancel inline edit', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
-        const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
-        await buttonAddItem.trigger('click');
+        await wrapper.setProps({
+            order: {
+                ...wrapper.props().order,
+                lineItems: [{ ...mockItems[0] }],
+                taxStatus: 'gross',
+            },
+        });
 
         const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(itemRows).toHaveLength(1);
@@ -682,13 +694,11 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
 
         await flushPromises();
         expect(wrapper.emitted('item-cancel')).toBeTruthy();
+        expect(wrapper.vm.order.lineItems).toHaveLength(1);
     });
 
     it('should able to delete single item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
@@ -710,31 +720,30 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to delete empty single item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
+
+        // The first item stays in inline edit, so only the second one exposes its context menu
         await buttonAddItem.trigger('click');
+        await flushPromises();
+        await buttonAddItem.trigger('click');
+        await flushPromises();
 
         let itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows).toHaveLength(1);
+        expect(itemRows).toHaveLength(2);
 
         const firstRow = itemRows[0];
 
         await firstRow.find('.sw-data-grid__cell--actions .sw-context-menu-item[variant="danger"]').trigger('click');
 
         itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        expect(itemRows).toHaveLength(0);
+        expect(itemRows).toHaveLength(1);
     });
 
     it('should able to delete multiple items', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
@@ -749,7 +758,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await selectAllCheckBox.setChecked(true);
         await selectAllCheckBox.trigger('change');
 
-        const deleteAllButton = wrapper.find('.sw-data-grid__bulk-selected .link-danger');
+        const deleteAllButton = wrapper.find('.sw-data-grid__bulk-selected .mt-link');
         await deleteAllButton.trigger('click');
 
         await flushPromises();
@@ -757,10 +766,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to delete empty items', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid__actions-container-add-product-btn');
@@ -774,7 +780,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await selectAllCheckBox.setChecked(true);
         await selectAllCheckBox.trigger('change');
 
-        const deleteAllButton = wrapper.find('.sw-data-grid__bulk-selected .link-danger');
+        const deleteAllButton = wrapper.find('.sw-data-grid__bulk-selected .mt-link');
         await deleteAllButton.trigger('click');
 
         itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
@@ -782,10 +788,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
     });
 
     it('should able to edit single item', async () => {
-        global.activeAclRoles = [
-            'order.viewer',
-            'order.editor',
-        ];
+        global.activeAclRoles = ['order.viewer', 'order.editor'];
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
@@ -875,9 +878,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         });
 
         const header = wrapper.find('.sw-data-grid__header');
-        const columnProductNumber = header.find('.sw-data-grid__cell--2');
-
-        expect(columnProductNumber.text()).toBe('sw-order.detailBase.columnProductNumber');
+        expect(header.text()).toContain('sw-order.detailBase.columnProductNumber');
     });
 
     it('should show items correctly when search by product number', async () => {

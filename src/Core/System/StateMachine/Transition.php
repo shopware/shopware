@@ -11,7 +11,8 @@ class Transition
         private readonly string $entityName,
         private readonly string $entityId,
         private readonly string $transitionName,
-        private readonly string $stateFieldName
+        private readonly string $stateFieldName,
+        private readonly ?string $internalComment = null,
     ) {
     }
 
@@ -33,5 +34,10 @@ class Transition
     public function getStateFieldName(): string
     {
         return $this->stateFieldName;
+    }
+
+    public function getInternalComment(): ?string
+    {
+        return $this->internalComment;
     }
 }

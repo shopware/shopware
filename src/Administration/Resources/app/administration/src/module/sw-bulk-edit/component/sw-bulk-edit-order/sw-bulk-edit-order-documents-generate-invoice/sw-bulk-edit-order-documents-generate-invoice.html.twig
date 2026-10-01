@@ -1,20 +1,34 @@
 {% block sw_bulk_edit_order_documents_generate_invoice %}
 <div class="sw-bulk-edit-order-documents-generate-invoice">
+    {% block sw_bulk_edit_order_documents_generate_invoice_file_formats %}
+    <mt-select
+        v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')"
+        v-model="generateData.fileFormats"
+        class="sw-bulk-edit-order-documents-generate-invoice__item"
+        label-property="label"
+        value-property="value"
+        :label="$t('sw-bulk-edit.order.documents.generateInvoice.labelFileFormats')"
+        :placeholder="$t('sw-bulk-edit.order.documents.generateInvoice.placeholderFileFormats')"
+        :options="fileFormatOptions"
+        :enable-multi-selection="true"
+        required
+    />
+    {% endblock %}
+
     {% block sw_bulk_edit_order_documents_generate_invoice_datepicker %}
     <mt-datepicker
         v-model="generateData.documentDate"
         class="sw-bulk-edit-order-documents-generate-invoice__item"
         hide-hint
-        :label="$tc('sw-bulk-edit.order.documents.generateInvoice.labelDatePicker')"
-        :placeholder="$tc('sw-datepicker.date.placeholder')"
+        :label="$t('sw-bulk-edit.order.documents.generateInvoice.labelDatePicker')"
+        :placeholder="$t('sw-datepicker.date.placeholder')"
     />
     {% endblock %}
 
     {% block sw_bulk_edit_order_documents_generate_invoice_textarea %}
     <mt-textarea
         v-model="generateData.documentComment"
-        :label="$tc('sw-bulk-edit.order.documents.generateInvoice.labelTextarea')"
-        :placeholder="$tc('sw-bulk-edit.order.documents.generateInvoice.placeholderTextarea')"
+        :label="$t('sw-bulk-edit.order.documents.generateInvoice.labelTextarea')"
     />
     {% endblock %}
 
@@ -22,8 +36,8 @@
 
     <mt-switch
         v-model="generateData.forceDocumentCreation"
-        :label="$tc('sw-bulk-edit.order.documents.forceDocumentCreation')"
-        :help-text="$tc('sw-bulk-edit.order.documents.forceDocumentCreationHelpText')"
+        :label="$t('sw-bulk-edit.order.documents.forceDocumentCreation')"
+        :help-text="$t('sw-bulk-edit.order.documents.forceDocumentCreationHelpText')"
     />
     {% endblock %}
 

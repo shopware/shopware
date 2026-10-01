@@ -11,8 +11,6 @@ use Shopware\Core\Migration\Traits\ImportTranslationsTrait;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1665267882RenameCountryVat extends MigrationStep
@@ -38,7 +36,7 @@ class Migration1665267882RenameCountryVat extends MigrationStep
                 WHERE country.iso = :iso AND country.iso3 = :iso3';
 
         $currentTranslations = $connection->fetchAllKeyValue($sql, ['iso' => 'VA', 'iso3' => 'VAT']);
-        if (empty($currentTranslations)) {
+        if ($currentTranslations === []) {
             return;
         }
 
@@ -49,14 +47,14 @@ class Migration1665267882RenameCountryVat extends MigrationStep
         if (($currentTranslations['de-DE'] ?? null) === 'Heiliger Stuhl') {
             $replacements['de-DE'] = 'Staat Vatikanstadt';
         }
-        if (empty($replacements)) {
+        if ($replacements === []) {
             return;
         }
 
         $sql = 'SELECT locale.code, language.id FROM language
                 LEFT JOIN locale ON locale.id = language.locale_id';
         $languageIds = $connection->fetchAllKeyValue($sql);
-        if (empty($languageIds)) {
+        if ($languageIds === []) {
             return;
         }
 

@@ -14,14 +14,9 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: [
-        'bulkEditApiFactory',
-        'repositoryFactory',
-    ],
+    inject: ['bulkEditApiFactory', 'repositoryFactory', 'customFieldDataProviderService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -46,6 +41,7 @@ export default {
             return Shopware.Store.get('swBulkEdit').selectedIds;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
@@ -54,6 +50,7 @@ export default {
             return this.repositoryFactory.create('customer');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
             const criteria = new Criteria(1, null);
 
@@ -74,11 +71,11 @@ export default {
             return [
                 {
                     value: 'accept',
-                    label: this.$tc('sw-bulk-edit.customer.account.customerGroupRequest.options.accept'),
+                    label: this.$t('sw-bulk-edit.customer.account.customerGroupRequest.options.accept'),
                 },
                 {
                     value: 'decline',
-                    label: this.$tc('sw-bulk-edit.customer.account.customerGroupRequest.options.decline'),
+                    label: this.$t('sw-bulk-edit.customer.account.customerGroupRequest.options.decline'),
                 },
             ];
         },
@@ -90,8 +87,8 @@ export default {
                     config: {
                         componentName: 'sw-entity-single-select',
                         entity: 'customer_group',
-                        changeLabel: this.$tc('sw-bulk-edit.customer.account.customerGroup.label'),
-                        placeholder: this.$tc('sw-bulk-edit.customer.account.customerGroup.placeholder'),
+                        changeLabel: this.$t('sw-bulk-edit.customer.account.customerGroup.label'),
+                        placeholder: this.$t('sw-bulk-edit.customer.account.customerGroup.placeholder'),
                     },
                 },
                 {
@@ -99,7 +96,7 @@ export default {
                     type: 'bool',
                     config: {
                         type: 'switch',
-                        changeLabel: this.$tc('sw-bulk-edit.customer.account.status.label'),
+                        changeLabel: this.$t('sw-bulk-edit.customer.account.status.label'),
                     },
                 },
                 {
@@ -107,18 +104,18 @@ export default {
                     config: {
                         componentName: 'sw-entity-single-select',
                         entity: 'language',
-                        changeLabel: this.$tc('sw-bulk-edit.customer.account.language.label'),
-                        placeholder: this.$tc('sw-bulk-edit.customer.account.language.placeholder'),
+                        changeLabel: this.$t('sw-bulk-edit.customer.account.language.label'),
+                        placeholder: this.$t('sw-bulk-edit.customer.account.language.placeholder'),
                     },
                 },
                 {
                     name: 'requestedCustomerGroupId',
-                    labelHelpText: this.$tc('sw-bulk-edit.customer.account.customerGroupRequest.helpText'),
+                    labelHelpText: this.$t('sw-bulk-edit.customer.account.customerGroupRequest.helpText'),
                     config: {
                         componentName: 'sw-single-select',
                         entity: 'customer_group',
-                        changeLabel: this.$tc('sw-bulk-edit.customer.account.customerGroupRequest.label'),
-                        placeholder: this.$tc('sw-bulk-edit.customer.account.customerGroupRequest.placeholder'),
+                        changeLabel: this.$t('sw-bulk-edit.customer.account.customerGroupRequest.label'),
+                        placeholder: this.$t('sw-bulk-edit.customer.account.customerGroupRequest.placeholder'),
                         options: this.actionsRequestGroup,
                     },
                 },
@@ -136,8 +133,8 @@ export default {
                         allowClear: true,
                         allowAdd: true,
                         allowRemove: true,
-                        changeLabel: this.$tc('sw-bulk-edit.order.tags.changeLabel'),
-                        placeholder: this.$tc('sw-bulk-edit.order.tags.placeholder'),
+                        changeLabel: this.$t('sw-bulk-edit.order.tags.changeLabel'),
+                        placeholder: this.$t('sw-bulk-edit.order.tags.placeholder'),
                     },
                 },
             ];
@@ -166,7 +163,7 @@ export default {
                 })
                 .catch((error) => {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
+                        title: this.$t('global.default.error'),
                         message: error,
                     });
                 })
@@ -180,7 +177,7 @@ export default {
                 this.$route.meta.$module = {};
             }
 
-            this.$route.meta.$module.color = '#F88962';
+            this.$route.meta.$module.color = 'var(--sw-color-module-orange-default)';
             this.$route.meta.$module.icon = 'regular-users';
         },
 
@@ -197,10 +194,7 @@ export default {
         },
 
         loadBulkEditData() {
-            const bulkEditFormGroups = [
-                this.accountFormFields,
-                this.tagsFormFields,
-            ];
+            const bulkEditFormGroups = [this.accountFormFields, this.tagsFormFields];
 
             bulkEditFormGroups.forEach((bulkEditForms) => {
                 bulkEditForms.forEach((bulkEditForm) => {
@@ -215,7 +209,7 @@ export default {
         },
 
         loadCustomFieldSets() {
-            return this.customFieldSetRepository.search(this.customFieldSetCriteria).then((res) => {
+            return this.customFieldDataProviderService.getCustomFieldSets('customer', false, null).then((res) => {
                 this.customFieldSets = res;
             });
         },

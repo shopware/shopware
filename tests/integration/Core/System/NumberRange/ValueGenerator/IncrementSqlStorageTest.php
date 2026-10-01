@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\System\NumberRange\ValueGenerator;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\IncrementSqlStorage;
@@ -11,6 +12,7 @@ use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\Inc
 /**
  * @internal
  */
+#[Package('framework')]
 class IncrementSqlStorageTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -38,8 +40,8 @@ class IncrementSqlStorageTest extends TestCase
 
         $this->storage->set($config['id'], 10);
 
-        static::assertEquals(11, $this->storage->reserve($config));
-        static::assertEquals(12, $this->storage->reserve($config));
+        static::assertSame(11, $this->storage->reserve($config));
+        static::assertSame(12, $this->storage->reserve($config));
     }
 
     public function testReserveReturnsWithoutStart(): void
@@ -52,8 +54,34 @@ class IncrementSqlStorageTest extends TestCase
 
         $this->storage->set($config['id'], 10);
 
-        static::assertEquals(11, $this->storage->reserve($config));
-        static::assertEquals(12, $this->storage->reserve($config));
+        static::assertSame(11, $this->storage->reserve($config));
+        static::assertSame(12, $this->storage->reserve($config));
+    }
+
+    public function testReserveReturnsWithZeroStartValues(): void
+    {
+        $config = [
+            'id' => Uuid::randomHex(),
+            'start' => 0,
+            'pattern' => 'n',
+        ];
+
+        $this->storage->set($config['id'], 0);
+
+        static::assertSame(1, $this->storage->reserve($config));
+        static::assertSame(2, $this->storage->reserve($config));
+    }
+
+    public function testReserveReturnsWithZeroStartValuesAndNoValueStored(): void
+    {
+        $config = [
+            'id' => Uuid::randomHex(),
+            'start' => 0,
+            'pattern' => 'n',
+        ];
+
+        static::assertSame(0, $this->storage->reserve($config));
+        static::assertSame(1, $this->storage->reserve($config));
     }
 
     public function testReserveReturnsWithoutStartAndUnset(): void
@@ -64,8 +92,8 @@ class IncrementSqlStorageTest extends TestCase
             'pattern' => 'n',
         ];
 
-        static::assertEquals(1, $this->storage->reserve($config));
-        static::assertEquals(2, $this->storage->reserve($config));
+        static::assertSame(1, $this->storage->reserve($config));
+        static::assertSame(2, $this->storage->reserve($config));
     }
 
     public function testReserveReturnsStartValueIfItIsHigherThanCurrentIncrement(): void
@@ -78,8 +106,8 @@ class IncrementSqlStorageTest extends TestCase
 
         $this->storage->set($config['id'], 5);
 
-        static::assertEquals(10, $this->storage->reserve($config));
-        static::assertEquals(11, $this->storage->reserve($config));
+        static::assertSame(10, $this->storage->reserve($config));
+        static::assertSame(11, $this->storage->reserve($config));
     }
 
     public function testReserveReturnsStartValueIfNoValueIsSet(): void
@@ -90,8 +118,8 @@ class IncrementSqlStorageTest extends TestCase
             'pattern' => 'n',
         ];
 
-        static::assertEquals(10, $this->storage->reserve($config));
-        static::assertEquals(11, $this->storage->reserve($config));
+        static::assertSame(10, $this->storage->reserve($config));
+        static::assertSame(11, $this->storage->reserve($config));
     }
 
     public function testPreviewIfValueIsNotSetAndNoStart(): void
@@ -102,8 +130,8 @@ class IncrementSqlStorageTest extends TestCase
             'pattern' => 'n',
         ];
 
-        static::assertEquals(1, $this->storage->preview($config));
-        static::assertEquals(1, $this->storage->preview($config));
+        static::assertSame(1, $this->storage->preview($config));
+        static::assertSame(1, $this->storage->preview($config));
     }
 
     public function testPreviewWillReturnStartValueIfNoValueIsSet(): void
@@ -114,8 +142,34 @@ class IncrementSqlStorageTest extends TestCase
             'pattern' => 'n',
         ];
 
-        static::assertEquals(10, $this->storage->preview($config));
-        static::assertEquals(10, $this->storage->preview($config));
+        static::assertSame(10, $this->storage->preview($config));
+        static::assertSame(10, $this->storage->preview($config));
+    }
+
+    public function testPreviewReturnsWithZeroStartValues(): void
+    {
+        $config = [
+            'id' => Uuid::randomHex(),
+            'start' => 0,
+            'pattern' => 'n',
+        ];
+
+        $this->storage->set($config['id'], 0);
+
+        static::assertSame(1, $this->storage->preview($config));
+        static::assertSame(1, $this->storage->preview($config));
+    }
+
+    public function testPreviewReturnsWithZeroStartValuesAndNoValueStored(): void
+    {
+        $config = [
+            'id' => Uuid::randomHex(),
+            'start' => 0,
+            'pattern' => 'n',
+        ];
+
+        static::assertSame(0, $this->storage->preview($config));
+        static::assertSame(0, $this->storage->preview($config));
     }
 
     public function testPreviewWillReturnStartValueIfItHigherThanCurrentIncrementValue(): void
@@ -128,8 +182,8 @@ class IncrementSqlStorageTest extends TestCase
 
         $this->storage->set($config['id'], 5);
 
-        static::assertEquals(10, $this->storage->preview($config));
-        static::assertEquals(10, $this->storage->preview($config));
+        static::assertSame(10, $this->storage->preview($config));
+        static::assertSame(10, $this->storage->preview($config));
     }
 
     public function testPreviewWillReturnNextValueIfIncrementIsHigherThanStartValue(): void
@@ -142,8 +196,8 @@ class IncrementSqlStorageTest extends TestCase
 
         $this->storage->set($config['id'], 15);
 
-        static::assertEquals(16, $this->storage->preview($config));
-        static::assertEquals(16, $this->storage->preview($config));
+        static::assertSame(16, $this->storage->preview($config));
+        static::assertSame(16, $this->storage->preview($config));
     }
 
     public function testSetAndList(): void
@@ -159,6 +213,20 @@ class IncrementSqlStorageTest extends TestCase
             $this->storage->set($id, $value);
         }
 
-        static::assertEquals($states, $this->storage->list());
+        static::assertSame($states, $this->storage->list());
+    }
+
+    public function testIncreaseToAtLeastDoesNotLowerExistingState(): void
+    {
+        $configurationId = Uuid::randomHex();
+
+        $this->storage->increaseToAtLeast($configurationId, 10);
+        static::assertSame([$configurationId => 10], $this->storage->list());
+
+        $this->storage->increaseToAtLeast($configurationId, 8);
+        static::assertSame([$configurationId => 10], $this->storage->list());
+
+        $this->storage->increaseToAtLeast($configurationId, 15);
+        static::assertSame([$configurationId => 15], $this->storage->list());
     }
 }

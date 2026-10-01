@@ -72,16 +72,14 @@ async function createWrapper(query = {}) {
                     },
                     'sw-search-bar': {
                         template: '<div class="sw-search-bar"></div>',
-                        props: [
-                            'initial-search-type',
-                            'initial-search',
-                        ],
+                        props: ['initial-search-type', 'initial-search'],
                     },
                     'sw-entity-listing': {
                         template: '<div class="sw-entity-listing"></div>',
                         props: [
                             'repository',
                             'items',
+                            'dataSource',
                             'allow-inline-edit',
                             'allow-column-edit',
                             'columns',
@@ -91,10 +89,6 @@ async function createWrapper(query = {}) {
                             'criteria-limit',
                             'disable-data-fetching',
                         ],
-                    },
-                    'sw-empty-state': {
-                        template: '<div class="sw-empty-state"><slot name="icon"/></div>',
-                        props: ['title'],
                     },
                     'sw-language-switch': {
                         template: '<div class="sw-language-switch"></div>',
@@ -107,7 +101,7 @@ async function createWrapper(query = {}) {
                         },
                         meta: {
                             $module: {
-                                icon: null,
+                                icon: 'regular-content',
                             },
                         },
                         query,
@@ -126,7 +120,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.find('.sw-empty-state').exists()).toBe(false);
+        expect(wrapper.find('mt-empty-state').exists()).toBe(false);
 
         await wrapper.setData({
             customEntityInstances: false,
@@ -134,14 +128,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
 
         expect(wrapper.vm.customEntityInstances).toBe(false);
 
-        expect(wrapper.getComponent('.sw-empty-state').props('title')).toBe('custom_test_entity.list.emptyState');
-
-        const imageElement = wrapper.get('.sw-empty-state img');
-
-        expect(imageElement.attributes()).toStrictEqual({
-            src: 'administration/administration/static/img/empty-states/custom-entity-empty-state.svg',
-            alt: 'custom_test_entity.list.emptyState',
-        });
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('custom_test_entity.list.emptyState');
     });
 
     it('gets the custom entity definition and renders the columns', async () => {
@@ -186,7 +173,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
             },
         ]);
 
-        const criteriaData = entityListingProps.items.criteria.getCriteriaData();
+        const criteriaData = entityListingProps.dataSource.criteria.getCriteriaData();
         expect(criteriaData).toStrictEqual({
             aggregations: [],
             associations: [],
@@ -212,7 +199,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
             totalCountMode: 1,
         });
 
-        expect(entityListingProps.items).toStrictEqual(testEntityData);
+        expect(entityListingProps.dataSource).toStrictEqual(testEntityData);
     });
 
     it('changes to content language with the language switch', async () => {
@@ -260,7 +247,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
         expect(entityListingProps.naturalSorting).toBe(false);
         expect(entityListingProps.criteriaLimit).toBe(10);
 
-        const criteriaData = entityListingProps.items.criteria.getCriteriaData();
+        const criteriaData = entityListingProps.dataSource.criteria.getCriteriaData();
         expect(criteriaData).toStrictEqual({
             aggregations: [],
             associations: [],
@@ -406,7 +393,7 @@ describe('module/sw-custom-entity/page/sw-generic-custom-entity-list', () => {
         expect(entityListingProps.naturalSorting).toBe(false);
         expect(entityListingProps.criteriaLimit).toBe(10);
 
-        const criteriaData = entityListingProps.items.criteria.getCriteriaData();
+        const criteriaData = entityListingProps.dataSource.criteria.getCriteriaData();
         expect(criteriaData).toStrictEqual({
             aggregations: [],
             associations: [],

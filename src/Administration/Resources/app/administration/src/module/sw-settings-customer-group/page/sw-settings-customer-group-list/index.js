@@ -11,16 +11,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     data() {
         return {
@@ -46,6 +39,10 @@ export default {
 
         customerGroupRepository() {
             return this.repositoryFactory.create('customer_group');
+        },
+
+        showEmptyState() {
+            return !this.isLoading && !this.total && this.isValidTerm(this.term);
         },
 
         allCustomerGroupsCriteria() {
@@ -116,7 +113,7 @@ export default {
 
         createErrorNotification() {
             return this.createNotificationError({
-                message: this.$tc('sw-settings-customer-group.notification.errorMessageCannotDeleteCustomerGroup'),
+                message: this.$t('sw-settings-customer-group.notification.errorMessageCannotDeleteCustomerGroup'),
             });
         },
 

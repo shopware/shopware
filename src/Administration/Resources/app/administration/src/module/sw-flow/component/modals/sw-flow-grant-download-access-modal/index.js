@@ -11,15 +11,9 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    emits: [
-        'process-finish',
-        'modal-close',
-    ],
+    emits: ['process-finish', 'modal-close'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     props: {
         sequence: {
@@ -45,22 +39,16 @@ export default {
             return [
                 {
                     value: true,
-                    label: `${this.$tc('sw-flow.modals.downloadAccess.options.grant')}`,
+                    label: `${this.$t('sw-flow.modals.downloadAccess.options.grant')}`,
                 },
                 {
                     value: false,
-                    label: `${this.$tc('sw-flow.modals.downloadAccess.options.revoke')}`,
+                    label: `${this.$t('sw-flow.modals.downloadAccess.options.revoke')}`,
                 },
             ];
         },
 
-        ...mapState(
-            () => Store.get('swFlow'),
-            [
-                'triggerEvent',
-                'triggerActions',
-            ],
-        ),
+        ...mapState(() => Store.get('swFlow'), ['triggerEvent', 'triggerActions']),
     },
 
     watch: {

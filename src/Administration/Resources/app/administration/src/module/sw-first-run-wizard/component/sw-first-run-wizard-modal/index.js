@@ -93,7 +93,7 @@ export default {
         },
 
         extensionManagementDisabled() {
-            return Shopware.Store.get('context').app.config.settings.disableExtensionManagement;
+            return Shopware.Store.get('context').app.config.settings?.disableExtensionManagement;
         },
 
         isClosable() {
@@ -101,7 +101,7 @@ export default {
         },
 
         stepper() {
-            if (Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
+            if (Shopware.Store.get('context').app.config.settings?.disableExtensionManagement) {
                 return {
                     welcome: {
                         name: 'sw.first.run.wizard.index.welcome',
@@ -233,6 +233,11 @@ export default {
     },
 
     methods: {
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
+        },
+
         handleRouteUpdate(to) {
             const toName = to.name.replace('sw.first.run.wizard.index.', '');
 
@@ -291,7 +296,7 @@ export default {
 
             // reload page when new extension was activated and modal is closed
             if (this.wasNewExtensionActivated) {
-                window.location.reload();
+                this._reloadPage();
             }
         },
     },

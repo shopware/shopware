@@ -5,12 +5,14 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Permission;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Privileges\Utils;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Struct\PermissionCollection;
 use Shopware\Core\Framework\Store\Struct\PermissionStruct;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Utils::class)]
 class UtilsTest extends TestCase
 {
@@ -81,7 +83,7 @@ class UtilsTest extends TestCase
         static::assertInstanceOf(PermissionCollection::class, $result['settings']);
         static::assertInstanceOf(PermissionCollection::class, $result['additional_privileges']);
 
-        $mapper = fn (PermissionStruct $p) => ['entity' => $p->getEntity(), 'op' => $p->getOperation()];
+        $mapper = static fn (PermissionStruct $p) => ['entity' => $p->getEntity(), 'op' => $p->getOperation()];
 
         static::assertCount(1, $result['category']->getElements());
         static::assertSame(

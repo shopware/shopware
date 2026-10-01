@@ -27,7 +27,7 @@ async function createWrapper() {
                 },
                 provide: {
                     systemConfigApiService: {
-                        getConfig: () => Promise.resolve(createConfig()),
+                        getSchema: () => Promise.resolve(createConfig()),
                         getValues: () => Promise.resolve(getValues()),
                     },
                     validationService: {},
@@ -96,42 +96,48 @@ function getValues() {
 function createConfig() {
     return [
         {
-            title: {
-                'en-GB': 'Newsletter configuration',
-                'de-DE': 'Newsletter-Konfiguration',
-            },
+            title: null,
             name: null,
-            elements: [
+            cards: [
                 {
-                    name: 'core.newsletter.subscribeUrl',
-                    type: 'text',
-                    defaultValue: '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%',
-                    config: {
-                        label: {
-                            'en-GB': 'Subscription url',
-                            'de-DE': 'Anmelde-Url',
-                        },
-                        placeholder: {
-                            'en-GB': '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%',
-                        },
-                        helpText: {
-                            'en-GB':
-                                'Url to confirm the subscription to the newsletter.<br/>Available placeholders: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%',
-                            'de-DE':
-                                'Url um die Newsletteranmeldung zu bestätigen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%',
-                        },
+                    title: {
+                        'en-GB': 'Newsletter configuration',
+                        'de-DE': 'Newsletter-Konfiguration',
                     },
-                },
-                {
-                    name: 'core.newsletter.doubleOptIn',
-                    type: 'bool',
-                    config: {
-                        label: { 'en-GB': 'Double Opt-in' },
-                        helpText: {
-                            'en-GB': 'Use Double Opt-in for newsletter subscriptions',
-                            'de-DE': 'Nutze das Double Opt-In Verfahren für Newsletter Anmeldungen.',
+                    name: null,
+                    elements: [
+                        {
+                            name: 'core.newsletter.subscribeUrl',
+                            type: 'text',
+                            defaultValue: '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%',
+                            config: {
+                                label: {
+                                    'en-GB': 'Subscription URL',
+                                    'de-DE': 'Anmelde-URL',
+                                },
+                                placeholder: {
+                                    'en-GB': '/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%',
+                                },
+                                helpText: {
+                                    'en-GB':
+                                        'URL to confirm the subscription to the newsletter.<br/>Available placeholders: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%',
+                                    'de-DE':
+                                        'URL um die Newsletter-Anmeldung zu bestätigen.<br/>Verfügbare Platzhalter: <br/>%%HASHEDEMAIL%%<br/>%%SUBSCRIBEHASH%%',
+                                },
+                            },
                         },
-                    },
+                        {
+                            name: 'core.newsletter.doubleOptIn',
+                            type: 'bool',
+                            config: {
+                                label: { 'en-GB': 'Double opt-in' },
+                                helpText: {
+                                    'en-GB': 'Use double opt-in for newsletter subscriptions.',
+                                    'de-DE': 'Nutze das Double-Opt-In-Verfahren für Newsletter-Anmeldungen.',
+                                },
+                            },
+                        },
+                    ],
                 },
             ],
         },
@@ -144,10 +150,6 @@ describe('module/sw-settings-newsletter/page/sw-settings-newsletter', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the settings card system', async () => {
@@ -175,7 +177,7 @@ describe('module/sw-settings-newsletter/page/sw-settings-newsletter', () => {
             wrapper
                 .find(`.${classes.root}`)
                 .find('.sw-system-config--field-core-newsletter-subscribe-url')
-                .find("input[id='core.newsletter.subscribeUrl']")
+                .find("input[aria-label='Subscription URL']")
                 .attributes('placeholder'),
         ).toBe('/newsletter-subscribe?em=%%HASHEDEMAIL%%&hash=%%SUBSCRIBEHASH%%');
     });

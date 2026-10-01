@@ -51,8 +51,8 @@ class ScheduledTaskControllerTest extends TestCase
         static::assertSame(json_encode(['message' => 'Success']), $client->getResponse()->getContent());
 
         /** @var ScheduledTaskEntity $task */
-        $task = $repo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
-        static::assertEquals(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
+        $task = $repo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
+        static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
 
     public function testRunSkippedTasks(): void
@@ -82,8 +82,8 @@ class ScheduledTaskControllerTest extends TestCase
         static::assertSame(json_encode(['message' => 'Success']), $client->getResponse()->getContent());
 
         /** @var ScheduledTaskEntity $task */
-        $task = $repo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
-        static::assertEquals(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
+        $task = $repo->search(new Criteria([$taskId]), Context::createDefaultContext())->getEntities()->get($taskId);
+        static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
 
     public function testGetMinRunInterval(): void

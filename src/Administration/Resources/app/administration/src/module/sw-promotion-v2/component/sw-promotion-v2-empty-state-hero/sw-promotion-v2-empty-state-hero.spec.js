@@ -1,4 +1,5 @@
 /**
+ * @deprecated tag:v6.8.0 - Will be removed
  * @sw-package checkout
  */
 import { mount } from '@vue/test-utils';

@@ -15,10 +15,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Content\Product\Cart\ProductLineItemCommandValidatorTest;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see ProductLineItemCommandValidatorTest
  */
 #[Package('inventory')]
 class ProductLineItemCommandValidator implements EventSubscriberInterface
@@ -46,12 +51,10 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
             return;
         }
 
-        $products = $this->findProducts($event->getCommands());
+        $commands = $event->getCommandsForEntity(OrderLineItemDefinition::ENTITY_NAME);
+        $products = $this->findProducts($commands);
 
-        foreach ($event->getCommands() as $command) {
-            if ($command->getEntityName() !== OrderLineItemDefinition::ENTITY_NAME) {
-                continue;
-            }
+        foreach ($commands as $command) {
             if ($command instanceof SetNullOnDeleteCommand) {
                 continue;
             }
@@ -107,11 +110,7 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
      */
     private function findProducts(array $commands): array
     {
-        $ids = array_map(function (WriteCommand $command) {
-            if ($command->getEntityName() !== OrderLineItemDefinition::ENTITY_NAME) {
-                return null;
-            }
-
+        $ids = array_map(static function (WriteCommand $command) {
             if ($command instanceof UpdateCommand) {
                 return $command->getPrimaryKey()['id'];
             }
@@ -121,11 +120,11 @@ class ProductLineItemCommandValidator implements EventSubscriberInterface
 
         $ids = array_values(array_filter($ids));
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
-        /** @var array<string, int> $products */
+        /** @var array<string, int<0, max>> $products */
         $products = \array_flip($this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(id)) FROM order_line_item WHERE id IN (:ids) AND type = \'product\'',
             ['ids' => $ids],

@@ -6,10 +6,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @codeCoverageIgnore
  * Pseudo immutable collection
  *
  * @extends Collection<PluginRegionStruct>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 final class PluginRegionCollection extends Collection

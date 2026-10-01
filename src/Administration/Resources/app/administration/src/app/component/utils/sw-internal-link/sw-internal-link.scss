@@ -1,16 +1,14 @@
-@import "~scss/variables";
-
 .sw-internal-link {
     display: flex;
     gap: 6px;
     align-items: center;
     text-decoration: underline;
-    color: $color-shopware-brand-500;
-    font-size: $font-size-xs;
+    color: var(--color-text-brand-default);
+    font-size: var(--font-size-xs);
 
     &:hover,
     &:focus {
-        color: $color-shopware-brand-600;
+        color: var(--color-text-brand-hover);
     }
 
     &--inline {
@@ -18,6 +16,6 @@
     }
 
     &--disabled {
-        color: $color-gray-500;
+        color: var(--color-text-primary-disabled);
     }
 }

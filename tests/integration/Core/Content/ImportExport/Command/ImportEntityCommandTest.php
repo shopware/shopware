@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Content\ImportExport\Command;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ImportExport\Command\ImportEntityCommand;
 use Shopware\Core\Framework\Context;
@@ -17,12 +16,10 @@ use Symfony\Component\HttpFoundation\File\Exception\FileNotFoundException;
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[Group('slow')]
 class ImportEntityCommandTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    private const DEFAULT_CATEGORY_IMPORT_PROFILE = 'Default category';
     private const DEFAULT_CATEGORY_IMPORT_PROFILE_TECHNICAL_NAME = 'default_category';
     private const DEFAULT_PRODUCT_IMPORT_PROFILE_TECHNICAL_NAME = 'default_product';
     private const TEST_IMPORT_FILE_PATH = __DIR__ . '/../fixtures/categories.csv';
@@ -43,10 +40,9 @@ class ImportEntityCommandTest extends TestCase
             'file' => $noFile,
             'expireDate' => date('d.m.Y'),
         ];
-        $commandTester->setInputs([self::DEFAULT_CATEGORY_IMPORT_PROFILE]);
+        $commandTester->setInputs([self::DEFAULT_CATEGORY_IMPORT_PROFILE_TECHNICAL_NAME]);
 
-        $this->expectException(FileNotFoundException::class);
-        $this->expectExceptionMessage('The file "' . $noFile . '" does not exist');
+        $this->expectExceptionObject(new FileNotFoundException($noFile));
         $commandTester->execute($args);
     }
 
@@ -59,7 +55,7 @@ class ImportEntityCommandTest extends TestCase
             'file' => self::TEST_IMPORT_FILE_PATH,
             'expireDate' => date('d.m.Y'),
         ];
-        $commandTester->setInputs([self::DEFAULT_CATEGORY_IMPORT_PROFILE]);
+        $commandTester->setInputs([self::DEFAULT_CATEGORY_IMPORT_PROFILE_TECHNICAL_NAME]);
         $commandTester->execute($args);
 
         $message = $commandTester->getDisplay();

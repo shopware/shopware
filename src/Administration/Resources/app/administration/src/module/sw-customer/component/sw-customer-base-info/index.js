@@ -2,8 +2,6 @@ import template from './sw-customer-base-info.html.twig';
 import './sw-customer-base-info.scss';
 import errorConfig from '../../error-config.json';
 
-import CUSTOMER from '../../constant/sw-customer.constant';
-
 /**
  * @sw-package checkout
  */
@@ -15,9 +13,7 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         customer: {
@@ -78,12 +74,10 @@ export default {
             return criteria;
         },
 
-        ...mapPropertyErrors('customer', [
-            ...errorConfig['sw.customer.detail.base'].customer,
-        ]),
+        ...mapPropertyErrors('customer', [...errorConfig['sw.customer.detail.base'].customer]),
 
         isBusinessAccountType() {
-            return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+            return this.customer?.accountType === Shopware.Constants.CUSTOMER.ACCOUNT_TYPE_BUSINESS;
         },
 
         dateFilter() {

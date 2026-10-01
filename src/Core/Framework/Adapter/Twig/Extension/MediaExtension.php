@@ -6,15 +6,19 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class MediaExtension extends AbstractExtension
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $mediaRepository
      */
     public function __construct(private readonly EntityRepository $mediaRepository)
     {
@@ -32,17 +36,12 @@ class MediaExtension extends AbstractExtension
      */
     public function searchMedia(array $ids, Context $context): MediaCollection
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return new MediaCollection();
         }
 
         $criteria = new Criteria($ids);
 
-        /** @var MediaCollection $media */
-        $media = $this->mediaRepository
-            ->search($criteria, $context)
-            ->getEntities();
-
-        return $media;
+        return $this->mediaRepository->search($criteria, $context)->getEntities();
     }
 }

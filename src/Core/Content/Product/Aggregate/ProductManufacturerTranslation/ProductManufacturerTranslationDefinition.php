@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductManufacturerTranslationDefinition extends EntityTranslationDefinition
 {
@@ -47,6 +50,7 @@ class ProductManufacturerTranslationDefinition extends EntityTranslationDefiniti
     {
         return new FieldCollection([
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
+            (new LongTextField('link', 'link'))->addFlags(new ApiAware()),
             (new LongTextField('description', 'description'))->addFlags(new ApiAware(), new AllowHtml()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);

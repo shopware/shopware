@@ -10,20 +10,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'excludedSearchTermService',
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['excludedSearchTermService', 'repositoryFactory', 'acl'],
 
-    emits: [
-        'edit-change',
-        'data-load',
-    ],
+    emits: ['edit-change', 'data-load'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         searchConfigs: {
@@ -170,7 +161,7 @@ export default {
         },
 
         onDeleteExcludedTerm(terms) {
-            this.responseMessage = this.$tc('sw-settings-search.notification.deleteExcludedTermSuccess');
+            this.responseMessage = this.$t('sw-settings-search.notification.deleteExcludedTermSuccess');
             this.isLoading = true;
             const values = terms
                 .filter((term) => {
@@ -206,7 +197,7 @@ export default {
             // Make sure value is not null
             if (term.value === '') {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-search.notification.excludedTermRequired'),
+                    message: this.$t('sw-settings-search.notification.excludedTermRequired'),
                 });
                 this.renderComponent();
                 return;
@@ -219,20 +210,20 @@ export default {
             });
             if (isExists) {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-search.notification.excludedTermAlreadyExists'),
+                    message: this.$t('sw-settings-search.notification.excludedTermAlreadyExists'),
                 });
                 this.renderComponent();
                 return;
             }
 
             if (this.isAddingItem) {
-                this.responseMessage = this.$tc('sw-settings-search.notification.createExcludedTermSuccess');
+                this.responseMessage = this.$t('sw-settings-search.notification.createExcludedTermSuccess');
                 this.originalItems.unshift(term.value);
                 this.saveConfig();
                 return;
             }
 
-            this.responseMessage = this.$tc('sw-settings-search.notification.updateExcludedTermSuccess');
+            this.responseMessage = this.$t('sw-settings-search.notification.updateExcludedTermSuccess');
             this.originalItems[term.id] = term.value;
             this.saveConfig();
         },
@@ -285,13 +276,13 @@ export default {
                 .resetExcludedSearchTerm()
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-search.notification.resetToDefaultExcludedTermSuccess'),
+                        message: this.$t('sw-settings-search.notification.resetToDefaultExcludedTermSuccess'),
                     });
                     this.$emit('data-load');
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.resetToDefaultExcludedTermError'),
+                        message: this.$t('sw-settings-search.notification.resetToDefaultExcludedTermError'),
                     });
                 });
         },

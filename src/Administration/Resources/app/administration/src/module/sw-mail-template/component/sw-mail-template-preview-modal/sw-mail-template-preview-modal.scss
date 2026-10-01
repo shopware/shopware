@@ -1,0 +1,30 @@
+.sw-modal.sw-mail-template-preview-modal {
+    .sw-modal__dialog {
+        max-width: 1100px;
+    }
+}
+
+.sw-mail-template-preview-modal {
+    .sw-modal__body {
+        display: flex;
+        flex-direction: column;
+        gap: var(--scale-size-32);
+    }
+
+    &__subject-title,
+    &__sender-name-title,
+    &__plain-text-title,
+    &__html-title {
+        font-weight: var(--font-weight-semi-bold);
+        margin-bottom: var(--scale-size-8);
+        border-bottom: 1px solid var(--color-border-secondary-default);
+    }
+
+    &__plain-text-content {
+        font-family: var(--font-family-default);
+        font-size: var(--font-size-2xs);
+        line-height: var(--font-line-height-2xs);
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+}

@@ -2,11 +2,15 @@
 
 namespace Shopware\Storefront\Theme\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-#[Package('framework')]
+/**
+ * @deprecated tag:v6.8.0 - Exception will be removed
+ */
+#[Package('discovery')]
 class ThemeAssignmentException extends ShopwareHttpException
 {
     /**
@@ -21,15 +25,17 @@ class ThemeAssignmentException extends ShopwareHttpException
         private readonly array $assignedSalesChannels,
         ?\Throwable $e = null
     ) {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', ThemeException::class));
+
         $parameters = ['themeName' => $themeName];
         $message = 'Unable to deactivate or uninstall theme "{{ themeName }}".';
         $message .= ' Remove the following assignments between theme and sales channel assignments: {{ assignments }}.';
         $assignments = '';
-        if (\count($themeSalesChannel) > 0) {
+        if ($themeSalesChannel !== []) {
             $assignments .= $this->formatAssignments($themeSalesChannel);
         }
 
-        if (\count($childThemeSalesChannel) > 0) {
+        if ($childThemeSalesChannel !== []) {
             $assignments .= $this->formatAssignments($childThemeSalesChannel);
         }
         $parameters['assignments'] = $assignments;
@@ -39,11 +45,15 @@ class ThemeAssignmentException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', ThemeException::class));
+
         return 'THEME__THEME_ASSIGNMENT';
     }
 
     public function getStatusCode(): int
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', ThemeException::class));
+
         return Response::HTTP_BAD_REQUEST;
     }
 
@@ -52,6 +62,8 @@ class ThemeAssignmentException extends ShopwareHttpException
      */
     public function getAssignedSalesChannels(): ?array
     {
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', ThemeException::class));
+
         return $this->assignedSalesChannels;
     }
 

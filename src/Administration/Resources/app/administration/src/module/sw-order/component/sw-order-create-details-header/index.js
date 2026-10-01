@@ -6,6 +6,9 @@ import template from './sw-order-create-details-header.html.twig';
 
 const { Criteria } = Shopware.Data;
 
+/**
+ * @deprecated tag:v6.8.0 - will be removed, is not used anymore
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
@@ -13,7 +16,6 @@ export default {
     emits: ['on-select-existing-customer'],
 
     props: {
-        // eslint-disable-next-line vue/require-default-prop
         customer: {
             type: Object,
         },
@@ -23,12 +25,10 @@ export default {
             required: true,
         },
 
-        // eslint-disable-next-line vue/require-default-prop
         cartPrice: {
             type: Object,
         },
 
-        // eslint-disable-next-line vue/require-default-prop
         currency: {
             type: Object,
         },

@@ -2,12 +2,14 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig\Extension;
 
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\InAppPurchase;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 #[Package('checkout')]
+#[BecomesInternal(version: 'v6.8.0')]
 class InAppPurchaseExtension extends AbstractExtension
 {
     /**

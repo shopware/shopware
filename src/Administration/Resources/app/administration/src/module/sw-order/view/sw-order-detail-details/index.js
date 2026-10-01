@@ -50,6 +50,10 @@ export default {
             from: 'repositoryFactory',
             default: null,
         },
+        customFieldDataProviderService: {
+            from: 'customFieldDataProviderService',
+            default: null,
+        },
     },
 
     emits: [
@@ -67,9 +71,11 @@ export default {
             required: true,
         },
 
+        /** @deprecated tag:v6.8.0 - will be removed without replacement */
         isSaveSuccessful: {
             type: Boolean,
-            required: true,
+            required: false,
+            default: false,
         },
     },
 
@@ -81,6 +87,7 @@ export default {
     },
 
     computed: {
+        /** @deprecated tag:v6.8.0 - will be removed, use loading.order instead */
         isLoading: () => Store.get('swOrderDetail').isLoading,
 
         order: () => Store.get('swOrderDetail').order,
@@ -92,27 +99,33 @@ export default {
         ...mapPropertyErrors('order', ['orderCustomer.email']),
 
         delivery() {
-            return this.order.deliveries.length > 0 && this.order.deliveries[0];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.deliveries.length > 0 && this.order.deliveries[0];
+            }
+
+            return this.order.primaryOrderDelivery;
         },
 
         transaction() {
             for (let i = 0; i < this.order.transactions.length; i += 1) {
-                if (
-                    ![
-                        'cancelled',
-                        'failed',
-                    ].includes(this.order.transactions[i].stateMachineState.technicalName)
-                ) {
+                if (!['cancelled', 'failed'].includes(this.order.transactions[i].stateMachineState.technicalName)) {
                     return this.order.transactions[i];
                 }
             }
-            return this.order.transactions.last();
+
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.order.transactions.last();
+            }
+
+            return this.order.primaryOrderTransaction;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
             const criteria = new Criteria(1, null);
             criteria.addFilter(Criteria.equals('relations.entityName', 'order'));
@@ -182,7 +195,7 @@ export default {
         createdComponent() {
             this.loadingChange(true);
 
-            this.customFieldSetRepository.search(this.customFieldSetCriteria).then((result) => {
+            this.customFieldDataProviderService.getCustomFieldSets('order', false, null).then((result) => {
                 this.customFieldSets = result;
                 this.loadingChange(false);
             });
@@ -190,8 +203,10 @@ export default {
 
         // @deprecated tag:v6.8.0 - Will be removed, change shipping cost on order general view instead.
         onShippingChargeEdited: Utils.debounce(function onShippingChargeEdited(amount) {
-            this.delivery.shippingCosts.unitPrice = amount;
-            this.delivery.shippingCosts.totalPrice = amount;
+            if (amount >= 0) {
+                this.delivery.shippingCosts.unitPrice = amount;
+                this.delivery.shippingCosts.totalPrice = amount;
+            }
 
             this.saveAndRecalculate();
         }, 800),
@@ -244,11 +259,11 @@ export default {
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed without replacement
+         */
         updateLoading(loadingValue) {
-            Store.get('swOrderDetail').setLoading([
-                'order',
-                loadingValue,
-            ]);
+            Store.get('swOrderDetail').setLoading(['order', loadingValue]);
         },
 
         validateTrackingCode(searchTerm) {

@@ -1,5 +1,6 @@
 {% block sw_alert %}
 <mt-banner
+    v-if="!deprecated"
     v-bind="$attrs"
 >
     <template #default>
@@ -7,3 +8,13 @@
     </template>
 </mt-banner>
 {% endblock %}
+
+<sw-alert-deprecated
+    v-else
+    v-bind="$attrs"
+>
+    <slot></slot>
+    <template #actions>
+        <slot name="actions"></slot>
+    </template>
+</sw-alert-deprecated>

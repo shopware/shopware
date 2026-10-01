@@ -2,12 +2,13 @@ import { mount } from '@vue/test-utils';
 
 let successfulActivation = true;
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(
         await wrapTestComponent('sw-extension-store-landing-page', {
             sync: true,
         }),
         {
+            props,
             global: {
                 provide: {
                     extensionHelperService: {
@@ -22,7 +23,9 @@ async function createWrapper() {
                 },
                 stubs: {
                     'sw-loader': true,
-                    'sw-label': true,
+                    'sw-meteor-page': {
+                        template: '<div class="sw-meteor-page-stub"><slot></slot></div>',
+                    },
                 },
             },
         },
@@ -34,14 +37,11 @@ async function createWrapper() {
  */
 describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
     beforeAll(() => {
-        delete window.location;
-        window.location = { reload: jest.fn() };
         Shopware.Utils.debug.error = jest.fn();
     });
 
     beforeEach(async () => {
         successfulActivation = true;
-        window.location.reload.mockClear();
         Shopware.Utils.debug.error.mockClear();
     });
 
@@ -54,7 +54,7 @@ describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
     it('should go through a successful activation', async () => {
         const wrapper = await createWrapper();
 
-        expect(window.location.reload).not.toHaveBeenCalled();
+        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
 
         // trigger activation
         const activationButton = wrapper.find('.sw-extension-store-landing-page__activate_button');
@@ -65,7 +65,7 @@ describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
         expect(loadingWrapper.isVisible()).toBe(true);
 
         // expect reload on success
-        expect(window.location.reload).toHaveBeenCalled();
+        expect(wrapper.vm._reloadPage).toHaveBeenCalled();
 
         // wait for rerender
         await wrapper.vm.$nextTick();
@@ -81,7 +81,7 @@ describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
 
         successfulActivation = false;
 
-        expect(window.location.reload).not.toHaveBeenCalled();
+        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
 
         // trigger activation
         const activationButton = wrapper.find('.sw-extension-store-landing-page__activate_button');
@@ -92,7 +92,7 @@ describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
         expect(loadingWrapper.isVisible()).toBe(true);
 
         // expect no reload on failure
-        expect(window.location.reload).not.toHaveBeenCalled();
+        expect(wrapper.vm._reloadPage).not.toHaveBeenCalled();
 
         // wait for rerender
         await wrapper.vm.$nextTick();
@@ -101,5 +101,40 @@ describe('src/module/sw-extension/page/sw-extension-store-landing-page', () => {
         // check if error message is shown
         const activationHeading = wrapper.find('.sw-extension-store-landing-page__wrapper-activated h2');
         expect(activationHeading.text()).toBe('sw-extension-store.landing-page.activationErrorTitle');
+    });
+
+    it('should discard a previous error when retrying the activation', async () => {
+        const wrapper = await createWrapper();
+
+        successfulActivation = false;
+
+        jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+        wrapper.vm.error = {
+            title: 'stale title',
+            detail: 'stale detail',
+        };
+
+        const activationButton = wrapper.find('.sw-extension-store-landing-page__activate_button');
+        await activationButton.trigger('click');
+        await wrapper.vm.$nextTick();
+        await wrapper.vm.$nextTick();
+
+        // the second failure has no error payload, so the generic snippets show instead of the stale error
+        const activationHeading = wrapper.find('.sw-extension-store-landing-page__wrapper-activated h2');
+        expect(activationHeading.text()).toBe('sw-extension-store.landing-page.activationErrorTitle');
+    });
+
+    it('should render inside a meteor page for the top bar', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.find('.sw-meteor-page-stub .sw-extension-store-landing-page').exists()).toBe(true);
+    });
+
+    it('should render without a page wrapper inside a modal', async () => {
+        const wrapper = await createWrapper({ insideModal: true });
+
+        expect(wrapper.find('.sw-meteor-page-stub').exists()).toBe(false);
+        expect(wrapper.find('.sw-extension-store-landing-page').exists()).toBe(true);
     });
 });

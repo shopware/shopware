@@ -15,9 +15,19 @@ use Twig\Loader\LoaderInterface;
 class TemplateFinder implements TemplateFinderInterface, ResetInterface
 {
     /**
-     * @var ?string[]
+     * @var list<string>|null
      */
     private ?array $namespaceHierarchy = null;
+
+    /**
+     * Per-request cache of resolved template names. `find()` is invoked at runtime for every
+     * `sw_include`/`sw_icon`/`sw_thumbnails` execution, so the same arguments are resolved thousands
+     * of times per page. The result is deterministic within a request (stable hierarchy, immutable
+     * filesystem), so it is memoized and cleared on reset().
+     *
+     * @var array<string, string>
+     */
+    private array $resultCache = [];
 
     /**
      * @internal
@@ -49,6 +59,21 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
      * {@inheritdoc}
      */
     public function find(string $template, $ignoreMissing = false, ?string $source = null): string
+    {
+        // Key on every input that influences the result. $ignoreMissing uses the same strict
+        // `=== true` semantics as the resolution logic below. A thrown LoaderError is not cached.
+        $cacheKey = $template . "\0" . ($source ?? '') . "\0" . ($ignoreMissing === true ? '1' : '0');
+
+        return $this->resultCache[$cacheKey] ??= $this->resolve($template, $ignoreMissing === true, $source);
+    }
+
+    public function reset(): void
+    {
+        $this->namespaceHierarchy = null;
+        $this->resultCache = [];
+    }
+
+    private function resolve(string $template, bool $ignoreMissing, ?string $source): string
     {
         $templatePath = $this->getTemplateName($template);
         $sourcePath = $source ? $this->getTemplateName($source) : null;
@@ -107,11 +132,6 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
         throw new LoaderError(\sprintf('Unable to load template "%s". (Looked into: %s)', $templatePath, implode(', ', array_values($modifiedQueue))));
     }
 
-    public function reset(): void
-    {
-        $this->namespaceHierarchy = null;
-    }
-
     private function getSourceBundleName(string $source): ?string
     {
         if (mb_strpos($source, '@') !== 0) {
@@ -126,7 +146,12 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
     }
 
     /**
-     * @return string[]
+     * Gets the final namespace hierarchy for template resolution
+     *
+     * Transforms priority-based ordering to a list of namespace names.
+     * Priority values are discarded after serving their sorting purpose.
+     *
+     * @return list<string> Ordered namespace names (last element = highest priority)
      */
     private function getNamespaceHierarchy(): array
     {
@@ -134,15 +159,19 @@ class TemplateFinder implements TemplateFinderInterface, ResetInterface
             return $this->namespaceHierarchy;
         }
 
+        // Build hierarchy: returns ['Storefront' => -2, 'PayPal' => 0, 'MyTheme' => 1]
         $namespaceHierarchy = $this->namespaceHierarchyBuilder->buildHierarchy();
 
+        // Different hierarchies get different cache directories
         $this->defineCache($namespaceHierarchy);
 
+        // Final step: Extract keys only, discarding priority values
+        // Transforms: ['Storefront' => -2, 'PayPal' => 0] → ['Storefront', 'PayPal']
         return $this->namespaceHierarchy = array_keys($namespaceHierarchy);
     }
 
     /**
-     * @param string[] $queue
+     * @param array<string, int> $queue
      */
     private function defineCache(array $queue): void
     {

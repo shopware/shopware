@@ -9,9 +9,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'acl',
-    ],
+    inject: ['acl'],
 
     props: {
         discount: {
@@ -21,6 +19,9 @@ export default {
     },
 
     computed: {
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
+         */
         ruleCriteria() {
             return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC', false));
         },

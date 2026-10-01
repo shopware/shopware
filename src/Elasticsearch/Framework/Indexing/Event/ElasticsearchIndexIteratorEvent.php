@@ -6,9 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('framework')]
 class ElasticsearchIndexIteratorEvent
 {

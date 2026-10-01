@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@framework')]
 class UserConfigEntity extends Entity
 {
@@ -22,16 +25,6 @@ class UserConfigEntity extends Entity
     protected string $userId;
 
     protected ?UserEntity $user = null;
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
 
     public function getKey(): string
     {

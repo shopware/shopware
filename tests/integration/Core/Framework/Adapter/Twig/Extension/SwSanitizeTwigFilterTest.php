@@ -4,11 +4,13 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig\Extension;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Extension\SwSanitizeTwigFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class SwSanitizeTwigFilterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -25,6 +27,6 @@ class SwSanitizeTwigFilterTest extends TestCase
         $filters = $this->swSanitize->getFilters();
 
         static::assertCount(1, $filters);
-        static::assertEquals('sw_sanitize', $filters[0]->getName());
+        static::assertSame('sw_sanitize', $filters[0]->getName());
     }
 }

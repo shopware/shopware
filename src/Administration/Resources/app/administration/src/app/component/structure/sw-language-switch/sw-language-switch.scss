@@ -1,11 +1,24 @@
 .sw-language-switch {
     display: inline-block;
-    width: 150px;
+    width: 164px;
     vertical-align: middle;
     text-align: left;
     margin-right: 8px;
 
-    .sw-language-switch__select {
-        margin-bottom: 0;
+    .sw-select {
+        &.sw-language-switch__select {
+            margin-bottom: 0;
+        }
+
+        .sw-block-field__block {
+            height: 40px;
+        }
+
+        .sw-entity-single-select__selection-text {
+            max-width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
 }

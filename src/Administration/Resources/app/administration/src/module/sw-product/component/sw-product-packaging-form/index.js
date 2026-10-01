@@ -3,6 +3,7 @@
  */
 
 import template from './sw-product-packaging-form.html.twig';
+import './sw-product-packaging-form.scss';
 
 const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
@@ -11,23 +12,17 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         allowEdit: {
             type: Boolean,
-            required: false,
-            // eslint-disable-next-line vue/no-boolean-default
-            default: true,
+            required: true,
         },
 
         showSettingPackaging: {
             type: Boolean,
-            required: false,
-            // eslint-disable-next-line vue/no-boolean-default
-            default: true,
+            required: true,
         },
     },
 
@@ -40,6 +35,7 @@ export default {
             return Shopware.Store.get('swProductDetail').parentProduct;
         },
 
+        // @deprecated tag:v6.8.0 - will be removed due to unused
         isLoading() {
             return Shopware.Store.get('swProductDetail').isLoading;
         },
@@ -49,10 +45,6 @@ export default {
             'referenceUnit',
             'packUnit',
             'PackUnitPlural',
-            'width',
-            'height',
-            'length',
-            'weight',
         ]),
     },
 };

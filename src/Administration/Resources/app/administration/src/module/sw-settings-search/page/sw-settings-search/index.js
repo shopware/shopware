@@ -10,10 +10,7 @@ const { EntityCollection, Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl', 'feature'],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -73,10 +70,34 @@ export default {
             return this.acl.can('product_search_config.editor') || this.acl.can('product_search_config.creator');
         },
 
+        settingsSearchTabs() {
+            const createRouteTab = (label, routeName, callback) => {
+                const route = {
+                    name: routeName,
+                };
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    onClick: () => {
+                        callback?.();
+                        void this.$router.push(route);
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-settings-search.page.generalTab', 'sw.settings.search.index.general', () => {
+                    this.onTabChange();
+                }),
+                createRouteTab('sw-settings-search.page.liveSearchTab', 'sw.settings.search.index.liveSearch'),
+            ];
+        },
+
         tooltipSave() {
             if (!this.allowSave) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
                     showOnDisabledElements: true,
                 };
@@ -107,6 +128,18 @@ export default {
         createdComponent() {
             this.getDefaultSearchConfig();
             this.getProductSearchConfigs();
+
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-settings-search__defaultConfig',
+                path: 'defaultConfig',
+                scope: this,
+            });
+
+            Shopware.ExtensionAPI.publishData({
+                id: 'sw-settings-search__productSearchConfigs',
+                path: 'productSearchConfigs',
+                scope: this,
+            });
         },
 
         getProductSearchConfigs() {
@@ -185,7 +218,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.saveError'),
+                        message: this.$t('sw-settings-search.notification.saveError'),
                     });
                 });
         },
@@ -205,14 +238,14 @@ export default {
                 .save(this.productSearchConfigs)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-search.notification.saveSuccess'),
+                        message: this.$t('sw-settings-search.notification.saveSuccess'),
                     });
                     this.getProductSearchConfigs();
                     this.isSaveSuccessful = true;
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.saveError'),
+                        message: this.$t('sw-settings-search.notification.saveError'),
                     });
                 })
                 .finally(() => {

@@ -1,167 +1,229 @@
 {% block sw_admin_menu_item %}
-<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
-<li
-    v-if="showMenuItem"
-    class="sw-admin-menu__navigation-list-item"
-    :class="getElementClasses(entry.id || entryPath)"
-    :style="{ 'border-color': borderColor }"
-    :aria-current="subIsActive(entryPath, entry.id) ? 'page' : 'false'"
-    @click.prevent="$emit('menu-item-click', entry, $event.target)"
-    @keydown.enter="$emit('menu-item-click', entry, $event.target)"
-    @keydown.space="$emit('menu-item-click', entry, $event.target)"
-    @mouseenter="$emit('menu-item-enter', entry, $event, parentEntries)"
+<mt-collapsible
+    v-if="showMenuItem && hasCollapsibleSubtree"
+    as="li"
+    :class="collapsibleLiClass"
+    :style="moduleColorStyle"
+    :aria-current="rowActive ? 'page' : 'false'"
+    :open="collapsibleOpen"
+    @update:open="onCollapsibleOpenUpdate"
+    @mouseenter="$emit('menu-item-hover', entry, $event.currentTarget)"
+    @keydown="onCollapsedParentKeydown"
 >
+    <div class="sw-admin-menu__navigation-item-row">
+        <template v-if="entryPath">
+            <router-link
+                class="sw-admin-menu__navigation-link"
+                :to="getLinkToProp"
+                :class="{ 'router-link-active': rowActive }"
+                :active-class="routerLinkActiveClass"
+                :exact-active-class="routerLinkExactActiveClass"
+                :aria-expanded="collapsibleOpen"
+                :aria-label="collapsedAriaLabel"
+                v-bind="collapsedFlyoutAria"
+                @click="onNavigationLinkClick"
+            >
+                {% block sw_admin_menu_item_icon %}
+                <mt-icon
+                    v-if="displayIcon"
+                    :size="iconSize"
+                    class="sw-admin-menu__navigation-link-icon"
+                    :name="navigationIconName"
+                    :color="navigationIconColor"
+                />
+                {% endblock %}
 
-    {% block sw_admin_menu_item_router_link %}
-    <router-link
-        v-if="entryPath"
-        class="sw-admin-menu__navigation-link"
-        :class="{'router-link-active': subIsActive(entryPath, entry.id)}"
-        :to="getLinkToProp"
-    >
+                {% block sw_admin_menu_item_text %}
+                <span
+                    class="sw-admin-menu__navigation-link-label"
+                    :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
+                    :title="getEntryLabel"
+                >
+                    {{ getEntryLabel }}
+                </span>
+                {% endblock %}
 
-        {% block sw_admin_menu_item_icon %}
-        <mt-icon
-            v-if="displayIcon"
-            :size="iconSize"
-            class="sw-admin-menu__navigation-link-icon"
-            :name="getIconName(entry.icon)"
-            :style="{ 'color': entry.color }"
-        />
-        {% endblock %}
+                <slot name="additional-text"></slot>
 
-        {% block sw_admin_menu_item_text %}
-        <span
-            class="sw-admin-menu__navigation-link-label"
-            :class="collapsibleText ? 'collapsible-text' : ''"
-            :title="getEntryLabel"
+                {% block sw_admin_menu_item_expand_indicator_linked %}
+                <span class="sw-admin-menu__navigation-link-expand-icon-box">
+                    <mt-icon
+                        :name="expandIcon"
+                        size="8"
+                        class="sw-admin-menu__navigation-link-expand-icon collapsible-text hide-on-collapse"
+                    />
+                </span>
+                {% endblock %}
+            </router-link>
+        </template>
+
+        <mt-collapsible-trigger
+            v-else
+            type="button"
+            class="sw-admin-menu__navigation-link"
+            :class="{ 'router-link-active': rowActive }"
+            :aria-label="collapsedAriaLabel"
+            v-bind="collapsedFlyoutAria"
         >
-            {{ getEntryLabel }}
-        </span>
-        {% endblock %}
+            {% block sw_admin_menu_item_navigation_icon %}
+            <mt-icon
+                v-if="displayIcon"
+                :size="iconSize"
+                class="sw-admin-menu__navigation-link-icon"
+                :name="navigationIconName"
+                :color="navigationIconColor"
+            />
+            {% endblock %}
 
-        {% block sw_admin_menu_item_arrow_indicato %}
-        <mt-icon
-            v-if="entry.level > 1 && children.length"
-            name="regular-chevron-right"
-            size="8"
-            class="sw-admin-menu__navigation-link-icon-arrow"
-        />
-        {% endblock %}
+            {% block sw_admin_menu_item_navigation_text %}
+            <span
+                class="sw-admin-menu__navigation-link-label"
+                :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
+                :title="getEntryLabel"
+            >
+                {{ getEntryLabel }}
+            </span>
+            {% endblock %}
 
-        <slot name="additional-text"></slot>
-    </router-link>
-    {% endblock %}
+            <slot name="additional-text"></slot>
 
-    {% block sw_admin_menu_item_external_link %}
-    <a
-        v-else-if="entry.link"
-        :href="entry.link"
-        :target="entry.target"
-        :title="$tc(entry.label)"
-        class="sw-admin-menu__navigation-link"
-    >
-
-        {% block sw_admin_menu_item_external_icon %}
-        <mt-icon
-            v-if="displayIcon"
-            :size="iconSize"
-            class="sw-admin-menu__navigation-link-icon"
-            :name="getIconName(entry.icon)"
-            :style="{ 'color': entry.color }"
-        />
-        {% endblock %}
-
-        {% block sw_admin_menu_item_external_text %}
-        <span
-            class="sw-admin-menu__navigation-link-label"
-            :class="collapsibleText ? 'collapsible-text' : ''"
-            :title="getEntryLabel"
-        >
-            {{ getEntryLabel }}
-        </span>
-        {% endblock %}
-
-        {% block sw_admin_menu_item_external_arrow_indicato %}
-        <mt-icon
-            v-if="entry.level > 1 && children.length"
-            name="regular-chevron-right"
-            size="8"
-            class="sw-admin-menu__navigation-link-icon-arrow"
-        />
-        {% endblock %}
-
-        <slot name="additional-text"></slot>
-    </a>
-    {% endblock %}
-
-    {% block sw_admin_menu_item_navigation_link %}
-    <span
-        v-else
-        class="sw-admin-menu__navigation-link"
-        :class="{ 'router-link-active': subIsActive(entry.id) }"
-    >
-
-        {% block sw_admin_menu_item_navigation_icon %}
-        <mt-icon
-            v-if="displayIcon"
-            :size="iconSize"
-            class="sw-admin-menu__navigation-link-icon"
-            :name="getIconName(entry.icon)"
-            :style="{ 'color': entry.color }"
-        />
-        {% endblock %}
-
-        {% block sw_admin_menu_item_navigation_text %}
-        <span
-            class="sw-admin-menu__navigation-link-label"
-            :class="collapsibleText ? 'collapsible-text' : ''"
-            :title="getEntryLabel"
-        >
-            {{ getEntryLabel }}
-        </span>
-        {% endblock %}
-
-        <slot name="additional-text"></slot>
-
-        {% block sw_admin_menu_item_arrow_indicator %}
-        <mt-icon
-            v-if="entry.level > 1 && children.length"
-            name="regular-chevron-right"
-            size="8"
-            class="sw-admin-menu__navigation-link-icon-arrow"
-        />
-        {% endblock %}
-    </span>
-    {% endblock %}
+            {% block sw_admin_menu_item_expand_indicator_fold %}
+            <span class="sw-admin-menu__navigation-link-expand-icon-box">
+                <mt-icon
+                    :name="expandIcon"
+                    size="8"
+                    class="sw-admin-menu__navigation-link-expand-icon collapsible-text hide-on-collapse"
+                />
+            </span>
+            {% endblock %}
+        </mt-collapsible-trigger>
+    </div>
 
     {% block sw_sidebar_sub_items_list %}
-    <ul
-        v-if="children.length > 0"
+    <mt-collapsible-content
+        as="ul"
         class="sw-admin-menu__sub-navigation-list"
     >
-        <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-duplicate-attributes,vue/no-parsing-error -->
-        <template
-            v-for="entry in children"
-            :key="getCustomKey(entry.id || entryPath + '-separator')"
-        >
-            <li
-                v-if="isFirstPluginInMenuEntries(entry, children)"
-                :style="{ 'border-color': borderColor }"
-                class="sw-admin-menu__separator"
-                tabindex="0"
-            >
-                <span class="sw-admin-menu__separator-line"></span>
-            </li>
-
-            <sw-admin-menu-item
-                :entry="entry"
-                :border-color="borderColor"
-                :display-icon="false"
-                @menu-item-enter="onSubMenuItemEnter"
-            />
-        </template>
-    </ul>
+        <sw-admin-menu-item
+            v-for="(childEntry, subMenuIndex) in children"
+            :key="childEntry.id ?? childEntry.path ?? subMenuIndex"
+            :entry="childEntry"
+            :menu-depth="menuDepth + 1"
+            :display-icon="false"
+            :sidebar-expanded="sidebarExpanded"
+            :collapsible-text="collapsibleText"
+            :icon-size="iconSize"
+            @menu-item-hover="forwardMenuItemHover"
+            @flyout-navigate="forwardFlyoutNavigate"
+            @navigation-link-click="forwardNavigationLinkClick"
+        />
+    </mt-collapsible-content>
     {% endblock %}
+</mt-collapsible>
+
+<li
+    v-else-if="showMenuItem"
+    :class="leafLiClass"
+    :aria-current="rowActive ? 'page' : 'false'"
+    @mouseenter="$emit('menu-item-hover', entry, $event.currentTarget)"
+>
+    <mt-tooltip
+        :content="getEntryLabel"
+        placement="right"
+    >
+        <template #default="tooltipProps">
+            <div
+                class="sw-admin-menu__navigation-item-row"
+                v-bind="collapsedTooltipTriggerProps(tooltipProps)"
+            >
+
+                {% block sw_admin_menu_item_router_link %}
+                <router-link
+                    v-if="entryPath"
+                    class="sw-admin-menu__navigation-link"
+                    :to="getLinkToProp"
+                    :class="{ 'router-link-active': rowActive }"
+                    :active-class="routerLinkActiveClass"
+                    :exact-active-class="routerLinkExactActiveClass"
+                    :aria-label="collapsedAriaLabel"
+                    @click="onNavigationLinkClick"
+                >
+                    <mt-icon
+                        v-if="displayIcon"
+                        :size="iconSize"
+                        class="sw-admin-menu__navigation-link-icon"
+                        :name="navigationIconName"
+                        :color="navigationIconColor"
+                    />
+
+                    <span
+                        class="sw-admin-menu__navigation-link-label"
+                        :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
+                        :title="getEntryLabel"
+                    >
+                        {{ getEntryLabel }}
+                    </span>
+
+                    <slot name="additional-text"></slot>
+                </router-link>
+                {% endblock %}
+
+                {% block sw_admin_menu_item_external_link %}
+                <a
+                    v-if="!entryPath && entry.link"
+                    :href="entry.link"
+                    :target="entry.target"
+                    :title="getEntryLabel"
+                    :aria-label="collapsedAriaLabel"
+                    class="sw-admin-menu__navigation-link"
+                >
+                    <mt-icon
+                        v-if="displayIcon"
+                        :size="iconSize"
+                        class="sw-admin-menu__navigation-link-icon"
+                        :name="navigationIconName"
+                        :color="navigationIconColor"
+                    />
+
+                    <span
+                        class="sw-admin-menu__navigation-link-label"
+                        :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
+                        :title="getEntryLabel"
+                    >
+                        {{ getEntryLabel }}
+                    </span>
+
+                    <slot name="additional-text"></slot>
+                </a>
+                {% endblock %}
+
+                {% block sw_admin_menu_item_navigation_link %}
+                <span
+                    v-if="!entryPath && !entry.link"
+                    class="sw-admin-menu__navigation-link"
+                    :class="{ 'router-link-active': rowActive }"
+                >
+                    <mt-icon
+                        v-if="displayIcon"
+                        :size="iconSize"
+                        class="sw-admin-menu__navigation-link-icon"
+                        :name="navigationIconName"
+                        :color="navigationIconColor"
+                    />
+
+                    <span
+                        class="sw-admin-menu__navigation-link-label"
+                        :class="collapsibleText ? 'collapsible-text hide-on-collapse' : ''"
+                        :title="getEntryLabel"
+                    >
+                        {{ getEntryLabel }}
+                    </span>
+
+                    <slot name="additional-text"></slot>
+                </span>
+                {% endblock %}
+            </div>
+        </template>
+    </mt-tooltip>
 </li>
 {% endblock %}

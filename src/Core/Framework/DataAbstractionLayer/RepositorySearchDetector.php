@@ -6,7 +6,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelpe
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -32,17 +31,17 @@ class RepositorySearchDetector
         }
 
         // group by is only supported by entity searcher
-        if (\count($criteria->getGroupFields())) {
+        if ($criteria->getGroupFields() !== []) {
             return true;
         }
 
         // sortings are only supported by entity searcher
-        if (\count($criteria->getSorting())) {
+        if ($criteria->getSorting() !== []) {
             return true;
         }
 
         // queries can only be handled in entity searcher
-        if (\count($criteria->getQueries())) {
+        if ($criteria->getQueries() !== []) {
             return true;
         }
 
@@ -51,7 +50,6 @@ class RepositorySearchDetector
             $criteria->getPostFilters()
         );
 
-        /** @var CriteriaPartInterface $filter */
         foreach ($filters as $filter) {
             $accessors = $filter->getFields();
             foreach ($accessors as $accessor) {

@@ -5,11 +5,10 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1665064823AddRuleAreas extends MigrationStep
@@ -21,7 +20,7 @@ class Migration1665064823AddRuleAreas extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if (!$this->columnExists($connection, 'rule', 'areas')) {
+        if (!TableHelper::columnExists($connection, 'rule', 'areas')) {
             $connection->executeStatement('ALTER TABLE `rule` ADD `areas` json NULL AFTER `invalid`;');
 
             $this->registerIndexer($connection, 'rule.indexer');

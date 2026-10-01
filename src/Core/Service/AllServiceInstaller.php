@@ -2,14 +2,16 @@
 
 namespace Shopware\Core\Service;
 
-use Shopware\Core\Framework\App\AppCollection;
-use Shopware\Core\Framework\App\AppEntity;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\DTO\Service;
+use Shopware\Core\Service\Event\NewServicesInstalledEvent;
+use Shopware\Core\Service\Message\InstallServicesMessage;
+use Shopware\Core\Service\ServiceRegistry\Client;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
  * @internal
@@ -17,50 +19,58 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class AllServiceInstaller
 {
-    public const AUTO_ENABLED = 'auto';
-
-    /**
-     * @internal
-     *
-     * @param EntityRepository<AppCollection> $appRepository
-     */
     public function __construct(
-        private readonly string $enabled,
-        private readonly string $appEnv,
-        private readonly ServiceRegistryClient $serviceRegistryClient,
+        private readonly Client $serviceRegistryClient,
+        private readonly ServiceStorage $serviceStorage,
         private readonly ServiceLifecycle $serviceLifecycle,
-        private readonly EntityRepository $appRepository,
+        private readonly MessageBusInterface $messageBus,
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
     /**
      * @return array<string> The newly installed services
      */
-    public function install(Context $context): array
+    public function reconcile(Context $context): array
     {
-        // auto means not explicitly enabled, then we enable it based on the app environment
-        if ($this->enabled === self::AUTO_ENABLED) {
-            $enabled = $this->appEnv === 'prod';
-        } else {
-            $enabled = filter_var($this->enabled, \FILTER_VALIDATE_BOOLEAN);
+        $existingServices = $this->serviceStorage->findAll($context);
+        $registryServices = $this->serviceRegistryClient->getAll();
+
+        $installedServices = $this->installNewServices($existingServices, $registryServices, $context);
+
+        $this->updateServices($existingServices, $registryServices, $context);
+
+        if ($installedServices !== []) {
+            $this->eventDispatcher->dispatch(new NewServicesInstalledEvent());
         }
 
-        if (!$enabled) {
-            return [];
-        }
+        return $installedServices;
+    }
 
-        $existingServices = $this->appRepository->search(
-            (new Criteria())->addFilter(new EqualsFilter('selfManaged', true)),
-            $context
-        );
+    public function scheduleInstall(): void
+    {
+        $this->messageBus->dispatch(new InstallServicesMessage());
+    }
 
+    /**
+     * @param list<Service> $existingServices
+     * @param array<ServiceEntry> $registryServices
+     *
+     * @return array<string>
+     */
+    private function installNewServices(array $existingServices, array $registryServices, Context $context): array
+    {
         $installedServices = [];
-        $newServices = $this->getNewServices($existingServices);
-        foreach ($newServices as $service) {
-            $result = $this->serviceLifecycle->install($service, $context);
+        foreach ($this->getNewServices($existingServices, $registryServices) as $entry) {
+            try {
+                $installed = $this->serviceLifecycle->install($entry, $context);
 
-            if ($result) {
-                $installedServices[] = $service->name;
+                if ($installed) {
+                    $installedServices[] = $entry->name;
+                }
+            } catch (\Throwable $e) {
+                $this->logger->warning('Cannot install service', ['service' => $entry->name, 'exception' => $e]);
             }
         }
 
@@ -68,17 +78,42 @@ class AllServiceInstaller
     }
 
     /**
-     * @param EntitySearchResult<AppCollection> $installedServices
-     *
-     * @return array<ServiceRegistryEntry>
+     * @param list<Service> $existingServices
+     * @param array<ServiceEntry> $registryServices
      */
-    private function getNewServices(EntitySearchResult $installedServices): array
+    private function updateServices(array $existingServices, array $registryServices, Context $context): void
     {
-        $names = $installedServices->map(fn (AppEntity $app) => $app->getName());
+        $registryServiceNames = [];
+        foreach ($registryServices as $registryService) {
+            $registryServiceNames[$registryService->name] = true;
+        }
+
+        foreach ($existingServices as $service) {
+            if (!isset($registryServiceNames[$service->name])) {
+                continue;
+            }
+
+            try {
+                $this->serviceLifecycle->update($service->name, $context);
+            } catch (\Throwable $exception) {
+                $this->logger->warning('Cannot update service', ['service' => $service->name, 'exception' => $exception]);
+            }
+        }
+    }
+
+    /**
+     * @param list<Service> $installedServices
+     * @param array<ServiceEntry> $registryServices
+     *
+     * @return array<ServiceEntry>
+     */
+    private function getNewServices(array $installedServices, array $registryServices): array
+    {
+        $names = array_map(static fn (Service $service) => $service->name, $installedServices);
 
         return array_filter(
-            $this->serviceRegistryClient->getAll(),
-            static fn (ServiceRegistryEntry $service) => !\in_array($service->name, $names, true)
+            $registryServices,
+            static fn (ServiceEntry $service) => !\in_array($service->name, $names, true)
         );
     }
 }

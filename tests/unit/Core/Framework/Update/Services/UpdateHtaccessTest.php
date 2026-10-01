@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Update\Services;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Update\Services\UpdateHtaccess;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UpdateHtaccess::class)]
 class UpdateHtaccessTest extends TestCase
 {

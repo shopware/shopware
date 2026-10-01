@@ -32,7 +32,7 @@ Shopware.Service('cmsService').registerCmsElement({
             required: true,
             entity: {
                 name: 'product',
-                criteria: new Shopware.Data.Criteria(1, 25).addAssociation('deliveryMedia'),
+                criteria: new Shopware.Data.Criteria(1, 25).addAssociation('deliveryTime'),
             },
         },
         alignment: {
@@ -48,9 +48,7 @@ Shopware.Service('cmsService').registerCmsElement({
             deliveryTime: {
                 name: '1-3 days',
             },
-            price: [
-                { gross: 0.0 },
-            ],
+            price: [{ gross: 0.0 }],
         },
     },
     collect: Shopware.Service('cmsService').getCollectFunction(),

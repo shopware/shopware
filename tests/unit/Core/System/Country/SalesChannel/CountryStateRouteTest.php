@@ -4,20 +4,24 @@ namespace Shopware\Tests\Unit\Core\System\Country\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateCollection;
 use Shopware\Core\System\Country\Event\CountryStateCriteriaEvent;
+use Shopware\Core\System\Country\Extension\CountryStateRouteExtension;
 use Shopware\Core\System\Country\SalesChannel\CountryStateRoute;
+use Shopware\Core\System\Country\SalesChannel\CountryStateRouteResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -45,24 +49,9 @@ class CountryStateRouteTest extends TestCase
     {
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         $dispatcher
-            ->expects($this->exactly(2))
+            ->expects($this->exactly(1))
             ->method('dispatch')
-            ->with(static::callback(static function ($event) use (&$index) {
-                switch ($index) {
-                    case 0:
-                        ++$index;
-                        static::assertInstanceOf(AddCacheTagEvent::class, $event);
-
-                        return true;
-                    case 1:
-                        ++$index;
-                        static::assertInstanceOf(CountryStateCriteriaEvent::class, $event);
-
-                        return true;
-                    default:
-                        static::fail('Unexpected event dispatched');
-                }
-            }));
+            ->with(static::isInstanceOf(CountryStateCriteriaEvent::class));
 
         $countryStateRepository = $this->createMock(EntityRepository::class);
         $countryStateRepository->expects($this->once())
@@ -76,7 +65,34 @@ class CountryStateRouteTest extends TestCase
                 $this->salesChannelContext->getContext(),
             ));
 
-        $route = new CountryStateRoute($countryStateRepository, $dispatcher);
+        $cacheTagCollector = static::createStub(CacheTagCollector::class);
+
+        $route = new CountryStateRoute($countryStateRepository, $dispatcher, $cacheTagCollector, new ExtensionDispatcher(new EventDispatcher()));
         $route->load(Uuid::randomHex(), new Request(), new Criteria(), $this->salesChannelContext);
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $countryId = Uuid::randomHex();
+        $request = new Request();
+        $criteria = new Criteria();
+        $response = static::createStub(CountryStateRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('country-state-route.load.pre', function (CountryStateRouteExtension $extension) use ($countryId, $request, $criteria, $response): void {
+            static::assertSame(['countryId' => $countryId, 'request' => $request, 'criteria' => $criteria, 'context' => $this->salesChannelContext], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new CountryStateRoute(
+            static::createStub(EntityRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($countryId, $request, $criteria, $this->salesChannelContext));
     }
 }

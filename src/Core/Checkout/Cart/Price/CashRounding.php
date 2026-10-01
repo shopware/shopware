@@ -10,7 +10,7 @@ class CashRounding
 {
     public function mathRound(float $price, CashRoundingConfig $config): float
     {
-        return round($price, $config->getDecimals());
+        return round($price, $config->getDecimals()) + 0;
     }
 
     public function cashRound(float $price, CashRoundingConfig $config): float

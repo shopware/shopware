@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchRangeAggregation;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElasticsearchRangeAggregation::class)]
 class ElasticsearchRangeAggregationTest extends TestCase
 {
@@ -22,7 +24,7 @@ class ElasticsearchRangeAggregationTest extends TestCase
 
         $agg = new ElasticsearchRangeAggregation('test-name', 'test-field', $ranges);
 
-        static::assertEquals([
+        static::assertSame([
             'ranges' => [
                 'field' => 'test-field',
                 'ranges' => $ranges,

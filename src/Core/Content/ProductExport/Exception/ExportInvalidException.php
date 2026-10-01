@@ -8,6 +8,9 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ExportInvalidException extends ShopwareHttpException
 {
@@ -25,7 +28,7 @@ class ExportInvalidException extends ShopwareHttpException
     ) {
         $errorMessages = array_merge(
             ...array_map(
-                fn (Error $error) => $error->getErrorMessages(),
+                static fn (Error $error) => $error->getErrorMessages(),
                 $errors
             )
         );

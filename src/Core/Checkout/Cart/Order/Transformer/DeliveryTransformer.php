@@ -6,19 +6,41 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\Delivery;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @phpstan-import-type TransformedAddressArray from AddressTransformer
+ *
+ * @phpstan-type DeliveryArray array{
+ *     id?: string,
+ *     shippingDateEarliest: string,
+ *     shippingDateLatest: string,
+ *     shippingMethodId: string,
+ *     shippingOrderAddress?: TransformedAddressArray,
+ *     shippingOrderAddressId?: string,
+ *     shippingOrderAddressVersionId?: string,
+ *     shippingCosts: CalculatedPrice,
+ *     positions: list<array{
+ *         id: string|null,
+ *         price: CalculatedPrice,
+ *         orderLineItemId: string,
+ *         orderLineItemVersionId: string
+ *     }>,
+ *     stateId: string
+ * }
+ */
 #[Package('checkout')]
 class DeliveryTransformer
 {
     /**
      * @param array<string, array<string, mixed>> $lineItems
-     * @param array<int|string, array<string, string|array<mixed>>> $addresses
+     * @param array<string, TransformedAddressArray> $addresses
      *
-     * @return array<int, array<string, mixed>>
+     * @return list<DeliveryArray>
      */
     public static function transformCollection(
         DeliveryCollection $deliveries,
@@ -37,9 +59,9 @@ class DeliveryTransformer
 
     /**
      * @param array<string, array<string, mixed>> $lineItems
-     * @param array<int|string, array<string, string|array<mixed>>> $addresses
+     * @param array<string, TransformedAddressArray> $addresses
      *
-     * @return array<string, mixed>
+     * @return DeliveryArray
      */
     public static function transform(
         Delivery $delivery,
@@ -83,7 +105,7 @@ class DeliveryTransformer
             $deliveryData['shippingOrderAddressVersionId'] = $originalAddressVersionId;
         }
 
-        $deliveryData = array_filter($deliveryData, fn ($item) => $item !== null);
+        $deliveryData = array_filter($deliveryData, static fn ($item) => $item !== null);
 
         foreach ($delivery->getPositions() as $position) {
             if (!isset($lineItems[$position->getIdentifier()])) {

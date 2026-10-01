@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiPathBuild
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\CustomBundleWithApiSchema\ShopwareBundleWithName;
 use Shopware\Tests\Unit\Core\Framework\Api\ApiDefinition\Generator\_fixtures\SimpleDefinition;
@@ -19,6 +20,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(OpenApi3Generator::class)]
 class OpenApi3GeneratorTest extends TestCase
 {
@@ -59,8 +61,8 @@ class OpenApi3GeneratorTest extends TestCase
             [
                 SimpleDefinition::class,
             ],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
     }
 
@@ -130,6 +132,6 @@ class OpenApi3GeneratorTest extends TestCase
         $entities = $schema['components']['schemas'];
         static::assertArrayHasKey('Presentation', $entities);
         static::assertArrayHasKey('infoConfigResponse', $entities);
-        static::assertEquals('Experimental', $schema['tags'][0]['name'] ?? null);
+        static::assertSame('Experimental', $schema['tags'][0]['name'] ?? null);
     }
 }

@@ -43,6 +43,11 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                             };
                         },
                     },
+                    mediaPresignedUploadService: {
+                        prepareUpload: jest.fn(),
+                        uploadToPresignedUrl: jest.fn(),
+                        finalizeUpload: jest.fn(),
+                    },
                     mediaService: {
                         addDefaultListener: jest.fn(),
                         removeDefaultListener: jest.fn(),
@@ -88,10 +93,6 @@ describe('components/utils/sw-duplicated-media-v2', () => {
                 },
             },
         });
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should upload the renamed file', async () => {

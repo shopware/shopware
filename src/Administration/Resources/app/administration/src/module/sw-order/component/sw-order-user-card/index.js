@@ -14,11 +14,7 @@ const format = Shopware.Utils.format;
 export default {
     template,
 
-    inject: [
-        'customSnippetApiService',
-        'orderService',
-        'repositoryFactory',
-    ],
+    inject: ['customSnippetApiService', 'orderService', 'repositoryFactory'],
 
     emits: [
         'error',
@@ -27,9 +23,7 @@ export default {
         'order-reset',
     ],
 
-    mixins: [
-        Mixin.getByName('salutation'),
-    ],
+    mixins: [Mixin.getByName('salutation')],
 
     props: {
         currentOrder: {
@@ -78,7 +72,11 @@ export default {
         },
 
         delivery() {
-            return this.currentOrder.deliveries[0];
+            if (!Shopware.Feature.isActive('v6.8.0.0')) {
+                return this.currentOrder.deliveries[0];
+            }
+
+            return this.currentOrder.primaryOrderDelivery;
         },
 
         orderDate() {

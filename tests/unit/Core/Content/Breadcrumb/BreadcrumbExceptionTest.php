@@ -7,11 +7,13 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Breadcrumb\BreadcrumbException;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
 use Shopware\Core\Content\Product\Exception\ProductNotFoundException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(BreadcrumbException::class)]
 class BreadcrumbExceptionTest extends TestCase
 {
@@ -37,6 +39,6 @@ class BreadcrumbExceptionTest extends TestCase
         $exception = BreadcrumbException::productNotFound('invalidId');
 
         static::assertInstanceOf(ProductNotFoundException::class, $exception);
-        static::assertSame('CONTENT__PRODUCT_NOT_FOUND', $exception->getErrorCode());
+        static::assertSame('PRODUCT_PRODUCT_NOT_FOUND', $exception->getErrorCode());
     }
 }

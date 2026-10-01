@@ -6,6 +6,7 @@ import './sw-sales-channel-defaults-select.scss';
 import template from './sw-sales-channel-defaults-select.html.twig';
 
 const { Mixin } = Shopware;
+const { EntityCollection } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -13,9 +14,7 @@ export default {
 
     inject: ['feature'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         salesChannel: {
@@ -114,7 +113,7 @@ export default {
         },
 
         propertyEntityName() {
-            return this.propertyCollection ? this.propertyCollection.entity : null;
+            return this.propertyCollection?.entity ?? null;
         },
 
         propertyNameKebabCase() {
@@ -126,7 +125,7 @@ export default {
         },
 
         singleSelectClass() {
-            return `sw-sales-channel-detail__assign-${this.propertyNameKebabCase}`;
+            return `sw-sales-channel-detail__assign sw-sales-channel-detail__assign-${this.propertyNameKebabCase}`;
         },
 
         defaultsValueError() {
@@ -139,6 +138,12 @@ export default {
             }
 
             return 'name';
+        },
+
+        showClearableButtonForDefault() {
+            // Hide clear button for languageId to prevent clearing a required field
+            // that gets auto-filled by the backend
+            return this.defaultPropertyName !== 'languageId';
         },
     },
 
@@ -180,7 +185,7 @@ export default {
                 const domain = this.getDomainUsingValue(removed);
                 if (domain !== null) {
                     this.createNotificationError({
-                        message: this.$tc(
+                        message: this.$t(
                             'sw-sales-channel.sw-sales-channel-defaults-select.messageError',
                             {
                                 url: domain.url,
@@ -210,7 +215,10 @@ export default {
             this.defaultId = defaultId;
 
             if (!!defaultId && !this.propertyCollection.has(defaultId)) {
-                this.propertyCollection.add(defaultEntity);
+                const updatedCollection = EntityCollection.fromCollection(this.propertyCollection);
+                updatedCollection.add(defaultEntity);
+
+                this.propertyCollection = updatedCollection;
             }
         },
 
@@ -219,7 +227,7 @@ export default {
         },
 
         getActiveIconColor(item) {
-            return this.isDisabledItem(item) ? '#d1d9e0' : '#37d046';
+            return this.isDisabledItem(item) ? 'var(--color-icon-secondary-default)' : 'var(--color-icon-positive-default)';
         },
     },
 };

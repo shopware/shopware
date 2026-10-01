@@ -21,11 +21,14 @@ describe('OffCanvasTabsPlugin test', () => {
         offCanvasTabs = new OffCanvasTabs(element);
         offCanvasTabs._isInAllowedViewports = () => true;
 
-        window.PluginManager.initializePlugins = jest.fn();
+        window.PluginManager.initializePluginsInParentElement = jest.fn();
 
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
+            // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+            _addFocusTrapGuard: jest.fn(),
+            _removeFocusTrapGuard: jest.fn(),
         };
 
         jest.useFakeTimers();
@@ -51,7 +54,7 @@ describe('OffCanvasTabsPlugin test', () => {
 
         const offCanvas = document.querySelector('.offcanvas');
 
-        expect(window.PluginManager.initializePlugins).toBeCalledTimes(1);
+        expect(window.PluginManager.initializePluginsInParentElement).toHaveBeenCalledTimes(1);
         expect(offCanvas.innerHTML).toBe('Tab content');
     });
 });

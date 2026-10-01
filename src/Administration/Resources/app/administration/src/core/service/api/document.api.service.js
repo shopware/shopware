@@ -1,5 +1,8 @@
 import ApiService from '../api.service';
 
+/**
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 const DocumentEvents = {
     DOCUMENT_FAILED: 'create-document-fail',
     DOCUMENT_FINISHED: 'create-document-finished',
@@ -7,6 +10,7 @@ const DocumentEvents = {
 
 /**
  * @sw-package checkout
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
  * Gateway for the API end point "document"
  * @class
  * @extends ApiService
@@ -53,7 +57,6 @@ class DocumentApiService extends ApiService {
                     const documentId = responseDoc[0]?.documentId;
                     const fileName = file.name.split('.').shift();
                     const fileExtension = file.name.split('.').pop();
-                    // eslint-disable-next-line max-len
                     route = `/_action/document/${documentId}/upload?fileName=${config.documentNumber}_${fileName}&extension=${fileExtension}`;
                     headers['Content-Type'] = file.type;
                     responseDoc = this.httpClient.post(route, file, {
@@ -71,7 +74,6 @@ class DocumentApiService extends ApiService {
                 }
 
                 this.$listener(this.createDocumentEvent(DocumentEvents.DOCUMENT_FINISHED));
-                // eslint-disable-next-line consistent-return
                 return Promise.resolve(responseDoc);
             })
             .catch((error) => {

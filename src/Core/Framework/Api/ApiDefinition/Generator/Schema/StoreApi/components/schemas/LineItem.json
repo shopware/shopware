@@ -1,21 +1,9 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": [],
     "components": {
         "schemas": {
-            "LineItemType": {
-                "type": "string",
-                "enum": [
-                    "product",
-                    "credit",
-                    "custom",
-                    "promotion",
-                    "discount",
-                    "container",
-                    "quantity"
-                ]
-            },
             "LineItem": {
                 "type": "object",
                 "properties": {
@@ -24,7 +12,7 @@
                         "items": { "$ref": "#/components/schemas/LineItem" }
                     },
                     "cover": {
-                        "$ref": "#/components/schemas/ProductMedia"
+                        "$ref": "#/components/schemas/Media"
                     },
                     "dataContextHash": {
                         "type": "string"
@@ -61,7 +49,7 @@
                         "properties": {
                             "apiAlias": {
                                 "type": "string",
-                                "enum": ["calculated_price"]
+                                "const": "calculated_price"
                             },
                             "calculatedTaxes": {
                                 "type": "array",
@@ -70,7 +58,7 @@
                                     "properties": {
                                         "apiAlias": {
                                             "type": "string",
-                                            "enum": ["cart_tax_calculated"]
+                                            "const": "cart_tax_calculated"
                                         },
                                         "tax": {
                                             "type": "number"
@@ -123,9 +111,7 @@
                                             },
                                             "apiAlias": {
                                                 "type": "string",
-                                                "enum": [
-                                                    "cart_regulation_price"
-                                                ]
+                                                "const": "cart_regulation_price"
                                             }
                                         }
                                     },
@@ -194,14 +180,16 @@
                         "type": "boolean"
                     },
                     "states": {
+                        "deprecated": true,
                         "type": "array",
+                        "deprecated": true,
                         "items": {
                             "type": "string",
                             "enum": ["is-physical", "is-download"]
                         }
                     },
                     "type": {
-                        "$ref": "#/components/schemas/LineItemType"
+                        "$ref": "#/components/schemas/OrderLineItem/properties/type"
                     },
                     "uniqueIdentifier": {
                         "type": "string"
@@ -209,11 +197,7 @@
                 },
                 "required": [
                     "id",
-                    "type",
-                    "deliveryInformation",
-                    "payload",
-                    "quantity",
-                    "states"
+                    "type"
                 ]
             }
         }

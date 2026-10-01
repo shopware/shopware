@@ -3,6 +3,8 @@
  */
 import { mount } from '@vue/test-utils';
 
+const currencySearch = jest.fn(() => Promise.resolve([]));
+
 async function createWrapper(privileges = [], customPropsData = {}) {
     return mount(
         await wrapTestComponent('sw-settings-country-general', {
@@ -27,7 +29,7 @@ async function createWrapper(privileges = [], customPropsData = {}) {
 
             global: {
                 mocks: {
-                    $tc: (key) => key,
+                    $t: (key) => key,
                     $route: {
                         params: {
                             id: 'id',
@@ -41,18 +43,26 @@ async function createWrapper(privileges = [], customPropsData = {}) {
 
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
-                            get: () => {
-                                return Promise.resolve({});
-                            },
-                            search: () => {
-                                return Promise.resolve({
-                                    userConfigs: {
-                                        first: () => ({}),
-                                    },
-                                });
-                            },
-                        }),
+                        create: (entity) => {
+                            if (entity === 'currency') {
+                                return {
+                                    search: currencySearch,
+                                };
+                            }
+
+                            return {
+                                get: () => {
+                                    return Promise.resolve({});
+                                },
+                                search: () => {
+                                    return Promise.resolve({
+                                        userConfigs: {
+                                            first: () => ({}),
+                                        },
+                                    });
+                                },
+                            };
+                        },
                     },
                     acl: {
                         can: (identifier) => {
@@ -90,22 +100,25 @@ describe('module/sw-settings-country/component/sw-settings-country-general', () 
         Shopware.Store.get('session').setCurrentUser({});
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
+    beforeEach(() => {
+        currencySearch.mockClear();
+    });
 
-        expect(wrapper.vm).toBeTruthy();
+    it('should load all currencies for the currency dependent tax free thresholds', async () => {
+        await createWrapper(['country.editor'], {
+            enabled: true,
+        });
+
+        await flushPromises();
+
+        expect(currencySearch).toHaveBeenCalledTimes(1);
+        expect(currencySearch.mock.calls[0][0].getLimit()).toBe(500);
     });
 
     it('should be able to show the tax free from', async () => {
-        const wrapper = await createWrapper(
-            [
-                'country.editor',
-            ],
-            {
-                enabled: true,
-            },
-        );
+        const wrapper = await createWrapper(['country.editor'], {
+            enabled: true,
+        });
 
         await flushPromises();
 

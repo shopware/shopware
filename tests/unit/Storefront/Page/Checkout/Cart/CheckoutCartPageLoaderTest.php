@@ -4,10 +4,10 @@ namespace Shopware\Tests\Unit\Storefront\Page\Checkout\Cart;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryDefinition;
@@ -25,6 +26,7 @@ use Shopware\Core\System\Country\SalesChannel\CountryRoute;
 use Shopware\Core\System\Country\SalesChannel\CountryRouteResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
+use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartGatewayResult;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPage;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPageLoader;
 use Shopware\Storefront\Page\GenericPageLoader;
@@ -35,6 +37,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(CheckoutCartPageLoader::class)]
 class CheckoutCartPageLoaderTest extends TestCase
 {
@@ -43,7 +46,7 @@ class CheckoutCartPageLoaderTest extends TestCase
         $page = new CheckoutCartPage();
         $page->setMetaInformation(new MetaInformation());
 
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader
             ->method('load')
             ->willReturn($page);
@@ -61,7 +64,7 @@ class CheckoutCartPageLoaderTest extends TestCase
     {
         $page = new CheckoutCartPage();
 
-        $pageLoader = $this->createMock(GenericPageLoader::class);
+        $pageLoader = static::createStub(GenericPageLoader::class);
         $pageLoader
             ->method('load')
             ->willReturn($page);
@@ -108,21 +111,19 @@ class CheckoutCartPageLoaderTest extends TestCase
             )
         );
 
-        $checkoutGatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
-        $checkoutGatewayRoute
-            ->method('load')
-            ->withAnyParameters()
-            ->willReturn($response);
+        $cartService = static::createStub(StorefrontCartFacade::class);
+        $cartService
+            ->method('getWithCheckoutGateway')
+            ->willReturn(new StorefrontCartGatewayResult(new Cart('test'), $response));
 
-        $countryRoute = $this->createMock(CountryRoute::class);
+        $countryRoute = static::createStub(CountryRoute::class);
         $countryRoute
             ->method('load')
-            ->withAnyParameters()
             ->willReturn($countryResponse);
 
-        $page = $this->createLoader(checkoutGatewayRoute: $checkoutGatewayRoute, countryRoute: $countryRoute)->load(
+        $page = $this->createLoader(cartService: $cartService, countryRoute: $countryRoute)->load(
             new Request(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         static::assertSame($paymentMethods, $page->getPaymentMethods());
@@ -148,10 +149,9 @@ class CheckoutCartPageLoaderTest extends TestCase
             )
         );
 
-        $countryRoute = $this->createMock(CountryRoute::class);
+        $countryRoute = static::createStub(CountryRoute::class);
         $countryRoute
             ->method('load')
-            ->withAnyParameters()
             ->willReturn($countryResponse);
 
         $page = $this->createLoader(countryRoute: $countryRoute)->load(
@@ -164,17 +164,33 @@ class CheckoutCartPageLoaderTest extends TestCase
 
     private function createLoader(
         ?GenericPageLoader $pageLoader = null,
-        ?AbstractCheckoutGatewayRoute $checkoutGatewayRoute = null,
+        ?StorefrontCartFacade $cartService = null,
         ?CountryRoute $countryRoute = null,
     ): CheckoutCartPageLoader {
         return new CheckoutCartPageLoader(
-            $pageLoader ?? $this->createMock(GenericPageLoader::class),
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(StorefrontCartFacade::class),
-            $checkoutGatewayRoute ?? $this->createMock(AbstractCheckoutGatewayRoute::class),
-            $countryRoute ?? $this->createMock(CountryRoute::class),
-            $this->createMock(AbstractTranslator::class),
+            $pageLoader ?? static::createStub(GenericPageLoader::class),
+            static::createStub(EventDispatcher::class),
+            $cartService ?? $this->createCartService(),
+            $countryRoute ?? static::createStub(CountryRoute::class),
+            static::createStub(AbstractTranslator::class),
         );
+    }
+
+    private function createCartService(): StorefrontCartFacade
+    {
+        $cartService = static::createStub(StorefrontCartFacade::class);
+        $cartService
+            ->method('getWithCheckoutGateway')
+            ->willReturn(new StorefrontCartGatewayResult(
+                new Cart('test'),
+                new CheckoutGatewayRouteResponse(
+                    new PaymentMethodCollection(),
+                    new ShippingMethodCollection(),
+                    new ErrorCollection()
+                )
+            ));
+
+        return $cartService;
     }
 
     private function getContextWithDummyCustomer(): SalesChannelContext
@@ -187,10 +203,13 @@ class CheckoutCartPageLoaderTest extends TestCase
             'activeShippingAddress' => $address,
         ]);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context
             ->method('getCustomer')
             ->willReturn($customer);
+        $context
+            ->method('getToken')
+            ->willReturn('token');
 
         return $context;
     }

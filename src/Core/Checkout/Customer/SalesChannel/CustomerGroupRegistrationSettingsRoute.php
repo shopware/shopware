@@ -4,16 +4,20 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Extension\CustomerGroupRegistrationSettingsRouteExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegistrationSettingsRoute
 {
     /**
@@ -21,7 +25,7 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
      *
      * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
      */
-    public function __construct(private readonly EntityRepository $customerGroupRepository)
+    public function __construct(private readonly EntityRepository $customerGroupRepository, private readonly ExtensionDispatcher $extensions)
     {
     }
 
@@ -30,8 +34,21 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * Though this is a GET route, caching was not added as the output may be altered depending on dynamic rules,
+     * which is not taken into account during the cache hash calculation.
+     */
     #[Route(path: '/store-api/customer-group-registration/config/{customerGroupId}', name: 'store-api.customer-group-registration.config', methods: ['GET'])]
     public function load(string $customerGroupId, SalesChannelContext $context): CustomerGroupRegistrationSettingsRouteResponse
+    {
+        return $this->extensions->publish(
+            name: CustomerGroupRegistrationSettingsRouteExtension::NAME,
+            extension: new CustomerGroupRegistrationSettingsRouteExtension($customerGroupId, $context),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(string $customerGroupId, SalesChannelContext $context): CustomerGroupRegistrationSettingsRouteResponse
     {
         $criteria = (new Criteria([$customerGroupId]))
             ->addFilter(new EqualsFilter('registrationActive', 1))
@@ -42,7 +59,7 @@ class CustomerGroupRegistrationSettingsRoute extends AbstractCustomerGroupRegist
             throw CustomerException::customerGroupRegistrationConfigurationNotFound($customerGroupId);
         }
 
-        $customerGroup = $result->first();
+        $customerGroup = $result->getEntities()->first();
         \assert($customerGroup !== null);
 
         return new CustomerGroupRegistrationSettingsRouteResponse($customerGroup);

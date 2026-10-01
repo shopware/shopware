@@ -88,9 +88,7 @@ describe('src/app/init/cms.init.ts', () => {
             slotLayout: {
                 grid: 'auto / auto auto',
             },
-            slots: [
-                { element: 'test-element' },
-            ],
+            slots: [{ element: 'test-element' }],
         });
 
         expect(mock).toHaveBeenCalledWith({
@@ -135,10 +133,7 @@ describe('src/app/init/cms.init.ts', () => {
         await cms.registerCmsBlock({
             name: 'test-block',
             label: 'Test Block',
-            slots: [
-                { element: 'test-element' },
-                { element: 'test-element' },
-            ],
+            slots: [{ element: 'test-element' }, { element: 'test-element' }],
         });
 
         expect(mock).toHaveBeenCalledWith({

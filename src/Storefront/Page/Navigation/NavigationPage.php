@@ -2,13 +2,14 @@
 
 namespace Shopware\Storefront\Page\Navigation;
 
+use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Page\Page;
 
-#[Package('framework')]
+#[Package('discovery')]
 class NavigationPage extends Page
 {
     protected ?CmsPageEntity $cmsPage = null;
@@ -16,6 +17,8 @@ class NavigationPage extends Page
     protected ?CategoryEntity $category = null;
 
     protected ?string $navigationId = null;
+
+    protected ?BreadcrumbCollection $breadcrumb = null;
 
     public function getCmsPage(): ?CmsPageEntity
     {
@@ -45,6 +48,16 @@ class NavigationPage extends Page
     public function setCategory(?CategoryEntity $category): void
     {
         $this->category = $category;
+    }
+
+    public function getBreadcrumb(): ?BreadcrumbCollection
+    {
+        return $this->breadcrumb;
+    }
+
+    public function setBreadcrumb(?BreadcrumbCollection $breadcrumb): void
+    {
+        $this->breadcrumb = $breadcrumb;
     }
 
     public function getEntityName(): string

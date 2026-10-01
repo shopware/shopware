@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Seo\StorefrontSalesChannelTestHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -17,6 +18,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 /**
  * @internal
  */
+#[Package('inventory')]
 class StorefrontSeoUrlRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -27,6 +29,9 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
      */
     private EntityRepository $seoUrlRepository;
 
+    /**
+     * @var SalesChannelRepository<SeoUrlCollection>
+     */
     private SalesChannelRepository $salesChannelSeoUrlRepository;
 
     protected function setUp(): void
@@ -85,7 +90,7 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
         $enId = Uuid::randomHex();
         $foreignKey = Uuid::randomHex();
 
-        $this->upsertLanguage($deLanguageId, 'test de');
+        $this->upsertLanguage($deLanguageId, 'de-DE-1');
         $salesChannelContext = $this->createStorefrontSalesChannelContext(Uuid::randomHex(), 'test', $deLanguageId);
 
         $this->seoUrlRepository->create(
@@ -283,9 +288,10 @@ class StorefrontSeoUrlRepositoryTest extends TestCase
         $languageRepo->upsert([[
             'id' => $id,
             'name' => $name,
+            'active' => true,
             'locale' => [
                 'id' => $id,
-                'code' => 'X-' . $name,
+                'code' => $name,
                 'name' => 'test',
                 'territory' => $name . ' territory',
             ],

@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<VersionCommitEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class VersionCommitCollection extends EntityCollection
@@ -16,12 +18,12 @@ class VersionCommitCollection extends EntityCollection
      */
     public function getUserIds(): array
     {
-        return $this->fmap(fn (VersionCommitEntity $versionChange) => $versionChange->getUserId());
+        return $this->fmap(static fn (VersionCommitEntity $versionChange) => $versionChange->getUserId());
     }
 
     public function filterByUserId(string $id): self
     {
-        return $this->filter(fn (VersionCommitEntity $versionChange) => $versionChange->getUserId() === $id);
+        return $this->filter(static fn (VersionCommitEntity $versionChange) => $versionChange->getUserId() === $id);
     }
 
     public function getApiAlias(): string

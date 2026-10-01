@@ -3,12 +3,14 @@
 namespace Shopware\Tests\Integration\Core\Framework\TestCaseBase;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class KernelTestBehaviourTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -29,7 +31,7 @@ class KernelTestBehaviourTest extends TestCase
 
     public function testTheKernelIsEqual(): void
     {
-        static::assertEquals($this->kernelId, spl_object_hash($this->getKernel()));
+        static::assertSame($this->kernelId, spl_object_hash($this->getKernel()));
     }
 
     public function testClientIsUsingTheSameKernel(): void

@@ -7,18 +7,20 @@
     <template #modal-header>
         {% block sw_flow_event_change_confirm_modal_header %}
         <mt-icon
+            size="18px"
             name="regular-exclamation-triangle"
         />
 
         <h4 class="sw-flow-event-change-confirm-modal__title">
-            {{ $tc('global.default.warning') }}
+            {{ $t('global.default.warning') }}
         </h4>
         {% endblock %}
     </template>
+
     {% block sw_flow_event_change_confirm_modal_text_confirmation %}
     <p
         class="sw-flow-event-change-confirm-modal__text-confirmation"
-        v-html="$tc('sw-flow.modals.confirmation.textConfirmChangeTrigger')"
+        v-html="$t('sw-flow.modals.confirmation.textConfirmChangeTrigger')"
     ></p>
     {% endblock %}
 
@@ -30,7 +32,7 @@
             variant="secondary"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -41,7 +43,7 @@
             size="small"
             @click="onConfirm"
         >
-            {{ $tc('global.default.confirm') }}
+            {{ $t('global.default.confirm') }}
         </mt-button>
         {% endblock %}
     </template>

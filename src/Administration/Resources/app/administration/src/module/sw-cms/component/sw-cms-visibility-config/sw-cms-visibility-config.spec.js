@@ -22,12 +22,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/component/sw-cms-visibility-config', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be visible in all devices', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -64,18 +58,9 @@ describe('module/sw-cms/component/sw-cms-visibility-config', () => {
         await wrapper.get('#sw-cms-visibility-config-desktop').setChecked(true);
 
         expect(wrapper.emitted()['visibility-change']).toStrictEqual([
-            [
-                'mobile',
-                false,
-            ],
-            [
-                'tablet',
-                false,
-            ],
-            [
-                'desktop',
-                false,
-            ],
+            ['mobile', false],
+            ['tablet', false],
+            ['desktop', false],
         ]);
     });
 });

@@ -3,10 +3,12 @@
 namespace Shopware\Tests\Migration\Core\V6_6;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1735807464AddCustomFieldStoreApiAware;
 
 /**
@@ -25,24 +27,21 @@ class Migration1735807464AddCustomFieldStoreApiAwareTest extends TestCase
         $this->connection = static::getContainer()->get(Connection::class);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1735807464, (new Migration1735807464AddCustomFieldStoreApiAware())->getCreationTimestamp());
+    }
+
     public function testCustomFieldHasStoreApiAwareColumn(): void
     {
         $this->rollback();
         $this->executeMigration();
         $this->executeMigration();
-        $columns = $this->connection->fetchAllAssociative('SHOW COLUMNS FROM `custom_field`');
-        $columnNames = array_column($columns, 'Field');
 
-        $storeApiAwareColumnKey = array_search('store_api_aware', $columnNames, true);
-
-        if ($storeApiAwareColumnKey === false) {
-            static::fail('Column "store_api_aware" not found in "custom_field" table');
-        }
-
-        static::assertSame('store_api_aware', $columns[$storeApiAwareColumnKey]['Field']);
-        static::assertSame('tinyint(1)', $columns[$storeApiAwareColumnKey]['Type']);
-        static::assertSame('NO', $columns[$storeApiAwareColumnKey]['Null']);
-        static::assertSame('1', $columns[$storeApiAwareColumnKey]['Default']);
+        $storeApiAwareColumn = TableHelper::getColumnOfTable($this->connection, 'custom_field', 'store_api_aware');
+        static::assertSame(Types::BOOLEAN, $storeApiAwareColumn->type);
+        static::assertTrue($storeApiAwareColumn->isNotNull);
+        static::assertSame('1', $storeApiAwareColumn->defaultValue);
     }
 
     private function executeMigration(): void
@@ -52,12 +51,7 @@ class Migration1735807464AddCustomFieldStoreApiAwareTest extends TestCase
 
     private function rollback(): void
     {
-        $columns = $this->connection->fetchAllAssociative('SHOW COLUMNS FROM `custom_field`');
-        $columnNames = array_column($columns, 'Field');
-
-        $storeApiAwareColumnKey = array_search('store_api_aware', $columnNames, true);
-
-        if ($storeApiAwareColumnKey === false) {
+        if (!TableHelper::columnExists($this->connection, 'custom_field', 'store_api_aware')) {
             return;
         }
 

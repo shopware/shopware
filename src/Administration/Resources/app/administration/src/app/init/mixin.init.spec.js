@@ -17,6 +17,7 @@ describe('src/app/init/mixin.init.js', () => {
         expect(Shopware.Mixin.getByName('ruleContainer')).toBeDefined();
         expect(Shopware.Mixin.getByName('salutation')).toBeDefined();
         expect(Shopware.Mixin.getByName('sw-inline-snippet')).toBeDefined();
+        expect(Shopware.Mixin.getByName('translate-with-fallback')).toBeDefined();
         expect(Shopware.Mixin.getByName('user-settings')).toBeDefined();
         expect(Shopware.Mixin.getByName('validation')).toBeDefined();
     });

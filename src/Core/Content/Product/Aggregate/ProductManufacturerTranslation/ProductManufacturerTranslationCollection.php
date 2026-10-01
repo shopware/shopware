@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductManufacturerTranslationEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class ProductManufacturerTranslationCollection extends EntityCollection
@@ -16,12 +18,12 @@ class ProductManufacturerTranslationCollection extends EntityCollection
      */
     public function getProductManufacturerIds(): array
     {
-        return $this->fmap(fn (ProductManufacturerTranslationEntity $productManufacturerTranslation) => $productManufacturerTranslation->getProductManufacturerId());
+        return $this->fmap(static fn (ProductManufacturerTranslationEntity $productManufacturerTranslation) => $productManufacturerTranslation->getProductManufacturerId());
     }
 
     public function filterByProductManufacturerId(string $id): self
     {
-        return $this->filter(fn (ProductManufacturerTranslationEntity $productManufacturerTranslation) => $productManufacturerTranslation->getProductManufacturerId() === $id);
+        return $this->filter(static fn (ProductManufacturerTranslationEntity $productManufacturerTranslation) => $productManufacturerTranslation->getProductManufacturerId() === $id);
     }
 
     /**
@@ -29,12 +31,12 @@ class ProductManufacturerTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (ProductManufacturerTranslationEntity $productManufacturerTranslation) => $productManufacturerTranslation->getLanguageId());
+        return $this->fmap(static fn (ProductManufacturerTranslationEntity $productManufacturerTranslation) => $productManufacturerTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (ProductManufacturerTranslationEntity $productManufacturerTranslation) => $productManufacturerTranslation->getLanguageId() === $id);
+        return $this->filter(static fn (ProductManufacturerTranslationEntity $productManufacturerTranslation) => $productManufacturerTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

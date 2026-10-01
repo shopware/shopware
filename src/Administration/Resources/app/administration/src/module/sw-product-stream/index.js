@@ -1,13 +1,9 @@
-/*
- * @sw-package inventory
- */
-
 import './acl';
 import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-product-stream-list', () => import('./page/sw-product-stream-list'));
 Shopware.Component.register('sw-product-stream-detail', () => import('./page/sw-product-stream-detail'));
 Shopware.Component.register('sw-product-stream-field-select', () => import('./component/sw-product-stream-field-select'));
@@ -18,9 +14,10 @@ Shopware.Component.extend(
     'sw-condition-base',
     () => import('./component/sw-product-stream-filter'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**
+ * @sw-package inventory
  * @private
  */
 Module.register('sw-product-stream', {
@@ -30,9 +27,9 @@ Module.register('sw-product-stream', {
     description: 'sw-product-stream.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#57D9A3',
-    icon: 'regular-products',
-    favicon: 'icon-module-products.png',
+    color: 'var(--sw-color-module-green-default)',
+    icon: 'regular-layer-group',
+    favicon: 'icon-module-products.svg',
     entity: 'product_stream',
 
     routes: {
@@ -62,7 +59,7 @@ Module.register('sw-product-stream', {
             },
             props: {
                 default(route) {
-                    return { productStreamId: route.params.id };
+                    return { productStreamId: route.params.id.toLowerCase() };
                 },
             },
         },
@@ -75,7 +72,7 @@ Module.register('sw-product-stream', {
             id: 'sw-product-stream',
             privilege: 'product_stream.viewer',
             parent: 'sw-catalogue',
-            color: '#57D9A3',
+            color: 'var(--sw-color-module-green-default)',
             position: 30,
         },
     ],

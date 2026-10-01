@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\Extension\PdfRendererExtension;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LocaleEntity;
+use Smalot\PdfParser\Parser;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -31,12 +33,12 @@ class PdfRendererTest extends TestCase
     {
         $pdfRenderer = new PdfRenderer(
             [],
-            $this->createMock(DocumentTemplateRenderer::class),
+            static::createStub(DocumentTemplateRenderer::class),
             '',
             new ExtensionDispatcher(new EventDispatcher())
         );
 
-        static::assertEquals('application/pdf', $pdfRenderer->getContentType());
+        static::assertSame('application/pdf', $pdfRenderer->getContentType());
     }
 
     public function testExtensionIsDispatched(): void
@@ -44,7 +46,7 @@ class PdfRendererTest extends TestCase
         $dispatcher = new EventDispatcher();
         $renderer = new PdfRenderer(
             [],
-            $this->createMock(DocumentTemplateRenderer::class),
+            static::createStub(DocumentTemplateRenderer::class),
             '',
             new ExtensionDispatcher($dispatcher),
         );
@@ -96,7 +98,7 @@ class PdfRendererTest extends TestCase
         static::assertSame($rendered->getContentType(), PdfRenderer::FILE_CONTENT_TYPE);
 
         $finfo = new \finfo(\FILEINFO_MIME_TYPE);
-        static::assertEquals('application/pdf', $finfo->buffer($generatorOutput));
+        static::assertSame('application/pdf', $finfo->buffer($generatorOutput));
     }
 
     public function testRenderThrowException(): void
@@ -110,12 +112,63 @@ class PdfRendererTest extends TestCase
 
         $htmlRenderer = new PdfRenderer(
             [],
-            $this->createMock(DocumentTemplateRenderer::class),
+            static::createStub(DocumentTemplateRenderer::class),
             '',
             new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $htmlRenderer->render($rendered);
+    }
+
+    #[DataProvider('provideFontFamiliesForPageCountInjection')]
+    public function testPageCountInjected(string $fontFamily): void
+    {
+        $rendered = new RenderedDocument(
+            '1001',
+            InvoiceRenderer::TYPE,
+        );
+
+        $rendered->setContext(Context::createDefaultContext());
+        $rendered->setOrder($this->getOrder());
+
+        $raw = <<<HTML
+            <html><head><style>body { font-family: {$fontFamily}; }</style></head><body>
+                <p>Page 1 / DOMPDF_PAGE_COUNT_PLACEHOLDER</p>
+            </body></html>
+            HTML;
+
+        $documentTemplateRenderer = $this->createMock(DocumentTemplateRenderer::class);
+        $documentTemplateRenderer->expects($this->once())
+            ->method('render')
+            ->willReturn($raw);
+
+        $pdfRenderer = new PdfRenderer(
+            [
+                'isRemoteEnabled' => false,
+                'isHtml5ParserEnabled' => true,
+            ],
+            $documentTemplateRenderer,
+            '',
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $generatorOutput = $pdfRenderer->render($rendered);
+        static::assertNotEmpty($generatorOutput);
+
+        $text = (new Parser())->parseContent($generatorOutput)->getText();
+
+        static::assertStringNotContainsString('DOMPDF_PAGE_COUNT_PLACEHOLDER', $text);
+        static::assertStringContainsString('Page 1 / 1', $text);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function provideFontFamiliesForPageCountInjection(): iterable
+    {
+        yield 'unicode TrueType font (UTF-16BE)' => ['DejaVu Sans'];
+        yield 'standard core AFM font (8-bit ANSI)' => ['Helvetica'];
+        yield 'generic sans-serif fallback (8-bit ANSI)' => ['sans-serif'];
     }
 
     private function getOrder(): OrderEntity

@@ -102,6 +102,11 @@ abstract class WriteCommand
         return \array_key_exists($storageName, $this->getPayload());
     }
 
+    public function hasAnyField(string ...$storageNames): bool
+    {
+        return \array_intersect(array_keys($this->getPayload()), $storageNames) !== [];
+    }
+
     public function setFailed(bool $failed): void
     {
         $this->failed = $failed;

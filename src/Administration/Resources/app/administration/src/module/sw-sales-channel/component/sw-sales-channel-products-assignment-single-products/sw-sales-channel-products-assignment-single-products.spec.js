@@ -58,7 +58,6 @@ async function createWrapper() {
                 'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                 'sw-context-button': await wrapTestComponent('sw-context-button', { sync: true }),
                 'sw-context-menu-item': true,
-                'sw-empty-state': true,
                 'sw-modal': true,
                 'sw-tabs': true,
                 'sw-tab-items': true,
@@ -85,6 +84,15 @@ async function createWrapper() {
                 },
                 validationService: {},
             },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'regular-content',
+                        },
+                    },
+                },
+            },
         },
         props: {
             salesChannel: {
@@ -102,7 +110,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         setProductData([]);
         const wrapper = await createWrapper();
 
-        expect(wrapper.find('sw-empty-state-stub').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
     it('should display data grid when there is product data', async () => {
@@ -196,9 +204,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
         expect(wrapper.vm.page).toBe(2);
         expect(wrapper.vm.limit).toBe(25);
-        expect(wrapper.vm.productCriteria.sortings).toEqual([
-            { field: 'name', naturalSorting: false, order: 'ASC' },
-        ]);
+        expect(wrapper.vm.productCriteria.sortings).toEqual([{ field: 'name', naturalSorting: false, order: 'ASC' }]);
         expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
         wrapper.vm.getProducts.mockRestore();
     });

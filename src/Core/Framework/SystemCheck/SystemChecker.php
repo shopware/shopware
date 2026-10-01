@@ -69,7 +69,7 @@ class SystemChecker
      */
     private function runChecks(array $checks): array
     {
-        return array_map(function (BaseCheck $check) {
+        return array_map(static function (BaseCheck $check) {
             try {
                 return $check->run();
             } catch (\Throwable $e) {
@@ -86,7 +86,7 @@ class SystemChecker
     private function skipChecks(array $checks, string $message): array
     {
         return array_map(
-            fn (BaseCheck $check) => new Result($check->name(), Status::SKIPPED, $message),
+            static fn (BaseCheck $check) => new Result($check->name(), Status::SKIPPED, $message),
             $checks
         );
     }

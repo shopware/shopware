@@ -6,10 +6,12 @@ use League\Flysystem\GoogleCloudStorage\GoogleCloudStorageAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Filesystem\Adapter\GoogleStorageFactory;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(GoogleStorageFactory::class)]
 class GoogleStorageFactoryTest extends TestCase
 {
@@ -28,11 +30,7 @@ class GoogleStorageFactoryTest extends TestCase
             'root' => '/',
         ];
 
-        try {
-            static::assertInstanceOf(GoogleCloudStorageAdapter::class, $googleStorageFactory->create($config));
-        } catch (\Exception $e) {
-            static::fail($e->getMessage());
-        }
+        static::assertInstanceOf(GoogleCloudStorageAdapter::class, $googleStorageFactory->create($config));
     }
 
     public function testCreateGoogleStorageFromConfigFile(): void
@@ -46,10 +44,19 @@ class GoogleStorageFactoryTest extends TestCase
             'root' => '/',
         ];
 
-        try {
-            static::assertInstanceOf(GoogleCloudStorageAdapter::class, $googleStorageFactory->create($config));
-        } catch (\Exception $e) {
-            static::fail($e->getMessage());
-        }
+        static::assertInstanceOf(GoogleCloudStorageAdapter::class, $googleStorageFactory->create($config));
+    }
+
+    public function testCreateGoogleStorageWithoutExplicitCredentials(): void
+    {
+        $googleStorageFactory = new GoogleStorageFactory();
+
+        $config = [
+            'projectId' => 'TestGoogleStorage',
+            'bucket' => 'TestBucket',
+            'root' => '/',
+        ];
+
+        static::assertInstanceOf(GoogleCloudStorageAdapter::class, $googleStorageFactory->create($config));
     }
 }

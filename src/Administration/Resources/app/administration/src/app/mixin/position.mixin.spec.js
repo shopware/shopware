@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
@@ -12,9 +14,7 @@ async function createWrapper() {
               <slot></slot>
             </div>
         `,
-            mixins: [
-                Shopware.Mixin.getByName('position'),
-            ],
+            mixins: [Shopware.Mixin.getByName('position')],
             data() {
                 return {
                     name: 'sw-mock-field',
@@ -42,10 +42,6 @@ describe('src/app/mixin/position.mixin.ts', () => {
         }
 
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should return a new position value using the current max position +1 starting with 1', async () => {
@@ -154,9 +150,7 @@ describe('src/app/mixin/position.mixin.ts', () => {
             },
         );
 
-        expect(result).toEqual([
-            { id: '1a', position: 1 },
-        ]);
+        expect(result).toEqual([{ id: '1a', position: 1 }]);
     });
 
     it('should not change the position value when item is first and direction is ASC', async () => {

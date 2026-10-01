@@ -17,17 +17,29 @@ use Shopware\Core\Framework\Struct\Struct;
 class FieldResolverContext extends Struct
 {
     public function __construct(
-        /** Contains the property path of the current field, e.g. `product.manufacturer` */
+        /**
+         * Contains the property path of the current field, e.g. `product.manufacturer`
+         */
         protected string $path,
-        /** Contains the alias of the base table where the sql join has to be build on, e.g. `product.manufacturer_1` */
+        /**
+         * Contains the alias of the base table where the sql join has to be build on, e.g. `product.manufacturer_1`
+         */
         protected string $alias,
-        /** Contains the field which has to be resolved, e.g. ManyToManyAssociationField|OneToManyAssociationField|... */
+        /**
+         * Contains the field which has to be resolved, e.g. ManyToManyAssociationField|OneToManyAssociationField|...
+         */
         protected Field $field,
-        /** Contains the entity definition where the field comes from */
+        /**
+         * Contains the entity definition where the field comes from
+         */
         protected EntityDefinition $definition,
-        /** Contains the entity definition of the root table */
+        /**
+         * Contains the entity definition of the root table
+         */
         protected EntityDefinition $rootDefinition,
-        /** Contains the query builder which is used to build the sql query */
+        /**
+         * Contains the query builder which is used to build the sql query
+         */
         protected QueryBuilder $query,
         protected Context $context,
         /** Contains the criteria element which points to the provided field. In some cases this part is a JoinGroup with different DAL filters

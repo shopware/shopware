@@ -11,17 +11,19 @@ const { mtTabsValidTests, mtTabsInvalidTests } = require('./no-deprecated-compon
 const { mtSelectValidTests, mtSelectInvalidTests } = require('./no-deprecated-component-usage-checks/mt-select.check');
 const { mtTextareaValidTests, mtTextareaInvalidTests } = require('./no-deprecated-component-usage-checks/mt-textarea.check');
 const { mtBannerValidTests, mtBannerInvalidTests } = require('./no-deprecated-component-usage-checks/mt-banner.check');
-const { mtExternalLinkValidTests, mtExternalLinkInvalidTests } = require('./no-deprecated-component-usage-checks/mt-external-link.check');
 const { mtDatepickerInvalidTests, mtDatepickerValidTests } = require('./no-deprecated-component-usage-checks/mt-datepicker.check');
 const { mtColorpickerValidTests, mtColorpickerInvalidTests } = require('./no-deprecated-component-usage-checks/mt-colorpicker.check');
 const { mtEmailFieldValidTests, mtEmailFieldInvalidTests } = require('./no-deprecated-component-usage-checks/mt-email-field.check');
 const { mtPasswordFieldValidTests, mtPasswordFieldInvalidTests } = require('./no-deprecated-component-usage-checks/mt-password-field.check');
 const { mtProgressBarValidTests, mtProgressBarInvalidTests } = require('./no-deprecated-component-usage-checks/mt-progress-bar.check');
 const { mtFloatingUiValidTests, mtFloatingUiInvalidTests } = require("./no-deprecated-component-usage-checks/mt-floating-ui.check");
+const { swEntityListingValidChecks, swEntityListingInvalidChecks } = require("./no-deprecated-component-usage-checks/sw-entity-listing.check");
 
 const tester = new RuleTester({
-    parser: require.resolve('vue-eslint-parser'),
-    parserOptions: { ecmaVersion: 2015 }
+    languageOptions: {
+        parser: require('vue-eslint-parser'),
+        ecmaVersion: 2015,
+    },
 })
 
 tester.run('no-deprecated-component-usage', rule, {
@@ -42,13 +44,13 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtSelectValidTests,
         ...mtTextareaValidTests,
         ...mtBannerValidTests,
-        ...mtExternalLinkValidTests,
         ...mtDatepickerValidTests,
         ...mtColorpickerValidTests,
         ...mtEmailFieldValidTests,
         ...mtPasswordFieldValidTests,
         ...mtProgressBarValidTests,
         ...mtFloatingUiValidTests,
+        ...swEntityListingValidChecks,
     ],
     invalid: [
         ...mtButtonInvalidChecks,
@@ -63,11 +65,11 @@ tester.run('no-deprecated-component-usage', rule, {
         ...mtTextareaInvalidTests,
         ...mtDatepickerInvalidTests,
         ...mtBannerInvalidTests,
-        ...mtExternalLinkInvalidTests,
         ...mtColorpickerInvalidTests,
         ...mtEmailFieldInvalidTests,
         ...mtPasswordFieldInvalidTests,
         ...mtProgressBarInvalidTests,
         ...mtFloatingUiInvalidTests,
+        ...swEntityListingInvalidChecks,
     ]
 })

@@ -11,18 +11,11 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    emits: [
-        'modal-close',
-        'process-finish',
-    ],
+    emits: ['modal-close', 'process-finish'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         sequence: {
@@ -119,7 +112,7 @@ export default {
         onAddAction() {
             if (!this.config.order && !this.config.order_delivery && !this.config.order_transaction) {
                 this.createNotificationError({
-                    message: this.$tc('sw-flow.modals.status.messageNoStatusError'),
+                    message: this.$t('sw-flow.modals.status.messageNoStatusError'),
                 });
                 return;
             }

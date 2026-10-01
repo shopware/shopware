@@ -1,0 +1,102 @@
+{
+  "sw-settings-shopware-updates": {
+    "general": {
+      "menuTitle": "Shopware-Updates",
+      "title": "Shopware-Updates"
+    },
+    "cards": {
+      "requirements": "Systemvoraussetzungen",
+      "extensions": "Erweiterungskompatibilität",
+      "updating": "Aktualisiere ..."
+    },
+    "versionCard": {
+      "title": "Shopware-Version",
+      "badgeUpdateAvailable": "Update verfügbar",
+      "badgeUpToDate": "Auf dem aktuellen Stand",
+      "badgeCheckFailed": "Update-Prüfung fehlgeschlagen",
+      "retryCheck": "Erneut versuchen",
+      "currentVersionLabel": "Installierte Version:",
+      "newVersionLabel": "Neueste Version:",
+      "changelogLink": "Changelog ansehen",
+      "methodsHeadline": "Jetzt aktualisieren",
+      "cliRecommendedBadge": "Empfohlen",
+      "methodDivider": "oder weiter mit",
+      "webInstallerTitle": "Mit dem Web-Installer",
+      "webInstallerDescription": "Führe die geführte Aktualisierung direkt im Browser aus.",
+      "upToDateTitle": "Du bist auf dem neuesten Stand",
+      "upToDateDescription": "Shopware {version} ist die neueste Version."
+    },
+    "notifications": {
+      "checkFailed": "Die Update-Prüfung ist fehlgeschlagen.",
+      "updateStarted": "Aktualisierung gestartet.",
+      "updateStopped": "Aktualisierung gestoppt.",
+      "downloadFailed": "Download fehlgeschlagen.",
+      "unpackFailed": "Entpacken fehlgeschlagen.",
+      "deactivationFailed": "Deaktivieren der Erweiterungen fehlgeschlagen",
+      "alreadyUpToDate": "Du bist bereits auf dem aktuellsten Stand."
+    },
+    "infos": {
+      "backupCheckboxLabel": "Ich habe eine Datensicherung angelegt und möchte die Aktualisierung nun durchführen.",
+      "startUpdate": "Aktualisierung starten",
+      "autoUpdateDisabled": "Automatische Aktualisierungen sind deaktiviert (shopware.auto_update.enabled). Nutze die Shopware CLI zum Aktualisieren.",
+      "clusterSetupDisabled": "Aktualisierungen über die Administration sind in Cluster-Setups nicht möglich (shopware.deployment.cluster_setup). Nutze die Shopware CLI zum Aktualisieren.",
+      "progress": {
+        "download": "Aktualisierung-Datei wird heruntergeladen ...",
+        "deactivate": "Erweiterungen werden deaktiviert ...",
+        "unpack": "Aktualisierung-Datei wird entpackt ..."
+      }
+    },
+    "license": {
+      "bannerTitle": "Keine aktive Shopware-Subscription",
+      "bannerMessage": "Für Deine Shopware-Version konnte keine aktive Subscription ermittelt werden. Die automatische Aktualisierung kann somit nicht durchgeführt werden. Eine gültige Shopware-Subscription kannst Du jederzeit über den <a href=\"https://account.shopware.com\" target=\"_blank\">Shopware Account</a> buchen."
+    },
+    "extensions": {
+      "columns": {
+        "name": "Erweiterung",
+        "available": "Kompatibilität"
+      },
+      "actions": {
+        "openMyExtensions": "Zu meinen Erweiterungen",
+        "deactivateAll": "Alle Erweiterungen deaktivieren.",
+        "deactivateIncompatible": "Inkompatible Erweiterungen deaktivieren.",
+        "deactivateNone": "Ich bin mir der potentiellen Gefahren bewusst und möchte trotzdem eine Aktualisierung durchführen, ohne die entsprechenden Erweiterungen vorher zu deaktivieren. Mir ist klar, dass Shopware keinerlei Garantie zur Funktionsweise meiner Installation nach einer inkompatiblen Aktualisierung geben kann.",
+        "recommended": "(Empfohlen)"
+      },
+      "emptyStateHeadline": "Keine Kompatibilitätsprobleme",
+      "emptyStateDescription": "Alle installierten Erweiterungen sind mit diesem Update kompatibel.",
+      "extensionNotInStore": "Diese Erweiterung ist im Store nicht verfügbar. Bitte kontaktiere den Erweiterungs-Hersteller.",
+      "extensionWillBeDeactivatedHint": "(Wird im Aktualisierungsprozess deaktiviert)"
+    },
+    "updateModal": {
+      "actions": {
+        "install": "Installieren",
+        "goToUpdate": "Jetzt aktualisieren"
+      },
+      "messageIncompatible": "Einige der überprüften Erweiterungen sind nicht mit der neuen Version kompatibel. Wenn Du mit der Aktualisierung fortfährst, könnte es zu Fehlern kommen, die Dein System nachhaltig schädigen könnten. Wir können inkompatible Erweiterungen für den Aktualisierungs-Prozess deaktivieren, um die Funktion Deiner Installation sicherzustellen. Du hast die Möglichkeit diese Erweiterungen zu re-aktivieren, nachdem Du sie entsprechend aktualisiert hast.",
+      "messageNotInStore": "Es sind Erweiterungen vorhanden, die nicht auf Kompatibilität geprüft werden konnten. Kontaktiere die Erweiterungs-Hersteller für weitere Informationen und stelle sicher, dass Du ein Datensicherung erstellt hast, bevor Du fortfährst.",
+      "messageOkay": "Alle Voraussetzungen sind erfüllt. Bitte stelle sicher, dass Du eine aktuelle Datensicherung erstellt hast.",
+      "messageUpdateCheck": "Die zurzeit installierte Shopware-Version kann auf Version {version} aktualisiert werden. Was möchtest Du tun?",
+      "backupLabel": "Ja, ich habe meine Daten gesichert."
+    },
+    "methodModal": {
+      "title": "Shopware aktualisieren",
+      "subtitle": "Vor der Aktualisierung wird eine Datensicherung empfohlen.",
+      "cliTitle": "Mit der Shopware CLI",
+      "cliDescription": "Die Shopware CLI bietet mehr Kontrolle und wiederholbare Deployments.",
+      "cliInstallHint": "Installiere die Shopware CLI und führe aus:",
+      "cliInstallLink": "Shopware CLI installieren",
+      "actions": {
+        "continue": "Weiter"
+      }
+    }
+  },
+  "sw-privileges": {
+    "additional_permissions": {
+      "system": {
+        "core_update": "Aktualisierung durchführen",
+        "plugin_maintain": "Erweiterungen verwalten",
+        "plugin_upload": "Erweiterungen hochladen"
+      }
+    }
+  }
+}

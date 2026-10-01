@@ -7,6 +7,16 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\StoreException;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * @phpstan-type StoreApiErrorData array{
+ *     code: string,
+ *     status: string,
+ *     title: string,
+ *     detail: string,
+ *     meta: array{documentationLink: string},
+ *     trace?: string
+ * }
+ */
 #[Package('checkout')]
 class StoreApiException extends StoreException
 {
@@ -43,6 +53,9 @@ class StoreApiException extends StoreException
         return 'FRAMEWORK__STORE_ERROR';
     }
 
+    /**
+     * @return \Generator<StoreApiErrorData>
+     */
     public function getErrors(bool $withTrace = false): \Generator
     {
         $error = [

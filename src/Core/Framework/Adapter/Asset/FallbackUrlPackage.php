@@ -39,7 +39,7 @@ class FallbackUrlPackage extends UrlPackage
         $request = $this->requestStack?->getMainRequest() ?? new Request(server: $_SERVER);
 
         if ($request->getHost() === '') {
-            $requestUrl = EnvironmentHelper::getVariable('APP_URL');
+            $requestUrl = (string) EnvironmentHelper::getVariable('APP_URL');
         } else {
             $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
             $requestUrl = rtrim($basePath, '/') . '/';

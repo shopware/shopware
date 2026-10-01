@@ -1,8 +1,6 @@
 import template from './sw-color-badge.html.twig';
 import './sw-color-badge.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -22,7 +20,7 @@ const { Component } = Shopware;
  * </div>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-color-badge', {
+export default {
     template,
 
     props: {
@@ -57,4 +55,4 @@ Component.register('sw-color-badge', {
             };
         },
     },
-});
+};

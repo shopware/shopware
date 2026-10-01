@@ -2,7 +2,8 @@
  * @sw-package framework
  */
 
-import './page/sw-extension-sdk-module';
+/** @private */
+Shopware.Component.register('sw-extension-sdk-module', () => import('./page/sw-extension-sdk-module'));
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Module.register('sw-extension-sdk', {
@@ -11,7 +12,7 @@ Shopware.Module.register('sw-extension-sdk', {
     title: 'sw-extension-sdk.general.mainMenuItemGeneral',
     description: 'sw-extension-sdk.general.moduleDescription',
     icon: 'regular-view-grid',
-    color: '#9AA8B5',
+    color: 'var(--sw-color-module-neutral-default)',
     routePrefixPath: 'extension',
 
     routes: {
@@ -35,7 +36,7 @@ Shopware.Module.register('sw-extension-sdk', {
             id: 'sw-extension-sdk',
             label: 'sw-extension-sdk.general.mainMenuItemGeneral',
             icon: 'regular-view-grid',
-            color: '#9AA8B5',
+            color: 'var(--sw-color-module-neutral-default)',
             position: 110,
         },
     ],

@@ -21,6 +21,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class CustomerGroupDefinition extends EntityDefinition
 {
@@ -49,12 +52,12 @@ class CustomerGroupDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new PrimaryKey(), new Required())->setDescription('Unique identity of the customer\'s group.'),
             (new TranslatedField('name'))->addFlags(new ApiAware(), new SearchRanking(SearchRanking::HIGH_SEARCH_RANKING)),
-            (new BoolField('display_gross', 'displayGross'))->addFlags(new ApiAware()),
+            (new BoolField('display_gross', 'displayGross'))->addFlags(new ApiAware())->setDescription('If boolean value is `true` gross value is displayed else, net value will be displayed to the customer.'),
             (new TranslatedField('customFields'))->addFlags(new ApiAware()),
             // Merchant Registration
-            (new BoolField('registration_active', 'registrationActive'))->addFlags(new ApiAware()),
+            (new BoolField('registration_active', 'registrationActive'))->addFlags(new ApiAware())->setDescription('To enable the registration of partner customer group.'),
             (new TranslatedField('registrationTitle'))->addFlags(new ApiAware()),
             (new TranslatedField('registrationIntroduction'))->addFlags(new ApiAware()),
             (new TranslatedField('registrationOnlyCompanyRegistration'))->addFlags(new ApiAware()),

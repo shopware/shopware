@@ -55,8 +55,14 @@ const context = {
     salesChannel: {
         id: '1',
     },
+    shippingMethod: {
+        id: 'shipping-method-1',
+    },
     customer: {
         ...customerData,
+    },
+    context: {
+        currencyId: '1',
     },
     currency: {
         isoCode: 'EUR',
@@ -106,6 +112,7 @@ async function createWrapper() {
         props: {
             promotionCodes: [],
             disabledAutoPromotion: false,
+            sendOrderConfirmationMail: true,
             context: {
                 languageId: 'english',
                 billingAddressId: '1',
@@ -147,10 +154,7 @@ async function createWrapper() {
                         '<input class="sw-entity-single-select" :value="value" @input="$emit(\'input\', $event.target.value)">',
                 },
                 'sw-multi-tag-select': {
-                    props: [
-                        'value',
-                        'validate',
-                    ],
+                    props: ['value', 'validate'],
                     template: `
                         <div class="sw-multi-tag-select">
                             <ul>
@@ -165,10 +169,7 @@ async function createWrapper() {
                                 return;
                             }
 
-                            this.$emit('change', [
-                                ...this.value,
-                                event.target.value,
-                            ]);
+                            this.$emit('change', [...this.value, event.target.value]);
                         },
                     },
                 },
@@ -176,10 +177,7 @@ async function createWrapper() {
                 'sw-loader': true,
                 'sw-field-error': true,
                 'sw-select-result': {
-                    props: [
-                        'item',
-                        'index',
-                    ],
+                    props: ['item', 'index'],
                     template: `
                         <li class="sw-select-result" @click.stop="onClickResult">
                             <slot></slot>
@@ -322,6 +320,18 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         expect(wrapper.emitted('auto-promotion-toggle')[0][0]).toBeTruthy();
     });
 
+    it('should emit send-order-confirmation-mail-toggle when toggling order confirmation mail', async () => {
+        const wrapper = await createWrapper();
+
+        const sendOrderConfirmationMailSwitch = wrapper.find('.sw-order-create-options__send-order-confirmation-mail input');
+        expect(sendOrderConfirmationMailSwitch.element.checked).toBeTruthy();
+
+        await sendOrderConfirmationMailSwitch.setChecked(false);
+
+        expect(wrapper.emitted('send-order-confirmation-mail-toggle')).toBeTruthy();
+        expect(wrapper.emitted('send-order-confirmation-mail-toggle')[0][0]).toBeFalsy();
+    });
+
     it('should able to select currency', async () => {
         const wrapper = await createWrapper();
 
@@ -334,6 +344,22 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
 
         shippingCostField = wrapper.find('.sw-order-create-options__shipping-cost .mt-field__addition:not(.is--prefix)');
         expect(shippingCostField.text()).toBe('$');
+    });
+
+    it('should not update cart context while hydrating existing sales channel values', async () => {
+        const wrapper = await createWrapper();
+        const updateOrderContextSpy = jest.spyOn(Shopware.Store.get('swOrder'), 'updateOrderContext');
+
+        await wrapper.setProps({
+            context: {
+                ...wrapper.vm.context,
+                currencyId: '1',
+                shippingMethodId: 'shipping-method-1',
+            },
+        });
+        await flushPromises();
+
+        expect(updateOrderContextSpy).not.toHaveBeenCalled();
     });
 
     it('should emit shipping-cost-change event when edit shipping cost field', async () => {
@@ -353,9 +379,7 @@ describe('src/module/sw-order/view/sw-order-create-options', () => {
         await promotionField.vm.$emit('update:value', ['DISCOUNT']);
 
         expect(wrapper.emitted('promotions-change')).toBeTruthy();
-        expect(wrapper.emitted('promotions-change')[0][0]).toEqual([
-            'DISCOUNT',
-        ]);
+        expect(wrapper.emitted('promotions-change')[0][0]).toEqual(['DISCOUNT']);
     });
 
     it('should not emit promotions-change event when entering duplicated promotion code', async () => {

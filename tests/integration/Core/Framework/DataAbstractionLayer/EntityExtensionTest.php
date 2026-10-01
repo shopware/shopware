@@ -15,20 +15,28 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\BoolField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendableDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\FkFieldExtension;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ModifyFieldsExtension;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ModifyJsonFieldExtension;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\NestedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ReferenceVersionExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
@@ -40,6 +48,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntityExtensionTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour {
@@ -516,58 +525,105 @@ class EntityExtensionTest extends TestCase
 
     public function testICantAddScalarExtensions(): void
     {
-        static::expectException(\Exception::class);
-        static::expectExceptionMessage('Only AssociationFields, FkFields/ReferenceVersionFields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.');
-
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ScalarExtension::class);
-        $extension = static::getContainer()->get(ExtendableDefinition::class);
+        $definition = static::getContainer()->get(ExtendableDefinition::class);
 
-        static::assertInstanceOf(ExtendableDefinition::class, $extension);
-        $extension->getFields()->has('test');
+        static::assertInstanceOf(ExtendableDefinition::class, $definition);
+
+        $this->expectExceptionObject(DataAbstractionLayerException::wrongFieldTypeForExtension());
+
+        $definition->getFields()->has('test');
     }
 
     public function testICanAddRuntimeExtensions(): void
     {
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ScalarRuntimeExtension::class);
-        $extension = static::getContainer()->get(ExtendableDefinition::class);
+        $definition = static::getContainer()->get(ExtendableDefinition::class);
 
-        static::assertInstanceOf(ExtendableDefinition::class, $extension);
-        static::assertTrue($extension->getFields()->has('test'));
+        static::assertInstanceOf(ExtendableDefinition::class, $definition);
+        static::assertTrue($definition->getFields()->has('test'));
     }
 
     public function testICanAddFkFieldsAsExtensions(): void
     {
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, FkFieldExtension::class);
-        $extension = static::getContainer()->get(ExtendableDefinition::class);
+        $definition = static::getContainer()->get(ExtendableDefinition::class);
 
-        static::assertInstanceOf(ExtendableDefinition::class, $extension);
-        static::assertTrue($extension->getFields()->has('test'));
+        static::assertInstanceOf(ExtendableDefinition::class, $definition);
+        static::assertTrue($definition->getFields()->has('test'));
     }
 
     public function testICanAddAssociationExtensions(): void
     {
         $this->registerDefinition(ExtendedDefinition::class);
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, AssociationExtension::class);
-        $extension = static::getContainer()->get(ExtendableDefinition::class);
+        $definition = static::getContainer()->get(ExtendableDefinition::class);
 
-        static::assertInstanceOf(ExtendableDefinition::class, $extension);
-        static::assertTrue($extension->getFields()->has('toOne'));
-        static::assertTrue($extension->getFields()->has('toMany'));
+        static::assertInstanceOf(ExtendableDefinition::class, $definition);
+        static::assertTrue($definition->getFields()->has('toOne'));
+        static::assertTrue($definition->getFields()->has('toMany'));
     }
 
     public function testICanAddReferenceVersionAsExtensionWithValidManyToOneAssociation(): void
     {
         $this->registerDefinition(ExtendedDefinition::class);
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ReferenceVersionExtension::class);
-        $extension = static::getContainer()->get(ExtendableDefinition::class);
+        $definition = static::getContainer()->get(ExtendableDefinition::class);
 
-        static::assertInstanceOf(ExtendableDefinition::class, $extension);
-        static::assertTrue($extension->getFields()->has('toOne'));
-        static::assertTrue($extension->getFields()->has('extendedVersionId'));
+        static::assertInstanceOf(ExtendableDefinition::class, $definition);
+        static::assertTrue($definition->getFields()->has('toOne'));
+        static::assertTrue($definition->getFields()->has('extendedVersionId'));
+    }
+
+    public function testICanModifyFields(): void
+    {
+        $this->registerDefinitionWithExtensions(ExtendableDefinition::class);
+        $definition = static::getContainer()->get(ExtendableDefinition::class);
+
+        static::assertInstanceOf(ExtendableDefinition::class, $definition);
+        $field = $definition->getFields()->get('apiAwareTest');
+        static::assertInstanceOf(BoolField::class, $field);
+        static::assertTrue($field->is(ApiAware::class), 'Field ' . $field->getPropertyName() . ' should have ApiAware flag');
+
+        $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ModifyFieldsExtension::class);
+        $definition = static::getContainer()->get(ExtendableDefinition::class);
+
+        static::assertInstanceOf(ExtendableDefinition::class, $definition);
+        $field = $definition->getFields()->get('apiAwareTest');
+        static::assertInstanceOf(BoolField::class, $field);
+        static::assertFalse($field->is(ApiAware::class), 'Field ' . $field->getPropertyName() . ' should not have ApiAware flag');
+    }
+
+    public function testICantAddOrRemoveFieldsByModifyFields(): void
+    {
+        $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ModifyFieldsExtension::class);
+        $definition = static::getContainer()->get(ExtendableDefinition::class);
+
+        static::assertInstanceOf(ExtendableDefinition::class, $definition);
+        // Should only contain "id", "api_aware_test", "created_at", "updated_at"
+        static::assertCount(4, $definition->getFields(), 'ModifyFieldsExtension should not be able to add or remove fields');
+    }
+
+    public function testICanAddJsonPropertyMappingByModifyFields(): void
+    {
+        $definition = $this->registerDefinition(NestedDefinition::class);
+        $data = $definition->getFields()->get('data');
+        static::assertInstanceOf(JsonField::class, $data);
+        static::assertCount(3, $data->getPropertyMapping());
+
+        $definition = $this->registerDefinitionWithExtensions(NestedDefinition::class, ModifyJsonFieldExtension::class);
+        $data = $definition->getFields()->get('data');
+        static::assertInstanceOf(JsonField::class, $data);
+
+        $propertyNames = array_map(
+            static fn (Field $field) => $field->getPropertyName(),
+            $data->getPropertyMapping()
+        );
+        static::assertSame(['gross', 'net', 'foo', 'extended'], $propertyNames);
     }
 
     /**
-     * @return array{id:string, productNumber:string, stock:int, name:string, ean:string, price:array{array{currencyId:string, gross:int, net:int, linked:bool}}, manufacturer:array{name:string}, tax:array{name:string, taxRate:int}, myPrices:array{array{id:string}}}
+     * @return array{id:string, productNumber:string, stock:int, name:string, ean:string, price:array{array{currencyId:string, gross:int, net:int, linked:bool}}, manufacturer:array{name:string}, tax:array{name:string, taxRate:int}, myPrices:list<array{id:string, currencyId:string, quantityStart:int, ruleId:string, price:array{array{currencyId:string, gross:int, net:int, linked:bool}}}>}
      */
     private function getPricesData(string $id): array
     {
@@ -613,7 +669,7 @@ class EntityExtensionTest extends TestCase
     }
 
     /**
-     * @return array{id:string, productNumber:string, stock:int, name:string, ean:string, price:array{array{currencyId:string, gross:int, net:int, linked:bool}}, manufacturer:array{name:string}, tax:array{name:string, taxRate:int}, myCategories:array{array{id:string}}}
+     * @return array{id:string, productNumber:string, stock:int, name:string, ean:string, price:array{array{currencyId:string, gross:int, net:int, linked:bool}}, manufacturer:array{name:string}, tax:array{name:string, taxRate:int}, myCategories:list<array{id:string}>}
      */
     private function getCategoriesData(string $id): array
     {

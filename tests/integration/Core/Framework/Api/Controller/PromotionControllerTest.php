@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestBrowser;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('framework')]
 class PromotionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -55,7 +57,7 @@ class PromotionControllerTest extends TestCase
     {
         $promotionId = Uuid::randomHex();
 
-        $this->api->request(
+        $this->api->jsonRequest(
             'POST',
             $this->resourceUri,
             [
@@ -73,8 +75,8 @@ class PromotionControllerTest extends TestCase
         $promotion = $this->getPromotionFromDB($promotionId);
 
         static::assertNotNull($promotion);
-        static::assertEquals($promotionId, $promotion->getId());
-        static::assertEquals('Super Sale', $promotion->getName());
+        static::assertSame($promotionId, $promotion->getId());
+        static::assertSame('Super Sale', $promotion->getName());
     }
 
     /**
@@ -101,9 +103,9 @@ class PromotionControllerTest extends TestCase
 
         $json = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals($promotionId, $json['data']['id']);
-        static::assertEquals('promotion', $json['data']['type']);
-        static::assertEquals('Super Sale', $json['data']['attributes']['name']);
+        static::assertSame($promotionId, $json['data']['id']);
+        static::assertSame('promotion', $json['data']['type']);
+        static::assertSame('Super Sale', $json['data']['attributes']['name']);
         static::assertTrue($json['data']['attributes']['active']);
     }
 
@@ -132,11 +134,11 @@ class PromotionControllerTest extends TestCase
         $json = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         // verify that we have 1 total found promotion
-        static::assertEquals(1, $json['meta']['total']);
+        static::assertSame(1, $json['meta']['total']);
 
         // assert values of first promotion
-        static::assertEquals($promotionId, $json['data'][0]['id']);
-        static::assertEquals('Super Sale', $json['data'][0]['attributes']['name']);
+        static::assertSame($promotionId, $json['data'][0]['id']);
+        static::assertSame('Super Sale', $json['data'][0]['attributes']['name']);
     }
 
     /**
@@ -151,7 +153,7 @@ class PromotionControllerTest extends TestCase
         $discountId = Uuid::randomHex();
         $this->insertPromotionInDB($promotionId, $discountId);
 
-        $this->api->request(
+        $this->api->jsonRequest(
             'PATCH',
             $this->resourceUri . '/' . $promotionId,
             [
@@ -163,12 +165,12 @@ class PromotionControllerTest extends TestCase
         $content = $response->getContent();
 
         static::assertIsString($content);
-        static::assertEquals(204, $response->getStatusCode(), $content);
+        static::assertSame(204, $response->getStatusCode(), $content);
 
         $promotion = $this->getPromotionFromDB($promotionId);
 
         static::assertNotNull($promotion);
-        static::assertEquals('Super Better Sale', $promotion->getName());
+        static::assertSame('Super Better Sale', $promotion->getName());
     }
 
     /**
@@ -184,7 +186,7 @@ class PromotionControllerTest extends TestCase
         $discountId = Uuid::randomHex();
         $this->insertPromotionInDB($promotionId, $discountId);
 
-        $this->api->request(
+        $this->api->jsonRequest(
             'DELETE',
             $this->resourceUri . '/' . $promotionId . '/discounts/' . $discountId
         );
@@ -193,7 +195,7 @@ class PromotionControllerTest extends TestCase
         $content = $response->getContent();
 
         static::assertIsString($content);
-        static::assertEquals(204, $response->getStatusCode(), $content);
+        static::assertSame(204, $response->getStatusCode(), $content);
 
         $promotion = $this->getPromotionFromDB($promotionId);
         static::assertNotNull($promotion);
@@ -215,7 +217,7 @@ class PromotionControllerTest extends TestCase
         $discountId = Uuid::randomHex();
         $this->insertPromotionInDB($promotionId, $discountId);
 
-        $this->api->request(
+        $this->api->jsonRequest(
             'PATCH',
             $this->resourceUri . '/' . $promotionId . '/discounts/' . $discountId,
             [
@@ -230,8 +232,8 @@ class PromotionControllerTest extends TestCase
         /** @var PromotionDiscountEntity $discount */
         $discount = $promotion->getDiscounts()->get($discountId);
 
-        static::assertEquals('percentage', $discount->getType());
-        static::assertEquals(12.5, $discount->getValue());
+        static::assertSame('percentage', $discount->getType());
+        static::assertSame(12.5, $discount->getValue());
     }
 
     /**
@@ -247,7 +249,7 @@ class PromotionControllerTest extends TestCase
         $discountId = Uuid::randomHex();
         $this->insertPromotionInDB($promotionId, $discountId);
 
-        $this->api->request(
+        $this->api->jsonRequest(
             'DELETE',
             '/api/promotion/' . $promotionId
         );
@@ -256,7 +258,7 @@ class PromotionControllerTest extends TestCase
         $content = $response->getContent();
 
         static::assertIsString($content);
-        static::assertEquals(204, $response->getStatusCode(), $content);
+        static::assertSame(204, $response->getStatusCode(), $content);
 
         $promotions = $this->getPromotionFromDB($promotionId);
 
@@ -269,7 +271,7 @@ class PromotionControllerTest extends TestCase
         $criteria->addAssociation('discounts');
 
         /** @var PromotionEntity|null $promotion */
-        $promotion = $this->promotionRepository->search($criteria, $this->context)->get($id);
+        $promotion = $this->promotionRepository->search($criteria, $this->context)->getEntities()->get($id);
 
         return $promotion;
     }

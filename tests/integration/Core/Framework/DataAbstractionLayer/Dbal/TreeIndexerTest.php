@@ -12,12 +12,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class TreeIndexerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -65,14 +67,14 @@ class TreeIndexerTest extends TestCase
         static::assertNotNull($categories->get($categoryD));
 
         static::assertNull($categories->get($categoryA)->getPath());
-        static::assertEquals("|{$categoryA}|", $categories->get($categoryB)->getPath());
-        static::assertEquals("|{$categoryA}|", $categories->get($categoryC)->getPath());
-        static::assertEquals("|{$categoryA}|{$categoryC}|", $categories->get($categoryD)->getPath());
+        static::assertSame("|{$categoryA}|", $categories->get($categoryB)->getPath());
+        static::assertSame("|{$categoryA}|", $categories->get($categoryC)->getPath());
+        static::assertSame("|{$categoryA}|{$categoryC}|", $categories->get($categoryD)->getPath());
 
-        static::assertEquals(1, $categories->get($categoryA)->getLevel());
-        static::assertEquals(2, $categories->get($categoryB)->getLevel());
-        static::assertEquals(2, $categories->get($categoryC)->getLevel());
-        static::assertEquals(3, $categories->get($categoryD)->getLevel());
+        static::assertSame(1, $categories->get($categoryA)->getLevel());
+        static::assertSame(2, $categories->get($categoryB)->getLevel());
+        static::assertSame(2, $categories->get($categoryC)->getLevel());
+        static::assertSame(3, $categories->get($categoryD)->getLevel());
 
         $this->categoryRepository->update([[
             'id' => $categoryD,
@@ -97,14 +99,14 @@ class TreeIndexerTest extends TestCase
         static::assertNotNull($categories->get($categoryD));
 
         static::assertNull($categories->get($categoryA)->getPath());
-        static::assertEquals("|{$categoryA}|", $categories->get($categoryB)->getPath());
-        static::assertEquals("|{$categoryA}|", $categories->get($categoryC)->getPath());
-        static::assertEquals("|{$categoryA}|", $categories->get($categoryD)->getPath());
+        static::assertSame("|{$categoryA}|", $categories->get($categoryB)->getPath());
+        static::assertSame("|{$categoryA}|", $categories->get($categoryC)->getPath());
+        static::assertSame("|{$categoryA}|", $categories->get($categoryD)->getPath());
 
-        static::assertEquals(1, $categories->get($categoryA)->getLevel());
-        static::assertEquals(2, $categories->get($categoryB)->getLevel());
-        static::assertEquals(2, $categories->get($categoryC)->getLevel());
-        static::assertEquals(2, $categories->get($categoryD)->getLevel());
+        static::assertSame(1, $categories->get($categoryA)->getLevel());
+        static::assertSame(2, $categories->get($categoryB)->getLevel());
+        static::assertSame(2, $categories->get($categoryC)->getLevel());
+        static::assertSame(2, $categories->get($categoryD)->getLevel());
     }
 
     public function testRefreshTreeMovingMultipleCategories(): void
@@ -134,16 +136,16 @@ class TreeIndexerTest extends TestCase
         static::assertNotNull($categories->get($categoryE));
 
         static::assertNull($categories->get($categoryA)->getPath());
-        static::assertEquals("|{$categoryA}|", $categories->get($categoryB)->getPath());
-        static::assertEquals("|{$categoryA}|{$categoryB}|", $categories->get($categoryC)->getPath());
-        static::assertEquals("|{$categoryA}|", $categories->get($categoryD)->getPath());
-        static::assertEquals("|{$categoryA}|{$categoryD}|", $categories->get($categoryE)->getPath());
+        static::assertSame("|{$categoryA}|", $categories->get($categoryB)->getPath());
+        static::assertSame("|{$categoryA}|{$categoryB}|", $categories->get($categoryC)->getPath());
+        static::assertSame("|{$categoryA}|", $categories->get($categoryD)->getPath());
+        static::assertSame("|{$categoryA}|{$categoryD}|", $categories->get($categoryE)->getPath());
 
-        static::assertEquals(1, $categories->get($categoryA)->getLevel());
-        static::assertEquals(2, $categories->get($categoryB)->getLevel());
-        static::assertEquals(3, $categories->get($categoryC)->getLevel());
-        static::assertEquals(2, $categories->get($categoryD)->getLevel());
-        static::assertEquals(3, $categories->get($categoryE)->getLevel());
+        static::assertSame(1, $categories->get($categoryA)->getLevel());
+        static::assertSame(2, $categories->get($categoryB)->getLevel());
+        static::assertSame(3, $categories->get($categoryC)->getLevel());
+        static::assertSame(2, $categories->get($categoryD)->getLevel());
+        static::assertSame(3, $categories->get($categoryE)->getLevel());
 
         $this->categoryRepository->update([
             [
@@ -179,16 +181,16 @@ class TreeIndexerTest extends TestCase
         static::assertNotNull($categories->get($categoryE));
 
         static::assertNull($categories->get($categoryA)->getPath());
-        static::assertEquals("|{$categoryA}|", $categories->get($categoryB)->getPath());
-        static::assertEquals("|{$categoryA}|", $categories->get($categoryC)->getPath());
-        static::assertEquals("|{$categoryA}|{$categoryC}|", $categories->get($categoryD)->getPath());
-        static::assertEquals("|{$categoryA}|{$categoryC}|", $categories->get($categoryE)->getPath());
+        static::assertSame("|{$categoryA}|", $categories->get($categoryB)->getPath());
+        static::assertSame("|{$categoryA}|", $categories->get($categoryC)->getPath());
+        static::assertSame("|{$categoryA}|{$categoryC}|", $categories->get($categoryD)->getPath());
+        static::assertSame("|{$categoryA}|{$categoryC}|", $categories->get($categoryE)->getPath());
 
-        static::assertEquals(1, $categories->get($categoryA)->getLevel());
-        static::assertEquals(2, $categories->get($categoryB)->getLevel());
-        static::assertEquals(2, $categories->get($categoryC)->getLevel());
-        static::assertEquals(3, $categories->get($categoryD)->getLevel());
-        static::assertEquals(3, $categories->get($categoryE)->getLevel());
+        static::assertSame(1, $categories->get($categoryA)->getLevel());
+        static::assertSame(2, $categories->get($categoryB)->getLevel());
+        static::assertSame(2, $categories->get($categoryC)->getLevel());
+        static::assertSame(3, $categories->get($categoryD)->getLevel());
+        static::assertSame(3, $categories->get($categoryE)->getLevel());
     }
 
     public function testRefreshTreeWithDifferentVersion(): void
@@ -217,14 +219,14 @@ class TreeIndexerTest extends TestCase
         static::assertNotNull($categories->get($categoryD));
 
         static::assertNull($categories->get($categoryA)->getPath());
-        static::assertEquals("|{$categoryA}|", $categories->get($categoryB)->getPath());
-        static::assertEquals("|{$categoryA}|", $categories->get($categoryC)->getPath());
-        static::assertEquals("|{$categoryA}|{$categoryC}|", $categories->get($categoryD)->getPath());
+        static::assertSame("|{$categoryA}|", $categories->get($categoryB)->getPath());
+        static::assertSame("|{$categoryA}|", $categories->get($categoryC)->getPath());
+        static::assertSame("|{$categoryA}|{$categoryC}|", $categories->get($categoryD)->getPath());
 
-        static::assertEquals(1, $categories->get($categoryA)->getLevel());
-        static::assertEquals(2, $categories->get($categoryB)->getLevel());
-        static::assertEquals(2, $categories->get($categoryC)->getLevel());
-        static::assertEquals(3, $categories->get($categoryD)->getLevel());
+        static::assertSame(1, $categories->get($categoryA)->getLevel());
+        static::assertSame(2, $categories->get($categoryB)->getLevel());
+        static::assertSame(2, $categories->get($categoryC)->getLevel());
+        static::assertSame(3, $categories->get($categoryD)->getLevel());
 
         $versionId = $this->categoryRepository->createVersion($categoryD, $this->context);
         $versionContext = $this->context->createWithVersionId($versionId);
@@ -234,7 +236,7 @@ class TreeIndexerTest extends TestCase
             ->getEntities()
             ->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
-        static::assertEquals('|' . $categoryA . '|' . $categoryC . '|', $category->getPath());
+        static::assertSame('|' . $categoryA . '|' . $categoryC . '|', $category->getPath());
 
         // update parent of last category in version scope
         $updated = ['id' => $categoryD, 'parentId' => $categoryA];
@@ -246,13 +248,13 @@ class TreeIndexerTest extends TestCase
             ->getEntities()
             ->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
-        static::assertEquals('|' . $categoryA . '|', $category->getPath());
+        static::assertSame('|' . $categoryA . '|', $category->getPath());
 
         $category = $this->categoryRepository->search(new Criteria([$categoryD]), $this->context)
             ->getEntities()
             ->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
-        static::assertEquals('|' . $categoryA . '|' . $categoryC . '|', $category->getPath());
+        static::assertSame('|' . $categoryA . '|' . $categoryC . '|', $category->getPath());
 
         $this->categoryRepository->merge($versionId, $this->context);
 
@@ -261,7 +263,7 @@ class TreeIndexerTest extends TestCase
             ->getEntities()
             ->first();
         static::assertInstanceOf(CategoryEntity::class, $category);
-        static::assertEquals('|' . $categoryA . '|', $category->getPath());
+        static::assertSame('|' . $categoryA . '|', $category->getPath());
     }
 
     public function testIndexTree(): void
@@ -297,7 +299,7 @@ class TreeIndexerTest extends TestCase
         )->getEntities();
 
         foreach ($categories as $category) {
-            static::assertEquals(0, $category->getLevel());
+            static::assertSame(0, $category->getLevel());
             static::assertNull($category->getPath());
         }
 
@@ -316,14 +318,14 @@ class TreeIndexerTest extends TestCase
         static::assertNotNull($categories->get($categoryD));
 
         static::assertNull($categories->get($categoryA)->getPath());
-        static::assertEquals("|{$categoryA}|", $categories->get($categoryB)->getPath());
-        static::assertEquals("|{$categoryA}|", $categories->get($categoryC)->getPath());
-        static::assertEquals("|{$categoryA}|{$categoryC}|", $categories->get($categoryD)->getPath());
+        static::assertSame("|{$categoryA}|", $categories->get($categoryB)->getPath());
+        static::assertSame("|{$categoryA}|", $categories->get($categoryC)->getPath());
+        static::assertSame("|{$categoryA}|{$categoryC}|", $categories->get($categoryD)->getPath());
 
-        static::assertEquals(1, $categories->get($categoryA)->getLevel());
-        static::assertEquals(2, $categories->get($categoryB)->getLevel());
-        static::assertEquals(2, $categories->get($categoryC)->getLevel());
-        static::assertEquals(3, $categories->get($categoryD)->getLevel());
+        static::assertSame(1, $categories->get($categoryA)->getLevel());
+        static::assertSame(2, $categories->get($categoryB)->getLevel());
+        static::assertSame(2, $categories->get($categoryC)->getLevel());
+        static::assertSame(3, $categories->get($categoryD)->getLevel());
     }
 
     private function createCategory(?string $parentId = null): string

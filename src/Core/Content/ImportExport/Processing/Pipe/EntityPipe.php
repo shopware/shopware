@@ -25,9 +25,6 @@ class EntityPipe extends AbstractPipe
     ) {
     }
 
-    /**
-     * @param array<mixed> $record
-     */
     public function in(Config $config, iterable $record): iterable
     {
         $this->loadConfig($config);

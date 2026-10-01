@@ -10,12 +10,14 @@ use Symfony\Contracts\EventDispatcher\Event;
  *
  * This event is dispatched during the version merge process and allows listeners to manipulate the writes array before they are applied.
  *
- * @phpstan-type WriteOperation array<string, array<int, mixed>>
+ * @phpstan-type WriteOperation array<string, list<array<string, mixed>>>
  * @phpstan-type Writes array{
  *     insert: WriteOperation,
  *     update: WriteOperation,
  *     delete: WriteOperation
  * }
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class BeforeVersionMergeEvent extends Event

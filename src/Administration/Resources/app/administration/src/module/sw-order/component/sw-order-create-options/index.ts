@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import type CriteriaType from 'src/core/data/criteria.data';
 
 import template from './sw-order-create-options.html.twig';
@@ -28,6 +27,12 @@ export default Component.wrapComponentConfig({
             required: true,
         },
 
+        sendOrderConfirmationMail: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
+
         context: {
             type: Object as PropType<ContextSwitchParameters>,
             required: true,
@@ -47,8 +52,8 @@ export default Component.wrapComponentConfig({
     },
 
     computed: {
-        salesChannelId(): string {
-            return Store.get('swOrder').context?.salesChannel?.id ?? '';
+        salesChannelId(): EntityKey<'sales_channel'> {
+            return this.customer?.salesChannelId ?? Store.get('swOrder').context?.salesChannel?.id ?? '';
         },
 
         salesChannelCriteria(): CriteriaType {
@@ -104,15 +109,17 @@ export default Component.wrapComponentConfig({
         cartDelivery: {
             immediate: true,
             handler(value): void {
-                // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
                 this.shippingCost = value?.shippingCosts?.totalPrice ?? 0;
             },
         },
 
         'context.currencyId': {
-            async handler(): Promise<void> {
-                // await this.getCurrency();
+            async handler(currencyId: EntityKey<'currency'>): Promise<void> {
+                if (!currencyId || currencyId === Store.get('swOrder').context?.context?.currencyId) {
+                    return;
+                }
+
                 await this.updateCartContext();
             },
         },
@@ -130,12 +137,16 @@ export default Component.wrapComponentConfig({
         },
 
         'context.shippingMethodId': {
-            async handler(): Promise<void> {
+            async handler(shippingMethodId: EntityKey<'shipping_method'>): Promise<void> {
+                if (!shippingMethodId || shippingMethodId === Store.get('swOrder').context?.shippingMethod?.id) {
+                    return;
+                }
+
                 await this.updateCartContext();
             },
         },
 
-        'context.languageId'(languageId: string) {
+        'context.languageId'(languageId: EntityKey<'language'>) {
             if (!languageId) {
                 return;
             }
@@ -181,12 +192,16 @@ export default Component.wrapComponentConfig({
             this.$emit('auto-promotion-toggle', value);
         },
 
+        onToggleSendOrderConfirmationMail(value: boolean): void {
+            this.$emit('send-order-confirmation-mail-toggle', value);
+        },
+
         changePromotionCodes(value: string[]): void {
             this.$emit('promotions-change', value);
         },
 
         async updateCartContext(): Promise<void> {
-            if (!this.salesChannelId) {
+            if (!this.salesChannelId || !this.customer || !this.cart.token) {
                 return;
             }
 

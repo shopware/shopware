@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Event\EventData\ArrayType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ArrayType::class)]
 class ArrayTypeTest extends TestCase
 {
@@ -22,7 +24,7 @@ class ArrayTypeTest extends TestCase
             ],
         ];
 
-        static::assertEquals(
+        static::assertSame(
             $expected,
             (new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)))
                 ->toArray()

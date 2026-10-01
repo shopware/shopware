@@ -10,7 +10,7 @@
             v-for="document in documentTypes"
             :key="document.id"
             v-model:checked="value.documentType[document.technicalName]"
-            :label="document.name"
+            :label="document.translated?.name ?? document.name"
             :disabled="documents?.disabled || undefined"
         />
         {% endblock %}
@@ -19,7 +19,7 @@
 
         <mt-switch
             v-model="value.skipSentDocuments"
-            :label="$tc('sw-bulk-edit.order.status.documents.skipSentDocuments')"
+            :label="$t('sw-bulk-edit.order.status.documents.skipSentDocuments')"
             :disabled="documents?.disabled || undefined"
         />
         {% endblock %}

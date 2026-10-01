@@ -2,11 +2,13 @@
 
 namespace Shopware\Core\Framework\Adapter\Twig;
 
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Twig\Cache\FilesystemCache;
 
 #[Package('framework')]
+#[BecomesFinal(version: 'v6.8.0')]
 class ConfigurableFilesystemCache extends FilesystemCache
 {
     protected string $configHash = '';

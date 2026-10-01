@@ -22,15 +22,6 @@ class SearchPageTest extends TestCase
 
     private const TEST_TERM = 'foo';
 
-    public function testItRequiresSearchParam(): void
-    {
-        $request = new Request();
-        $context = $this->createSalesChannelContextWithNavigation();
-
-        $this->expectParamMissingException('search');
-        $this->getPageLoader()->load($request, $context);
-    }
-
     public function testItDoesSearch(): void
     {
         $request = new Request(['search' => self::TEST_TERM]);
@@ -40,7 +31,7 @@ class SearchPageTest extends TestCase
 
         $page = $this->getPageLoader()->load($request, $context);
 
-        static::assertEmpty($page->getListing());
+        static::assertEmpty($page->getListing()->getEntities());
         static::assertSame(self::TEST_TERM, $page->getSearchTerm());
         self::assertPageEvent(SearchPageLoadedEvent::class, $homePageLoadedEvent, $context, $request, $page);
     }

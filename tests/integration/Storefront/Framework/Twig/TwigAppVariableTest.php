@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\Twig;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Storefront\Framework\Twig\TwigAppVariable;
@@ -12,6 +13,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class TwigAppVariableTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -28,7 +30,7 @@ class TwigAppVariableTest extends TestCase
     {
         $orgRequest = new Request();
 
-        $appVariable = $this->createMock(AppVariable::class);
+        $appVariable = static::createStub(AppVariable::class);
         $appVariable->method('getRequest')->willReturn($orgRequest);
 
         $app = new TwigAppVariable($appVariable);
@@ -42,7 +44,7 @@ class TwigAppVariableTest extends TestCase
         $orgRequest->server->set('good', '1');
         $orgRequest->server->set('bad', '1');
 
-        $appVariable = $this->createMock(AppVariable::class);
+        $appVariable = static::createStub(AppVariable::class);
         $appVariable->method('getRequest')->willReturn($orgRequest);
 
         $app = new TwigAppVariable($appVariable, ['good']);
@@ -65,7 +67,7 @@ class TwigAppVariableTest extends TestCase
 
         static::assertTrue($orgRequest->isSecure());
 
-        $appVariable = $this->createMock(AppVariable::class);
+        $appVariable = static::createStub(AppVariable::class);
         $appVariable->method('getRequest')->willReturn($orgRequest);
 
         $app = new TwigAppVariable($appVariable, static::getContainer()->getParameter('shopware.twig.app_variable.allowed_server_params'));

@@ -12,6 +12,7 @@ use Composer\Semver\VersionParser;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Installer\Requirements\EnvironmentRequirementsValidator;
 use Shopware\Core\Installer\Requirements\Struct\RequirementCheck;
 use Shopware\Core\Installer\Requirements\Struct\RequirementsCheckCollection;
@@ -20,13 +21,14 @@ use Shopware\Core\Installer\Requirements\Struct\SystemCheck;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EnvironmentRequirementsValidator::class)]
 class EnvironmentRequirementsValidatorTest extends TestCase
 {
     /**
-     * @param array<string, string> $composerOverrides
+     * @param array<string, string|false> $composerOverrides
      * @param array<string, Link> $requires
-     * @param SystemCheck[] $expectedChecks
+     * @param list<SystemCheck> $expectedChecks
      */
     #[DataProvider('composerRequirementsProvider')]
     public function testValidateRequirements(?string $coreComposerName, array $composerOverrides, array $requires, array $expectedChecks): void
@@ -36,7 +38,7 @@ class EnvironmentRequirementsValidatorTest extends TestCase
         $corePackage = new RootPackage($coreComposerName ?? 'shopware/platform', '1.0.0', '1.0.0');
         $corePackage->setRequires($requires);
 
-        $repoManagerMock = $this->createMock(RepositoryManager::class);
+        $repoManagerMock = static::createStub(RepositoryManager::class);
 
         if ($coreComposerName) {
             $repoManagerMock->method('getLocalRepository')->willReturn(

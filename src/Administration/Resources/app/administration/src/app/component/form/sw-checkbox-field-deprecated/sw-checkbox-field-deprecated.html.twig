@@ -18,7 +18,7 @@
                 :disabled="disabled"
                 :indeterminate.prop="partlyChecked"
                 v-bind="attrsWithoutClass"
-                :aria-label="(ariaLabel && $tc(ariaLabel) || label)"
+                :aria-label="(ariaLabel && $t(ariaLabel) || label)"
                 @change="onChange"
             >
             <!-- eslint-enable vue/no-duplicate-attributes, vue/no-parsing-error -->

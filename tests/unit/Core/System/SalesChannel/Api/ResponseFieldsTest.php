@@ -4,27 +4,37 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ResponseFields::class)]
 class ResponseFieldsTest extends TestCase
 {
     public function testIsAllowedReturnsTrueWhenTypeNotSet(): void
     {
-        $responseFields = new ResponseFields(null);
+        $responseFields = new ResponseFields();
         static::assertTrue($responseFields->isAllowed('someType', 'someProperty'));
     }
 
     public function testIsAllowedThrowsExceptionWhenIncludesTypeIsNotArray(): void
     {
-        $this->expectException(SalesChannelException::class);
-        /** @phpstan-ignore argument.type (Giving wrong type on purpose) */
-        $responseFields = new ResponseFields(['someType' => 'notArray']);
-        $responseFields->isAllowed('someType', 'someProperty');
+        $this->expectExceptionObject(SalesChannelException::invalidType('The includes for type "someType" must be of the type array, string given'));
+
+        /** @phpstan-ignore argument.type (for test purpose) */
+        new ResponseFields(['someType' => 'notArray']);
+    }
+
+    public function testIsAllowedThrowsExceptionWhenExcludesTypeIsNotArray(): void
+    {
+        $this->expectExceptionObject(SalesChannelException::invalidType('The excludes for type "someType" must be of the type array, string given'));
+
+        /** @phpstan-ignore argument.type (for test purpose) */
+        new ResponseFields(excludes: ['someType' => 'notArray']);
     }
 
     public function testIsAllowedReturnsFalseWhenPropertyNotIncluded(): void

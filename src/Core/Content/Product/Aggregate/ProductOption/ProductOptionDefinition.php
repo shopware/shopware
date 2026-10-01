@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductOptionDefinition extends MappingEntityDefinition
 {
@@ -32,7 +35,7 @@ class ProductOptionDefinition extends MappingEntityDefinition
     {
         return new FieldCollection([
             (new FkField('product_id', 'productId', ProductDefinition::class))->addFlags(new PrimaryKey(), new Required()),
-            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new Required()),
+            (new ReferenceVersionField(ProductDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('property_group_option_id', 'optionId', PropertyGroupOptionDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             new ManyToOneAssociationField('product', 'product_id', ProductDefinition::class, 'id'),
             new ManyToOneAssociationField('option', 'property_group_option_id', PropertyGroupOptionDefinition::class, 'id'),

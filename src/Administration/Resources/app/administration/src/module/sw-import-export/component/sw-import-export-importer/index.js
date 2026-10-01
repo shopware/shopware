@@ -13,17 +13,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'importExport',
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['importExport', 'repositoryFactory', 'feature'],
 
     emits: ['import-started'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         sourceEntity: {
@@ -47,7 +41,7 @@ export default {
     computed: {
         profileCriteria() {
             const criteria = new Criteria(1, 25);
-            criteria.addSorting(Criteria.sort('label'));
+            criteria.addSorting(Criteria.sort('technicalName'));
 
             if (this.sourceEntity.length > 0) {
                 criteria.addFilter(Criteria.equals('sourceEntity', this.sourceEntity));
@@ -123,7 +117,7 @@ export default {
 
         handleProgress(log) {
             this.createNotificationInfo({
-                message: this.$tc('sw-import-export.importer.messageImportStarted'),
+                message: this.$t('sw-import-export.importer.messageImportStarted'),
             });
 
             this.isLoading = false;

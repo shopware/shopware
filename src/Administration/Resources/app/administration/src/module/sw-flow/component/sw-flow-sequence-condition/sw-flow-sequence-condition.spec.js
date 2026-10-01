@@ -1,4 +1,6 @@
-import { mount } from '@vue/test-utils';
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
+import { DOMWrapper, mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import { createPinia } from 'pinia';
 
@@ -191,10 +193,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         const falseAction = wrapper.find('.sw-flow-sequence-condition__false-action');
         expect(falseAction.exists()).toBeTruthy();
 
-        const falseArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-down-s');
+        const falseArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-down-xs');
         expect(falseArrowIcon.exists()).toBeFalsy();
 
-        const trueArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-right-s');
+        const trueArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-right-xs');
         expect(trueArrowIcon.exists()).toBeFalsy();
     });
 
@@ -227,10 +229,10 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         const falseAction = wrapper.find('.sw-flow-sequence-condition__false-action');
         expect(falseAction.exists()).toBeFalsy();
 
-        const falseArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-down-s');
+        const falseArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-down-xs');
         expect(falseArrowIcon.exists()).toBeTruthy();
 
-        const trueArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-right-s');
+        const trueArrowIcon = wrapper.find('.mt-icon.icon--regular-chevron-right-xs');
         expect(trueArrowIcon.exists()).toBeTruthy();
     });
 
@@ -314,8 +316,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         await selectElement.trigger('click');
         await flushPromises();
 
-        const ruleOptionInSelect = wrapper.find('.sw-select-option--1');
-        await ruleOptionInSelect.trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--1').trigger('click');
 
         invalidSequences = Shopware.Store.get('swFlow').invalidSequences;
         expect(invalidSequences).toEqual([]);
@@ -382,8 +383,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         await selectElement.trigger('click');
         await flushPromises();
 
-        const ruleOptionInSelect = wrapper.find('.sw-select-option--1');
-        await ruleOptionInSelect.trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--1').trigger('click');
 
         const sequencesState = Shopware.Store.get('swFlow').sequences;
         expect(sequencesState[0]).toEqual({
@@ -479,8 +479,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         await selectElement.trigger('click');
         await flushPromises();
 
-        const createRuleButton = wrapper.find('.sw-select-result__create-new-rule');
-        await createRuleButton.trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-result__create-new-rule').trigger('click');
         await flushPromises();
 
         createRuleModal = wrapper.find('sw-flow-rule-modal-stub');
@@ -525,7 +524,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         await selectElement.trigger('click');
         await flushPromises();
 
-        const disabledRule = wrapper.find('ul:nth-of-type(2) li');
+        const disabledRule = new DOMWrapper(document.body).get('ul:nth-of-type(2) li');
 
         expect(disabledRule.classes()).toContain('is--disabled');
     });
@@ -539,7 +538,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence-condition', () => {
         await selectElement.trigger('click');
         await flushPromises();
 
-        const disabledRule = wrapper.find('ul:nth-of-type(2) li:nth-of-type(2)');
+        const disabledRule = new DOMWrapper(document.body).get('ul:nth-of-type(2) li:nth-of-type(2)');
 
         expect(disabledRule.classes()).not.toContain('is--disabled');
     });

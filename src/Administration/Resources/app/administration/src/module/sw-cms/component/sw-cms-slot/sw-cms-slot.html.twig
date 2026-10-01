@@ -74,7 +74,8 @@
                 role="button"
                 tabindex="0"
                 @click="onSettingsButtonClick"
-                @keydown.enter="onSelectElement(element.name)"
+                @keydown.enter="onSettingsButtonClick"
+                @keydown.space.prevent="onSettingsButtonClick"
             >
                 <mt-icon
                     name="regular-cog"
@@ -90,7 +91,8 @@
                 role="button"
                 tabindex="0"
                 @click="onElementButtonClick"
-                @keydown.enter="onSelectElement(element.name)"
+                @keydown.enter="onElementButtonClick"
+                @keydown.space.prevent="onElementButtonClick"
             >
                 <mt-icon
                     name="regular-repeat"
@@ -105,15 +107,16 @@
 
     {% block sw_cms_slot_content_settings_modal %}
     <sw-modal
-        v-if="showElementSettings"
+        v-if="isElementSettingsInitialized"
+        v-show="showElementSettings"
         class="sw-cms-slot__config-modal"
         :variant="modalVariant"
-        :title="$tc('sw-cms.detail.title.elementSettingsModal')"
+        :title="elementModalTitle"
         @modal-close="onCloseSettingsModal"
     >
         {% block sw_cms_slot_content_settings_modal_component %}
         <component
-            :is="elementConfig.configComponent"
+            :is="elementConfig?.configComponent"
             ref="elementComponentRef"
             v-model:element="element"
             :element-data="elementConfig"
@@ -127,7 +130,7 @@
                 variant="primary"
                 @click="onCloseSettingsModal"
             >
-                {{ $tc('sw-cms.detail.label.buttonElementSettingsConfirm') }}
+                {{ $t('sw-cms.detail.label.buttonElementSettingsConfirm') }}
             </mt-button>
             {% endblock %}
         </template>
@@ -138,7 +141,7 @@
     {% block sw_cms_slot_content_element_modal %}
     <sw-modal
         v-if="showElementSelection"
-        :title="$tc('sw-cms.detail.title.elementChangeModal')"
+        :title="$t('sw-cms.detail.title.elementChangeModal')"
         @modal-close="onCloseElementModal"
     >
         {% block sw_cms_slot_content_element_modal_selection %}
@@ -151,7 +154,7 @@
                 expand-chevron-direction="up"
             >
                 <template #header>
-                    {{ $tc(cmsElementGroup.title) }}
+                    {{ $t(cmsElementGroup.title) }}
                 </template>
 
                 <template #content>
@@ -181,6 +184,7 @@
                                         tabindex="0"
                                         @click="onSelectElement(element)"
                                         @keydown.enter="onSelectElement(element)"
+                                        @keydown.space.prevent="onSelectElement(element)"
                                     >
                                         <mt-icon
                                             name="regular-repeat"
@@ -196,14 +200,19 @@
                                         tabindex="0"
                                         @click="onToggleElementFavorite(element.name)"
                                         @keydown.enter="onToggleElementFavorite(element.name)"
+                                        @keydown.space.prevent="onToggleElementFavorite(element.name)"
+                                        @mouseenter="toggleHoverElement(element, true)"
+                                        @mouseleave="toggleHoverElement(element, false)"
+                                        @focusin="toggleHoverElement(element, true)"
+                                        @focusout="toggleHoverElement(element, false)"
                                     >
                                         <mt-icon
-                                            v-if="cmsElementFavorites.isFavorite(element.name)"
+                                            v-show="getFavoriteIconToggleState(element)"
                                             name="solid-heart"
                                             size="28"
                                         />
                                         <mt-icon
-                                            v-else
+                                            v-show="!getFavoriteIconToggleState(element)"
                                             name="regular-heart"
                                             size="28"
                                         />
@@ -212,8 +221,8 @@
                                 </div>
 
                                 {% block sw_cms_slot_content_element_modal_selection_element_label %}
-                                <span class="element-selection__label">{{ $tc(element.label) }}</span>
-                            {% endblock %}
+                                <span class="element-selection__label">{{ $t(element.label) }}</span>
+                                {% endblock %}
                             </div>
                         </template>
                         {% endblock %}
@@ -232,7 +241,7 @@
                 variant="secondary"
                 @click="onCloseElementModal"
             >
-                {{ $tc('global.default.cancel') }}
+                {{ $t('global.default.cancel') }}
             </mt-button>
             {% endblock %}
         </template>

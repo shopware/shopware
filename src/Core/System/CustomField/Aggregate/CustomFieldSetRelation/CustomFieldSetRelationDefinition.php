@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class CustomFieldSetRelationDefinition extends EntityDefinition
 {
@@ -41,10 +44,10 @@ class CustomFieldSetRelationDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of a custom field set relation.'),
 
-            (new FkField('set_id', 'customFieldSetId', CustomFieldSetDefinition::class))->addFlags(new Required()),
-            (new StringField('entity_name', 'entityName', 63))->addFlags(new Required()),
+            (new FkField('set_id', 'customFieldSetId', CustomFieldSetDefinition::class))->addFlags(new Required())->setDescription('Unique identity of a custom field set.'),
+            (new StringField('entity_name', 'entityName', 63))->addFlags(new Required())->setDescription('Name of the entity.'),
             new ManyToOneAssociationField('customFieldSet', 'set_id', CustomFieldSetDefinition::class, 'id', false),
         ]);
     }

@@ -3,23 +3,27 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Extension\DownloadRouteExtension;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class DownloadRoute extends AbstractDownloadRoute
 {
     /**
@@ -29,7 +33,8 @@ class DownloadRoute extends AbstractDownloadRoute
      */
     public function __construct(
         private readonly EntityRepository $downloadRepository,
-        private readonly DownloadResponseGenerator $downloadResponseGenerator
+        private readonly DownloadResponseGenerator $downloadResponseGenerator,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -38,18 +43,35 @@ class DownloadRoute extends AbstractDownloadRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/order/download/{orderId}/{downloadId}', name: 'store-api.account.order.single.download', methods: ['GET'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true])]
+    #[Route(
+        path: '/store-api/order/download/{orderId}/{downloadId}',
+        name: 'store-api.account.order.single.download',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: [Request::METHOD_GET]
+    )]
     public function load(Request $request, SalesChannelContext $context): Response
     {
+        return $this->extensions->publish(
+            name: DownloadRouteExtension::NAME,
+            extension: new DownloadRouteExtension($request, $context),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(Request $request, SalesChannelContext $context): Response
+    {
         $customer = $context->getCustomer();
-        $downloadId = $request->get('downloadId', false);
-        $orderId = $request->get('orderId', false);
+        $downloadId = $request->attributes->get('downloadId');
+        $orderId = $request->attributes->get('orderId');
 
         if (!$customer) {
             throw CustomerException::customerNotLoggedIn();
         }
 
-        if ($downloadId === false || $orderId === false) {
+        if ($downloadId === null || $orderId === null) {
             // @deprecated tag:v6.8.0 - remove this if block
             if (!Feature::isActive('v6.8.0.0')) {
                 // @phpstan-ignore-next-line

@@ -31,6 +31,11 @@ class Migration1724468738UpdatePostalCodeRequiredForTableCountryWithDefaultTrueT
         $this->connection->executeStatement('UPDATE country SET postal_code_required = 0, updated_at = NULL WHERE iso = "US"');
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1724468738, (new Migration1724468738UpdatePostalCodeRequiredForTableCountryWithDefaultTrue())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $countries = $this->connection->fetchAllKeyValue(

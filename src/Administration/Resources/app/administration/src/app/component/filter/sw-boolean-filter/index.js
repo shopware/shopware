@@ -4,19 +4,15 @@
 
 import template from './sw-boolean-filter.html.twig';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-boolean-filter', {
+export default {
     template,
 
-    emits: [
-        'filter-update',
-        'filter-reset',
-    ],
+    emits: ['filter-update', 'filter-reset'],
 
     props: {
         filter: {
@@ -38,12 +34,12 @@ Component.register('sw-boolean-filter', {
             return [
                 {
                     id: 1,
-                    label: this.$tc('sw-boolean-filter.active'),
+                    label: this.$t('sw-boolean-filter.active'),
                     value: 'true',
                 },
                 {
                     id: 2,
-                    label: this.$tc('sw-boolean-filter.inactive'),
+                    label: this.$t('sw-boolean-filter.inactive'),
                     value: 'false',
                 },
             ];
@@ -57,9 +53,7 @@ Component.register('sw-boolean-filter', {
                 return;
             }
 
-            const filterCriteria = [
-                Criteria.equals(this.filter.property, newValue === 'true'),
-            ];
+            const filterCriteria = [Criteria.equals(this.filter.property, newValue === 'true')];
 
             this.$emit('filter-update', this.filter.name, filterCriteria, newValue);
         },
@@ -68,4 +62,4 @@ Component.register('sw-boolean-filter', {
             this.$emit('filter-reset', this.filter.name);
         },
     },
-});
+};

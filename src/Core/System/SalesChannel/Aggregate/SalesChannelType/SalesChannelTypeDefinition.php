@@ -16,6 +16,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class SalesChannelTypeDefinition extends EntityDefinition
 {
@@ -44,9 +47,9 @@ class SalesChannelTypeDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new StringField('cover_url', 'coverUrl'),
-            new StringField('icon_name', 'iconName'),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of sales channel type.'),
+            (new StringField('cover_url', 'coverUrl'))->setDescription('A url for the sales channel type.'),
+            (new StringField('icon_name', 'iconName'))->setDescription('An icon for sales channel type.'),
             new ListField('screenshot_urls', 'screenshotUrls', StringField::class),
             new TranslatedField('name'),
             new TranslatedField('manufacturer'),

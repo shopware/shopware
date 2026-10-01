@@ -29,7 +29,7 @@ async function createWrapper(propsOverride) {
             },
             global: {
                 provide: {
-                    cmsService: {},
+                    cmsService: Shopware.Service('cmsService'),
                 },
                 stubs: {
                     'sw-tabs': {
@@ -45,6 +45,7 @@ async function createWrapper(propsOverride) {
                     </div>
                 `,
                     },
+                    'mt-tabs': true,
                     'sw-container': {
                         template: '<div class="sw-container"><slot></slot></div>',
                     },
@@ -53,13 +54,9 @@ async function createWrapper(propsOverride) {
                         sync: true,
                     }),
                     'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field', { sync: true }),
-                    'mt-text-editor': {
+                    'sw-text-editor': {
                         props: ['value'],
-                        emits: [
-                            'blur',
-                            'update:value',
-                            'change',
-                        ],
+                        emits: ['blur', 'update:value', 'change'],
                         template:
                             '<input type="text" :value="value" @blur="$emit(\'blur\', $event.target.value)" @input="$emit(\'update:value\', $event.target.value)" @change="$emit(\'change\', $event.target.value)"></input>',
                     },
@@ -68,6 +65,15 @@ async function createWrapper(propsOverride) {
                     'router-link': true,
                     'sw-context-menu-item': true,
                     'sw-context-button': true,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
+                    },
                 },
             },
         },
@@ -81,6 +87,7 @@ describe('module/sw-cms/elements/product-name/config', () => {
 
     beforeEach(() => {
         Shopware.Store.get('cmsPage').resetCmsPageState();
+        Shopware.Store.get('cmsPage').setCurrentMappingEntity('product');
         Shopware.Store.get('cmsPage').setCurrentPage({
             type: 'product_detail',
         });

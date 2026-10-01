@@ -1,8 +1,18 @@
 @import "~scss/variables";
 
+.sw-product-detail-base__media {
+    .mt-card__title {
+        margin: 0;
+        font-family: var(--font-family-body);
+        font-size: var(--font-size-m);
+        line-height: var(--font-line-height-m);
+        font-weight: var(--font-weight-semibold);
+    }
+}
+
 .sw-card__back-link {
     display: flow-root;
     max-width: $content-width;
-    margin: 3px auto 25px;
+    margin: var(--scale-size-4) auto var(--scale-size-26);
     text-decoration: none;
 }

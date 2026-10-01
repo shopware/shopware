@@ -12,15 +12,12 @@ const { Criteria, EntityCollection } = Shopware.Data;
 /**
  * @private
  */
-Component.register('sw-entity-multi-select', {
+export default {
     template,
 
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: [
         'search',
@@ -31,16 +28,11 @@ Component.register('sw-entity-multi-select', {
         'search-term-change',
     ],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error')],
 
     props: {
         labelProperty: {
-            type: [
-                String,
-                Array,
-            ],
+            type: [String, Array],
             required: false,
             default: 'name',
         },
@@ -80,14 +72,12 @@ Component.register('sw-entity-multi-select', {
         disabled: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
 
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -126,15 +116,9 @@ Component.register('sw-entity-multi-select', {
             type: String,
             required: false,
             default: 'right',
-            validValues: [
-                'bottom',
-                'right',
-            ],
+            validValues: ['bottom', 'right'],
             validator(value) {
-                return [
-                    'bottom',
-                    'right',
-                ].includes(value);
+                return ['bottom', 'right'].includes(value);
             },
         },
 
@@ -160,6 +144,11 @@ Component.register('sw-entity-multi-select', {
             default: false,
         },
         label: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
+        autocomplete: {
             type: String,
             required: false,
             default: undefined,
@@ -450,4 +439,4 @@ Component.register('sw-entity-multi-select', {
             this.$refs.selectionList.blur();
         },
     },
-});
+};

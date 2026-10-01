@@ -12,9 +12,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         item: {
@@ -205,11 +203,11 @@ export default {
         },
 
         loadProductAssociations() {
-            this.products = this.item.productMedia;
+            this.products = [...this.item.productMedia];
         },
 
         loadCategoryAssociations() {
-            this.categories = this.item.categories;
+            this.categories = [...this.item.categories];
         },
 
         loadManufacturerAssociations() {
@@ -275,7 +273,7 @@ export default {
         getProductUsage(product) {
             return {
                 name: product.translated.name,
-                tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInProducts'),
+                tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInProducts'),
                 link: {
                     name: 'sw.product.detail',
                     id: product.id,
@@ -287,7 +285,7 @@ export default {
         getCategoryUsage(category) {
             return {
                 name: category.translated.name,
-                tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInCategories'),
+                tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInCategories'),
                 link: {
                     name: 'sw.category.detail',
                     id: category.id,
@@ -299,7 +297,7 @@ export default {
         getManufacturerUsage(manufacturer) {
             return {
                 name: manufacturer.translated.name,
-                tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInManufacturers'),
+                tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInManufacturers'),
                 link: {
                     name: 'sw.manufacturer.detail',
                     id: manufacturer.id,
@@ -311,7 +309,7 @@ export default {
         getMailTemplateUsage(mailTemplate) {
             return {
                 name: mailTemplate.translated.description,
-                tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInMailTemplate'),
+                tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInMailTemplate'),
                 link: {
                     name: 'sw.mail.template.detail',
                     id: mailTemplate.id,
@@ -323,7 +321,7 @@ export default {
         getDocumentBaseConfigUsage(document) {
             return {
                 name: document.name,
-                tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInDocument'),
+                tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInDocument'),
                 link: {
                     name: 'sw.settings.document.detail',
                     id: document.id,
@@ -335,7 +333,7 @@ export default {
         getAvatarUserUsage(user) {
             return {
                 name: user.username,
-                tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInUser'),
+                tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInUser'),
                 link: {
                     name: 'sw.users.permissions.user.detail',
                     id: user.id,
@@ -347,7 +345,7 @@ export default {
         getPaymentMethodUsage(paymentMethod) {
             return {
                 name: paymentMethod.translated.distinguishableName,
-                tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInPayment'),
+                tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInPayment'),
                 link: {
                     name: 'sw.settings.payment.detail',
                     id: paymentMethod.id,
@@ -359,7 +357,7 @@ export default {
         getShippingMethodUsage(shippingMethod) {
             return {
                 name: shippingMethod.translated.name,
-                tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundShipping'),
+                tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundShipping'),
                 link: {
                     name: 'sw.settings.shipping.detail',
                     id: shippingMethod.id,
@@ -371,7 +369,7 @@ export default {
         getLayoutUsage(layout) {
             return {
                 name: layout.name,
-                tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundLayout'),
+                tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundLayout'),
                 link: {
                     name: 'sw.cms.detail',
                     id: layout.id,
@@ -383,7 +381,7 @@ export default {
         getLandingPageUsage(landingPage) {
             return {
                 name: landingPage.translated.name,
-                tooltip: this.$tc('sw-media.sidebar.usage.tooltipFoundInLandingPages'),
+                tooltip: this.$t('sw-media.sidebar.usage.tooltipFoundInLandingPages'),
                 link: {
                     name: 'sw.category.landingPageDetail',
                     id: landingPage.id,
@@ -396,7 +394,6 @@ export default {
             const module = this.moduleFactory.getModuleRegistry().get(name);
             return {
                 name: module.manifest.icon,
-                color: module.manifest.color,
             };
         },
     },

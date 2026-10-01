@@ -26,6 +26,10 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 const criteria = new Criteria(1, associationLimit);
                 criteria.addFilter(Criteria.equals('prices.rule.id', ruleId));
                 criteria.addAssociation('options.group');
+                criteria.addAssociation('manufacturer');
+                criteria.addIncludes({
+                    manufacturer: ['id', 'name'],
+                });
 
                 return criteria;
             },
@@ -39,11 +43,25 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
             gridColumns: [
                 {
                     property: 'name',
-                    label: 'Name',
+                    label: 'sw-settings-rule.detail.associations.columns.name',
                     rawData: true,
                     sortable: true,
                     routerLink: 'sw.product.detail.prices',
                     allowEdit: false,
+                },
+                {
+                    property: 'manufacturer.translated.name',
+                    label: 'sw-settings-rule.detail.associations.columns.manufacturer',
+                    rawData: true,
+                    sortable: false,
+                    allowEdit: false,
+                    routerLink: 'sw.manufacturer.detail',
+                    routerParameters: [
+                        {
+                            key: 'id',
+                            path: 'manufacturerId',
+                        },
+                    ],
                 },
             ],
         },
@@ -64,7 +82,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
             gridColumns: [
                 {
                     property: 'name',
-                    label: 'Name',
+                    label: 'sw-settings-rule.detail.associations.columns.name',
                     rawData: true,
                     sortable: true,
                     routerLink: 'sw.settings.shipping.detail',
@@ -78,39 +96,35 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 searchColumn: 'name',
                 criteria: () => {
                     const criteria = new Criteria(1, 25);
-                    criteria.addFilter(
-                        Criteria.not('AND', [
-                            Criteria.equals('availabilityRuleId', ruleId),
-                        ]),
-                    );
+                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('availabilityRuleId', ruleId)]));
 
                     return criteria;
                 },
                 gridColumns: [
                     {
                         property: 'name',
-                        label: 'Name',
+                        label: 'sw-settings-rule.detail.associations.columns.name',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
                     },
                     {
                         property: 'description',
-                        label: 'Description',
+                        label: 'sw-settings-rule.detail.associations.columns.description',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
                     },
                     {
                         property: 'taxType',
-                        label: 'Tax calculation',
+                        label: 'sw-settings-rule.detail.associations.columns.taxCalculation',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
                     },
                     {
                         property: 'active',
-                        label: 'Active',
+                        label: 'sw-settings-rule.detail.associations.columns.active',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
@@ -140,7 +154,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
             gridColumns: [
                 {
                     property: 'name',
-                    label: 'Name',
+                    label: 'sw-settings-rule.detail.associations.columns.name',
                     rawData: true,
                     sortable: true,
                     routerLink: 'sw.settings.shipping.detail',
@@ -164,14 +178,14 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
             gridColumns: [
                 {
                     property: 'name',
-                    label: 'Name',
+                    label: 'sw-settings-rule.detail.associations.columns.name',
                     rawData: true,
                     sortable: true,
                     routerLink: 'sw.settings.tax.tax_provider.detail',
                 },
                 {
                     property: 'active',
-                    label: 'Active',
+                    label: 'sw-settings-rule.detail.associations.columns.active',
                     rawData: true,
                     sortable: true,
                     allowEdit: false,
@@ -184,25 +198,21 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 searchColumn: 'name',
                 criteria: () => {
                     const criteria = new Criteria(1, 25);
-                    criteria.addFilter(
-                        Criteria.not('AND', [
-                            Criteria.equals('availabilityRuleId', ruleId),
-                        ]),
-                    );
+                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('availabilityRuleId', ruleId)]));
 
                     return criteria;
                 },
                 gridColumns: [
                     {
                         property: 'name',
-                        label: 'Name',
+                        label: 'sw-settings-rule.detail.associations.columns.name',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
                     },
                     {
                         property: 'active',
-                        label: 'Active',
+                        label: 'sw-settings-rule.detail.associations.columns.active',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
@@ -227,7 +237,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
             gridColumns: [
                 {
                     property: 'name',
-                    label: 'Name',
+                    label: 'sw-settings-rule.detail.associations.columns.name',
                     rawData: true,
                     sortable: true,
                     routerLink: 'sw.settings.payment.detail',
@@ -246,39 +256,35 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 searchColumn: 'name',
                 criteria: () => {
                     const criteria = new Criteria(1, 25);
-                    criteria.addFilter(
-                        Criteria.not('AND', [
-                            Criteria.equals('availabilityRuleId', ruleId),
-                        ]),
-                    );
+                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('availabilityRuleId', ruleId)]));
 
                     return criteria;
                 },
                 gridColumns: [
                     {
                         property: 'name',
-                        label: 'Name',
+                        label: 'sw-settings-rule.detail.associations.columns.name',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
                     },
                     {
                         property: 'extension',
-                        label: 'Extension',
+                        label: 'sw-settings-rule.detail.associations.columns.extension',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
                     },
                     {
                         property: 'active',
-                        label: 'Active',
+                        label: 'sw-settings-rule.detail.associations.columns.active',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
                     },
                     {
                         property: 'position',
-                        label: 'Position',
+                        label: 'sw-settings-rule.detail.associations.columns.position',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
@@ -304,7 +310,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
             gridColumns: [
                 {
                     property: 'name',
-                    label: 'Name',
+                    label: 'sw-settings-rule.detail.associations.columns.name',
                     rawData: true,
                     sortable: true,
                     routerLink: 'sw.promotion.v2.detail.conditions',
@@ -323,39 +329,35 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 association: 'orderRules',
                 criteria: () => {
                     const criteria = new Criteria(1, 25);
-                    criteria.addFilter(
-                        Criteria.not('AND', [
-                            Criteria.equals('orderRules.id', ruleId),
-                        ]),
-                    );
+                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('orderRules.id', ruleId)]));
 
                     return criteria;
                 },
                 gridColumns: [
                     {
                         property: 'name',
-                        label: 'Name',
+                        label: 'sw-settings-rule.detail.associations.columns.name',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
                     },
                     {
                         property: 'active',
-                        label: 'Active',
+                        label: 'sw-settings-rule.detail.associations.columns.active',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
                     },
                     {
                         property: 'validFrom',
-                        label: 'Valid from',
+                        label: 'sw-settings-rule.detail.associations.columns.validFrom',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
                     },
                     {
                         property: 'validTo',
-                        label: 'Valid to',
+                        label: 'sw-settings-rule.detail.associations.columns.validTo',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
@@ -381,7 +383,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
             gridColumns: [
                 {
                     property: 'name',
-                    label: 'Name',
+                    label: 'sw-settings-rule.detail.associations.columns.name',
                     rawData: true,
                     sortable: true,
                     routerLink: 'sw.promotion.v2.detail.conditions',
@@ -400,39 +402,35 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 association: 'personaRules',
                 criteria: () => {
                     const criteria = new Criteria(1, 25);
-                    criteria.addFilter(
-                        Criteria.not('AND', [
-                            Criteria.equals('personaRules.id', ruleId),
-                        ]),
-                    );
+                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('personaRules.id', ruleId)]));
 
                     return criteria;
                 },
                 gridColumns: [
                     {
                         property: 'name',
-                        label: 'Name',
+                        label: 'sw-settings-rule.detail.associations.columns.name',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
                     },
                     {
                         property: 'active',
-                        label: 'Active',
+                        label: 'sw-settings-rule.detail.associations.columns.active',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
                     },
                     {
                         property: 'validFrom',
-                        label: 'Valid from',
+                        label: 'sw-settings-rule.detail.associations.columns.validFrom',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
                     },
                     {
                         property: 'validTo',
-                        label: 'Valid to',
+                        label: 'sw-settings-rule.detail.associations.columns.validTo',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
@@ -458,7 +456,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
             gridColumns: [
                 {
                     property: 'name',
-                    label: 'Name',
+                    label: 'sw-settings-rule.detail.associations.columns.name',
                     rawData: true,
                     sortable: true,
                     routerLink: 'sw.promotion.v2.detail.conditions',
@@ -477,39 +475,35 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 association: 'cartRules',
                 criteria: () => {
                     const criteria = new Criteria(1, 25);
-                    criteria.addFilter(
-                        Criteria.not('AND', [
-                            Criteria.equals('cartRules.id', ruleId),
-                        ]),
-                    );
+                    criteria.addFilter(Criteria.not('AND', [Criteria.equals('cartRules.id', ruleId)]));
 
                     return criteria;
                 },
                 gridColumns: [
                     {
                         property: 'name',
-                        label: 'Name',
+                        label: 'sw-settings-rule.detail.associations.columns.name',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
                     },
                     {
                         property: 'active',
-                        label: 'Active',
+                        label: 'sw-settings-rule.detail.associations.columns.active',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
                     },
                     {
                         property: 'validFrom',
-                        label: 'Valid from',
+                        label: 'sw-settings-rule.detail.associations.columns.validFrom',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
                     },
                     {
                         property: 'validTo',
-                        label: 'Valid to',
+                        label: 'sw-settings-rule.detail.associations.columns.validTo',
                         rawData: true,
                         sortable: true,
                         allowEdit: false,
@@ -534,7 +528,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
             gridColumns: [
                 {
                     property: 'name',
-                    label: 'Name',
+                    label: 'sw-settings-rule.detail.associations.columns.name',
                     rawData: true,
                     sortable: true,
                     routerLink: 'sw.promotion.v2.detail.conditions',
@@ -558,7 +552,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
             gridColumns: [
                 {
                     property: 'name',
-                    label: 'Name',
+                    label: 'sw-settings-rule.detail.associations.columns.name',
                     rawData: true,
                     sortable: true,
                     routerLink: 'sw.promotion.v2.detail.conditions',
@@ -581,7 +575,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
             gridColumns: [
                 {
                     property: 'name',
-                    label: 'Flow',
+                    label: 'sw-settings-rule.detail.associations.columns.flow',
                     rawData: true,
                     sortable: true,
                     width: '50%',
@@ -589,7 +583,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
                 },
                 {
                     property: 'eventName',
-                    label: 'Trigger',
+                    label: 'sw-settings-rule.detail.associations.columns.trigger',
                     rawData: true,
                     sortable: true,
                     width: '50%',

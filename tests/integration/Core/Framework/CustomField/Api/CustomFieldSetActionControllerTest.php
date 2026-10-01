@@ -2,14 +2,14 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\CustomField\Api;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class CustomFieldSetActionControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -20,8 +20,8 @@ class CustomFieldSetActionControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertIsString($response->getContent());
-        static::assertEquals(200, $response->getStatusCode());
-        static::assertEquals('application/json', $response->headers->get('Content-Type'));
+        static::assertSame(200, $response->getStatusCode());
+        static::assertSame('application/json', $response->headers->get('Content-Type'));
 
         $availableRelations = json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertNotEmpty($availableRelations);

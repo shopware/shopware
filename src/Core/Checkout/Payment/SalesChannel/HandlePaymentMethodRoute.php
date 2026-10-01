@@ -2,16 +2,20 @@
 
 namespace Shopware\Core\Checkout\Payment\SalesChannel;
 
+use Shopware\Core\Checkout\Payment\Extension\HandlePaymentMethodRouteExtension;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Checkout\Payment\PaymentProcessor;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
@@ -21,8 +25,8 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
 {
     /**
@@ -35,6 +39,7 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
         private readonly DataValidator $dataValidator,
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly EntityRepository $currencyRepository,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -43,12 +48,29 @@ class HandlePaymentMethodRoute extends AbstractHandlePaymentMethodRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/handle-payment', name: 'store-api.payment.handle', methods: ['GET', 'POST'])]
+    #[Route(
+        path: '/store-api/handle-payment',
+        name: 'store-api.payment.handle',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+        ],
+        methods: ['GET', 'POST']
+    )]
     public function load(Request $request, SalesChannelContext $context): HandlePaymentMethodRouteResponse
+    {
+        return $this->extensions->publish(
+            name: HandlePaymentMethodRouteExtension::NAME,
+            extension: new HandlePaymentMethodRouteExtension($request, $context),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(Request $request, SalesChannelContext $context): HandlePaymentMethodRouteResponse
     {
         $data = [...$request->query->all(), ...$request->request->all()];
         $this->dataValidator->validate($data, $this->createDataValidation());
-        /** @var array{orderId: string, finishUrl: ?string, errorUrl: ?string} $data */
+        /** @var array{orderId: string, finishUrl?: string, errorUrl?: string} $data */
         $orderCurrencyId = $this->getCurrencyFromOrder($data['orderId'], $context->getContext());
 
         if ($context->getCurrencyId() !== $orderCurrencyId) {

@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\ImportExport\DataAbstractionLayer\Serializer\Ent
 
 use Shopware\Core\Content\ImportExport\Exception\InvalidMediaUrlException;
 use Shopware\Core\Content\ImportExport\Exception\MediaDownloadException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -16,7 +17,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\UrlEncoder;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Contracts\Service\ResetInterface;
@@ -59,8 +62,12 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 
         $url = $entity['url'] ?? null;
 
-        if (empty($url)) {
+        if ($url === null || $url === '') {
             return $deserialized;
+        }
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $url = UrlEncoder::encodeUrl($url);
         }
 
         if (!filter_var($url, \FILTER_VALIDATE_URL)) {
@@ -71,43 +78,61 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 
         $context = Context::createDefaultContext();
 
-        $media = null;
+        $mediaEntity = null;
         if (isset($deserialized['id'])) {
-            $media = $this->mediaRepository->search(new Criteria([$deserialized['id']]), $context)->getEntities()->first();
+            $mediaEntity = $this->mediaRepository->search(new Criteria([$deserialized['id']]), $context)->getEntities()->first();
         }
 
-        $isNew = $media === null;
-
-        if ($isNew || $media->getUrl() !== $url) {
-            $entityName = $config->get('sourceEntity') ?? $definition->getEntityName();
-            $deserialized['mediaFolderId'] ??= $this->getMediaFolderId($deserialized['id'] ?? null, $entityName, $context);
-
-            $deserialized['id'] ??= Uuid::randomHex();
-
-            $parsed = parse_url((string) $url);
-            if (!$parsed) {
-                throw new \RuntimeException('Error parsing media URL: ' . $url);
-            }
-
-            $pathInfo = pathinfo($parsed['path'] ?? '');
-
-            $media = $this->fetchFileFromURL((string) $url, $pathInfo['extension'] ?? '');
-
-            if ($media === null) {
-                $deserialized['_error'] = new MediaDownloadException($url);
-
-                return $deserialized;
-            }
-
-            if ($isNew && $media->getHash()) {
-                $deserialized = $this->fetchExistingMediaByHash($deserialized, $media->getHash(), $context);
-            }
-
-            $this->cacheMediaFiles[(string) $deserialized['id']] = [
-                'media' => $media,
-                'destination' => urldecode($pathInfo['filename']),
-            ];
+        if ($mediaEntity !== null && $mediaEntity->getUrl() === $url) {
+            return $deserialized;
         }
+
+        $entityName = $config->get('sourceEntity') ?? $definition->getEntityName();
+        $deserialized['mediaFolderId'] ??= $this->getMediaFolderId($deserialized['id'] ?? null, $entityName, $context);
+
+        $deserialized['id'] ??= Uuid::randomHex();
+
+        $parsed = parse_url((string) $url);
+        if (!$parsed) {
+            throw ImportExportException::failedParsingMediaUrl($url);
+        }
+
+        $pathInfo = pathinfo($parsed['path'] ?? '');
+
+        $mediaFile = $this->fetchFileFromURL((string) $url, $pathInfo['extension'] ?? '');
+
+        if ($mediaFile === null) {
+            $deserialized['_error'] = new MediaDownloadException($url);
+
+            return $deserialized;
+        }
+
+        $downloadedHash = $mediaFile->getHash();
+
+        if ($downloadedHash !== null) {
+            if ($mediaEntity !== null) {
+                $existingHash = $mediaEntity->getMetaData()['hash'] ?? null;
+
+                if ($existingHash === $downloadedHash) {
+                    // The CSV URL can differ from the generated media URL while still pointing to the same file.
+                    return $deserialized;
+                }
+            } else {
+                $existingMediaId = $this->findExistingMediaIdByHash($downloadedHash, $context);
+
+                if ($existingMediaId !== null) {
+                    // Existing media with the same hash is reused; persisting the download again would move its file path.
+                    $deserialized['id'] = $existingMediaId;
+
+                    return $deserialized;
+                }
+            }
+        }
+
+        $this->cacheMediaFiles[(string) $deserialized['id']] = [
+            'media' => $mediaFile,
+            'destination' => urldecode($pathInfo['filename']),
+        ];
 
         return $deserialized;
     }
@@ -122,7 +147,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
      */
     public function persistMedia(EntityWrittenEvent $event): void
     {
-        if (empty($this->cacheMediaFiles)) {
+        if ($this->cacheMediaFiles === []) {
             return;
         }
 
@@ -174,7 +199,7 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
 
         $fallbackFolderId = $this->mediaFolderRepository->searchIds($criteria, $context)->firstId();
         if ($fallbackFolderId === null) {
-            throw new \RuntimeException('Failed to find default media folder for import_export_profile');
+            throw ImportExportException::mediaFolderNotFoundForImportExportProfile();
         }
 
         return $fallbackFolderId;
@@ -200,21 +225,11 @@ class MediaSerializer extends AbstractMediaSerializer implements ResetInterface
         return null;
     }
 
-    /**
-     * @param array<string, mixed> $deserialized
-     *
-     * @return array<string, mixed>
-     */
-    private function fetchExistingMediaByHash(array $deserialized, string $hash, Context $context): array
+    private function findExistingMediaIdByHash(string $downloadedHash, Context $context): ?string
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('metaData.hash', $hash));
+        $criteria->addFilter(new EqualsFilter('metaData.hash', $downloadedHash));
 
-        $mediaId = $this->mediaRepository->searchIds($criteria, $context)->firstId();
-        if ($mediaId !== null) {
-            $deserialized['id'] = $mediaId;
-        }
-
-        return $deserialized;
+        return $this->mediaRepository->searchIds($criteria, $context)->firstId();
     }
 }

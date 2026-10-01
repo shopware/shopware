@@ -1,8 +1,6 @@
 import template from './sw-condition-line-item.html.twig';
 import './sw-condition-line-item.scss';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
@@ -14,7 +12,8 @@ const { EntityCollection, Criteria } = Shopware.Data;
  * @component-example
  * <sw-condition-line-item :condition="condition" :level="0"></sw-condition-line-item>
  */
-Component.extend('sw-condition-line-item', 'sw-condition-base-line-item', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: ['repositoryFactory'],
@@ -45,15 +44,6 @@ Component.extend('sw-condition-line-item', 'sw-condition-base-line-item', {
             },
         },
 
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.identifiers',
-        ]),
-
-        currentError() {
-            return this.conditionValueOperatorError || this.conditionValueIdentifiersError;
-        },
-
         productCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
@@ -61,6 +51,9 @@ Component.extend('sw-condition-line-item', 'sw-condition-base-line-item', {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed
+         */
         resultCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('options.group');
@@ -103,4 +96,4 @@ Component.extend('sw-condition-line-item', 'sw-condition-base-line-item', {
             this.products = productCollection;
         },
     },
-});
+};

@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
-#[CoversClass(PromotionItemBuilder::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionItemBuilder::class)]
 class PromotionItemBuilderPlaceholderTest extends TestCase
 {
     /**
@@ -29,7 +29,7 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
 
         $item = $builder->buildPlaceholderItem('CODE-123');
 
-        static::assertEquals(PromotionProcessor::LINE_ITEM_TYPE, $item->getType());
+        static::assertSame(PromotionProcessor::LINE_ITEM_TYPE, $item->getType());
     }
 
     /**
@@ -62,7 +62,18 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
 
         $item = $builder->buildPlaceholderItem('CODE-123');
 
-        static::assertEquals('CODE-123', $item->getReferencedId());
+        static::assertSame('CODE-123', $item->getReferencedId());
+    }
+
+    #[Group('promotions')]
+    public function testCodeValueInReferenceIdIsTrimmed(): void
+    {
+        $builder = new PromotionItemBuilder();
+
+        $item = $builder->buildPlaceholderItem("\u{00a0}CODE-123 \t");
+
+        static::assertSame(Uuid::fromStringToHex('promotion-CODE-123'), $item->getId());
+        static::assertSame('CODE-123', $item->getReferencedId());
     }
 
     /**
@@ -78,6 +89,6 @@ class PromotionItemBuilderPlaceholderTest extends TestCase
 
         $item = $builder->buildPlaceholderItem('CODE-123');
 
-        static::assertEquals(Uuid::fromStringToHex('promotion-CODE-123'), $item->getId());
+        static::assertSame(Uuid::fromStringToHex('promotion-CODE-123'), $item->getId());
     }
 }

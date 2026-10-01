@@ -15,7 +15,7 @@ use Shopware\Core\Migration\V6_6\Migration1727768690UpdateDefaultEnglishPlainMai
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('after-sales')]
 #[CoversClass(Migration1727768690UpdateDefaultEnglishPlainMailFooter::class)]
 class Migration1727768690UpdateDefaultEnglishPlainMailFooterTest extends TestCase
 {
@@ -26,6 +26,11 @@ class Migration1727768690UpdateDefaultEnglishPlainMailFooterTest extends TestCas
     protected function setUp(): void
     {
         $this->connection = KernelLifecycleManager::getConnection();
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1727768690, (new Migration1727768690UpdateDefaultEnglishPlainMailFooter())->getCreationTimestamp());
     }
 
     public function testMigrationOfUnmodifiedTranslation(): void

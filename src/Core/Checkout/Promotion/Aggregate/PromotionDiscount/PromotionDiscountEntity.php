@@ -8,6 +8,7 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
@@ -82,11 +83,11 @@ class PromotionDiscountEntity extends Entity
 
     protected ?PromotionDiscountPriceCollection $promotionDiscountPrices = null;
 
-    protected string $sorterKey;
+    protected ?string $sorterKey = null;
 
-    protected string $applierKey;
+    protected ?string $applierKey = null;
 
-    protected string $usageKey;
+    protected ?string $usageKey = null;
 
     protected ?string $pickerKey = null;
 
@@ -228,32 +229,53 @@ class PromotionDiscountEntity extends Entity
         return str_replace($prefix, '', $this->scope);
     }
 
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'The fallback to empty string will be removed.')]
     public function getSorterKey(): string
     {
+        // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
+        if ($this->sorterKey === null) {
+            return '';
+        }
+
         return $this->sorterKey;
     }
 
-    public function setSorterKey(string $sorterKey): void
+    public function setSorterKey(?string $sorterKey): void
     {
         $this->sorterKey = $sorterKey;
     }
 
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'The fallback to empty string will be removed.')]
     public function getApplierKey(): string
     {
+        // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
+        if ($this->applierKey === null) {
+            return '';
+        }
+
         return $this->applierKey;
     }
 
-    public function setApplierKey(string $applierKey): void
+    public function setApplierKey(?string $applierKey): void
     {
         $this->applierKey = $applierKey;
     }
 
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?string', description: 'The fallback to empty string will be removed.')]
     public function getUsageKey(): string
     {
+        // @deprecated tag:v6.8.0 - The fallback to empty string will be removed
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
+        if ($this->usageKey === null) {
+            return '';
+        }
+
         return $this->usageKey;
     }
 
-    public function setUsageKey(string $usageKey): void
+    public function setUsageKey(?string $usageKey): void
     {
         $this->usageKey = $usageKey;
     }

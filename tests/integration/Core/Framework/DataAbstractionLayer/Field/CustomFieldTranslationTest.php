@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterfac
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CustomFieldTestTranslationDefinition;
@@ -24,12 +25,14 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class CustomFieldTranslationTest extends TestCase
 {
     use BasicTestDataBehaviour;
@@ -106,7 +109,7 @@ class CustomFieldTranslationTest extends TestCase
 
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
 
-        $result = $repo->search(new Criteria([$id]), $context)->first();
+        $result = $repo->search(new Criteria([$id]), $context)->getEntities()->first();
         static::assertInstanceOf(Entity::class, $result);
 
         static::assertNull($result->get('customTranslated'));
@@ -174,46 +177,46 @@ class CustomFieldTranslationTest extends TestCase
         static::assertInstanceOf(EntityWrittenEvent::class, $event);
         static::assertCount(4, $event->getIds());
 
-        $result = $repo->search(new Criteria([$id]), $context)->first();
+        $result = $repo->search(new Criteria([$id]), $context)->getEntities()->first();
         static::assertInstanceOf(Entity::class, $result);
         $expected = ['code' => 'en-GB', 'system' => 'system'];
-        static::assertEquals($expected, $result->getTranslated()['customTranslated']);
+        static::assertSame($expected, $result->getTranslated()['customTranslated']);
 
         $expectedViewData = $expected;
-        static::assertEquals($expectedViewData, $result->getTranslated()['customTranslated']);
+        static::assertSame($expectedViewData, $result->getTranslated()['customTranslated']);
 
         $chain = [$this->getDeDeLanguageId(), Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
-        $result = $repo->search(new Criteria([$id]), $context)->first();
+        $result = $repo->search(new Criteria([$id]), $context)->getEntities()->first();
         static::assertInstanceOf(Entity::class, $result);
 
         $expected = ['de' => 'de', 'code' => 'de-DE'];
         static::assertEquals($expected, $result->get('customTranslated'));
 
         $expectedViewData = ['code' => 'de-DE', 'system' => 'system', 'de' => 'de'];
-        static::assertEquals($expectedViewData, $result->getTranslated()['customTranslated']);
+        static::assertSame($expectedViewData, $result->getTranslated()['customTranslated']);
 
         $chain = [$rootLanguageId, Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
 
-        $result = $repo->search(new Criteria([$id]), $context)->first();
+        $result = $repo->search(new Criteria([$id]), $context)->getEntities()->first();
         static::assertInstanceOf(Entity::class, $result);
 
         $expected = ['code' => 'root', 'root' => 'root'];
-        static::assertEquals($expected, $result->get('customTranslated'));
+        static::assertSame($expected, $result->get('customTranslated'));
         $expectedViewData = ['code' => 'root', 'system' => 'system', 'root' => 'root'];
-        static::assertEquals($expectedViewData, $result->getTranslated()['customTranslated']);
+        static::assertSame($expectedViewData, $result->getTranslated()['customTranslated']);
 
         $chain = [$childLanguageId, $rootLanguageId, Defaults::LANGUAGE_SYSTEM];
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $chain);
 
-        $result = $repo->search(new Criteria([$id]), $context)->first();
+        $result = $repo->search(new Criteria([$id]), $context)->getEntities()->first();
         static::assertInstanceOf(Entity::class, $result);
 
         $expected = ['code' => 'child', 'child' => 'child'];
-        static::assertEquals($expected, $result->get('customTranslated'));
+        static::assertSame($expected, $result->get('customTranslated'));
         $expectedViewData = ['code' => 'child', 'system' => 'system', 'root' => 'root', 'child' => 'child'];
-        static::assertEquals($expectedViewData, $result->getTranslated()['customTranslated']);
+        static::assertSame($expectedViewData, $result->getTranslated()['customTranslated']);
     }
 
     public function testTranslationChainOnFilter(): void
@@ -267,9 +270,9 @@ class CustomFieldTranslationTest extends TestCase
         $criteria->addFilter(new EqualsFilter('customTranslated.systemFloat', 1.0));
         $result = $repo->search($criteria, $context);
         $expected = [$id];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
 
-        $first = $result->first();
+        $first = $result->getEntities()->first();
         static::assertInstanceOf(Entity::class, $first);
         static::assertSame(1.0, $first->getTranslated()['customTranslated']['systemFloat']);
         static::assertArrayNotHasKey('root', $first->getTranslated()['customTranslated']);
@@ -287,13 +290,13 @@ class CustomFieldTranslationTest extends TestCase
         $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.child', $now));
         $result = $repo->search($criteria, $context);
         $expected = [];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         // root -> system
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$rootId, Defaults::LANGUAGE_SYSTEM]);
@@ -302,15 +305,15 @@ class CustomFieldTranslationTest extends TestCase
         $criteria->addFilter(new EqualsFilter('customTranslated.systemFloat', 1.0));
         $result = $repo->search($criteria, $context);
         $expected = [$id];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.root', true));
         $result = $repo->search($criteria, $context);
         $expected = [$id];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
 
-        $first = $result->first();
+        $first = $result->getEntities()->first();
         static::assertInstanceOf(Entity::class, $first);
         static::assertArrayNotHasKey('system', $first->getTranslated()['customTranslated']);
         static::assertTrue($first->getTranslated()['customTranslated']['root']);
@@ -327,7 +330,7 @@ class CustomFieldTranslationTest extends TestCase
         $criteria->addFilter(new EqualsFilter('customTranslated.child', $now));
         $result = $repo->search($criteria, $context);
         $expected = [];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         // child -> root -> system
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$childId, $rootId, Defaults::LANGUAGE_SYSTEM]);
@@ -336,22 +339,22 @@ class CustomFieldTranslationTest extends TestCase
         $criteria->addFilter(new EqualsFilter('customTranslated.systemFloat', 1.0));
         $result = $repo->search($criteria, $context);
         $expected = [$id];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.root', true));
         $result = $repo->search($criteria, $context);
         $expected = [$id];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.child', $now));
 
         $result = $repo->search($criteria, $context);
         $expected = [$id];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
 
-        $first = $result->first();
+        $first = $result->getEntities()->first();
         static::assertInstanceOf(Entity::class, $first);
         static::assertArrayNotHasKey('system', $first->get('customTranslated'));
         static::assertArrayNotHasKey('root', $first->get('customTranslated'));
@@ -428,15 +431,15 @@ class CustomFieldTranslationTest extends TestCase
         $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [$childId, $parentId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.systemFloat', 1.0));
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
 
-        $first = $result->first();
+        $first = $result->getEntities()->first();
         static::assertInstanceOf(Entity::class, $first);
         static::assertSame(1.0, $first->getTranslated()['customTranslated']['systemFloat']);
         static::assertArrayNotHasKey('root', $first->getTranslated()['customTranslated']);
@@ -455,13 +458,13 @@ class CustomFieldTranslationTest extends TestCase
         $context->setConsiderInheritance(false);
         $result = $repo->search($criteria, $context);
         $expected = [];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.sub', $now));
         $result = $repo->search($criteria, $context);
         $expected = [];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         // root -> system
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$rootId, Defaults::LANGUAGE_SYSTEM]);
@@ -471,23 +474,23 @@ class CustomFieldTranslationTest extends TestCase
         $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [$childId, $parentId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.systemFloat', 1.0));
         $context->setConsiderInheritance(false);
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.root', true));
         $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
 
-        $first = $result->first();
+        $first = $result->getEntities()->first();
         static::assertInstanceOf(Entity::class, $first);
         static::assertArrayNotHasKey('system', $first->getTranslated()['customTranslated']);
         static::assertTrue($first->getTranslated()['customTranslated']['root']);
@@ -506,7 +509,7 @@ class CustomFieldTranslationTest extends TestCase
         $context->setConsiderInheritance(false);
         $result = $repo->search($criteria, $context);
         $expected = [];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertSame(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         // child -> root -> system
         $context = new Context(new SystemSource(), [], Defaults::CURRENCY, [$childId, $rootId, Defaults::LANGUAGE_SYSTEM]);
@@ -516,29 +519,29 @@ class CustomFieldTranslationTest extends TestCase
         $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [$childId, $parentId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.systemFloat', 1.0));
         $context->setConsiderInheritance(false);
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.root', true));
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getEntities()->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customTranslated.sub', $now));
         $context->setConsiderInheritance(true);
         $result = $repo->search($criteria, $context);
         $expected = [$childId];
-        static::assertEquals(array_combine($expected, $expected), $result->getIds());
+        static::assertEquals(array_combine($expected, $expected), $result->getEntities()->getIds());
 
-        $first = $result->first();
+        $first = $result->getEntities()->first();
         static::assertInstanceOf(Entity::class, $first);
         static::assertSame((new \DateTime($now))->format(\DateTime::ATOM), $first->get('customTranslated')['sub']);
         static::assertSame(3, $first->get('customTranslated')['int']);
@@ -564,16 +567,20 @@ class CustomFieldTranslationTest extends TestCase
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'translationCode' => [
                         'id' => $translationCodeId,
-                        'name' => 'x-' . $translationCodeId,
-                        'code' => 'x-' . $translationCodeId,
+                        'name' => 'de-DE-' . $translationCodeId,
+                        'code' => 'de-DE-' . $translationCodeId,
                         'territory' => $translationCodeId,
                     ],
+                    'active' => true,
                 ],
             ],
             Context::createDefaultContext()
         );
     }
 
+    /**
+     * @return EntityRepository<CustomFieldCollection>
+     */
     protected function getTestRepository(): EntityRepository
     {
         $definition = $this->registerDefinition(
@@ -581,6 +588,7 @@ class CustomFieldTranslationTest extends TestCase
             CustomFieldTestTranslationDefinition::class
         );
 
+        /** @var EntityRepository<CustomFieldCollection> */
         return new EntityRepository(
             $definition,
             static::getContainer()->get(EntityReaderInterface::class),

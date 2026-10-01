@@ -28,9 +28,7 @@ async function createWrapper(isSelectable, tooltip) {
                 isRecordSelectableCallback() {
                     return { isSelectable, tooltip };
                 },
-                columns: [
-                    { property: 'name', label: 'Name' },
-                ],
+                columns: [{ property: 'name', label: 'Name' }],
                 items: new EntityCollection(
                     null,
                     null,
@@ -97,13 +95,6 @@ async function createWrapper(isSelectable, tooltip) {
 }
 
 describe('src/app/component/entity/sw-entity-advanced-selection-modal-grid', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should disable all checkboxes with enabled tooltip', async () => {
         const wrapper = await createWrapper(false, {
             message: 'test message',

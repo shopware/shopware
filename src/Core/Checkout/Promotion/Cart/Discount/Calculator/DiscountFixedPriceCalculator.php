@@ -42,7 +42,7 @@ class DiscountFixedPriceCalculator
         // now calculate the correct price
         // from our collected total discount price
         $discountPrice = $this->absolutePriceCalculator->calculate(
-            -abs($discountDiff),
+            -max(0.0, $discountDiff),
             $affectedPrices,
             $context
         );
@@ -58,9 +58,7 @@ class DiscountFixedPriceCalculator
 
     private function getTotalDiscountDiffSum(float $fixedPackagePrice, DiscountPackageCollection $packages, PriceCollection $affectedPrices): float
     {
-        $totalProductPrices = $affectedPrices->sum()->getTotalPrice();
-
-        return $totalProductPrices - ($fixedPackagePrice * $packages->count());
+        return $affectedPrices->getTotalPriceAmount() - ($fixedPackagePrice * $packages->count());
     }
 
     /**
@@ -68,7 +66,7 @@ class DiscountFixedPriceCalculator
      */
     private function getCompositionItems(float $discountValue, DiscountPackageCollection $packages, PriceCollection $affectedPrices): array
     {
-        $totalOriginalSum = $affectedPrices->sum()->getTotalPrice();
+        $totalOriginalSum = $affectedPrices->getTotalPriceAmount();
 
         $items = [];
 

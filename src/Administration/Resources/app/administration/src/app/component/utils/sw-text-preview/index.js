@@ -5,8 +5,6 @@
 import './sw-text-preview.scss';
 import template from './sw-text-preview.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @description Displays text (no html) up to a defined length and shows a "Show more" button that opens a modal.
@@ -20,7 +18,7 @@ const lineExpr = /(?:\r\n|\r|\n)/g;
 const lineBreak = '<br />';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-text-preview', {
+export default {
     template,
 
     props: {
@@ -54,7 +52,6 @@ Component.register('sw-text-preview', {
     computed: {
         shortenedText() {
             let text = this.text;
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             this.shortened = false;
             if (this.maximumNewLines > 0) {
                 const splitted = text.split(lineExpr).filter((element) => {
@@ -62,12 +59,10 @@ Component.register('sw-text-preview', {
                 });
                 if (splitted.length > this.maximumNewLines) {
                     text = splitted.slice(0, this.maximumNewLines).join('\n');
-                    // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                     this.shortened = true;
                 }
             }
             if (text.length > this.maximumLength) {
-                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                 this.shortened = true;
             }
             return text.slice(0, this.maximumLength).replace(lineExpr, lineBreak);
@@ -86,4 +81,4 @@ Component.register('sw-text-preview', {
             this.showModal = true;
         },
     },
-});
+};

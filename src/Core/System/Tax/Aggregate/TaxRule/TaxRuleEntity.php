@@ -4,11 +4,15 @@ namespace Shopware\Core\System\Tax\Aggregate\TaxRule;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Tax\Aggregate\TaxRuleType\TaxRuleTypeEntity;
 use Shopware\Core\System\Tax\TaxEntity;
 
+/**
+ * @phpstan-type TaxRuleData array{states?: list<string>, zipCode?: string, fromZipCode?: string, toZipCode?: string}
+ */
 #[Package('checkout')]
 class TaxRuleEntity extends Entity
 {
@@ -24,10 +28,13 @@ class TaxRuleEntity extends Entity
 
     protected string $taxRuleTypeId;
 
-    protected TaxRuleTypeEntity $type;
+    protected ?TaxRuleTypeEntity $type = null;
 
     protected float $taxRate;
 
+    /**
+     * @var TaxRuleData|null
+     */
     protected ?array $data = null;
 
     protected ?\DateTimeInterface $activeFrom = null;
@@ -82,8 +89,14 @@ class TaxRuleEntity extends Entity
         $this->taxRuleTypeId = $taxRuleTypeId;
     }
 
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?' . TaxRuleTypeEntity::class)]
     public function getType(): TaxRuleTypeEntity
     {
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
+        if ($this->type === null) {
+            return new TaxRuleTypeEntity();
+        }
+
         return $this->type;
     }
 
@@ -92,9 +105,6 @@ class TaxRuleEntity extends Entity
         $this->type = $type;
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function getTaxRate(): float
     {
         return $this->taxRate;
@@ -105,11 +115,17 @@ class TaxRuleEntity extends Entity
         $this->taxRate = $taxRate;
     }
 
+    /**
+     * @return TaxRuleData|null
+     */
     public function getData(): ?array
     {
         return $this->data;
     }
 
+    /**
+     * @param TaxRuleData|null $data
+     */
     public function setData(?array $data): void
     {
         $this->data = $data;

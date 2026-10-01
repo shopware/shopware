@@ -16,6 +16,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
+ * @phpstan-type BaseContextOptions array{originalContext?: Context, version-id?: string, languageId?: string}
+ *
  * @final
  */
 #[Package('framework')]
@@ -25,13 +27,13 @@ class ContextFactory
      * @internal
      */
     public function __construct(
-        private Connection $connection,
-        private EventDispatcherInterface $eventDispatcher,
+        private readonly Connection $connection,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
     /**
-     * @param array{originalContext?: Context, version-id?: string, languageId?: string} $options
+     * @param BaseContextOptions $options
      */
     public function getContext(string $salesChannelId, array $options): Context
     {
@@ -90,7 +92,7 @@ class ContextFactory
     }
 
     /**
-     * @param array{originalContext?: Context, version-id?: string, languageId?: string} $sessionOptions
+     * @param BaseContextOptions $sessionOptions
      * @param array<string> $availableLanguageIds
      *
      * @return non-empty-list<string>

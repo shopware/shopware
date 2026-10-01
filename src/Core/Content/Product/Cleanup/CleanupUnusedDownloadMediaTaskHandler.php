@@ -7,6 +7,7 @@ use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
@@ -17,6 +18,9 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 #[AsMessageHandler(handles: CleanupUnusedDownloadMediaTask::class)]
 final class CleanupUnusedDownloadMediaTaskHandler extends ScheduledTaskHandler
 {
+    /**
+     * @param EntityRepository<ScheduledTaskCollection> $repository
+     */
     public function __construct(
         EntityRepository $repository,
         LoggerInterface $logger,

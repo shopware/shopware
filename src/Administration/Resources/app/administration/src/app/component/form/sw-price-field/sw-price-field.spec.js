@@ -46,10 +46,7 @@ const defaultPrice = {
 // initial component setup
 const setup = async (propOverride) => {
     const props = {
-        value: [
-            dollarPrice,
-            euroPrice,
-        ],
+        value: [dollarPrice, euroPrice],
         taxRate,
         currency,
         defaultPrice,
@@ -107,12 +104,6 @@ describe('components/form/sw-price-field', () => {
         jest.useRealTimers();
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await setup();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the dollar price', async () => {
         const wrapper = await setup();
 
@@ -149,10 +140,7 @@ describe('components/form/sw-price-field', () => {
 
         expect(wrapper.vm.isInherited).toBeTruthy();
         await wrapper.setProps({
-            value: [
-                dollarPrice,
-                euroPrice,
-            ],
+            value: [dollarPrice, euroPrice],
         });
         expect(wrapper.vm.isInherited).toBeFalsy();
     });
@@ -253,6 +241,34 @@ describe('components/form/sw-price-field', () => {
         expect(convertGrossToNet).toHaveBeenCalled();
     });
 
+    it('should recalculate the net value when the gross number field emits an "input-change" event', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        const convertGrossToNet = jest.spyOn(wrapper.vm, 'convertGrossToNet');
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        await wrapper.findComponent('.sw-price-field__gross').vm.$emit('input-change', euroPrice.gross);
+        jest.runAllTimers();
+
+        expect(convertGrossToNet).toHaveBeenCalled();
+    });
+
+    it('should recalculate the gross value when the net number field emits an "input-change" event', async () => {
+        const wrapper = await setup({ allowEmpty: false });
+        const convertNetToGross = jest.spyOn(wrapper.vm, 'convertNetToGross');
+        await wrapper.setProps({
+            value: [euroPrice],
+            inherited: false,
+        });
+
+        await wrapper.findComponent('.sw-price-field__net').vm.$emit('input-change', euroPrice.net);
+        jest.runAllTimers();
+
+        expect(convertNetToGross).toHaveBeenCalled();
+    });
+
     it('should not emit update:value event on price gross change', async () => {
         const wrapper = await setup({ allowEmpty: false });
         await wrapper.setProps({
@@ -326,5 +342,80 @@ describe('components/form/sw-price-field', () => {
 
         // Check if the input field value still contains the decimal separator
         expect(wrapper.findByPlaceholder('sw-product.priceForm.placeholderPriceGross').element.value).toBe('123.');
+    });
+
+    describe('conversion of the value 0', () => {
+        let calculatePrice;
+
+        beforeEach(() => {
+            calculatePrice = jest.fn(({ price, output }) => {
+                const tax = output === 'gross' ? price - price / 1.07 : price * 0.07;
+
+                return Promise.resolve({ data: { calculatedTaxes: [{ tax }] } });
+            });
+
+            Shopware.Application.getContainer = () => ({
+                apiService: { getByName: () => ({ calculatePrice }) },
+            });
+        });
+
+        const nonZeroPrice = { gross: 10.7, net: 10 };
+
+        const setupWithPrice = (price) => setup({ value: [{ currencyId: currency.id, ...price }] });
+
+        const settle = async () => {
+            jest.runAllTimers();
+            await flushPromises();
+        };
+
+        it.each([
+            { changed: 'gross', converted: 'net' },
+            { changed: 'net', converted: 'gross' },
+        ])('should set the linked $converted value to 0 when 0 is typed into $changed', async ({ changed, converted }) => {
+            const wrapper = await setupWithPrice({ ...nonZeroPrice, linked: true });
+
+            await wrapper.find(`.sw-price-field__${changed} input`).setValue('0');
+            await settle();
+
+            expect(wrapper.vm.priceForCurrency[changed]).toBe(0);
+            expect(wrapper.vm.priceForCurrency[converted]).toBe(0);
+        });
+
+        it.each([
+            { changed: 'gross', converted: 'net', expectedAtStep: 0.01 / 1.07 },
+            { changed: 'net', converted: 'gross', expectedAtStep: 0.01 * 1.07 },
+        ])(
+            'should update the linked $converted value when $changed is stepped from 0.01 back to 0 with the arrow keys',
+            async ({ changed, converted, expectedAtStep }) => {
+                const wrapper = await setupWithPrice({ gross: 0, net: 0, linked: true });
+                const input = wrapper.find(`.sw-price-field__${changed} input`);
+
+                await input.trigger('keydown', { key: 'ArrowUp' });
+                await settle();
+
+                expect(wrapper.vm.priceForCurrency[changed]).toBe(0.01);
+                expect(wrapper.vm.priceForCurrency[converted]).toBeCloseTo(expectedAtStep, 10);
+
+                await input.trigger('keydown', { key: 'ArrowDown' });
+                await settle();
+
+                expect(wrapper.vm.priceForCurrency[changed]).toBe(0);
+                expect(wrapper.vm.priceForCurrency[converted]).toBe(0);
+            },
+        );
+
+        it.each([
+            { changed: 'gross', converted: 'net' },
+            { changed: 'net', converted: 'gross' },
+        ])('should keep the unlinked $converted value when $changed is set to 0', async ({ changed, converted }) => {
+            const wrapper = await setupWithPrice({ ...nonZeroPrice, linked: false });
+
+            await wrapper.find(`.sw-price-field__${changed} input`).setValue('0');
+            await settle();
+
+            expect(wrapper.vm.priceForCurrency[changed]).toBe(0);
+            expect(wrapper.vm.priceForCurrency[converted]).toBe(nonZeroPrice[converted]);
+            expect(calculatePrice).not.toHaveBeenCalled();
+        });
     });
 });

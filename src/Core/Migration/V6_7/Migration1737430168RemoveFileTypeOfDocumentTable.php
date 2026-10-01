@@ -19,6 +19,7 @@ class Migration1737430168RemoveFileTypeOfDocumentTable extends MigrationStep
 
     public function update(Connection $connection): void
     {
+        $connection->executeStatement('ALTER TABLE `document` CHANGE COLUMN `file_type` `file_type` VARCHAR(255) NULL');
     }
 
     public function updateDestructive(Connection $connection): void

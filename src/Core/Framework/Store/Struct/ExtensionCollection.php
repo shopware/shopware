@@ -6,8 +6,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 
 /**
- * @codeCoverageIgnore
- *
  * @extends Collection<ExtensionStruct>
  */
 #[Package('checkout')]
@@ -39,7 +37,7 @@ class ExtensionCollection extends Collection
 
     public function filterByType(string $type): self
     {
-        return $this->filter(fn (ExtensionStruct $ext) => $ext->getType() === $type);
+        return $this->filter(static fn (ExtensionStruct $ext) => $ext->getType() === $type);
     }
 
     protected function getExpectedClass(): ?string

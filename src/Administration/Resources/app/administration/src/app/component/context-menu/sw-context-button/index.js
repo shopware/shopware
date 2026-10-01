@@ -1,8 +1,6 @@
 import template from './sw-context-button.html.twig';
 import './sw-context-button.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -16,7 +14,7 @@ const { Component } = Shopware;
  *     </sw-context-menu-item>
  * </sw-context-button>
  */
-Component.register('sw-context-button', {
+export default {
     template,
 
     inject: ['feature'],
@@ -44,10 +42,7 @@ Component.register('sw-context-button', {
                 if (!value.length) {
                     return true;
                 }
-                return [
-                    'right',
-                    'left',
-                ].includes(value);
+                return ['right', 'left'].includes(value);
             },
         },
 
@@ -59,10 +54,7 @@ Component.register('sw-context-button', {
                 if (!value.length) {
                     return true;
                 }
-                return [
-                    'bottom',
-                    'top',
-                ].includes(value);
+                return ['bottom', 'top'].includes(value);
             },
         },
 
@@ -75,7 +67,7 @@ Component.register('sw-context-button', {
         iconSize: {
             type: String,
             required: false,
-            default: '16px',
+            default: 'var(--scale-size-14)',
         },
 
         disabled: {
@@ -87,7 +79,6 @@ Component.register('sw-context-button', {
         autoClose: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -153,7 +144,15 @@ Component.register('sw-context-button', {
         },
     },
 
+    beforeUnmount() {
+        this.beforeUnmountComponent();
+    },
+
     methods: {
+        beforeUnmountComponent() {
+            this.removeClickEventListeners();
+        },
+
         onClickButton() {
             if (this.disabled) {
                 return;
@@ -169,7 +168,25 @@ Component.register('sw-context-button', {
         openMenu() {
             this.$emit('on-open-change', true);
             this.showMenu = true;
+
+            if (this.autoCloseOutsideClick) {
+                document.addEventListener('click', this.handleOutsideClickEvent, true);
+            }
+
             document.addEventListener('click', this.handleClickEvent);
+        },
+
+        handleOutsideClickEvent(event) {
+            if (!this.showMenu) {
+                return;
+            }
+
+            const clickedInsideButton = this.$el?.contains(event.target) ?? false;
+            const clickedInsideMenu = event.target instanceof Element && event.target.closest('.sw-context-menu') !== null;
+
+            if (!clickedInsideButton && !clickedInsideMenu) {
+                this.closeMenu();
+            }
         },
 
         handleClickEvent(event) {
@@ -210,7 +227,12 @@ Component.register('sw-context-button', {
         closeMenu() {
             this.$emit('on-open-change', false);
             this.showMenu = false;
+            this.removeClickEventListeners();
+        },
+
+        removeClickEventListeners() {
+            document.removeEventListener('click', this.handleOutsideClickEvent, true);
             document.removeEventListener('click', this.handleClickEvent);
         },
     },
-});
+};

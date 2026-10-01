@@ -101,13 +101,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-state-machine/page/sw-settings-state-machine-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have correct metaInfo', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

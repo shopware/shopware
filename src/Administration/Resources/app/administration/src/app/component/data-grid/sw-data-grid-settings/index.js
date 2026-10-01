@@ -1,15 +1,17 @@
 import template from './sw-data-grid-settings.html.twig';
 import './sw-data-grid-settings.scss';
 
-const { Component } = Shopware;
+const { Mixin } = Shopware;
 
 /**
  * @sw-package framework
  *
  * @private
  */
-Component.register('sw-data-grid-settings', {
+export default {
     template,
+
+    mixins: [Mixin.getByName('translate-with-fallback')],
 
     emits: [
         'change-compact-mode',
@@ -104,5 +106,9 @@ Component.register('sw-data-grid-settings', {
 
             this.$emit('change-column-order', columnIndex, columnIndex + 1);
         },
+
+        getColumnLabel(column) {
+            return this.tWithFallback(column.label);
+        },
     },
-});
+};

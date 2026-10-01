@@ -5,26 +5,28 @@ namespace Shopware\Storefront\Framework\Routing;
 use Shopware\Core\Content\Seo\HreflangLoaderInterface;
 use Shopware\Core\Content\Seo\HreflangLoaderParameter;
 use Shopware\Core\Framework\App\ActiveAppsLoader;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
-use Shopware\Storefront\Theme\StorefrontPluginRegistry;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
+use Shopware\Storefront\Page\Product\ProductPage;
+use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 class TemplateDataSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private readonly HreflangLoaderInterface $hreflangLoader,
         private readonly ShopIdProvider $shopIdProvider,
-        private readonly StorefrontPluginRegistry $themeRegistry,
         private readonly ActiveAppsLoader $activeAppsLoader,
+        private readonly ThemeRuntimeConfigService $runtimeConfigService,
     ) {
     }
 
@@ -42,15 +44,28 @@ class TemplateDataSubscriber implements EventSubscriberInterface
     public function addHreflang(StorefrontRenderEvent $event): void
     {
         $request = $event->getRequest();
-        $route = $request->attributes->get('_route');
 
+        if ($request->attributes->getBoolean('_esi')) {
+            return;
+        }
+
+        $route = $request->attributes->get('_route');
         if ($route === null) {
             return;
         }
 
         $routeParams = $request->attributes->get('_route_params', []);
+
+        // When we have a product page, we should make sure that the hreflang matches the canonical URL, relevant if we have a dedicated canonical URL or if we are on the parent product page
+        if ($route === ProductPageSeoUrlRoute::ROUTE_NAME) {
+            $page = $event->getParameter('page');
+            if ($page instanceof ProductPage) {
+                $routeParams['productId'] = $page->getProduct()->getCanonicalProductId() ?? $page->getProduct()->getId();
+            }
+        }
+
         $salesChannelContext = $request->attributes->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT);
-        $parameter = new HreflangLoaderParameter($route, $routeParams, $salesChannelContext);
+        $parameter = new HreflangLoaderParameter($route, $routeParams, $salesChannelContext, $route === 'frontend.home.page', $request->getBasePath());
         $event->setParameter('hrefLang', $this->hreflangLoader->load($parameter));
     }
 
@@ -61,8 +76,8 @@ class TemplateDataSubscriber implements EventSubscriberInterface
         }
 
         try {
-            $shopId = $this->shopIdProvider->getShopId();
-        } catch (AppUrlChangeDetectedException) {
+            $shopId = $this->shopIdProvider->getShopId()->id;
+        } catch (ShopIdChangeSuggestedException) {
             return;
         }
 
@@ -84,19 +99,11 @@ class TemplateDataSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $themeConfig = $this->themeRegistry->getByTechnicalName($theme);
-        if (!$themeConfig) {
+        $runtimeConfig = $this->runtimeConfigService->getRuntimeConfigByName($theme);
+        if (!$runtimeConfig) {
             return;
         }
 
-        $iconConfig = [];
-        foreach ($themeConfig->getIconSets() as $pack => $path) {
-            $iconConfig[$pack] = [
-                'path' => $path,
-                'namespace' => $theme,
-            ];
-        }
-
-        $event->setParameter('themeIconConfig', $iconConfig);
+        $event->setParameter('themeIconConfig', $runtimeConfig->iconSets);
     }
 }

@@ -38,7 +38,7 @@ class UpdateHtaccess implements EventSubscriberInterface
 
     public function update(): void
     {
-        if (!file_exists($this->htaccessPath) || !file_exists($this->htaccessPath . '.dist')) {
+        if (!\is_file($this->htaccessPath) || !\is_file($this->htaccessPath . '.dist')) {
             return;
         }
 

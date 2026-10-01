@@ -38,19 +38,21 @@ class CartScopeDiscountPackagerTest extends TestCase
 
         $packager = static::getContainer()->get(CartScopeDiscountPackager::class);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $discount = new DiscountLineItem('test', new QuantityPriceDefinition(10, new TaxRuleCollection([]), 1), [
             'discountScope' => 'scope',
             'discountType' => 'type',
-            'filter' => [],
+            'filter' => [
+                'considerAdvancedRules' => true,
+            ],
         ], null);
 
         $packages = $packager->getMatchingItems($discount, $cart, $context);
 
-        $ids = $packages->first()?->getMetaData()->map(fn (LineItemQuantity $item) => $item->getLineItemId());
+        $ids = $packages->first()?->getMetaData()->map(static fn (LineItemQuantity $item) => $item->getLineItemId());
 
-        static::assertEquals($expected, $ids);
+        static::assertSame($expected, $ids);
     }
 
     public static function buildPackagesProvider(): \Generator

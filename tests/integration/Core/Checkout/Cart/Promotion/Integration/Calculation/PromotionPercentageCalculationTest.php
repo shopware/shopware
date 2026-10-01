@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
@@ -82,10 +83,10 @@ class PromotionPercentageCalculationTest extends TestCase
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
-        static::assertEquals(0.0, $cart->getPrice()->getPositionPrice(), 'Position Total Price has to be 0,00');
-        static::assertEquals(0.0, $cart->getPrice()->getTotalPrice(), 'Total Price has to be 0,00');
-        static::assertEquals(0.0, $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes have to be 0,00');
-        static::assertEquals(0.0, $cart->getPrice()->getNetPrice(), 'Net Price has to be 0,00');
+        static::assertSame(0.0, $cart->getPrice()->getPositionPrice(), 'Position Total Price has to be 0,00');
+        static::assertSame(0.0, $cart->getPrice()->getTotalPrice(), 'Total Price has to be 0,00');
+        static::assertSame(0.0, $cart->getPrice()->getCalculatedTaxes()->getAmount(), 'Taxes have to be 0,00');
+        static::assertSame(0.0, $cart->getPrice()->getNetPrice(), 'Net Price has to be 0,00');
     }
 
     /**
@@ -134,9 +135,11 @@ class PromotionPercentageCalculationTest extends TestCase
          *      included taxes: 8.34
          *      net price: 41.66€
          */
-        static::assertEquals(50, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(50, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(41.66, $cart->getPrice()->getNetPrice());
+        static::assertSame(50.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(50.0, $cart->getPrice()->getPositionPrice());
+        // v6.8: PercentagePriceCalculator scales and rounds each calculated tax instead of recalculating,
+        // so the included tax of the discount rounds to 8.33 instead of 8.34
+        static::assertSame(Feature::isActive('v6.8.0.0') ? 41.67 : 41.66, $cart->getPrice()->getNetPrice());
 
         $promotion = $cart->getLineItems()->getElements();
         $promotion = array_values($promotion)[1];
@@ -144,9 +147,9 @@ class PromotionPercentageCalculationTest extends TestCase
         static::assertInstanceOf(LineItem::class, $promotion);
         $price = $promotion->getPrice();
         static::assertInstanceOf(CalculatedPrice::class, $price);
-        static::assertEquals(-50, $price->getTotalPrice());
+        static::assertSame(-50.0, $price->getTotalPrice());
         static::assertNotNull($price->getCalculatedTaxes()->first());
-        static::assertEquals(-8.33, $price->getCalculatedTaxes()->first()->getTax());
+        static::assertSame(Feature::isActive('v6.8.0.0') ? -8.34 : -8.33, $price->getCalculatedTaxes()->first()->getTax());
     }
 
     /**
@@ -179,9 +182,9 @@ class PromotionPercentageCalculationTest extends TestCase
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
-        static::assertEquals(70, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(70, $cart->getPrice()->getPositionPrice());
-        static::assertEquals(58.33, $cart->getPrice()->getNetPrice());
+        static::assertSame(70.0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(70.0, $cart->getPrice()->getPositionPrice());
+        static::assertSame(58.33, $cart->getPrice()->getNetPrice());
     }
 
     /**
@@ -223,9 +226,9 @@ class PromotionPercentageCalculationTest extends TestCase
         // create promotion and add to cart
         $cart = $this->addPromotionCode($code, $cart, $this->cartService, $context);
 
-        static::assertEquals($expectedPrice, $cart->getPrice()->getPositionPrice());
-        static::assertEquals($expectedPrice, $cart->getPrice()->getTotalPrice());
-        static::assertEquals(58.82, $cart->getPrice()->getNetPrice());
+        static::assertSame($expectedPrice, $cart->getPrice()->getPositionPrice());
+        static::assertSame($expectedPrice, $cart->getPrice()->getTotalPrice());
+        static::assertSame(58.82, $cart->getPrice()->getNetPrice());
     }
 
     /**
@@ -261,6 +264,6 @@ class PromotionPercentageCalculationTest extends TestCase
         static::assertCount(1, $cart->getLineItems());
 
         // now just try to see if we have a valid 0,00 total price
-        static::assertEquals(0, $cart->getPrice()->getTotalPrice());
+        static::assertSame(0.0, $cart->getPrice()->getTotalPrice());
     }
 }

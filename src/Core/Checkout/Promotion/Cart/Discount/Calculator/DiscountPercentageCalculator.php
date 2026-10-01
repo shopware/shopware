@@ -70,7 +70,7 @@ class DiscountPercentageCalculator
                 // including their quantities that need to be discounted
                 // based on our discount definition.
                 // the basis might only be from a few items and quantities of the cart
-                $assessmentBasis = $affectedPrices->sum()->getTotalPrice();
+                $assessmentBasis = $affectedPrices->getTotalPriceAmount();
 
                 // we have to get our new fictional and lower percentage.
                 // we now calculate the percentage with MAX VALUE against our basis
@@ -122,6 +122,6 @@ class DiscountPercentageCalculator
         }
 
         // if we have an empty string value then we convert it to 0.00 when casting it,  thus we create an early return
-        return trim((string) $discount->getPayloadValue('maxValue')) !== '';
+        return trim($discount->getPayloadValue('maxValue')) !== '';
     }
 }

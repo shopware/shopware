@@ -8,13 +8,19 @@ const { Component } = Shopware;
  *
  * @private
  */
-Component.register('sw-settings-country-preview-template', {
+export default Component.wrapComponentConfig({
     template,
 
     props: {
         formattingAddress: {
             type: String,
             required: true,
+        },
+
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
     },
 

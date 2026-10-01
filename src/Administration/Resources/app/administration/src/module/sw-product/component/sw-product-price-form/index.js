@@ -12,15 +12,12 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -68,24 +65,20 @@ export default {
             return Shopware.Store.get('swProductDetail').currencies;
         },
 
-        ...mapPropertyErrors('product', [
-            'taxId',
-            'price',
-            'purchasePrices',
-        ]),
+        ...mapPropertyErrors('product', ['taxId', 'price', 'purchasePrices']),
 
         taxRateHelpText() {
             const link = {
                 name: 'sw.settings.tax.index',
             };
 
-            return this.$tc(
+            return this.$t(
                 'sw-product.priceForm.taxRateHelpText.label',
                 {
                     link: `<sw-internal-link
                            :router-link=${JSON.stringify(link)}
                            :inline="true">
-                           ${this.$tc('sw-product.priceForm.taxRateHelpText.linkText')}
+                           ${this.$t('sw-product.priceForm.taxRateHelpText.linkText')}
                       </sw-internal-link>`,
                 },
                 0,
@@ -181,7 +174,7 @@ export default {
 
         getTaxLabel(tax) {
             if (this.$te(`global.tax-rates.${tax.name}`)) {
-                return this.$tc(`global.tax-rates.${tax.name}`);
+                return this.$t(`global.tax-rates.${tax.name}`);
             }
 
             return tax.name;

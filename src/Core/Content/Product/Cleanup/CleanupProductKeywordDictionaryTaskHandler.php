@@ -7,18 +7,21 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 /**
  * @internal
  */
-#[AsMessageHandler(handles: CleanupProductKeywordDictionaryTask::class)]
 #[Package('inventory')]
+#[AsMessageHandler(handles: CleanupProductKeywordDictionaryTask::class)]
 final class CleanupProductKeywordDictionaryTaskHandler extends ScheduledTaskHandler
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ScheduledTaskCollection> $repository
      */
     public function __construct(
         EntityRepository $repository,

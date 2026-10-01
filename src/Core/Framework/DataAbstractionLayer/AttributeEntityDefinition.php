@@ -16,7 +16,6 @@ class AttributeEntityDefinition extends EntityDefinition
      */
     public function __construct(private readonly array $meta = [])
     {
-        parent::__construct();
     }
 
     public function since(): ?string
@@ -51,6 +50,11 @@ class AttributeEntityDefinition extends EntityDefinition
     public function getHydratorClass(): string
     {
         return $this->meta['hydrator_class'];
+    }
+
+    public function isInheritanceAware(): bool
+    {
+        return (bool) ($this->meta['inheritance_aware'] ?? false);
     }
 
     protected function getParentDefinitionClass(): ?string

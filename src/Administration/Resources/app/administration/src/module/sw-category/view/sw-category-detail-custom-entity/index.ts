@@ -12,10 +12,7 @@ const EXTENSION_POSTFIX = 'SwCategories';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     data() {
         return {
@@ -47,13 +44,12 @@ export default Shopware.Component.wrapComponentConfig({
                 {
                     dataIndex: 'cmsAwareTitle',
                     property: 'cmsAwareTitle',
-                    label: this.$tc('sw-category.base.customEntity.instanceAssignment.title'),
+                    label: this.$t('sw-category.base.customEntity.instanceAssignment.title'),
                 },
             ];
         },
 
         category(): Entity<'category'> | null {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             return Shopware.Store.get('swCategoryDetail').category as Entity<'category'> | null;
         },
 
@@ -84,7 +80,7 @@ export default Shopware.Component.wrapComponentConfig({
             categoryExtensions[`${this.categoryCustomEntityProperty}${EXTENSION_POSTFIX}`] = customEntityAssignments;
         },
 
-        onEntityChange(id: string, entity?: Entity<'custom_entity'>) {
+        onEntityChange(id: EntityKey<'custom_entity'>, entity?: Entity<'custom_entity'>) {
             if (!this.category) {
                 return;
             }

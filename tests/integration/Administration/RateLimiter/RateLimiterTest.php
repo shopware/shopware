@@ -2,20 +2,21 @@
 
 namespace Shopware\Tests\Integration\Administration\RateLimiter;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class RateLimiterTest extends TestCase
 {
     use AdminApiTestBehaviour;
@@ -63,16 +64,16 @@ class RateLimiterTest extends TestCase
         ];
 
         for ($i = 0; $i <= 10; ++$i) {
-            $client->request('POST', $url, [], [], [], (string) json_encode($data));
+            $client->jsonRequest('POST', $url, $data);
 
             $response = json_decode((string) $client->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
             if ($i >= 10) {
                 static::assertArrayHasKey('errors', $response);
-                static::assertEquals(429, $response['errors'][0]['status']);
-                static::assertEquals('FRAMEWORK__NOTIFICATION_THROTTLED', $response['errors'][0]['code']);
+                static::assertSame(Response::HTTP_TOO_MANY_REQUESTS, (int) $response['errors'][0]['status']);
+                static::assertSame('FRAMEWORK__NOTIFICATION_THROTTLED', $response['errors'][0]['code']);
             } else {
-                static::assertEquals(200, $client->getResponse()->getStatusCode());
+                static::assertSame(200, $client->getResponse()->getStatusCode());
             }
         }
     }

@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -24,6 +25,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('framework')]
 class CreatedByFieldTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;
@@ -63,7 +65,28 @@ class CreatedByFieldTest extends TestCase
 
         $payload = $this->createOrderPayload();
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderRepository, $payload): void {
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($orderRepository, $payload): void {
+            $orderRepository->create([$payload], $context);
+        });
+
+        $result = $orderRepository->search(
+            new Criteria([$payload['id']]),
+            $context
+        )->getEntities()->first();
+
+        static::assertNotNull($result);
+        static::assertNull($result->getCreatedById());
+    }
+
+    public function testCreatedByNotCreateWithWrongVersion(): void
+    {
+        $orderRepository = $this->orderRepository;
+        $userId = $this->fetchFirstIdFromTable('user');
+        $context = $this->getAdminContext($userId)->createWithVersionId(Uuid::randomHex());
+
+        $payload = $this->createOrderPayload();
+
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($orderRepository, $payload): void {
             $orderRepository->create([$payload], $context);
         });
 
@@ -84,7 +107,7 @@ class CreatedByFieldTest extends TestCase
 
         $payload = $this->createOrderPayload();
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($orderRepository, $payload): void {
+        $context->scope(Context::SYSTEM_SCOPE, static function (Context $context) use ($orderRepository, $payload): void {
             $orderRepository->create([$payload], $context);
         });
 
@@ -94,7 +117,27 @@ class CreatedByFieldTest extends TestCase
         )->getEntities()->first();
 
         static::assertNotNull($result);
-        static::assertEquals($userId, $result->getCreatedById());
+        static::assertSame($userId, $result->getCreatedById());
+    }
+
+    public function testCreateCreatedByWithCrudScope(): void
+    {
+        $userId = $this->fetchFirstIdFromTable('user');
+        $context = $this->getAdminContext($userId);
+
+        $payload = $this->createOrderPayload();
+
+        $context->scope(Context::CRUD_API_SCOPE, function (Context $context) use ($payload): void {
+            $this->orderRepository->create([$payload], $context);
+        });
+
+        $result = $this->orderRepository->search(
+            new Criteria([$payload['id']]),
+            $context
+        )->getEntities()->first();
+
+        static::assertNotNull($result);
+        static::assertSame($userId, $result->getCreatedById());
     }
 
     private function getAdminContext(string $userId): Context

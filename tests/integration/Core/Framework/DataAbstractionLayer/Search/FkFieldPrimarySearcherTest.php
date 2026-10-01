@@ -5,9 +5,12 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslationCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -15,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\FkFieldPrimaryTestDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Definition\MultiFkFieldPrimaryTestDefinition;
@@ -25,10 +29,14 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('framework')]
 class FkFieldPrimarySearcherTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     private string $productId;
@@ -69,7 +77,7 @@ class FkFieldPrimarySearcherTest extends TestCase
             Context::createDefaultContext()
         );
 
-        /** @var EntityRepository $fkFieldPrimaryRepository */
+        /** @var EntityRepository<EntityCollection<Entity>> $fkFieldPrimaryRepository */
         $fkFieldPrimaryRepository = static::getContainer()->get($definition->getEntityName() . '.repository');
 
         $fkFieldPrimaryRepository->create(
@@ -83,20 +91,20 @@ class FkFieldPrimarySearcherTest extends TestCase
         );
 
         $criteria = new Criteria([$this->productId]);
-        /** @var EntityRepository $fkFieldPrimaryRepository */
+        /** @var EntityRepository<EntityCollection<Entity>> $fkFieldPrimaryRepository */
         $fkFieldPrimaryRepository = static::getContainer()->get('fk_field_primary.repository');
         /** @var array<string, ArrayEntity> $fkFieldPrimaryTupel */
-        $fkFieldPrimaryTupel = $fkFieldPrimaryRepository->search($criteria, Context::createDefaultContext())->getElements();
+        $fkFieldPrimaryTupel = $fkFieldPrimaryRepository->search($criteria, Context::createDefaultContext())->getEntities()->getElements();
         static::assertArrayHasKey($this->productId, $fkFieldPrimaryTupel);
         static::assertTrue($fkFieldPrimaryTupel[$this->productId]->has('name'));
-        static::assertEquals('TestPrimary', $fkFieldPrimaryTupel[$this->productId]->get('name'));
+        static::assertSame('TestPrimary', $fkFieldPrimaryTupel[$this->productId]->get('name'));
     }
 
     public function testSearchByMultiPrimaryFkKey(): void
     {
         $this->addMultiPrimaryFkField();
 
-        /** @var EntityRepository $multiPrimaryRepository */
+        /** @var EntityRepository<EntityCollection<Entity>> $multiPrimaryRepository */
         $multiPrimaryRepository = static::getContainer()->get('multi_fk_field_primary.repository');
         $firstId = Uuid::randomHex();
         $secondId = Uuid::randomHex();
@@ -114,8 +122,8 @@ class FkFieldPrimarySearcherTest extends TestCase
         $criteria = new Criteria([['firstId' => $firstId, 'secondId' => $secondId]]);
         $multiFkFieldPrimaryTupel = $multiPrimaryRepository->search($criteria, Context::createDefaultContext());
         $key = $firstId . '-' . $secondId;
-        static::assertArrayHasKey($key, $multiFkFieldPrimaryTupel->getElements());
-        static::assertEquals($firstId, $multiFkFieldPrimaryTupel->getElements()[$key]->get('firstId'));
+        static::assertArrayHasKey($key, $multiFkFieldPrimaryTupel->getEntities()->getElements());
+        static::assertSame($firstId, $multiFkFieldPrimaryTupel->getEntities()->getElements()[$key]->get('firstId'));
     }
 
     public function testSearchForTranslation(): void
@@ -139,13 +147,13 @@ class FkFieldPrimarySearcherTest extends TestCase
 
         $criteria = new Criteria([['productId' => $this->productId, 'languageId' => Defaults::LANGUAGE_SYSTEM]]);
 
+        /** @var EntityRepository<ProductTranslationCollection> */
         $productTranslationRepository = static::getContainer()->get('product_translation.repository');
-        /** @var ProductTranslationCollection $productTranslation */
-        $productTranslation = $productTranslationRepository->search($criteria, Context::createDefaultContext());
+        $productTranslation = $productTranslationRepository->search($criteria, Context::createDefaultContext())->getEntities();
 
         $key = $this->productId . '-' . Defaults::LANGUAGE_SYSTEM;
         static::assertArrayHasKey($key, $productTranslation->getElements());
-        static::assertEquals('Test', $productTranslation->getElements()[$key]->getName());
+        static::assertSame('Test', $productTranslation->getElements()[$key]->getName());
     }
 
     private function addPrimaryFkField(): void

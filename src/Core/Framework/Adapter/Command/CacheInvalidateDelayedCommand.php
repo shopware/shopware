@@ -11,8 +11,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(name: 'cache:clear:delayed', description: 'Invalidates the delayed cache keys/tags')]
 #[Package('framework')]
+#[AsCommand(name: 'cache:clear:delayed', description: 'Invalidates the delayed cache keys/tags')]
 class CacheInvalidateDelayedCommand extends Command
 {
     /**
@@ -29,7 +29,7 @@ class CacheInvalidateDelayedCommand extends Command
 
         $style = new SymfonyStyle($input, $output);
 
-        if (empty($tags)) {
+        if ($tags === []) {
             $style->success('No delayed cache tags found');
 
             return 0;
@@ -43,7 +43,7 @@ class CacheInvalidateDelayedCommand extends Command
 
         $table = new Table($output);
         $table->setHeaders(['Tag']);
-        $table->setRows(array_map(fn ($tag) => [$tag], $tags));
+        $table->setRows(array_map(static fn ($tag) => [$tag], $tags));
         $table->render();
 
         return 0;

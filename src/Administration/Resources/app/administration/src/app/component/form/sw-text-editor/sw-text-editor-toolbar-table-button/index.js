@@ -1,21 +1,16 @@
 import template from './sw-text-editor-toolbar-table-button.html.twig';
 import './sw-text-editor-toolbar-table-button.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  * @deprecated tag:v6.8.0 - Will be removed, use mt-text-editor instead.
  *
  * @private
  */
-Component.register('sw-text-editor-toolbar-table-button', {
+export default {
     template,
 
-    emits: [
-        'mounted',
-        'table-create',
-    ],
+    emits: ['mounted', 'table-create'],
 
     props: {
         buttonConfig: {
@@ -186,8 +181,7 @@ Component.register('sw-text-editor-toolbar-table-button', {
             }
 
             tableHtml += '</tbody></table>';
-            // eslint-disable-next-line vue/no-mutating-props
             this.buttonConfig.value = tableHtml;
         },
     },
-});
+};

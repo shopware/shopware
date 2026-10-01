@@ -50,9 +50,7 @@ export default {
         },
 
         starSize() {
-            return {
-                width: `${this.sizeValue * this.scaleFactor}px`,
-            };
+            return `${this.sizeValue * this.scaleFactor}px`;
         },
 
         partialStarSize() {

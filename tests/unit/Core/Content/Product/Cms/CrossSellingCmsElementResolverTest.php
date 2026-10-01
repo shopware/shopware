@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\SalesChannel\CrossSelling\AbstractProductCross
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElement;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\CrossSellingElementCollection;
 use Shopware\Core\Content\Product\SalesChannel\CrossSelling\ProductCrossSellingRouteResponse;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -30,7 +31,7 @@ class CrossSellingCmsElementResolverTest extends TestCase
 {
     public function testGetType(): void
     {
-        $route = $this->createMock(AbstractProductCrossSellingRoute::class);
+        $route = static::createStub(AbstractProductCrossSellingRoute::class);
         $resolver = new CrossSellingCmsElementResolver($route);
         static::assertSame('cross-selling', $resolver->getType());
     }
@@ -43,8 +44,8 @@ class CrossSellingCmsElementResolverTest extends TestCase
             (new CrossSellingElement())->assign(['total' => 1]),
         ]));
 
-        $route = $this->createMock(AbstractProductCrossSellingRoute::class);
-        $route->method('load')->with($productId)->willReturn($response);
+        $route = static::createStub(AbstractProductCrossSellingRoute::class);
+        $route->method('load')->willReturn($response);
 
         $resolver = new CrossSellingCmsElementResolver($route);
         $config = new FieldConfigCollection([
@@ -57,14 +58,11 @@ class CrossSellingCmsElementResolverTest extends TestCase
 
         $context = new ResolverContext(Generator::generateSalesChannelContext(), new Request());
 
-        $result = $this->createMock(EntitySearchResult::class);
-
         $product = new SalesChannelProductEntity();
         $product->setId($productId);
 
-        $result->method('get')
-            ->with($productId)
-            ->willReturn($product);
+        $result = static::createStub(EntitySearchResult::class);
+        $result->method('getEntities')->willReturn(new SalesChannelProductCollection([$product]));
 
         $data = new ElementDataCollection();
         $data->add('product_slot-1', $result);
@@ -84,7 +82,7 @@ class CrossSellingCmsElementResolverTest extends TestCase
 
     public function testEnrichSetsEmptyCrossSellingWithoutConfig(): void
     {
-        $route = $this->createMock(AbstractProductCrossSellingRoute::class);
+        $route = static::createStub(AbstractProductCrossSellingRoute::class);
         $resolver = new CrossSellingCmsElementResolver($route);
 
         $slot = new CmsSlotEntity();

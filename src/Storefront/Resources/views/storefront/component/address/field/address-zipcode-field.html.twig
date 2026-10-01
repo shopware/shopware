@@ -5,8 +5,6 @@
         {% set violationPath = '/zipcode' %}
     {% elseif formViolations.getViolations("/#{prefix}/zipcode") is not empty %}
         {% set violationPath = "/#{prefix}/zipcode" %}
-    {% else %}
-        {% set requiredMessage = 'error.VIOLATION::IS_BLANK_ERROR'|trans({ '%field%': 'address.zipcodeLabel'|trans|sw_sanitize }) %}
     {% endif %}
 
     {% set zipCodeAutocomplete = 'postal-code' %}

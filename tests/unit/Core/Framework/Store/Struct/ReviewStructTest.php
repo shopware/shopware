@@ -29,13 +29,13 @@ class ReviewStructTest extends TestCase
 
         $rating = ReviewStruct::fromRequest(1, $request);
 
-        static::assertEquals(1, $rating->getExtensionId());
-        static::assertEquals('Author', $rating->getAuthorName());
-        static::assertEquals('Headline', $rating->getHeadline());
-        static::assertEquals('Text', $rating->getText());
+        static::assertSame(1, $rating->getExtensionId());
+        static::assertSame('Author', $rating->getAuthorName());
+        static::assertSame('Headline', $rating->getHeadline());
+        static::assertSame('Text', $rating->getText());
         static::assertTrue($rating->isAcceptGuidelines());
-        static::assertEquals(3, $rating->getRating());
-        static::assertEquals('1.1.0', $rating->getVersion());
+        static::assertSame(3, $rating->getRating());
+        static::assertSame('1.1.0', $rating->getVersion());
     }
 
     public function testFromRequestThrowsIfAuthorNameIsInvalid(): void
@@ -44,8 +44,7 @@ class ReviewStructTest extends TestCase
             'tocAccepted' => true,
         ]);
 
-        static::expectException(RoutingException::class);
-        static::expectExceptionMessage('The parameter "authorName" is invalid.');
+        $this->expectExceptionObject(RoutingException::invalidRequestParameter('authorName'));
         ReviewStruct::fromRequest(1, $request);
     }
 
@@ -56,8 +55,7 @@ class ReviewStructTest extends TestCase
             'tocAccepted' => true,
         ]);
 
-        static::expectException(RoutingException::class);
-        static::expectExceptionMessage('The parameter "headline" is invalid.');
+        $this->expectExceptionObject(RoutingException::invalidRequestParameter('headline'));
         ReviewStruct::fromRequest(1, $request);
     }
 
@@ -70,8 +68,7 @@ class ReviewStructTest extends TestCase
             'tocAccepted' => true,
         ]);
 
-        static::expectException(RoutingException::class);
-        static::expectExceptionMessage('The parameter "rating" is invalid.');
+        $this->expectExceptionObject(RoutingException::invalidRequestParameter('rating'));
         ReviewStruct::fromRequest(1, $request);
     }
 }

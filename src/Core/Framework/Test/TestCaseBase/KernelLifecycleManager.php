@@ -51,7 +51,12 @@ class KernelLifecycleManager
     public static function getKernel(): Kernel
     {
         if (static::$kernel) {
-            static::$kernel->boot();
+            try {
+                static::$kernel->getContainer();
+            } catch (\LogicException) {
+                // the kernel was shut down (e.g. by a rebooting test browser) - boot it again
+                static::$kernel->boot();
+            }
 
             return static::$kernel;
         }
@@ -64,8 +69,8 @@ class KernelLifecycleManager
      */
     public static function createBrowser(KernelInterface $kernel, bool $enableReboot = false): TestBrowser
     {
-        /** @var TestBrowser $apiBrowser */
         $apiBrowser = $kernel->getContainer()->get('test.client');
+        \assert($apiBrowser instanceof TestBrowser);
 
         if ($enableReboot) {
             $apiBrowser->enableReboot();

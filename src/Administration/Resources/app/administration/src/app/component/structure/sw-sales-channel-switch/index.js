@@ -3,7 +3,7 @@
  */
 import template from './sw-sales-channel-switch.html.twig';
 
-const { Component } = Shopware;
+const { Criteria } = Shopware.Data;
 const { debug } = Shopware.Utils;
 
 /**
@@ -16,7 +16,7 @@ const { debug } = Shopware.Utils;
  * <sw-sales-channel-switch></sw-sales-channel-switch>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sales-channel-switch', {
+export default {
     template,
 
     emits: ['change-sales-channel-id'],
@@ -27,12 +27,10 @@ Component.register('sw-sales-channel-switch', {
             required: false,
             default: false,
         },
-        // eslint-disable-next-line vue/require-default-prop
         abortChangeFunction: {
             type: Function,
             required: false,
         },
-        // eslint-disable-next-line vue/require-default-prop
         saveChangesFunction: {
             type: Function,
             required: false,
@@ -41,6 +39,16 @@ Component.register('sw-sales-channel-switch', {
             type: String,
             required: false,
             default: '',
+        },
+        salesChannelCriteria: {
+            type: Object,
+            required: false,
+            default: () => {
+                const criteria = new Criteria(1, 25);
+                criteria.addSorting(Criteria.sort('name'));
+
+                return criteria;
+            },
         },
     },
 
@@ -114,4 +122,4 @@ Component.register('sw-sales-channel-switch', {
             this.emitChange();
         },
     },
-});
+};

@@ -69,8 +69,8 @@ class SeoUrlTemplateRepositoryTest extends TestCase
 
         $first = $repo->search(new Criteria([$id]), $context)->getEntities()->first();
         static::assertNotNull($first);
-        static::assertEquals($update['id'], $first->getId());
-        static::assertEquals($update['routeName'], $first->getRouteName());
+        static::assertSame($update['id'], $first->getId());
+        static::assertSame($update['routeName'], $first->getRouteName());
     }
 
     public function testDelete(): void
@@ -92,7 +92,7 @@ class SeoUrlTemplateRepositoryTest extends TestCase
         $result = $repo->delete([['id' => $id]], $context);
         $event = $result->getEventByEntityName(SeoUrlTemplateDefinition::ENTITY_NAME);
         static::assertNotNull($event);
-        static::assertEquals([$id], $event->getIds());
+        static::assertSame([$id], $event->getIds());
 
         $first = $repo->search(new Criteria([$id]), $context)->getEntities()->first();
         static::assertNull($first);

@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,13 +23,14 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ProductDetailCmsElementResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
     public function testCollectWithStaticConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_STATIC, 'product123'));
@@ -49,16 +51,16 @@ class ProductDetailCmsElementResolverTest extends TestCase
         static::assertInstanceOf(OrFilter::class, $orFilter = $criteria->getFilters()[0]);
         static::assertCount(2, $queries = $orFilter->getQueries());
         static::assertInstanceOf(EqualsFilter::class, $firstQuery = $queries[0]);
-        static::assertEquals('product.parentId', $firstQuery->getField());
-        static::assertEquals('product123', $firstQuery->getValue());
+        static::assertSame('product.parentId', $firstQuery->getField());
+        static::assertSame('product123', $firstQuery->getValue());
         static::assertInstanceOf(EqualsFilter::class, $secondQuery = $queries[1]);
-        static::assertEquals('id', $secondQuery->getField());
-        static::assertEquals('product123', $secondQuery->getValue());
+        static::assertSame('id', $secondQuery->getField());
+        static::assertSame('product123', $secondQuery->getValue());
     }
 
     public function testCollectWithEmptyStaticConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_STATIC, null));
@@ -75,7 +77,7 @@ class ProductDetailCmsElementResolverTest extends TestCase
 
     public function testCollectWithMappedConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_MAPPED, 'product.name'));
@@ -95,9 +97,9 @@ class ProductDetailCmsElementResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId('product-01');
         $entityResolverContext = new EntityResolverContext(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             new Request(),
-            $this->createMock(SalesChannelProductDefinition::class),
+            static::createStub(SalesChannelProductDefinition::class),
             $product
         );
 
@@ -112,8 +114,8 @@ class ProductDetailCmsElementResolverTest extends TestCase
 
         static::assertNull($criteriaCollection);
         static::assertInstanceOf(FieldConfig::class, $productConfig = $fieldConfig->get('product'));
-        static::assertEquals(FieldConfig::SOURCE_MAPPED, $productConfig->getSource());
-        static::assertEquals($product->getId(), $productConfig->getValue());
+        static::assertSame(FieldConfig::SOURCE_MAPPED, $productConfig->getSource());
+        static::assertSame($product->getId(), $productConfig->getValue());
     }
 }
 

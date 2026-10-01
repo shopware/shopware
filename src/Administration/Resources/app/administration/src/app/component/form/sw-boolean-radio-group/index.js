@@ -1,7 +1,5 @@
 import './sw-boolean-radio-group.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -17,7 +15,7 @@ const { Component } = Shopware;
  *      :bordered="bordered">
  * </sw-boolean-radio-group>
  */
-Component.register('sw-boolean-radio-group', {
+export default {
     template: `
 <sw-radio-field
     class="sw-boolean-radio-group"
@@ -37,7 +35,6 @@ Component.register('sw-boolean-radio-group', {
         value: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -76,4 +73,4 @@ Component.register('sw-boolean-radio-group', {
             },
         },
     },
-});
+};

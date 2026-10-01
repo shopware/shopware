@@ -7,9 +7,9 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
-use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,10 +17,10 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('framework')]
 class NotificationControllerTest extends TestCase
 {
     use AdminApiTestBehaviour;
-    use AppSystemTestBehaviour;
     use GuzzleTestClientBehaviour;
 
     /**
@@ -102,16 +102,14 @@ class NotificationControllerTest extends TestCase
     }
 
     /**
-     * @return array<array<array<string>|string|bool>>
+     * @return iterable<array<array<string>|string|bool>>
      */
-    public static function saveNotificationProvider(): array
+    public static function saveNotificationProvider(): iterable
     {
-        return [
-            ['integration', 'success', 'This is a notification', false, ['cache:clear'], true],
-            ['integration', '', 'This is a notification', false, ['cache:clear'], false],
-            ['integration', 'success', '', false, ['cache:clear'], false],
-            ['browser', 'success', 'This is a notification', true, [], true],
-        ];
+        yield 'save notification integration success this is a notification false cache clear' => ['integration', 'success', 'This is a notification', false, ['cache:clear'], true];
+        yield 'save notification integration this is a notification false cache clear' => ['integration', '', 'This is a notification', false, ['cache:clear'], false];
+        yield 'save notification integration success false cache clear false' => ['integration', 'success', '', false, ['cache:clear'], false];
+        yield 'browser success notification with admin visibility is saved' => ['browser', 'success', 'This is a notification', true, [], true];
     }
 
     /**
@@ -158,14 +156,12 @@ class NotificationControllerTest extends TestCase
     }
 
     /**
-     * @return array<array<array<string>|bool|int|null>>
+     * @return iterable<array<array<string>|bool|int|null>>
      */
-    public static function getNotificationProvider(): array
+    public static function getNotificationProvider(): iterable
     {
-        return [
-            [true, [], null, 1],
-            [false, ['cache:clear'], ['cache:clear'], 1],
-            [false, ['cache:clear'], [], 0],
-        ];
+        yield 'notification true null 1' => [true, [], null, 1];
+        yield 'notification false cache clear cache clear 1' => [false, ['cache:clear'], ['cache:clear'], 1];
+        yield 'notification false cache clear 0' => [false, ['cache:clear'], [], 0];
     }
 }

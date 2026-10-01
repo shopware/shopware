@@ -66,26 +66,25 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         // we split the context generation to allow caching of the base context
         $base = $this->baseSalesChannelContextFactory->create($salesChannelId, $options);
 
-        // customer
         $customer = null;
         if (\is_string($options[SalesChannelContextService::CUSTOMER_ID] ?? null)) {
             // load logged in customer and set active addresses
             $customer = $this->loadCustomer($options, $base->getContext());
         }
 
-        $shippingLocation = $base->getShippingLocation();
-        if ($customer) {
-            $activeShippingAddress = $customer->getActiveShippingAddress();
-            \assert($activeShippingAddress !== null);
-            $shippingLocation = ShippingLocation::createFromAddress($activeShippingAddress);
-        }
+        if ($customer !== null) {
+            // prefer the billing address over the sales channel country so a missing shipping address does not change the tax country
+            $locationAddress = $customer->getActiveShippingAddress() ?? $customer->getActiveBillingAddress();
+            $shippingLocation = $locationAddress !== null
+                ? ShippingLocation::createFromAddress($locationAddress)
+                : $base->getShippingLocation();
 
-        $customerGroup = $base->getCurrentCustomerGroup();
-
-        if ($customer) {
             $criteria = new Criteria([$customer->getGroupId()]);
             $criteria->setTitle('context-factory::customer-group');
-            $customerGroup = $this->customerGroupRepository->search($criteria, $base->getContext())->getEntities()->first() ?? $customerGroup;
+            $customerGroup = $this->customerGroupRepository->search($criteria, $base->getContext())->getEntities()->first() ?? $base->getCurrentCustomerGroup();
+        } else {
+            $shippingLocation = $base->getShippingLocation();
+            $customerGroup = $base->getCurrentCustomerGroup();
         }
 
         // loads tax rules based on active customer and delivery address
@@ -108,11 +107,15 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $itemRounding
         );
 
+        $salesChannel = $base->getSalesChannel();
+
+        $domainId = \is_string($options[SalesChannelContextService::DOMAIN_ID] ?? null) ? $options[SalesChannelContextService::DOMAIN_ID] : null;
+
         $salesChannelContext = new SalesChannelContext(
             $context,
             $token,
-            \is_string($options[SalesChannelContextService::DOMAIN_ID] ?? null) ? $options[SalesChannelContextService::DOMAIN_ID] : null,
-            $base->getSalesChannel(),
+            $domainId,
+            $salesChannel,
             $base->getCurrency(),
             $customerGroup,
             $taxRules,
@@ -124,6 +127,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             $totalRounding,
             $base->getLanguageInfo(),
         );
+
+        $salesChannelContext->setMeasurementSystem($base->getMeasurementSystemInfo());
 
         if (\is_array($options[SalesChannelContextService::PERMISSIONS] ?? null)) {
             $salesChannelContext->setPermissions($options[SalesChannelContextService::PERMISSIONS]);
@@ -187,6 +192,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
     /**
      * @codeCoverageIgnore
      *
+     * @see \Shopware\Tests\Integration\Core\System\SalesChannel\Context\SalesChannelContextTest
+     *
      * @param array<string, mixed> $options
      */
     private function getPaymentMethod(array $options, BaseSalesChannelContext $context, ?CustomerEntity $customer): PaymentMethodEntity
@@ -208,12 +215,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         $criteria->addFilter(new EqualsFilter('active', 1));
         $criteria->addFilter(new EqualsFilter('salesChannels.id', $context->getSalesChannelId()));
 
-        $paymentMethod = $this->paymentMethodRepository->search($criteria, $context->getContext())->getEntities()->get($id);
-        if (!$paymentMethod) {
-            return $context->getPaymentMethod();
-        }
-
-        return $paymentMethod;
+        return $this->paymentMethodRepository->search($criteria, $context->getContext())->getEntities()->get($id) ?? $context->getPaymentMethod();
     }
 
     /**
@@ -237,7 +239,8 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
         ]));
 
         $customer = $this->customerRepository->search($criteria, $context)->getEntities()->get($customerId);
-        if (!$customer) {
+        // active check here instead of DAL filter due to no DB index
+        if (!$customer?->getActive()) {
             return null;
         }
 
@@ -257,24 +260,34 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
 
         $addresses = $this->addressRepository->search($criteria, $context)->getEntities();
 
+        // a default address id can point to a deleted row, and the setters are not nullable yet
         $activeBillingAddress = $addresses->get($activeBillingAddressId) ?? $addresses->get($customer->getDefaultBillingAddressId());
-        \assert($activeBillingAddress !== null);
-        $customer->setActiveBillingAddress($activeBillingAddress);
+        if ($activeBillingAddress !== null) {
+            $customer->setActiveBillingAddress($activeBillingAddress);
+        }
+
         $activeShippingAddress = $addresses->get($activeShippingAddressId) ?? $addresses->get($customer->getDefaultShippingAddressId());
-        \assert($activeShippingAddress !== null);
-        $customer->setActiveShippingAddress($activeShippingAddress);
+        if ($activeShippingAddress !== null) {
+            $customer->setActiveShippingAddress($activeShippingAddress);
+        }
+
         $defaultBillingAddress = $addresses->get($customer->getDefaultBillingAddressId());
-        \assert($defaultBillingAddress !== null);
-        $customer->setDefaultBillingAddress($defaultBillingAddress);
+        if ($defaultBillingAddress !== null) {
+            $customer->setDefaultBillingAddress($defaultBillingAddress);
+        }
+
         $defaultShippingAddress = $addresses->get($customer->getDefaultShippingAddressId());
-        \assert($defaultShippingAddress !== null);
-        $customer->setDefaultShippingAddress($defaultShippingAddress);
+        if ($defaultShippingAddress !== null) {
+            $customer->setDefaultShippingAddress($defaultShippingAddress);
+        }
 
         return $customer;
     }
 
     /**
      * @codeCoverageIgnore
+     *
+     * @see \Shopware\Tests\Integration\Core\System\SalesChannel\Context\SalesChannelContextTest
      *
      * @return array{CashRoundingConfig, CashRoundingConfig}
      */
@@ -295,7 +308,7 @@ class SalesChannelContextFactory extends AbstractSalesChannelContextFactory
             ->getEntities()
             ->first();
 
-        if ($countryConfig) {
+        if ($countryConfig !== null) {
             return [$countryConfig->getItemRounding(), $countryConfig->getTotalRounding()];
         }
 

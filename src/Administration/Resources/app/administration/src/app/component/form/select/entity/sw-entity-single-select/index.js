@@ -12,13 +12,10 @@ const { debounce, get } = Shopware.Utils;
 /**
  * @private
  */
-Component.register('sw-entity-single-select', {
+export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: [
         'update:value',
@@ -28,20 +25,16 @@ Component.register('sw-entity-single-select', {
         'search-term-change',
     ],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error'), Mixin.getByName('notification')],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
+        // null is a common value here, e.g. passed by the inheritance system.
         value: {
-            required: true,
+            required: false,
         },
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         placeholder: {
@@ -55,10 +48,7 @@ Component.register('sw-entity-single-select', {
             default: '',
         },
         labelProperty: {
-            type: [
-                String,
-                Array,
-            ],
+            type: [String, Array],
             required: false,
             default: 'name',
         },
@@ -80,7 +70,7 @@ Component.register('sw-entity-single-select', {
             type: Object,
             required: false,
             default(props) {
-                return new Criteria(1, props.resultLimit);
+                return new Criteria(1, props.resultLimit).setTotalCountMode(0);
             },
         },
         context: {
@@ -109,17 +99,9 @@ Component.register('sw-entity-single-select', {
             type: String,
             required: false,
             default: 'right',
-            validValues: [
-                'bottom',
-                'right',
-                'left',
-            ],
+            validValues: ['bottom', 'right', 'left'],
             validator(value) {
-                return [
-                    'bottom',
-                    'right',
-                    'left',
-                ].includes(value);
+                return ['bottom', 'right', 'left'].includes(value);
             },
         },
         allowEntityCreation: {
@@ -159,11 +141,35 @@ Component.register('sw-entity-single-select', {
         disabled: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
         label: {
             type: String,
+            required: false,
+            default: undefined,
+        },
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
+        },
+        popoverClasses: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
+        autocomplete: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
+        cacheKey: {
+            type: Array,
+            required: false,
+            default: () => [],
+        },
+        cacheTtl: {
+            type: Number,
             required: false,
             default: undefined,
         },
@@ -264,17 +270,24 @@ Component.register('sw-entity-single-select', {
             }
 
             this.isLoading = true;
-            return this.repository.get(this.value, { ...this.context, inheritance: true }, this.criteria).then((item) => {
-                if (!item) {
-                    this.$emit('update:value', null);
-                }
+            return this.repository
+                .get(
+                    this.value,
+                    { ...this.context, inheritance: true },
+                    this.criteria,
+                    this.getCacheOptions(['selected', this.value]),
+                )
+                .then((item) => {
+                    if (!item && !this.disabled) {
+                        this.$emit('update:value', null);
+                    }
 
-                this.criteria.setIds([]);
+                    this.criteria.setIds([]);
 
-                this.singleSelection = item;
-                this.isLoading = false;
-                return item;
-            });
+                    this.singleSelection = item;
+                    this.isLoading = false;
+                    return item;
+                });
         },
 
         createCollection(collection) {
@@ -316,7 +329,7 @@ Component.register('sw-entity-single-select', {
                             this.resultCollection = result;
 
                             const newEntity = this.repository.create(this.context, -1);
-                            newEntity.name = this.$tc(
+                            newEntity.name = this.$t(
                                 'global.sw-single-select.labelEntityAdd',
                                 {
                                     term: this.searchTerm,
@@ -365,13 +378,30 @@ Component.register('sw-entity-single-select', {
         loadData() {
             this.isLoading = true;
 
-            return this.repository.search(this.criteria, { ...this.context, inheritance: true }).then((result) => {
-                this.displaySearch(result);
+            return this.repository
+                .search(
+                    this.criteria,
+                    { ...this.context, inheritance: true },
+                    this.getCacheOptions(['search', this.criteria.parse()]),
+                )
+                .then((result) => {
+                    this.displaySearch(result);
 
-                this.isLoading = false;
+                    this.isLoading = false;
 
-                return result;
-            });
+                    return result;
+                });
+        },
+
+        getCacheOptions(key) {
+            if (this.cacheKey.length === 0) {
+                return undefined;
+            }
+
+            return {
+                cacheKey: [...this.cacheKey, ...key],
+                ttl: this.cacheTtl,
+            };
         },
 
         checkEntityExists(term) {
@@ -383,10 +413,7 @@ Component.register('sw-entity-single-select', {
 
             const criteria = new Criteria(1, this.resultLimit);
             criteria.addIncludes({
-                [this.entity]: [
-                    'id',
-                    'name',
-                ],
+                [this.entity]: ['id', 'name'],
             });
             criteria.addFilter(Criteria.equals('name', term));
 
@@ -399,7 +426,7 @@ Component.register('sw-entity-single-select', {
 
         displaySearch(result) {
             if (!this.resultCollection) {
-                this.resultCollection = result;
+                this.resultCollection = EntityCollection.fromCollection(result);
             } else {
                 result.forEach((item) => {
                     // Prevent duplicate entries
@@ -583,7 +610,7 @@ Component.register('sw-entity-single-select', {
 
                     this.$emit('option-select', Utils.string.camelCase(this.entity), entity);
                     this.createNotificationSuccess({
-                        message: this.$tc(
+                        message: this.$t(
                             'global.sw-single-select.labelEntityAddedSuccess',
                             {
                                 term: entity.name,
@@ -595,7 +622,7 @@ Component.register('sw-entity-single-select', {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc(
+                        message: this.$t(
                             'global.notification.notificationSaveErrorMessage',
                             {
                                 entityName: this.entity,
@@ -636,4 +663,4 @@ Component.register('sw-entity-single-select', {
             return '#d1d9e0';
         },
     },
-});
+};

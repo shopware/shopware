@@ -20,10 +20,9 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -34,7 +33,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Group('rules')]
 class GoodsPriceRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
@@ -99,7 +97,7 @@ class GoodsPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
     }
 
     public function testValidateWithIntAmount(): void
@@ -123,7 +121,7 @@ class GoodsPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
     }
 
     public function testAvailableOperators(): void
@@ -185,7 +183,7 @@ class GoodsPriceRuleTest extends TestCase
             $this->conditionRepository->search(
                 new Criteria([$conditionIdEq, $conditionIdNEq, $conditionIdLTE, $conditionIdGTE]),
                 $this->context
-            )
+            )->getEntities()
         );
     }
 
@@ -232,7 +230,7 @@ class GoodsPriceRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
     }
 
     public function testCreateRuleWithFilter(): void
@@ -276,34 +274,34 @@ class GoodsPriceRuleTest extends TestCase
         /** @var AndRule $andRule */
         $andRule = $rule->getPayload();
         static::assertInstanceOf(GoodsPriceRule::class, $andRule->getRules()[0]);
-        $filterRule = ReflectionHelper::getProperty(GoodsPriceRule::class, 'filter')->getValue($andRule->getRules()[0]);
+        $filterRule = (new \ReflectionProperty(GoodsPriceRule::class, 'filter'))->getValue($andRule->getRules()[0]);
         static::assertInstanceOf(AndRule::class, $filterRule);
         static::assertInstanceOf(LineItemOfTypeRule::class, $filterRule->getRules()[0]);
     }
 
     public function testFilter(): void
     {
-        $item = $this->createLineItemWithPrice('test-not-matching', 40);
+        $item = CartRuleFixture::createLineItemWithPrice('test-not-matching', 40);
         $item->setGood(true);
 
-        $item2 = $this->createLineItemWithPrice('test', 100);
+        $item2 = CartRuleFixture::createLineItemWithPrice('test', 100);
         $item2->setGood(true);
 
-        $cart = $this->createCart(new LineItemCollection([$item, $item2]));
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$item, $item2]));
 
         $this->assertRuleMatches($cart);
     }
 
     public function testFilterNested(): void
     {
-        $item = $this->createLineItemWithPrice('test-not-matching', 40);
+        $item = CartRuleFixture::createLineItemWithPrice('test-not-matching', 40);
         $item->setGood(true);
 
-        $item2 = $this->createLineItemWithPrice('test', 100);
+        $item2 = CartRuleFixture::createLineItemWithPrice('test', 100);
         $item2->setGood(true);
 
-        $containerLineItem = $this->createContainerLineItem(new LineItemCollection([$item, $item2]));
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = CartRuleFixture::createContainerLineItem(new LineItemCollection([$item, $item2]));
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $this->assertRuleMatches($cart);
     }
@@ -319,7 +317,7 @@ class GoodsPriceRuleTest extends TestCase
             'operator' => Rule::OPERATOR_EQ,
         ]);
 
-        $mock = $this->createMock(SalesChannelContext::class);
+        $mock = static::createStub(SalesChannelContext::class);
         $scope = new CartRuleScope($cart, $mock);
 
         static::assertTrue($rule->match($scope));

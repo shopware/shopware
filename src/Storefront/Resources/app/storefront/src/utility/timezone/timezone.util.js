@@ -18,7 +18,7 @@ export default class TimezoneUtil {
         CookieStorageHelper.setItem(
             TIMEZONE_COOKIE,
             Intl.DateTimeFormat().resolvedOptions().timeZone,
-            30
+            30,
         );
     }
 

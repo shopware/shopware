@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import findByText from '../../../../../test/_helper_/find-by-text';
 
 /**
  * @sw-package discovery
@@ -49,20 +48,14 @@ async function createWrapper(customPropsData = {}) {
                     },
                 ],
                 currentPosition: 0,
-                addressFormat: [
-                    [
-                        'address/company',
-                        'symbol/dash',
-                        'address/department',
-                    ],
-                ],
+                addressFormat: [['address/company', 'symbol/dash', 'address/department']],
                 ...customPropsData,
             },
 
             global: {
                 renderStubDefaultSlot: true,
                 mocks: {
-                    $tc: (key) => key,
+                    $t: (key) => key,
                     $route: {
                         params: {
                             id: 'id',
@@ -119,12 +112,6 @@ async function createWrapper(customPropsData = {}) {
 }
 
 describe('src/module/sw-settings-country/component/sw-settings-country-new-snippet-modal', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to remove the snippet', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -134,22 +121,18 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
         await button.find('.sw-label__dismiss').trigger('click');
 
         expect(wrapper.emitted('change')).toBeTruthy();
-        expect(wrapper.emitted('change')[0]).toEqual([
-            0,
-            [
-                'symbol/dash',
-                'address/department',
-            ],
-        ]);
+        expect(wrapper.emitted('change')[0]).toEqual([0, ['symbol/dash', 'address/department']]);
     });
 
     it('should be able to add new snippet', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const treeItemChildren = wrapper.find('.tree-items .sw-tree-item__children');
+        const snippetButton = wrapper.find(
+            '.tree-items .sw-tree-item__children .sw-settings-country-new-snippet-modal__tree-item-button',
+        );
 
-        await findByText(treeItemChildren, 'button', 'sw-settings-country.detail.buttonInsertSnippet').trigger('click');
+        await snippetButton.trigger('click');
 
         expect(wrapper.emitted('change')).toBeTruthy();
         expect(wrapper.emitted('change')[0]).toEqual([
@@ -161,6 +144,14 @@ describe('src/module/sw-settings-country/component/sw-settings-country-new-snipp
                 'symbol/dash',
             ],
         ]);
+    });
+
+    it('should render current snippets without a selection input', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findAll('.sw-select-selection-list__item-holder')).toHaveLength(3);
+        expect(wrapper.find('.sw-select-selection-list__input').exists()).toBe(false);
     });
 
     it('should be able to reorder data when user type search term in search field', async () => {

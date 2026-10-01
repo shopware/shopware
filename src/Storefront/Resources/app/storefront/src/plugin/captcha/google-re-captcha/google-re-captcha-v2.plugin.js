@@ -11,15 +11,29 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
     };
 
     init() {
-        super.init();
-
         this.grecaptchaContainer = this.el.querySelector(this.options.checkboxContainer);
         this.grecaptchaContainerIframe = null;
         this.grecaptchaWidgetId = null;
-
         this.currentToken = null;
 
-        this._renderV2Captcha();
+        super.init();
+    }
+
+    _executeGoogleReCaptchaInitialization() {
+        super._executeGoogleReCaptchaInitialization();
+
+        if (this.grecaptcha) {
+            this._renderV2Captcha();
+        } else {
+            console.error('GoogleReCaptchaV2Plugin: Cannot render V2 captcha.');
+        }
+    }
+
+    /**
+     * @private
+     */
+    _renderV2Captcha() {
+        this.grecaptcha.ready(this._onGreCaptchaReady.bind(this));
     }
 
     getGreCaptchaInfo() {
@@ -27,6 +41,26 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
             version: 'GoogleReCaptchaV2',
             invisible: this.options.invisible,
         };
+    }
+
+    /**
+     * Resets the reCAPTCHA v2 widget so a fresh challenge has to be solved before the next
+     * submission. The cached token and hidden input are cleared as well, so the invisible
+     * variant requests a new token via `execute()` instead of reusing the consumed one, and the
+     * visible variant requires the checkbox to be solved again.
+     */
+    resetGreCaptcha() {
+        if (this.grecaptchaWidgetId === null) {
+            return;
+        }
+
+        this.grecaptcha.reset(this.grecaptchaWidgetId);
+        this.currentToken = null;
+        this.grecaptchaInput.value = '';
+
+        if (!this.options.invisible && this.grecaptchaContainerIframe) {
+            this.grecaptchaContainerIframe.classList.remove(this.options.grecaptchaIframeHasErrorClassSelector);
+        }
     }
 
     onFormSubmit() {
@@ -62,13 +96,6 @@ export default class GoogleReCaptchaV2Plugin extends GoogleReCaptchaBasePlugin
                 this._submitInvisibleForm();
             }
         }
-    }
-
-    /**
-     * @private
-     */
-    _renderV2Captcha() {
-        this.grecaptcha.ready(this._onGreCaptchaReady.bind(this));
     }
 
     /**

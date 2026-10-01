@@ -12,7 +12,8 @@ All blocks of this template are available in the template which renders this tem
 {% block comment %}
     {% if config.documentComment %}
         <div class="document-comment-container" tabindex="0">
-            {{ 'document.comment'|trans({'%comment%': config.documentComment})|sw_sanitize }}
+            {{ 'document.comment'|trans({'%comment%': config.documentComment})|sw_sanitize(null, true) }}
         </div>
     {% endif %}
 {% endblock %}
+

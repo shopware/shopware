@@ -1,8 +1,6 @@
 import template from './sw-select-base.html.twig';
 import './sw-select-base.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -11,16 +9,12 @@ const { Component } = Shopware;
  * @description Base component for creating new select components. Uses sw-field base components as basic structure.
  * @example-type code-only
  */
-Component.register('sw-select-base', {
+export default {
     template,
 
     inheritAttrs: false,
 
-    emits: [
-        'select-expanded',
-        'select-collapsed',
-        'clear',
-    ],
+    emits: ['select-expanded', 'select-collapsed', 'clear'],
 
     props: {
         isLoading: {
@@ -35,10 +29,22 @@ Component.register('sw-select-base', {
             default: false,
         },
 
+        /**
+         * Controls visibility of the clear button.
+         * When undefined, defaults to true if not required, false if required.
+         * Explicit true/false overrides this default behavior.
+         * @see isClearable computed property
+         */
         showClearableButton: {
             type: Boolean,
             required: false,
-            default: false,
+            default: undefined,
+        },
+
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
         },
     },
 
@@ -51,6 +57,17 @@ Component.register('sw-select-base', {
     computed: {
         swFieldClasses() {
             return { 'has--focus': this.expanded };
+        },
+
+        isClearable() {
+            // If explicitly set, use the provided value
+            if (this.showClearableButton !== undefined) {
+                return this.showClearableButton;
+            }
+
+            // Default: clearable when not required
+            // '' case is for empty attribute like <form-field required> which should be treated as true
+            return !this.$attrs.required && this.$attrs.required !== '';
         },
     },
 
@@ -105,6 +122,10 @@ Component.register('sw-select-base', {
         },
 
         collapse(event) {
+            if (!this.expanded) {
+                return;
+            }
+
             document.removeEventListener('click', this.listenToClickOutside);
             this.expanded = false;
 
@@ -123,9 +144,9 @@ Component.register('sw-select-base', {
         focusPreviousFormElement() {
             const focusableSelector = 'a, button, input, textarea, select, details, [tabindex]:not([tabindex="-1"])';
             const myFocusable = this.$el.querySelector(focusableSelector);
-            const keyboardFocusable = [
-                ...document.querySelectorAll(focusableSelector),
-            ].filter((el) => !el.hasAttribute('disabled') && el.dataset.clearableButton === undefined);
+            const keyboardFocusable = [...document.querySelectorAll(focusableSelector)].filter(
+                (el) => !el.hasAttribute('disabled') && el.dataset.clearableButton === undefined,
+            );
 
             keyboardFocusable.forEach((element, index) => {
                 if (index > 0 && element === myFocusable) {
@@ -137,20 +158,25 @@ Component.register('sw-select-base', {
         },
 
         listenToClickOutside(event) {
-            let path = event.path;
-            if (typeof path === 'undefined') {
-                path = this.computePath(event);
-            }
+            const target = event.target;
+            const clickIsInsideSelect = target instanceof Node && this.$el.contains(target);
 
-            if (
-                !path.find((element) => {
-                    return element === this.$el;
-                })
-            ) {
+            // Borderline clicks can target the body even while the pointer is still over the select.
+            // Non-layout environments like jsdom do not implement the hit-test fallback.
+            const clickedElementStackContainsSelect =
+                typeof document.elementsFromPoint === 'function' &&
+                document
+                    .elementsFromPoint(event.clientX, event.clientY)
+                    .some((element) => element === this.$el || this.$el.contains(element));
+
+            if (!clickIsInsideSelect && !clickedElementStackContainsSelect) {
                 this.collapse();
             }
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed. Use `Element.contains()` instead.
+         */
         computePath(event) {
             const path = [];
             let target = event.target;
@@ -174,4 +200,4 @@ Component.register('sw-select-base', {
             }
         },
     },
-});
+};

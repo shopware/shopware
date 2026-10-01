@@ -21,6 +21,19 @@ Extends the basic offcanvas component with additional cart styles.
 
 .offcanvas-summary-list {
     margin-bottom: 0;
+    justify-content: space-between;
+
+    > * {
+        width: initial;
+    }
+}
+
+.offcanvas-shipping-info {
+    justify-content: space-between;
+
+    > * {
+        width: initial;
+    }
 }
 
 .offcanvas-cart-promotion-form {

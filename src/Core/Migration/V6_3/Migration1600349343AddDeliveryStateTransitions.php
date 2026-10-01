@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1600349343AddDeliveryStateTransitions extends MigrationStep
@@ -77,11 +75,7 @@ class Migration1600349343AddDeliveryStateTransitions extends MigrationStep
                 return false;
             }
 
-            if (\in_array($state['to_state_id'], array_column($reopenStates, 'to_state_id'), true)) {
-                return false;
-            }
-
-            return true;
+            return !\in_array($state['to_state_id'], array_column($reopenStates, 'to_state_id'), true);
         });
 
         return array_unique(array_column($missingStates, 'to_state_id'));

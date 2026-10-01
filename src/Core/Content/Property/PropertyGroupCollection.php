@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Content\Property;
 
-use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -18,7 +20,7 @@ class PropertyGroupCollection extends EntityCollection
     public function getOptionIdMap(): array
     {
         $map = [];
-        /** @var PropertyGroupEntity $group */
+
         foreach ($this->elements as $group) {
             if ($group->getOptions() === null) {
                 continue;
@@ -34,7 +36,7 @@ class PropertyGroupCollection extends EntityCollection
 
     public function sortByPositions(): void
     {
-        uasort($this->elements, function (Entity $a, Entity $b) {
+        uasort($this->elements, static function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
             $posA = $a->getTranslation('position') ?? $a->getPosition() ?? 0;
             $posB = $b->getTranslation('position') ?? $b->getPosition() ?? 0;
             if ($posA === $posB) {
@@ -45,22 +47,54 @@ class PropertyGroupCollection extends EntityCollection
         });
     }
 
-    public function sortByConfig(): void
+    #[NewRequiredParameter(version: 'v6.8.0', parameterName: 'localeCode', parameterType: 'string')]
+    public function sortByConfig(/* string $localeCode = 'en_GB' */): void
     {
-        /** @var Entity $group */
+        $localeCode = \func_num_args() === 1 ? func_get_arg(0) : 'en_GB';
+        if ($localeCode === null) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.8.0.0', 'sortByConfig(string $localeCode)'));
+        }
+
+        $collator = $this->createCollator($localeCode ?? 'en_GB');
+
         foreach ($this->elements as $group) {
-            $options = $group->get('options');
-            if (!$options instanceof EntityCollection) {
+            $options = $group->getOptions();
+            if ($options === null) {
                 continue;
             }
 
-            $options->sort(static function (Entity $a, Entity $b) use ($group) {
-                if ($group->get('sortingType') === PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC) {
-                    return strnatcmp((string) $a->getTranslation('name'), (string) $b->getTranslation('name'));
-                }
+            $elements = $options->getElements();
+            $sortingByPosition = $group->getSortingType() !== PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC;
+            $posititionCol = [];
+            $nameCol = [];
 
-                return ($a->getTranslation('position') ?? $a->get('position') ?? 0) <=> ($b->getTranslation('position') ?? $b->get('position') ?? 0);
-            });
+            foreach ($elements as $element) {
+                $name = $element->getTranslation('name') ?? '';
+                $nameCol[] = (string) $collator->getSortKey($name);
+
+                if ($sortingByPosition) {
+                    $posititionCol[] = (int) ($element->getTranslation('position') ?? $element->get('position') ?? 0);
+                }
+            }
+
+            $sortArgs = [];
+            if ($sortingByPosition) {
+                $sortArgs[] = &$posititionCol;
+                $sortArgs[] = \SORT_ASC;
+                $sortArgs[] = \SORT_NUMERIC;
+            }
+
+            $sortArgs[] = &$nameCol;
+            $sortArgs[] = \SORT_ASC;
+            $sortArgs[] = \SORT_STRING;
+            $sortArgs[] = &$elements;
+
+            array_multisort(...$sortArgs);
+
+            $sortedOptions = new PropertyGroupOptionCollection();
+            $sortedOptions->fill($elements);
+
+            $group->setOptions($sortedOptions);
         }
     }
 
@@ -72,5 +106,23 @@ class PropertyGroupCollection extends EntityCollection
     protected function getExpectedClass(): string
     {
         return PropertyGroupEntity::class;
+    }
+
+    private function createCollator(string $localeCode): \Collator
+    {
+        $locale = $localeCode !== '' ? \Locale::canonicalize($localeCode) : '';
+        if ($locale === null || $locale === '') {
+            $locale = \Locale::getDefault() ?: 'en_GB';
+        }
+
+        $collator = new \Collator($locale);
+        if (intl_is_failure(intl_get_error_code())) {
+            $collator = new \Collator('en_GB');
+        }
+
+        $collator->setAttribute(\Collator::NUMERIC_COLLATION, \Collator::ON);
+        $collator->setAttribute(\Collator::ALTERNATE_HANDLING, \Collator::SHIFTED);
+
+        return $collator;
     }
 }

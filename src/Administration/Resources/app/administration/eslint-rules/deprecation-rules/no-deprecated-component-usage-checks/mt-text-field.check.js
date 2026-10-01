@@ -92,11 +92,11 @@ const handleMtTextField = (context, node, emailMode = false) => {
     if (valueAttribute) {
         context.report({
             node: valueAttribute,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "model-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(valueAttribute.key, 'modelValue');
+                yield fixer.replaceText(valueAttribute.key, 'model-value');
             }
         });
     }
@@ -104,7 +104,7 @@ const handleMtTextField = (context, node, emailMode = false) => {
     if (vModelValue) {
         context.report({
             node: vModelValue,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "model-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
@@ -116,11 +116,11 @@ const handleMtTextField = (context, node, emailMode = false) => {
     if (valueAttributeExpression) {
         context.report({
             node: valueAttributeExpression,
-            message: `[${mtComponentName}] The "value" prop is deprecated. Use "modelValue" instead.`,
+            message: `[${mtComponentName}] The "value" prop is deprecated. Use "model-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(valueAttributeExpression.key.argument, 'modelValue');
+                yield fixer.replaceText(valueAttributeExpression.key.argument, 'model-value');
             }
         });
     }
@@ -188,11 +188,11 @@ const handleMtTextField = (context, node, emailMode = false) => {
     if (updateValueEvent) {
         context.report({
             node: updateValueEvent,
-            message: `[${mtComponentName}] The "update:value" event is deprecated. Use "update:modelValue" instead.`,
+            message: `[${mtComponentName}] The "update:value" event is deprecated. Use "update:mode-value" instead.`,
             *fix(fixer)  {
                 if (context.options.includes('disableFix')) return;
 
-                yield fixer.replaceText(updateValueEvent.key.argument, 'update:modelValue');
+                yield fixer.replaceText(updateValueEvent.key.argument, 'update:model-value');
             }
         });
     }
@@ -248,7 +248,7 @@ const mtTextFieldValidTests = [
 
 const mtTextFieldInvalidTests = [
     {
-        name: '"mt-text-field" wrong "value" prop usage should be replaced with "modelValue"',
+        name: '"mt-text-field" wrong "value" prop usage should be replaced with "model-value"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -256,14 +256,14 @@ const mtTextFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-text-field modelValue="Hello World" />
+                <mt-text-field model-value="Hello World" />
             </template>`,
         errors: [{
-            message: '[mt-text-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-text-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-text-field" wrong "value" prop usage should be replaced with "modelValue" [disableFix]',
+        name: '"mt-text-field" wrong "value" prop usage should be replaced with "model-value" [disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -271,11 +271,11 @@ const mtTextFieldInvalidTests = [
                 <mt-text-field value="Hello World" />
             </template>`,
         errors: [{
-            message: '[mt-text-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-text-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-text-field" wrong "value" prop usage should be replaced with "modelValue" [expression]',
+        name: '"mt-text-field" wrong "value" prop usage should be replaced with "model-value" [expression]',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -283,14 +283,14 @@ const mtTextFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-text-field :modelValue="myValue" />
+                <mt-text-field :model-value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-text-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-text-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
-        name: '"mt-text-field" wrong "value" prop usage should be replaced with "modelValue" [expression, disableFix]',
+        name: '"mt-text-field" wrong "value" prop usage should be replaced with "model-value" [expression, disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -298,7 +298,7 @@ const mtTextFieldInvalidTests = [
                 <mt-text-field :value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-text-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-text-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -313,7 +313,7 @@ const mtTextFieldInvalidTests = [
                 <mt-text-field v-model="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-text-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-text-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -325,7 +325,7 @@ const mtTextFieldInvalidTests = [
                 <mt-text-field v-model:value="myValue" />
             </template>`,
         errors: [{
-            message: '[mt-text-field] The "value" prop is deprecated. Use "modelValue" instead.',
+            message: '[mt-text-field] The "value" prop is deprecated. Use "model-value" instead.',
         }]
     },
     {
@@ -464,7 +464,7 @@ const mtTextFieldInvalidTests = [
         }]
     },
     {
-        name: '"mt-text-field" wrong "update:value" event usage should be replaced with "update:modelValue"',
+        name: '"mt-text-field" wrong "update:value" event usage should be replaced with "update:mode-value"',
         filename: 'test.html.twig',
         code: `
             <template>
@@ -472,14 +472,14 @@ const mtTextFieldInvalidTests = [
             </template>`,
         output: `
             <template>
-                <mt-text-field @update:modelValue="updateValue" />
+                <mt-text-field @update:model-value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-text-field] The "update:value" event is deprecated. Use "update:modelValue" instead.',
+            message: '[mt-text-field] The "update:value" event is deprecated. Use "update:mode-value" instead.',
         }],
     },
     {
-        name: '"mt-text-field" wrong "update:value" event usage should be replaced with "update:modelValue" [disableFix]',
+        name: '"mt-text-field" wrong "update:value" event usage should be replaced with "update:mode-value" [disableFix]',
         filename: 'test.html.twig',
         options: ['disableFix'],
         code: `
@@ -487,7 +487,7 @@ const mtTextFieldInvalidTests = [
                 <mt-text-field @update:value="updateValue" />
             </template>`,
         errors: [{
-            message: '[mt-text-field] The "update:value" event is deprecated. Use "update:modelValue" instead.',
+            message: '[mt-text-field] The "update:value" event is deprecated. Use "update:mode-value" instead.',
         }],
     },
     {

@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Groupin
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FieldGrouping::class)]
 class FieldGroupingTest extends TestCase
 {
@@ -32,7 +34,7 @@ class FieldGroupingTest extends TestCase
         $clone = clone $fieldGrouping;
 
         static::assertEquals($fieldGrouping, $clone);
-        static::assertEquals($fieldGrouping->getField(), $clone->getField());
-        static::assertEquals($fieldGrouping->jsonSerialize(), $clone->jsonSerialize());
+        static::assertSame($fieldGrouping->getField(), $clone->getField());
+        static::assertSame($fieldGrouping->jsonSerialize(), $clone->jsonSerialize());
     }
 }

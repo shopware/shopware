@@ -46,9 +46,7 @@ describe('src/app/component/filter/sw-range-filter', () => {
             },
         });
 
-        expect(wrapper.emitted()['filter-update'][0]).toEqual([
-            [Criteria.range('releaseDate', { gte: '2021-01-20' })],
-        ]);
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([[Criteria.range('releaseDate', { gte: '2021-01-20' })]]);
     });
 
     it('should emit `filter-update` event when `To` value exits', async () => {
@@ -61,9 +59,7 @@ describe('src/app/component/filter/sw-range-filter', () => {
             },
         });
 
-        expect(wrapper.emitted()['filter-update'][0]).toEqual([
-            [Criteria.range('releaseDate', { lte: '2021-01-23' })],
-        ]);
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([[Criteria.range('releaseDate', { lte: '2021-01-23' })]]);
     });
 
     it('should emit `filter-update` event when `From` and `To` value exits', async () => {
@@ -108,5 +104,19 @@ describe('src/app/component/filter/sw-range-filter', () => {
 
         expect(divider.exists()).toBeFalsy();
         expect(container.classes()).not.toContain('sw-container--has-divider');
+    });
+
+    it('should emit `filter-update` event when `From` and `To` values are both 0', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setProps({
+            value: {
+                from: 0,
+                to: 0,
+            },
+            property: 'stock',
+        });
+
+        expect(wrapper.emitted()['filter-update'][0]).toEqual([[Criteria.range('stock', { gte: 0, lte: 0 })]]);
     });
 });

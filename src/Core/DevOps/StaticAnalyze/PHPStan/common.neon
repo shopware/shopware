@@ -1,5 +1,5 @@
 includes:
-    - ../../../../../vendor/phpstan/phpstan/conf/bleedingEdge.neon
+    - phar://phpstan.phar/conf/bleedingEdge.neon
     - extension.neon
     - rules.neon
 
@@ -11,30 +11,88 @@ parameters:
     reportUnmatchedIgnoredErrors: true
     checkFunctionNameCase: true
     checkInternalClassCaseSensitivity: true
+    reportAnyTypeWideningInVarTag: true
+
+    # Would otherwise flag usage of internal classes from different namespaces
+    featureToggles:
+        internalTag: false
+
+    # For stricter testing those should be set to true at some point
+    reportMaybesInMethodSignatures: false
+    reportWrongPhpDocTypeInVarTag: true
+
+    # For stricter testing those should be set to true at some point
+    strictRules:
+        disallowedLooseComparison: true
+        booleansInConditions: false
+        booleansInLoopConditions: false
+        uselessCast: true
+        requireParentConstructorCall: false
+        disallowedBacktick: true
+        disallowedEmpty: true
+        disallowedImplicitArrayCreation: true
+        disallowedShortTernary: false
+        overwriteVariablesWithLoop: true
+        closureUsesThis: true
+        matchingInheritedMethodNames: true
+        numericOperandsInArithmeticOperators: true
+        strictFunctionCalls: true
+        dynamicCallOnStaticMethod: false
+        switchConditionsMatchingType: true
+        noVariableVariables: true
+        strictArrayFilter: false
+        illegalConstructorMethodCall: true
 
     type_perfect:
         no_mixed_property: true
         no_mixed_caller: true
         null_over_false: true
 
+    shopware:
+        allowedNonDomainExceptions:
+            - Shopware\Core\Framework\Plugin\Exception\DecorationPatternException
+            - Shopware\Core\Framework\Validation\Exception\ConstraintViolationException
+            - Shopware\Core\Framework\Api\Controller\Exception\PermissionDeniedException
+            - Shopware\Core\Content\MailTemplate\Exception\MailEventConfigurationException
+            - Twig\Error\LoaderError
+            - Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+            - Symfony\Component\Messenger\Exception\UnrecoverableMessageHandlingException
+            - Symfony\Component\Messenger\Exception\RecoverableMessageHandlingException
+            - Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+            - Symfony\Component\HttpFoundation\Exception\BadRequestException
+
+        allowedStorefrontRouteNamespaces:
+            - Shopware\Storefront
+            # Telemetry route resolvers classify storefront routes by name; they don't depend on the Storefront package being installed
+            - Shopware\Core\Framework\Routing\Telemetry
+        allowedUnitTestClassNamespaces:
+            - Shopware\Tests\Unit\
+            - Shopware\Tests\Migration\
+        # narrows NoCreateMockWithoutExpectationsRule enforcement; consumers rolling the rule out
+        # domain by domain append their enabled test namespaces to this list
+        createMockWithoutExpectationsEnabledNamespaces:
+            - 'Shopware\Tests\Unit\'
+            - 'Shopware\Tests\DevOps\'
+        # narrows NoFeatureSkipInUnitTestsRule to the namespaces the FeatureFlagExtension rewrites; consumers
+        # registering their unit namespace with the extension append it here
+        featureSkipInUnitTestsEnabledNamespaces:
+            - 'Shopware\Tests\Unit\'
+        # narrows NoKernelInUnitTestsRule to the suites that must not boot the kernel; the migration suite
+        # runs against a database on purpose
+        kernelInUnitTestsEnabledNamespaces:
+            - 'Shopware\Tests\Unit\'
+
 services:
-    - # register the class, so we can decorate it, but don't tag it as a rule, so only our decorator is used by PHPStan
-        class: Symplify\PHPStanRules\Rules\NoReturnSetterMethodRule
+    -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
+    -   class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsHelper
 
-rules:
-    # rules from https://github.com/symplify/phpstan-rules
-    # domain
-    - Symplify\PHPStanRules\Rules\Enum\RequireUniqueEnumConstantRule
-    - Symplify\PHPStanRules\Rules\PreventParentMethodVisibilityOverrideRule
-
-    # explicit naming
-    - Symplify\PHPStanRules\Rules\ForbiddenMultipleClassLikeInOneFileRule
-
-    - Symplify\PHPStanRules\Rules\Complexity\ForbiddenArrayMethodCallRule
-
-    # complexity rules
-    - Symplify\PHPStanRules\Rules\NoDynamicNameRule
-
-    # naming rules
-    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Symplify\NoReturnSetterMethodWithFluentSettersRule
-    - Symplify\PHPStanRules\Rules\UppercaseConstantRule
+parametersSchema:
+    ?shopwareTaggedServiceContractAdditionalTagContracts: arrayOf(string(), string())
+    shopware: structure([
+        allowedNonDomainExceptions: list(string),
+        allowedStorefrontRouteNamespaces: list(string),
+        allowedUnitTestClassNamespaces: list(string),
+        createMockWithoutExpectationsEnabledNamespaces: list(string),
+        featureSkipInUnitTestsEnabledNamespaces: list(string),
+        kernelInUnitTestsEnabledNamespaces: list(string),
+])

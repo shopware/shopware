@@ -3,7 +3,6 @@ import type RepositoryType from 'src/core/data/repository.data';
 import template from './sw-text-editor-link-menu.html.twig';
 import './sw-text-editor-link-menu.scss';
 
-const { Component } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
 
 type ButtonVariant = 'primary' | 'primary-sm' | 'secondary' | 'secondary-sm';
@@ -27,12 +26,10 @@ interface TextEditorLinkMenuConfig {
  *
  * @private
  */
-Component.register('sw-text-editor-link-menu', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         buttonConfig: {
@@ -50,7 +47,7 @@ Component.register('sw-text-editor-link-menu', {
         buttonVariant: ButtonVariant;
         linkCategory: LinkCategories;
         categoryCollection?: EntityCollection<'category'>;
-        buttonVariantList: Array<{ id: ButtonVariant; name: string }>;
+        buttonVariantList: Array<{ id: number; value: ButtonVariant; label: string }>;
     } {
         return {
             linkTitle: '',
@@ -63,20 +60,24 @@ Component.register('sw-text-editor-link-menu', {
             categoryCollection: undefined,
             buttonVariantList: [
                 {
-                    id: 'primary',
-                    name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimary'),
+                    id: 1,
+                    value: 'primary',
+                    label: this.$t('sw-text-editor-toolbar.link.buttonVariantPrimary'),
                 },
                 {
-                    id: 'secondary',
-                    name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondary'),
+                    id: 2,
+                    value: 'secondary',
+                    label: this.$t('sw-text-editor-toolbar.link.buttonVariantSecondary'),
                 },
                 {
-                    id: 'primary-sm',
-                    name: this.$tc('sw-text-editor-toolbar.link.buttonVariantPrimarySmall'),
+                    id: 3,
+                    value: 'primary-sm',
+                    label: this.$t('sw-text-editor-toolbar.link.buttonVariantPrimarySmall'),
                 },
                 {
-                    id: 'secondary-sm',
-                    name: this.$tc('sw-text-editor-toolbar.link.buttonVariantSecondarySmall'),
+                    id: 4,
+                    value: 'secondary-sm',
+                    label: this.$t('sw-text-editor-toolbar.link.buttonVariantSecondarySmall'),
                 },
             ],
         };
@@ -111,32 +112,32 @@ Component.register('sw-text-editor-link-menu', {
                 {
                     id: 1,
                     value: 'link',
-                    label: this.$tc('sw-text-editor-toolbar.link.labelUrl'),
+                    label: this.$t('sw-text-editor-toolbar.link.labelUrl'),
                 },
                 {
                     id: 2,
                     value: 'detail',
-                    label: this.$tc('sw-text-editor-toolbar.link.labelProduct'),
+                    label: this.$t('sw-text-editor-toolbar.link.labelProduct'),
                 },
                 {
                     id: 3,
                     value: 'navigation',
-                    label: this.$tc('sw-text-editor-toolbar.link.labelCategory'),
+                    label: this.$t('sw-text-editor-toolbar.link.labelCategory'),
                 },
                 {
                     id: 4,
                     value: 'media',
-                    label: this.$tc('sw-text-editor-toolbar.link.labelMedia'),
+                    label: this.$t('sw-text-editor-toolbar.link.labelMedia'),
                 },
                 {
                     id: 5,
                     value: 'email',
-                    label: this.$tc('sw-text-editor-toolbar.link.labelEmail'),
+                    label: this.$t('sw-text-editor-toolbar.link.labelEmail'),
                 },
                 {
                     id: 6,
                     value: 'phone',
-                    label: this.$tc('sw-text-editor-toolbar.link.labelPhoneNumber'),
+                    label: this.$t('sw-text-editor-toolbar.link.labelPhoneNumber'),
                 },
             ];
         },
@@ -177,7 +178,7 @@ Component.register('sw-text-editor-link-menu', {
             this.$emit('mounted');
         },
 
-        getCategoryCollection(categoryId: string): Promise<EntityCollection<'category'>> {
+        getCategoryCollection(categoryId: EntityKey<'category'>): Promise<EntityCollection<'category'>> {
             const categoryCriteria = new Criteria(1, 25).addFilter(Criteria.equals('id', categoryId));
             return this.categoryRepository.search(categoryCriteria);
         },
@@ -193,16 +194,9 @@ Component.register('sw-text-editor-link-menu', {
         async parseLink(link: string, detectedLinkType: string): Promise<{ type: LinkCategories; target: string }> {
             const slicedLink = link.slice(0, -1).split('/');
 
-            if (
-                link.startsWith(this.seoUrlReplacePrefix) &&
-                [
-                    'navigation',
-                    'detail',
-                    'mediaId',
-                ].includes(slicedLink[1])
-            ) {
+            if (link.startsWith(this.seoUrlReplacePrefix) && ['navigation', 'detail', 'mediaId'].includes(slicedLink[1])) {
                 if (slicedLink[1] === 'navigation') {
-                    this.categoryCollection = await this.getCategoryCollection(slicedLink[2]);
+                    this.categoryCollection = await this.getCategoryCollection(slicedLink[2] as EntityKey<'category'>);
                 } else if (slicedLink[1] === 'mediaId') {
                     slicedLink[1] = 'media';
                 }
@@ -232,7 +226,7 @@ Component.register('sw-text-editor-link-menu', {
             };
         },
 
-        replaceCategorySelection(category: { id: string }): void {
+        replaceCategorySelection(category: { id: EntityKey<'category'> }): void {
             this.linkTarget = category.id;
         },
 

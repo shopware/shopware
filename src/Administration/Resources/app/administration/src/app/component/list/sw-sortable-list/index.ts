@@ -1,8 +1,5 @@
-import type { PropType } from 'vue';
 import template from './sw-sortable-list.html.twig';
 import './sw-sortable-list.scss';
-
-const { Component } = Shopware;
 
 interface DragConfig {
     delay: number;
@@ -15,10 +12,10 @@ interface DragConfig {
     preventEvent: boolean;
     validateDrop: boolean;
     validateDrag: boolean;
-    onDragStart: (...args: never[]) => void;
-    onDragEnter: (...args: never[]) => void;
-    onDragLeave: (...args: never[]) => void;
-    onDrop: (...args: never[]) => void;
+    onDragStart?: (...args: never[]) => void;
+    onDragEnter?: (...args: never[]) => void;
+    onDragLeave?: (...args: never[]) => void;
+    onDrop?: (...args: never[]) => void;
     data: Record<string, unknown>;
     disabled: boolean;
 }
@@ -60,18 +57,17 @@ const defaultScrollOnDragConf = {
  * </sw-sortable-list>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sortable-list', {
+export default Shopware.Component.wrapComponentConfig({
     template,
 
     props: {
         items: {
-            type: Array as PropType<Array<Entity<keyof EntitySchema.Entities>>>,
+            type: Array as PropType<Array<Entity<keyof EntitySchema.EntityKeys>>>,
             required: true,
         },
         sortable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default(): boolean {
                 return true;
             },
@@ -86,7 +82,6 @@ Component.register('sw-sortable-list', {
         scrollOnDrag: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default(): boolean {
                 return false;
             },
@@ -104,7 +99,7 @@ Component.register('sw-sortable-list', {
         dragElement: Element | null;
         defaultConfig: DragConfig;
         defaultScrollOnDragConf: ScrollOnDragConf;
-        sortedItems: Array<Entity<keyof EntitySchema.Entities>>;
+        sortedItems: Array<Entity<keyof EntitySchema.EntityKeys>>;
         scrollEventTicking: boolean;
     } {
         return {
@@ -126,14 +121,16 @@ Component.register('sw-sortable-list', {
         },
 
         mergedDragConfig(): DragConfig {
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            this.defaultConfig.onDragStart = this.onDragStart;
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            this.defaultConfig.onDragEnter = this.onDragEnter;
-            // eslint-disable-next-line @typescript-eslint/unbound-method
-            this.defaultConfig.onDrop = this.onDrop;
-
-            return { ...this.defaultConfig, ...this.dragConf } as DragConfig;
+            return {
+                ...this.defaultConfig,
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                onDragStart: this.onDragStart,
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                onDragEnter: this.onDragEnter,
+                // eslint-disable-next-line @typescript-eslint/unbound-method
+                onDrop: this.onDrop,
+                ...this.dragConf,
+            } as DragConfig;
         },
 
         mergedScrollOnDragConfig(): ScrollOnDragConf {
@@ -166,8 +163,8 @@ Component.register('sw-sortable-list', {
         },
 
         onDragEnter(
-            draggedComponent: Entity<keyof EntitySchema.Entities>,
-            droppedComponent: Entity<keyof EntitySchema.Entities>,
+            draggedComponent: Entity<keyof EntitySchema.EntityKeys>,
+            droppedComponent: Entity<keyof EntitySchema.EntityKeys>,
         ): void {
             if (!this.isSortable) {
                 return;

@@ -8,10 +8,8 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
-#[Package('framework')]
+#[Package('discovery')]
 class Migration1641476963ThemeDependentIds extends MigrationStep
 {
     final public const NEW_PRIVILEGES = [

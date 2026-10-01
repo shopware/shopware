@@ -8,13 +8,14 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1712309989DropLanguageLocaleUnique;
 use Shopware\Core\System\Language\LanguageDefinition;
 
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('fundamentals@discovery')]
 #[CoversClass(Migration1712309989DropLanguageLocaleUnique::class)]
 class Migration1712309989DropLanguageLocaleUniqueTest extends TestCase
 {
@@ -36,18 +37,12 @@ class Migration1712309989DropLanguageLocaleUniqueTest extends TestCase
 
     public function testMigrate(): void
     {
+        $migration = new Migration1712309989DropLanguageLocaleUnique();
         $this->rollback();
-        $this->migrate();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
 
-        $manager = $this->connection->createSchemaManager();
-        $indexes = $manager->listTableIndexes(LanguageDefinition::ENTITY_NAME);
-
-        static::assertArrayNotHasKey('uniq.translation_code_id', $indexes);
-    }
-
-    private function migrate(): void
-    {
-        (new Migration1712309989DropLanguageLocaleUnique())->update($this->connection);
+        static::assertFalse(TableHelper::indexExists($this->connection, LanguageDefinition::ENTITY_NAME, 'uniq.translation_code_locale_id'));
     }
 
     private function rollback(): void

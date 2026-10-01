@@ -14,8 +14,8 @@ use Shopware\Core\System\Tax\TaxRuleType\EntireCountryRuleTypeFilter;
 /**
  * @internal
  */
-#[CoversClass(EntireCountryRuleTypeFilter::class)]
 #[Package('checkout')]
+#[CoversClass(EntireCountryRuleTypeFilter::class)]
 class EntireCountryRuleTypeFilterTest extends TestCase
 {
     public function testMatchesNotWithWrongType(): void

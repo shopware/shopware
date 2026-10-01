@@ -87,11 +87,6 @@ describe('module/sw-cms/component/sw-cms-block-config', () => {
         Shopware.Store.get('cmsPage').setIsSystemDefaultLanguage(true);
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to config block name', async () => {
         const wrapper = await createWrapper();
         const blockNameField = await wrapper.find('.mt-text-field input');
@@ -135,14 +130,8 @@ describe('module/sw-cms/component/sw-cms-block-config', () => {
     });
 
     const eventEmittedDataProvider = [
-        [
-            'block-delete',
-            'onBlockDelete',
-        ],
-        [
-            'block-duplicate',
-            'onBlockDuplicate',
-        ],
+        ['block-delete', 'onBlockDelete'],
+        ['block-duplicate', 'onBlockDuplicate'],
     ];
     it.each(eventEmittedDataProvider)('should be able to push the %s event on delete', async (eventName, handler) => {
         const wrapper = await createWrapper();

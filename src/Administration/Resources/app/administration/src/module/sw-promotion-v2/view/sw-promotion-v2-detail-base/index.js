@@ -10,21 +10,11 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'acl',
-        'promotionCodeApiService',
-        'customFieldDataProviderService',
-    ],
+    inject: ['acl', 'promotionCodeApiService', 'customFieldDataProviderService'],
 
-    emits: [
-        'generate-individual-codes-finish',
-        'delete-individual-codes-finish',
-        'clean-up-codes',
-    ],
+    emits: ['generate-individual-codes-finish', 'delete-individual-codes-finish', 'clean-up-codes'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         promotion: {
@@ -67,16 +57,13 @@ export default {
         codeTypeOptions() {
             return Object.entries(this.CODE_TYPES).map((type) =>
                 Object.create({
-                    label: this.$tc(`sw-promotion-v2.detail.base.codes.${type[0].toLowerCase()}.description`),
+                    label: this.$t(`sw-promotion-v2.detail.base.codes.${type[0].toLowerCase()}.description`),
                     value: type[1],
                 }),
             );
         },
 
-        ...mapPropertyErrors('promotion', [
-            'name',
-            'validUntil',
-        ]),
+        ...mapPropertyErrors('promotion', ['name', 'validUntil']),
 
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;

@@ -11,10 +11,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'modal-cancel',
-        'modal-save',
-    ],
+    emits: ['modal-cancel', 'modal-save'],
 
     props: {
         newProperties: {
@@ -24,7 +21,6 @@ export default {
         propertiesAvailable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },

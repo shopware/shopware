@@ -80,9 +80,6 @@ class AclWriteValidator implements EventSubscriberInterface
 
             $event = new CommandAclValidationEvent($missingPrivileges, $source, $command);
             $this->eventDispatcher->dispatch($event);
-            /**
-             * @var list<string> $missingPrivileges
-             */
             $missingPrivileges = $event->getMissingPrivileges();
         }
 
@@ -94,7 +91,7 @@ class AclWriteValidator implements EventSubscriberInterface
      */
     private function tryToThrow(array $missingPrivileges): void
     {
-        if (!empty($missingPrivileges)) {
+        if ($missingPrivileges !== []) {
             throw ApiException::missingPrivileges($missingPrivileges);
         }
     }

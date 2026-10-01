@@ -9,6 +9,9 @@ const { Module } = Shopware;
 Shopware.Component.register('sw-integration-list', () => import('./page/sw-integration-list'));
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+Shopware.Component.register('sw-integration-mcp-allowlist', () => import('./component/sw-integration-mcp-allowlist'));
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-integration', {
     type: 'core',
     name: 'integration',
@@ -16,9 +19,9 @@ Module.register('sw-integration', {
     description: 'The module for managing integrations.',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    color: 'var(--sw-color-module-neutral-default)',
+    icon: 'regular-key',
+    favicon: 'icon-module-settings.svg',
     entity: 'integration',
 
     routes: {
@@ -35,7 +38,7 @@ Module.register('sw-integration', {
     settingsItem: {
         group: 'system',
         to: 'sw.integration.index',
-        icon: 'regular-cog',
+        icon: 'regular-key',
         privilege: 'integration.viewer',
     },
 });

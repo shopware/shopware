@@ -3,9 +3,10 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('after-sales')]
-class MatrixElement
+class MatrixElement extends Struct
 {
     public function __construct(
         protected int $points,

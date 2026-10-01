@@ -6,8 +6,8 @@
 
         <mt-text-field
             v-model="headline"
-            :label="$tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.labelHeadline')"
-            :placeholder="$tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.placeholderHeadline')"
+            :label="$t('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.labelHeadline')"
+            :placeholder="$t('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.placeholderHeadline')"
             :error="errors.headlineError"
             required
         />
@@ -20,7 +20,7 @@
                 v-model:value="rating"
                 :error="errors.ratingError"
                 required
-                :label="$tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.labelRating')"
+                :label="$t('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.labelRating')"
             />
             {% endblock %}
         </div>
@@ -31,7 +31,7 @@
     {% block sw_extension_review_creation_inputs_description_input %}
     <mt-textarea
         v-model="text"
-        :label="$tc('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.labelText')"
+        :label="$t('sw-extension-store.component.sw-extension-ratings.sw-extension-review-creation-inputs.labelText')"
     />
     {% endblock %}
 </div>

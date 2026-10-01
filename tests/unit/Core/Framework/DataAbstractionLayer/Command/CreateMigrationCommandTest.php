@@ -11,6 +11,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationQueryGenerator;
+use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -18,6 +20,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CreateMigrationCommand::class)]
 class CreateMigrationCommandTest extends TestCase
 {
@@ -40,18 +43,18 @@ class CreateMigrationCommandTest extends TestCase
     ): void {
         $registry = $this->createMock(DefinitionInstanceRegistry::class);
         $queryGenerator = $this->createMock(MigrationQueryGenerator::class);
-        $kernel = $this->createMock(KernelInterface::class);
+        $kernel = static::createStub(KernelInterface::class);
         $filesystem = $this->createMock(Filesystem::class);
         $migrationFileRenderer = $this->createMock(MigrationFileRenderer::class);
 
         $coreDir = '/path/to/core';
         $shopwareVersion = '6.5.0';
 
-        $command = new CreateMigrationCommand($registry, $queryGenerator, $kernel, $filesystem, $migrationFileRenderer, $coreDir, $shopwareVersion, $now);
+        $command = new CreateMigrationCommand($registry, $queryGenerator, $kernel, $filesystem, $migrationFileRenderer, $coreDir, $shopwareVersion, new MockClock($now));
 
         $commandTester = new CommandTester($command);
 
-        $definition = $this->createMock(EntityDefinition::class);
+        $definition = static::createStub(EntityDefinition::class);
         $registry->expects($this->exactly(\count($entities)))->method('getByEntityName')->willReturn($definition);
 
         $queries = ['CREATE TABLE test_entity (id INT);'];
@@ -59,7 +62,7 @@ class CreateMigrationCommandTest extends TestCase
         $queryGenerator->expects($this->exactly(\count($entities)))->method('generateQueries')->willReturn($queries);
 
         if ($bundle !== null) {
-            $kernel->method('getBundle')->with($bundle)->willReturn($this->getBundle());
+            $kernel->method('getBundle')->willReturnMap([[$bundle, $this->getBundle()]]);
         }
 
         $fileRendererInvocation = $this->exactly(\count($entities));
@@ -67,9 +70,9 @@ class CreateMigrationCommandTest extends TestCase
         $migrationFileRenderer
             ->expects($fileRendererInvocation)
             ->method('render')
-            ->willReturnCallback(function (string $namespace, string $className) use ($expectedNamespaces, $expectedClassNames, $fileRendererInvocation) {
-                static::assertEquals($expectedNamespaces[$fileRendererInvocation->numberOfInvocations() - 1], $namespace);
-                static::assertEquals($expectedClassNames[$fileRendererInvocation->numberOfInvocations() - 1], $className);
+            ->willReturnCallback(static function (string $namespace, string $className) use ($expectedNamespaces, $expectedClassNames, $fileRendererInvocation) {
+                static::assertSame($expectedNamespaces[$fileRendererInvocation->numberOfInvocations() - 1], $namespace);
+                static::assertSame($expectedClassNames[$fileRendererInvocation->numberOfInvocations() - 1], $className);
 
                 return 'Migration file content';
             });
@@ -79,8 +82,8 @@ class CreateMigrationCommandTest extends TestCase
         $filesystem
             ->expects($filesystemInvocation)
             ->method('dumpFile')
-            ->willReturnCallback(function (string $path) use ($filesystemInvocation, $expectedPaths): void {
-                static::assertEquals($expectedPaths[$filesystemInvocation->numberOfInvocations() - 1], $path);
+            ->willReturnCallback(static function (string $path) use ($filesystemInvocation, $expectedPaths): void {
+                static::assertSame($expectedPaths[$filesystemInvocation->numberOfInvocations() - 1], $path);
             });
 
         $input = [
@@ -198,7 +201,7 @@ class CreateMigrationCommandTest extends TestCase
 
     private function getBundle(): Bundle
     {
-        $bundle = $this->createMock(Bundle::class);
+        $bundle = static::createStub(Bundle::class);
         $bundle->method('getMigrationNamespace')->willReturn('TestPlugin\Migration');
         $bundle->method('getMigrationPath')->willReturn('/path/to/core/TestPlugin/Migration');
 

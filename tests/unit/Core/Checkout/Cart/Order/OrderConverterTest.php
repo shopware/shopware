@@ -12,8 +12,10 @@ use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryDate;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryPositionCollection;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
+use Shopware\Core\Checkout\Cart\Event\BeforeSalesChannelContextAssembledEvent;
 use Shopware\Core\Checkout\Cart\Event\SalesChannelContextAssembledEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\CartConvertedEvent;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\LineItemDownloadLoader;
@@ -47,6 +49,7 @@ use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadEntity;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Rule\RuleEntity;
@@ -59,9 +62,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\Aggregate\CountryState\CountryStateEntity;
 use Shopware\Core\System\Country\CountryEntity;
@@ -70,20 +73,23 @@ use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Tests\Unit\Core\Checkout\Cart\Order\Stubs\CartOrderConversionStub;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
-#[CoversClass(OrderConverter::class)]
 #[Package('checkout')]
+#[CoversClass(OrderConverter::class)]
 class OrderConverterTest extends TestCase
 {
     private EventDispatcher $eventDispatcher;
@@ -100,17 +106,16 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @param class-string<\Throwable> $exceptionClass
+     * @param \Closure(OrderEntity): ShopwareHttpException|null $expectedException
      */
     #[DataProvider('assembleSalesChannelContextData')]
-    public function testAssembleSalesChannelContext(string $exceptionClass, string $manipulateOrder = ''): void
+    public function testAssembleSalesChannelContext(?\Closure $expectedException, string $manipulateOrder = ''): void
     {
-        if ($exceptionClass !== '') {
-            $this->expectException($exceptionClass);
-        }
+        $orderEntity = $this->getOrder($manipulateOrder);
+        $expected = $expectedException === null ? null : $expectedException($orderEntity);
 
         $orderAddressRepositorySearchResult = [];
-        if ($exceptionClass !== AddressNotFoundException::class) {
+        if (!$expected instanceof AddressNotFoundException) {
             $orderAddressRepositorySearchResult = [$this->getOrderAddress()];
         }
 
@@ -126,40 +131,73 @@ class OrderConverterTest extends TestCase
                     SalesChannelContextService::CUSTOMER_GROUP_ID => 'customer-group-id',
                     SalesChannelContextService::PERMISSIONS => OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS,
                     SalesChannelContextService::VERSION_ID => Defaults::LIVE_VERSION,
-                    SalesChannelContextService::SHIPPING_METHOD_ID => 'order-delivery-shipping-method-id',
                     SalesChannelContextService::PAYMENT_METHOD_ID => 'order-transaction-payment-method-id',
                 ];
+
+                if (!Feature::isActive('v6.8.0.0')) {
+                    $expectedOptions[SalesChannelContextService::SHIPPING_METHOD_ID] = 'order-delivery-shipping-method-id';
+                }
+
                 static::assertSame($expectedOptions, $options);
 
                 return $this->getSalesChannelContext(true);
             }
         );
 
-        $orderEntity = $this->getOrder($manipulateOrder);
+        if ($expected !== null) {
+            $this->expectExceptionObject($expected);
+        }
+
         $orderConverter->assembleSalesChannelContext($orderEntity, Context::createDefaultContext());
     }
 
     /**
-     * @return list<list<string>>
+     * @return list<array{0: (\Closure(OrderEntity): ShopwareHttpException)|null, 1?: string}>
      */
     public static function assembleSalesChannelContextData(): array
     {
         return [
             [
-                OrderException::class,
+                static fn (OrderEntity $order): ShopwareHttpException => OrderException::missingAssociation('transactions'),
                 'order-no-transactions',
             ],
             [
-                OrderException::class,
+                static fn (OrderEntity $order): ShopwareHttpException => OrderException::missingAssociation('orderCustomer'),
                 'order-no-order-customer',
             ],
             [
-                AddressNotFoundException::class,
+                static fn (OrderEntity $order): ShopwareHttpException => CartException::addressNotFound($order->getBillingAddressId()),
             ],
             [
-                '',
+                null,
             ],
         ];
+    }
+
+    public function testConvertToOrderReferencesTheParentLineItemInTheWrittenVersion(): void
+    {
+        $versionId = Uuid::randomHex();
+
+        $parent = new LineItem('parent', LineItem::PRODUCT_LINE_ITEM_TYPE, 'product-id');
+        $parent->setLabel('parent');
+        $parent->addChild((new LineItem('child', LineItem::DISCOUNT_LINE_ITEM, 'discount-id'))->setLabel('child'));
+
+        $cart = $this->getCart();
+        $cart->setLineItems(new LineItemCollection([$parent]));
+
+        $context = $this->getSalesChannelContext(true);
+        $context->assign(['context' => $context->getContext()->createWithVersionId($versionId)]);
+
+        $result = $this->orderConverter->convertToOrder($cart, $context, new OrderConversionContext());
+
+        $lineItems = [];
+        foreach ($result['lineItems'] as $lineItem) {
+            $lineItems[$lineItem['identifier']] = $lineItem;
+        }
+
+        static::assertSame($lineItems['parent']['id'], $lineItems['child']['parentId']);
+        static::assertSame($versionId, $lineItems['child']['parentVersionId']);
+        static::assertArrayNotHasKey('parentVersionId', $lineItems['parent']);
     }
 
     public function testConvertToOrderWithoutDeliveries(): void
@@ -184,7 +222,7 @@ class OrderConverterTest extends TestCase
             unset($result['addresses'][$i]['id']);
         }
 
-        $expected = $this->getExpectedConvertToOrder();
+        $expected = CartOrderConversionStub::getExpectedConvertToOrder();
         $expected['deliveries'] = [];
 
         $expectedJson = \json_encode($expected, \JSON_THROW_ON_ERROR);
@@ -248,6 +286,7 @@ class OrderConverterTest extends TestCase
             $result['orderDateTime'],
             $result['stateId'],
             $result['languageId'],
+            $result['primaryOrderDeliveryId'],
         );
         for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
             unset($result['lineItems'][$i]['id']);
@@ -255,13 +294,14 @@ class OrderConverterTest extends TestCase
 
         for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
             unset(
+                $result['deliveries'][$i]['id'],
                 $result['deliveries'][$i]['shippingOrderAddress']['id'],
                 $result['deliveries'][$i]['shippingDateEarliest'],
                 $result['deliveries'][$i]['shippingDateLatest'],
             );
         }
 
-        $expected = $this->getExpectedConvertToOrder();
+        $expected = CartOrderConversionStub::getExpectedConvertToOrder();
         unset($expected['addresses']);
         $expected['shippingCosts']['unitPrice'] = 1;
         $expected['shippingCosts']['totalPrice'] = 1;
@@ -275,19 +315,17 @@ class OrderConverterTest extends TestCase
     }
 
     /**
-     * @param class-string<\Throwable> $exceptionClass
+     * @param \Closure(): ShopwareHttpException $expectedException
      */
     #[DataProvider('convertToOrderExceptionsData')]
-    public function testConvertToOrderExceptions(string $exceptionClass, bool $loginCustomer = true, bool $conversionIncludeCustomer = true): void
+    public function testConvertToOrderExceptions(\Closure $expectedException, bool $loginCustomer = true, bool $conversionIncludeCustomer = true): void
     {
-        if ($exceptionClass !== '') {
-            $this->expectException($exceptionClass);
-        }
+        $expected = $expectedException();
 
         $cart = $this->getCart();
         $cart->setDeliveries(
             $this->getDeliveryCollection(
-                $exceptionClass === OrderException::class
+                $expected instanceof OrderException
             )
         );
 
@@ -296,63 +334,32 @@ class OrderConverterTest extends TestCase
 
         $salesChannelContext = $this->getSalesChannelContext(
             $loginCustomer,
-            $exceptionClass === AddressNotFoundException::class
+            $expected instanceof AddressNotFoundException
         );
 
-        $result = $this->orderConverter->convertToOrder($cart, $salesChannelContext, $conversionContext);
+        $this->expectExceptionObject($expected);
 
-        // unset uncheckable ids
-        unset(
-            $result['id'],
-            $result['billingAddressId'],
-            $result['deepLinkCode'],
-            $result['orderDateTime'],
-            $result['stateId'],
-            $result['languageId'],
-        );
-        for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
-            unset($result['lineItems'][$i]['id']);
-        }
-
-        for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
-            unset(
-                $result['deliveries'][$i]['shippingOrderAddress']['id'],
-                $result['deliveries'][$i]['shippingDateEarliest'],
-                $result['deliveries'][$i]['shippingDateLatest'],
-            );
-        }
-
-        $expected = $this->getExpectedConvertToOrder();
-        unset($expected['addresses']);
-        $expected['shippingCosts']['unitPrice'] = 1;
-        $expected['shippingCosts']['totalPrice'] = 1;
-
-        $expectedJson = \json_encode($expected, \JSON_THROW_ON_ERROR);
-        static::assertIsString($expectedJson);
-        $actual = \json_encode($result, \JSON_THROW_ON_ERROR);
-        static::assertIsString($actual);
-        // As json to avoid classes
-        static::assertJsonStringEqualsJsonString($expectedJson, $actual);
+        $this->orderConverter->convertToOrder($cart, $salesChannelContext, $conversionContext);
     }
 
     /**
-     * @return list<array{0: class-string<ShopwareHttpException>, 1?: false, 2?: false}>
+     * @return list<array{0: \Closure(): ShopwareHttpException, 1?: false, 2?: false}>
      */
     public static function convertToOrderExceptionsData(): array
     {
         return [
             [
-                AddressNotFoundException::class,
+                static fn (): ShopwareHttpException => CartException::addressNotFound(''),
             ],
             [
-                OrderException::class,
+                static fn (): ShopwareHttpException => OrderException::deliveryWithoutAddress(),
             ],
             [
-                CartException::class,
+                static fn (): ShopwareHttpException => CartException::customerNotLoggedIn(),
                 false,
             ],
             [
-                CartException::class,
+                static fn (): ShopwareHttpException => CartException::customerNotLoggedIn(),
                 false,
                 false,
             ],
@@ -390,9 +397,7 @@ class OrderConverterTest extends TestCase
             }
         }
 
-        $expected = $this->getExpectedConvertToCart();
-
-        static::assertEquals($expected, $result);
+        static::assertEquals(CartOrderConversionStub::getExpectedConvertToCart(), $result);
     }
 
     #[DataProvider('convertToCartManipulatedOrderData')]
@@ -426,7 +431,7 @@ class OrderConverterTest extends TestCase
             }
         }
 
-        $expected = $this->getExpectedConvertToCart();
+        $expected = CartOrderConversionStub::getExpectedConvertToCart();
         $expected['deliveries'] = [];
 
         static::assertEquals($expected, $result);
@@ -450,53 +455,37 @@ class OrderConverterTest extends TestCase
         ];
     }
 
+    /**
+     * @param \Closure(OrderEntity): OrderException $expectedException
+     */
     #[DataProvider('convertToCartExceptionsData')]
-    public function testConvertToCartExceptions(string $manipulateOrder): void
+    public function testConvertToCartExceptions(string $manipulateOrder, \Closure $expectedException): void
     {
-        $this->expectException(OrderException::class);
-
         $order = $this->getOrder($manipulateOrder);
 
-        $result = $this->orderConverter->convertToCart($order, Context::createDefaultContext());
-        $result = \json_encode($result, \JSON_THROW_ON_ERROR);
-        static::assertIsString($result);
-        $result = \json_decode($result, true, 512, \JSON_THROW_ON_ERROR);
-        static::assertNotFalse($result);
+        $this->expectExceptionObject($expectedException($order));
 
-        // unset uncheckable ids
-        unset(
-            $result['extensions']['originalId'],
-            $result['token'],
-        );
-        for ($i = 0; $i < (is_countable($result['lineItems']) ? \count($result['lineItems']) : 0); ++$i) {
-            unset($result['lineItems'][$i]['extensions']['originalId']);
-        }
-
-        for ($i = 0; $i < (is_countable($result['deliveries']) ? \count($result['deliveries']) : 0); ++$i) {
-            unset($result['deliveries'][$i]['deliveryDate']);
-            for ($f = 0; $f < (is_countable($result['deliveries'][$i]['positions']) ? \count($result['deliveries'][$i]['positions']) : 0); ++$f) {
-                unset($result['deliveries'][$i]['positions'][$f]['deliveryDate']);
-            }
-        }
-
-        static::assertSame($this->getExpectedConvertToCart(), $result);
+        $this->orderConverter->convertToCart($order, Context::createDefaultContext());
     }
 
     /**
-     * @return array<array<string>>
+     * @return \Generator<string, array{string, \Closure(OrderEntity): OrderException}>
      */
-    public static function convertToCartExceptionsData(): array
+    public static function convertToCartExceptionsData(): \Generator
     {
-        return [
-            [
-                'order-no-line-items',
-            ],
-            [
-                'order-no-deliveries',
-            ],
-            [
-                'order-no-order-number',
-            ],
+        yield 'order without line items' => [
+            'order-no-line-items',
+            static fn (OrderEntity $order): OrderException => OrderException::missingAssociation('lineItems'),
+        ];
+
+        yield 'order without deliveries' => [
+            'order-no-deliveries',
+            static fn (OrderEntity $order): OrderException => OrderException::missingAssociation('deliveries'),
+        ];
+
+        yield 'order without order number' => [
+            'order-no-order-number',
+            static fn (OrderEntity $order): OrderException => OrderException::missingOrderNumber($order->getId()),
         ];
     }
 
@@ -534,12 +523,19 @@ class OrderConverterTest extends TestCase
         $lineItemA = (new LineItem('line-item-label-1', 'line-item-label-1', Uuid::randomHex()))
             ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
             ->setLabel('line-item-label-1')
-            ->setStates([State::IS_DOWNLOAD]);
+            ->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+
         $lineItemA->addExtension(OrderConverter::ORIGINAL_DOWNLOADS, $collection);
         $lineItemB = (new LineItem('line-item-label-2', 'line-item-label-2', Uuid::randomHex()))
             ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
             ->setLabel('line-item-label-2')
-            ->setStates([State::IS_DOWNLOAD]);
+            ->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $lineItemA->setStates([State::IS_DOWNLOAD]);
+            $lineItemB->setStates([State::IS_DOWNLOAD]);
+        }
+
         $cart->add($lineItemA);
         $cart->add($lineItemB);
 
@@ -561,20 +557,11 @@ class OrderConverterTest extends TestCase
         static::assertArrayHasKey('position', $lineItemB['downloads'][0]);
     }
 
-    public function testAssembleSalesChannelContextEventIsDispatched(): void
+    public function testAssembleSalesChannelContextEventsAreDispatched(): void
     {
         $order = $this->getOrder();
         $salesChannelContext = $this->getSalesChannelContext(true);
-
-        $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        $dispatcher
-            ->expects($this->once())
-            ->method('dispatch')
-            ->with(static::callback(static function (SalesChannelContextAssembledEvent $event) use ($order): bool {
-                static::assertSame($order, $event->getOrder());
-
-                return true;
-            }));
+        $dispatcher = new CollectingEventDispatcher();
 
         $address = new OrderAddressEntity();
         $address->setId('order-address-id');
@@ -596,24 +583,29 @@ class OrderConverterTest extends TestCase
                 $salesChannelContext->getContext()
             ));
 
-        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = new StaticEntityRepository([new RuleCollection()]);
 
-        /** @var StaticEntityRepository<CustomerCollection> $customerRepository */
         $customerRepository = new StaticEntityRepository([new CustomerCollection([$this->getCustomer(false)])]);
 
         $converter = new OrderConverter(
             $customerRepository,
-            $this->createMock(SalesChannelContextFactory::class),
+            static::createStub(SalesChannelContextFactory::class),
             $dispatcher,
-            $this->createMock(NumberRangeValueGeneratorInterface::class),
+            static::createStub(NumberRangeValueGeneratorInterface::class),
             $addressRepository,
-            $this->createMock(InitialStateIdLoader::class),
-            $this->createMock(LineItemDownloadLoader::class),
+            static::createStub(InitialStateIdLoader::class),
+            static::createStub(LineItemDownloadLoader::class),
             $ruleRepository,
         );
 
         $converter->assembleSalesChannelContext($order, $salesChannelContext->getContext());
+
+        static::assertCount(2, $dispatcher->getEvents());
+        static::assertInstanceOf(BeforeSalesChannelContextAssembledEvent::class, $dispatcher->getEvents()[0]);
+        static::assertSame($order, $dispatcher->getEvents()[0]->getOrder());
+        static::assertSame(OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS, $dispatcher->getEvents()[0]->getOptions()[SalesChannelContextService::PERMISSIONS]);
+        static::assertInstanceOf(SalesChannelContextAssembledEvent::class, $dispatcher->getEvents()[1]);
+        static::assertSame($order, $dispatcher->getEvents()[1]->getOrder());
     }
 
     public function testAssembleSalesChannelContextWithCustomerRestoresAddresses(): void
@@ -644,6 +636,7 @@ class OrderConverterTest extends TestCase
         $order = $this->getOrder();
         $order->setBillingAddressId('order-billing-address-id');
         $delivery = $order->getDeliveries()?->first();
+        $order->setPrimaryOrderDelivery($delivery);
         static::assertNotNull($delivery);
         $delivery->setShippingOrderAddressId('order-shipping-address-id');
 
@@ -666,6 +659,7 @@ class OrderConverterTest extends TestCase
         $salesChannel = new SalesChannelEntity();
         $salesChannel->setId(TestDefaults::SALES_CHANNEL);
         $salesChannel->setLanguageId(Defaults::LANGUAGE_SYSTEM);
+        $salesChannel->setTaxCalculationType(SalesChannelDefinition::CALCULATION_TYPE_HORIZONTAL);
 
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId('payment-method-id');
@@ -691,10 +685,12 @@ class OrderConverterTest extends TestCase
         $cart->add(
             (new LineItem('line-item-id-1', LineItem::PRODUCT_LINE_ITEM_TYPE))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL)
                 ->setLabel('line-item-label-1')
         )->add(
             (new LineItem('line-item-id-2', LineItem::PRODUCT_LINE_ITEM_TYPE))
                 ->setPrice(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL)
                 ->setLabel('line-item-label-2')
         );
         $cart->getTransactions()->add(new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'payment-method-id'));
@@ -714,6 +710,7 @@ class OrderConverterTest extends TestCase
         $orderLineItem->setGood(true);
         $orderLineItem->setRemovable(false);
         $orderLineItem->setStackable(true);
+        $orderLineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL);
 
         if ($toManipulate === 'order-add-line-item-download') {
             $orderLineItemDownload = new OrderLineItemDownloadEntity();
@@ -723,6 +720,7 @@ class OrderConverterTest extends TestCase
             $orderLineItemDownloadCollection = new OrderLineItemDownloadCollection();
             $orderLineItemDownloadCollection->add($orderLineItemDownload);
             $orderLineItem->setDownloads($orderLineItemDownloadCollection);
+            $orderLineItem->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_DIGITAL);
         }
 
         $orderLineItemCollection = new OrderLineItemCollection();
@@ -837,17 +835,17 @@ class OrderConverterTest extends TestCase
     {
         // Setup classes for OrderConverter
         // Static
-        $initialStateIdLoader = $this->createMock(InitialStateIdLoader::class);
-        $numberRangeValueGenerator = $this->createMock(NumberRangeValueGeneratorInterface::class);
+        $initialStateIdLoader = static::createStub(InitialStateIdLoader::class);
+        $numberRangeValueGenerator = static::createStub(NumberRangeValueGeneratorInterface::class);
         $numberRangeValueGenerator->method('getValue')->willReturn('10000');
 
         // Dynamic
-        $salesChannelContextFactory = $this->createMock(AbstractSalesChannelContextFactory::class);
+        $salesChannelContextFactory = static::createStub(AbstractSalesChannelContextFactory::class);
         if ($salesChannelContextFactoryCreateCallable !== null) {
             $salesChannelContextFactory->method('create')->willReturnCallback($salesChannelContextFactoryCreateCallable);
         }
 
-        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository = static::createStub(EntityRepository::class);
         if ($customerRepositoryResultArray !== null) {
             $customerRepository->method('search')->willReturn(
                 new EntitySearchResult(
@@ -861,11 +859,11 @@ class OrderConverterTest extends TestCase
             );
         }
 
-        $orderAddressRepository = $this->createMock(EntityRepository::class);
+        $orderAddressRepository = static::createStub(EntityRepository::class);
         if ($orderAddressRepositoryResultArray !== null) {
             $orderAddressRepository->method('search')->willReturn(
                 new EntitySearchResult(
-                    'orderAddress',
+                    'order_address',
                     1,
                     new EntityCollection($orderAddressRepositoryResultArray),
                     null,
@@ -878,23 +876,22 @@ class OrderConverterTest extends TestCase
         $rule = new RuleEntity();
         $rule->setId('rule-id');
         $rule->setAreas([RuleAreas::PAYMENT_AREA]);
-        /** @var StaticEntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = new StaticEntityRepository([new RuleCollection([$rule])]);
 
         $productDownload = new ProductDownloadEntity();
         $productDownload->setId(Uuid::randomHex());
         $productDownload->setMediaId(Uuid::randomHex());
         $productDownload->setPosition(0);
-        $productDownloadRepository = $this->createMock(EntityRepository::class);
-        $productDownloadRepository->method('search')->willReturnCallback(function (Criteria $criteria) use ($productDownload): EntitySearchResult {
+        $productDownloadRepository = static::createStub(EntityRepository::class);
+        $productDownloadRepository->method('search')->willReturnCallback(static function (Criteria $criteria) use ($productDownload): EntitySearchResult {
             $filters = $criteria->getFilters();
             if (isset($filters[0]) && $filters[0] instanceof EqualsAnyFilter) {
-                $value = ReflectionHelper::getPropertyValue($filters[0], 'value');
+                $value = (new \ReflectionProperty(EqualsAnyFilter::class, 'value'))->getValue($filters[0]);
                 $productDownload->setProductId($value[0] ?? null);
             }
 
             return new EntitySearchResult(
-                'productDownload',
+                'product_download',
                 1,
                 new EntityCollection([$productDownload]),
                 null,
@@ -1033,467 +1030,5 @@ class OrderConverterTest extends TestCase
         $deliveryCollection->add($delivery);
 
         return $deliveryCollection;
-    }
-
-    // Expectations
-    /**
-     * @return array<string, mixed>
-     */
-    private function getExpectedConvertToCart(): array
-    {
-        return [
-            'extensions' => [
-                'originalOrderNumber' => [
-                    'extensions' => [],
-                    'id' => '10000',
-                ],
-            ],
-            'price' => [
-                'netPrice' => 19.5,
-                'totalPrice' => 19.5,
-                'calculatedTaxes' => [],
-                'taxRules' => [],
-                'positionPrice' => 19.5,
-                'taxStatus' => 'tax-free',
-                'rawTotal' => 19.5,
-                'extensions' => [],
-            ],
-            'lineItems' => [
-                [
-                    'payload' => [],
-                    'id' => 'order-line-item-identifier',
-                    'referencedId' => null,
-                    'label' => 'order-line-item-label',
-                    'quantity' => 1,
-                    'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
-                    'priceDefinition' => null,
-                    'price' => null,
-                    'good' => true,
-                    'description' => null,
-                    'cover' => null,
-                    'deliveryInformation' => null,
-                    'children' => [],
-                    'requirement' => null,
-                    'removable' => false,
-                    'stackable' => true,
-                    'quantityInformation' => null,
-                    'modified' => false,
-                    'dataTimestamp' => null,
-                    'dataContextHash' => null,
-                    'extensions' => [],
-                    'states' => [],
-                    'modifiedByApp' => false,
-                    'shippingCostAware' => true,
-                ],
-            ],
-            'errors' => [],
-            'deliveries' => [
-                [
-                    'positions' => [
-                        [
-                            'lineItem' => [
-                                'payload' => [],
-                                'id' => 'order-line-item-identifier',
-                                'referencedId' => null,
-                                'label' => 'order-line-item-label',
-                                'quantity' => 1,
-                                'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
-                                'priceDefinition' => null,
-                                'price' => null,
-                                'good' => true,
-                                'description' => null,
-                                'cover' => null,
-                                'deliveryInformation' => null,
-                                'children' => [],
-                                'requirement' => null,
-                                'removable' => false,
-                                'stackable' => true,
-                                'quantityInformation' => null,
-                                'modified' => false,
-                                'dataTimestamp' => null,
-                                'dataContextHash' => null,
-                                'extensions' => [
-                                    'originalId' => [
-                                        'id' => 'order-line-item-id',
-                                        'extensions' => [],
-                                    ],
-                                ],
-                                'states' => [],
-                                'modifiedByApp' => false,
-                                'shippingCostAware' => true,
-                            ],
-                            'quantity' => 1,
-                            'price' => [
-                                'unitPrice' => 1,
-                                'quantity' => 1,
-                                'totalPrice' => 1,
-                                'calculatedTaxes' => [],
-                                'taxRules' => [],
-                                'referencePrice' => null,
-                                'listPrice' => null,
-                                'regulationPrice' => null,
-                                'extensions' => [],
-                            ],
-                            'identifier' => 'order-line-item-identifier',
-                            'extensions' => [
-                                'originalId' => [
-                                    'id' => 'order-delivery-position-id-1',
-                                    'extensions' => [],
-                                ],
-                            ],
-                        ],
-                    ],
-                    'location' => [
-                        'country' => [
-                            'name' => 'country-name',
-                            'iso' => null,
-                            'position' => 0,
-                            'active' => true,
-                            'shippingAvailable' => true,
-                            'iso3' => null,
-                            'displayStateInRegistration' => true,
-                            'forceStateInRegistration' => true,
-                            'checkVatIdPattern' => false,
-                            'vatIdPattern' => null,
-                            'vatIdRequired' => null,
-                            'states' => null,
-                            'translations' => null,
-                            'orderAddresses' => null,
-                            'customerAddresses' => null,
-                            'salesChannelDefaultAssignments' => null,
-                            'salesChannels' => null,
-                            'taxRules' => null,
-                            'currencyCountryRoundings' => null,
-                            '_uniqueIdentifier' => 'country-id',
-                            'versionId' => null,
-                            'translated' => [],
-                            'createdAt' => null,
-                            'updatedAt' => null,
-                            'extensions' => [],
-                            'id' => 'country-id',
-                            'customFields' => null,
-                            'advancedPostalCodePattern' => null,
-                            'defaultPostalCodePattern' => null,
-                        ],
-                        'state' => [
-                            'countryId' => 'country-id',
-                            'shortCode' => 'CSN',
-                            'name' => 'country-state-name',
-                            'position' => 0,
-                            'active' => true,
-                            'country' => null,
-                            'translations' => null,
-                            'customerAddresses' => null,
-                            'orderAddresses' => null,
-                            '_uniqueIdentifier' => 'country-state-id',
-                            'versionId' => null,
-                            'translated' => [],
-                            'createdAt' => null,
-                            'updatedAt' => null,
-                            'extensions' => [],
-                            'id' => 'country-state-id',
-                            'customFields' => null,
-                        ],
-                        'address' => null,
-                        'extensions' => [],
-                    ],
-                    'shippingMethod' => [
-                        'name' => null,
-                        'description' => null,
-                        'trackingUrl' => null,
-                        'deliveryTime' => null,
-                        'translations' => null,
-                        'orderDeliveries' => null,
-                        'salesChannelDefaultAssignments' => null,
-                        'salesChannels' => null,
-                        'availabilityRule' => null,
-                        'availabilityRuleId' => null,
-                        'prices' => [],
-                        'mediaId' => null,
-                        'taxId' => null,
-                        'media' => null,
-                        'tags' => null,
-                        'tax' => null,
-                        'versionId' => null,
-                        'translated' => [],
-                        'createdAt' => null,
-                        'updatedAt' => null,
-                        'extensions' => [],
-                        'customFields' => null,
-                        'appShippingMethod' => null,
-                        'active' => null,
-                        'position' => null,
-                    ],
-                    'shippingCosts' => [
-                        'unitPrice' => 1,
-                        'quantity' => 1,
-                        'totalPrice' => 1,
-                        'calculatedTaxes' => [],
-                        'taxRules' => [],
-                        'referencePrice' => null,
-                        'listPrice' => null,
-                        'regulationPrice' => null,
-                        'extensions' => [],
-                    ],
-                    'extensions' => [
-                        'originalId' => [
-                            'id' => 'order-delivery-id',
-                            'extensions' => [],
-                        ],
-                        'originalAddressId' => [
-                            'id' => 'order-address-id',
-                            'extensions' => [],
-                        ],
-                        'originalAddressVersionId' => [
-                            'id' => 'order-address-version-id',
-                            'extensions' => [],
-                        ],
-                    ],
-                ],
-            ],
-            'transactions' => [
-                [
-                    'amount' => [
-                        'totalPrice' => 1,
-                        'calculatedTaxes' => [],
-                        'taxRules' => [],
-                        'extensions' => [],
-                        'unitPrice' => 1,
-                        'quantity' => 1,
-                        'referencePrice' => null,
-                        'listPrice' => null,
-                        'regulationPrice' => null,
-                    ],
-                    'paymentMethodId' => 'order-transaction-cancelled-payment-method-id',
-                    'extensions' => [
-                        'originalId' => [
-                            'id' => 'order-transaction-cancelled-id',
-                            'extensions' => [],
-                        ],
-                    ],
-                    'validationStruct' => null,
-                ],
-                [
-                    'amount' => [
-                        'totalPrice' => 1,
-                        'calculatedTaxes' => [],
-                        'taxRules' => [],
-                        'extensions' => [],
-                        'unitPrice' => 1,
-                        'quantity' => 1,
-                        'referencePrice' => null,
-                        'listPrice' => null,
-                        'regulationPrice' => null,
-                    ],
-                    'paymentMethodId' => 'order-transaction-payment-method-id',
-                    'extensions' => [
-                        'originalId' => [
-                            'id' => 'order-transaction-id',
-                            'extensions' => [],
-                        ],
-                    ],
-                    'validationStruct' => null,
-                ],
-                [
-                    'amount' => [
-                        'totalPrice' => 1,
-                        'calculatedTaxes' => [],
-                        'taxRules' => [],
-                        'extensions' => [],
-                        'unitPrice' => 1,
-                        'quantity' => 1,
-                        'referencePrice' => null,
-                        'listPrice' => null,
-                        'regulationPrice' => null,
-                    ],
-                    'paymentMethodId' => 'order-transaction-failed-payment-method-id',
-                    'extensions' => [
-                        'originalId' => [
-                            'id' => 'order-transaction-failed-id',
-                            'extensions' => [],
-                        ],
-                    ],
-                    'validationStruct' => null,
-                ],
-            ],
-            'modified' => false,
-            'customerComment' => null,
-            'affiliateCode' => null,
-            'campaignCode' => null,
-            'source' => null,
-            'hash' => null,
-            'states' => [],
-        ];
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function getExpectedConvertToOrder(): array
-    {
-        return [
-            'price' => [
-                'netPrice' => 0,
-                'totalPrice' => 0,
-                'calculatedTaxes' => [],
-                'taxRules' => [],
-                'positionPrice' => 0,
-                'taxStatus' => 'gross',
-                'rawTotal' => 0,
-                'extensions' => [],
-            ],
-            'shippingCosts' => [
-                'unitPrice' => 0,
-                'quantity' => 1,
-                'totalPrice' => 0,
-                'calculatedTaxes' => [],
-                'taxRules' => [],
-                'referencePrice' => null,
-                'listPrice' => null,
-                'regulationPrice' => null,
-                'extensions' => [],
-            ],
-            'currencyId' => Defaults::CURRENCY,
-            'currencyFactor' => 1,
-            'salesChannelId' => TestDefaults::SALES_CHANNEL,
-            'lineItems' => [
-                [
-                    'identifier' => 'line-item-id-1',
-                    'quantity' => 1,
-                    'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
-                    'label' => 'line-item-label-1',
-                    'good' => true,
-                    'removable' => false,
-                    'stackable' => false,
-                    'states' => [],
-                    'position' => 1,
-                    'price' => [
-                        'unitPrice' => 1,
-                        'quantity' => 1,
-                        'totalPrice' => 1,
-                        'calculatedTaxes' => [],
-                        'taxRules' => [],
-                        'referencePrice' => null,
-                        'listPrice' => null,
-                        'regulationPrice' => null,
-                        'extensions' => [],
-                    ],
-                    'payload' => [],
-                ],
-                [
-                    'identifier' => 'line-item-id-2',
-                    'quantity' => 1,
-                    'type' => LineItem::PRODUCT_LINE_ITEM_TYPE,
-                    'label' => 'line-item-label-2',
-                    'good' => true,
-                    'removable' => false,
-                    'stackable' => false,
-                    'states' => [],
-                    'position' => 2,
-                    'price' => [
-                        'unitPrice' => 1,
-                        'quantity' => 1,
-                        'totalPrice' => 1,
-                        'calculatedTaxes' => [],
-                        'taxRules' => [],
-                        'referencePrice' => null,
-                        'listPrice' => null,
-                        'regulationPrice' => null,
-                        'extensions' => [],
-                    ],
-                    'payload' => [],
-                ],
-            ],
-            'deliveries' => [[
-                'positions' => [],
-                'shippingCosts' => [
-                    'calculatedTaxes' => [],
-                    'extensions' => [],
-                    'listPrice' => null,
-                    'quantity' => 1,
-                    'referencePrice' => null,
-                    'regulationPrice' => null,
-                    'taxRules' => [],
-                    'totalPrice' => 1,
-                    'unitPrice' => 1,
-                ],
-                'shippingMethodId' => 'shipping-method-id',
-                'shippingOrderAddress' => [
-                    'city' => 'billing-address-city',
-                    'countryId' => 'billing-address-country-id',
-                    'firstName' => 'billing-address-first-name',
-                    'lastName' => 'billing-address-last-name',
-                    'salutationId' => 'billing-address-salutation-id',
-                    'street' => 'billing-address-street',
-                    'zipcode' => 'billing-address-zipcode',
-                ],
-                'stateId' => '',
-            ]],
-            'customerComment' => null,
-            'affiliateCode' => null,
-            'campaignCode' => null,
-            'source' => null,
-            'createdById' => null,
-            'itemRounding' => [
-                'decimals' => 2,
-                'extensions' => [],
-                'interval' => 0.01,
-                'roundForNet' => true,
-            ],
-            'totalRounding' => [
-                'decimals' => 2,
-                'extensions' => [],
-                'interval' => 0.01,
-                'roundForNet' => true,
-            ],
-            'orderCustomer' => [
-                'company' => null,
-                'customFields' => null,
-                'customer' => [
-                    'id' => 'customer-id',
-                    'lastPaymentMethodId' => 'payment-method-id',
-                ],
-                'customerNumber' => 'customer-number',
-                'email' => 'customer-email',
-                'firstName' => 'customer-first-name',
-                'lastName' => 'customer-last-name',
-                'remoteAddress' => null,
-                'salutationId' => 'customer-salutation-id',
-                'title' => null,
-                'vatIds' => null,
-            ],
-            'transactions' => [
-                [
-                    'amount' => [
-                        'calculatedTaxes' => [],
-                        'extensions' => [],
-                        'listPrice' => null,
-                        'quantity' => 1,
-                        'referencePrice' => null,
-                        'regulationPrice' => null,
-                        'taxRules' => [],
-                        'totalPrice' => 1,
-                        'unitPrice' => 1,
-                    ],
-                    'paymentMethodId' => 'payment-method-id',
-                ],
-            ],
-            'orderNumber' => '10000',
-            'ruleIds' => [
-                'order-rule-id-1',
-                'order-rule-id-2',
-            ],
-            'addresses' => [
-                [
-                    'city' => 'billing-address-city',
-                    'countryId' => 'billing-address-country-id',
-                    'firstName' => 'billing-address-first-name',
-                    'lastName' => 'billing-address-last-name',
-                    'salutationId' => 'billing-address-salutation-id',
-                    'street' => 'billing-address-street',
-                    'zipcode' => 'billing-address-zipcode',
-                ],
-            ],
-        ];
     }
 }

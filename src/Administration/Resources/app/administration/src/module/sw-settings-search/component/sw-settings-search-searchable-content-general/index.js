@@ -9,19 +9,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'acl',
-    ],
+    inject: ['acl'],
 
-    emits: [
-        'data-load',
-        'config-save',
-    ],
+    emits: ['data-load', 'config-save'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     props: {
         isEmpty: {
@@ -97,12 +89,12 @@ export default {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-search.notification.saveSuccess'),
+                        message: this.$t('sw-settings-search.notification.saveSuccess'),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-search.notification.saveError'),
+                        message: this.$t('sw-settings-search.notification.saveError'),
                     });
                 })
                 .finally(() => {
@@ -121,7 +113,7 @@ export default {
         onResetRanking(currentField) {
             if (!currentField.field) {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-search.notification.saveError'),
+                    message: this.$t('sw-settings-search.notification.saveError'),
                 });
 
                 this.$emit('data-load');
@@ -131,7 +123,7 @@ export default {
             const currentItem = this.searchConfigs.find((item) => item.field === currentField.field);
             if (!currentItem) {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-search.notification.saveError'),
+                    message: this.$t('sw-settings-search.notification.saveError'),
                 });
 
                 return;

@@ -20,10 +20,7 @@ export default {
         'flowBuilderService',
     ],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('placeholder'), Mixin.getByName('notification')],
 
     props: {
         flowId: {
@@ -97,6 +94,9 @@ export default {
         documentTypeCriteria() {
             const criteria = new Criteria(1, 100);
             criteria.addSorting(Criteria.sort('name', 'ASC'));
+
+            /** @deprecated tag:v6.9.0 - drop this filter when document_type is removed. */
+            criteria.addFilter(Criteria.not('AND', [Criteria.equals('technicalName', 'app_provided')]));
 
             return criteria;
         },
@@ -190,6 +190,22 @@ export default {
             });
         },
 
+        flowDetailTabs() {
+            const createRouteTab = (label, tabName) => {
+                const route = this.routeDetailTab(tabName);
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    onClick: () => {
+                        void this.$router.push(this.routeDetailTab(tabName));
+                    },
+                };
+            };
+
+            return [createRouteTab('sw-flow.page.tabGeneral', 'general'), createRouteTab('sw-flow.page.tabFlow', 'flow')];
+        },
+
         ...mapState(
             () => Store.get('swFlow'),
             [
@@ -202,16 +218,17 @@ export default {
                 'hasFlowChanged',
             ],
         ),
-        ...mapPropertyErrors('flow', [
-            'name',
-            'eventName',
-        ]),
+        ...mapPropertyErrors('flow', ['name', 'eventName']),
     },
 
     watch: {
         flowId() {
             if (!this.$route.params.flowTemplateId) {
-                this.getDetailFlow();
+                this.isLoading = true;
+
+                this.getDetailFlow().finally(() => {
+                    this.isLoading = false;
+                });
             }
         },
     },
@@ -239,31 +256,38 @@ export default {
     },
 
     methods: {
-        createdComponent() {
-            Service('flowBuilderService').addLabels({
-                entity: 'sw-flow.labelDescription.labelEntity',
-                tagIds: 'sw-flow.labelDescription.labelTag',
-            });
+        async createdComponent() {
+            this.isLoading = true;
 
-            Shopware.ExtensionAPI.publishData({
-                id: 'sw-flow-detail__flow',
-                path: 'flow',
-                scope: this,
-            });
+            try {
+                Service('flowBuilderService').addLabels({
+                    entity: 'sw-flow.labelDescription.labelEntity',
+                    tagIds: 'sw-flow.labelDescription.labelTag',
+                });
 
-            this.getAppFlowAction();
+                Shopware.ExtensionAPI.publishData({
+                    id: 'sw-flow-detail__flow',
+                    path: 'flow',
+                    scope: this,
+                });
 
-            if (this.isTemplate) {
-                this.getDetailFlowTemplate();
-                return;
+                await this.getAppFlowAction();
+
+                if (this.isTemplate) {
+                    await this.getDetailFlowTemplate();
+
+                    return;
+                }
+
+                if (this.flowId) {
+                    await this.getDetailFlow();
+                    return;
+                }
+
+                await this.createNewFlow();
+            } finally {
+                this.isLoading = false;
             }
-
-            if (this.flowId) {
-                this.getDetailFlow();
-                return;
-            }
-
-            this.createNewFlow();
         },
 
         beforeDestroyComponent() {
@@ -313,7 +337,6 @@ export default {
         },
 
         async getDetailFlow() {
-            this.isLoading = true;
             const flowStore = Store.get('swFlow');
 
             try {
@@ -325,10 +348,8 @@ export default {
                 await this.getDataForActionDescription();
             } catch {
                 this.createNotificationError({
-                    message: this.$tc('sw-flow.flowNotification.messageError'),
+                    message: this.$t('sw-flow.flowNotification.messageError'),
                 });
-            } finally {
-                this.isLoading = false;
             }
         },
 
@@ -339,8 +360,6 @@ export default {
         },
 
         getDetailFlowTemplate() {
-            this.isLoading = true;
-
             return this.flowTemplateRepository
                 .get(this.flowId, Context.api, this.flowTemplateCriteria)
                 .then((data) => {
@@ -351,11 +370,8 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageError'),
+                        message: this.$t('sw-flow.flowNotification.messageError'),
                     });
-                })
-                .finally(() => {
-                    this.isLoading = false;
                 });
         },
 
@@ -365,7 +381,7 @@ export default {
 
             if (!this.flow?.name || !this.flow?.eventName) {
                 this.createNotificationWarning({
-                    message: this.$tc('sw-flow.flowNotification.emptyFields.general'),
+                    message: this.$t('sw-flow.flowNotification.emptyFields.general'),
                 });
 
                 return;
@@ -376,7 +392,7 @@ export default {
 
             if (invalidSequences.length) {
                 this.createNotificationWarning({
-                    message: this.$tc('sw-flow.flowNotification.emptyFields.sequences'),
+                    message: this.$t('sw-flow.flowNotification.emptyFields.sequences'),
                 });
 
                 return;
@@ -387,7 +403,7 @@ export default {
 
             if (this.isTemplate) {
                 this.createNotificationError({
-                    message: this.$tc('sw-flow.flowNotification.messageWarningSave'),
+                    message: this.$t('sw-flow.flowNotification.messageWarningSave'),
                 });
 
                 this.isLoading = false;
@@ -404,7 +420,7 @@ export default {
                 .then(() => {
                     if ((typeof this.flow.isNew === 'function' && this.flow.isNew()) || this.$route.params.flowTemplateId) {
                         this.createNotificationSuccess({
-                            message: this.$tc('sw-flow.flowNotification.messageCreateSuccess'),
+                            message: this.$t('sw-flow.flowNotification.messageCreateSuccess'),
                         });
 
                         this.$router.push({
@@ -420,7 +436,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageSaveError'),
+                        message: this.$t('sw-flow.flowNotification.messageSaveError'),
                     });
 
                     this.handleFieldValiationError();
@@ -444,7 +460,7 @@ export default {
                 await this.flowSequenceRepository.syncDeleted(deletedSequenceIds);
             }
 
-            const updateFlow = await this.flowRepository.get(this.flowId, Context.api);
+            const updateFlow = await this.flowRepository.get(this.flowId, Context.api, this.flowCriteria);
 
             Object.keys(updateFlow).forEach((key) => {
                 if (key !== 'sequences') {
@@ -528,10 +544,7 @@ export default {
         validateEmptySequence() {
             const invalidSequences = this.sequences.reduce((result, sequence) => {
                 if (sequence.ruleId === '' || sequence.actionName === '') {
-                    return [
-                        ...result,
-                        sequence.id,
-                    ];
+                    return [...result, sequence.id];
                 }
 
                 return result;
@@ -548,7 +561,6 @@ export default {
             }
 
             const promises = [];
-            // eslint-disable-next-line max-len
             const hasSetOrderStateAction = this.sequences.some(
                 (sequence) => sequence.actionName === this.flowBuilderService.getActionName('SET_ORDER_STATE'),
             );
@@ -562,7 +574,6 @@ export default {
                 );
             }
 
-            // eslint-disable-next-line max-len
             const hasDocumentAction = this.sequences.some(
                 (sequence) => sequence.actionName === this.flowBuilderService.getActionName('GENERATE_DOCUMENT'),
             );
@@ -576,7 +587,6 @@ export default {
                 );
             }
 
-            // eslint-disable-next-line max-len
             const hasMailSendAction = this.sequences.some(
                 (sequence) => sequence.actionName === this.flowBuilderService.getActionName('MAIL_SEND'),
             );
@@ -590,7 +600,6 @@ export default {
                 );
             }
 
-            // eslint-disable-next-line max-len
             const hasChangeCustomerGroup = this.sequences.some(
                 (sequence) => sequence.actionName === this.flowBuilderService.getActionName('CHANGE_CUSTOMER_GROUP'),
             );
@@ -609,7 +618,6 @@ export default {
                 this.flowBuilderService.getActionName('SET_CUSTOMER_CUSTOM_FIELD'),
                 this.flowBuilderService.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'),
             ];
-            // eslint-disable-next-line max-len
             const hasSetCustomFieldAction = this.sequences.some((sequence) =>
                 customFieldActionConstants.includes(sequence.actionName),
             );
@@ -651,11 +659,8 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-flow.flowNotification.messageError'),
+                        message: this.$t('sw-flow.flowNotification.messageError'),
                     });
-                })
-                .finally(() => {
-                    this.isLoading = false;
                 });
         },
 

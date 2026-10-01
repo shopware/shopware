@@ -2,20 +2,21 @@
 
 namespace Shopware\Core\Installer\Configuration;
 
-use Defuse\Crypto\Key;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Installer\Controller\ShopConfigurationController;
-use Shopware\Core\Installer\Finish\UniqueIdGenerator;
+use Shopware\Core\Framework\Util\Random;
+use Shopware\Core\Maintenance\System\Command\SystemGenerateAppSecretCommand;
 use Shopware\Core\Maintenance\System\Struct\DatabaseConnectionInformation;
 
 /**
  * @internal
  *
- * @phpstan-import-type Shop from ShopConfigurationController
+ * @phpstan-import-type Shop from ShopConfigurationService
  */
 #[Package('framework')]
 class EnvConfigWriter
 {
+    private const INSTANCE_ID_LENGTH = 32;
+
     private const FLEX_DOTENV = <<<'EOT'
 ###> symfony/lock ###
 # Choose one of the stores below
@@ -56,15 +57,14 @@ SHOPWARE_ADMIN_ES_REFRESH_INDICES=0
 ###< shopware/elasticsearch ###
 
 ###> shopware/storefront ###
-STOREFRONT_PROXY_URL=http://localhost
+PROXY_URL=http://localhost
 SHOPWARE_HTTP_CACHE_ENABLED=1
 SHOPWARE_HTTP_DEFAULT_TTL=7200
 ###< shopware/storefront ###
 EOT;
 
     public function __construct(
-        private readonly string $projectDir,
-        private readonly UniqueIdGenerator $idGenerator
+        private readonly string $projectDir
     ) {
     }
 
@@ -73,11 +73,11 @@ EOT;
      */
     public function writeConfig(DatabaseConnectionInformation $info, array $shop): void
     {
-        $uniqueId = $this->idGenerator->getUniqueId();
-        $secret = Key::createNewRandomKey()->saveToAsciiSafeString();
+        $instanceId = Random::getAlphanumericString(self::INSTANCE_ID_LENGTH);
+        $secret = Random::getString(SystemGenerateAppSecretCommand::APP_SECRET_LENGTH);
 
         // Copy flex default .env if missing
-        if (!file_exists($this->projectDir . '/.env')) {
+        if (!\is_file($this->projectDir . '/.env')) {
             $template = str_replace(
                 [
                     'SECRET_PLACEHOLDER',
@@ -85,7 +85,7 @@ EOT;
                 ],
                 [
                     $secret,
-                    $uniqueId,
+                    $instanceId,
                 ],
                 self::FLEX_DOTENV
             );
@@ -98,15 +98,15 @@ EOT;
         $newEnv[] = 'APP_URL=' . $shop['schema'] . '://' . $shop['host'] . $shop['basePath'];
         $newEnv[] = 'DATABASE_URL=' . $info->asDsn();
 
-        if (!empty($info->getSslCaPath())) {
+        if (($info->getSslCaPath() ?? '') !== '') {
             $newEnv[] = 'DATABASE_SSL_CA=' . $info->getSslCaPath();
         }
 
-        if (!empty($info->getSslCertPath())) {
+        if (($info->getSslCertPath() ?? '') !== '') {
             $newEnv[] = 'DATABASE_SSL_CERT=' . $info->getSslCertPath();
         }
 
-        if (!empty($info->getSslCertKeyPath())) {
+        if (($info->getSslCertKeyPath() ?? '') !== '') {
             $newEnv[] = 'DATABASE_SSL_KEY=' . $info->getSslCertKeyPath();
         }
 
@@ -115,7 +115,7 @@ EOT;
         }
 
         $newEnv[] = 'COMPOSER_HOME=' . $this->projectDir . '/var/cache/composer';
-        $newEnv[] = 'INSTANCE_ID=' . $uniqueId;
+        $newEnv[] = 'INSTANCE_ID=' . $instanceId;
         $newEnv[] = 'BLUE_GREEN_DEPLOYMENT=' . (int) $shop['blueGreenDeployment'];
         $newEnv[] = 'OPENSEARCH_URL=http://localhost:9200';
         $newEnv[] = 'ADMIN_OPENSEARCH_URL=http://localhost:9200';
@@ -124,7 +124,7 @@ EOT;
 
         $htaccessPath = $this->projectDir . '/public/.htaccess';
 
-        if (file_exists($htaccessPath . '.dist') && !file_exists($htaccessPath)) {
+        if (\is_file($htaccessPath . '.dist') && !\is_file($htaccessPath)) {
             $perms = fileperms($htaccessPath . '.dist');
             copy($htaccessPath . '.dist', $htaccessPath);
 

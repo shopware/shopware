@@ -2,12 +2,15 @@
 
 namespace Shopware\Core\Framework\App\Manifest;
 
+use Shopware\Core\Framework\App\AppDefinition;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
 use Shopware\Core\Framework\App\Manifest\Xml\Administration\Admin;
 use Shopware\Core\Framework\App\Manifest\Xml\AllowedHost\AllowedHosts;
 use Shopware\Core\Framework\App\Manifest\Xml\Cookie\Cookies;
-use Shopware\Core\Framework\App\Manifest\Xml\CustomField\CustomFields;
+use Shopware\Core\Framework\App\Manifest\Xml\Document\Documents;
+use Shopware\Core\Framework\App\Manifest\Xml\Gateway\CheckoutGateway;
+use Shopware\Core\Framework\App\Manifest\Xml\Gateway\ContextGateway;
 use Shopware\Core\Framework\App\Manifest\Xml\Gateway\Gateways;
 use Shopware\Core\Framework\App\Manifest\Xml\Meta\Metadata;
 use Shopware\Core\Framework\App\Manifest\Xml\PaymentMethod\Payments;
@@ -19,10 +22,13 @@ use Shopware\Core\Framework\App\Manifest\Xml\Storefront\Storefront;
 use Shopware\Core\Framework\App\Manifest\Xml\Tax\Tax;
 use Shopware\Core\Framework\App\Manifest\Xml\Webhook\Webhooks;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomField\Xml\CustomFields;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @phpstan-import-type SourceConfig from AppDefinition
  */
 #[Package('framework')]
 class Manifest
@@ -34,12 +40,17 @@ class Manifest
     private ?string $sourceType = null;
 
     /**
-     * @var array<string, string|null>
+     * @var SourceConfig
      */
     private array $sourceConfig = [];
 
     private function __construct(
         private string $path,
+        private readonly bool $validatesPermissions,
+        /**
+         * @var list<string> list of requirements
+         */
+        private readonly array $requirements,
         private readonly Metadata $metadata,
         private readonly ?Setup $setup,
         private readonly ?Admin $admin,
@@ -48,6 +59,7 @@ class Manifest
         private readonly ?CustomFields $customFields,
         private readonly ?Webhooks $webhooks,
         private readonly ?Cookies $cookies,
+        private readonly ?Documents $documents,
         private readonly ?Payments $payments,
         private readonly ?RuleConditions $ruleConditions,
         private readonly ?Storefront $storefront,
@@ -98,6 +110,22 @@ class Manifest
     public function setPath(string $path): void
     {
         $this->path = $path;
+    }
+
+    /**
+     * This app has indicated that it validates it has permissions before using particular features. Because it has, we can request permission review separately from the app install/update process.
+     */
+    public function validatesPermissions(): bool
+    {
+        return $this->validatesPermissions;
+    }
+
+    /**
+     * @return list<string> list of requirements.
+     */
+    public function getRequirements(): array
+    {
+        return $this->requirements;
     }
 
     public function getMetadata(): Metadata
@@ -154,6 +182,11 @@ class Manifest
         return $this->cookies;
     }
 
+    public function getDocuments(): ?Documents
+    {
+        return $this->documents;
+    }
+
     public function getPayments(): ?Payments
     {
         return $this->payments;
@@ -207,7 +240,7 @@ class Manifest
             $urls = \array_merge($urls, $this->tax->getUrls());
         }
 
-        $urls = \array_map(fn (string $url) => (string) \parse_url($url, \PHP_URL_HOST), $urls);
+        $urls = \array_map(static fn (string $url) => (string) \parse_url($url, \PHP_URL_HOST), $urls);
 
         return \array_values(\array_unique(\array_merge($hosts, $urls)));
     }
@@ -238,7 +271,7 @@ class Manifest
     }
 
     /**
-     * @return array<string, string|null>
+     * @return SourceConfig
      */
     public function getSourceConfig(): array
     {
@@ -246,7 +279,7 @@ class Manifest
     }
 
     /**
-     * @param array<string, string|null> $sourceConfig
+     * @param SourceConfig $sourceConfig
      */
     public function setSourceConfig(array $sourceConfig): void
     {
@@ -256,6 +289,14 @@ class Manifest
     private static function create(\DOMDocument $doc, string $xmlFile): self
     {
         try {
+            $manifest = $doc->getElementsByTagName('manifest')->item(0);
+            \assert($manifest !== null);
+
+            $validatesPermissions = $manifest->hasAttribute('validates-permissions')
+                && XmlUtils::phpize($manifest->getAttribute('validates-permissions')) === true;
+
+            $requirements = self::buildRequirements($doc);
+
             $meta = $doc->getElementsByTagName('meta')->item(0);
             \assert($meta !== null);
             $metadata = Metadata::fromXml($meta);
@@ -273,6 +314,8 @@ class Manifest
             $webhooks = $webhooks === null ? null : Webhooks::fromXml($webhooks);
             $cookies = $doc->getElementsByTagName('cookies')->item(0);
             $cookies = $cookies === null ? null : Cookies::fromXml($cookies);
+            $documents = $doc->getElementsByTagName('documents')->item(0);
+            $documents = $documents === null ? null : Documents::fromXml($documents);
             $payments = $doc->getElementsByTagName('payments')->item(0);
             $payments = $payments === null ? null : Payments::fromXml($payments);
             $ruleConditions = $doc->getElementsByTagName('rule-conditions')->item(0);
@@ -289,8 +332,29 @@ class Manifest
             throw AppException::xmlParsingException($xmlFile, $e->getMessage());
         }
 
+        // A declared tax provider, checkout gateway or context gateway implicitly requires the matching
+        // permission, so Shopware only pushes cart/customer data to the handler once it is granted.
+        // Adding it to the permissions here means it flows through the normal request/consent path.
+        $capabilityPrivileges = [];
+        if ($tax?->getTaxProviders()) {
+            $capabilityPrivileges[] = Tax::PERMISSION;
+        }
+        if ($gateways?->getCheckout()) {
+            $capabilityPrivileges[] = CheckoutGateway::PERMISSION;
+        }
+        if ($gateways?->getContext()) {
+            $capabilityPrivileges[] = ContextGateway::PERMISSION;
+        }
+
+        if ($capabilityPrivileges !== []) {
+            $permissions ??= Permissions::fromArray(['permissions' => []]);
+            $permissions->addPrivileges($capabilityPrivileges);
+        }
+
         return new self(
             \dirname($xmlFile),
+            $validatesPermissions,
+            $requirements,
             $metadata,
             $setup,
             $admin,
@@ -299,6 +363,7 @@ class Manifest
             $customFields,
             $webhooks,
             $cookies,
+            $documents,
             $payments,
             $ruleConditions,
             $storefront,
@@ -306,5 +371,27 @@ class Manifest
             $shippingMethods,
             $gateways
         );
+    }
+
+    /**
+     * @return list<string> list of requirements
+     */
+    private static function buildRequirements(\DOMDocument $doc): array
+    {
+        $requirementsElement = $doc->getElementsByTagName('requirements')->item(0);
+        if ($requirementsElement === null) {
+            return [];
+        }
+
+        $requirements = [];
+
+        // Presence of child elements indicates the requirement is enabled
+        foreach ($requirementsElement->childNodes as $node) {
+            if ($node instanceof \DOMElement) {
+                $requirements[] = $node->tagName;
+            }
+        }
+
+        return $requirements;
     }
 }

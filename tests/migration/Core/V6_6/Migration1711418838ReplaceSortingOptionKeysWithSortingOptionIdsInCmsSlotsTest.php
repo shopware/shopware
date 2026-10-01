@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1711418838ReplaceSortingOptionKeysWithSortingOptionIdsInCmsSlots;
@@ -14,6 +15,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1711418838ReplaceSortingOptionKeysWithSortingOptionIdsInCmsSlots::class)]
 class Migration1711418838ReplaceSortingOptionKeysWithSortingOptionIdsInCmsSlotsTest extends TestCase
 {
@@ -29,6 +31,11 @@ class Migration1711418838ReplaceSortingOptionKeysWithSortingOptionIdsInCmsSlotsT
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1711418838, (new Migration1711418838ReplaceSortingOptionKeysWithSortingOptionIdsInCmsSlots())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $sortingIds = $this->getSortingIds();
@@ -40,8 +47,9 @@ class Migration1711418838ReplaceSortingOptionKeysWithSortingOptionIdsInCmsSlotsT
         $slots = $this->connection->fetchAllAssociative(<<<'SQL'
             SELECT cms_slot_id, cms_slot_version_id, language_id, config
             FROM cms_slot_translation
-            WHERE JSON_CONTAINS_PATH(config, 'one', '$.defaultSorting')
-                OR JSON_CONTAINS_PATH(config, 'one', '$.availableSortings');
+            WHERE JSON_UNQUOTE(JSON_EXTRACT(config, '$.defaultSorting.value')) != ''
+                OR JSON_EXTRACT(config, '$.availableSortings.value') IS NOT NULL
+                AND JSON_LENGTH(JSON_EXTRACT(config, '$.availableSortings.value')) > 0;
         SQL);
 
         // First slot

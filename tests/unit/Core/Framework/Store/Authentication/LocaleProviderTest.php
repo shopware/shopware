@@ -26,16 +26,16 @@ class LocaleProviderTest extends TestCase
 {
     public function testGetLocaleFromContextReturnsEnGbInSystemSource(): void
     {
-        $provider = new LocaleProvider(static::createMock(EntityRepository::class));
+        $provider = new LocaleProvider(static::createStub(EntityRepository::class));
 
-        static::assertEquals('en-GB', $provider->getLocaleFromContext(Context::createDefaultContext()));
+        static::assertSame('en-GB', $provider->getLocaleFromContext(Context::createDefaultContext()));
     }
 
     public function testGetLocaleFromContextReturnsEnGbIfNoUserIsAssociated(): void
     {
-        $provider = new LocaleProvider(static::createMock(EntityRepository::class));
+        $provider = new LocaleProvider(static::createStub(EntityRepository::class));
 
-        static::assertEquals(
+        static::assertSame(
             'en-GB',
             $provider->getLocaleFromContext(Context::createDefaultContext(
                 new AdminApiSource(null, 'i-am-an-integration')
@@ -68,7 +68,7 @@ class LocaleProviderTest extends TestCase
 
         $provider = new LocaleProvider($userRepository);
 
-        static::assertEquals('user-locale', $provider->getLocaleFromContext($context));
+        static::assertSame('user-locale', $provider->getLocaleFromContext($context));
     }
 
     public function testGetLocaleFromContextThrowsIfAssociatedUserCanNotBeFound(): void

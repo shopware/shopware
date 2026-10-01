@@ -93,7 +93,7 @@ class ProductVisibilityEntityTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product_visibility.productId', $id));
 
-        $visibilities = $this->visibilityRepository->search($criteria, $context);
+        $visibilities = $this->visibilityRepository->search($criteria, $context)->getEntities();
         static::assertCount(2, $visibilities);
 
         // test filter visibilities over product
@@ -111,13 +111,13 @@ class ProductVisibilityEntityTest extends TestCase
             )
         );
 
-        $product = $this->productRepository->search($criteria, $context)->first();
+        $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
 
         // visibilities filtered and loaded?
         static::assertInstanceOf(ProductEntity::class, $product);
 
         $ids = $visibilities->map(
-            fn (ProductVisibilityEntity $visibility) => ['id' => $visibility->getId()]
+            static fn (ProductVisibilityEntity $visibility) => ['id' => $visibility->getId()]
         );
 
         $container = $this->visibilityRepository->delete(array_values($ids), $context);

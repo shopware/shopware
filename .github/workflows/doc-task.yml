@@ -1,0 +1,51 @@
+name: Manage documentation tasks for GitHub Epics
+
+on:
+  schedule: # Every 15 minutes
+    - cron: '*/15 * * * *'
+
+  workflow_dispatch:
+
+jobs:
+  manage-docs:
+    if: github.repository == 'shopware/shopware' && github.ref == 'refs/heads/trunk'
+    runs-on: ubuntu-24.04
+    permissions:
+      id-token: write
+      issues: read
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: sts
+        continue-on-error: true
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: ManageProjects
+      - shell: bash
+        run: npm ci --prefix .github/bin/js/
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          JIRA_USERNAME: ${{ secrets.JIRA_USERNAME }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          REPO_VARS: ${{ toJSON(vars) }}
+        with:
+          github-token: ${{ steps.sts.outputs.token }}
+          script: |
+            const { createDocumentationTasksForProjects } = await import('${{ github.workspace }}/.github/bin/js/node_modules/@shopware-ag/gh-project-automation/dist/index.mjs')
+
+            const repoVars = JSON.parse(process.env.REPO_VARS);
+            const docTaskProjects = repoVars.DOC_TASK_PROJECTS.split(',').map(i => parseInt(i));
+            const docTaskProjectId = parseInt(repoVars.DOC_TASK_PROJECT_ID);
+            const docTaskDescription = repoVars.DOC_TASK_DESCRIPTION;
+            const docTaskReferenceCommentPrefix = repoVars.DOC_TASK_REFERENCE_COMMENT_PREFIX;
+
+            await createDocumentationTasksForProjects(
+              {github, core, context, fetch},
+              docTaskProjects,
+              'shopware',
+              docTaskProjectId,
+              docTaskDescription,
+              docTaskReferenceCommentPrefix
+            );

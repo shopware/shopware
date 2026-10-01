@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<StateMachineStateTranslationEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class StateMachineStateTranslationCollection extends EntityCollection
@@ -16,12 +18,12 @@ class StateMachineStateTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (StateMachineStateTranslationEntity $stateMachineStateTranslation) => $stateMachineStateTranslation->getLanguageId());
+        return $this->fmap(static fn (StateMachineStateTranslationEntity $stateMachineStateTranslation) => $stateMachineStateTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (StateMachineStateTranslationEntity $stateMachineStateTranslation) => $stateMachineStateTranslation->getLanguageId() === $id);
+        return $this->filter(static fn (StateMachineStateTranslationEntity $stateMachineStateTranslation) => $stateMachineStateTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string
@@ -31,6 +33,6 @@ class StateMachineStateTranslationCollection extends EntityCollection
 
     protected function getExpectedClass(): string
     {
-        return StateMachineStateEntity::class;
+        return StateMachineStateTranslationEntity::class;
     }
 }

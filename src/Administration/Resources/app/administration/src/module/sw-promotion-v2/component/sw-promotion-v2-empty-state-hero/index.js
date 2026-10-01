@@ -2,6 +2,7 @@ import template from './sw-promotion-v2-empty-state-hero.html.twig';
 import './sw-promotion-v2-empty-state-hero.scss';
 
 /**
+ * @deprecated tag:v6.8.0 - Will be removed - Remove also the svg `/promotion-v2-empty-state-hero.svg`
  * @sw-package checkout
  * @private
  */

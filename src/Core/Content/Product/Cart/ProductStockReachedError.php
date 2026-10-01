@@ -10,10 +10,10 @@ use Shopware\Core\Framework\Log\Package;
 class ProductStockReachedError extends Error
 {
     public function __construct(
-        private readonly string $id,
-        private readonly string $name,
-        private readonly int $quantity,
-        private bool $resolved = true
+        protected readonly string $id,
+        protected readonly string $name,
+        protected readonly int $quantity,
+        protected bool $resolved = true
     ) {
         $this->message = \sprintf(
             'The product %s is only available %d times',

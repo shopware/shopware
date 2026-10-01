@@ -19,12 +19,14 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemProductStatesRule::class)]
-#[Package('checkout')]
+#[DisabledFeatures(['v6.8.0.0'])]
 class LineItemProductStatesRuleTest extends TestCase
 {
     private LineItemProductStatesRule $rule;
@@ -56,13 +58,13 @@ class LineItemProductStatesRuleTest extends TestCase
     {
         $config = $this->rule->getConfig();
         $expected = (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
             ->selectField('productState', [
                 State::IS_PHYSICAL,
                 State::IS_DOWNLOAD,
             ]);
 
-        static::assertEquals($expected->getData(), $config->getData());
+        static::assertSame($expected->getData(), $config->getData());
     }
 
     /**
@@ -82,7 +84,7 @@ class LineItemProductStatesRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $this->createLineItemWithStates($states),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -112,7 +114,7 @@ class LineItemProductStatesRuleTest extends TestCase
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -125,22 +127,20 @@ class LineItemProductStatesRuleTest extends TestCase
             'productState' => State::IS_DOWNLOAD,
         ]);
 
-        $match = $this->rule->match(new CheckoutRuleScope($this->createMock(SalesChannelContext::class)));
+        $match = $this->rule->match(new CheckoutRuleScope(static::createStub(SalesChannelContext::class)));
 
         static::assertFalse($match);
     }
 
     /**
-     * @return array<string, array<int, array<int, string>|bool|string>>
+     * @return iterable<string, array<int, array<int, string>|bool|string>>
      */
-    public static function caseDataProvider(): array
+    public static function caseDataProvider(): iterable
     {
-        return [
-            'equal / match' => [[State::IS_PHYSICAL, State::IS_DOWNLOAD], Rule::OPERATOR_EQ, State::IS_DOWNLOAD, true],
-            'equal / no match' => [[State::IS_PHYSICAL], Rule::OPERATOR_EQ, State::IS_DOWNLOAD, false],
-            'not equal / match' => [[State::IS_PHYSICAL], Rule::OPERATOR_NEQ, State::IS_DOWNLOAD, true],
-            'not equal / no match' => [[State::IS_PHYSICAL, State::IS_DOWNLOAD], Rule::OPERATOR_NEQ, State::IS_DOWNLOAD, false],
-        ];
+        yield 'equal / match' => [[State::IS_PHYSICAL, State::IS_DOWNLOAD], Rule::OPERATOR_EQ, State::IS_DOWNLOAD, true];
+        yield 'equal / no match' => [[State::IS_PHYSICAL], Rule::OPERATOR_EQ, State::IS_DOWNLOAD, false];
+        yield 'not equal / match' => [[State::IS_PHYSICAL], Rule::OPERATOR_NEQ, State::IS_DOWNLOAD, true];
+        yield 'not equal / no match' => [[State::IS_PHYSICAL, State::IS_DOWNLOAD], Rule::OPERATOR_NEQ, State::IS_DOWNLOAD, false];
     }
 
     /**

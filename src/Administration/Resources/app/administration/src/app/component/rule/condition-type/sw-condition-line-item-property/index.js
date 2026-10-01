@@ -1,7 +1,6 @@
 import template from './sw-condition-line-item-property.html.twig';
 
-const { Component, Context } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { Context } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
@@ -13,13 +12,11 @@ const { EntityCollection, Criteria } = Shopware.Data;
  * @component-example
  * <sw-condition-line-item-property :condition="condition" :level="0"></sw-condition-line-item-property>
  */
-Component.extend('sw-condition-line-item-property', 'sw-condition-base-line-item', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     data() {
         return {
@@ -49,15 +46,6 @@ Component.extend('sw-condition-line-item-property', 'sw-condition-base-line-item
                     identifiers,
                 };
             },
-        },
-
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.identifiers',
-        ]),
-
-        currentError() {
-            return this.conditionValueOperatorError || this.conditionValueIdentifiersError;
         },
 
         optionCriteria() {
@@ -108,4 +96,4 @@ Component.extend('sw-condition-line-item-property', 'sw-condition-base-line-item
             this.searchTerm = '';
         },
     },
-});
+};

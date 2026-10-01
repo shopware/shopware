@@ -10,10 +10,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    emits: [
-        'change',
-        'paginate',
-    ],
+    emits: ['change', 'paginate'],
 
     data() {
         return {
@@ -60,12 +57,14 @@ export default {
         },
 
         searchItems() {
-            return this.searchRepository.search(this.searchCriteria, this.context).then((result) => {
-                const criteria = new Criteria(1, this.searchCriteria.limit);
-                criteria.setIds(result.getIds());
+            return this.searchRepository
+                .search(this.searchCriteria, { ...this.context, inheritance: true })
+                .then((result) => {
+                    const criteria = new Criteria(1, this.searchCriteria.limit);
+                    criteria.setIds(result.getIds());
 
-                return result;
-            });
+                    return result;
+                });
         },
 
         onItemSelect(item) {

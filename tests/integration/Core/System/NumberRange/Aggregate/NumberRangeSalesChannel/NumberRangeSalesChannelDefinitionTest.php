@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRangeSalesChannelCollection;
@@ -17,6 +18,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('framework')]
 class NumberRangeSalesChannelDefinitionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -104,8 +106,8 @@ class NumberRangeSalesChannelDefinitionTest extends TestCase
         $numberRangeSalesChannel = $getNumberRangeSalesChannels->first();
 
         static::assertInstanceOf(NumberRangeSalesChannelEntity::class, $numberRangeSalesChannel);
-        static::assertEquals($numberRangeId, $numberRangeSalesChannel->getNumberRangeId());
-        static::assertEquals(TestDefaults::SALES_CHANNEL, $numberRangeSalesChannel->getSalesChannelId());
-        static::assertEquals($numberRangeId, $numberRangeSalesChannel->getNumberRangeTypeId());
+        static::assertSame($numberRangeId, $numberRangeSalesChannel->getNumberRangeId());
+        static::assertSame(TestDefaults::SALES_CHANNEL, $numberRangeSalesChannel->getSalesChannelId());
+        static::assertSame($numberRangeId, $numberRangeSalesChannel->getNumberRangeTypeId());
     }
 }

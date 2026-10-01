@@ -2,15 +2,16 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Content\Flow\Dispatching\Aware\OrderTransactionAware;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\OrderTransactionProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -19,10 +20,13 @@ class OrderTransactionStorer extends FlowStorer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<OrderTransactionCollection> $orderTransactionRepository
      */
     public function __construct(
         private readonly EntityRepository $orderTransactionRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly OrderTransactionProvider $orderTransactionProvider,
     ) {
     }
 
@@ -61,28 +65,26 @@ class OrderTransactionStorer extends FlowStorer
             return null;
         }
 
-        $criteria = new Criteria([$id]);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria = $this->orderTransactionProvider->getCriteria($id, $storableFlow->getContext());
 
-        return $this->loadOrderTransaction($criteria, $storableFlow->getContext(), $id);
-    }
+            $event = new BeforeLoadStorableFlowDataEvent(
+                OrderTransactionDefinition::ENTITY_NAME,
+                $criteria,
+                $storableFlow->getContext(),
+            );
 
-    private function loadOrderTransaction(Criteria $criteria, Context $context, string $id): ?OrderTransactionEntity
-    {
-        $event = new BeforeLoadStorableFlowDataEvent(
-            OrderTransactionDefinition::ENTITY_NAME,
-            $criteria,
-            $context,
-        );
+            $this->dispatcher->dispatch($event, $event->getName());
 
-        $this->dispatcher->dispatch($event, $event->getName());
+            $orderTransaction = $this->orderTransactionRepository->search($criteria, $storableFlow->getContext())->getEntities()->get($id);
 
-        $orderTransaction = $this->orderTransactionRepository->search($criteria, $context)->get($id);
+            if ($orderTransaction) {
+                return $orderTransaction;
+            }
 
-        if ($orderTransaction) {
-            /** @var OrderTransactionEntity $orderTransaction */
-            return $orderTransaction;
+            return null;
         }
 
-        return null;
+        return $this->orderTransactionProvider->getData($id, $storableFlow->getContext());
     }
 }

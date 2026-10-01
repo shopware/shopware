@@ -41,7 +41,7 @@ class ShopwareNamespaceStyleRule implements Rule
 
         $namespaceParts = $namespaceNode->name?->getParts() ?: [];
 
-        if (\count($namespaceParts) > 0 && $namespaceParts[0] !== 'Shopware') {
+        if ($namespaceParts !== [] && $namespaceParts[0] !== 'Shopware') {
             return [
                 RuleErrorBuilder::message('Namespace must start with Shopware')
                     ->line($namespaceNode->getStartLine())

@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Framework\Adapter\Cache\RedisConnectionFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -21,13 +22,18 @@ class RedisCartPersister extends AbstractCartPersister
 {
     final public const PREFIX = 'cart-persister-';
 
+    private const SET_ONLY_IF_EXISTS = 'XX';
+    private const EXPIRES_IN_SECONDS = 'EX';
+
     /**
      * @param RedisTypeHint $redis
      *
      * @internal
      */
     public function __construct(
-        /** @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future) */
+        /**
+         * @phpstan-ignore shopware.propertyNativeType (Cannot type natively, as Symfony might change the implementation in the future)
+         */
         private $redis,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly CartSerializationCleaner $cartSerializationCleaner,
@@ -43,16 +49,16 @@ class RedisCartPersister extends AbstractCartPersister
 
     public function load(string $token, SalesChannelContext $context): Cart
     {
-        /** @var string|bool|array<mixed> $value */
         $value = $this->redis->get(self::PREFIX . $token);
 
-        if ($value === false || !\is_string($value)) {
+        if (!\is_string($value)) {
             throw CartException::tokenNotFound($token);
         }
 
         try {
+            /** @phpstan-ignore shopware.unserializeUsage */
             $value = @\unserialize($value);
-        } catch (\Exception) {
+        } catch (\Throwable) {
             throw CartException::tokenNotFound($token);
         }
 
@@ -62,7 +68,7 @@ class RedisCartPersister extends AbstractCartPersister
 
         try {
             $content = $this->compressor->unserialize($value['content'], (int) $value['compressed']);
-        } catch (\Exception) {
+        } catch (\Throwable) {
             // When we can't decode it, we have to delete it
             throw CartException::tokenNotFound($token);
         }
@@ -79,10 +85,16 @@ class RedisCartPersister extends AbstractCartPersister
 
         $cart->setToken($token);
         $cart->setRuleIds($content['rule_ids']);
+        $cart->setPersisted(true);
 
         $this->eventDispatcher->dispatch(new CartLoadedEvent($cart, $context));
 
         return $cart;
+    }
+
+    public function exists(string $token, SalesChannelContext $context): bool
+    {
+        return (bool) $this->redis->exists(self::PREFIX . $token);
     }
 
     public function save(Cart $cart, SalesChannelContext $context): void
@@ -93,15 +105,27 @@ class RedisCartPersister extends AbstractCartPersister
 
         $this->eventDispatcher->dispatch($event);
         if (!$event->shouldBePersisted()) {
-            $this->delete($cart->getToken(), $context);
+            // skipping the persistence means the stored cart stays untouched, it must not be deleted
+            if (!$cart->getBehavior()?->hasPermission(CheckoutPermissions::SKIP_CART_PERSISTENCE)) {
+                $this->delete($cart->getToken(), $context);
+                $cart->setPersisted(false);
+            }
 
             return;
         }
 
         $content = $this->serializeCart($cart, $context);
+        $options = [self::EXPIRES_IN_SECONDS => $this->expireDays * 86400];
 
-        $this->redis->set(self::PREFIX . $cart->getToken(), $content, ['EX' => $this->expireDays * 86400]);
+        if ($cart->isPersisted()) {
+            $options[] = self::SET_ONLY_IF_EXISTS;
+        }
 
+        if ($this->redis->set(self::PREFIX . $cart->getToken(), $content, $options) === false) {
+            return;
+        }
+
+        $cart->setPersisted(true);
         $this->eventDispatcher->dispatch(new CartSavedEvent($context, $cart));
     }
 
@@ -122,8 +146,10 @@ class RedisCartPersister extends AbstractCartPersister
         $copyContext->setRuleIds($cart->getRuleIds());
 
         $cart->setToken($newToken);
+        $cart->setPersisted(false);
         $this->save($cart, $copyContext);
         $cart->setToken($oldToken);
+        $cart->setPersisted(true);
 
         $this->delete($oldToken, $context);
     }
@@ -131,9 +157,11 @@ class RedisCartPersister extends AbstractCartPersister
     private function serializeCart(Cart $cart, SalesChannelContext $context): string
     {
         $errors = $cart->getErrors();
-        $data = $cart->getData();
+        if (!$cart->getBehavior()?->hasPermission(self::PERSIST_CART_ERROR_PERMISSION)) {
+            $cart->setErrors(new ErrorCollection());
+        }
 
-        $cart->setErrors(new ErrorCollection());
+        $data = $cart->getData();
         $cart->setData(null);
 
         $this->cartSerializationCleaner->cleanupCart($cart);

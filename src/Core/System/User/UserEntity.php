@@ -47,6 +47,11 @@ class UserEntity extends Entity
 
     protected bool $admin;
 
+    /**
+     * @var array<string, mixed>|null
+     */
+    protected ?array $mcpAllowlist = null;
+
     protected ?AclRoleCollection $aclRoles = null;
 
     protected ?LocaleEntity $locale = null;
@@ -145,7 +150,7 @@ class UserEntity extends Entity
     /**
      * @internal
      */
-    public function setPassword(string $password): void
+    public function setPassword(#[\SensitiveParameter] string $password): void
     {
         $this->password = $password;
     }
@@ -263,7 +268,7 @@ class UserEntity extends Entity
     /**
      * @internal
      */
-    public function setStoreToken(?string $storeToken): void
+    public function setStoreToken(#[\SensitiveParameter] ?string $storeToken): void
     {
         $this->storeToken = $storeToken;
     }
@@ -276,6 +281,22 @@ class UserEntity extends Entity
     public function setAdmin(bool $admin): void
     {
         $this->admin = $admin;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function getMcpAllowlist(): ?array
+    {
+        return $this->mcpAllowlist;
+    }
+
+    /**
+     * @param array<string, mixed>|null $mcpAllowlist
+     */
+    public function setMcpAllowlist(?array $mcpAllowlist): void
+    {
+        $this->mcpAllowlist = $mcpAllowlist;
     }
 
     public function getAclRoles(): ?AclRoleCollection

@@ -56,6 +56,14 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-analytics', (
 
         const wrapper = await createWrapper();
 
+        await wrapper.setProps({
+            salesChannel: {
+                analytics: {
+                    trackOrders: true,
+                },
+            },
+        });
+
         const fields = wrapper.findAllComponents('.mt-switch');
 
         expect(fields.length).toBeGreaterThan(0);

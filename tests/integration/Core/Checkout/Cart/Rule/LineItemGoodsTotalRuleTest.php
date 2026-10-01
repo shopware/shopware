@@ -20,10 +20,9 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -35,7 +34,6 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Group('rules')]
 class LineItemGoodsTotalRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
@@ -182,7 +180,7 @@ class LineItemGoodsTotalRuleTest extends TestCase
             $this->conditionRepository->search(
                 new Criteria([$conditionIdEq, $conditionIdNEq, $conditionIdLTE, $conditionIdGTE]),
                 $this->context
-            )
+            )->getEntities()
         );
     }
 
@@ -229,7 +227,7 @@ class LineItemGoodsTotalRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
     }
 
     public function testCreateRuleWithFilter(): void
@@ -273,7 +271,7 @@ class LineItemGoodsTotalRuleTest extends TestCase
         /** @var AndRule $andRule */
         $andRule = $rule->getPayload();
         static::assertInstanceOf(LineItemGoodsTotalRule::class, $andRule->getRules()[0]);
-        $filterRule = ReflectionHelper::getProperty(LineItemGoodsTotalRule::class, 'filter')->getValue($andRule->getRules()[0]);
+        $filterRule = (new \ReflectionProperty(LineItemGoodsTotalRule::class, 'filter'))->getValue($andRule->getRules()[0]);
         static::assertInstanceOf(AndRule::class, $filterRule);
         static::assertInstanceOf(LineItemOfTypeRule::class, $filterRule->getRules()[0]);
     }
@@ -284,10 +282,10 @@ class LineItemGoodsTotalRuleTest extends TestCase
         $rule->assign(['count' => 2, 'operator' => Rule::OPERATOR_GTE]);
 
         $lineItemCollection = new LineItemCollection([
-            $this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 3),
+            CartRuleFixture::createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, 3),
         ]);
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
-        static::assertTrue($rule->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class))));
+        static::assertTrue($rule->match(new CartRuleScope($cart, static::createStub(SalesChannelContext::class))));
     }
 }

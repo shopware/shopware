@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Promotion\Cart\Builder;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Rule\LineItemUnitPriceRule;
@@ -29,14 +29,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(PromotionItemBuilder::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionItemBuilder::class)]
 class PromotionItemBuilderPayloadTest extends TestCase
 {
     private PromotionEntity $promotion;
 
     /**
-     * @var MockObject&SalesChannelContext
+     * @var Stub&SalesChannelContext
      */
     private SalesChannelContext $salesChannelContext;
 
@@ -49,8 +49,8 @@ class PromotionItemBuilderPayloadTest extends TestCase
         $this->promotion->setUseIndividualCodes(false);
         $this->promotion->setUseSetGroups(false);
 
-        $this->salesChannelContext = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
-        $context = $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock();
+        $this->salesChannelContext = static::createStub(SalesChannelContext::class);
+        $context = static::createStub(Context::class);
 
         $this->salesChannelContext->method('getContext')->willReturn($context);
     }
@@ -81,6 +81,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $ruleCollection = new RuleCollection();
         $discount->setDiscountRules($ruleCollection);
+        $this->promotion->setMaxRedemptionsGlobal(1);
 
         $item = $builder->buildDiscountLineItem('my-Code-123', $this->promotion, $discount, 'C1', $currencyFactor);
 
@@ -96,6 +97,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'setGroups' => [],
             'groupId' => '',
             'filter' => [
+                'considerAdvancedRules' => true,
                 'sorterKey' => 'sorter-key',
                 'applierKey' => 'applier-key',
                 'usageKey' => 'usage-key',
@@ -104,6 +106,10 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'exclusions' => [],
             'preventCombination' => false,
             'promotionCodeType' => 'fixed',
+            'limitedRedemptions' => true,
+            'hasPersonaRestriction' => false,
+            'conditionRuleIds' => [],
+            'hasGlobalRedemptionLimit' => true,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -149,6 +155,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'setGroups' => [],
             'groupId' => '',
             'filter' => [
+                'considerAdvancedRules' => false,
                 'sorterKey' => null,
                 'applierKey' => null,
                 'usageKey' => null,
@@ -157,6 +164,10 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'exclusions' => [],
             'preventCombination' => false,
             'promotionCodeType' => 'individual',
+            'limitedRedemptions' => true,
+            'hasPersonaRestriction' => false,
+            'conditionRuleIds' => [],
+            'hasGlobalRedemptionLimit' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -201,6 +212,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'setGroups' => [],
             'groupId' => '',
             'filter' => [
+                'considerAdvancedRules' => false,
                 'sorterKey' => null,
                 'applierKey' => null,
                 'usageKey' => null,
@@ -209,6 +221,10 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'exclusions' => [],
             'preventCombination' => false,
             'promotionCodeType' => 'fixed',
+            'limitedRedemptions' => false,
+            'hasPersonaRestriction' => false,
+            'conditionRuleIds' => [],
+            'hasGlobalRedemptionLimit' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -240,7 +256,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, Defaults::CURRENCY, $currencyFactor);
 
-        static::assertEquals($groupId, $item->getPayload()['groupId']);
+        static::assertSame($groupId, $item->getPayload()['groupId']);
     }
 
     /**
@@ -303,6 +319,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
             ],
             'groupId' => '',
             'filter' => [
+                'considerAdvancedRules' => false,
                 'sorterKey' => null,
                 'applierKey' => null,
                 'usageKey' => null,
@@ -311,6 +328,10 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'exclusions' => [],
             'preventCombination' => false,
             'promotionCodeType' => 'global',
+            'limitedRedemptions' => false,
+            'hasPersonaRestriction' => false,
+            'conditionRuleIds' => [],
+            'hasGlobalRedemptionLimit' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -352,7 +373,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, $currency->getId(), $currencyFactor);
 
-        static::assertEquals(20, $item->getPayload()['maxValue']);
+        static::assertSame('20', $item->getPayload()['maxValue']);
     }
 
     /**
@@ -380,7 +401,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, Defaults::CURRENCY, $currencyFactor);
 
-        static::assertEquals('', $item->getPayload()['maxValue']);
+        static::assertSame('', $item->getPayload()['maxValue']);
     }
 
     /**
@@ -408,7 +429,7 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, Defaults::CURRENCY, $currencyFactor);
 
-        static::assertEquals(2 * 30.0, $item->getPayload()['maxValue']);
+        static::assertSame('60', $item->getPayload()['maxValue']);
     }
 
     /**
@@ -435,10 +456,10 @@ class PromotionItemBuilderPayloadTest extends TestCase
         static::assertTrue($item->hasPayloadValue('discountId'), 'We are expecting the discountId as payload value');
         static::assertTrue($item->hasPayloadValue('discountType'), 'We are expecting the discountType as payload value');
         static::assertTrue($item->hasPayloadValue('discountScope'), 'We are expecting the discount scope as payload value');
-        static::assertEquals($this->promotion->getId(), $item->getPayloadValue('promotionId'), 'Wrong value in payload key promotionId');
-        static::assertEquals($discount->getId(), $item->getPayloadValue('discountId'), 'Wrong value in payload key discountId');
-        static::assertEquals($discount->getType(), $item->getPayloadValue('discountType'), 'Wrong value in payload key discountType');
-        static::assertEquals($discount->getScope(), $item->getPayloadValue('discountScope'), 'Wrong value in payload key scope');
+        static::assertSame($this->promotion->getId(), $item->getPayloadValue('promotionId'), 'Wrong value in payload key promotionId');
+        static::assertSame($discount->getId(), $item->getPayloadValue('discountId'), 'Wrong value in payload key discountId');
+        static::assertSame($discount->getType(), $item->getPayloadValue('discountType'), 'Wrong value in payload key discountType');
+        static::assertSame($discount->getScope(), $item->getPayloadValue('discountScope'), 'Wrong value in payload key scope');
     }
 
     /**
@@ -464,9 +485,9 @@ class PromotionItemBuilderPayloadTest extends TestCase
 
         $item = $builder->buildDiscountLineItem('', $this->promotion, $discount, Defaults::CURRENCY, $currencyFactor);
 
-        static::assertEquals('PRICE_ASC', $item->getPayload()['filter']['sorterKey'], 'Wrong value in payload filter.sorterKey');
-        static::assertEquals('ALL', $item->getPayload()['filter']['applierKey'], 'Wrong value in payload filter.applierKey');
-        static::assertEquals('UNLIMITED', $item->getPayload()['filter']['usageKey'], 'Wrong value in payload filter.usageKey');
+        static::assertSame('PRICE_ASC', $item->getPayload()['filter']['sorterKey'], 'Wrong value in payload filter.sorterKey');
+        static::assertSame('ALL', $item->getPayload()['filter']['applierKey'], 'Wrong value in payload filter.applierKey');
+        static::assertSame('UNLIMITED', $item->getPayload()['filter']['usageKey'], 'Wrong value in payload filter.usageKey');
     }
 
     /**

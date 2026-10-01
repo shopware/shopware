@@ -4,15 +4,19 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemPropertyRule;
+use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Shopware\Tests\Unit\Core\Checkout\Cart\Rule\Helper\CartRuleScopeCase;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
  * @internal
@@ -21,14 +25,12 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 #[CoversClass(LineItemPropertyRule::class)]
 class LineItemPropertyRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     #[DataProvider('cartRuleScopeProvider')]
     public function testCartRuleScopes(CartRuleScopeCase $case): void
     {
-        $cart = $this->createCart(new LineItemCollection($case->lineItems));
+        $cart = CartRuleFixture::createCart(new LineItemCollection($case->lineItems));
 
-        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         static::assertSame($case->match, $case->rule->match($scope), $case->description);
     }
@@ -36,18 +38,18 @@ class LineItemPropertyRuleTest extends TestCase
     #[DataProvider('cartRuleScopeProvider')]
     public function testCartRuleScopesNested(CartRuleScopeCase $case): void
     {
-        $containerLineItem = $this->createContainerLineItem(new LineItemCollection($case->lineItems));
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = CartRuleFixture::createContainerLineItem(new LineItemCollection($case->lineItems));
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
-        $scope = new CartRuleScope($cart, $this->createMock(SalesChannelContext::class));
+        $scope = new CartRuleScope($cart, static::createStub(SalesChannelContext::class));
 
         static::assertSame($case->match, $case->rule->match($scope), $case->description);
     }
 
     /**
-     * @return array<array<CartRuleScopeCase>>
+     * @return iterable<string, array<CartRuleScopeCase>>
      */
-    public static function cartRuleScopeProvider(): array
+    public static function cartRuleScopeProvider(): iterable
     {
         $emptyItem = self::createLineItemWithVariantOptions();
         $redItem = self::createLineItemWithVariantOptions(['red']);
@@ -78,7 +80,58 @@ class LineItemPropertyRuleTest extends TestCase
             new CartRuleScopeCase('Merge case', true, new LineItemPropertyRule(['green']), [$mergeCase]),
         ];
 
-        return array_map(static fn ($case) => [$case], $cases);
+        foreach ($cases as $case) {
+            yield \sprintf('%s %s', $case->description, $case->match ? 'matches' : 'does not match') => [$case];
+        }
+    }
+
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemWithoutProductDataProvider')]
+    public function testLineItemWithoutProductData(string $type, bool $lineItemScope, bool $expected): void
+    {
+        $rule = new LineItemPropertyRule([Uuid::randomHex()], Rule::OPERATOR_NEQ);
+
+        $lineItem = CartRuleFixture::createLineItem($type);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertSame($expected, $rule->match($scope));
+    }
+
+    #[DataProvider('singlePayloadKeyProvider')]
+    public function testLineItemWithOnePayloadKeyIsEvaluatedInCart(string $key): void
+    {
+        $rule = new LineItemPropertyRule([Uuid::randomHex()], Rule::OPERATOR_NEQ);
+
+        $lineItem = CartRuleFixture::createLineItem('my-plugin-item')->setPayloadValue($key, []);
+
+        static::assertTrue($rule->match(new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$lineItem])),
+            static::createStub(SalesChannelContext::class),
+        )));
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function singlePayloadKeyProvider(): iterable
+    {
+        yield 'only property ids' => ['propertyIds'];
+        yield 'only option ids' => ['optionIds'];
+    }
+
+    public function testProductWithNullValuesIsEvaluatedInCart(): void
+    {
+        $rule = new LineItemPropertyRule([Uuid::randomHex()], Rule::OPERATOR_NEQ);
+        $lineItem = CartRuleFixture::createLineItem()->setPayloadValue('propertyIds', null)->setPayloadValue('optionIds', null);
+        $scope = new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$lineItem])),
+            static::createStub(SalesChannelContext::class),
+        );
+
+        static::assertTrue($rule->match($scope));
     }
 
     /**
@@ -87,7 +140,7 @@ class LineItemPropertyRuleTest extends TestCase
      */
     private static function createLineItemWithVariantOptions(array $properties = [], array $options = []): LineItem
     {
-        $lineItem = self::createLineItem();
+        $lineItem = CartRuleFixture::createLineItem();
 
         $lineItem->setPayloadValue('propertyIds', $properties);
         $lineItem->setPayloadValue('optionIds', $options);

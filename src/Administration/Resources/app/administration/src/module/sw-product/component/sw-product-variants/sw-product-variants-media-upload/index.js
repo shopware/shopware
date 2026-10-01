@@ -12,14 +12,9 @@ const { isEmpty } = Shopware.Utils.types;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'mediaDefaultFolderService',
-    ],
+    inject: ['repositoryFactory', 'mediaDefaultFolderService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         source: {
@@ -145,7 +140,7 @@ export default {
             media.forEach((item) => {
                 this.addMedia(item).catch(({ fileName }) => {
                     this.createNotificationError({
-                        message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated', { fileName }, 0),
+                        message: this.$t('sw-product.mediaForm.errorMediaItemDuplicated', { fileName }, 0),
                     });
                 });
             });

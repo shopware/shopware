@@ -1,10 +1,14 @@
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-search-bar.html.twig';
 import './sw-search-bar.scss';
 
-const { Component, Application, Context } = Shopware;
+const { Application, Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 const utils = Shopware.Utils;
 const { cloneDeep } = utils.object;
+
+// Matches the viewport at which the search becomes collapsible in sw-search-bar.scss.
+const COLLAPSE_BREAKPOINT = 500;
 
 /**
  * @sw-package framework
@@ -16,7 +20,7 @@ const { cloneDeep } = utils.object;
  * @example-type code-only
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-search-bar', {
+export default {
     template,
 
     inject: [
@@ -40,11 +44,7 @@ Component.register('sw-search-bar', {
         };
     },
 
-    emits: [
-        'search',
-        'active-item-index-select',
-        'keyup-enter',
-    ],
+    emits: ['search', 'active-item-index-select', 'keyup-enter'],
 
     shortcuts: {
         f: 'setFocus',
@@ -65,7 +65,6 @@ Component.register('sw-search-bar', {
         typeSearchAlwaysInContainer: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: Context.app.adminEsEnable ?? false,
         },
         /**
@@ -132,13 +131,13 @@ Component.register('sw-search-bar', {
         },
 
         placeholderSearchInput() {
-            let placeholder = this.$tc('global.sw-search-bar.placeholderSearchField');
+            let placeholder = this.$t('global.sw-search-bar.placeholderSearchField');
 
             if (this.currentSearchType) {
                 if (this.placeholder !== '') {
                     placeholder = this.placeholder;
                 } else if (Object.keys(this.searchTypes).includes(this.currentSearchType)) {
-                    placeholder = this.$tc(this.searchTypes[this.currentSearchType].placeholderSnippet);
+                    placeholder = this.$t(this.searchTypes[this.currentSearchType].placeholderSnippet);
                 }
             }
 
@@ -147,10 +146,6 @@ Component.register('sw-search-bar', {
 
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
-        },
-
-        salesChannelTypeRepository() {
-            return this.repositoryFactory.create('sales_channel_type');
         },
 
         salesChannelCriteria() {
@@ -208,6 +203,21 @@ Component.register('sw-search-bar', {
         adminEsEnable() {
             return Context.app.adminEsEnable ?? false;
         },
+
+        searchTypeColor() {
+            return useModuleIconColors().enabled.value ? this.getEntityIconColor(this.currentSearchType) : null;
+        },
+
+        // Solid variant of the module icon, none while searching in all types
+        searchTypeIcon() {
+            if (!this.currentSearchType) {
+                return null;
+            }
+
+            const icon = this.getSearchTypeManifest(this.currentSearchType)?.icon ?? 'regular-books';
+
+            return icon.startsWith('regular-') ? icon.replace('regular-', 'solid-') : icon;
+        },
     },
 
     watch: {
@@ -220,6 +230,10 @@ Component.register('sw-search-bar', {
 
             // Do not modify the search term when the user is currently typing
             if (this.isActive) {
+                return;
+            }
+
+            if (newValue.query.term === undefined) {
                 return;
             }
 
@@ -248,16 +262,10 @@ Component.register('sw-search-bar', {
 
     methods: {
         async createdComponent() {
-            const that = this;
-
-            this.showSearchFieldOnLargerViewports();
-
-            this.$device.onResize({
-                listener() {
-                    that.showSearchFieldOnLargerViewports();
-                },
-                component: this,
-            });
+            // Bound to the breakpoint itself, the debounced resize listener would lag behind it.
+            this.collapseQuery = this.$device.getMediaQuery(`(max-width: ${COLLAPSE_BREAKPOINT}px)`);
+            this.collapseQuery.addEventListener('change', this.syncSearchBarCollapse);
+            this.syncSearchBarCollapse();
 
             if (this.$route.query.term) {
                 this.searchTerm = this.$route.query.term;
@@ -277,11 +285,14 @@ Component.register('sw-search-bar', {
         },
 
         destroyedComponent() {
+            this.collapseQuery?.removeEventListener('change', this.syncSearchBarCollapse);
             document.removeEventListener('click', this.closeOnClickOutside);
+            Shopware.Utils.EventBus.off('sw-admin-menu/toggle-offcanvas', this.onOffCanvasToggle);
         },
 
         registerListener() {
             document.addEventListener('click', this.closeOnClickOutside);
+            Shopware.Utils.EventBus.on('sw-admin-menu/toggle-offcanvas', this.onOffCanvasToggle);
         },
 
         onMouseOver(index, column) {
@@ -315,27 +326,33 @@ Component.register('sw-search-bar', {
 
             if (type.startsWith('custom_entity_') || type.startsWith('ce_')) {
                 const snippetKey = `${type}.moduleTitle`;
-                return this.$te(snippetKey) ? this.$tc(snippetKey) : type;
+                return this.$te(snippetKey) ? this.$t(snippetKey) : type;
             }
 
             if (!this.$te(`global.entities.${type}`)) {
                 return this.currentSearchType;
             }
 
-            return this.$tc(`global.entities.${type}`, 2);
+            return this.$t(`global.entities.${type}`, 2);
         },
 
         setFocus() {
-            this.$refs.searchInput.focus();
+            // The default input can be replaced through the search-input slot.
+            this.$refs.searchInput?.focus();
+        },
+
+        onClickFieldWrapper(event) {
+            // Interactive children keep their click behavior without focusing the search input
+            if (event.target.closest('.sw-search-bar__type--v2, .sw-search-bar__field-close')) {
+                return;
+            }
+
+            this.setFocus();
         },
 
         closeOnClickOutside(event) {
-            const target = event.target;
-
-            if (!target.closest('.sw-search-bar')) {
-                this.clearSearchTerm();
-                this.showTypeSelectContainer = false;
-                this.showModuleFiltersContainer = false;
+            if (!event.target.closest('.sw-search-bar')) {
+                this.closeSearchPanels();
             }
         },
 
@@ -343,6 +360,17 @@ Component.register('sw-search-bar', {
             this.showResultsContainer = false;
             this.showResultsSearchTrends = false;
             this.activeResultPosition = 0;
+        },
+
+        closeSearchPanels() {
+            this.clearSearchTerm();
+            this.showTypeSelectContainer = false;
+            this.showModuleFiltersContainer = false;
+        },
+
+        onKeyUpEsc() {
+            this.closeSearchPanels();
+            this.$refs.searchInput?.blur();
         },
 
         onFocusInput() {
@@ -383,10 +411,8 @@ Component.register('sw-search-bar', {
             this.showResultsContainer = false;
         },
 
-        showSearchFieldOnLargerViewports() {
-            if (this.$device.getViewportWidth() > 500) {
-                this.isSearchBarShown = true;
-            }
+        syncSearchBarCollapse() {
+            this.isSearchBarShown = !this.collapseQuery.matches;
         },
 
         onSearchTermChange() {
@@ -440,7 +466,7 @@ Component.register('sw-search-bar', {
             this.typeSelectResults = [];
 
             Object.keys(this.searchTypes).forEach((key) => {
-                const snippet = this.$tc(`global.entities.${this.searchTypes[key].entityName}`, 2);
+                const snippet = this.$t(`global.entities.${this.searchTypes[key].entityName}`, 2);
                 if (snippet.toLowerCase().includes(term.toLowerCase()) || term === '') {
                     this.typeSelectResults.push(this.searchTypes[key]);
                 }
@@ -449,21 +475,27 @@ Component.register('sw-search-bar', {
 
         onClickType(type) {
             this.setSearchType(type);
-            this.$refs.searchInput.focus();
+            this.setFocus();
         },
 
         setSearchType(type) {
+            const searchTerm = this.searchTerm.startsWith('#') ? '' : this.searchTerm;
+
             this.currentSearchType = type;
             this.showTypeSelectContainer = false;
             this.showModuleFiltersContainer = false;
             this.showResultsSearchTrends = false;
-            this.searchTerm = '';
+            this.searchTerm = searchTerm;
         },
 
         toggleOffCanvas() {
             this.isOffCanvasShown = !this.isOffCanvasShown;
 
             Shopware.Utils.EventBus.emit('sw-admin-menu/toggle-offcanvas', this.isOffCanvasShown);
+        },
+
+        onOffCanvasToggle(state) {
+            this.isOffCanvasShown = state;
         },
 
         resetSearchType() {
@@ -510,7 +542,6 @@ Component.register('sw-search-bar', {
 
             const entities = this.getModuleEntities(searchTerm);
 
-            // eslint-disable-next-line no-unused-expressions
             entities?.length &&
                 this.results.unshift({
                     entity: 'module',
@@ -572,10 +603,7 @@ Component.register('sw-search-bar', {
 
                     this.results = this.results.filter((result) => entity !== result.entity);
 
-                    this.results = [
-                        ...this.results,
-                        item,
-                    ];
+                    this.results = [...this.results, item];
                 }
             });
 
@@ -653,10 +681,7 @@ Component.register('sw-search-bar', {
             if (entityResults.total > 0) {
                 this.results = this.results.filter((result) => this.currentSearchType !== result.entity);
 
-                this.results = [
-                    ...this.results,
-                    entityResults,
-                ];
+                this.results = [...this.results, entityResults];
             }
 
             this.isLoading = false;
@@ -823,13 +848,30 @@ Component.register('sw-search-bar', {
                 return this.entitySearchColor;
             }
 
+            return this.getSearchTypeManifest(entityName)?.color || '#5C738A';
+        },
+
+        getSearchTypeManifest(entityName) {
             const module = this.moduleFactory.getModuleByEntityName(entityName);
 
-            if (!module) {
-                return '#5C738A';
+            if (module) {
+                return module.manifest;
             }
 
-            return module.manifest.color || '#5C738A';
+            // List pages may pass an alias instead of their entity, so fall back to the current module
+            if (entityName && entityName === this.initialSearchType) {
+                return this.$route?.meta?.$module;
+            }
+
+            return undefined;
+        },
+
+        getTypeIconColor(entityName) {
+            if (!useModuleIconColors().enabled.value) {
+                return 'var(--color-icon-primary-default)';
+            }
+
+            return this.getEntityIconColor(entityName);
         },
 
         getEntityIcon(entityName) {
@@ -854,12 +896,17 @@ Component.register('sw-search-bar', {
         },
 
         loadSalesChannelType() {
-            return new Promise((resolve) => {
-                this.salesChannelTypeRepository.search(new Criteria(1, 25)).then((response) => {
-                    this.salesChannelTypes = response;
-                    resolve(response);
+            return this.repositoryFactory
+                .create('sales_channel_type')
+                .search(new Criteria(1, 100), Shopware.Context.api, {
+                    cacheKey: ['shared-data', 'sales-channel-types', Shopware.Context.api.languageId ?? 'default'],
+                    ttl: 5 * 60 * 1000,
+                })
+                .then((salesChannelTypes) => {
+                    this.salesChannelTypes = [...salesChannelTypes];
+
+                    return salesChannelTypes;
                 });
-            });
         },
 
         getModuleEntities(searchTerm, limit = 5) {
@@ -870,7 +917,7 @@ Component.register('sw-search-bar', {
                 return [];
             }
 
-            const moduleEntities = [];
+            let moduleEntities = [];
 
             this.searchableModules.forEach((module) => {
                 const matcher =
@@ -878,7 +925,7 @@ Component.register('sw-search-bar', {
                         ? module.manifest.searchMatcher
                         : this.getDefaultMatchSearchableModules;
 
-                const moduleType = this.$te(`${module.manifest.title}`) && this.$tc(`${module.manifest.title}`, 2);
+                const moduleType = this.$te(`${module.manifest.title}`) && this.$t(`${module.manifest.title}`, 2);
 
                 if (!moduleType) {
                     return;
@@ -895,12 +942,14 @@ Component.register('sw-search-bar', {
 
             moduleEntities.push(...this.getSalesChannelTypesBySearchTerm(regex));
 
+            moduleEntities = moduleEntities.filter((item) => item?.entity);
+
             return moduleEntities.slice(0, limit);
         },
 
         getDefaultMatchSearchableModules(regex, label, manifest) {
             const match = label.toLowerCase().match(regex);
-            const matchAddNew = `${this.$tc('global.sw-search-bar.addNew')} ${label}`.toLowerCase().match(regex);
+            const matchAddNew = `${this.$t('global.sw-search-bar.addNew')} ${label}`.toLowerCase().match(regex);
 
             if ((!match && !matchAddNew) || (!manifest?.routes?.index && !manifest?.routes?.list)) {
                 return false;
@@ -944,11 +993,24 @@ Component.register('sw-search-bar', {
                     return salesChannelTypes;
                 }
 
+                /**
+                 * @deprecated tag:v6.8.0 - condition can be removed.
+                 *
+                 * Only reveal the agentic commerce sales channel as a search result
+                 * if the SwagAgenticCommerce plugin is installed.
+                 */
+                if (
+                    saleChannelType.id === Defaults.agenticCommerceTypeId &&
+                    !Shopware.Context.app.config.bundles?.SwagAgenticCommerce
+                ) {
+                    return salesChannelTypes;
+                }
+
                 return [
                     {
                         name: 'sales-channel',
                         icon: saleChannelType?.iconName ?? 'regular-server',
-                        color: '#14D7A5',
+                        color: 'var(--sw-color-module-brand-default)',
                         entity: 'sales_channel',
                         label: saleChannelType?.translated.name,
                         route: {
@@ -972,25 +1034,60 @@ Component.register('sw-search-bar', {
         },
 
         loadSearchTrends() {
-            return Promise.all([
-                this.getFrequentlyUsedModules(),
-                this.getRecentlySearch(),
-            ]).then((response) => response.filter((item) => item?.total));
+            return Promise.all([this.getFrequentlyUsedModules(), this.getRecentlySearch()]).then((response) =>
+                response.filter((item) => item?.total),
+            );
         },
 
-        getFrequentlyUsedModules() {
-            return this.userActivityApiService
-                .getIncrement({ cluster: this.currentUser.id })
-                .then((response) => {
-                    const entities = Object.keys(response);
+        async getFrequentlyUsedModules(checkNonExistentKeys = true) {
+            try {
+                const initialResponse = await this.userActivityApiService.getIncrement({ cluster: this.currentUser.id });
+                const initialKeys = Object.keys(initialResponse || {});
 
-                    return {
-                        entity: 'frequently_used',
-                        total: entities.length,
-                        entities: entities?.map((item) => this.getInfoModuleFrequentlyUsed(item)),
-                    };
-                })
-                .catch(() => {});
+                const initialModuleProcessingResults = initialKeys.map((key) => {
+                    return { key, info: this.getInfoModuleFrequentlyUsed(key) };
+                });
+
+                const nonExistentKeys = checkNonExistentKeys
+                    ? initialModuleProcessingResults
+                          .filter((item) => Object.keys(item.info).length === 0)
+                          .map((item) => item.key)
+                    : [];
+
+                const validInitialModules = initialModuleProcessingResults
+                    .filter((item) => Object.keys(item.info).length > 0)
+                    .map((item) => item.info);
+
+                if (nonExistentKeys.length > 0) {
+                    try {
+                        await this.userActivityApiService.deleteActivityKeys({
+                            keys: nonExistentKeys,
+                            cluster: this.currentUser.id,
+                        });
+
+                        return await this.getFrequentlyUsedModules(false);
+                    } catch {
+                        // In case deleting keys or fetching fresh data fails, fallback to initially valid modules
+                        return {
+                            entity: 'frequently_used',
+                            total: validInitialModules.length,
+                            entities: validInitialModules,
+                        };
+                    }
+                }
+
+                return {
+                    entity: 'frequently_used',
+                    total: validInitialModules.length,
+                    entities: validInitialModules,
+                };
+            } catch (_error) {
+                return {
+                    entity: 'frequently_used',
+                    total: 0,
+                    entities: [],
+                };
+            }
         },
 
         getRecentlySearch() {
@@ -1010,10 +1107,7 @@ Component.register('sw-search-bar', {
                             : new Criteria(1, 25);
                     }
 
-                    const ids = [
-                        item.id,
-                        ...queries[item.entity].ids,
-                    ];
+                    const ids = [item.id, ...queries[item.entity].ids];
                     queries[item.entity].setIds(ids);
                 });
 
@@ -1053,14 +1147,11 @@ Component.register('sw-search-bar', {
         },
 
         getInfoModuleFrequentlyUsed(key) {
-            const [
-                moduleName,
-                routeName,
-            ] = key.split('@');
+            const [moduleName, routeName] = key.split('@');
             const module = this.moduleFactory.getModuleByKey('name', moduleName);
 
             if (!module) {
-                return {};
+                return null;
             }
 
             const { routes, ...manifest } = module.manifest;
@@ -1068,8 +1159,8 @@ Component.register('sw-search-bar', {
             if (typeof manifest.searchMatcher === 'function') {
                 // get metadata in searchMatcher
                 const metadata = manifest.searchMatcher(
-                    new RegExp(`^${this.$tc(manifest.title).toLowerCase()}(.*)`),
-                    this.$tc(manifest.title, 2),
+                    new RegExp(`^${this.$t(manifest.title).toLowerCase()}(.*)`),
+                    this.$t(manifest.title, 2),
                     module.manifest,
                 );
 
@@ -1086,4 +1177,4 @@ Component.register('sw-search-bar', {
             };
         },
     },
-});
+};

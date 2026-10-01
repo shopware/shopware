@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Api\OAuth\Scope\UserVerifiedScope;
@@ -28,7 +28,6 @@ class UserControllerTest extends TestCase
         $this->resetBrowser();
     }
 
-    #[Group('slow')]
     public function testMe(): void
     {
         $url = '/api/_info/me';
@@ -64,7 +63,7 @@ class UserControllerTest extends TestCase
 
         $content = json_decode((string) $response->getContent(), true);
         static::assertArrayHasKey('errors', $content);
-        static::assertEquals('This access token does not have the scope "user-verified" to process this Request', $content['errors'][0]['detail']);
+        static::assertSame('This access token does not have the scope "user-verified" to process this Request', $content['errors'][0]['detail']);
 
         static::getContainer()->get(Connection::class)
             ->executeStatement('DELETE FROM user WHERE email = \'admin@example.com\'');
@@ -75,6 +74,15 @@ class UserControllerTest extends TestCase
 
         $response = $client->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+        $adminFlag = static::getContainer()->get(Connection::class)
+            ->fetchOne(
+                'SELECT admin FROM user WHERE username = :username',
+                ['username' => 'foobar']
+            );
+
+        static::assertNotNull($adminFlag);
+        static::assertSame(0, (int) $adminFlag);
     }
 
     public function testRemoveRoleAssignment(): void
@@ -112,7 +120,7 @@ class UserControllerTest extends TestCase
             );
 
         $assigned = array_column($assigned, 'id');
-        static::assertEquals(array_values($ids->getList(['role-2'])), $assigned);
+        static::assertSame(array_values($ids->getList(['role-2'])), $assigned);
     }
 
     public function testAddRoleAssignment(): void
@@ -158,7 +166,7 @@ class UserControllerTest extends TestCase
         $assigned = array_column($assigned, 'id');
         $expectedIds = $ids->getList(['role-1', 'role-2']);
         sort($expectedIds);
-        static::assertEquals($expectedIds, $assigned);
+        static::assertSame($expectedIds, $assigned);
     }
 
     public function testDeleteUser(): void
@@ -185,7 +193,7 @@ class UserControllerTest extends TestCase
 
         $content = json_decode((string) $response->getContent(), true);
         static::assertArrayHasKey('errors', $content);
-        static::assertEquals('This access token does not have the scope "user-verified" to process this Request', $content['errors'][0]['detail']);
+        static::assertSame('This access token does not have the scope "user-verified" to process this Request', $content['errors'][0]['detail']);
 
         static::getContainer()->get(Connection::class)
             ->executeStatement('DELETE FROM user WHERE email = \'admin@example.com\'');
@@ -205,13 +213,13 @@ class UserControllerTest extends TestCase
         $this->getBrowser()->request('PATCH', '/api/_info/me', ['firstName' => 'newName']);
         $responsePatch = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_NO_CONTENT, $responsePatch->getStatusCode(), (string) $responsePatch->getContent());
+        static::assertSame(Response::HTTP_NO_CONTENT, $responsePatch->getStatusCode(), (string) $responsePatch->getContent());
 
         $this->getBrowser()->request('GET', '/api/_info/me');
         $response = $this->getBrowser()->getResponse();
 
-        static::assertEquals(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
-        static::assertEquals('newName', json_decode((string) $response->getContent(), true)['data']['attributes']['firstName']);
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame('newName', json_decode((string) $response->getContent(), true)['data']['attributes']['firstName']);
     }
 
     public function testSetOwnProfileNoPermission(): void
@@ -222,9 +230,9 @@ class UserControllerTest extends TestCase
 
         $content = (string) $response->getContent();
 
-        static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $content);
-        static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true)['errors'][0]['code'], $content);
-        static::assertEquals(['user_change_me'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $content);
+        static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true)['errors'][0]['code'], $content);
+        static::assertSame(['user_change_me'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
     }
 
     public function testSetOwnProfilePermissionButNotAllowedField(): void
@@ -235,9 +243,112 @@ class UserControllerTest extends TestCase
 
         $content = (string) $response->getContent();
 
-        static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $content);
-        static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true)['errors'][0]['code'], $content);
-        static::assertEquals(['user:update'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), $content);
+        static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, json_decode($content, true)['errors'][0]['code'], $content);
+        static::assertSame(['user:update'], json_decode(json_decode($content, true)['errors'][0]['detail'], true)['missingPrivileges'], $content);
+    }
+
+    /**
+     * A self-service profile edit accepts `avatarMedia` only as an id link. Any nested payload,
+     * including one nested inside the `extensions` container, must be rejected.
+     *
+     * @param array<string, mixed> $payload
+     */
+    #[DataProvider('nestedAvatarMediaPayloadProvider')]
+    public function testSetOwnProfileRejectsNestedAvatarMediaWrite(array $payload): void
+    {
+        $browser = $this->getBrowser();
+        $this->authorizeBrowser($browser, [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
+
+        $browser->jsonRequest('PATCH', '/api/_info/me', $payload);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(
+            MissingPrivilegeException::MISSING_PRIVILEGE_ERROR,
+            json_decode((string) $response->getContent(), true)['errors'][0]['code']
+        );
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>}>
+     */
+    public static function nestedAvatarMediaPayloadProvider(): iterable
+    {
+        yield 'via avatarMedia.user' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'user' => ['id' => Uuid::randomHex()]],
+        ]];
+
+        yield 'via avatarMedia.avatarUsers' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'avatarUsers' => [['id' => Uuid::randomHex()]]],
+        ]];
+
+        yield 'via avatarMedia.extensions.user' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'extensions' => ['user' => ['id' => Uuid::randomHex()]]],
+        ]];
+
+        yield 'via avatarMedia.extensions.avatarUsers' => [[
+            'avatarMedia' => ['id' => Uuid::randomHex(), 'extensions' => ['avatarUsers' => [['id' => Uuid::randomHex()]]]],
+        ]];
+    }
+
+    public function testSetOwnProfileCanUpdateAvatarViaMediaAssociation(): void
+    {
+        $browser = $this->getBrowser();
+        $this->authorizeBrowser($browser, [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
+
+        $browser->request('GET', '/api/_info/me');
+        $me = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $userId = $me['data']['id'];
+        static::assertIsString($userId);
+
+        // Setting the avatar through the media association (not just avatarId) must keep working.
+        $mediaId = Uuid::randomHex();
+        $browser->jsonRequest('PATCH', '/api/_info/me', ['avatarMedia' => ['id' => $mediaId]]);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
+
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertSame(
+            $mediaId,
+            $connection->fetchOne('SELECT LOWER(HEX(avatar_id)) FROM `user` WHERE id = UNHEX(:id)', ['id' => $userId]),
+            'The avatar media association must remain writable for self-service profile edits.'
+        );
+    }
+
+    /**
+     * `avatarMedia` may only carry an id, so an extra media field must be rejected and must not
+     * reach the media entity.
+     */
+    public function testSetOwnProfileRejectsExtraMediaFieldsInAvatarMedia(): void
+    {
+        $browser = $this->getBrowser();
+        $this->authorizeBrowser($browser, [UserVerifiedScope::IDENTIFIER], ['user_change_me']);
+
+        $mediaId = Uuid::randomHex();
+        static::getContainer()->get('media.repository')->create(
+            [['id' => $mediaId, 'fileName' => 'original', 'title' => 'foreign media']],
+            Context::createDefaultContext()
+        );
+
+        $browser->jsonRequest('PATCH', '/api/_info/me', [
+            'avatarMedia' => ['id' => $mediaId, 'fileName' => 'changed'],
+        ]);
+        $response = $browser->getResponse();
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+        static::assertSame(
+            MissingPrivilegeException::MISSING_PRIVILEGE_ERROR,
+            json_decode((string) $response->getContent(), true)['errors'][0]['code']
+        );
+
+        $connection = static::getContainer()->get(Connection::class);
+        static::assertSame(
+            'original',
+            $connection->fetchOne('SELECT file_name FROM media WHERE id = UNHEX(:id)', ['id' => $mediaId]),
+            'A self-service profile edit must not change the media entity.'
+        );
     }
 
     public function testPreventChangeOfUSerWithoutPermission(): void
@@ -264,5 +375,175 @@ class UserControllerTest extends TestCase
         $response = $this->getBrowser()->getResponse();
 
         static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+    }
+
+    public function testPreventCreateUserWithAdminFlagAsNonAdmin(): void
+    {
+        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user:create', 'user:update']);
+        $client = $this->getBrowser();
+
+        $data = [
+            'email' => 'escalated@example.com',
+            'firstName' => 'Firstname',
+            'lastName' => 'Lastname',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'username' => 'escalated',
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'admin' => true,
+        ];
+
+        $client->jsonRequest('POST', '/api/user', $data);
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+    }
+
+    public function testPreventUpdateUserWithAdminFlagAsNonAdmin(): void
+    {
+        $ids = new IdsCollection();
+
+        $user = [
+            'id' => $ids->get('user'),
+            'email' => 'target@example.com',
+            'firstName' => 'Firstname',
+            'lastName' => 'Lastname',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'username' => 'target-user',
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'admin' => false,
+        ];
+
+        static::getContainer()->get('user.repository')
+            ->create([$user], Context::createDefaultContext());
+
+        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user:create', 'user:update']);
+        $client = $this->getBrowser();
+
+        $client->jsonRequest(
+            'PATCH',
+            '/api/user/' . $ids->get('user'),
+            ['admin' => true]
+        );
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+    }
+
+    public function testPreventRoleManagerFromUpdatingNestedUserWithoutUserPrivilege(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('user.repository')->create([[
+            'id' => $ids->get('user'),
+            'email' => 'target@example.com',
+            'firstName' => 'Original',
+            'lastName' => 'Lastname',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'username' => 'target-user',
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+        ]], Context::createDefaultContext());
+
+        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['acl_role:create']);
+        $client = $this->getBrowser();
+
+        $client->jsonRequest('POST', '/api/acl-role', [
+            'name' => 'role',
+            'privileges' => [],
+            'users' => [['id' => $ids->get('user'), 'firstName' => 'Changed']],
+        ]);
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $client->getResponse()->getStatusCode());
+        static::assertSame(
+            'Original',
+            static::getContainer()->get(Connection::class)->fetchOne(
+                'SELECT first_name FROM user WHERE id = :id',
+                ['id' => Uuid::fromHexToBytes($ids->get('user'))]
+            )
+        );
+    }
+
+    public function testPreventUpdateUserRolesAsNonAdmin(): void
+    {
+        $ids = new IdsCollection();
+
+        $user = [
+            'id' => $ids->get('user'),
+            'email' => 'target@example.com',
+            'firstName' => 'Firstname',
+            'lastName' => 'Lastname',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'username' => 'target-user',
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+        ];
+
+        static::getContainer()->get('user.repository')
+            ->create([$user], Context::createDefaultContext());
+
+        $this->authorizeBrowser($this->getBrowser(), [UserVerifiedScope::IDENTIFIER], ['user:update']);
+        $client = $this->getBrowser();
+
+        $client->jsonRequest(
+            'PATCH',
+            '/api/user/' . $ids->get('user'),
+            ['aclRoles' => [['id' => $ids->get('role'), 'name' => 'role']]]
+        );
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $client->getResponse()->getStatusCode());
+    }
+
+    public function testCreateUserWithAdminFlagAsAdmin(): void
+    {
+        static::getContainer()->get(Connection::class)
+            ->executeStatement('DELETE FROM user WHERE email = \'admin@example.com\'');
+
+        $this->kernelBrowser = null;
+        $client = $this->getBrowser(true, [UserVerifiedScope::IDENTIFIER]);
+
+        $data = [
+            'email' => 'new-admin@example.com',
+            'firstName' => 'Firstname',
+            'lastName' => 'Lastname',
+            'password' => TestDefaults::HASHED_PASSWORD,
+            'username' => 'new-admin',
+            'localeId' => static::getContainer()->get(Connection::class)->fetchOne('SELECT LOWER(HEX(id)) FROM locale LIMIT 1'),
+            'admin' => true,
+        ];
+
+        $client->jsonRequest('POST', '/api/user', $data);
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
+
+        $adminFlag = static::getContainer()->get(Connection::class)
+            ->fetchOne(
+                'SELECT admin FROM user WHERE username = :username',
+                ['username' => 'new-admin']
+            );
+
+        static::assertSame(1, (int) $adminFlag);
+    }
+
+    public function testLogoutRevokesRefreshTokens(): void
+    {
+        $client = $this->getBrowser();
+        $connection = static::getContainer()->get(Connection::class);
+
+        $userId = $connection->fetchOne('SELECT LOWER(HEX(id)) FROM user WHERE email = :email', ['email' => 'admin@example.com']);
+        static::assertIsString($userId);
+
+        $tokensBefore = (int) $connection->fetchOne(
+            'SELECT COUNT(*) FROM refresh_token WHERE user_id = UNHEX(:userId)',
+            ['userId' => $userId]
+        );
+        static::assertGreaterThan(0, $tokensBefore, 'Expected at least one refresh token before logout');
+
+        $client->request('POST', '/api/_action/user/logout');
+        static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode());
+
+        $tokensAfter = (int) $connection->fetchOne(
+            'SELECT COUNT(*) FROM refresh_token WHERE user_id = UNHEX(:userId)',
+            ['userId' => $userId]
+        );
+        static::assertSame(0, $tokensAfter, 'Expected all refresh tokens to be revoked after logout');
     }
 }

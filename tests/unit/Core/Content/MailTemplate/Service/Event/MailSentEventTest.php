@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(MailSentEvent::class)]
 #[Package('after-sales')]
+#[CoversClass(MailSentEvent::class)]
 class MailSentEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void
@@ -24,7 +24,7 @@ class MailSentEventTest extends TestCase
         $event = new MailSentEvent(
             'my-subject',
             ['foo' => 'bar'],
-            ['mixed' => 'content'],
+            ['text/plain' => 'content'],
             Context::createDefaultContext()
         );
 
@@ -40,9 +40,9 @@ class MailSentEventTest extends TestCase
         static::assertArrayHasKey('contents', $flow->data());
         static::assertArrayHasKey('recipients', $flow->data());
 
-        static::assertEquals('my-subject', $flow->data()['subject']);
-        static::assertEquals(['foo' => 'bar'], $flow->data()['recipients']);
-        static::assertEquals(['mixed' => 'content'], $flow->data()['contents']);
+        static::assertSame('my-subject', $flow->data()['subject']);
+        static::assertSame(['foo' => 'bar'], $flow->data()['recipients']);
+        static::assertSame(['text/plain' => 'content'], $flow->data()['contents']);
     }
 
     public function testInstantiate(): void
@@ -87,5 +87,10 @@ class MailSentEventTest extends TestCase
             'text/plain' => 'This is a plain text',
             'text/html' => 'This is a html text',
         ], $event->getContents());
+    }
+
+    public function testAvailableDataDescribesTheFlowPayload(): void
+    {
+        static::assertSame(['subject', 'contents', 'recipients'], array_keys(MailSentEvent::getAvailableData()->toArray()));
     }
 }

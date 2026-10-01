@@ -43,7 +43,7 @@ class BillingStateRule extends Rule
             return false;
         }
 
-        if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
+        if (!$customer = $scope->getCustomer()) {
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
@@ -65,7 +65,7 @@ class BillingStateRule extends Rule
         $constraints = [
             'operator' => [
                 new NotBlank(),
-                new Choice([self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
+                new Choice(choices: [self::OPERATOR_EQ, self::OPERATOR_NEQ, self::OPERATOR_EMPTY]),
             ],
         ];
 
@@ -81,7 +81,7 @@ class BillingStateRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true)
             ->entitySelectField('stateIds', CountryStateDefinition::ENTITY_NAME, true);
     }
 }

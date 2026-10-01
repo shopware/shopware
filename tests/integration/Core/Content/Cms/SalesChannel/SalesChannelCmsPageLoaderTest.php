@@ -11,6 +11,7 @@ use Shopware\Core\Content\Cms\SalesChannel\SalesChannelCmsPageLoaderInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class SalesChannelCmsPageLoaderTest extends TestCase
 {
     use SalesChannelFunctionalTestBehaviour;
@@ -124,7 +126,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
             []
         );
 
-        static::assertEquals(1, $pages->getTotal());
+        static::assertSame(1, $pages->getTotal());
 
         $page = $pages->getEntities()->first();
         static::assertNotNull($page);
@@ -199,7 +201,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
 
         $secondSlot = $blocks->getSlots()->get(self::$secondSlotId);
         static::assertNotNull($secondSlot);
-        static::assertEquals(
+        static::assertSame(
             $customSlotConfig[self::$category['cmsPage']['sections'][0]['blocks'][0]['slots'][1]['id']],
             $secondSlot->getConfig()
         );
@@ -273,6 +275,6 @@ class SalesChannelCmsPageLoaderTest extends TestCase
 
         $config = $pages->getEntities()->first()?->getSections()?->getBlocks()->getSlots()->get(self::$firstSlotId)?->getConfig();
         static::assertIsArray($config);
-        static::assertEquals('overwrittenByCategory', $config['content']['value']);
+        static::assertSame('overwrittenByCategory', $config['content']['value']);
     }
 }

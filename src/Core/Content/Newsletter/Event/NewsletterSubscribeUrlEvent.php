@@ -9,9 +9,15 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class NewsletterSubscribeUrlEvent extends Event implements ShopwareSalesChannelEvent
 {
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(
         private readonly SalesChannelContext $salesChannelContext,
         private string $subscribeUrl,
@@ -57,6 +63,9 @@ class NewsletterSubscribeUrlEvent extends Event implements ShopwareSalesChannelE
         return $this->hash;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getData(): array
     {
         return $this->data;

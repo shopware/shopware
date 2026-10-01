@@ -12,11 +12,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class MediaEntityTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -44,7 +46,7 @@ class MediaEntityTest extends TestCase
         $media = $result->getEntities()->first();
 
         static::assertInstanceOf(MediaEntity::class, $media);
-        static::assertEquals($media->getId(), $media->getId());
+        static::assertSame($media->getId(), $media->getId());
     }
 
     public function testThumbnailsAreConvertedToStructWhenFetchedFromDb(): void
@@ -61,8 +63,8 @@ class MediaEntityTest extends TestCase
 
         $persistedThumbnail = $fetchedMedia->getThumbnails()->first();
         static::assertInstanceOf(MediaThumbnailEntity::class, $persistedThumbnail);
-        static::assertEquals(200, $persistedThumbnail->getWidth());
-        static::assertEquals(200, $persistedThumbnail->getHeight());
+        static::assertSame(200, $persistedThumbnail->getWidth());
+        static::assertSame(200, $persistedThumbnail->getHeight());
     }
 
     public function testDeleteMediaWithTags(): void

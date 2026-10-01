@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Media;
 
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
@@ -22,6 +23,7 @@ use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductCo
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
@@ -35,7 +37,7 @@ use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
 
 /**
- * @phpstan-type MediaConfig array{'spatialObject': array{'arReady': bool}}
+ * @phpstan-type MediaConfig array{'spatialObject': array{'arReady': bool, 'arPlacement': string}}
  */
 #[Package('discovery')]
 class MediaEntity extends Entity
@@ -85,6 +87,8 @@ class MediaEntity extends Entity
 
     protected ?ProductMediaCollection $productMedia = null;
 
+    protected ?ProductCollection $productOpenGraphImages = null;
+
     protected ?UserCollection $avatarUsers = null;
 
     protected ?MediaThumbnailCollection $thumbnails = null;
@@ -128,6 +132,13 @@ class MediaEntity extends Entity
 
     protected ?DocumentCollection $documents = null;
 
+    protected ?DocumentCollection $a11yDocuments = null;
+
+    /**
+     * @internal
+     */
+    protected ?DocumentFileEntity $documentFile = null;
+
     protected ?AppPaymentMethodCollection $appPaymentMethods = null;
 
     /**
@@ -144,7 +155,7 @@ class MediaEntity extends Entity
      *
      * @var MediaConfig|null
      */
-    protected ?array $config;
+    protected ?array $config = null;
 
     /**
      * @internal
@@ -246,6 +257,22 @@ class MediaEntity extends Entity
         $this->uploadedAt = $uploadedAt;
     }
 
+    /**
+     * @internal
+     */
+    public function getDocumentFile(): ?DocumentFileEntity
+    {
+        return $this->documentFile;
+    }
+
+    /**
+     * @internal
+     */
+    public function setDocumentFile(?DocumentFileEntity $documentFile): void
+    {
+        $this->documentFile = $documentFile;
+    }
+
     public function getAlt(): ?string
     {
         return $this->alt;
@@ -304,6 +331,16 @@ class MediaEntity extends Entity
     public function setProductMedia(ProductMediaCollection $productMedia): void
     {
         $this->productMedia = $productMedia;
+    }
+
+    public function getProductOpenGraphImages(): ?ProductCollection
+    {
+        return $this->productOpenGraphImages;
+    }
+
+    public function setProductOpenGraphImages(ProductCollection $productOpenGraphImages): void
+    {
+        $this->productOpenGraphImages = $productOpenGraphImages;
     }
 
     public function getAvatarUsers(): ?UserCollection
@@ -568,6 +605,16 @@ class MediaEntity extends Entity
     public function setDocuments(DocumentCollection $documents): void
     {
         $this->documents = $documents;
+    }
+
+    public function getA11yDocuments(): ?DocumentCollection
+    {
+        return $this->a11yDocuments;
+    }
+
+    public function setA11yDocuments(DocumentCollection $a11yDocuments): void
+    {
+        $this->a11yDocuments = $a11yDocuments;
     }
 
     public function getAppPaymentMethods(): ?AppPaymentMethodCollection

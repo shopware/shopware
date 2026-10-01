@@ -5,8 +5,7 @@
 import template from './sw-app-actions.html.twig';
 import './sw-app-actions.scss';
 
-const { Component, Mixin } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Mixin } = Shopware;
 const { hasOwnProperty } = Shopware.Utils.object;
 
 const actionTypeConstants = Object.freeze({
@@ -25,10 +24,20 @@ const modalSizeMapping = {
 
 const IFRAME_KEY = 'app.action_button.iframe';
 
+function getAppSystemView(matchedRoutes) {
+    const matchedRoute = (Array.isArray(matchedRoutes) ? matchedRoutes : [])
+        .filter((match) => {
+            return !!match?.meta?.appSystem?.view;
+        })
+        .pop();
+
+    return matchedRoute?.meta?.appSystem?.view;
+}
+
 /**
  * @private
  */
-Component.register('sw-app-actions', {
+export default {
     template,
 
     extensionApiDevtoolInformation: {
@@ -37,12 +46,7 @@ Component.register('sw-app-actions', {
         view: (currentComponent) => `${currentComponent.view}`,
     },
 
-    inject: [
-        'feature',
-        'appActionButtonService',
-        'repositoryFactory',
-        'extensionSdkService',
-    ],
+    inject: ['feature', 'appActionButtonService', 'extensionSdkService'],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -68,13 +72,7 @@ Component.register('sw-app-actions', {
         },
 
         view() {
-            const matchedRoute = this.matchedRoutes
-                .filter((match) => {
-                    return !!match?.meta?.appSystem?.view;
-                })
-                .pop();
-
-            return matchedRoute?.meta?.appSystem?.view;
+            return getAppSystemView(this.matchedRoutes);
         },
 
         areActionsAvailable() {
@@ -83,23 +81,6 @@ Component.register('sw-app-actions', {
 
         params() {
             return Shopware.Store.get('shopwareApps').selectedIds;
-        },
-
-        userConfigRepository() {
-            return this.repositoryFactory.create('user_config');
-        },
-
-        currentUser() {
-            return Shopware.Store.get('session').currentUser;
-        },
-
-        userConfigCriteria() {
-            const criteria = new Criteria(1, 25);
-
-            criteria.addFilter(Criteria.equals('key', IFRAME_KEY));
-            criteria.addFilter(Criteria.equals('userId', this.currentUser?.id));
-
-            return criteria;
         },
 
         extensionSdkButtons() {
@@ -112,15 +93,22 @@ Component.register('sw-app-actions', {
     watch: {
         $route: {
             immediate: true,
-            handler() {
-                this.matchedRoutes = this.$router.currentRoute.value.matched;
+            handler(route, previousRoute) {
+                this.matchedRoutes = Array.isArray(route?.matched) ? route.matched : [];
+
+                const entity = route?.meta?.$module?.entity;
+                const previousEntity = previousRoute?.meta?.$module?.entity;
+                const view = getAppSystemView(route?.matched);
+                const previousView = getAppSystemView(previousRoute?.matched);
+
+                // Listing routes update query parameters for pagination, filters and sorting. Action buttons only
+                // depend on the entity and view, so those query-only route changes must not trigger another request.
+                if (entity === previousEntity && view === previousView) {
+                    return;
+                }
+
                 this.loadActions();
             },
-        },
-
-        extensionSdkButtons() {
-            // If the matching entity and view is already open and the iframe call comes in late reload
-            this.loadActions();
         },
     },
 
@@ -152,7 +140,7 @@ Component.register('sw-app-actions', {
                     });
                     break;
                 case actionTypeConstants.ACTION_RELOAD_DATA:
-                    window.location.reload();
+                    this._reloadPage();
                     break;
                 case actionTypeConstants.ACTION_OPEN_MODAL:
                     await this.getUserConfig();
@@ -180,7 +168,7 @@ Component.register('sw-app-actions', {
                 }
 
                 this.createNotificationError({
-                    message: this.$tc('sw-app.component.sw-app-actions.messageErrorFetchButtons'),
+                    message: this.$t('sw-app.component.sw-app-actions.messageErrorFetchButtons'),
                 });
             }
         },
@@ -217,19 +205,18 @@ Component.register('sw-app-actions', {
             this.isShowModalConfirm = !this.isShowModalConfirm;
         },
 
-        getUserConfig() {
-            this.userConfigRepository.search(this.userConfigCriteria, Shopware.Context.api).then((response) => {
-                if (response.length) {
-                    this.iframeUserConfig = response.first();
-                } else {
-                    this.iframeUserConfig = this.userConfigRepository.create(Shopware.Context.api);
-                    this.iframeUserConfig.key = IFRAME_KEY;
-                    this.iframeUserConfig.userId = this.currentUser?.id;
-                    this.iframeUserConfig.value = {
-                        isShowModalConfirm: true,
-                    };
-                }
-            });
+        async getUserConfig() {
+            this.iframeUserConfig = {
+                key: IFRAME_KEY,
+                value: (await Shopware.Service('userConfigService').search([IFRAME_KEY]))?.data?.[IFRAME_KEY] || {
+                    isShowModalConfirm: true,
+                },
+            };
+        },
+
+        /** Thin wrapper so tests can spy on navigation without mocking window.location (non-configurable in JSDOM v26). */
+        _reloadPage() {
+            window.location.reload();
         },
 
         saveConfig(value) {
@@ -237,9 +224,13 @@ Component.register('sw-app-actions', {
                 isShowModalConfirm: value,
             };
 
-            this.userConfigRepository.save(this.iframeUserConfig, Shopware.Context.api).then(() => {
-                this.getUserConfig();
-            });
+            Shopware.Service('userConfigService')
+                .upsert({
+                    [IFRAME_KEY]: this.iframeUserConfig.value,
+                })
+                .then(() => {
+                    this.getUserConfig();
+                });
         },
     },
-});
+};

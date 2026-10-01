@@ -13,9 +13,9 @@ export default {
             multiSelectSwitch: false,
             multiSelectSwitchDisabled: false,
             propertyNames: {
-                label: this.$tc('sw-settings-custom-field.customField.detail.labelLabel'),
-                placeholder: this.$tc('sw-settings-custom-field.customField.detail.labelPlaceholder'),
-                helpText: this.$tc('sw-settings-custom-field.customField.detail.labelHelpText'),
+                label: this.$t('sw-settings-custom-field.customField.detail.labelLabel'),
+                placeholder: this.$t('sw-settings-custom-field.customField.detail.labelPlaceholder'),
+                helpText: this.$t('sw-settings-custom-field.customField.detail.labelHelpText'),
             },
         };
     },
@@ -40,13 +40,7 @@ export default {
             }
 
             const componentName = this.currentCustomField.config.componentName;
-            if (
-                !componentName ||
-                ![
-                    'sw-single-select',
-                    'sw-multi-select',
-                ].includes(componentName)
-            ) {
+            if (!componentName || !['sw-single-select', 'sw-multi-select'].includes(componentName)) {
                 this.currentCustomField.config.componentName = 'sw-single-select';
             }
 
@@ -75,8 +69,8 @@ export default {
         },
 
         getLabel(locale) {
-            const snippet = this.$tc('sw-settings-custom-field.customField.detail.labelLabel');
-            const language = this.$tc(`locale.${locale}`);
+            const snippet = this.$t('sw-settings-custom-field.customField.detail.labelLabel');
+            const language = this.$t(`locale.${locale}`);
 
             return `${snippet} (${language})`;
         },

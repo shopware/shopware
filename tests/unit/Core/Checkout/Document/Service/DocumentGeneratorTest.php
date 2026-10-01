@@ -5,8 +5,8 @@ namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
 use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
@@ -15,14 +15,22 @@ use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\RendererResult;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
+use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Service\AbstractDocumentTypeRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentFileRendererRegistry;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
+use Shopware\Core\Checkout\DocumentV2\Event\DocumentGeneratedEvent;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
+use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -31,14 +39,129 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
-#[CoversClass(DocumentGenerator::class)]
 #[Package('after-sales')]
+#[CoversClass(DocumentGenerator::class)]
 class DocumentGeneratorTest extends TestCase
 {
+    public function testReadDocumentFallsBackToV2FileWhenLegacyFileIsUnavailable(): void
+    {
+        $v2Media = new MediaEntity();
+        $v2Media->setId(Uuid::randomHex());
+        $v2Media->setFileName('invoice-v2');
+        $v2Media->setFileExtension(PdfRenderer::FILE_EXTENSION);
+        $v2Media->setMimeType(PdfRenderer::FILE_CONTENT_TYPE);
+
+        $documentFile = new DocumentFileEntity();
+        $documentFile->setId(Uuid::randomHex());
+        $documentFile->setDocumentFormat(PdfRenderer::FILE_EXTENSION);
+        $documentFile->setMedia($v2Media);
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setStatic(true);
+        $document->setOrderId(Uuid::randomHex());
+        $document->setConfig([]);
+        $document->setDocumentFiles(new DocumentFileCollection([$documentFile]));
+
+        $documentRepository = new StaticEntityRepository([
+            new EntitySearchResult(
+                'document',
+                1,
+                new DocumentCollection([$document]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext(),
+            ),
+        ]);
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->once())
+            ->method('loadFile')
+            ->with($v2Media->getId(), static::isInstanceOf(Context::class))
+            ->willReturn('v2 pdf content');
+
+        $generator = new DocumentGenerator(
+            new DocumentRendererRegistry([]),
+            static::createStub(DocumentFileRendererRegistry::class),
+            $mediaService,
+            $documentRepository,
+            static::createStub(Connection::class),
+            new NativeClock(),
+            $this->createDocumentFileResolver(),
+            static::createStub(EventDispatcherInterface::class),
+        );
+
+        $renderedDocument = $generator->readDocument($document->getId(), Context::createDefaultContext());
+
+        static::assertNotNull($renderedDocument);
+        static::assertSame('v2 pdf content', $renderedDocument->getContent());
+        static::assertSame('invoice-v2.pdf', $renderedDocument->getName());
+        static::assertSame(PdfRenderer::FILE_EXTENSION, $renderedDocument->getFileExtension());
+        static::assertSame(PdfRenderer::FILE_CONTENT_TYPE, $renderedDocument->getContentType());
+        static::assertStringNotContainsString('.pdf.pdf', $renderedDocument->getName());
+    }
+
+    public function testReadDocumentDoesNotRegenerateV2DocumentWhenRequestedFormatIsUnavailable(): void
+    {
+        $v2Media = new MediaEntity();
+        $v2Media->setId(Uuid::randomHex());
+        $v2Media->setFileName('invoice-v2');
+        $v2Media->setFileExtension(HtmlRenderer::FILE_EXTENSION);
+        $v2Media->setMimeType(HtmlRenderer::FILE_CONTENT_TYPE);
+
+        $documentFile = new DocumentFileEntity();
+        $documentFile->setId(Uuid::randomHex());
+        $documentFile->setDocumentFormat(HtmlRenderer::FILE_EXTENSION);
+        $documentFile->setMedia($v2Media);
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setStatic(false);
+        $document->setOrderId(Uuid::randomHex());
+        $document->setConfig([]);
+        $document->setTypeName(InvoiceRenderer::TYPE);
+        $document->setDocumentFiles(new DocumentFileCollection([$documentFile]));
+
+        $documentRepository = new StaticEntityRepository([
+            new EntitySearchResult(
+                'document',
+                1,
+                new DocumentCollection([$document]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext(),
+            ),
+        ]);
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->never())->method('loadFile');
+        $mediaService->expects($this->never())->method('saveFile');
+
+        $renderer = $this->createMock(AbstractDocumentRenderer::class);
+        $renderer->expects($this->never())->method('supports');
+        $renderer->expects($this->never())->method('render');
+
+        $generator = new DocumentGenerator(
+            new DocumentRendererRegistry([$renderer]),
+            static::createStub(DocumentFileRendererRegistry::class),
+            $mediaService,
+            $documentRepository,
+            static::createStub(Connection::class),
+            new NativeClock(),
+            $this->createDocumentFileResolver(),
+            static::createStub(EventDispatcherInterface::class),
+        );
+
+        static::assertNull($generator->readDocument($document->getId(), Context::createDefaultContext()));
+    }
+
     #[DataProvider('readDataProvider')]
     public function testReadDocument(string $fileType, RenderedDocument $resultRenderer, \Closure $expectClosure): void
     {
@@ -52,17 +175,12 @@ class DocumentGeneratorTest extends TestCase
         $mediaA11y->setFileExtension(HtmlRenderer::FILE_EXTENSION);
         $mediaA11y->setMimeType(HtmlRenderer::FILE_CONTENT_TYPE);
 
-        $documentType = new DocumentTypeEntity();
-        $documentType->setId(Uuid::randomHex());
-        $documentType->setName('invoice');
-        $documentType->setTechnicalName('invoice');
-
         $document = new DocumentEntity();
         $document->setId(Uuid::randomHex());
         $document->setStatic(false);
         $document->setOrderId(Uuid::randomHex());
         $document->setConfig([]);
-        $document->setDocumentType($documentType);
+        $document->setTypeName('invoice');
         $document->setDocumentMediaFileId($media->getId());
         $document->setDocumentMediaFile($media);
         $document->setDocumentA11yMediaFileId($mediaA11y->getId());
@@ -75,16 +193,15 @@ class DocumentGeneratorTest extends TestCase
         $result = new RendererResult();
         $result->addSuccess('orderId', $resultRenderer);
 
-        $mockRenderer = $this->createMock(AbstractDocumentRenderer::class);
+        $mockRenderer = static::createStub(AbstractDocumentRenderer::class);
         $registry = new DocumentRendererRegistry([$mockRenderer]);
 
-        $mediaService = $this->createMock(MediaService::class);
+        $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')->willReturnOnConsecutiveCalls(
             $document->getDocumentMediaFileId(),
             $document->getDocumentA11yMediaFileId(),
         );
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([
             new EntitySearchResult(
                 'document',
@@ -98,10 +215,13 @@ class DocumentGeneratorTest extends TestCase
 
         $generator = new DocumentGenerator(
             $registry,
-            $this->createMock(DocumentFileRendererRegistry::class),
+            static::createStub(DocumentFileRendererRegistry::class),
             $mediaService,
             $documentRepository,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
+            new NativeClock(),
+            $this->createDocumentFileResolver(),
+            static::createStub(EventDispatcherInterface::class),
         );
 
         try {
@@ -114,6 +234,54 @@ class DocumentGeneratorTest extends TestCase
 
         static::assertNotNull($renderedDocument);
         $expectClosure($renderedDocument);
+    }
+
+    public function testReadDocumentAutoDetectsXmlFileTypeWhenNullIsPassed(): void
+    {
+        $xmlMedia = new MediaEntity();
+        $xmlMedia->setId(Uuid::randomHex());
+        $xmlMedia->setFileExtension('xml');
+        $xmlMedia->setFileName('invoice');
+        $xmlMedia->setMimeType('application/xml');
+
+        $document = new DocumentEntity();
+        $document->setId(Uuid::randomHex());
+        $document->setStatic(false);
+        $document->setOrderId(Uuid::randomHex());
+        $document->setConfig([]);
+        $document->setTypeName('invoice');
+        $document->setDocumentMediaFileId($xmlMedia->getId());
+        $document->setDocumentMediaFile($xmlMedia);
+
+        $context = Context::createDefaultContext();
+
+        $documentRepository = new StaticEntityRepository([
+            new EntitySearchResult(
+                'document',
+                1,
+                new DocumentCollection([$document]),
+                null,
+                new Criteria(),
+                $context,
+            ),
+        ]);
+
+        $generator = new DocumentGenerator(
+            new DocumentRendererRegistry([]),
+            static::createStub(DocumentFileRendererRegistry::class),
+            static::createStub(MediaService::class),
+            $documentRepository,
+            static::createStub(Connection::class),
+            new NativeClock(),
+            $this->createDocumentFileResolver(),
+            static::createStub(EventDispatcherInterface::class),
+        );
+
+        $renderedDocument = $generator->readDocument($document->getId(), $context, '', null);
+
+        static::assertNotNull($renderedDocument);
+        static::assertSame('xml', $renderedDocument->getFileExtension());
+        static::assertSame('application/xml', $renderedDocument->getContentType());
     }
 
     public function testPreview(): void
@@ -143,27 +311,29 @@ class DocumentGeneratorTest extends TestCase
             ->with(
                 ['orderId' => $operation],
                 $context,
-                static::callback(fn (DocumentRendererConfig $config): bool => $config->deepLinkCode === 'deepLinkCode')
+                static::callback(static fn (DocumentRendererConfig $config): bool => $config->deepLinkCode === 'deepLinkCode')
             )
             ->willReturn($result);
 
-        $mockTypeRenderer = $this->createMock(AbstractDocumentTypeRenderer::class);
+        $mockTypeRenderer = static::createStub(AbstractDocumentTypeRenderer::class);
         $mockTypeRenderer->method('getContentType')->willReturn('text/html');
         $mockTypeRenderer->method('render')->willReturn('html');
 
         $registry = new DocumentRendererRegistry([$mockRenderer]);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([]);
 
-        $fileRendererRegistry = $this->createMock(DocumentFileRendererRegistry::class);
+        $fileRendererRegistry = static::createStub(DocumentFileRendererRegistry::class);
 
         $generator = new DocumentGenerator(
             $registry,
             $fileRendererRegistry,
-            $this->createMock(MediaService::class),
+            static::createStub(MediaService::class),
             $documentRepository,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
+            new NativeClock(),
+            $this->createDocumentFileResolver(),
+            static::createStub(EventDispatcherInterface::class),
         );
 
         $document = $generator->preview('invoice', $operation, 'deepLinkCode', $context);
@@ -171,6 +341,49 @@ class DocumentGeneratorTest extends TestCase
         static::assertSame($document->getContent(), 'html');
         static::assertSame($document->getFileExtension(), 'html');
         static::assertSame($document->getContentType(), 'text/html');
+    }
+
+    #[TestWith([InvoiceRenderer::TYPE])]
+    #[TestWith([ZugferdRenderer::TYPE])]
+    #[TestWith([ZugferdEmbeddedRenderer::TYPE])]
+    public function testPreviewSetsReferencedDocumentIdFromInvoiceNumber(string $invoiceType): void
+    {
+        $orderId = Uuid::randomHex();
+
+        $renderedDocument = new RenderedDocument(name: 'credit_note', fileExtension: 'html', contentType: 'text/html');
+        $renderedDocument->setContent('html');
+        $rendererResult = new RendererResult();
+        $rendererResult->addSuccess($orderId, $renderedDocument);
+
+        $mockRenderer = static::createStub(AbstractDocumentRenderer::class);
+        $mockRenderer->method('supports')->willReturn('credit_note');
+        $mockRenderer->method('render')->willReturn($rendererResult);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchOne')
+            ->willReturnCallback(static function (string $sql, array $params) use ($invoiceType): string {
+                static::assertContains($invoiceType, $params['technicalNames'] ?? []);
+
+                return Uuid::randomHex();
+            });
+
+        $documentRepository = new StaticEntityRepository([]);
+
+        $generator = new DocumentGenerator(
+            new DocumentRendererRegistry([$mockRenderer]),
+            static::createStub(DocumentFileRendererRegistry::class),
+            static::createStub(MediaService::class),
+            $documentRepository,
+            $connection,
+            new NativeClock(),
+            $this->createDocumentFileResolver(),
+            static::createStub(EventDispatcherInterface::class),
+        );
+
+        $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION, ['custom' => ['invoiceNumber' => 'INV-100']]);
+
+        $generator->preview('credit_note', $operation, 'deepLinkCode', Context::createDefaultContext());
     }
 
     public function testPreviewErrorThrowsDocumentException(): void
@@ -196,31 +409,32 @@ class DocumentGeneratorTest extends TestCase
             ->with(
                 ['orderId' => $operation],
                 $context,
-                static::callback(fn (DocumentRendererConfig $config): bool => $config->deepLinkCode === 'deepLinkCode')
+                static::callback(static fn (DocumentRendererConfig $config): bool => $config->deepLinkCode === 'deepLinkCode')
             )
             ->willReturn($result);
 
         $registry = new DocumentRendererRegistry([$mockRenderer]);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([]);
 
         $generator = new DocumentGenerator(
             $registry,
-            $this->createMock(DocumentFileRendererRegistry::class),
-            $this->createMock(MediaService::class),
+            static::createStub(DocumentFileRendererRegistry::class),
+            static::createStub(MediaService::class),
             $documentRepository,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
+            new NativeClock(),
+            $this->createDocumentFileResolver(),
+            static::createStub(EventDispatcherInterface::class),
         );
 
-        $this->expectException(DocumentException::class);
-        $this->expectExceptionMessage('Unable to generate document. Some Error Message.');
+        $this->expectExceptionObject(DocumentException::generationError('Some Error Message.'));
 
         $generator->preview('invoice', $operation, 'deepLinkCode', $context);
     }
 
     /**
-     * @param array<string, string|null> $mediaIds
+     * @param list<string|null> $mediaIds
      * @param array<string, DocumentGenerateOperation> $operations
      */
     #[DataProvider('generateDataProvider')]
@@ -231,31 +445,30 @@ class DocumentGeneratorTest extends TestCase
         $result = new RendererResult();
         $result->addSuccess($orderId, $resultRenderer);
 
-        $mockRenderer = $this->createMock(AbstractDocumentRenderer::class);
+        $mockRenderer = static::createStub(AbstractDocumentRenderer::class);
         $mockRenderer->method('supports')->willReturn('invoice');
         $mockRenderer
             ->method('render')
             ->willReturn($result);
 
-        $mockTypeRenderer = $this->createMock(AbstractDocumentTypeRenderer::class);
+        $mockTypeRenderer = static::createStub(AbstractDocumentTypeRenderer::class);
         $mockTypeRenderer->method('getContentType')->willReturn('text/html');
         $mockTypeRenderer->method('render')->willReturn('html');
 
         $registry = new DocumentRendererRegistry([$mockRenderer]);
 
-        /** @var StaticEntityRepository<DocumentCollection> $documentRepository */
         $documentRepository = new StaticEntityRepository([]);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchOne')->willReturn($documentTypeId);
 
-        $mediaService = $this->createMock(MediaService::class);
+        $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')->willReturnOnConsecutiveCalls(
             $mediaIds[0] ?? '',
             $mediaIds[1] ?? '',
         );
 
-        $fileRendererRegistry = $this->createMock(DocumentFileRendererRegistry::class);
+        $fileRendererRegistry = static::createStub(DocumentFileRendererRegistry::class);
         $fileRendererRegistry->method('render')->willReturn('content');
 
         $generator = new DocumentGenerator(
@@ -264,6 +477,9 @@ class DocumentGeneratorTest extends TestCase
             $mediaService,
             $documentRepository,
             $connection,
+            new NativeClock(),
+            $this->createDocumentFileResolver(),
+            static::createStub(EventDispatcherInterface::class),
         );
 
         try {
@@ -275,6 +491,132 @@ class DocumentGeneratorTest extends TestCase
         }
 
         $expectsClosure($document);
+    }
+
+    public function testGenerateDispatchesDocumentGeneratedEvent(): void
+    {
+        $orderId = Uuid::randomHex();
+        $orderVersionId = Uuid::randomHex();
+        $documentTypeId = Uuid::randomHex();
+
+        $context = Context::createDefaultContext();
+
+        $resultRenderer = new RenderedDocument(name: 'invoice', content: 'test', number: '1000');
+
+        $result = new RendererResult();
+        $result->addSuccess($orderId, $resultRenderer);
+
+        $mockRenderer = static::createStub(AbstractDocumentRenderer::class);
+        $mockRenderer->method('supports')->willReturn('invoice');
+        $mockRenderer->method('render')->willReturn($result);
+
+        $registry = new DocumentRendererRegistry([$mockRenderer]);
+
+        $documentRepository = new StaticEntityRepository([]);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn($documentTypeId);
+
+        $mediaService = static::createStub(MediaService::class);
+        $mediaService->method('saveFile')->willReturn(Uuid::randomHex());
+
+        $fileRendererRegistry = static::createStub(DocumentFileRendererRegistry::class);
+        $fileRendererRegistry->method('render')->willReturn('content');
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(DocumentGeneratedEvent::class))
+            ->willReturnCallback(static function (DocumentGeneratedEvent $event) use ($orderId, $orderVersionId) {
+                static::assertSame($orderId, $event->orderId);
+                static::assertSame($orderVersionId, $event->orderVersionId);
+                static::assertSame('invoice', $event->documentType);
+                static::assertSame('1000', $event->documentNumber);
+
+                return $event;
+            });
+
+        $generator = new DocumentGenerator(
+            $registry,
+            $fileRendererRegistry,
+            $mediaService,
+            $documentRepository,
+            $connection,
+            new NativeClock(),
+            $this->createDocumentFileResolver(),
+            $eventDispatcher,
+        );
+
+        $operation = new DocumentGenerateOperation($orderId, HtmlRenderer::FILE_EXTENSION);
+        $operation->setOrderVersionId($orderVersionId);
+
+        $generator->generate('invoice', [$orderId => $operation], $context);
+    }
+
+    public function testUploadDispatchesDocumentGeneratedEvent(): void
+    {
+        $documentId = Uuid::randomHex();
+        $orderId = Uuid::randomHex();
+        $orderVersionId = Uuid::randomHex();
+        $mediaId = Uuid::randomHex();
+
+        $document = new DocumentEntity();
+        $document->setId($documentId);
+        $document->setOrderId($orderId);
+        $document->setOrderVersionId($orderVersionId);
+        $document->setStatic(true);
+        $document->setConfig([]);
+        $document->setTypeName('invoice');
+        $document->setDeepLinkCode('deepLinkCode');
+        $document->setDocumentNumber('1000');
+
+        $context = Context::createDefaultContext();
+
+        $documentRepository = new StaticEntityRepository([
+            new EntitySearchResult(
+                'document',
+                1,
+                new DocumentCollection([$document]),
+                null,
+                new Criteria([$documentId]),
+                $context,
+            ),
+        ]);
+
+        $mediaFile = new MediaFile('invoice.pdf', 'application/pdf', 'pdf', 5);
+
+        $mediaService = static::createStub(MediaService::class);
+        $mediaService->method('fetchFile')->willReturn($mediaFile);
+        $mediaService->method('saveMediaFile')->willReturn($mediaId);
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(DocumentGeneratedEvent::class))
+            ->willReturnCallback(static function (DocumentGeneratedEvent $event) use ($documentId, $orderId, $orderVersionId) {
+                static::assertSame($documentId, $event->documentId);
+                static::assertSame($orderId, $event->orderId);
+                static::assertSame($orderVersionId, $event->orderVersionId);
+                static::assertSame('invoice', $event->documentType);
+                static::assertSame('1000', $event->documentNumber);
+
+                return $event;
+            });
+
+        $generator = new DocumentGenerator(
+            new DocumentRendererRegistry([]),
+            static::createStub(DocumentFileRendererRegistry::class),
+            $mediaService,
+            $documentRepository,
+            static::createStub(Connection::class),
+            new NativeClock(),
+            $this->createDocumentFileResolver(),
+            $eventDispatcher,
+        );
+
+        $request = new Request(['fileName' => 'invoice'], [], [], [], [], ['HTTP_CONTENT_LENGTH' => '5'], 'hello');
+
+        $generator->upload($documentId, $context, $request);
     }
 
     /**
@@ -291,7 +633,7 @@ class DocumentGeneratorTest extends TestCase
                 contentType: HtmlRenderer::FILE_CONTENT_TYPE,
             ),
 
-            function (RenderedDocument|DocumentException $renderedDocument): void {
+            static function (RenderedDocument|DocumentException $renderedDocument): void {
                 static::assertInstanceOf(RenderedDocument::class, $renderedDocument);
 
                 static::assertSame($renderedDocument->getFileExtension(), HtmlRenderer::FILE_EXTENSION);
@@ -308,7 +650,7 @@ class DocumentGeneratorTest extends TestCase
                 contentType: PdfRenderer::FILE_CONTENT_TYPE,
             ),
 
-            function (RenderedDocument|DocumentException $renderedDocument): void {
+            static function (RenderedDocument|DocumentException $renderedDocument): void {
                 static::assertInstanceOf(RenderedDocument::class, $renderedDocument);
 
                 static::assertSame($renderedDocument->getFileExtension(), PdfRenderer::FILE_EXTENSION);
@@ -325,7 +667,7 @@ class DocumentGeneratorTest extends TestCase
                 contentType: 'application/xml',
             ),
 
-            function (RenderedDocument|DocumentException $renderedDocument): void {
+            static function (RenderedDocument|DocumentException $renderedDocument): void {
                 static::assertInstanceOf(DocumentException::class, $renderedDocument);
 
                 static::assertSame($renderedDocument->getErrorCode(), DocumentException::DOCUMENT_INVALID_RENDERER_TYPE);
@@ -359,7 +701,7 @@ class DocumentGeneratorTest extends TestCase
                 ),
             ],
 
-            function (DocumentGenerationResult|DocumentException $result) use ($mediaId, $mediaA11yId): void {
+            static function (DocumentGenerationResult|DocumentException $result) use ($mediaId, $mediaA11yId): void {
                 static::assertInstanceOf(DocumentGenerationResult::class, $result);
 
                 static::assertNotNull($struct = $result->getSuccess()->first());
@@ -385,7 +727,7 @@ class DocumentGeneratorTest extends TestCase
                 ),
             ],
 
-            function (DocumentGenerationResult|DocumentException $result) use ($mediaId): void {
+            static function (DocumentGenerationResult|DocumentException $result) use ($mediaId): void {
                 static::assertInstanceOf(DocumentGenerationResult::class, $result);
 
                 static::assertNotNull($struct = $result->getSuccess()->first());
@@ -409,9 +751,14 @@ class DocumentGeneratorTest extends TestCase
                 ),
             ],
 
-            function (DocumentGenerationResult|DocumentException $result): void {
+            static function (DocumentGenerationResult|DocumentException $result): void {
                 static::assertInstanceOf(DocumentException::class, $result);
             },
         ];
+    }
+
+    private function createDocumentFileResolver(): DocumentFileResolver
+    {
+        return new DocumentFileResolver();
     }
 }

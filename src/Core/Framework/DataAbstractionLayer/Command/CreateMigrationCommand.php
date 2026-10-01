@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer;
@@ -13,17 +13,19 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Path;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'dal:migration:create',
     description: 'Creates migration for entity schema',
 )]
-#[Package('framework')]
 class CreateMigrationCommand extends Command
 {
     /**
@@ -37,7 +39,7 @@ class CreateMigrationCommand extends Command
         private readonly MigrationFileRenderer $migrationFileRenderer,
         private readonly string $coreDir,
         private readonly string $shopwareVersion,
-        private readonly \DateTimeImmutable $now = new \DateTimeImmutable()
+        private readonly ClockInterface $clock
     ) {
         parent::__construct();
     }
@@ -53,13 +55,13 @@ class CreateMigrationCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $timestamp = (string) $this->now->getTimestamp();
+        $timestamp = (string) $this->clock->now()->getTimestamp();
 
         $namespace = $this->getNamespace($input);
         $directory = $this->getDirectory($input);
         $package = $input->getOption('package') ?? 'core';
 
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         $io->title('DAL generate migration');
 
@@ -125,7 +127,7 @@ class CreateMigrationCommand extends Command
         string $namespace,
         string $directory,
         string $package,
-        ShopwareStyle $io
+        SymfonyStyle $io
     ): void {
         $io->info('Processing entity: ' . $entity);
 
@@ -133,8 +135,8 @@ class CreateMigrationCommand extends Command
 
         $queries = $this->queryGenerator->generateQueries($entityDefinition);
 
-        if (!empty($queries)) {
-            $path = $directory . '/' . MigrationFileRenderer::createMigrationClassName($timestamp, $entity) . '.php';
+        if ($queries !== []) {
+            $path = Path::join($directory, MigrationFileRenderer::createMigrationClassName($timestamp, $entity) . '.php');
 
             $className = MigrationFileRenderer::createMigrationClassName($timestamp, $entity);
             $content = $this->migrationFileRenderer->render($namespace, $className, $timestamp, $queries, $package);

@@ -5,6 +5,7 @@ namespace Shopware\Core\Migration\V6_7;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
@@ -19,14 +20,14 @@ class Migration1720610755RemoveDefaultPaymentMethodFromCustomer extends Migratio
 
     public function update(Connection $connection): void
     {
-        if ($this->columnExists($connection, 'customer', 'default_payment_method_id')) {
+        if (TableHelper::columnExists($connection, 'customer', 'default_payment_method_id')) {
             $connection->executeStatement('ALTER TABLE `customer` MODIFY COLUMN `default_payment_method_id` BINARY(16) NULL');
         }
     }
 
     public function updateDestructive(Connection $connection): void
     {
-        if ($this->columnExists($connection, 'customer', 'default_payment_method_id')) {
+        if (TableHelper::columnExists($connection, 'customer', 'default_payment_method_id')) {
             $this->dropForeignKeyIfExists($connection, 'customer', 'fk.customer.default_payment_method_id');
             $this->dropColumnIfExists($connection, 'customer', 'default_payment_method_id');
         }

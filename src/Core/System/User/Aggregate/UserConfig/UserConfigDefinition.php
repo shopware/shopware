@@ -14,6 +14,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@framework')]
 class UserConfigDefinition extends EntityDefinition
 {
@@ -47,10 +50,10 @@ class UserConfigDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('user_id', 'userId', UserDefinition::class))->addFlags(new Required()),
-            (new StringField('key', 'key'))->addFlags(new Required()),
-            new JsonField('value', 'value'),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of user configuration.'),
+            (new FkField('user_id', 'userId', UserDefinition::class))->addFlags(new Required())->setDescription('Unique identity of user.'),
+            (new StringField('key', 'key'))->addFlags(new Required())->setDescription('Unique key for every userconfig.'),
+            (new JsonField('value', 'value'))->setDescription('Value of the user configuration.'),
 
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class, 'id', false),
         ]);

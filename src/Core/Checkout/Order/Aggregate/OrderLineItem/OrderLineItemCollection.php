@@ -2,9 +2,11 @@
 
 namespace Shopware\Core\Checkout\Order\Aggregate\OrderLineItem;
 
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -18,17 +20,17 @@ class OrderLineItemCollection extends EntityCollection
      */
     public function getOrderIds(): array
     {
-        return $this->fmap(fn (OrderLineItemEntity $orderLineItem) => $orderLineItem->getOrderId());
+        return $this->fmap(static fn (OrderLineItemEntity $orderLineItem) => $orderLineItem->getOrderId());
     }
 
     public function filterByOrderId(string $id): self
     {
-        return $this->filter(fn (OrderLineItemEntity $orderLineItem) => $orderLineItem->getOrderId() === $id);
+        return $this->filter(static fn (OrderLineItemEntity $orderLineItem) => $orderLineItem->getOrderId() === $id);
     }
 
     public function sortByCreationDate(string $sortDirection = FieldSorting::ASCENDING): void
     {
-        $this->sort(function (OrderLineItemEntity $a, OrderLineItemEntity $b) use ($sortDirection) {
+        $this->sort(static function (OrderLineItemEntity $a, OrderLineItemEntity $b) use ($sortDirection) {
             if ($sortDirection === FieldSorting::ASCENDING) {
                 return $a->getCreatedAt() <=> $b->getCreatedAt();
             }
@@ -39,7 +41,7 @@ class OrderLineItemCollection extends EntityCollection
 
     public function sortByPosition(): void
     {
-        $this->sort(fn (OrderLineItemEntity $a, OrderLineItemEntity $b) => $a->getPosition() <=> $b->getPosition());
+        $this->sort(static fn (OrderLineItemEntity $a, OrderLineItemEntity $b) => $a->getPosition() <=> $b->getPosition());
     }
 
     /**
@@ -47,7 +49,7 @@ class OrderLineItemCollection extends EntityCollection
      */
     public function getPayloadsProperty(string $property): array
     {
-        return $this->fmap(function (OrderLineItemEntity $lineItem) use ($property) {
+        return $this->fmap(static function (OrderLineItemEntity $lineItem) use ($property) {
             $payload = $lineItem->getPayload() ?? [];
 
             return $payload[$property] ?? null;
@@ -56,7 +58,7 @@ class OrderLineItemCollection extends EntityCollection
 
     public function filterByType(string $type): self
     {
-        return $this->filter(fn (OrderLineItemEntity $lineItem) => $lineItem->getType() === $type);
+        return $this->filter(static fn (OrderLineItemEntity $lineItem) => $lineItem->getType() === $type);
     }
 
     /**
@@ -76,8 +78,27 @@ class OrderLineItemCollection extends EntityCollection
         return $filtered;
     }
 
+    public function hasLineItemWithType(string $type): bool
+    {
+        foreach ($this->buildFlat($this) as $lineItem) {
+            if ($lineItem->getPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE) === $type) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Use hasLineItemWithType() instead.
+     */
     public function hasLineItemWithState(string $state): bool
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, 'hasLineItemWithState', 'v6.8.0.0', 'hasLineItemWithType')
+        );
+
         foreach ($this->buildFlat($this) as $lineItem) {
             if (\in_array($state, $lineItem->getStates(), true)) {
                 return true;

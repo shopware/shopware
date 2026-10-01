@@ -3,8 +3,10 @@
 namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\Subscriber;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\BarMessage;
 use Shopware\Core\Framework\Test\MessageQueue\fixtures\FooMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -13,12 +15,20 @@ use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\NoHandlerMes
 use Symfony\Component\Messenger\MessageBusInterface;
 
 /**
+ * @deprecated tag:v6.8.0 - Test class tests increment-based stats which will be removed
+ *
  * @internal
  */
+#[Package('framework')]
 class MessageQueueStatsSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
+
+    protected function setUp(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+    }
 
     public function testListener(): void
     {
@@ -38,22 +48,22 @@ class MessageQueueStatsSubscriberTest extends TestCase
         $bus->dispatch(new BarMessage());
 
         $stats = $pool->list('message_queue_stats');
-        static::assertEquals(1, $stats[FooMessage::class]['count']);
-        static::assertEquals(3, $stats[BarMessage::class]['count']);
+        static::assertSame(1, $stats[FooMessage::class]['count']);
+        static::assertSame(3, $stats[BarMessage::class]['count']);
 
         $this->runWorker();
 
         $stats = $pool->list('message_queue_stats');
-        static::assertEquals(0, $stats[FooMessage::class]['count']);
-        static::assertEquals(0, $stats[BarMessage::class]['count']);
+        static::assertSame(0, $stats[FooMessage::class]['count']);
+        static::assertSame(0, $stats[BarMessage::class]['count']);
 
         $bus->dispatch(new NoHandlerMessage());
 
         $stats = $pool->list('message_queue_stats');
-        static::assertEquals(1, $stats[NoHandlerMessage::class]['count']);
+        static::assertSame(1, $stats[NoHandlerMessage::class]['count']);
 
         $this->runWorker();
         $stats = $pool->list('message_queue_stats');
-        static::assertEquals(0, $stats[NoHandlerMessage::class]['count']);
+        static::assertSame(0, $stats[NoHandlerMessage::class]['count']);
     }
 }

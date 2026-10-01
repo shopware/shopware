@@ -8,19 +8,19 @@ use Shopware\Core\Framework\Log\Package;
 class XmlValidationError extends Error
 {
     /**
-     * @var ErrorMessage[]
+     * @var list<ErrorMessage>
      */
     protected array $errorMessages;
 
     /**
-     * @param \LibXMLError[] $errors
+     * @param list<\LibXMLError> $errors
      */
     public function __construct(
         protected string $id,
         protected array $errors = []
     ) {
-        $this->errorMessages = array_map(
-            function (\LibXMLError $error) {
+        $this->errorMessages = array_values(array_map(
+            static function (\LibXMLError $error): ErrorMessage {
                 $errorMessage = new ErrorMessage();
                 $errorMessage->assign([
                     'message' => \sprintf('%s on line %d in column %d', trim($error->message), $error->line, $error->column),
@@ -31,7 +31,7 @@ class XmlValidationError extends Error
                 return $errorMessage;
             },
             $errors
-        );
+        ));
 
         $this->message = 'The export did not generate a valid XML file';
 
@@ -49,7 +49,7 @@ class XmlValidationError extends Error
     }
 
     /**
-     * @return \LibXMLError[][]
+     * @return array{errors: list<\LibXMLError>}
      */
     public function getParameters(): array
     {
@@ -57,7 +57,7 @@ class XmlValidationError extends Error
     }
 
     /**
-     * @return ErrorMessage[]
+     * @return list<ErrorMessage>
      */
     public function getErrorMessages(): array
     {

@@ -5,15 +5,13 @@
 import template from './sw-filter-panel.html.twig';
 import './sw-filter-panel.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-filter-panel', {
+export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['feature', 'repositoryFactory'],
 
     emits: ['criteria-changed'],
 
@@ -39,6 +37,7 @@ Component.register('sw-filter-panel', {
             activeFilters: {},
             filterChanged: false,
             storedFilters: null,
+            storedFiltersRequestId: 0,
         };
     },
 
@@ -105,14 +104,21 @@ Component.register('sw-filter-panel', {
 
     methods: {
         createdComponent() {
+            const requestId = this.storedFiltersRequestId + 1;
+            this.storedFiltersRequestId = requestId;
+
             Shopware.Service('filterService')
                 .getStoredFilters(this.storeKey)
                 .then((filters) => {
+                    if (requestId !== this.storedFiltersRequestId || this.filterChanged) {
+                        return;
+                    }
+
                     this.activeFilters = {};
-                    this.storedFilters = filters;
+                    this.storedFilters = filters ?? {};
 
                     this.listFilters.forEach((filter) => {
-                        const criteria = filters[filter.name] ? filters[filter.name].criteria : null;
+                        const criteria = this.storedFilters[filter.name] ? this.storedFilters[filter.name].criteria : null;
                         if (criteria) {
                             this.activeFilters[filter.name] = criteria;
                         }
@@ -122,18 +128,23 @@ Component.register('sw-filter-panel', {
 
         updateFilter(name, filter, value) {
             this.filterChanged = true;
+            this.storedFilters = this.storedFilters ?? {};
+
             this.activeFilters[name] = filter;
             this.storedFilters[name] = { value: value, criteria: filter };
         },
 
         resetFilter(name) {
             this.filterChanged = true;
+            this.storedFilters = this.storedFilters ?? {};
+
             delete this.activeFilters[name];
             this.storedFilters[name] = { value: null, criteria: null };
         },
 
         resetAll() {
             this.filterChanged = true;
+            this.storedFilters = this.storedFilters ?? {};
             this.activeFilters = {};
 
             Object.values(this.storedFilters).forEach((el) => {
@@ -147,7 +158,7 @@ Component.register('sw-filter-panel', {
         },
 
         getBreadcrumb(item) {
-            if (item.breadcrumb) {
+            if (item.breadcrumb?.length > 0) {
                 return item.breadcrumb.join(' / ');
             }
             return item.translated?.name || item.name;
@@ -161,4 +172,4 @@ Component.register('sw-filter-panel', {
             return item.translated?.name || item.name;
         },
     },
-});
+};

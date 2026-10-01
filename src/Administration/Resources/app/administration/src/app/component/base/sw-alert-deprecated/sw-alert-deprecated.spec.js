@@ -7,11 +7,6 @@ import { mount } from '@vue/test-utils';
 describe('components/base/sw-alert-deprecated', () => {
     let wrapper;
 
-    it('should be a Vue.js component', async () => {
-        wrapper = mount(await wrapTestComponent('sw-alert-deprecated', { sync: true }));
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render correctly', async () => {
         const title = 'Alert title';
         const message = '<p>Alert message</p>';
@@ -30,81 +25,21 @@ describe('components/base/sw-alert-deprecated', () => {
     });
 
     it.each([
-        [
-            'info',
-            'default',
-            true,
-        ],
-        [
-            'warning',
-            'default',
-            true,
-        ],
-        [
-            'error',
-            'default',
-            true,
-        ],
-        [
-            'success',
-            'default',
-            true,
-        ],
-        [
-            'info',
-            'notification',
-            true,
-        ],
-        [
-            'warning',
-            'notification',
-            true,
-        ],
-        [
-            'error',
-            'notification',
-            true,
-        ],
-        [
-            'success',
-            'notification',
-            true,
-        ],
-        [
-            'info',
-            'system',
-            false,
-        ],
-        [
-            'warning',
-            'system',
-            false,
-        ],
-        [
-            'error',
-            'system',
-            false,
-        ],
-        [
-            'success',
-            'system',
-            false,
-        ],
-        [
-            'neutral',
-            'default',
-            true,
-        ],
-        [
-            'neutral',
-            'notification',
-            true,
-        ],
-        [
-            'neutral',
-            'system',
-            false,
-        ],
+        ['info', 'default', true],
+        ['warning', 'default', true],
+        ['error', 'default', true],
+        ['success', 'default', true],
+        ['info', 'notification', true],
+        ['warning', 'notification', true],
+        ['error', 'notification', true],
+        ['success', 'notification', true],
+        ['info', 'system', false],
+        ['warning', 'system', false],
+        ['error', 'system', false],
+        ['success', 'system', false],
+        ['neutral', 'default', true],
+        ['neutral', 'notification', true],
+        ['neutral', 'system', false],
     ])('applies variant class %s to %s is %s', async (variant, appearance, applied) => {
         wrapper = mount(await wrapTestComponent('sw-alert-deprecated', { sync: true }), {
             props: {

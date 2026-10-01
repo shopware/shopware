@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1696262484AddDefaultSendMailOptions;
@@ -13,9 +14,15 @@ use Shopware\Core\Migration\V6_6\Migration1696262484AddDefaultSendMailOptions;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1696262484AddDefaultSendMailOptions::class)]
 class Migration1696262484AddDefaultSendMailOptionsTest extends TestCase
 {
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1696262484, (new Migration1696262484AddDefaultSendMailOptions())->getCreationTimestamp());
+    }
+
     public function testValueNotExist(): void
     {
         $connection = KernelLifecycleManager::getConnection();
@@ -58,13 +65,13 @@ class Migration1696262484AddDefaultSendMailOptionsTest extends TestCase
 
         $connection->executeStatement($sql, $params);
 
-        static::assertEquals('-bs', $this->getValue($connection));
+        static::assertSame('-bs', $this->getValue($connection));
 
         $migration = new Migration1696262484AddDefaultSendMailOptions();
         $migration->update($connection);
         $migration->update($connection);
 
-        static::assertEquals('-bs', $this->getValue($connection));
+        static::assertSame('-bs', $this->getValue($connection));
     }
 
     public function testDefaultValue(): void
@@ -88,13 +95,13 @@ class Migration1696262484AddDefaultSendMailOptionsTest extends TestCase
 
         $connection->executeStatement($sql, $params);
 
-        static::assertEquals('-t', $this->getValue($connection));
+        static::assertSame('-t', $this->getValue($connection));
 
         $migration = new Migration1696262484AddDefaultSendMailOptions();
         $migration->update($connection);
         $migration->update($connection);
 
-        static::assertEquals('-t -i', $this->getValue($connection));
+        static::assertSame('-t -i', $this->getValue($connection));
     }
 
     private function getValue(Connection $connection): string|false

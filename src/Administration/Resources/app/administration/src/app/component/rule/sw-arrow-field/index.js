@@ -1,13 +1,11 @@
 import './sw-arrow-field.scss';
 import { h } from 'vue';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @sw-package fundamentals@after-sales
  */
-Component.register('sw-arrow-field', {
+export default {
     render() {
         return h(
             'div',
@@ -17,10 +15,7 @@ Component.register('sw-arrow-field', {
                     'is--disabled': this.disabled,
                 },
             },
-            [
-                typeof this.$slots.default === 'function' ? this.$slots.default() : this.$slots.default,
-                this.getArrow(),
-            ],
+            [typeof this.$slots.default === 'function' ? this.$slots.default() : this.$slots.default, this.getArrow()],
         );
     },
     props: {
@@ -86,4 +81,4 @@ Component.register('sw-arrow-field', {
             );
         },
     },
-});
+};

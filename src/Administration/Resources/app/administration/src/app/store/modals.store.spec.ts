@@ -35,13 +35,55 @@ describe('modals.store', () => {
                 showHeader: true,
                 showFooter: true,
                 variant: 'default',
+                textContent: undefined,
                 buttons: [],
                 baseUrl: 'https://example.com',
             },
         ]);
     });
 
-    it('closes a modal', () => {
+    it('opens a modal without a locationID but with textContent', () => {
+        store.openModal({
+            title: 'Test Modal',
+            closable: true,
+            showHeader: true,
+            showFooter: true,
+            variant: 'default',
+            textContent: 'Test content',
+            baseUrl: 'https://example.com',
+        });
+
+        expect(store.modals).toStrictEqual([
+            {
+                locationId: undefined,
+                title: 'Test Modal',
+                closable: true,
+                showHeader: true,
+                showFooter: true,
+                variant: 'default',
+                textContent: 'Test content',
+                buttons: [],
+                baseUrl: 'https://example.com',
+            },
+        ]);
+    });
+
+    it('stores a custom z-index when provided', () => {
+        store.openModal({
+            locationId: 'test',
+            title: 'Test Modal',
+            closable: true,
+            showHeader: true,
+            showFooter: true,
+            variant: 'default',
+            zIndex: 2000,
+            baseUrl: 'https://example.com',
+        });
+
+        expect(store.modals[0].zIndex).toBe(2000);
+    });
+
+    it('closes a modal with locationId', () => {
         store.openModal({
             locationId: 'test',
             title: 'Test Modal',
@@ -55,5 +97,64 @@ describe('modals.store', () => {
         store.closeModal('test');
 
         expect(store.modals).toStrictEqual([]);
+    });
+
+    it('closes a modal without locationId', () => {
+        store.openModal({
+            title: 'Test Modal',
+            closable: true,
+            showHeader: true,
+            showFooter: true,
+            variant: 'default',
+            textContent: 'Test content',
+            baseUrl: 'https://example.com',
+        });
+
+        store.openModal({
+            title: 'Test Modal 2',
+            closable: true,
+            showHeader: true,
+            showFooter: true,
+            variant: 'default',
+            textContent: 'Test content 2',
+            baseUrl: 'https://example.com',
+        });
+
+        store.openModal({
+            locationId: 'test',
+            title: 'Test Modal',
+            closable: true,
+            showHeader: true,
+            showFooter: true,
+            variant: 'default',
+            baseUrl: 'https://example.com',
+        });
+
+        store.closeLastModalWithoutLocationId();
+
+        expect(store.modals).toStrictEqual([
+            {
+                locationId: undefined,
+                title: 'Test Modal',
+                closable: true,
+                showHeader: true,
+                showFooter: true,
+                variant: 'default',
+                textContent: 'Test content',
+                buttons: [],
+                baseUrl: 'https://example.com',
+            },
+            {
+                locationId: 'test',
+                title: 'Test Modal',
+                closable: true,
+                showHeader: true,
+                showFooter: true,
+                variant: 'default',
+                textContent: undefined,
+                buttons: [],
+                baseUrl: 'https://example.com',
+            },
+        ]);
     });
 });

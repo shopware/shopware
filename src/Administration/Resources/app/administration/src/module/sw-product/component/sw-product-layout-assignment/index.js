@@ -11,17 +11,29 @@ export default {
 
     inject: ['acl'],
 
-    emits: [
-        'modal-layout-open',
-        'button-edit-click',
-        'button-delete-click',
-    ],
+    emits: ['modal-layout-open', 'button-edit-click', 'button-delete-click'],
 
     props: {
         cmsPage: {
             type: Object,
             required: false,
             default: null,
+        },
+
+        product: {
+            type: Object,
+            required: false,
+            default: null,
+        },
+    },
+
+    computed: {
+        pageName() {
+            if (!this.cmsPage) {
+                return this.$t('sw-product.layoutAssignment.title');
+            }
+
+            return this.cmsPage.translated?.name ?? this.cmsPage.name;
         },
     },
 

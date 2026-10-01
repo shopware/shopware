@@ -19,16 +19,9 @@ export default {
         'mediaService',
     ],
 
-    emits: [
-        'generator-open',
-        'delivery-open',
-        'variants-finish-update',
-    ],
+    emits: ['generator-open', 'delivery-open', 'variants-finish-update'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('listing'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('listing')],
 
     props: {
         productEntity: {
@@ -41,17 +34,26 @@ export default {
             required: true,
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `productType` prop instead
+         */
         productStates: {
             type: Array,
             required: false,
             default: () => ['all'],
+        },
+
+        productType: {
+            type: String,
+            required: false,
+            default: 'all',
         },
     },
 
     data() {
         return {
             sortBy: 'name',
-            sortDirection: 'DESC',
+            sortDirection: 'ASC',
             showDeleteModal: false,
             modalLoading: false,
             priceEdit: false,
@@ -118,42 +120,42 @@ export default {
             const columns = [
                 {
                     property: 'name',
-                    label: this.$tc('sw-product.variations.generatedListColumnVariation'),
+                    label: this.$t('sw-product.variations.generatedListColumnVariation'),
                     allowResize: true,
                 },
                 ...this.currencyColumns,
                 {
                     property: 'sales',
                     dataIndex: 'sales',
-                    label: this.$tc('sw-product.list.columnSales'),
+                    label: this.$t('sw-product.list.columnSales'),
                     allowResize: true,
                     align: 'right',
                 },
                 {
                     property: 'stock',
-                    label: this.$tc('sw-product.variations.generatedListColumnStock'),
+                    label: this.$t('sw-product.variations.generatedListColumnStock'),
                     allowResize: true,
                     inlineEdit: 'number',
-                    width: '125px',
+                    width: 'calc(var(--scale-size-80) + var(--scale-size-40) + var(--scale-size-6))',
                     align: 'right',
                 },
                 {
                     property: 'productNumber',
-                    label: this.$tc('sw-product.variations.generatedListColumnProductNumber'),
+                    label: this.$t('sw-product.variations.generatedListColumnProductNumber'),
                     allowResize: true,
                     inlineEdit: 'string',
-                    width: '150px',
+                    width: 'calc(var(--scale-size-128) + var(--scale-size-22))',
                 },
                 {
                     property: 'media',
-                    label: this.$tc('sw-product.detailBase.cardTitleMedia'),
+                    label: this.$t('sw-product.detailBase.cardTitleMedia'),
                     allowResize: true,
                     inlineEdit: true,
                     sortable: false,
                 },
                 {
                     property: 'active',
-                    label: this.$tc('sw-product.variations.generatedListColumnActive'),
+                    label: this.$t('sw-product.variations.generatedListColumnActive'),
                     allowResize: true,
                     inlineEdit: 'boolean',
                     align: 'center',
@@ -161,10 +163,10 @@ export default {
             ];
 
             // adding download files to second last index
-            if (this.productStates.includes('is-download')) {
+            if (this.productType === 'digital') {
                 columns.splice(columns.length - 1, 0, {
                     property: 'downloads',
-                    label: this.$tc('sw-product.variations.generatedListColumnDownload'),
+                    label: this.$t('sw-product.variations.generatedListColumnDownload'),
                     allowResize: true,
                     inlineEdit: true,
                     sortable: false,
@@ -191,7 +193,7 @@ export default {
                         primary: false,
                         rawData: false,
                         inlineEdit: 'number',
-                        width: '250px',
+                        width: 'calc(var(--scale-size-224) + var(--scale-size-26))',
                     };
                 });
         },
@@ -217,7 +219,14 @@ export default {
             },
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement
+         */
         productStates() {
+            this.getList();
+        },
+
+        productType() {
             this.getList();
         },
 
@@ -289,30 +298,25 @@ export default {
         getList() {
             // Promise needed for inline edit error handling
             return new Promise((resolve) => {
-                if (this.product.parentId) {
+                if (!this.product?.id || this.product.parentId) {
                     return;
                 }
 
-                Shopware.Store.get('swProductDetail').setLoading([
-                    'variants',
-                    true,
-                ]);
+                Shopware.Store.get('swProductDetail').setLoading(['variants', true]);
 
                 // Get criteria for search and for option sorting
                 const searchCriteria = new Criteria(1, 25);
-
-                const productStates = this.productStates.filter((state) => state !== 'all');
-                const productStatesFilter = productStates.map((productState) => {
-                    return Criteria.equals('states', productState);
-                });
 
                 // Criteria for Search
                 searchCriteria.setTotalCountMode(1);
                 searchCriteria
                     .setPage(this.page)
                     .setLimit(this.limit)
-                    .addFilter(Criteria.equals('product.parentId', this.product.id))
-                    .addFilter(Criteria.multi('AND', productStatesFilter));
+                    .addFilter(Criteria.equals('product.parentId', this.product.id));
+
+                if (this.productType !== 'all') {
+                    searchCriteria.addFilter(Criteria.equals('type', this.productType));
+                }
 
                 searchCriteria.getAssociation('media').addSorting(Criteria.sort('position'));
                 searchCriteria.addAssociation('media.media');
@@ -322,7 +326,7 @@ export default {
                     .addSorting(Criteria.sort('groupId'))
                     .addSorting(Criteria.sort('id'));
 
-                if (productStates.includes('is-download')) {
+                if (this.productType === 'digital') {
                     searchCriteria.addAssociation('downloads.media');
                 }
 
@@ -338,7 +342,7 @@ export default {
 
                 // check for other sort values
                 if (this.sortBy === 'name') {
-                    searchCriteria.addSorting(Criteria.sort('product.options.name', this.sortDirection));
+                    searchCriteria.addSorting(Criteria.sort('product.options.name', this.sortDirection, true));
                 } else {
                     searchCriteria.addSorting(Criteria.sort(this.sortBy, this.sortDirection));
                 }
@@ -351,10 +355,7 @@ export default {
                 this.productRepository.search(searchCriteria).then((res) => {
                     this.total = res.total;
                     Shopware.Store.get('swProductDetail').variants = res;
-                    Shopware.Store.get('swProductDetail').setLoading([
-                        'variants',
-                        false,
-                    ]);
+                    Shopware.Store.get('swProductDetail').setLoading(['variants', false]);
                     this.$emit('variants-finish-update', this.variants);
                     resolve();
                 });
@@ -362,19 +363,24 @@ export default {
         },
 
         buildSearchQuery(criteria) {
-            if (!this.term) {
+            // Normalize the term: leading/trailing whitespace must not leak into the
+            // query. Otherwise the split below yields empty entries that build a
+            // `contains` filter with an empty value and the API rejects the whole
+            // query with FRAMEWORK__INVALID_FILTER_QUERY.
+            const term = this.term ? this.term.trim() : '';
+            if (!term) {
                 return criteria;
             }
 
-            // Split each word for search
-            const terms = this.term.split(' ');
+            // Split each word for search; empty entries from repeated spaces are dropped.
+            const terms = term.split(' ').filter((word) => word !== '');
 
             // Create query for each single word
-            terms.forEach((term) => {
-                criteria.addQuery(Criteria.equals('product.options.name', term), 3500);
-                criteria.addQuery(Criteria.contains('product.options.name', term), 500);
+            terms.forEach((word) => {
+                criteria.addQuery(Criteria.equals('product.options.name', word), 3500);
+                criteria.addQuery(Criteria.contains('product.options.name', word), 500);
             });
-            criteria.addQuery(Criteria.contains('product.productNumber', this.term), 5000);
+            criteria.addQuery(Criteria.contains('product.productNumber', term), 5000);
 
             // return the input
             return criteria;
@@ -389,7 +395,7 @@ export default {
 
                     return {
                         id: group.id,
-                        name: group.name,
+                        name: group.translated.name || group.name,
                         childCount: children.length,
                         parentId: null,
                         afterId: index > 0 ? this.selectedGroups[index - 1].id : null,
@@ -417,7 +423,7 @@ export default {
 
                         return {
                             id: option.id,
-                            name: option.name,
+                            name: option.translated.name || option.name,
                             childCount: 0,
                             parentId: option.groupId,
                             afterId,
@@ -425,17 +431,11 @@ export default {
                         };
                     });
 
-                return [
-                    ...result,
-                    ...optionsForGroup,
-                ];
+                return [...result, ...optionsForGroup];
             }, []);
 
             // Assign groups and children to order objects
-            this.filterOptions = [
-                ...groups,
-                ...children,
-            ];
+            this.filterOptions = [...groups, ...children];
         },
 
         resetFilterOptions() {
@@ -595,18 +595,19 @@ export default {
             }
 
             variant.forceMediaInheritanceRemove = true;
-            this.product.media.forEach(({ id, mediaId, position }) => {
-                const media = this.productMediaRepository.create(Context.api);
-                Object.assign(media, {
+            this.product.media.forEach(({ id, mediaId, position, media }) => {
+                const productMedia = this.productMediaRepository.create(Context.api);
+                Object.assign(productMedia, {
                     mediaId,
                     position,
                     productId: this.product.id,
+                    media,
                 });
                 if (this.product.coverId === id) {
-                    variant.coverId = media.id;
+                    variant.coverId = productMedia.id;
                 }
 
-                variant.media.push(media);
+                variant.media.push(productMedia);
             });
         },
 
@@ -643,8 +644,8 @@ export default {
                 .save(variation)
                 .then(() => {
                     // create success notification
-                    const titleSaveSuccess = this.$tc('global.default.success');
-                    const messageSaveSuccess = this.$tc(
+                    const titleSaveSuccess = this.$t('global.default.success');
+                    const messageSaveSuccess = this.$t(
                         'sw-product.detail.messageSaveSuccess',
                         {
                             name: productName,
@@ -662,8 +663,8 @@ export default {
                 })
                 .catch(() => {
                     // create error notification
-                    const titleSaveError = this.$tc('global.default.error');
-                    const messageSaveError = this.$tc(
+                    const titleSaveError = this.$t('global.default.error');
+                    const messageSaveError = this.$t(
                         'global.notification.notificationSaveErrorMessageRequiredFieldsInvalid',
                     );
 
@@ -683,7 +684,6 @@ export default {
             this.toBeDeletedVariantIds = [];
         },
 
-        /* eslint-disable no-unused-vars */
         onConfirmDelete() {
             this.modalLoading = true;
             this.showDeleteModal = false;
@@ -695,7 +695,7 @@ export default {
                     this.toBeDeletedVariantIds = [];
 
                     this.createNotificationError({
-                        message: this.$tc('sw-product.variations.generatedListMessageDeleteErrorCanonicalUrl'),
+                        message: this.$t('sw-product.variations.generatedListMessageDeleteErrorCanonicalUrl'),
                     });
 
                     return;
@@ -703,17 +703,27 @@ export default {
 
                 this.updateVariantListingConfig(variantIds);
 
-                this.productRepository.syncDeleted(variantIds).then(() => {
-                    this.modalLoading = false;
-                    this.toBeDeletedVariantIds = [];
+                this.productRepository
+                    .syncDeleted(variantIds)
+                    .then(() => {
+                        this.modalLoading = false;
+                        this.toBeDeletedVariantIds = [];
 
-                    this.createNotificationSuccess({
-                        message: this.$tc('sw-product.variations.generatedListMessageDeleteSuccess'),
+                        this.createNotificationSuccess({
+                            message: this.$t('sw-product.variations.generatedListMessageDeleteSuccess'),
+                        });
+
+                        this.$refs.variantGrid.resetSelection();
+                        this.getList();
+                    })
+                    .catch(() => {
+                        this.modalLoading = false;
+                        this.toBeDeletedVariantIds = [];
+
+                        this.createNotificationError({
+                            message: this.$t('sw-product.variations.generatedListMessageDeleteError'),
+                        });
                     });
-
-                    this.$refs.variantGrid.resetSelection();
-                    this.getList();
-                });
             });
         },
 
@@ -746,9 +756,7 @@ export default {
             await this.$nextTick();
 
             let includesDigital = '0';
-            const digital = Object.values(this.$refs.variantGrid.selection).filter((product) =>
-                product.states.includes('is-download'),
-            );
+            const digital = Object.values(this.$refs.variantGrid.selection).filter((product) => product.type === 'digital');
             if (digital.length > 0) {
                 includesDigital = digital.filter((product) => product.isCloseout).length !== digital.length ? '1' : '2';
             }
@@ -770,7 +778,7 @@ export default {
         },
 
         variantIsDigital(variant) {
-            return this.productStates.includes('all') && variant.states && variant.states.includes('is-download');
+            return this.productType === 'all' && variant.type === 'digital';
         },
 
         updateVariantListingConfig(variantIds) {

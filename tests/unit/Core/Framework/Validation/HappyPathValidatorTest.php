@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Validation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -16,6 +17,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(HappyPathValidator::class)]
 class HappyPathValidatorTest extends TestCase
 {
@@ -28,7 +30,7 @@ class HappyPathValidatorTest extends TestCase
             $inner->expects($this->never())->method('validate');
         } else {
             $inner->expects($this->atLeastOnce())->method('validate')->willReturn(new ConstraintViolationList([
-                $this->createMock(ConstraintViolationInterface::class),
+                static::createStub(ConstraintViolationInterface::class),
             ]));
         }
 
@@ -42,43 +44,43 @@ class HappyPathValidatorTest extends TestCase
     public static function constraintDataProvider(): \Generator
     {
         yield 'min range valid' => [
-            new Range(['min' => 11]),
+            new Range(min: 11),
             11,
             true,
         ];
 
         yield 'min range invalid' => [
-            new Range(['min' => 11]),
+            new Range(min: 11),
             10,
             false,
         ];
 
         yield 'max range valid' => [
-            new Range(['max' => 11]),
+            new Range(max: 11),
             11,
             true,
         ];
 
         yield 'max range invalid' => [
-            new Range(['max' => 11]),
+            new Range(max: 11),
             12,
             false,
         ];
 
         yield 'min max range valid' => [
-            new Range(['min' => 11, 'max' => 20]),
+            new Range(min: 11, max: 20),
             20,
             true,
         ];
 
         yield 'min max range too low' => [
-            new Range(['min' => 11, 'max' => 20]),
+            new Range(min: 11, max: 20),
             10,
             false,
         ];
 
         yield 'min max range too high' => [
-            new Range(['min' => 11, 'max' => 20]),
+            new Range(min: 11, max: 20),
             21,
             false,
         ];

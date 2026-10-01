@@ -8,11 +8,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\Util\AfterSort;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AfterSort::class)]
 class AfterSortTest extends TestCase
 {
@@ -68,9 +70,9 @@ class AfterSortTest extends TestCase
             $entity4->getName(),
         ];
 
-        $actualNames = array_map(fn (TestEntity $entity) => $entity->getName(), $afterSortCollection->getElements());
+        $actualNames = array_map(static fn (TestEntity $entity) => $entity->getName(), $afterSortCollection->getElements());
 
-        static::assertEquals($expectedNames, \array_values($actualNames));
+        static::assertSame($expectedNames, \array_values($actualNames));
     }
 
     public function testSortingInconsistentDataWithHole(): void
@@ -104,9 +106,9 @@ class AfterSortTest extends TestCase
             $entity4->getName(),
         ];
 
-        $actualNames = array_map(fn (TestEntity $entity) => $entity->getName(), $entities->getElements());
+        $actualNames = array_map(static fn (TestEntity $entity) => $entity->getName(), $entities->getElements());
 
-        static::assertEquals($expectedNames, \array_values($actualNames));
+        static::assertSame($expectedNames, \array_values($actualNames));
     }
 
     public function testSortingInconsistentData(): void
@@ -140,13 +142,17 @@ class AfterSortTest extends TestCase
             $entity3->getName(),
         ];
 
-        $actualNames = array_map(fn (TestEntity $entity) => $entity->getName(), $entities->getElements());
+        $actualNames = array_map(static fn (TestEntity $entity) => $entity->getName(), $entities->getElements());
 
-        static::assertEquals($expectedNames, \array_values($actualNames));
+        static::assertSame($expectedNames, \array_values($actualNames));
     }
 
     public function testSortingByAfterIdWithMultipleNullValues(): void
     {
+        $root0 = new TestEntity();
+        $root0->setId(Uuid::randomHex());
+        $root0->setName('Root #0');
+
         $root1 = new TestEntity();
         $root1->setId(Uuid::randomHex());
         $root1->setName('Root #1');
@@ -170,15 +176,17 @@ class AfterSortTest extends TestCase
         $root5->setId(Uuid::randomHex());
         $root5->setName('Root #5');
 
-        $afterSortCollection = new AfterSortCollection([$root1, $root2, $root3, $root4, $root5]);
+        // The order of the elements is deliberately wrong
+        $afterSortCollection = new AfterSortCollection([$root0, $root1, $root3, $root2, $root4, $root5]);
 
         $afterSortCollection->sortByAfter();
 
-        $expectedNames = $afterSortCollection->map(fn (TestEntity $entity) => $entity->getName());
+        $expectedNames = array_values($afterSortCollection->map(static fn (TestEntity $entity) => $entity->getName()));
+        sort($expectedNames);
 
-        $actualNames = array_map(fn (TestEntity $entity) => $entity->getName(), $afterSortCollection->getElements());
+        $actualNames = array_values(array_map(static fn (TestEntity $entity) => $entity->getName(), $afterSortCollection->getElements()));
 
-        static::assertEquals($expectedNames, $actualNames);
+        static::assertSame($expectedNames, $actualNames);
     }
 }
 

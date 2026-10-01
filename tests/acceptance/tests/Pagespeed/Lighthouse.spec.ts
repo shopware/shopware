@@ -1,5 +1,10 @@
 import { test } from '@fixtures/AcceptanceTest';
 
+test.skip(
+    process.env.GITHUB_REPOSITORY === 'shopware/shopware-private',
+    'Lighthouse tests require the performance characteristics of the public repository runners.',
+);
+
 /**
  * These tests should only run against APP_ENV=Prod
  */
@@ -20,25 +25,37 @@ test('Category Lighthouse Report', async ({
     TestDataService,
     ValidateLighthouseScore,
     StorefrontCategory,
+    InstanceMeta,
 }) => {
+    test.setTimeout(150_000);
+
     const productCount = 10;
-    const promises = [];
 
     const category = await TestDataService.createCategory();
 
-    const createProductAndAssign = async() => {
-        const product = await TestDataService.createProductWithImage();
-        return await TestDataService.assignProductCategory(product.id, category.id);
-    }
-
     for (let i = 0; i < productCount; i++) {
-        promises.push(createProductAndAssign());
+        const product = await TestDataService.createProductWithImage();
+        await TestDataService.assignProductCategory(product.id, category.id);
     }
-
-    await Promise.all(promises);
 
     await ShopCustomer.goesTo(StorefrontCategory.url(category.name));
-    await ShopCustomer.attemptsTo(ValidateLighthouseScore(StorefrontCategory.page, 'Storefront-Category'))
+
+    await ShopCustomer.expects(async () => {
+        if (InstanceMeta.isSaaS || InstanceMeta.isPaaS) {
+            await TestDataService.clearCaches();
+        }
+        await ShopCustomer.goesTo(`${StorefrontCategory.url(category.name)}?a=${Date.now()}`);
+        await ShopCustomer.expects(StorefrontCategory.page.locator('.cms-listing-row').locator('.product-name')).toHaveCount(
+            productCount,
+        );
+    }).toPass({
+        intervals: [
+            1_000,
+            2_500,
+        ], // retry after 1 seconds, then every 2.5 seconds
+    });
+
+    await ShopCustomer.attemptsTo(ValidateLighthouseScore(StorefrontCategory.page, 'Storefront-Category'));
 });
 
 test('Cart Lighthouse Report', async ({

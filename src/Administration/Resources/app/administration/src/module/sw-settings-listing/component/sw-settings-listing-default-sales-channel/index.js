@@ -13,16 +13,12 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'systemConfigApiService',
-    ],
+    inject: ['repositoryFactory', 'systemConfigApiService'],
 
     props: {
         isLoading: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default() {
                 return false;
             },

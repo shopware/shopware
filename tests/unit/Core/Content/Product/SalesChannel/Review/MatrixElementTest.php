@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Review\MatrixElement;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(MatrixElement::class)]
 class MatrixElementTest extends TestCase
 {
@@ -29,9 +31,9 @@ class MatrixElementTest extends TestCase
 
         $element = new MatrixElement($points, $count, $percent);
 
-        static::assertEquals($points, $element->getPoints());
-        static::assertEquals($count, $element->getCount());
-        static::assertEquals($percent, $element->getPercent());
+        static::assertSame($points, $element->getPoints());
+        static::assertSame($count, $element->getCount());
+        static::assertSame($percent, $element->getPercent());
     }
 
     /**
@@ -43,7 +45,7 @@ class MatrixElementTest extends TestCase
         $expected = 2;
         $this->element->setPoints($expected);
 
-        static::assertEquals($expected, $this->element->getPoints());
+        static::assertSame($expected, $this->element->getPoints());
     }
 
     /**
@@ -55,7 +57,7 @@ class MatrixElementTest extends TestCase
         $expected = 2;
         $this->element->setCount($expected);
 
-        static::assertEquals($expected, $this->element->getCount());
+        static::assertSame($expected, $this->element->getCount());
     }
 
     /**
@@ -67,6 +69,6 @@ class MatrixElementTest extends TestCase
         $expected = 0.35;
         $this->element->setPercent($expected);
 
-        static::assertEquals($expected, $this->element->getPercent());
+        static::assertSame($expected, $this->element->getPercent());
     }
 }

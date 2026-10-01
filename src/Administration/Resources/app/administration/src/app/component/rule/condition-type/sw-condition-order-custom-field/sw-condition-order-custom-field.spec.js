@@ -49,12 +49,17 @@ const mockCustomFields = new EntityCollection(
     null,
 );
 
-async function createWrapper() {
+const defaultProps = () => ({
+    condition: { value: { renderedField: '' } },
+});
+
+async function createWrapper(props = defaultProps()) {
     return mount(
         await wrapTestComponent('sw-condition-order-custom-field', {
             sync: true,
         }),
         {
+            props,
             global: {
                 directives: {
                     popover: Shopware.Directive.getByName('popover'),
@@ -74,6 +79,7 @@ async function createWrapper() {
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
+                    'sw-condition-value-between-date': true,
                     'sw-condition-type-select': true,
                     'sw-context-menu-item': true,
                     'sw-context-button': true,
@@ -113,18 +119,11 @@ async function createWrapper() {
                     },
                 },
             },
-            props: {
-                condition: {
-                    value: {
-                        renderedField: '',
-                    },
-                },
-            },
         },
     );
 }
 
-describe('src/module/sw-flow/component/sw-flow-sequence', () => {
+describe('components/rule/condition-type/sw-condition-order-custom-field', () => {
     let wrapper;
 
     beforeEach(async () => {
@@ -177,7 +176,7 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         wrapper.vm.onFieldChange('3');
 
         expect(wrapper.vm.renderedField).toBeNull();
-        expect(wrapper.vm.selectedFieldSet).toBeUndefined();
+        expect(wrapper.vm.selectedFieldSet).toBeNull();
     });
 
     it('should set custom field value on input', async () => {
@@ -223,5 +222,54 @@ describe('src/module/sw-flow/component/sw-flow-sequence', () => {
         await flushPromises();
 
         expect(wrapper.vm.renderedFieldValue).toBe('test123');
+    });
+
+    it.each([{ type: 'date' }, { type: 'datetime' }])(
+        'should render between-date when operator is between: $type',
+        async ({ type }) => {
+            const testWrapper = await createWrapper({
+                condition: {
+                    value: {
+                        operator: 'between',
+                        renderedField: { id: '1', type, config: { type, label: 'foo' } },
+                        renderedFieldValue: null,
+                    },
+                },
+            });
+            await flushPromises();
+
+            expect(testWrapper.find('sw-condition-value-between-date-stub').exists()).toBe(true);
+            expect(testWrapper.find('.sw-form-field-renderer').exists()).toBe(false);
+        },
+    );
+
+    it('should not render between-date when operator is not between', async () => {
+        const testWrapper = await createWrapper({
+            condition: {
+                value: {
+                    operator: '=',
+                    renderedField: { id: '1', type: 'text', config: { type: 'text', label: 'foo' } },
+                    renderedFieldValue: null,
+                },
+            },
+        });
+        await flushPromises();
+
+        expect(testWrapper.find('sw-condition-value-between-date-stub').exists()).toBe(false);
+        expect(testWrapper.find('.sw-form-field-renderer').exists()).toBe(true);
+    });
+
+    it('should truncate custom field description', async () => {
+        mockCustomFields.at(0).customFieldSet.config.label = 'Order migration custom fields (attributes)';
+
+        const testWrapper = await createWrapper();
+        await flushPromises();
+
+        await testWrapper.find('.sw-entity-single-select .sw-select__selection').trigger('click');
+        await flushPromises();
+
+        const description = document.body.querySelector('.sw-select-result__result-item-description').textContent;
+        expect(description).toHaveLength(20);
+        expect(description.endsWith('...')).toBe(true);
     });
 });

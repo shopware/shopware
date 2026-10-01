@@ -38,10 +38,6 @@ describe('components/base/sw-simple-search-field', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have `search term` as initial value', async () => {
         expect(wrapper.find('input[type="text"]').element.value).toBe('search term');
     });

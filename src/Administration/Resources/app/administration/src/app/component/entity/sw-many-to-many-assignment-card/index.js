@@ -1,7 +1,6 @@
 import template from './sw-many-to-many-assignment-card.html.twig';
 import './sw-many-to-many-assignment-card.scss';
 
-const { Component } = Shopware;
 const { debounce, get } = Shopware.Utils;
 const { Criteria, EntityCollection } = Shopware.Data;
 
@@ -19,20 +18,14 @@ const { Criteria, EntityCollection } = Shopware.Data;
  *     :searchableFields="['entity.fieldName', 'entity.otherFieldName']">
  * </sw-many-to-many-assignment-card>
  */
-Component.register('sw-many-to-many-assignment-card', {
+export default {
     template,
 
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
-    emits: [
-        'update:entityCollection',
-        'paginate',
-    ],
+    emits: ['update:entityCollection', 'paginate'],
 
     props: {
         columns: {
@@ -67,7 +60,6 @@ Component.register('sw-many-to-many-assignment-card', {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -104,6 +96,12 @@ Component.register('sw-many-to-many-assignment-card', {
             required: false,
             default: false,
         },
+
+        displayVariants: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -114,6 +112,7 @@ Component.register('sw-many-to-many-assignment-card', {
             isLoadingGrid: false,
             selectedIds: [],
             resultCollection: null,
+            resultRequestId: 0,
             gridData: [],
             searchTerm: '',
             totalAssigned: 0,
@@ -224,24 +223,44 @@ Component.register('sw-many-to-many-assignment-card', {
             this.debouncedSearch();
         },
 
+        onClear() {
+            this.searchTerm = null;
+
+            if (this.$refs.selectBase?.expanded) {
+                this.resetSearchCriteria();
+                this.loadResultCollection();
+                return;
+            }
+
+            if (!this.localMode) {
+                this.paginateGrid();
+            }
+        },
+
+        loadResultCollection() {
+            const requestId = ++this.resultRequestId;
+
+            return this.searchItems().then((searchResult) => {
+                if (requestId === this.resultRequestId) {
+                    this.resultCollection = searchResult;
+                }
+            });
+        },
+
         debouncedSearch: debounce(function debouncedSearch() {
             this.resetSearchCriteria();
             this.searchCriteria.term = this.searchTerm || null;
 
             this.addContainsFilter(this.searchCriteria);
 
-            this.searchItems().then((searchResult) => {
-                this.resultCollection = searchResult;
-            });
+            this.loadResultCollection();
         }, 500),
 
         onSelectExpanded() {
             this.resetSearchCriteria();
             this.focusEl.select();
 
-            this.searchItems().then((searchResult) => {
-                this.resultCollection = searchResult;
-            });
+            this.loadResultCollection();
         },
 
         paginateResult() {
@@ -256,23 +275,28 @@ Component.register('sw-many-to-many-assignment-card', {
             });
         },
 
-        searchItems() {
-            return this.searchRepository.search(this.searchCriteria, this.context).then((result) => {
-                if (!this.localMode) {
-                    const criteria = new Criteria(1, this.searchCriteria.limit);
-                    criteria.setIds(result.getIds());
+        async searchItems() {
+            return this.searchRepository
+                .search(this.searchCriteria, {
+                    ...this.context,
+                    inheritance: this.displayVariants,
+                })
+                .then((result) => {
+                    if (!this.localMode) {
+                        const criteria = new Criteria(1, this.searchCriteria.limit);
+                        criteria.setIds(result.getIds());
 
-                    this.assignmentRepository.searchIds(criteria, this.context).then(({ data }) => {
-                        data.forEach((id) => {
-                            if (!this.isSelected({ id })) {
-                                this.selectedIds.push(id);
-                            }
+                        this.assignmentRepository.searchIds(criteria, this.context).then(({ data }) => {
+                            data.forEach((id) => {
+                                if (!this.isSelected({ id })) {
+                                    this.selectedIds.push(id);
+                                }
+                            });
                         });
-                    });
-                }
+                    }
 
-                return result;
-            });
+                    return result;
+                });
         },
 
         onItemSelect(item) {
@@ -379,10 +403,7 @@ Component.register('sw-many-to-many-assignment-card', {
                     return Criteria.contains(field, criteria.term);
                 });
 
-                criteria.filters = [
-                    ...this.criteria.filters,
-                    Criteria.multi('OR', containsFilter),
-                ];
+                criteria.filters = [...this.criteria.filters, Criteria.multi('OR', containsFilter)];
                 criteria.term = null;
             }
         },
@@ -395,4 +416,4 @@ Component.register('sw-many-to-many-assignment-card', {
             });
         },
     },
-});
+};

@@ -14,11 +14,7 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'flowBuilderService',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'flowBuilderService', 'feature'],
 
     props: {
         sequence: {
@@ -316,7 +312,11 @@ export default {
         },
 
         onEditRule() {
-            this.selectedRuleId = this.sequence?.rule?.id;
+            if (!this.sequence?.rule) {
+                return;
+            }
+
+            this.selectedRuleId = this.sequence.rule?.id;
             this.showCreateRuleModal = true;
         },
 

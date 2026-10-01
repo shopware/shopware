@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Adapter\Kernel;
 
+use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,6 +15,11 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 class EsiDecoration extends Esi
 {
     /**
+     * @var array<string, bool>
+     */
+    private array $calledPaths = [];
+
+    /**
      * @see AbstractSurrogate::handle()
      * @see HttpCacheKernel::handle()
      */
@@ -25,6 +31,12 @@ class EsiDecoration extends Esi
         // We need to track symfony esi requests to handle them like a main request, otherwise, the request can not be cached
         $subRequest->attributes->set('_sw_esi', true);
         // sw-fix-end
+
+        if (isset($this->calledPaths[$uri])) {
+            throw AdapterException::circularReferenceEsi(array_merge(array_keys($this->calledPaths), [$uri]));
+        }
+
+        $this->calledPaths[$uri] = true;
 
         try {
             $response = $cache->handle($subRequest, HttpKernelInterface::SUB_REQUEST, false);
@@ -43,6 +55,8 @@ class EsiDecoration extends Esi
             if (!$ignoreErrors) {
                 throw $e;
             }
+        } finally {
+            unset($this->calledPaths[$uri]);
         }
 
         return '';

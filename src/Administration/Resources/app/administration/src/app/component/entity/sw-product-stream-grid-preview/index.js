@@ -5,19 +5,16 @@
 import template from './sw-product-stream-grid-preview.html.twig';
 import './sw-product-stream-grid-preview.scss';
 
-const { Component, Context, Defaults } = Shopware;
+const { Context, Defaults } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
  * @private
  */
-Component.register('sw-product-stream-grid-preview', {
+export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'productStreamPreviewService',
-    ],
+    inject: ['repositoryFactory', 'productStreamPreviewService'],
 
     emits: ['selection-change'],
 
@@ -25,7 +22,6 @@ Component.register('sw-product-stream-grid-preview', {
         /**
          * The apiFilter of a loaded product stream
          */
-        // eslint-disable-next-line vue/require-prop-types
         filters: {
             required: true,
         },
@@ -48,6 +44,14 @@ Component.register('sw-product-stream-grid-preview', {
             type: Boolean,
             default: false,
         },
+        /**
+         * Whether matching variants are grouped, mirroring the product stream's "display as group" setting.
+         */
+        displayAsGroup: {
+            required: false,
+            type: Boolean,
+            default: true,
+        },
     },
 
     data() {
@@ -67,21 +71,13 @@ Component.register('sw-product-stream-grid-preview', {
             return this.repositoryFactory.create('product');
         },
 
-        currencyRepository() {
-            return this.repositoryFactory.create('currency');
-        },
-
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
 
         salesChannelCriteria() {
             return new Criteria(1, 1)
-                .addFilter(
-                    Criteria.not('OR', [
-                        Criteria.equals('typeId', Defaults.productComparisonTypeId),
-                    ]),
-                )
+                .addFilter(Criteria.not('OR', [Criteria.equals('typeId', Defaults.productComparisonTypeId)]))
                 .addSorting(Criteria.sort('type.iconName', 'ASC'));
         },
 
@@ -89,27 +85,27 @@ Component.register('sw-product-stream-grid-preview', {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-product-stream.filter.values.product'),
+                    label: this.$t('sw-product-stream.filter.values.product'),
                     type: 'text',
                     routerLink: 'sw.product.detail',
                 },
                 {
                     property: 'manufacturer.name',
-                    label: this.$tc('sw-product-stream.filter.values.manufacturer'),
+                    label: this.$t('sw-product-stream.filter.values.manufacturer'),
                 },
                 {
                     property: 'active',
-                    label: this.$tc('sw-product-stream.filter.values.active'),
+                    label: this.$t('sw-product-stream.filter.values.active'),
                     align: 'center',
                     type: 'bool',
                 },
                 {
                     property: 'price',
-                    label: this.$tc('sw-product-stream.filter.values.price'),
+                    label: this.$t('sw-product-stream.filter.values.price'),
                 },
                 {
                     property: 'stock',
-                    label: this.$tc('sw-product-stream.filter.values.stock'),
+                    label: this.$t('sw-product-stream.filter.values.stock'),
                     align: 'right',
                 },
             ];
@@ -125,11 +121,11 @@ Component.register('sw-product-stream-grid-preview', {
 
         emptyStateMessage() {
             if (!this.filters) {
-                return this.$tc('global.entity-components.productStreamPreview.emptyMessageNoStream');
+                return this.$t('global.entity-components.productStreamPreview.emptyMessageNoStream');
             }
 
             if (this.searchTerm.length) {
-                return this.$tc(
+                return this.$t(
                     'global.entity-components.productStreamPreview.emptyMessageNoSearchResults',
                     this.searchTerm,
                     {
@@ -138,7 +134,7 @@ Component.register('sw-product-stream-grid-preview', {
                 );
             }
 
-            return this.$tc('global.entity-components.productStreamPreview.emptyMessageNoProducts');
+            return this.$t('global.entity-components.productStreamPreview.emptyMessageNoProducts');
         },
 
         assetFilter() {
@@ -184,33 +180,40 @@ Component.register('sw-product-stream-grid-preview', {
         },
 
         loadSystemDefaultCurrency() {
-            return this.currencyRepository.get(Context.app.systemCurrencyId, Context.api);
+            return this.repositoryFactory
+                .create('currency')
+                .get(Shopware.Context.app.systemCurrencyId, Shopware.Context.api, {
+                    cacheKey: [
+                        'shared-data',
+                        'system-currency',
+                        Shopware.Context.app.systemCurrencyId,
+                        Shopware.Context.api.languageId ?? 'default',
+                    ],
+                    ttl: 5 * 60 * 1000,
+                });
         },
 
         loadProducts() {
-            // eslint-disable-next-line vue/no-mutating-props
             this.criteria.term = this.searchTerm || null;
-            // eslint-disable-next-line vue/no-mutating-props
             this.criteria.filters = [...this.filters];
-            // eslint-disable-next-line vue/no-mutating-props
             this.criteria.limit = this.limit;
             this.criteria.setPage(this.page);
             this.criteria.addAssociation('manufacturer');
             this.criteria.addAssociation('options.group');
-            this.criteria.addGroupField('displayGroup');
-            this.criteria.addFilter(
-                Criteria.not('AND', [
-                    Criteria.equals('displayGroup', null),
-                ]),
-            );
 
             return this.salesChannelRepository
                 .searchIds(this.salesChannelCriteria)
                 .then(({ data }) => {
-                    return this.productStreamPreviewService.preview(data.at(0), this.criteria, [], {
-                        'sw-currency-id': Context.app.systemCurrencyId,
-                        'sw-inheritance': true,
-                    });
+                    return this.productStreamPreviewService.preview(
+                        data.at(0),
+                        this.criteria,
+                        [],
+                        {
+                            'sw-currency-id': Context.app.systemCurrencyId,
+                            'sw-inheritance': true,
+                        },
+                        this.displayAsGroup,
+                    );
                 })
                 .then((result) => {
                     this.products = Object.values(result.elements);
@@ -239,4 +242,4 @@ Component.register('sw-product-stream-grid-preview', {
             this.$emit('selection-change', products);
         },
     },
-});
+};

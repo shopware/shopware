@@ -5,11 +5,15 @@ namespace Shopware\Core\Checkout\Document;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Controller\DocumentV2Controller;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Validation\Constraint\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,8 +23,13 @@ use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    replacement: DocumentV2Controller::class,
+)]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class DocumentGeneratorController extends AbstractController
 {
     /**
@@ -33,29 +42,40 @@ class DocumentGeneratorController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/order/document/{documentTypeName}/create', name: 'api.action.document.bulk.create', methods: ['POST'], defaults: ['_acl' => ['document:create']])]
+    #[Route(
+        path: '/api/_action/order/document/{documentTypeName}/create',
+        name: 'api.action.document.bulk.create',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['document:create']],
+        methods: [Request::METHOD_POST]
+    )]
     public function createDocuments(Request $request, string $documentTypeName, Context $context): JsonResponse
     {
         $documents = $this->serializer->decode($request->getContent(), 'json');
 
-        if (empty($documents) || !\is_array($documents)) {
+        if (!\is_array($documents) || $documents === []) {
             throw DocumentException::invalidRequestParameter('Request parameters must be an array of documents object');
         }
 
         $operations = [];
-
         $definition = new DataValidationDefinition();
-        $definition->addList(
-            'documents',
-            (new DataValidationDefinition())
-                ->add('orderId', new NotBlank())
-                ->add('fileType', new Choice([PdfRenderer::FILE_EXTENSION]))
-                ->add('config', new Type('array'))
-                ->add('static', new Type('bool'))
-                ->add('referencedDocumentId', new Uuid())
-        );
 
-        $this->dataValidator->validate($documents, $definition);
+        $itemDefinition = (new DataValidationDefinition())
+            ->add('orderId', new NotBlank(), new Type('string'))
+            ->add('fileType', new Choice(choices: [PdfRenderer::FILE_EXTENSION]))
+            ->add('static', new Type('bool'))
+            ->add('referencedDocumentId', new Uuid());
+
+        $configDefinition = (new DataValidationDefinition())
+            ->add('documentNumber', new Type('string'))
+            ->add('documentDate', new Type('string'));
+
+        $itemDefinition->addSub('config', $configDefinition);
+        $definition->addList('documents', $itemDefinition);
+
+        $this->dataValidator->validate(
+            ['documents' => $documents],
+            $definition
+        );
 
         foreach ($documents as $operation) {
             $operations[(string) $operation['orderId']] = new DocumentGenerateOperation(
@@ -70,7 +90,12 @@ class DocumentGeneratorController extends AbstractController
         return new JsonResponse($this->documentGenerator->generate($documentTypeName, $operations, $context));
     }
 
-    #[Route(path: '/api/_action/document/{documentId}/upload', name: 'api.action.document.upload', methods: ['POST'], defaults: ['_acl' => ['document:update']])]
+    #[Route(
+        path: '/api/_action/document/{documentId}/upload',
+        name: 'api.action.document.upload',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['document:update']],
+        methods: [Request::METHOD_POST]
+    )]
     public function uploadToDocument(Request $request, string $documentId, Context $context): JsonResponse
     {
         $documentIdStruct = $this->documentGenerator->upload(

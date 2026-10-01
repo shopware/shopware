@@ -10,7 +10,7 @@ interface ShopwareException extends \Throwable
     public function getErrorCode(): string;
 
     /**
-     * @return array<string|int, mixed|null>
+     * @return array<string, mixed>
      */
     public function getParameters(): array;
 }

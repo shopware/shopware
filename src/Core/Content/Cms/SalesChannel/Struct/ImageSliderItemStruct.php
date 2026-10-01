@@ -6,10 +6,15 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class ImageSliderItemStruct extends Struct
 {
     protected ?string $url = null;
+
+    protected ?string $ariaLabel = null;
 
     protected ?bool $newTab = null;
 
@@ -33,6 +38,16 @@ class ImageSliderItemStruct extends Struct
     public function setUrl(?string $url): void
     {
         $this->url = $url;
+    }
+
+    public function getAriaLabel(): ?string
+    {
+        return $this->ariaLabel;
+    }
+
+    public function setAriaLabel(?string $ariaLabel): void
+    {
+        $this->ariaLabel = $ariaLabel;
     }
 
     public function getNewTab(): ?bool

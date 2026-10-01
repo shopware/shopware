@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 /**
  * @internal
  */
+#[Package('framework')]
 class CustomSnippetFormatControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -19,7 +21,7 @@ class CustomSnippetFormatControllerTest extends TestCase
     {
         $url = '/api/_action/custom-snippet';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->jsonRequest('GET', $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
@@ -55,7 +57,7 @@ class CustomSnippetFormatControllerTest extends TestCase
 
         $url = '/api/_action/custom-snippet';
         $client = $this->getBrowser();
-        $client->request('GET', $url);
+        $client->jsonRequest('GET', $url);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
@@ -83,10 +85,9 @@ class CustomSnippetFormatControllerTest extends TestCase
             'custom-snippet/custom-snippet',
         ], $content['data']);
 
-        $originalCollection = $pluginCollection->filter(fn (Plugin $plugin) => $plugin->getName() !== 'BundleWithCustomSnippet');
+        $originalCollection = $pluginCollection->filter(static fn (Plugin $plugin) => $plugin->getName() !== 'BundleWithCustomSnippet');
 
         $pluginsProp = new \ReflectionProperty($pluginCollection, 'plugins');
-        $pluginsProp->setAccessible(true);
         $pluginsProp->setValue($pluginCollection, $originalCollection->all());
     }
 
@@ -98,7 +99,7 @@ class CustomSnippetFormatControllerTest extends TestCase
     {
         $url = '/api/_action/custom-snippet/render';
         $client = $this->getBrowser();
-        $client->request('POST', $url, [], [], [], json_encode($payload, \JSON_THROW_ON_ERROR));
+        $client->jsonRequest('POST', $url, $payload);
 
         $content = $client->getResponse()->getContent();
         static::assertNotFalse($content);
@@ -106,7 +107,7 @@ class CustomSnippetFormatControllerTest extends TestCase
         $content = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('rendered', $content);
-        static::assertEquals($expectedHtml, $content['rendered']);
+        static::assertSame($expectedHtml, $content['rendered']);
     }
 
     /**

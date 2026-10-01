@@ -1,7 +1,7 @@
 import template from './sw-multi-tag-select.html.twig';
 import './sw-multi-tag-select.scss';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { get } = Shopware.Utils;
 
 /**
@@ -17,22 +17,16 @@ const { get } = Shopware.Utils;
  *     :value="['lorem', 'ipsum', 'dolor', 'sit', 'amet']"
  * ></sw-multi-tag-select>
  */
-Component.register('sw-multi-tag-select', {
+export default {
     template,
 
     inheritAttrs: false,
 
     inject: ['feature'],
 
-    emits: [
-        'add-item-is-valid',
-        'update:value',
-        'display-values-expand',
-    ],
+    emits: ['add-item-is-valid', 'update:value', 'display-values-expand'],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error')],
 
     props: {
         value: {
@@ -80,6 +74,11 @@ Component.register('sw-multi-tag-select', {
             type: Boolean,
             required: false,
             default: false,
+        },
+        autocomplete: {
+            type: String,
+            required: false,
+            default: undefined,
         },
     },
 
@@ -137,10 +136,7 @@ Component.register('sw-multi-tag-select', {
                 return;
             }
 
-            this.$emit('update:value', [
-                ...this.value,
-                this.searchTerm,
-            ]);
+            this.$emit('update:value', [...this.value, this.searchTerm]);
             this.searchTerm = '';
         },
 
@@ -188,4 +184,4 @@ Component.register('sw-multi-tag-select', {
             this.limit += this.limit;
         },
     },
-});
+};

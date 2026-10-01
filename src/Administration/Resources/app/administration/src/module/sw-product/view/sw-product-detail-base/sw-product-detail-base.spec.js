@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package inventory
  */
@@ -40,7 +42,20 @@ async function createWrapper() {
                 'sw-inheritance-switch': await wrapTestComponent('sw-inheritance-switch', { sync: true }),
                 'sw-empty-state': true,
                 'mt-card': {
-                    template: '<div><slot></slot><slot name="title"></slot><slot name="grid"></slot></div>',
+                    props: ['title'],
+                    template: `
+                        <div>
+                            <div
+                                v-if="title && !$slots.title"
+                                class="mt-card__title"
+                            >
+                                {{ title }}
+                            </div>
+                            <slot></slot>
+                            <slot name="title"></slot>
+                            <slot name="grid"></slot>
+                        </div>
+                    `,
                 },
                 'sw-context-menu-item': true,
                 'sw-media-modal-v2': true,
@@ -91,6 +106,10 @@ async function createWrapper() {
 
 describe('src/module/sw-product/view/sw-product-detail-base', () => {
     beforeEach(() => {
+        jest.restoreAllMocks();
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+
         const store = Shopware.Store.get('swProductDetail');
         store.$reset();
         store.parentProduct = {
@@ -185,12 +204,10 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
                 },
             },
         };
-        store.creationStates = 'is-physical';
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            store.creationStates = 'is-physical';
+        }
+        store.creationType = 'physical';
     });
 
     it('should not show files card when product states not includes is-download', async () => {
@@ -198,12 +215,10 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             ...Shopware.Store.get('swProductDetail').product,
-            states: [
-                'is-physical',
-            ],
+            states: ['is-physical'],
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const cardElement = wrapper.find('.sw-product-detail-base__downloads');
 
@@ -215,15 +230,43 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             ...Shopware.Store.get('swProductDetail').product,
-            states: [
-                'is-download',
-            ],
+            states: ['is-download'],
         };
 
-        await wrapper.vm.$nextTick();
+        await flushPromises();
 
         const cardElement = wrapper.find('.sw-product-detail-base__downloads');
         expect(cardElement).toBeTruthy();
+    });
+
+    it('should render downloads card title as mt-card title', async () => {
+        const wrapper = await createWrapper();
+
+        Shopware.Store.get('swProductDetail').product = {
+            ...Shopware.Store.get('swProductDetail').product,
+            states: ['is-download'],
+        };
+
+        await flushPromises();
+
+        const cardElement = wrapper.get('.sw-product-detail-base__downloads');
+        const cardTitle = cardElement.get('.mt-card__title');
+
+        expect(cardTitle.text()).toBe('sw-product.detailBase.cardTitleDownloads');
+    });
+
+    it('should render media card title as mt-card title', async () => {
+        const wrapper = await createWrapper();
+
+        await flushPromises();
+
+        const cardElement = wrapper.get('.sw-product-detail-base__media');
+        const cardTitleWrapper = cardElement.get('.sw-inherit-wrapper__card-title');
+        const cardTitle = cardTitleWrapper.get('h3.mt-card__title');
+
+        expect(cardTitleWrapper.classes()).toContain('sw-inherit-wrapper__card-title');
+        expect(cardTitle.classes()).toEqual(['mt-card__title']);
+        expect(cardTitle.text()).toBe('sw-product.detailBase.cardTitleMedia');
     });
 
     it('should show correct deliverability card when product states includes is-download', async () => {
@@ -231,9 +274,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             ...Shopware.Store.get('swProductDetail').product,
-            states: [
-                'is-download',
-            ],
+            states: ['is-download'],
         };
 
         await wrapper.vm.$nextTick();
@@ -246,9 +287,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         Shopware.Store.get('swProductDetail').product = {
             ...Shopware.Store.get('swProductDetail').product,
-            states: [
-                'is-physical',
-            ],
+            states: ['is-physical'],
         };
     });
 
@@ -275,6 +314,17 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
 
         expect(mediaModal.exists()).toBe(true);
         expect(mediaModal.attributes('entity-context')).toBe('product');
+    });
+
+    it('should accept images, videos and 3d models in the media modal', async () => {
+        const wrapper = await createWrapper();
+
+        const productMediaFrom = wrapper.findComponent('sw-product-media-form-stub');
+        await productMediaFrom.vm.$emit('media-open');
+
+        const mediaModal = wrapper.findComponent('sw-media-modal-v2-stub');
+
+        expect(mediaModal.attributes('file-accept')).toBe('image/*,video/*,model/gltf-binary');
     });
 
     it('should able to close media modal', async () => {
@@ -454,9 +504,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const wrapper = await createWrapper();
         const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
-        Shopware.Store.get('swProductDetail').modeSettings = [
-            ...modeSettings.filter((item) => item !== 'media'),
-        ];
+        Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'media')];
 
         await wrapper.vm.$nextTick();
 
@@ -482,9 +530,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const wrapper = await createWrapper();
         const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
-        Shopware.Store.get('swProductDetail').modeSettings = [
-            ...modeSettings.filter((item) => item !== 'prices'),
-        ];
+        Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'prices')];
 
         await wrapper.vm.$nextTick();
 
@@ -496,9 +542,7 @@ describe('src/module/sw-product/view/sw-product-detail-base', () => {
         const wrapper = await createWrapper();
         const modeSettings = Shopware.Store.get('swProductDetail').modeSettings;
 
-        Shopware.Store.get('swProductDetail').modeSettings = [
-            ...modeSettings.filter((item) => item !== 'deliverability'),
-        ];
+        Shopware.Store.get('swProductDetail').modeSettings = [...modeSettings.filter((item) => item !== 'deliverability')];
 
         await wrapper.vm.$nextTick();
 

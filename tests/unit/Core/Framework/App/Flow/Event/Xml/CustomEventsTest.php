@@ -5,18 +5,20 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Flow\Event\Xml;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Flow\Event\Xml\CustomEvents;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Config\Util\XmlUtils;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CustomEvents::class)]
 class CustomEventsTest extends TestCase
 {
     public function testFromXml(): void
     {
         $doc = XmlUtils::loadFile(
-            __DIR__ . '/../../../_fixtures/Resources/flow.xml',
+            __DIR__ . '/../../../_fixtures/Resources/flow-event-with-events.xml',
             __DIR__ . '/../../../../../../../../src/Core/Framework/App/Flow/Schema/flow-1.0.xsd'
         );
 
@@ -24,5 +26,6 @@ class CustomEventsTest extends TestCase
         static::assertNotNull($events);
         $result = CustomEvents::fromXml($events)->toArray('en-GB');
         static::assertArrayHasKey('customEvent', $result);
+        static::assertCount(1, $result['customEvent']);
     }
 }

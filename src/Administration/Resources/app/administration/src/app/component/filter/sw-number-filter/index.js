@@ -5,18 +5,13 @@
 import template from './sw-number-filter.html.twig';
 import './sw-number-filter.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-number-filter', {
+export default {
     template,
 
-    emits: [
-        'filter-reset',
-        'filter-update',
-    ],
+    emits: ['filter-reset', 'filter-update'],
 
     props: {
         filter: {
@@ -54,7 +49,7 @@ Component.register('sw-number-filter', {
             const key = `${type}FieldLabel`;
 
             if (!this.filter.hasOwnProperty(key)) {
-                return this.$tc(`global.default.${type}`);
+                return this.$t(`global.default.${type}`);
             }
 
             const label = this.filter[key];
@@ -67,7 +62,7 @@ Component.register('sw-number-filter', {
         },
 
         updateFilter(params) {
-            if (!this.numberValue.from && !this.numberValue.to) {
+            if (this.numberValue.from == null && this.numberValue.to == null) {
                 this.$emit('filter-reset', this.filter.name);
                 return;
             }
@@ -85,4 +80,4 @@ Component.register('sw-number-filter', {
             this.$emit('filter-reset', this.filter.name, this.numberValue);
         },
     },
-});
+};

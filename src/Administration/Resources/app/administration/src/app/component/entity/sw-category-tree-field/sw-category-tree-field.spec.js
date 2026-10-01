@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 
 const categoryData = [
@@ -10,6 +10,7 @@ const categoryData = [
         id: 'categoryId-2',
         attributes: {
             id: 'categoryId-2',
+            type: 'page',
         },
         translated: {
             name: 'categoryName-2',
@@ -20,6 +21,7 @@ const categoryData = [
         id: 'categoryId-3',
         attributes: {
             id: 'categoryId3',
+            type: 'page',
         },
         translated: {
             name: 'categoryName-3',
@@ -30,6 +32,7 @@ const categoryData = [
         id: 'categoryId-4',
         attributes: {
             id: 'categoryId-4',
+            type: 'folder',
         },
         translated: {
             name: 'categoryName-4',
@@ -66,13 +69,14 @@ responses.addResponse({
     },
 });
 
-async function createWrapper() {
+async function createWrapper(props = {}) {
     return mount(await wrapTestComponent('sw-category-tree-field', { sync: true }), {
         attachTo: document.body,
         props: {
             placeholder: 'some-placeholder',
             categoriesCollection: createCategoryCollection(),
             pageId: '123',
+            ...props,
         },
         global: {
             stubs: {
@@ -88,13 +92,16 @@ async function createWrapper() {
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'sw-popover': await wrapTestComponent('sw-popover'),
-                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated'),
                 'sw-tree': await wrapTestComponent('sw-tree'),
                 'sw-tree-item': await wrapTestComponent('sw-tree-item'),
                 'sw-loader': true,
                 'sw-color-badge': true,
-                'mt-floating-ui': true,
+                'sw-skeleton': true,
+                'sw-vnode-renderer': true,
+                'sw-context-button': true,
+                'sw-context-menu-item': true,
+                'sw-confirm-field': true,
+                'sw-tree-input-field': true,
             },
             provide: {
                 globalCategoryRepository: {
@@ -113,13 +120,6 @@ async function createWrapper() {
 }
 
 describe('src/app/component/entity/sw-category-tree-field', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should close the dropdown when selecting in the single select mode', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -142,6 +142,37 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
             checked: true,
             data: { translated: { name: 'some-data' } },
         });
+        await flushPromises();
+
+        expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
+    });
+
+    it('should toggle the dropdown with the expand indicator', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const indicator = wrapper.get('.sw-category-tree-field__expand-indicator');
+        expect(indicator.classes()).toContain('is--collapsed');
+
+        await indicator.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(true);
+        expect(wrapper.get('.sw-category-tree-field__expand-indicator').classes()).not.toContain('is--collapsed');
+        expect(document.activeElement).toBe(wrapper.get('.sw-category-tree__input-field').element);
+
+        await wrapper.get('.sw-category-tree-field__expand-indicator').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
+        expect(wrapper.get('.sw-category-tree-field__expand-indicator').classes()).toContain('is--collapsed');
+    });
+
+    it('should not open the dropdown with the expand indicator when disabled', async () => {
+        const wrapper = await createWrapper({ disabled: true });
+        await flushPromises();
+
+        await wrapper.get('.sw-category-tree-field__expand-indicator').trigger('click');
         await flushPromises();
 
         expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
@@ -182,6 +213,8 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
         wrapper.vm.removeItem(intitalCategories[0]);
 
         expect(wrapper.vm.categoriesCollection).toHaveLength(1);
+        expect(wrapper.emitted('update:categoriesCollection')).toHaveLength(1);
+        expect(wrapper.emitted('update:categoriesCollection')[0][0]).toHaveLength(1);
     });
 
     it('should display more the category items', async () => {
@@ -260,5 +293,29 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
         expect(wrapper.vm.selectedCategoriesItemsIds).toHaveLength(2);
         expect(wrapper.vm.selectedCategoriesItemsIds[0]).toBe('categoryId-2');
         expect(wrapper.vm.selectedCategoriesItemsIds[1]).toBe('categoryId-4');
+    });
+
+    it('should disable categories not included in allowedTypes list', async () => {
+        const wrapper = await createWrapper({
+            categoriesCollection: createCategoryCollection(categoryData),
+            allowedTypes: ['page'],
+        });
+
+        await flushPromises();
+
+        await wrapper.find('.sw-category-tree__input-field').trigger('focus');
+
+        await wrapper.vm.$nextTick();
+        await flushPromises();
+
+        const documentBody = new DOMWrapper(document.body);
+        const items = documentBody.findAll('.sw-tree-item');
+        expect(items).toHaveLength(categoryData.length);
+
+        const checkboxes = documentBody.findAll('.mt-field--checkbox');
+        const disabledCheckboxes = documentBody.findAll('.mt-field--checkbox.is--disabled');
+
+        expect(checkboxes).toHaveLength(categoryData.length);
+        expect(disabledCheckboxes).toHaveLength(1);
     });
 });

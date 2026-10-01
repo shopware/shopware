@@ -5,11 +5,10 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1656928097AddNewsletterRecipientEmailIndex extends MigrationStep
@@ -21,8 +20,7 @@ class Migration1656928097AddNewsletterRecipientEmailIndex extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $existingIndexes = $connection->createSchemaManager()->listTableIndexes('newsletter_recipient');
-        if (isset($existingIndexes['idx.newsletter_recipient.email'])) {
+        if (TableHelper::indexExists($connection, 'newsletter_recipient', 'idx.newsletter_recipient.email')) {
             return;
         }
 

@@ -57,7 +57,7 @@ class LastNameRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setLastName($customerName ?? '');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
         $cart = new Cart('test');
         $scope = new CartRuleScope($cart, $context);
@@ -78,7 +78,7 @@ class LastNameRuleTest extends TestCase
         $operators = RuleConfig::OPERATOR_SET_STRING;
         $operators[] = Rule::OPERATOR_EMPTY;
 
-        static::assertEquals([
+        static::assertSame([
             'operators' => $operators,
             'isMatchAny' => false,
         ], $configData['operatorSet']);
@@ -88,7 +88,7 @@ class LastNameRuleTest extends TestCase
     {
         $scope = new CartRuleScope(
             new Cart('test'),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $this->rule->assign(['lastName' => 'shopware', 'operator' => Rule::OPERATOR_EQ]);
@@ -99,7 +99,7 @@ class LastNameRuleTest extends TestCase
     {
         $scope = new CartRuleScope(
             new Cart('test'),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $this->rule->assign(['lastName' => 'shopware', 'operator' => Rule::OPERATOR_EMPTY]);
@@ -111,7 +111,7 @@ class LastNameRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setLastName('shopware');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $context->method('getCustomer')->willReturn($customer);
         $cart = new Cart('test');
         $scope = new CartRuleScope($cart, $context);
@@ -128,7 +128,7 @@ class LastNameRuleTest extends TestCase
 
     public function testInvalidScopeIsFalse(): void
     {
-        $invalidScope = $this->createMock(RuleScope::class);
+        $invalidScope = static::createStub(RuleScope::class);
         $this->rule->assign(['lastName' => 'shopware', 'operator' => Rule::OPERATOR_EQ]);
         static::assertFalse($this->rule->match($invalidScope));
     }

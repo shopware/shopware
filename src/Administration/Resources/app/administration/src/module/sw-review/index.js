@@ -1,14 +1,14 @@
 /**
- * @sw-package inventory
+ * @sw-package after-sales
  */
 import './acl';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-review-list', () => import('./page/sw-review-list'));
 Shopware.Component.register('sw-review-detail', () => import('./page/sw-review-detail'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-review', {
@@ -18,9 +18,9 @@ Module.register('sw-review', {
     description: 'sw-review.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#57D9A3',
-    icon: 'regular-products',
-    favicon: 'icon-module-products.png',
+    color: 'var(--sw-color-module-green-default)',
+    icon: 'regular-star',
+    favicon: 'icon-module-products.svg',
     entity: 'product_review',
 
     routes: {
@@ -47,9 +47,9 @@ Module.register('sw-review', {
         {
             id: 'sw-review',
             label: 'sw-review.general.mainMenuItemList',
-            color: '#57D9A3',
+            color: 'var(--sw-color-module-green-default)',
             path: 'sw.review.index',
-            icon: 'regular-products',
+            icon: 'regular-star',
             parent: 'sw-catalogue',
             position: 20,
             privilege: 'review.viewer',

@@ -8,15 +8,17 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\DeleteCascadeChildDefinition;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\DeleteCascadeManyToOneDefinition;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Write\Entity\DeleteCascadeParentDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Fixture\Delete\DeleteCascadeChildDefinition;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Fixture\Delete\DeleteCascadeManyToOneDefinition;
+use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Fixture\Delete\DeleteCascadeParentDefinition;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class DeleteTest extends TestCase
 {
     use IntegrationTestBehaviour;

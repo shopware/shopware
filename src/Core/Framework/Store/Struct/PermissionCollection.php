@@ -3,12 +3,11 @@
 namespace Shopware\Core\Framework\Store\Struct;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Helper\PermissionCategorization;
 
 /**
- * @codeCoverageIgnore
- *
  * @template-extends StoreCollection<PermissionStruct>
  *
  * @phpstan-type PermissionArray array{entity: string, operation: AclRoleDefinition::PRIVILEGE_READ|AclRoleDefinition::PRIVILEGE_CREATE|AclRoleDefinition::PRIVILEGE_UPDATE|AclRoleDefinition::PRIVILEGE_DELETE}
@@ -22,7 +21,7 @@ class PermissionCollection extends StoreCollection
     public function __construct(iterable $elements = [])
     {
         $elements = (array) $elements;
-        if (!empty($elements) && $this->hasNoPermissionStructElements($elements)) {
+        if ($elements !== [] && $this->hasNoPermissionStructElements($elements)) {
             /** @phpstan-ignore-next-line PHPStan does not recognize, that $elements does not contain "PermissionStruct" instances at this point, which is checked by "hasNoPermissionStructElements" method */
             $elements = $this->generatePrivileges($elements);
         }
@@ -52,6 +51,7 @@ class PermissionCollection extends StoreCollection
         return $permissionCollections;
     }
 
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]
     protected function getExpectedClass(): ?string
     {
         return PermissionStruct::class;
@@ -104,6 +104,6 @@ class PermissionCollection extends StoreCollection
      */
     private function hasNoPermissionStructElements(array $elements): bool
     {
-        return empty(array_filter($elements, static fn ($element) => $element instanceof PermissionStruct));
+        return array_filter($elements, static fn ($element) => $element instanceof PermissionStruct) === [];
     }
 }

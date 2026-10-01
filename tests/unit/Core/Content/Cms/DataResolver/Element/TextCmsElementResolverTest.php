@@ -14,6 +14,8 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\TextStruct;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,6 +23,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(TextCmsElementResolver::class)]
 class TextCmsElementResolverTest extends TestCase
 {
@@ -28,8 +31,9 @@ class TextCmsElementResolverTest extends TestCase
 
     protected function setUp(): void
     {
-        $htmlSanitizer = new HtmlSanitizer(null, false, ['basic' => ['tags' => ['h1']]]);
-        $this->textResolver = new TextCmsElementResolver($htmlSanitizer);
+        $sanitizer = static::createStub(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturnArgument(0);
+        $this->textResolver = new TextCmsElementResolver($sanitizer);
     }
 
     public function testType(): void
@@ -82,22 +86,26 @@ class TextCmsElementResolverTest extends TestCase
         static::assertSame('lorem ipsum dolor', $textStruct->getContent());
     }
 
-    public function testWithContaminatedStaticContent(): void
+    public function testStaticContentIsDelegatedToSanitizer(): void
     {
-        $resolverContext = $this->createResolverContext();
-        $result = new ElementDataCollection();
+        $contaminated = 'lorem<script>console.log("ipsum dolor")</script>';
+        $sanitized = 'lorem';
+
+        $sanitizer = static::createStub(HtmlSanitizer::class);
+        $sanitizer->method('sanitize')->willReturn($sanitized);
+        $resolver = new TextCmsElementResolver($sanitizer);
 
         $fieldConfig = new FieldConfigCollection();
-        $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, 'lorem<script>console.log("ipsum dolor")</script>'));
+        $fieldConfig->add(new FieldConfig('content', FieldConfig::SOURCE_STATIC, $contaminated));
 
         $slot = $this->createSlot();
         $slot->setFieldConfig($fieldConfig);
 
-        $this->textResolver->enrich($slot, $resolverContext, $result);
+        $resolver->enrich($slot, $this->createResolverContext(), new ElementDataCollection());
 
         $textStruct = $slot->getData();
         static::assertInstanceOf(TextStruct::class, $textStruct);
-        static::assertSame('lorem', $textStruct->getContent());
+        static::assertSame($sanitized, $textStruct->getContent());
     }
 
     public function testWithMappedContent(): void
@@ -272,7 +280,7 @@ class TextCmsElementResolverTest extends TestCase
         $product->setReleaseDate($releaseDate);
         $request = new Request();
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), $request, new ProductDefinition(), $product);
+        $resolverContext = new EntityResolverContext(static::createStub(SalesChannelContext::class), $request, new ProductDefinition(), $product);
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
@@ -292,7 +300,7 @@ class TextCmsElementResolverTest extends TestCase
         $actualReleaseDate = new \DateTime();
         $actualReleaseDate->setTimestamp((int) $formatter->parse($content));
 
-        static::assertEquals($releaseDate, $actualReleaseDate);
+        static::assertSame($releaseDate->format(Defaults::STORAGE_DATE_TIME_FORMAT), $actualReleaseDate->format(Defaults::STORAGE_DATE_TIME_FORMAT));
     }
 
     private function createSlot(): CmsSlotEntity
@@ -307,7 +315,7 @@ class TextCmsElementResolverTest extends TestCase
 
     private function createResolverContextWithProduct(ProductEntity $product): EntityResolverContext
     {
-        return new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), new ProductDefinition(), $product);
+        return new EntityResolverContext(static::createStub(SalesChannelContext::class), new Request(), new ProductDefinition(), $product);
     }
 
     private function createProductEntity(): ProductEntity
@@ -320,6 +328,6 @@ class TextCmsElementResolverTest extends TestCase
 
     private function createResolverContext(): ResolverContext
     {
-        return new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        return new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
     }
 }

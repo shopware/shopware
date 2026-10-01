@@ -9,11 +9,13 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearchHydrator;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElasticsearchEntitySearchHydrator::class)]
 class ElasticsearchEntitySearchHydratorTest extends TestCase
 {
@@ -29,7 +31,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
     public function testHydrateWithEmptyResult(): void
     {
-        $definition = $this->createMock(ProductDefinition::class);
+        $definition = static::createStub(ProductDefinition::class);
         $criteria = new Criteria();
         $result = [
             'hits' => [
@@ -39,13 +41,13 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
-        static::assertEquals(0, $idSearchResult->getTotal());
+        static::assertSame(0, $idSearchResult->getTotal());
         static::assertEmpty($idSearchResult->getIds());
     }
 
     public function testHydrateWithHits(): void
     {
-        $definition = $this->createMock(ProductDefinition::class);
+        $definition = static::createStub(ProductDefinition::class);
         $criteria = new Criteria();
         $result = [
             'hits' => [
@@ -66,13 +68,13 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
-        static::assertEquals(2, $idSearchResult->getTotal());
-        static::assertEquals(['1', '2'], $idSearchResult->getIds());
+        static::assertSame(2, $idSearchResult->getTotal());
+        static::assertSame(['1', '2'], $idSearchResult->getIds());
     }
 
     public function testHydrateWithoutTotal(): void
     {
-        $definition = $this->createMock(ProductDefinition::class);
+        $definition = static::createStub(ProductDefinition::class);
         $criteria = new Criteria();
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NONE);
 
@@ -95,12 +97,12 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
-        static::assertEquals(2, $idSearchResult->getTotal());
+        static::assertSame(2, $idSearchResult->getTotal());
     }
 
     public function testHydrateWithExactTotal(): void
     {
-        $definition = $this->createMock(ProductDefinition::class);
+        $definition = static::createStub(ProductDefinition::class);
         $criteria = new Criteria();
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
@@ -115,7 +117,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
-        static::assertEquals(2, $idSearchResult->getTotal());
+        static::assertSame(2, $idSearchResult->getTotal());
 
         $criteria->addGroupField(new FieldGrouping('displayGroup'));
         $result = [
@@ -131,7 +133,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
-        static::assertEquals(3, $idSearchResult->getTotal());
+        static::assertSame(3, $idSearchResult->getTotal());
 
         $criteria->addPostFilter(new EqualsFilter('field', 'value'));
         $result = [
@@ -149,12 +151,12 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
-        static::assertEquals(3, $idSearchResult->getTotal());
+        static::assertSame(3, $idSearchResult->getTotal());
     }
 
     public function testHydrateWithNestedHits(): void
     {
-        $definition = $this->createMock(ProductDefinition::class);
+        $definition = static::createStub(ProductDefinition::class);
         $criteria = new Criteria();
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
@@ -193,13 +195,13 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
-        static::assertEquals(2, $idSearchResult->getTotal());
-        static::assertEquals(['2', '3'], $idSearchResult->getIds());
+        static::assertSame(2, $idSearchResult->getTotal());
+        static::assertSame(['2', '3'], $idSearchResult->getIds());
     }
 
     public function testHydrateWithIdSorting(): void
     {
-        $definition = $this->createMock(ProductDefinition::class);
+        $definition = static::createStub(ProductDefinition::class);
         $criteria = new Criteria(['2', '1']);
         $result = [
             'hits' => [
@@ -220,7 +222,7 @@ class ElasticsearchEntitySearchHydratorTest extends TestCase
 
         $idSearchResult = $this->hydrator->hydrate($definition, $criteria, $this->context, $result);
 
-        static::assertEquals(2, $idSearchResult->getTotal());
-        static::assertEquals(['2', '1'], $idSearchResult->getIds());
+        static::assertSame(2, $idSearchResult->getTotal());
+        static::assertSame(['2', '1'], $idSearchResult->getIds());
     }
 }

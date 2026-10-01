@@ -4,7 +4,7 @@ import './acl';
  * @sw-package discovery
  */
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-delivery-time-list', () => import('./page/sw-settings-delivery-time-list'));
 Shopware.Component.register('sw-settings-delivery-time-detail', () => import('./page/sw-settings-delivery-time-detail'));
 Shopware.Component.extend(
@@ -12,7 +12,7 @@ Shopware.Component.extend(
     'sw-settings-delivery-time-detail',
     () => import('./page/sw-settings-delivery-time-create'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 const { Module } = Shopware;
 
@@ -22,9 +22,9 @@ Module.register('sw-settings-delivery-time', {
     name: 'settings-delivery-time',
     title: 'sw-settings-delivery-time.general.mainMenuItemGeneral',
     description: 'sw-settings-delivery-time.general.description',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    color: 'var(--sw-color-module-neutral-default)',
+    icon: 'regular-clock',
+    favicon: 'icon-module-settings.svg',
     entity: 'delivery_time',
 
     routes: {

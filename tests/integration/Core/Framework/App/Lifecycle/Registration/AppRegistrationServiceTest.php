@@ -5,32 +5,38 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Registration;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Exception\AppRegistrationException;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
-use Shopware\Core\Framework\App\Lifecycle\Persister\PermissionPersister;
+use Shopware\Core\Framework\App\Lifecycle\PermissionLifecycleService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\AppRegistrationService;
 use Shopware\Core\Framework\App\Lifecycle\Registration\HandshakeFactory;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Manifest\Xml\Permission\Permissions;
+use Shopware\Core\Framework\App\ShopId\FingerprintComparisonResult;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Services\StoreClient;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\App\TestAppServer;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class AppRegistrationServiceTest extends TestCase
 {
     use GuzzleTestClientBehaviour;
@@ -103,7 +109,7 @@ class AppRegistrationServiceTest extends TestCase
         static::assertSame($integration->getAccessKey(), $postBody['apiKey']);
 
         static::assertSame($_SERVER['APP_URL'], $postBody['shopUrl']);
-        static::assertSame($this->shopIdProvider->getShopId(), $postBody['shopId']);
+        static::assertSame($this->shopIdProvider->getShopId()->id, $postBody['shopId']);
 
         $json = \json_encode($postBody, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
@@ -112,6 +118,10 @@ class AppRegistrationServiceTest extends TestCase
             \hash_hmac('sha256', $json, $appSecret),
             $confirmationReq->getHeaderLine('shopware-shop-signature')
         );
+
+        // A fresh install has no earlier secret, so it must NOT send the previous-signature header that a
+        // re-registration uses.
+        static::assertFalse($confirmationReq->hasHeader('shopware-shop-signature-previous'));
 
         static::assertNotEmpty($confirmationReq->getHeaderLine('sw-version'));
         static::assertNotEmpty($registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
@@ -137,36 +147,44 @@ class AppRegistrationServiceTest extends TestCase
 
     public function testRegistrationFailsWithWrongProof(): void
     {
+        $id = Uuid::randomHex();
+        $this->createApp($id);
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
 
         $this->appendNewResponse(new Response(200, [], '{"proof": "wrong proof"}'));
 
         static::expectException(AppRegistrationException::class);
-        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+        $this->registrator->registerApp($manifest, $id, '', Context::createDefaultContext());
     }
 
     public function testRegistrationFailsWithWrongProofAsArray(): void
     {
+        $id = Uuid::randomHex();
+        $this->createApp($id);
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
 
         $this->appendNewResponse(new Response(200, [], '{"proof": ["wrong proof"]}'));
 
         static::expectException(AppRegistrationException::class);
-        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+        $this->registrator->registerApp($manifest, $id, '', Context::createDefaultContext());
     }
 
     public function testRegistrationFailsWithoutProof(): void
     {
+        $id = Uuid::randomHex();
+        $this->createApp($id);
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
 
         $this->appendNewResponse(new Response(200, [], '{}'));
 
         static::expectException(AppRegistrationException::class);
-        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+        $this->registrator->registerApp($manifest, $id, '', Context::createDefaultContext());
     }
 
     public function testRegistrationFailsIfRegistrationRequestIsNotHTTP200(): void
     {
+        $id = Uuid::randomHex();
+        $this->createApp($id);
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
 
         $appSecret = 'dont_tell';
@@ -175,10 +193,10 @@ class AppRegistrationServiceTest extends TestCase
         $this->appendNewResponse(new Response(500, [], $appResponseBody));
 
         static::expectException(AppRegistrationException::class);
-        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+        $this->registrator->registerApp($manifest, $id, '', Context::createDefaultContext());
     }
 
-    public function testRegistrationFailsIfAppUrlChangeWasDetected(): void
+    public function testRegistrationFailsIfShopIdFingerprintsHaveChanged(): void
     {
         $id = Uuid::randomHex();
         $secretAccessKey = AccessKeyHelper::generateSecretAccessKey();
@@ -187,7 +205,7 @@ class AppRegistrationServiceTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
 
         $appSecret = 'dont_tell';
-        $shopId = Uuid::randomHex();
+        $shopId = ShopId::v2(Uuid::randomHex());
         $appResponseBody = $this->buildAppResponse($manifest, $appSecret, $shopId);
 
         $this->appendNewResponse(new Response(200, [], $appResponseBody));
@@ -207,13 +225,14 @@ class AppRegistrationServiceTest extends TestCase
             $this->shopUrl,
             $shopIdProviderMock,
             static::getContainer()->get(StoreClient::class),
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            new NativeClock()
         );
 
         $shopIdMock = $this->createMock(ShopIdProvider::class);
         $shopIdMock->expects($this->once())
             ->method('getShopId')
-            ->willThrowException(new AppUrlChangeDetectedException('https://test.com', 'https://new.com', $shopId));
+            ->willThrowException(new ShopIdChangeSuggestedException($shopId, new FingerprintComparisonResult([], [], 75)));
 
         $registrator = new AppRegistrationService(
             $handshakeFactory,
@@ -221,20 +240,23 @@ class AppRegistrationServiceTest extends TestCase
             static::getContainer()->get('app.repository'),
             $this->shopUrl,
             $shopIdMock,
-            Kernel::SHOPWARE_FALLBACK_VERSION
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            new NativeClock(),
+            new NullLogger(),
         );
 
         static::expectException(AppRegistrationException::class);
         $registrator->registerApp($manifest, $id, $secretAccessKey, Context::createDefaultContext());
     }
 
-    // currently not implemented
     public function testRegisterStoreApp(): void
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
 
-        static::expectException(\RuntimeException::class);
-        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+        $id = Uuid::randomHex();
+        $this->createApp($id);
+
+        $this->registrator->registerApp($manifest, $id, '', Context::createDefaultContext());
 
         $registrationRequest = $this->getPastRequest(0);
         $confirmationRequest = $this->getPastRequest(1);
@@ -248,20 +270,24 @@ class AppRegistrationServiceTest extends TestCase
 
     public function testDoesNotRegisterIfNoSetupElementIsProvided(): void
     {
+        $id = Uuid::randomHex();
+        $this->createApp($id);
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/no-setup/manifest.xml');
 
         // mockHandler would throw if it tries to make a registration request
-        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+        $this->registrator->registerApp($manifest, $id, '', Context::createDefaultContext());
     }
 
     public function testRegistrationFailsWithError(): void
     {
+        $id = Uuid::randomHex();
+        $this->createApp($id);
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/_fixtures/minimal/manifest.xml');
 
         $this->appendNewResponse(new Response(500, [], '{"error": "Shop url is not met"}'));
 
         static::expectException(AppRegistrationException::class);
-        $this->registrator->registerApp($manifest, '', '', Context::createDefaultContext());
+        $this->registrator->registerApp($manifest, $id, '', Context::createDefaultContext());
     }
 
     public function testConfirmRegistrationFailsWithError(): void
@@ -285,6 +311,7 @@ class AppRegistrationServiceTest extends TestCase
     {
         $roleId = Uuid::randomHex();
 
+        $context = Context::createDefaultContext();
         $this->appRepository->create([[
             'id' => $id,
             'name' => 'SwagApp',
@@ -306,19 +333,19 @@ class AppRegistrationServiceTest extends TestCase
                 'id' => $roleId,
                 'name' => 'SwagApp',
             ],
-        ]], Context::createDefaultContext());
+        ]], $context);
 
-        $permissionPersister = static::getContainer()->get(PermissionPersister::class);
+        $permissionLifecycle = static::getContainer()->get(PermissionLifecycleService::class);
         $permissions = Permissions::fromArray([
             'permissions' => [
                 'product' => ['update'],
             ],
         ]);
 
-        $permissionPersister->updatePrivileges($permissions, $roleId);
+        $permissionLifecycle->updatePrivileges($permissions, $id, true, $context);
     }
 
-    private function buildAppResponse(Manifest $manifest, string $appSecret, ?string $shopId = null): string
+    private function buildAppResponse(Manifest $manifest, string $appSecret, ?ShopId $shopId = null): string
     {
         if (!$shopId) {
             $shopId = $this->shopIdProvider->getShopId();
@@ -331,7 +358,7 @@ class AppRegistrationServiceTest extends TestCase
 
         $proof = \hash_hmac(
             'sha256',
-            $shopId . $this->shopUrl . $manifest->getMetadata()->getName(),
+            $shopId->id . $this->shopUrl . $manifest->getMetadata()->getName(),
             $secret
         );
 

@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\MigrationFileRenderer;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MigrationFileRenderer::class)]
 class MigrationFileRendererTest extends TestCase
 {
@@ -41,6 +43,6 @@ class MigrationFileRendererTest extends TestCase
 
         $result = MigrationFileRenderer::createMigrationClassName($timestamp, $entity);
 
-        static::assertEquals('Migration20231117120000TestEntity', $result);
+        static::assertSame('Migration20231117120000TestEntity', $result);
     }
 }

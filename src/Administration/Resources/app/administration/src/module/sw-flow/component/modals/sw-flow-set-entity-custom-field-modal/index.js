@@ -13,20 +13,11 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'flowBuilderService',
-    ],
+    inject: ['repositoryFactory', 'flowBuilderService'],
 
-    emits: [
-        'modal-close',
-        'process-finish',
-    ],
+    emits: ['modal-close', 'process-finish'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName('notification')],
 
     props: {
         sequence: {
@@ -93,15 +84,15 @@ export default {
             return [
                 {
                     value: 'upsert',
-                    label: `${this.$tc('sw-flow.modals.setEntityCustomField.options.overwrite')}`,
+                    label: `${this.$t('sw-flow.modals.setEntityCustomField.options.overwrite')}`,
                 },
                 {
                     value: 'create',
-                    label: `${this.$tc('sw-flow.modals.setEntityCustomField.options.notOverwrite')}`,
+                    label: `${this.$t('sw-flow.modals.setEntityCustomField.options.notOverwrite')}`,
                 },
                 {
                     value: 'clear',
-                    label: `${this.$tc('sw-flow.modals.setEntityCustomField.options.clear')}`,
+                    label: `${this.$t('sw-flow.modals.setEntityCustomField.options.clear')}`,
                 },
             ];
         },
@@ -111,11 +102,11 @@ export default {
                 ...this.defaultFieldOptions,
                 {
                     value: 'add',
-                    label: `${this.$tc('global.default.add')}`,
+                    label: `${this.$t('global.default.add')}`,
                 },
                 {
                     value: 'remove',
-                    label: `${this.$tc('global.default.remove')}`,
+                    label: `${this.$t('global.default.remove')}`,
                 },
             ];
         },
@@ -195,7 +186,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                     });
                 })
                 .finally(() => {
@@ -211,10 +202,7 @@ export default {
             if (!customFieldSet) {
                 return;
             }
-            Shopware.Store.get('swFlow').customFieldSets = [
-                ...this.customFieldSets,
-                customFieldSet,
-            ];
+            Shopware.Store.get('swFlow').customFieldSets = [...this.customFieldSets, customFieldSet];
             this.customFieldId = null;
             this.customFieldValue = null;
             this.renderedFieldConfig = {};
@@ -226,10 +214,7 @@ export default {
             }
             this.customField = customField;
 
-            Shopware.Store.get('swFlow').customFields = [
-                ...this.customFields,
-                customField,
-            ];
+            Shopware.Store.get('swFlow').customFields = [...this.customFields, customField];
             this.customFieldValue = null;
             this.renderedFieldConfig = this.validateOptionSelectFieldLabel(customField.config);
             if (this.renderedFieldConfig.componentName === 'sw-entity-multi-id-select') {
@@ -307,7 +292,6 @@ export default {
             }
 
             const allowedAware = this.triggerEvent.aware ?? [];
-            // eslint-disable-next-line max-len
             const options = this.flowBuilderService.getAvailableEntities(this.action, this.triggerActions, allowedAware, [
                 'customFields',
             ]);

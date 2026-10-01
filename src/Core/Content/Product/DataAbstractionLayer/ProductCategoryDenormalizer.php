@@ -31,7 +31,7 @@ class ProductCategoryDenormalizer
         $ids = array_unique(\array_filter($ids));
         $allIds = [];
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -48,13 +48,13 @@ class ProductCategoryDenormalizer
             $categoryIds = $this->mapCategories($mapping);
 
             $json = null;
-            if (!empty($categoryIds)) {
+            if ($categoryIds !== []) {
                 $json = json_encode($categoryIds, \JSON_THROW_ON_ERROR);
             }
 
             $updates[] = ['id' => $productId, 'tree' => $json, 'version' => $versionId];
 
-            if (empty($categoryIds)) {
+            if ($categoryIds === []) {
                 continue;
             }
 
@@ -92,7 +92,7 @@ class ProductCategoryDenormalizer
      */
     private function insertTree(array $inserts): void
     {
-        if (empty($inserts)) {
+        if ($inserts === []) {
             return;
         }
 
@@ -132,13 +132,21 @@ class ProductCategoryDenormalizer
 
         $query->addGroupBy('product.id');
 
+        // Performance optimization: Reduce the number of products to check by filtering for products via indexed columns
+        $query->andWhere('product.id IN (:ids) OR product.parent_id IN (:ids)');
+
+        // This where condition alone leads to a full table scan, which will be very slow on large datasets,
+        // therefore we already filter for product.id and product.parent_id above (which is indexed and therefore much faster)
+        // product.categories will only ever contain the product id (for non-variant products, or when categories are not inherited)
+        // or the parent id (for variant products inheriting categories from their parent)
         $query->andWhere('product.categories IN (:ids)');
+
         $query->andWhere('product.version_id = :version');
 
         $query->setParameter('version', Uuid::fromHexToBytes($context->getVersionId()));
         $query->setParameter('live', Uuid::fromHexToBytes(Defaults::LIVE_VERSION));
 
-        $bytes = array_map(fn (string $id) => Uuid::fromHexToBytes($id), $ids);
+        $bytes = array_map(static fn (string $id) => Uuid::fromHexToBytes($id), $ids);
 
         $query->setParameter('ids', $bytes, ArrayParameterType::BINARY);
 

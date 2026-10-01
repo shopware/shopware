@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractAccountNewsletterRecipi
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterUnsubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
@@ -70,7 +71,7 @@ class NewsletterAccountPageletLoader
         CustomerEntity $customer
     ): NewsletterAccountPagelet {
         $subscribeOptions = [NewsletterSubscribeRoute::OPTION_DIRECT, NewsletterSubscribeRoute::OPTION_SUBSCRIBE];
-        $doSubscribe = \in_array($request->get('option', false), $subscribeOptions, true);
+        $doSubscribe = \in_array(RequestParamHelper::get($request, 'option', false), $subscribeOptions, true);
 
         if (!$doSubscribe) {
             $dataBag->set('option', NewsletterSubscribeRoute::OPTION_UNSUBSCRIBE);
@@ -108,7 +109,7 @@ class NewsletterAccountPageletLoader
     protected function subscribe(RequestDataBag $dataBag, CustomerEntity $customer, SalesChannelContext $context, NewsletterAccountPagelet $newsletterAccountPagelet): NewsletterAccountPagelet
     {
         try {
-            $this->newsletterSubscribeRoute->subscribe(
+            $this->newsletterSubscribeRoute->subscribeWithResponse(
                 $this->hydrateFromCustomer($dataBag, $customer),
                 $context,
                 false
@@ -146,7 +147,7 @@ class NewsletterAccountPageletLoader
     protected function unsubscribe(RequestDataBag $dataBag, CustomerEntity $customer, SalesChannelContext $context, NewsletterAccountPagelet $newsletterAccountPagelet): NewsletterAccountPagelet
     {
         try {
-            $this->newsletterUnsubscribeRoute->unsubscribe(
+            $this->newsletterUnsubscribeRoute->unsubscribeWithResponse(
                 $this->hydrateFromCustomer($dataBag, $customer),
                 $context
             );
@@ -202,7 +203,7 @@ class NewsletterAccountPageletLoader
         $newsletterAccountPagelet = new NewsletterAccountPagelet();
         $newsletterAccountPagelet->setCustomer($customer);
         $newsletterAccountPagelet->setNewsletterDoi(
-            (bool) $this->systemConfigService->get('core.newsletter.doubleOptInRegistered', $salesChannelId)
+            $this->systemConfigService->getBool('core.newsletter.doubleOptInRegistered', $salesChannelId)
         );
 
         return $newsletterAccountPagelet;

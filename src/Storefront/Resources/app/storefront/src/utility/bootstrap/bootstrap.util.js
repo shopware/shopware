@@ -27,8 +27,17 @@ export default class BootstrapUtil {
         });
     }
 
+    /**
+     * Using increased default offset to avoid focus outline being cut off by the dropdown menu.
+     * @see https://getbootstrap.com/docs/5.3/components/dropdowns/#options
+     */
+    static setDropdownDefaultOffset() {
+        bootstrap.Dropdown.Default.offset = [0, 6];
+    }
+
     static initBootstrapPlugins() {
         this.initTooltip();
         this.initPopover();
+        this.setDropdownDefaultOffset();
     }
 }

@@ -14,16 +14,12 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'grid-channel-add',
-        'grid-detail-open',
-    ],
+    emits: ['grid-channel-add', 'grid-detail-open'],
 
     props: {
         productStreamsExist: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -64,7 +60,9 @@ export default {
                 ...Shopware.Context.api,
                 languageId: Shopware.Store.get('session').languageId,
             };
-            this.salesChannelTypeRepository.search(new Criteria(1, 500), context).then((response) => {
+            const criteria = new Criteria(1, 500);
+
+            this.salesChannelTypeRepository.search(criteria, context).then((response) => {
                 this.total = response.total;
                 this.salesChannelTypes = response;
                 this.isLoading = false;
@@ -80,8 +78,39 @@ export default {
             this.$emit('grid-detail-open', detailType);
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        isAgenticCommerceSalesChannelType(salesChannelTypeId) {
+            return salesChannelTypeId === Defaults.agenticCommerceTypeId;
+        },
+
         isProductComparisonSalesChannelType(salesChannelTypeId) {
             return salesChannelTypeId === Defaults.productComparisonTypeId;
+        },
+
+        getTooltip(item) {
+            const isDisabledAgenticCommerceType =
+                !this.showAgenticCommerceType() && this.isAgenticCommerceSalesChannelType(item.id);
+            const messageKey = isDisabledAgenticCommerceType
+                ? 'sw-sales-channel.modal.messageAgenticCommerce'
+                : 'sw-sales-channel.modal.messageNoProductStreams';
+
+            return {
+                message: this.$t(messageKey),
+                showOnDisabledElements: true,
+                disabled: !this.isDisabled(item),
+            };
+        },
+
+        isDisabled(item) {
+            return (
+                this.addChannelAction.disabled(item.id) ||
+                (!this.showAgenticCommerceType() && this.isAgenticCommerceSalesChannelType(item.id))
+            );
+        },
+
+        /** @deprecated tag:v6.8.0 - Will be removed */
+        showAgenticCommerceType() {
+            return !!Shopware.Context.app.config.bundles?.SwagAgenticCommerce;
         },
     },
 };

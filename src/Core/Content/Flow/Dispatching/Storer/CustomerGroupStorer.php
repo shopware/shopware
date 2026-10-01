@@ -2,15 +2,16 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Storer;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Events\BeforeLoadStorableFlowDataEvent;
-use Shopware\Core\Framework\Context;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\CustomerGroupProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Event\CustomerGroupAware;
 use Shopware\Core\Framework\Event\FlowEventAware;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -19,10 +20,13 @@ class CustomerGroupStorer extends FlowStorer
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerGroupCollection> $customerGroupRepository
      */
     public function __construct(
         private readonly EntityRepository $customerGroupRepository,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly CustomerGroupProvider $customerGroupProvider,
     ) {
     }
 
@@ -63,28 +67,26 @@ class CustomerGroupStorer extends FlowStorer
             return null;
         }
 
-        $criteria = new Criteria([$id]);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria = $this->customerGroupProvider->getCriteria($id, $storableFlow->getContext());
 
-        return $this->loadCustomerGroup($criteria, $storableFlow->getContext(), $id);
-    }
+            $event = new BeforeLoadStorableFlowDataEvent(
+                CustomerGroupDefinition::ENTITY_NAME,
+                $criteria,
+                $storableFlow->getContext(),
+            );
 
-    private function loadCustomerGroup(Criteria $criteria, Context $context, string $id): ?CustomerGroupEntity
-    {
-        $event = new BeforeLoadStorableFlowDataEvent(
-            CustomerGroupDefinition::ENTITY_NAME,
-            $criteria,
-            $context,
-        );
+            $this->dispatcher->dispatch($event, $event->getName());
 
-        $this->dispatcher->dispatch($event, $event->getName());
+            $customerGroup = $this->customerGroupRepository->search($criteria, $storableFlow->getContext())->getEntities()->get($id);
 
-        $customerGroup = $this->customerGroupRepository->search($criteria, $context)->get($id);
+            if ($customerGroup) {
+                return $customerGroup;
+            }
 
-        if ($customerGroup) {
-            /** @var CustomerGroupEntity $customerGroup */
-            return $customerGroup;
+            return null;
         }
 
-        return null;
+        return $this->customerGroupProvider->getData($id, $storableFlow->getContext());
     }
 }

@@ -6,8 +6,10 @@ use Shopware\Core\DevOps\Docs\ArrayWriter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Webhook\Hookable;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
+use Shopware\Core\Framework\Webhook\Authorization\Subscription\Subscriber;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventCollector;
+use Shopware\Core\Framework\Webhook\Hookable\HookableEventDescriber;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -16,11 +18,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'docs:app-system-events',
     description: 'Dump the app events',
 )]
-#[Package('framework')]
 class DocsAppEventCommand extends Command
 {
     private const EVENT_DOCUMENT_PATH = __DIR__ . '/../../Resources/generated/webhook-events-reference.md';
@@ -31,10 +33,14 @@ class DocsAppEventCommand extends Command
 
     /**
      * @internal
+     *
+     * @param iterable<HookableEventDescriber> $hookableEventDescribers
      */
     public function __construct(
         private readonly BusinessEventCollector $businessEventCollector,
         private readonly HookableEventCollector $hookableEventCollector,
+        private readonly PolicyRegistry $policies,
+        private readonly iterable $hookableEventDescribers,
         private readonly Environment $twig
     ) {
         parent::__construct();
@@ -77,13 +83,13 @@ class DocsAppEventCommand extends Command
         $io->section('Generates documentation for all events that can be registered as webhook');
 
         file_put_contents(
-            self::EVENT_DOCUMENT_PATH,
+            $this->getListEventPath(),
             $this->render()
         );
 
         $io->success('All events were generated successfully');
 
-        $io->note(self::EVENT_DOCUMENT_PATH);
+        $io->note($this->getListEventPath());
 
         return self::SUCCESS;
     }
@@ -102,6 +108,11 @@ class DocsAppEventCommand extends Command
         $eventDoc = new ArrayWriter(self::EVENT_DESCRIPTIONS);
 
         foreach ($businessEvents as $event) {
+            // Events no policy permits for a generic subscriber never deliver; don't document them.
+            if (!$this->policies->permitsSubscription($event->getName(), Subscriber::none())) {
+                continue;
+            }
+
             $eventDoc->ensure($event->getName());
 
             $eventsDoc[] = HookableEventDoc::fromBusinessEvent(
@@ -130,13 +141,21 @@ class DocsAppEventCommand extends Command
      */
     private function collectHookables(array &$eventsDoc): void
     {
-        foreach (Hookable::HOOKABLE_EVENTS as $class => $eventName) {
-            $eventsDoc[] = new HookableEventDoc(
-                $eventName,
-                Hookable::HOOKABLE_EVENTS_DESCRIPTION[$class],
-                Hookable::HOOKABLE_EVENTS_PRIVILEGES[$class] ? '`' . implode('` `', Hookable::HOOKABLE_EVENTS_PRIVILEGES[$class]) . '`' : '-',
-                null,
-            );
+        foreach ($this->hookableEventDescribers as $describer) {
+            foreach ($describer->describe() as $eventDescription) {
+                if (!$this->policies->permitsSubscription($eventDescription->eventName, Subscriber::none())) {
+                    continue;
+                }
+
+                $permissions = $eventDescription->privileges ? '`' . implode('` `', $eventDescription->privileges) . '`' : '-';
+
+                $eventsDoc[] = new HookableEventDoc(
+                    $eventDescription->eventName,
+                    $eventDescription->description,
+                    $permissions,
+                    null,
+                );
+            }
         }
     }
 }

@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\System\SystemConfig\Validation;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
@@ -10,6 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
 
@@ -17,14 +19,13 @@ use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(SystemConfigValidator::class)]
 class SystemConfigValidatorTest extends TestCase
 {
     use KernelTestBehaviour;
 
     /**
-     * @param array<string, array<string, string|int|null>> $inputValues
-     * @param array{elements: array{config: array<string, int|string|bool>, name: string}[]} $formConfigs
+     * @param array<string, array<string, string|null>> $inputValues
+     * @param list<SystemConfigTab> $formConfigs
      */
     #[DataProvider('validateProvider')]
     public function testValidate(array $inputValues, array $formConfigs, bool $expectErrors): void
@@ -32,24 +33,52 @@ class SystemConfigValidatorTest extends TestCase
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
         $validator = new SystemConfigValidator(
             $configurationServiceMock,
-            $this->getContainer()->get(DataValidator::class)
+            self::getContainer()->get(DataValidator::class)
         );
 
         $configurationServiceMock
             ->expects($this->once())
-            ->method('getConfiguration')
+            ->method('getSystemConfigDefinition')
             ->willReturn($formConfigs);
 
         $contextMock = Context::createDefaultContext();
 
         if ($expectErrors) {
-            self::expectException(ConstraintViolationException::class);
+            $this->expectException(ConstraintViolationException::class);
         }
         $validator->validate($inputValues, $contextMock);
     }
 
+    /**
+     * @return \Generator<string, array{
+     *     inputValues: array<string, array<string, string|null>>,
+     *     formConfigs: list<SystemConfigTab>,
+     *     expectErrors: bool
+     * }>
+     */
     public static function validateProvider(): \Generator
     {
+        $dummyFieldTab = new SystemConfigTab(
+            [
+                new SystemConfigCard(
+                    [
+                        new SystemConfigElement(
+                            'dummyField',
+                            [
+                                'required' => true,
+                                'maxLength' => 255,
+                            ],
+                            'text',
+                        ),
+                    ],
+                    [
+                        'en-GB' => 'Dummy field',
+                        'de-DE' => 'Dummy field',
+                    ]
+                ),
+            ]
+        );
+
         yield 'Validate success with required rule' => [
             'inputValues' => [
                 'null' => [
@@ -57,17 +86,7 @@ class SystemConfigValidatorTest extends TestCase
                 ],
             ],
             'formConfigs' => [
-                [
-                    'elements' => [
-                        [
-                            'name' => 'dummyField',
-                            'config' => [
-                                'required' => true,
-                                'maxLength' => 255,
-                            ],
-                        ],
-                    ],
-                ],
+                $dummyFieldTab,
             ],
             'expectErrors' => false,
         ];
@@ -79,17 +98,7 @@ class SystemConfigValidatorTest extends TestCase
                 ],
             ],
             'formConfigs' => [
-                [
-                    'elements' => [
-                        [
-                            'name' => 'dummyField',
-                            'config' => [
-                                'required' => true,
-                                'maxLength' => 255,
-                            ],
-                        ],
-                    ],
-                ],
+                $dummyFieldTab,
             ],
             'expectErrors' => true,
         ];
@@ -101,17 +110,7 @@ class SystemConfigValidatorTest extends TestCase
                 ],
             ],
             'formConfigs' => [
-                [
-                    'elements' => [
-                        [
-                            'name' => 'dummyField',
-                            'config' => [
-                                'required' => true,
-                                'maxLength' => 255,
-                            ],
-                        ],
-                    ],
-                ],
+                $dummyFieldTab,
             ],
             'expectErrors' => true,
         ];
@@ -123,17 +122,7 @@ class SystemConfigValidatorTest extends TestCase
                 ],
             ],
             'formConfigs' => [
-                [
-                    'elements' => [
-                        [
-                            'name' => 'dummyField',
-                            'config' => [
-                                'required' => true,
-                                'maxLength' => 255,
-                            ],
-                        ],
-                    ],
-                ],
+                $dummyFieldTab,
             ],
             'expectErrors' => false,
         ];
@@ -145,14 +134,23 @@ class SystemConfigValidatorTest extends TestCase
                 ],
             ],
             'formConfigs' => [
-                [
-                    'elements' => [
-                        [
-                            'name' => 'core.basicInformation.dummyKey',
-                            'config' => [],
-                        ],
-                    ],
-                ],
+                new SystemConfigTab(
+                    [
+                        new SystemConfigCard(
+                            [
+                                new SystemConfigElement(
+                                    'core.basicInformation.dummyKey',
+                                    [],
+                                    'text',
+                                ),
+                            ],
+                            [
+                                'en-GB' => 'Basic configuration',
+                                'de-DE' => 'Grundeinstellungen',
+                            ]
+                        ),
+                    ]
+                ),
             ],
             'expectErrors' => false,
         ];
@@ -164,24 +162,34 @@ class SystemConfigValidatorTest extends TestCase
                 ],
             ],
             'formConfigs' => [
-                [
-                    'elements' => [
-                        [
-                            'name' => 'core.basicInformation.dummyKey',
-                            'config' => [
-                                'required' => true,
-                                'maxLength' => 255,
+                new SystemConfigTab(
+                    [
+                        new SystemConfigCard(
+                            [
+                                new SystemConfigElement(
+                                    'core.basicInformation.dummyKey',
+                                    [
+                                        'required' => true,
+                                        'maxLength' => 255,
+                                    ],
+                                    'text',
+                                ),
+                                new SystemConfigElement(
+                                    'core.basicInformation.fieldNotFound',
+                                    [
+                                        'required' => true,
+                                        'maxLength' => 255,
+                                    ],
+                                    'text',
+                                ),
                             ],
-                        ],
-                        [
-                            'name' => 'core.basicInformation.fieldNotFound',
-                            'config' => [
-                                'required' => true,
-                                'maxLength' => 255,
-                            ],
-                        ],
-                    ],
-                ],
+                            [
+                                'en-GB' => 'Basic configuration',
+                                'de-DE' => 'Grundeinstellungen',
+                            ]
+                        ),
+                    ]
+                ),
             ],
             'expectErrors' => false,
         ];

@@ -189,6 +189,7 @@ export default class FormValidation extends Plugin {
             if (field.value.trim() !== nextField.value.trim()) {
                 valid = false;
             }
+            return nextField;
         });
 
         fields.forEach(field => {

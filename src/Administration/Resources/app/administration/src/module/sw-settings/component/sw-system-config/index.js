@@ -1,14 +1,17 @@
 /**
  * @sw-package framework
  */
+import { computed } from 'vue';
 import ErrorResolverSystemConfig from 'src/core/data/error-resolver.system-config.data';
 import { deepCloneWithEntity } from 'src/core/service/extension-api-data.service';
+import utils from 'src/core/service/util.service';
 import template from './sw-system-config.html.twig';
 import './sw-system-config.scss';
 
 const { Mixin } = Shopware;
 const {
     object,
+    types,
     string: { kebabCase },
 } = Shopware.Utils;
 const { mapSystemConfigErrors } = Shopware.Component.getComponentHelper();
@@ -30,15 +33,16 @@ export default {
 
     inject: ['systemConfigApiService'],
 
-    emits: [
-        'loading-changed',
-        'config-changed',
-    ],
+    /** @public */
+    provide() {
+        return {
+            swSystemConfigCurrentSalesChannelId: computed(() => this.currentSalesChannelId),
+        };
+    },
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('sw-inline-snippet'),
-    ],
+    emits: ['loading-changed', 'config-changed'],
+
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('sw-inline-snippet')],
 
     props: {
         domain: {
@@ -59,7 +63,6 @@ export default {
         inherit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -68,10 +71,24 @@ export default {
         return {
             currentSalesChannelId: this.salesChannelId,
             isLoading: false,
-            config: {},
+            schema: [],
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed, use schema instead.
+             */
+            config: [],
             actualConfigData: {},
+            initialConfigData: {},
             salesChannelModel: null,
             hasCssFields: false,
+            activeTab: null,
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+             */
+            isSyncingFromSchema: false,
+            /**
+             * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+             */
+            isSyncingFromConfig: false,
         };
     },
 
@@ -88,10 +105,33 @@ export default {
                 'password',
                 'int',
                 'float',
-                'bool',
                 'checkbox',
                 'colorpicker',
             ];
+        },
+
+        showGlobalSection() {
+            return this.showTabs || this.schema.at(0)?.cards.length > 1;
+        },
+
+        showTabs() {
+            return this.schema?.length > 1;
+        },
+
+        tabItems() {
+            return this.schema?.map((tab) => {
+                return {
+                    name: this.getTabName(tab),
+                    label:
+                        tab.title !== null
+                            ? this.getInlineSnippet(tab.title)
+                            : this.$t('sw-settings.system-config.tabGeneral'),
+                };
+            });
+        },
+
+        defaultTabItem() {
+            return this.schema?.at(0) ? this.getTabName(this.schema.at(0)) : '';
         },
     },
 
@@ -112,6 +152,42 @@ export default {
         isLoading(value) {
             this.$emit('loading-changed', value);
         },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         */
+        schema: {
+            handler(newSchema) {
+                if (this.isSyncingFromConfig) {
+                    return;
+                }
+
+                this.isSyncingFromSchema = true;
+                this.config = this.schemaToConfig(newSchema);
+                this.$nextTick(() => {
+                    this.isSyncingFromSchema = false;
+                });
+            },
+            deep: true,
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         */
+        config: {
+            handler(newConfig) {
+                if (this.isSyncingFromSchema) {
+                    return;
+                }
+
+                this.isSyncingFromConfig = true;
+                this.schema = this.configToSchema(newConfig, this.schema);
+                this.$nextTick(() => {
+                    this.isSyncingFromConfig = false;
+                });
+            },
+            deep: true,
+        },
     },
 
     created() {
@@ -120,17 +196,27 @@ export default {
 
     methods: {
         getFieldError(fieldName) {
-            return mapSystemConfigErrors(ErrorResolverSystemConfig.ENTITY_NAME, this.salesChannelId, fieldName);
+            return mapSystemConfigErrors(ErrorResolverSystemConfig.ENTITY_NAME, this.currentSalesChannelId, fieldName);
         },
 
         async createdComponent() {
             this.isLoading = true;
             try {
+                this.actualConfigData = {};
+                this.initialConfigData = {};
+                this.hasCssFields = false;
+
                 await this.readConfig();
                 await this.readAll();
+
+                this.activeTab = this.getTabName(this.schema.at(0));
             } catch (error) {
                 if (error?.response?.data?.errors) {
                     this.createErrorNotification(error.response.data.errors);
+                } else {
+                    this.createNotificationError({
+                        message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
+                    });
                 }
             } finally {
                 this.isLoading = false;
@@ -138,14 +224,69 @@ export default {
         },
 
         async readConfig() {
-            this.config = await this.systemConfigApiService.getConfig(this.domain);
-            this.config.every((card) => {
-                return card?.elements.every((field) => {
-                    if (field?.config?.css) {
-                        this.hasCssFields = true;
-                        return false;
-                    }
-                    return true;
+            // @deprecated tag:v6.8.0 - The getSchemaForDomain method call will be replaced with this.systemConfigApiService.getSchema(this.domain).
+            const schema = await this.getSchemaForDomain();
+
+            // @deprecated tag:v6.8.0 - The assignConfigIds method call will be removed without replacement.
+            this.assignConfigIds(schema);
+
+            this.schema = schema;
+
+            this.schema.every((tab) => {
+                return tab?.cards.every((card) => {
+                    return card?.elements.every((field) => {
+                        if (field?.config?.css) {
+                            this.hasCssFields = true;
+                            return false;
+                        }
+                        return true;
+                    });
+                });
+            });
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * The modern schema endpoint is the preferred source of truth, but a decorated or overwritten
+         * legacy `getConfig` method is still used by extensions. If that method is custom, merge the
+         * legacy config into the schema result to keep the compatibility layer intact.
+         */
+        async getSchemaForDomain() {
+            const getConfig = this.systemConfigApiService.getConfig;
+            const defaultGetConfig = Object.getPrototypeOf(this.systemConfigApiService)?.getConfig;
+
+            const schema = await this.systemConfigApiService.getSchema(this.domain);
+
+            if (typeof getConfig !== 'function' || getConfig === defaultGetConfig) {
+                return schema;
+            }
+
+            const config = await getConfig.call(this.systemConfigApiService, this.domain);
+
+            if (!Array.isArray(config)) {
+                return schema;
+            }
+
+            return this.configToSchema(config, schema);
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * Tags cards and elements with an unofficial, internal id (`__configId`). It survives immutable
+         * updates (e.g. `card.map((c) => ({ ...c, title }))`) because object spread copies it along with
+         * the other properties, so it is used to reliably match cards back to their original tab in
+         * `configToSchema`, regardless of mutation style or reordering.
+         */
+        assignConfigIds(schema) {
+            (schema ?? []).forEach((tab) => {
+                (tab.cards ?? []).forEach((card) => {
+                    card.__configId = utils.createId();
+
+                    (card.elements ?? []).forEach((element) => {
+                        element.__configId = utils.createId();
+                    });
                 });
             });
         },
@@ -168,6 +309,7 @@ export default {
                 const values = await this.systemConfigApiService.getValues(this.domain, this.currentSalesChannelId);
 
                 this.actualConfigData[this.currentSalesChannelId] = values;
+                this.initialConfigData[this.currentSalesChannelId] = object.deepCopyObject(values);
             } finally {
                 this.isLoading = false;
             }
@@ -175,13 +317,85 @@ export default {
 
         saveAll() {
             this.isLoading = true;
-            return this.systemConfigApiService.batchSave(this.actualConfigData).finally(() => {
+
+            const changedConfigData = this.getChangedConfigData();
+            if (!this.hasConfigChanges(changedConfigData)) {
                 this.isLoading = false;
+                return Promise.resolve();
+            }
+
+            const additionalParams = this.hasCacheRelevantChanges(changedConfigData) ? { silent: false } : {};
+
+            return this.systemConfigApiService
+                .batchSave(changedConfigData, additionalParams)
+                .then(() => {
+                    this.initialConfigData = object.deepCopyObject(this.actualConfigData);
+                })
+                .finally(() => {
+                    this.isLoading = false;
+                });
+        },
+
+        getChangedConfigData() {
+            const changedConfigData = {};
+
+            Object.entries(this.actualConfigData).forEach((entry) => {
+                const salesChannelId = entry[0];
+                const config = entry[1];
+                const initialConfig = this.initialConfigData[salesChannelId] ?? {};
+                const changedConfig = {};
+
+                Object.entries(config).forEach((configEntry) => {
+                    const key = configEntry[0];
+                    const value = configEntry[1];
+
+                    if (types.isEqual(value, initialConfig[key])) {
+                        return;
+                    }
+
+                    changedConfig[key] = value;
+                });
+
+                if (this.hasConfigChanges(changedConfig)) {
+                    changedConfigData[salesChannelId] = changedConfig;
+                }
+            });
+
+            return changedConfigData;
+        },
+
+        hasConfigChanges(configData) {
+            return Object.keys(configData).length > 0;
+        },
+
+        hasCacheRelevantChanges(changedConfigData) {
+            const cacheRelevantFieldNames = this.getCacheRelevantFieldNames();
+
+            return Object.values(changedConfigData).some((config) => {
+                return Object.keys(config).some((key) => {
+                    return cacheRelevantFieldNames.has(key);
+                });
             });
         },
 
+        getCacheRelevantFieldNames() {
+            const fieldNames = new Set();
+
+            this.schema.forEach((tab) => {
+                tab.cards?.forEach((card) => {
+                    card.elements?.forEach((element) => {
+                        if (element.config?.cacheRelevant === true) {
+                            fieldNames.add(element.name);
+                        }
+                    });
+                });
+            });
+
+            return fieldNames;
+        },
+
         createErrorNotification(errors) {
-            let message = `<div>${this.$tc('sw-config-form-renderer.configLoadErrorMessage', errors.length)}</div><ul>`;
+            let message = `<div>${this.$t('sw-config-form-renderer.configLoadErrorMessage', {}, errors.length)}</div><ul>`;
 
             errors.forEach((error) => {
                 message = `${message}<li>${error.detail}</li>`;
@@ -202,7 +416,7 @@ export default {
         hasMapInheritanceSupport(element) {
             const componentName = element.config ? element.config.componentName : undefined;
 
-            if (componentName === 'sw-switch-field' || componentName === 'sw-snippet-field') {
+            if (componentName === 'sw-snippet-field') {
                 return true;
             }
 
@@ -220,14 +434,13 @@ export default {
             }
 
             // Add select properties
-            if (
-                [
-                    'single-select',
-                    'multi-select',
-                ].includes(bind.type)
-            ) {
+            if (['single-select', 'multi-select'].includes(bind.type)) {
                 bind.config.labelProperty = 'name';
                 bind.config.valueProperty = 'id';
+
+                if (bind.config.required) {
+                    bind.config.hideClearableButton = true;
+                }
             }
 
             if (element.type === 'text-editor') {
@@ -235,7 +448,7 @@ export default {
             }
 
             if (bind.config.css && bind.config.helpText === undefined) {
-                bind.config.helpText = this.$tc('sw-settings.system-config.scssHelpText') + element.config.css;
+                bind.config.helpText = this.$t('sw-settings.system-config.scssHelpText') + element.config.css;
             }
 
             return bind;
@@ -243,6 +456,10 @@ export default {
 
         getInheritWrapperBind(element) {
             if (this.hasMapInheritanceSupport(element)) {
+                return {};
+            }
+
+            if (this.isMeteorComponent(element)) {
                 return {};
             }
 
@@ -310,6 +527,204 @@ export default {
 
         kebabCase(value) {
             return kebabCase(value);
+        },
+
+        /**
+         * New methods for Meteor components
+         */
+        isMeteorComponent(element) {
+            const componentName = element.config ? element.config.componentName : undefined;
+
+            // Special case for sw-text-editor, because we still support the legacy one
+            const componentsWithMeteorSupport = ['sw-text-editor'];
+
+            const typesWithMeteorSupport = [
+                'bool',
+                'switch',
+                'text',
+                'textarea',
+                'url',
+                'checkbox',
+                'colorpicker',
+                'password',
+                'date',
+                'datetime',
+                'time',
+                'single-select',
+                'multi-select',
+                'float',
+                'int',
+            ];
+
+            return typesWithMeteorSupport.includes(element.type) || componentsWithMeteorSupport.includes(componentName);
+        },
+
+        getMeteorElementBind(element, mapInheritance) {
+            const bind = {};
+
+            // Bind necessary props to sw-form-field-renderer
+            bind.value = mapInheritance?.currentValue;
+            bind.type = element.type;
+            bind.config = { ...(element.config || {}) };
+            bind.error = this.getFieldError(element.name);
+
+            // Inheritance bindings
+            bind.inheritedValue = this.getInheritedValue(element);
+            bind.isInheritanceField = mapInheritance?.isInheritField;
+            bind.isInherited = mapInheritance?.isInherited;
+            bind.disabled = mapInheritance?.isInherited || element.config?.disabled;
+
+            // Handle datepicker date/datetime value format
+            if (element.type === 'date') {
+                bind.dateType = 'date';
+            }
+
+            if (element.type === 'datetime') {
+                bind.dateType = 'datetime';
+            }
+
+            // Handle select properties
+            if (['single-select', 'multi-select'].includes(element.type)) {
+                bind.config.labelProperty = 'name';
+                bind.config.valueProperty = 'id';
+
+                if (bind.config.required) {
+                    bind.config.hideClearableButton = true;
+                }
+            }
+
+            // Handle multi select
+            if (element.type === 'multi-select') {
+                bind.enableMultiSelection = true;
+            }
+
+            return bind;
+        },
+
+        getMeteorElementEventsHandler(element, mapInheritance) {
+            const eventHandler = {};
+
+            eventHandler['update:value'] = mapInheritance?.updateCurrentValue;
+            eventHandler['inheritance-remove'] = mapInheritance?.removeInheritance;
+            eventHandler['inheritance-restore'] = mapInheritance?.restoreInheritance;
+
+            return eventHandler;
+        },
+
+        getTabName(tab) {
+            return `tab-${tab.name ?? this.schema.indexOf(tab)}`;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         */
+        schemaToConfig(schema) {
+            return (schema ?? []).flatMap((tab) => tab?.cards ?? []);
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * Finds the tab a card most likely belongs to by counting, per previous tab, how many of the
+         * card's elements were already present there. Element names are the actual system config keys,
+         * so they are stable and unique across both endpoints, unlike the internal `__configId` which is
+         * only assigned to cards that went through `assignConfigIds`. Using majority overlap instead of
+         * an exact match keeps the card matched to its tab even if elements were added to or removed from
+         * it. Returns null if no element matches, e.g. for cards without elements.
+         */
+        getTabIndexByElementOverlap(card, elementNameToTabIndex) {
+            const voteCountByTabIndex = new Map();
+
+            (card.elements ?? []).forEach((element) => {
+                const tabIndex = elementNameToTabIndex.get(element.name);
+                if (tabIndex === undefined) {
+                    return;
+                }
+
+                voteCountByTabIndex.set(tabIndex, (voteCountByTabIndex.get(tabIndex) ?? 0) + 1);
+            });
+
+            let bestTabIndex = null;
+            let bestVoteCount = 0;
+            voteCountByTabIndex.forEach((voteCount, tabIndex) => {
+                if (voteCount > bestVoteCount) {
+                    bestVoteCount = voteCount;
+                    bestTabIndex = tabIndex;
+                }
+            });
+
+            return bestTabIndex;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed together with config data prop.
+         *
+         * Keeps existing tabs instead of collapsing everything into a single tab. Cards are primarily matched
+         * back to their original tab via the internal `__configId` (see assignConfigIds), which is reliable
+         * across reordering and immutable updates. This id is not available yet when merging a freshly fetched
+         * legacy config (e.g. from a decorated getConfig method) with the schema for the first time, so cards
+         * are additionally matched by the tab their elements were previously found in (see
+         * getTabIndexByElementOverlap). Cards that cannot be matched at all (e.g. newly added ones, or ones
+         * without elements) end up in the general tab (name === null) and are assigned a fresh id, so their
+         * tab is tracked correctly from then on.
+         */
+        configToSchema(config, previousSchema) {
+            const cards = config ?? [];
+            const previousTabs =
+                previousSchema && previousSchema.length > 0
+                    ? previousSchema
+                    : [
+                          {
+                              name: null,
+                              title: null,
+                              cards: [],
+                          },
+                      ];
+
+            const newSchema = previousTabs.map((tab) => ({ ...tab, cards: [] }));
+            const generalTabIndex = previousTabs.findIndex((tab) => tab.name === null);
+            const fallbackTabIndex = generalTabIndex !== -1 ? generalTabIndex : newSchema.length - 1;
+
+            const idToTabIndex = new Map();
+            const elementNameToTabIndex = new Map();
+            previousTabs.forEach((tab, tabIndex) => {
+                (tab.cards ?? []).forEach((card) => {
+                    if (card.__configId !== undefined) {
+                        idToTabIndex.set(card.__configId, tabIndex);
+                    }
+
+                    (card.elements ?? []).forEach((element) => {
+                        elementNameToTabIndex.set(element.name, tabIndex);
+                    });
+                });
+            });
+
+            cards.forEach((card) => {
+                let tabIndex = fallbackTabIndex;
+
+                if (idToTabIndex.has(card.__configId)) {
+                    tabIndex = idToTabIndex.get(card.__configId);
+                } else {
+                    const overlapTabIndex = this.getTabIndexByElementOverlap(card, elementNameToTabIndex);
+                    if (overlapTabIndex !== null) {
+                        tabIndex = overlapTabIndex;
+                    }
+                }
+
+                if (card.__configId === undefined) {
+                    card.__configId = utils.createId();
+                }
+
+                (card.elements ?? []).forEach((element) => {
+                    if (element.__configId === undefined) {
+                        element.__configId = utils.createId();
+                    }
+                });
+
+                newSchema[tabIndex].cards.push(card);
+            });
+
+            return newSchema;
         },
     },
 };

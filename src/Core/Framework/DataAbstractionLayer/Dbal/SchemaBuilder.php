@@ -2,14 +2,17 @@
 
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
 use Shopware\Core\Content\Cms\DataAbstractionLayer\Field\SlotConfigField;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
+use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceField;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\AutoIncrementField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\BlobField;
@@ -70,6 +73,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedByField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VariantListingConfigField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionDataPayloadField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\WasModifiedByUserField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 
@@ -80,7 +84,7 @@ use Shopware\Core\System\NumberRange\DataAbstractionLayer\NumberRangeField;
 class SchemaBuilder
 {
     /**
-     * @var array<string, string>
+     * @var array<class-string<Field>, Types::*>
      */
     public static array $fieldMapping = [
         IdField::class => Types::BINARY,
@@ -117,6 +121,7 @@ class SchemaBuilder
         SlotConfigField::class => Types::JSON,
         FlowTemplateConfigField::class => Types::JSON,
         CheapestPriceField::class => Types::JSON,
+        MeasurementUnitsField::class => Types::JSON,
 
         ChildCountField::class => Types::INTEGER,
         IntField::class => Types::INTEGER,
@@ -125,6 +130,7 @@ class SchemaBuilder
 
         BoolField::class => Types::BOOLEAN,
         LockedField::class => Types::BOOLEAN,
+        WasModifiedByUserField::class => Types::BOOLEAN,
 
         PasswordField::class => Types::STRING,
         StringField::class => Types::STRING,
@@ -144,7 +150,7 @@ class SchemaBuilder
     ];
 
     /**
-     * @var array<string, array<string, mixed>>
+     * @var array{binary: array{length: 16, fixed: true}, boolean: array{default: 0}}
      */
     public static array $options = [
         Types::BINARY => [
@@ -163,7 +169,6 @@ class SchemaBuilder
         $table->addOption('charset', 'utf8mb4');
         $table->addOption('collate', 'utf8mb4_unicode_ci');
 
-        /** @var Field $field */
         foreach ($definition->getFields() as $field) {
             if ($field->is(Runtime::class)) {
                 continue;
@@ -173,11 +178,11 @@ class SchemaBuilder
                 continue;
             }
 
-            if (!$field instanceof StorageAware) {
+            if ($field instanceof TranslatedField) {
                 continue;
             }
 
-            if ($field instanceof TranslatedField) {
+            if (!$field instanceof StorageAware) {
                 continue;
             }
 
@@ -190,20 +195,29 @@ class SchemaBuilder
             );
         }
 
-        /** @var StorageAware[] $primaryKeys */
-        $primaryKeys = $definition->getPrimaryKeys()->filter(function (Field $field) {
-            return $field instanceof StorageAware;
-        })->getElements();
+        /** @var array<non-empty-string> $primaryKeys */
+        $primaryKeys = $definition->getPrimaryKeys()->fmap(static function (Field $field): ?string {
+            if ($field instanceof StorageAware) {
+                return $field->getStorageName();
+            }
 
-        $table->setPrimaryKey(array_map(function (StorageAware $field) {
-            return $field->getStorageName();
-        }, $primaryKeys));
+            return null;
+        });
+
+        if ($primaryKeys) {
+            $pk = PrimaryKeyConstraint::editor();
+            $pk->setUnquotedColumnNames(...array_values($primaryKeys));
+            $table->addPrimaryKeyConstraint($pk->create());
+        }
 
         $this->addForeignKeys($table, $definition);
 
         return $table;
     }
 
+    /**
+     * @return Types::*
+     */
     private function getFieldType(Field $field): string
     {
         if ($field instanceof EnumField) {
@@ -256,7 +270,7 @@ class SchemaBuilder
     private function addForeignKeys(Table $table, EntityDefinition $definition): void
     {
         $fields = $definition->getFields()->filter(
-            function (Field $field) {
+            static function (Field $field) {
                 if ($field instanceof ManyToOneAssociationField
                     || ($field instanceof OneToOneAssociationField && $field->getStorageName() !== 'id')) {
                     return true;
@@ -268,11 +282,14 @@ class SchemaBuilder
 
         $referenceVersionFields = $definition->getFields()->filterInstance(ReferenceVersionField::class);
 
-        /** @var ManyToOneAssociationField $field */
         foreach ($fields as $field) {
+            if (!$field instanceof ManyToOneAssociationField && !$field instanceof OneToOneAssociationField) {
+                continue;
+            }
+
             $reference = $field->getReferenceDefinition();
 
-            $hasOneToMany = $definition->getFields()->filter(function (Field $field) use ($reference) {
+            $hasOneToMany = $definition->getFields()->filter(static function (Field $field) use ($reference) {
                 if (!$field instanceof OneToManyAssociationField) {
                     return false;
                 }
@@ -283,7 +300,7 @@ class SchemaBuilder
                 return $field->getReferenceDefinition() === $reference;
             })->count() > 0;
 
-            // skip foreign key to prevent bi-directional foreign key
+            // skip foreign key to prevent bidirectional foreign key
             if ($hasOneToMany) {
                 continue;
             }
@@ -299,8 +316,10 @@ class SchemaBuilder
             if ($reference->isVersionAware()) {
                 $versionField = null;
 
-                /** @var ReferenceVersionField $referenceVersionField */
                 foreach ($referenceVersionFields as $referenceVersionField) {
+                    if (!$referenceVersionField instanceof ReferenceVersionField) {
+                        continue;
+                    }
                     if ($referenceVersionField->getVersionReferenceDefinition() === $reference) {
                         $versionField = $referenceVersionField;
 
@@ -315,7 +334,6 @@ class SchemaBuilder
                         throw DataAbstractionLayerException::versionFieldNotFound($field->getPropertyName());
                     }
 
-                    /** @var ReferenceVersionField $versionField */
                     $columns[] = $versionField->getStorageName();
                 }
 
@@ -328,6 +346,9 @@ class SchemaBuilder
                 $delete = 'CASCADE';
             } elseif ($field->is(RestrictDelete::class)) {
                 $delete = 'RESTRICT';
+            } elseif ($definition instanceof EntityTranslationDefinition) {
+                // When a foreign key is used in a translation definition, cascade deletion should be applied so that related records are deleted when the main entity is removed, including translations.
+                $delete = 'CASCADE';
             } else {
                 $delete = 'SET NULL';
             }
@@ -340,7 +361,7 @@ class SchemaBuilder
                     'onUpdate' => $update,
                     'onDelete' => $delete,
                 ],
-                \sprintf('fk.%s.%s', $definition->getEntityName(), $field->getStorageName())
+                \substr(\sprintf('fk__%s__%s', $definition->getEntityName(), $field->getStorageName()), 0, 64)
             );
         }
     }

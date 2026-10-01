@@ -30,7 +30,7 @@ export default {
         return {
             intervalOptions: [
                 {
-                    label: this.$tc('sw-settings-currency.price-rounding.labelIntervalNone'),
+                    label: this.$t('sw-settings-currency.price-rounding.labelIntervalNone'),
                     value: 0.01,
                 },
                 { label: '0.05', value: 0.05 },
@@ -62,13 +62,7 @@ export default {
          * @param {string} type - Either be itemRounding or totalRounding
          */
         onChangeDecimals(decimals, type) {
-            if (
-                decimals <= 2 ||
-                ![
-                    'itemRounding',
-                    'totalRounding',
-                ].includes(type)
-            ) {
+            if (decimals <= 2 || !['itemRounding', 'totalRounding'].includes(type)) {
                 return;
             }
 

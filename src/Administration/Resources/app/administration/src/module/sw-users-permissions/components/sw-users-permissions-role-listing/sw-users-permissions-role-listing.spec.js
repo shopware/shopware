@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(privileges = []) {
+async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFunction = () => {}) {
     return mount(
         await wrapTestComponent('sw-users-permissions-role-listing', {
             sync: true,
@@ -15,6 +15,7 @@ async function createWrapper(privileges = []) {
                     repositoryFactory: {
                         create: () => ({
                             search: () => Promise.resolve([]),
+                            delete: deleteFunction,
                         }),
                     },
                     acl: {
@@ -26,21 +27,37 @@ async function createWrapper(privileges = []) {
                             return privileges.includes(identifier);
                         },
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
+                    ssoSettingsService: {
+                        isSso: () => {
+                            return Promise.resolve(isSso);
+                        },
+                    },
                 },
                 mocks: {
-                    $route: { query: '' },
+                    $t: (key, values) => (values?.name ? `${key} ${values.name}` : key),
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'regular-content',
+                            },
+                        },
+                    },
                 },
                 stubs: {
                     'sw-container': true,
                     'sw-simple-search-field': true,
-                    'sw-empty-state': true,
                     'sw-data-grid': {
                         props: ['dataSource'],
                         template: `
 <div>
     <template v-for="item in dataSource">
         <slot name="actions" v-bind="{ item }"></slot>
+        <slot name="action-modals" v-bind="{ item }"></slot>
     </template>
 </div>
 `,
@@ -49,6 +66,12 @@ async function createWrapper(privileges = []) {
                     'sw-verify-user-modal': true,
                     'router-link': true,
                     'sw-pagination': true,
+                    'sw-modal': {
+                        template: `<div class="modal">
+                            <slot></slot>
+                            <slot name="modal-footer"></slot>
+                        </div>`,
+                    },
                 },
             },
         },
@@ -60,10 +83,6 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('the card should contain the right title', async () => {
@@ -85,10 +104,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
 
     it('should disable all context menu items', async () => {
         await wrapper.setData({
-            roles: [
-                {},
-                {},
-            ],
+            roles: [{}, {}],
         });
 
         const contextMenuItemEdit = wrapper.find('.sw-users-permissions-role-listing__context-menu-edit');
@@ -102,10 +118,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         wrapper = await createWrapper(['users_and_permissions.editor']);
         await wrapper.vm.$nextTick();
         await wrapper.setData({
-            roles: [
-                {},
-                {},
-            ],
+            roles: [{}, {}],
         });
 
         const contextMenuItemEdit = wrapper.find('.sw-users-permissions-role-listing__context-menu-edit');
@@ -119,10 +132,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
         wrapper = await createWrapper(['users_and_permissions.deleter']);
         await wrapper.vm.$nextTick();
         await wrapper.setData({
-            roles: [
-                {},
-                {},
-            ],
+            roles: [{}, {}],
         });
 
         const contextMenuItemEdit = wrapper.find('.sw-users-permissions-role-listing__context-menu-edit');
@@ -137,5 +147,93 @@ describe('module/sw-users-permissions/components/sw-users-permissions-role-listi
 
         const emittedGetList = wrapper.emitted('get-list');
         expect(emittedGetList.length).toBeGreaterThan(0);
+    });
+
+    it('should open password confirm modal', async () => {
+        const deleteFunction = jest.fn().mockReturnValue(Promise.resolve());
+        wrapper = await createWrapper(
+            ['users_and_permissions.deleter', 'users_and_permissions.editor'],
+            { isSso: false },
+            deleteFunction,
+        );
+
+        await wrapper.setData({
+            roles: [
+                {
+                    id: 'anyId',
+                    name: 'anyName',
+                },
+            ],
+        });
+
+        await flushPromises();
+
+        const contextMenuItemDelete = wrapper.find('.sw-users-permissions-role-listing__context-menu-delete');
+        await contextMenuItemDelete.trigger('click');
+        await flushPromises();
+
+        const confirmButton = wrapper.find('.sw-users-permissions-role-listing__confirm-delete-button');
+        await confirmButton.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('sw-verify-user-modal-stub').exists()).toBeTruthy();
+        expect(deleteFunction).not.toHaveBeenCalled();
+    });
+
+    it('should delete role without pw confirmation', async () => {
+        const deleteFunction = jest.fn().mockReturnValue(Promise.resolve());
+        wrapper = await createWrapper(
+            ['users_and_permissions.deleter', 'users_and_permissions.editor'],
+            { isSso: true },
+            deleteFunction,
+        );
+
+        await wrapper.setData({
+            roles: [
+                {
+                    id: 'anyId',
+                    name: 'anyName',
+                },
+            ],
+        });
+
+        await flushPromises();
+
+        const contextMenuItemDelete = wrapper.find('.sw-users-permissions-role-listing__context-menu-delete');
+        await contextMenuItemDelete.trigger('click');
+        await flushPromises();
+
+        const confirmButton = wrapper.find('.sw-users-permissions-role-listing__confirm-delete-button');
+        await confirmButton.trigger('click');
+        await flushPromises();
+
+        expect(deleteFunction).toHaveBeenCalled();
+    });
+
+    it('should show the name of the clicked role in the delete confirmation', async () => {
+        wrapper = await createWrapper(['users_and_permissions.deleter', 'users_and_permissions.editor']);
+
+        await wrapper.setData({
+            roles: [
+                {
+                    id: 'firstRoleId',
+                    name: 'First role',
+                },
+                {
+                    id: 'secondRoleId',
+                    name: 'Second role',
+                },
+            ],
+        });
+        await flushPromises();
+
+        const contextMenuItemsDelete = wrapper.findAll('.sw-users-permissions-role-listing__context-menu-delete');
+        await contextMenuItemsDelete.at(1).trigger('click');
+        await flushPromises();
+
+        const confirmDeleteTexts = wrapper.findAll('.sw-users-permissions-role-listing__confirm-delete-text');
+
+        expect(confirmDeleteTexts).toHaveLength(1);
+        expect(confirmDeleteTexts.at(0).text()).toContain('Second role');
     });
 });

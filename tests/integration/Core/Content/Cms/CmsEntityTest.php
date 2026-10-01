@@ -14,17 +14,21 @@ use Shopware\Core\Content\Cms\CmsPageCollection;
 use Shopware\Core\Content\Cms\CmsPageDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\CompiledFieldCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class CmsEntityTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -59,7 +63,7 @@ class CmsEntityTest extends TestCase
     {
         $definition = static::getContainer()->get($entityDefinitionClass);
         static::assertInstanceOf(EntityDefinition::class, $definition);
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<EntityCollection<Entity>> $repository */
         $repository = static::getContainer()->get($definition->getEntityName() . '.repository');
         $result = $repository->search(new Criteria(), Context::createDefaultContext());
 

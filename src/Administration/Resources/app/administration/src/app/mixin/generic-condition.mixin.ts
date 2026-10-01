@@ -19,13 +19,25 @@ interface Field {
         placeholder: string;
     };
 }
+
 interface Config {
     operatorSet: null;
     fields: Field[];
 }
 
+type BetweenValue = {
+    from: string | null;
+    to: string | null;
+};
+
+/**
+ * Field types whose compared value is a list. Used to pick the "is one of / is none of" operator labels
+ * over "is equal to / is not equal to".
+ */
+const LIST_VALUED_FIELD_TYPES = ['multi-entity-id-select', 'multi-select', 'tagged'];
+
 /* Mixin uses many untyped dependencies */
-/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,max-len,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment */
 
 /**
  * @private
@@ -72,12 +84,15 @@ export default Mixin.register(
                     return null;
                 }
 
-                // @ts-expect-error - conditionDataProviderService is available in base component
+                const isMultiValue = Object.values(this.config.fields ?? {}).some((field) =>
+                    LIST_VALUED_FIELD_TYPES.includes(field.type),
+                );
+
+                // @ts-expect-error
                 return this.conditionDataProviderService.getOperatorOptionsByIdentifiers(
                     // @ts-expect-error
                     this.config.operatorSet.operators,
-                    // @ts-expect-error
-                    this.config.operatorSet.isMatchAny,
+                    isMultiValue,
                 );
             },
 
@@ -99,12 +114,7 @@ export default Mixin.register(
                             // @ts-expect-error
                             this.ensureValueExist();
 
-                            if (
-                                [
-                                    'multi-entity-id-select',
-                                    'multi-select',
-                                ].includes(type)
-                            ) {
+                            if (['multi-entity-id-select', 'multi-select'].includes(type)) {
                                 // @ts-expect-error
                                 return this.condition.value[name] || [];
                             }
@@ -129,37 +139,14 @@ export default Mixin.register(
                 return values;
             },
 
-            currentError() {
-                let error: unknown = null;
-
-                Object.values(this.config.fields).forEach((config) => {
-                    if (error) {
-                        return;
-                    }
-
-                    const errorProperty = Shopware.Store.get('error').getApiError(
-                        // @ts-expect-error
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-                        this.condition,
-                        `value.${config.name}`,
-                    ) as unknown;
-
-                    if (errorProperty) {
-                        error = errorProperty;
-                    }
-                });
-
-                return error;
-            },
-
             boolOptions() {
                 return [
                     {
-                        label: this.$tc('global.default.yes'),
+                        label: this.$t('global.default.yes'),
                         value: true,
                     },
                     {
-                        label: this.$tc('global.default.no'),
+                        label: this.$t('global.default.no'),
                         value: false,
                     },
                 ];
@@ -169,7 +156,6 @@ export default Mixin.register(
                 return {
                     'sw-condition__condition-value': !!this.config.operatorSet,
                     // @ts-expect-error
-                    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
                     [`sw-condition__condition-type-${this.condition.type}`]: true,
                 };
             },
@@ -185,31 +171,22 @@ export default Mixin.register(
                     this.condition.type,
                     fieldClone.name,
                 ];
-                const placeholderPath = [
-                    ...snippetBasePath,
-                    'placeholder',
-                ].join('.');
+                const placeholderPath = [...snippetBasePath, 'placeholder'].join('.');
 
                 if (
-                    [
-                        'multi-entity-id-select',
-                        'single-entity-id-select',
-                    ].includes(fieldClone.type) &&
+                    ['multi-entity-id-select', 'single-entity-id-select'].includes(fieldClone.type) &&
                     fieldClone.config.criteria
                 ) {
                     fieldClone.config.criteria = createCriteriaFromArray(fieldClone.config.criteria);
                 }
 
-                if (fieldClone.type === 'single-select' && fieldClone.config.options) {
+                if (
+                    (fieldClone.type === 'single-select' || fieldClone.type === 'multi-select') &&
+                    fieldClone.config.options
+                ) {
                     fieldClone.config.options = fieldClone.config.options.map((value) => {
                         return {
-                            label: this.$tc(
-                                [
-                                    ...snippetBasePath,
-                                    'options',
-                                    value,
-                                ].join('.'),
-                            ),
+                            label: this.$t([...snippetBasePath, 'options', value].join('.')),
                             value,
                         };
                     });
@@ -221,7 +198,7 @@ export default Mixin.register(
                 }
 
                 if (this.$te(placeholderPath)) {
-                    fieldClone.config.placeholder = this.$tc(placeholderPath);
+                    fieldClone.config.placeholder = this.$t(placeholderPath);
                 }
 
                 fieldClone.config.name = `sw-field--${fieldClone.name}`;
@@ -255,6 +232,20 @@ export default Mixin.register(
                 }
 
                 return this.visibleValue;
+            },
+
+            isBetweenDateField(field: Field): boolean {
+                // @ts-expect-error - operator is available in base component
+                if (this.operator !== 'between') {
+                    return false;
+                }
+
+                return ['date', 'datetime'].includes(field.type);
+            },
+
+            updateBetweenDateValue(fieldName: string, value: BetweenValue) {
+                // @ts-expect-error - value exists in main component
+                this.values[fieldName] = value;
             },
 
             handleUnitChange(event: { unit: unknown; value: number }) {

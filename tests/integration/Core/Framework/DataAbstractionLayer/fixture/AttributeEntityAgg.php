@@ -9,11 +9,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ForeignKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\ManyToOne;
 use Shopware\Core\Framework\DataAbstractionLayer\Attribute\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity as EntityStruct;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /**
  * @internal
  */
 #[Entity('attribute_entity_agg', parent: 'attribute_entity', since: '6.6.3.0')]
+// Test that autoconfigure works with attribute entities, do not add the tag in service declaration in service_test.xml
+#[AutoconfigureTag('shopware.entity')]
 class AttributeEntityAgg extends EntityStruct
 {
     #[PrimaryKey]

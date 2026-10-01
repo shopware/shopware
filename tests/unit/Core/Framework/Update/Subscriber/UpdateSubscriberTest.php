@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Update\Subscriber\UpdateSubscriber;
@@ -13,12 +14,13 @@ use Shopware\Core\Framework\Update\Subscriber\UpdateSubscriber;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(UpdateSubscriber::class)]
 class UpdateSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [
                 UpdatePostFinishEvent::class => [
                     ['updateFinishedDone', -9999],
@@ -37,8 +39,8 @@ class UpdateSubscriberTest extends TestCase
         $notificationServiceMock
             ->expects($this->once())
             ->method('createNotification')
-            ->willReturnCallback(function ($data): void {
-                static::assertEquals('something to inform' . \PHP_EOL, $data['message']);
+            ->willReturnCallback(static function ($data): void {
+                static::assertSame('something to inform' . \PHP_EOL, $data['message']);
             });
 
         $event = new UpdatePostFinishEvent($context, $version, $version);

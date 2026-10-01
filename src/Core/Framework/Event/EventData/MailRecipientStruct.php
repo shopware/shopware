@@ -4,7 +4,10 @@ namespace Shopware\Core\Framework\Event\EventData;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('fundamentals@after-sales')]
+/**
+ * @codeCoverageIgnore
+ */
+#[Package('framework')]
 class MailRecipientStruct
 {
     private ?string $bcc = null;

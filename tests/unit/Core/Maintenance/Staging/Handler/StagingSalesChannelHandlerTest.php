@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\Staging\Event\SetupStagingEvent;
 use Shopware\Core\Maintenance\Staging\Handler\StagingSalesChannelHandler;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(StagingSalesChannelHandler::class)]
 class StagingSalesChannelHandlerTest extends TestCase
 {
@@ -33,14 +35,18 @@ class StagingSalesChannelHandlerTest extends TestCase
                 ['id' => 'id1']
             );
 
-        $handler = new StagingSalesChannelHandler(
-            [
-                ['match' => 'http://localhost', 'type' => 'equal', 'replace' => 'http://staging.local'],
-            ],
-            $connection
-        );
+        $handler = new StagingSalesChannelHandler($connection);
 
-        $event = new SetupStagingEvent(Context::createDefaultContext(), $this->createMock(SymfonyStyle::class));
+        $domainMapping = [
+            ['match' => 'http://localhost', 'type' => 'equal', 'replace' => 'http://staging.local'],
+        ];
+
+        $event = new SetupStagingEvent(
+            Context::createDefaultContext(),
+            static::createStub(SymfonyStyle::class),
+            false,
+            $domainMapping
+        );
 
         $handler($event);
     }
@@ -58,14 +64,18 @@ class StagingSalesChannelHandlerTest extends TestCase
             ->expects($this->never())
             ->method('update');
 
-        $handler = new StagingSalesChannelHandler(
-            [
-                ['match' => 'http://fooo', 'type' => 'equal', 'replace' => 'http://staging.local'],
-            ],
-            $connection
-        );
+        $handler = new StagingSalesChannelHandler($connection);
 
-        $event = new SetupStagingEvent(Context::createDefaultContext(), $this->createMock(SymfonyStyle::class));
+        $domainMapping = [
+            ['match' => 'http://fooo', 'type' => 'equal', 'replace' => 'http://staging.local'],
+        ];
+
+        $event = new SetupStagingEvent(
+            Context::createDefaultContext(),
+            static::createStub(SymfonyStyle::class),
+            false,
+            $domainMapping
+        );
 
         $handler($event);
     }
@@ -87,14 +97,18 @@ class StagingSalesChannelHandlerTest extends TestCase
                 ['id' => 'id1']
             );
 
-        $handler = new StagingSalesChannelHandler(
-            [
-                ['match' => '/https?:\/\/(\w+)\.(\w+)$/m', 'type' => 'regex', 'replace' => 'http://$1-$2.local'],
-            ],
-            $connection
-        );
+        $handler = new StagingSalesChannelHandler($connection);
 
-        $event = new SetupStagingEvent(Context::createDefaultContext(), $this->createMock(SymfonyStyle::class));
+        $domainMapping = [
+            ['match' => '/https?:\/\/(\w+)\.(\w+)$/m', 'type' => 'regex', 'replace' => 'http://$1-$2.local'],
+        ];
+
+        $event = new SetupStagingEvent(
+            Context::createDefaultContext(),
+            static::createStub(SymfonyStyle::class),
+            false,
+            $domainMapping
+        );
 
         $handler($event);
     }
@@ -116,14 +130,18 @@ class StagingSalesChannelHandlerTest extends TestCase
                 ['id' => 'id1']
             );
 
-        $handler = new StagingSalesChannelHandler(
-            [
-                ['match' => 'https://pikachu.com', 'type' => 'prefix', 'replace' => 'http://localhost'],
-            ],
-            $connection
-        );
+        $handler = new StagingSalesChannelHandler($connection);
 
-        $event = new SetupStagingEvent(Context::createDefaultContext(), $this->createMock(SymfonyStyle::class));
+        $domainMapping = [
+            ['match' => 'https://pikachu.com', 'type' => 'prefix', 'replace' => 'http://localhost'],
+        ];
+
+        $event = new SetupStagingEvent(
+            Context::createDefaultContext(),
+            static::createStub(SymfonyStyle::class),
+            false,
+            $domainMapping
+        );
 
         $handler($event);
     }

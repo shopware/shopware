@@ -14,15 +14,9 @@ const {
 export default {
     template,
 
-    inject: [
-        'acl',
-        'feature',
-    ],
+    inject: ['acl', 'feature'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('sw-settings-list'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName('sw-settings-list')],
 
     data() {
         return {
@@ -42,13 +36,13 @@ export default {
     computed: {
         // Settings Listing mixin override
         titleSaveSuccess() {
-            return this.$tc('global.default.success');
+            return this.$t('global.default.success');
         },
 
         // Settings Listing mixin override
         messageSaveSuccess() {
             if (this.deleteEntity) {
-                return this.$tc(
+                return this.$t(
                     'sw-settings-custom-field.set.list.messageDeleteSuccess',
                     {
                         name: this.getInlineSnippet(this.deleteEntity.config.label) || this.deleteEntity.name,
@@ -65,10 +59,7 @@ export default {
             const params = this.getMainListingParams();
 
             criteria.addFilter(
-                Criteria.multi('OR', [
-                    ...this.getLocaleCriterias(params.term),
-                    ...this.getTermCriteria(params.term),
-                ]),
+                Criteria.multi('OR', [...this.getLocaleCriterias(params.term), ...this.getTermCriteria(params.term)]),
             );
 
             criteria.addFilter(Criteria.equals('appId', null));
@@ -87,7 +78,7 @@ export default {
             const locales = Locale.getLocaleRegistry();
 
             locales.forEach((value, key) => {
-                criteria.push(Criteria.contains(`config.label.\"${key}\"`, term));
+                criteria.push(Criteria.contains(`config.label.${key}`, term));
             });
 
             return criteria;
@@ -101,6 +92,28 @@ export default {
             }
 
             return criteria;
+        },
+
+        onConfirmDelete(id) {
+            this.deleteEntity = this.items.find((item) => item.id === id);
+
+            this.onCloseDeleteModal();
+            return this.entityRepository
+                .delete(id)
+                .then(() => {
+                    Shopware.Service('cacheService').invalidateCaches({
+                        cacheKey: ['custom-field-sets'],
+                    });
+
+                    this.createNotificationSuccess({
+                        title: this.titleSaveSuccess,
+                        message: this.messageSaveSuccess,
+                    });
+                })
+                .finally(() => {
+                    this.deleteEntity = null;
+                    this.getList();
+                });
         },
     },
 };

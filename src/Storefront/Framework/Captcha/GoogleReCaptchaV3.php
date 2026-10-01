@@ -6,8 +6,10 @@ use GuzzleHttp\ClientInterface;
 use Psr\Http\Client\ClientExceptionInterface;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
-#[Package('framework')]
+#[Package('discovery')]
 class GoogleReCaptchaV3 extends AbstractCaptcha
 {
     final public const CAPTCHA_NAME = 'googleReCaptchaV3';
@@ -22,20 +24,37 @@ class GoogleReCaptchaV3 extends AbstractCaptcha
     {
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isValid(Request $request, array $captchaConfig): bool
+    public function validate(Request $request, array $captchaConfig): ConstraintViolationList
     {
-        if (!$request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
-            return false;
+        if (!$request->request->get(self::CAPTCHA_REQUEST_PARAMETER)) {
+            return new ConstraintViolationList([$this->createViolation(CaptchaException::RECAPTCHA_TOKEN_REQUIRED_VIOLATION)]);
         }
 
-        $captchaConfig = \func_get_args()[1] ?? [];
+        if ($this->verify($request, $captchaConfig)) {
+            return new ConstraintViolationList();
+        }
 
-        $secretKey = !empty($captchaConfig['config']['secretKey']) ? $captchaConfig['config']['secretKey'] : null;
+        return new ConstraintViolationList([$this->createViolation(CaptchaException::INVALID_CAPTCHA_ERROR)]);
+    }
 
-        if (!\is_string($secretKey)) {
+    // reCAPTCHA failures carry a customer-facing violation, so they are shown, not thrown.
+    public function shouldBreak(): bool
+    {
+        return false;
+    }
+
+    public function getName(): string
+    {
+        return self::CAPTCHA_NAME;
+    }
+
+    /**
+     * @param array<string, mixed> $captchaConfig
+     */
+    private function verify(Request $request, array $captchaConfig): bool
+    {
+        $secretKey = $captchaConfig['config']['secretKey'] ?? null;
+        if (!\is_string($secretKey) || $secretKey === '') {
             return false;
         }
 
@@ -43,27 +62,34 @@ class GoogleReCaptchaV3 extends AbstractCaptcha
             $response = $this->client->request('POST', self::GOOGLE_CAPTCHA_VERIFY_ENDPOINT, [
                 'form_params' => [
                     'secret' => $secretKey,
-                    'response' => $request->get(self::CAPTCHA_REQUEST_PARAMETER),
+                    'response' => $request->request->get(self::CAPTCHA_REQUEST_PARAMETER),
                     'remoteip' => $request->getClientIp(),
                 ],
             ]);
 
             $responseRaw = $response->getBody()->getContents();
-            $response = json_decode($responseRaw, true);
+            try {
+                $response = json_decode($responseRaw, true, flags: \JSON_THROW_ON_ERROR);
+            } catch (\JsonException) {
+                $response = [];
+            }
 
-            $thresholdScore = !empty($captchaConfig['config']['thresholdScore']) ? (float) $captchaConfig['config']['thresholdScore'] : self::DEFAULT_THRESHOLD_SCORE;
+            $thresholdScore = (float) ($captchaConfig['config']['thresholdScore'] ?? self::DEFAULT_THRESHOLD_SCORE);
+            if ($thresholdScore === 0.0) {
+                $thresholdScore = self::DEFAULT_THRESHOLD_SCORE;
+            }
 
-            return $response && (bool) $response['success'] && (float) $response['score'] >= $thresholdScore;
+            return \is_array($response)
+                && $response !== []
+                && $response['success']
+                && ((float) $response['score']) >= $thresholdScore;
         } catch (ClientExceptionInterface) {
             return false;
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getName(): string
+    private function createViolation(string $code): ConstraintViolation
     {
-        return self::CAPTCHA_NAME;
+        return new ConstraintViolation('', '', [], '', '', '', null, $code);
     }
 }

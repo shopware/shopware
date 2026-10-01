@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Aggrega
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DateHistogramAggregation::class)]
 class DateHistogramAggregationTest extends TestCase
 {
@@ -48,6 +50,6 @@ class DateHistogramAggregationTest extends TestCase
 
         $clone = clone $aggregation;
 
-        static::assertEquals($aggregation->jsonSerialize(), $clone->jsonSerialize());
+        static::assertSame($aggregation->jsonSerialize(), $clone->jsonSerialize());
     }
 }

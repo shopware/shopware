@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\DevOps\System\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi3Generator;
 use Shopware\Core\Framework\Log\Package;
@@ -12,6 +11,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -25,8 +25,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class OpenApiValidationCommand extends Command
 {
     public function __construct(
-        private HttpClientInterface $client,
-        private DefinitionService $definitionService
+        private readonly HttpClientInterface $client,
+        private readonly DefinitionService $definitionService,
     ) {
         parent::__construct();
     }
@@ -66,11 +66,11 @@ class OpenApiValidationCommand extends Command
             $content['schemaValidationMessages'] ?? []
         );
 
-        if (\count($messages) === 0) {
+        if ($messages === []) {
             return Command::SUCCESS;
         }
 
-        $style = new ShopwareStyle($input, $output);
+        $style = new SymfonyStyle($input, $output);
         $this->renderErrorMessages($style, $messages);
 
         return Command::FAILURE;
@@ -79,7 +79,7 @@ class OpenApiValidationCommand extends Command
     /**
      * @param array<string, string|array<mixed>> $messages
      */
-    private function renderErrorMessages(ShopwareStyle $style, array $messages): void
+    private function renderErrorMessages(SymfonyStyle $style, array $messages): void
     {
         $style->error('The OpenAPI schema is invalid:');
         $table = $style->createTable();

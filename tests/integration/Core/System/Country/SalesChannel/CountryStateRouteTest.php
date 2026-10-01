@@ -107,8 +107,8 @@ class CountryStateRouteTest extends TestCase
         static::assertNotNull($response['elements']);
         static::assertCount(2, $response['elements']);
 
-        static::assertEquals([
+        static::assertSame([
             'Baden-Württemberg', 'Bavaria',
-        ], array_map(fn (array $state) => $state['name'], $response['elements']));
+        ], array_map(static fn (array $state) => $state['name'], $response['elements']));
     }
 }

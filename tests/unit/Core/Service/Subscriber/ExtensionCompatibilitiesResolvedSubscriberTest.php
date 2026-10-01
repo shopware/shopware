@@ -6,17 +6,19 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Struct\ExtensionCollection;
 use Shopware\Core\Framework\Update\Event\ExtensionCompatibilitiesResolvedEvent;
 use Shopware\Core\Framework\Update\Services\ExtensionCompatibility;
 use Shopware\Core\Framework\Update\Struct\Version;
-use Shopware\Core\Service\ServiceRegistryClient;
-use Shopware\Core\Service\ServiceRegistryEntry;
+use Shopware\Core\Service\ServiceRegistry\Client as ServiceRegistryClient;
+use Shopware\Core\Service\ServiceRegistry\ServiceEntry;
 use Shopware\Core\Service\Subscriber\ExtensionCompatibilitiesResolvedSubscriber;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ExtensionCompatibilitiesResolvedSubscriber::class)]
 class ExtensionCompatibilitiesResolvedSubscriberTest extends TestCase
 {
@@ -53,7 +55,7 @@ class ExtensionCompatibilitiesResolvedSubscriberTest extends TestCase
         $this->serviceRegistryClient->expects($this->once())
             ->method('getAll')
             ->willReturn([
-                new ServiceRegistryEntry('TestApp', 'TestApp', 'https://www.testapp.com', '/'),
+                new ServiceEntry('TestApp', 'TestApp', 'https://www.testapp.com', '/'),
             ]);
 
         $subscriber = new ExtensionCompatibilitiesResolvedSubscriber(

@@ -3,12 +3,13 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
@@ -17,14 +18,19 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
@@ -33,14 +39,14 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestConstantTaxRateProvider;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
  */
-#[CoversClass(CartOrderRoute::class)]
-#[Group('store-api')]
 #[Package('checkout')]
+#[Group('store-api')]
 class CartOrderRouteTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -85,39 +91,6 @@ class CartOrderRouteTest extends TestCase
         $this->validSalutationId = $this->getValidSalutationId();
         $this->validCountryId = $this->getValidCountryId($this->ids->get('sales-channel'));
 
-        $shippingMethodRepository = static::getContainer()->get('shipping_method.repository');
-        $shippingMethodRepository->create([
-            [
-                'id' => $this->ids->get('shipping-method'),
-                'name' => 'test',
-                'technicalName' => 'test',
-                'active' => true,
-                'deliveryTimeId' => static::getContainer()->get('delivery_time.repository')->searchIds(new Criteria(), Context::createDefaultContext())->firstId(),
-                'prices' => [
-                    [
-                        'currencyId' => Defaults::CURRENCY,
-                        'calculation' => 1,
-                        'quantityStart' => 1,
-                        'quantityEnd' => 100,
-                        'currencyPrice' => [
-                            [
-                                'gross' => 0,
-                                'net' => 0,
-                                'linked' => false,
-                                'currencyId' => Defaults::CURRENCY,
-                            ],
-                        ],
-                    ],
-                ],
-                'salesChannels' => [
-                    ['id' => $this->ids->get('sales-channel')],
-                ],
-                'salesChannelDefaultAssignments' => [
-                    ['id' => $this->ids->get('sales-channel')],
-                ],
-            ],
-        ], Context::createDefaultContext());
-
         $this->createTestData();
     }
 
@@ -158,33 +131,8 @@ class CartOrderRouteTest extends TestCase
     public function testOrderOneProduct(): void
     {
         $this->createCustomerAndLogin();
+        $this->addProductToCart();
 
-        // Fill product
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-        static::assertNotFalse($this->browser->getResponse()->getContent());
-
-        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame('cart', $response['apiAlias']);
-        static::assertSame(10, $response['price']['totalPrice']);
-        static::assertCount(1, $response['lineItems']);
-
-        // Order
         $this->browser
             ->request(
                 'POST',
@@ -200,36 +148,51 @@ class CartOrderRouteTest extends TestCase
         static::assertCount(1, $response['lineItems']);
     }
 
+    public function testOrderRouteDoesNotExposePurchasePricesInLineItemPayload(): void
+    {
+        $this->productRepository->update([
+            [
+                'id' => $this->ids->get('p1'),
+                'purchasePrices' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 7.5, 'net' => 5, 'linked' => false],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $this->createCustomerAndLogin();
+        $this->addProductToCart();
+
+        $this->browser->request('POST', '/store-api/checkout/order');
+
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $order = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayNotHasKey('purchasePrices', $order['lineItems'][0]['payload']);
+
+        $criteria = new Criteria([$order['id']]);
+        $criteria->addAssociation('lineItems');
+
+        $this->browser->request(
+            'POST',
+            '/store-api/order',
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            \json_encode(static::getContainer()->get(RequestCriteriaBuilder::class)->toArray($criteria), \JSON_THROW_ON_ERROR) ?: ''
+        );
+
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayNotHasKey('purchasePrices', $response['orders']['elements'][0]['lineItems'][0]['payload']);
+    }
+
     public function testOrderWithComment(): void
     {
         $this->createCustomerAndLogin();
+        $this->addProductToCart();
 
-        // Fill product
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-        static::assertNotFalse($this->browser->getResponse()->getContent());
-
-        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame('cart', $response['apiAlias']);
-        static::assertSame(10, $response['price']['totalPrice']);
-        static::assertCount(1, $response['lineItems']);
-
-        // Order
         $this->browser
             ->request(
                 'POST',
@@ -250,33 +213,8 @@ class CartOrderRouteTest extends TestCase
     public function testOrderWithAffiliateAndCampaignTracking(): void
     {
         $this->createCustomerAndLogin();
+        $this->addProductToCart();
 
-        // Fill product
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-        static::assertNotFalse($this->browser->getResponse()->getContent());
-
-        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame('cart', $response['apiAlias']);
-        static::assertSame(10, $response['price']['totalPrice']);
-        static::assertCount(1, $response['lineItems']);
-
-        // Order
         $this->browser
             ->request(
                 'POST',
@@ -288,7 +226,6 @@ class CartOrderRouteTest extends TestCase
             );
 
         static::assertNotFalse($this->browser->getResponse()->getContent());
-
         $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('order', $response['apiAlias']);
@@ -299,31 +236,7 @@ class CartOrderRouteTest extends TestCase
     public function testOrderWithAffiliateTrackingOnly(): void
     {
         $this->createCustomerAndLogin();
-
-        // Fill product
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-        static::assertNotFalse($this->browser->getResponse()->getContent());
-
-        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame('cart', $response['apiAlias']);
-        static::assertSame(10, $response['price']['totalPrice']);
-        static::assertCount(1, $response['lineItems']);
+        $this->addProductToCart();
 
         // Order
         $this->browser
@@ -336,7 +249,6 @@ class CartOrderRouteTest extends TestCase
             );
 
         static::assertNotFalse($this->browser->getResponse()->getContent());
-
         $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('order', $response['apiAlias']);
@@ -347,33 +259,8 @@ class CartOrderRouteTest extends TestCase
     public function testOrderWithCampaignTrackingOnly(): void
     {
         $this->createCustomerAndLogin();
+        $this->addProductToCart();
 
-        // Fill product
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-        static::assertNotFalse($this->browser->getResponse()->getContent());
-
-        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-
-        static::assertSame('cart', $response['apiAlias']);
-        static::assertSame(10, $response['price']['totalPrice']);
-        static::assertCount(1, $response['lineItems']);
-
-        // Order
         $this->browser
             ->request(
                 'POST',
@@ -383,7 +270,9 @@ class CartOrderRouteTest extends TestCase
                 ]
             );
 
-        $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $response = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('order', $response['apiAlias']);
         static::assertNull($response['affiliateCode']);
@@ -422,29 +311,9 @@ class CartOrderRouteTest extends TestCase
 
         $email = Uuid::randomHex() . '@example.com';
         $password = 'shopware';
-        $this->createCustomerAndLogin($email, $password);
+        $originalToken = $this->createCustomerAndLogin($email, $password);
 
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
-
-        $response = $this->browser->getResponse();
-        $originalToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        static::assertNotNull($originalToken);
-        static::assertNotFalse($response->getContent());
-        $data = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertCount(1, $data['lineItems']);
+        $this->addProductToCart();
 
         $interval = new \DateInterval(static::getContainer()->getParameter('shopware.api.store.context_lifetime'));
         $intervalInSeconds = (new \DateTime())->setTimestamp(0)->add($interval)->getTimestamp();
@@ -461,47 +330,29 @@ class CartOrderRouteTest extends TestCase
         $this->browser->request('GET', '/store-api/checkout/cart');
 
         $response = $this->browser->getResponse();
-        $guestToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        $guestToken = $this->browser->getRequest()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
         static::assertNotNull($guestToken);
+        self::assertImplicitContextTokenHeader($response);
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
 
-        // we should get a new token and it should be different from the expired token context
-        static::assertNotEquals($originalToken, $guestToken);
         static::assertNotFalse($response->getContent());
 
         $data = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEmpty($data['lineItems']);
 
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p2'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p2'),
-                        ],
-                    ],
-                ]
-            );
-
-        $response = $this->browser->getResponse();
+        $response = $this->addProductToCart('p2');
         $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        static::assertSame($guestToken, $token);
-        static::assertNotFalse($response->getContent());
-
-        $data = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-        static::assertCount(1, $data['lineItems']);
+        static::assertNotEmpty($token);
+        $guestToken = $token;
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
 
         // the cart should be merged on login and a new token should be created
-        $this->login($email, $password);
+        $mergedToken = $this->login($email, $password);
 
         $this->browser->request('GET', '/store-api/checkout/cart');
 
         $response = $this->browser->getResponse();
-        $mergedToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        self::assertImplicitContextTokenHeader($response, $mergedToken);
 
         static::assertNotFalse($response->getContent());
 
@@ -515,24 +366,11 @@ class CartOrderRouteTest extends TestCase
     public function testOrderPlacedCriteriaEventFired(): void
     {
         $this->createCustomerAndLogin();
+        $this->addProductToCart();
 
         $event = null;
         $this->catchEvent(CheckoutOrderPlacedCriteriaEvent::class, $event);
 
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
         $this->browser
             ->request(
                 'POST',
@@ -545,21 +383,8 @@ class CartOrderRouteTest extends TestCase
     public function testPreparedPaymentStructForwarded(): void
     {
         $this->createCustomerAndLogin();
+        $this->addProductToCart();
 
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
         $this->browser
             ->request(
                 'POST',
@@ -597,21 +422,7 @@ class CartOrderRouteTest extends TestCase
 
         $this->taxProviderRepository->create([$taxProvider], Context::createDefaultContext());
         $this->createCustomerAndLogin();
-
-        $this->browser
-            ->request(
-                Request::METHOD_POST,
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
+        $this->addProductToCart();
 
         $this->browser
             ->request(
@@ -653,25 +464,7 @@ class CartOrderRouteTest extends TestCase
         $password = 'shopware';
 
         $this->createCustomerAndLogin($email, $password, true);
-
-        // Fill product
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-        static::assertNotFalse($this->browser->getResponse()->getContent());
+        $this->addProductToCart();
 
         // Order
         $this->browser
@@ -680,6 +473,7 @@ class CartOrderRouteTest extends TestCase
                 '/store-api/checkout/order',
             );
 
+        static::assertNotFalse($this->browser->getResponse()->getContent());
         $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotNull($response['orderCustomer']);
@@ -705,25 +499,7 @@ class CartOrderRouteTest extends TestCase
         static::assertArrayNotHasKey(SalutationDefinition::NOT_SPECIFIED, $salutations);
 
         $this->createCustomerAndLogin($email, $password, true);
-
-        // Fill product
-        $this->browser
-            ->request(
-                'POST',
-                '/store-api/checkout/cart/line-item',
-                [
-                    'items' => [
-                        [
-                            'id' => $this->ids->get('p1'),
-                            'type' => 'product',
-                            'referencedId' => $this->ids->get('p1'),
-                        ],
-                    ],
-                ]
-            );
-
-        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
-        static::assertNotFalse($this->browser->getResponse()->getContent());
+        $this->addProductToCart();
 
         // Order
         $this->browser
@@ -732,10 +508,64 @@ class CartOrderRouteTest extends TestCase
                 '/store-api/checkout/order',
             );
 
+        static::assertNotFalse($this->browser->getResponse()->getContent());
         $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertNotNull($response['orderCustomer']);
         static::assertNull($response['orderCustomer']['salutationId']);
+    }
+
+    public function testOrderLockedWhenAlreadyInProgress(): void
+    {
+        $token = $this->createCustomerAndLogin();
+        $response = $this->addProductToCart();
+        static::assertSame($token, $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+        // Manually acquire lock to simulate concurrent request
+        $cartLocker = $this->getContainer()->get(CartLocker::class);
+        $lockKey = $cartLocker->getLockKey($token);
+        $lock = $this->getContainer()->get('lock.factory')->createLock($lockKey, 5);
+        $lock->acquire();
+
+        // Try to create order while lock is held
+        try {
+            $this->browser
+                ->request(
+                    'POST',
+                    '/store-api/checkout/order'
+                );
+
+            static::assertSame(409, $this->browser->getResponse()->getStatusCode());
+            static::assertNotFalse($this->browser->getResponse()->getContent());
+            $response = \json_decode($this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+            static::assertArrayHasKey('errors', $response);
+            static::assertSame('CHECKOUT__CART_LOCKED', $response['errors'][0]['code']);
+        } finally {
+            // Release lock after test
+            $lock->release();
+        }
+    }
+
+    public function testOrderIsRejectedWhenTheCartWasAlreadyOrdered(): void
+    {
+        $token = $this->createCustomerAndLogin();
+        $this->addProductToCart();
+
+        $context = static::getContainer()->get(SalesChannelContextService::class)
+            ->get(new SalesChannelContextServiceParameters($this->ids->get('sales-channel'), $token));
+
+        $cartService = static::getContainer()->get(CartService::class);
+
+        // both requests read the cart before either of them places an order
+        $cart = $cartService->getCart($token, $context, caching: false);
+        $staleCart = $cartService->getCart($token, $context, caching: false);
+
+        $cartService->order($cart, $context, new RequestDataBag());
+
+        $this->expectExceptionObject(CartException::tokenNotFound($token));
+
+        $cartService->order($staleCart, $context, new RequestDataBag());
     }
 
     protected function catchEvent(string $eventName, ?Event &$eventResult): void
@@ -770,7 +600,7 @@ class CartOrderRouteTest extends TestCase
         ?string $email = null,
         ?string $password = null,
         bool $invalidSalutationId = false
-    ): void {
+    ): string {
         $email ??= Uuid::randomHex() . '@example.com';
         $password ??= 'shopware';
         $this->createCustomer(
@@ -781,10 +611,10 @@ class CartOrderRouteTest extends TestCase
             $this->validCountryId
         );
 
-        $this->login($email, $password);
+        return $this->login($email, $password);
     }
 
-    private function login(?string $email = null, ?string $password = null): void
+    private function login(?string $email = null, ?string $password = null): string
     {
         $this->browser
             ->request(
@@ -803,6 +633,8 @@ class CartOrderRouteTest extends TestCase
         static::assertNotEmpty($contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+
+        return $contextToken;
     }
 
     private function createCustomer(
@@ -853,5 +685,52 @@ class CartOrderRouteTest extends TestCase
         ], Context::createDefaultContext());
 
         return $customerId;
+    }
+
+    private function addProductToCart(string $id = 'p1'): Response
+    {
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get($id),
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get($id),
+                        ],
+                    ],
+                ]
+            );
+
+        $response = $this->browser->getResponse();
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        $content = $this->browser->getResponse()->getContent();
+        static::assertIsString($content);
+        $content = \json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('cart', $content['apiAlias']);
+        static::assertSame(10, $content['price']['totalPrice']);
+        static::assertCount(1, $content['lineItems']);
+
+        return $response;
+    }
+
+    private static function assertImplicitContextTokenHeader(Response $response, ?string $contextToken = null): void
+    {
+        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+            static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+            return;
+        }
+
+        if ($contextToken === null) {
+            static::assertNotEmpty($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+
+            return;
+        }
+
+        static::assertSame($contextToken, $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 }

@@ -100,17 +100,8 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-search/component/sw-settings-search-search-index', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not able to rebuild the search index', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.viewer',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.viewer']);
         await wrapper.vm.$nextTick();
 
         const rebuildButton = wrapper.find('.sw-settings-search__search-index-rebuild-button');
@@ -119,9 +110,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
 
     it('should rebuild search index and show the notification on clicking the rebuild button', async () => {
         let response = {};
-        const wrapper = await createWrapper([
-            'product_search_config.editor',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.editor']);
         await wrapper.vm.$nextTick();
         wrapper.vm.createNotificationInfo = jest.fn();
         wrapper.vm.createNotificationSuccess = jest.fn();
@@ -166,9 +155,7 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
     });
 
     it('should display the notification success when the rebuild button process finish successfully', async () => {
-        const wrapper = await createWrapper([
-            'product_search_config.editor',
-        ]);
+        const wrapper = await createWrapper(['product_search_config.editor']);
         wrapper.vm.createNotificationSuccess = jest.fn();
         expect(wrapper.vm.isRebuildSuccess).toBeFalsy();
 
@@ -177,9 +164,20 @@ describe('module/sw-settings-search/component/sw-settings-search-search-index', 
         });
         await wrapper.vm.updateProgress();
 
-        expect(wrapper.vm.isRebuildSuccess).toBeTruthy();
         expect(wrapper.vm.createNotificationSuccess).toHaveBeenCalledWith({
             message: 'sw-settings-search.notification.index.success',
         });
+
+        expect(wrapper.vm.isRebuildInProgress).toBe(false);
+        expect(wrapper.vm.progressBarValue).toBe(0);
+    });
+
+    it('should return early and not set latestIndex when result.total === 0', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.productSearchKeywordRepository.search = jest.fn(() => Promise.resolve({ total: 0 }));
+        wrapper.vm.latestIndex = null;
+        await wrapper.vm.getLatestProductKeywordIndexed();
+        expect(wrapper.vm.latestIndex).toBeNull();
     });
 });

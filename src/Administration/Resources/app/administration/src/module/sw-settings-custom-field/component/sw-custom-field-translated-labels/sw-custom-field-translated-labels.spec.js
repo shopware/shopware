@@ -16,15 +16,13 @@ const config = {
 };
 
 const intl = {
-    locale: en,
-    fallbackLocale: en,
+    fallbackLocale: {
+        value: en,
+    },
 };
 
 const defaultProps = {
-    locales: [
-        en,
-        de,
-    ],
+    locales: [en, de],
     config,
     propertyNames: {
         label1: 'label1',
@@ -40,15 +38,36 @@ async function createWrapper(props = defaultProps) {
         }),
         {
             props,
-            provide: {
-                $root: {
+            global: {
+                mocks: {
                     $i18n: intl,
                 },
-            },
-            global: {
+                provide: {
+                    acl: {},
+                },
                 stubs: {
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
+                    },
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -100,12 +119,14 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
         expect(wrapper.vm.config.label1[en]).toBe(value !== '' ? value : null);
     });
 
-    it('should render multiple locales with tabs', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy sw-tabs branch.
+    it.deprecated('v6.8.0.0')('should render multiple locales with deprecated tabs', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
         expect(wrapper.find('.sw-custom-field-translated-labels__single').exists()).toBe(false);
         expect(wrapper.find('.sw-custom-field-translated-labels__tabs').exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
 
         expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-labels-field')).toHaveLength(2);
         expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')).toHaveLength(2);
@@ -114,6 +135,48 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
         ).toBe('label1 (locale.en-GB)');
 
         await wrapper.findAll('.sw-custom-field-translated-labels__translated-labels-field')[1].trigger('click');
+        expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')).toHaveLength(2);
+        expect(
+            wrapper.findAllComponents('.sw-custom-field-translated-labels__translated-content-field')[0].props('label'),
+        ).toBe('label1 (locale.de-DE)');
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should render multiple locales with meteor tabs', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(wrapper.find('.sw-custom-field-translated-labels__single').exists()).toBe(false);
+        expect(wrapper.find('.sw-tabs').exists()).toBe(false);
+        expect(tabs.props('positionIdentifier')).toBe('sw-custom-field-translated-labels');
+        expect(tabs.props('defaultItem')).toBe(en);
+        expect(tabs.props('items')).toEqual([
+            {
+                label: 'locale.en-GB',
+                name: en,
+            },
+            {
+                label: 'locale.de-DE',
+                name: de,
+            },
+        ]);
+        expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')).toHaveLength(2);
+        expect(
+            wrapper.findAllComponents('.sw-custom-field-translated-labels__translated-content-field')[0].props('label'),
+        ).toBe('label1 (locale.en-GB)');
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should switch meteor tab content when the active tab changes', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        await tabs.vm.$emit('new-item-active', de);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.vm.activeTab).toBe(de);
         expect(wrapper.findAll('.sw-custom-field-translated-labels__translated-content-field')).toHaveLength(2);
         expect(
             wrapper.findAllComponents('.sw-custom-field-translated-labels__translated-content-field')[0].props('label'),
@@ -148,7 +211,7 @@ describe('src/module/sw-settings-custom-field/component/sw-custom-field-translat
 
         expect(wrapper.vm.config).toHaveProperty('test');
         expect(wrapper.vm.config.test).toStrictEqual({
-            [intl.fallbackLocale]: null,
+            [intl.fallbackLocale.value]: null,
         });
     });
 });

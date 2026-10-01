@@ -6,11 +6,12 @@ use League\Flysystem\FilesystemOperator;
 use Psr\Cache\CacheItemPoolInterface;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Sitemap\Event\SitemapGeneratedEvent;
+use Shopware\Core\Content\Sitemap\Event\SitemapGenerationStartEvent;
 use Shopware\Core\Content\Sitemap\Provider\AbstractUrlProvider;
 use Shopware\Core\Content\Sitemap\SitemapException;
 use Shopware\Core\Content\Sitemap\Struct\SitemapGenerationResult;
-use Shopware\Core\Content\Sitemap\Struct\Url;
 use Shopware\Core\Content\Sitemap\Struct\UrlResult;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -46,10 +47,25 @@ class SitemapExporter implements SitemapExporterInterface
     public function generate(SalesChannelContext $context, bool $force = false, ?string $lastProvider = null, ?int $offset = null): SitemapGenerationResult
     {
         $this->refreshContextRules($context);
+
+        $this->dispatcher->dispatch(
+            new SitemapGenerationStartEvent($context)
+        );
+
         $this->lock($context, $force);
 
         try {
-            $this->initSitemapHandles($context);
+            if (!$this->initSitemapHandles($context)) {
+                // Headless sales channels without an external storefront domain for the current language have
+                // nothing to generate - mirrors the silent skip of the SEO URL generation.
+                return new SitemapGenerationResult(
+                    true,
+                    $lastProvider,
+                    null,
+                    $context->getSalesChannelId(),
+                    $context->getLanguageId()
+                );
+            }
 
             foreach ($this->urlProvider as $urlProvider) {
                 do {
@@ -101,7 +117,7 @@ class SitemapExporter implements SitemapExporterInterface
      */
     private function refreshContextRules(SalesChannelContext $salesChannelContext): SalesChannelContext
     {
-        if (\count($salesChannelContext->getRuleIds()) > 0) {
+        if ($salesChannelContext->getRuleIds() !== []) {
             return $salesChannelContext;
         }
 
@@ -115,15 +131,21 @@ class SitemapExporter implements SitemapExporterInterface
         return \sprintf('sitemap-exporter-running-%s-%s', $salesChannelContext->getSalesChannelId(), $salesChannelContext->getLanguageId());
     }
 
-    private function initSitemapHandles(SalesChannelContext $context): void
+    private function initSitemapHandles(SalesChannelContext $context): bool
     {
         $languageId = $context->getLanguageId();
         $domainsEntity = $context->getSalesChannel()->getDomains();
+        $isHeadless = $context->getSalesChannel()->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API;
 
         $sitemapDomains = [];
         if ($domainsEntity instanceof SalesChannelDomainCollection) {
             foreach ($domainsEntity as $domain) {
                 if ($domain->getLanguageId() === $languageId) {
+                    // domains of headless sales channels only qualify when they point at the external storefront
+                    if ($isHeadless && !$domain->getIsExternalStorefront()) {
+                        continue;
+                    }
+
                     $urlParts = \parse_url($domain->getUrl());
 
                     if ($urlParts === false) {
@@ -150,18 +172,23 @@ class SitemapExporter implements SitemapExporterInterface
             $sitemapHandles[$sitemapDomain['url']] = $this->sitemapHandleFactory->create($this->filesystem, $context, $sitemapDomain['url'], $sitemapDomain['domainId']);
         }
 
-        if (empty($sitemapHandles)) {
+        if ($sitemapHandles === []) {
+            if ($isHeadless) {
+                return false;
+            }
+
             throw SitemapException::invalidDomain();
         }
 
         $this->sitemapHandles = $sitemapHandles;
+
+        return true;
     }
 
     private function processSiteMapHandles(UrlResult $result): void
     {
         /** @var SitemapHandle $sitemapHandle */
         foreach ($this->sitemapHandles as $host => $sitemapHandle) {
-            /** @var Url[] $urls */
             $urls = [];
 
             foreach ($result->getUrls() as $url) {

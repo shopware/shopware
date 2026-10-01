@@ -1,8 +1,6 @@
 import './sw-button.scss';
 import template from './sw-button.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -18,7 +16,7 @@ const { Component } = Shopware;
  *
  * @deprecated tag:v6.8.0 - Will be removed, use mt-button instead.
  */
-Component.register('sw-button-deprecated', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -59,19 +57,13 @@ Component.register('sw-button-deprecated', {
             type: String,
             required: false,
             default: '',
-            validValues: [
-                'x-small',
-                'small',
-            ],
+            validValues: ['x-small', 'small'],
             validator(value) {
                 if (!value.length) {
                     return true;
                 }
 
-                return [
-                    'x-small',
-                    'small',
-                ].includes(value);
+                return ['x-small', 'small'].includes(value);
             },
         },
         square: {
@@ -84,7 +76,6 @@ Component.register('sw-button-deprecated', {
             required: false,
             default: false,
         },
-        // eslint-disable-next-line vue/require-default-prop
         routerLink: {
             type: Object,
             required: false,
@@ -129,4 +120,4 @@ Component.register('sw-button-deprecated', {
             return attributes;
         },
     },
-});
+};

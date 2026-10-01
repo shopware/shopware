@@ -20,7 +20,11 @@ class SalesChannelSeoUrlDefinition extends SeoUrlDefinition implements SalesChan
             new EqualsFilter('salesChannelId', $context->getSalesChannelId()),
             new EqualsFilter('salesChannelId', null),
         ]));
-        $criteria->addFilter(new EqualsFilter('isCanonical', true));
-        $criteria->addFilter(new EqualsFilter('isDeleted', false));
+        if (!$criteria->hasEqualsFilter('isCanonical') && !$criteria->hasEqualsFilter(self::ENTITY_NAME . '.isCanonical')) {
+            $criteria->addFilter(new EqualsFilter('isCanonical', true));
+        }
+        if (!$criteria->hasEqualsFilter('isDeleted') && !$criteria->hasEqualsFilter(self::ENTITY_NAME . '.isDeleted')) {
+            $criteria->addFilter(new EqualsFilter('isDeleted', false));
+        }
     }
 }

@@ -9,12 +9,14 @@ use Shopware\Core\Content\Media\Aggregate\MediaFolderConfiguration\MediaFolderCo
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class MediaFolderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -55,7 +57,7 @@ class MediaFolderTest extends TestCase
         $mediaFolder = $collection->get($folderId);
 
         static::assertInstanceOf(MediaFolderEntity::class, $mediaFolder);
-        static::assertEquals('default folder', $mediaFolder->getName());
+        static::assertSame('default folder', $mediaFolder->getName());
         static::assertNotNull($mediaFolder->getConfigurationId());
         static::assertNotNull($mediaFolder->getConfiguration());
         static::assertTrue($mediaFolder->getConfiguration()->getCreateThumbnails());

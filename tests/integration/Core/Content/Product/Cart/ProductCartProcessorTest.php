@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Content\Product\Cart;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
@@ -28,8 +27,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -42,6 +43,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductCartProcessorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -80,10 +82,10 @@ class ProductCartProcessorTest extends TestCase
         static::assertInstanceOf(DeliveryInformation::class, $lineItem->getDeliveryInformation());
 
         $info = $lineItem->getDeliveryInformation();
-        static::assertEquals(100, $info->getWeight());
-        static::assertEquals(101, $info->getHeight());
-        static::assertEquals(102, $info->getWidth());
-        static::assertEquals(103, $info->getLength());
+        static::assertSame(100.0, $info->getWeight());
+        static::assertSame(101.0, $info->getHeight());
+        static::assertSame(102.0, $info->getWidth());
+        static::assertSame(103.0, $info->getLength());
     }
 
     public function testDeliveryInformationWithEmptyWeight(): void
@@ -168,7 +170,7 @@ class ProductCartProcessorTest extends TestCase
 
         $cart = $result->getCart();
 
-        static::assertEquals($valid, \in_array($ids->get('rule-1'), $context->getRuleIds(), true));
+        static::assertSame($valid, \in_array($ids->get('rule-1'), $context->getRuleIds(), true));
 
         $lineItem = static::getContainer()->get(ProductLineItemFactory::class)
             ->create(['id' => $ids->get('test'), 'referencedId' => $ids->get('test')], $context);
@@ -180,12 +182,12 @@ class ProductCartProcessorTest extends TestCase
 
         $lineItem = $cart->getLineItems()->first();
         static::assertNotNull($lineItem);
-        static::assertEquals('product', $lineItem->getType());
-        static::assertEquals($ids->get('test'), $lineItem->getReferencedId());
+        static::assertSame('product', $lineItem->getType());
+        static::assertSame($ids->get('test'), $lineItem->getReferencedId());
 
         /** @var CalculatedPrice $calcPrice */
         $calcPrice = $lineItem->getPrice();
-        static::assertEquals($price, $calcPrice->getTotalPrice());
+        static::assertSame($price, $calcPrice->getTotalPrice());
     }
 
     /**
@@ -269,7 +271,6 @@ class ProductCartProcessorTest extends TestCase
         static::assertSame('test', $actualProduct->getLabel());
     }
 
-    #[Group('slow')]
     public function testLineItemPropertiesPurchasePrice(): void
     {
         $this->createProduct();
@@ -294,8 +295,9 @@ class ProductCartProcessorTest extends TestCase
         $lineItem = $cart->get($product->getId());
 
         static::assertInstanceOf(LineItem::class, $lineItem);
-        $payload = $lineItem->getPayload();
-        $purchasePrices = json_decode((string) $payload['purchasePrices'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('purchasePrices', $lineItem->getPayload());
+
+        $purchasePrices = json_decode((string) $lineItem->getPayloadValue('purchasePrices'), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Defaults::CURRENCY, $purchasePrices['currencyId']);
         static::assertSame(7.5, $purchasePrices['gross']);
         static::assertSame(5, $purchasePrices['net']);
@@ -314,18 +316,18 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @param array{type: string} $testedFeature
+     * @param array{type: string, id: string|null, name: string|null, position: int} $testedFeature
      * @param array<string, mixed> $productData
-     * @param array{type: string, value: array{price: string}, label: string} $expectedFeature
+     * @param array{type: string, value: mixed, label: string} $expectedFeature
+     * @param array<string, mixed> $customFieldData
      */
-    #[DataProvider('productFeatureProdiver')]
-    #[Group('slow')]
-    public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature): void
+    #[DataProvider('productFeatureProvider')]
+    public function testProductFeaturesContainCorrectInformation(array $testedFeature, array $productData, array $expectedFeature, array $customFieldData = []): void
     {
         $this->createLanguage(self::TEST_LANGUAGE_ID);
 
         if ($testedFeature['type'] === ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD) {
-            $this->createCustomField([]);
+            $this->createCustomField($customFieldData);
         }
 
         $this->createProduct([...[
@@ -347,217 +349,288 @@ class ProductCartProcessorTest extends TestCase
             unset($expectedFeature['value']['price'], $feature['value']['price']);
         }
 
-        static::assertEquals($expectedFeature, $feature);
+        static::assertSame($expectedFeature, $feature);
     }
 
     /**
-     * @return array{
-     *     0: array{type: string},
-     *     1: array<string, mixed>,
-     *     2: array{type: string, value: mixed, label: string}
-     *     }[]
+     * @return iterable<string, array{
+     *     array{type: string, id: string|null, name: string|null, position: int},
+     *     array<string, mixed>,
+     *     array{type: string, value: mixed, label: string},
+     *     3?: array<string, mixed>
+     * }>
      */
-    public static function productFeatureProdiver(): array
+    public static function productFeatureProvider(): iterable
     {
-        return [
+        yield 'translated product description is exposed as an attribute feature' => [
             [
-                [
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
-                    'id' => null,
-                    'name' => 'description',
-                    'position' => 1,
-                ],
-                [
-                    'translations' => [
-                        Defaults::LANGUAGE_SYSTEM => [
-                            'name' => 'Default',
-                            'description' => 'Default',
-                        ],
-                        self::TEST_LANGUAGE_ID => [
-                            'description' => 'Lorem ipsum dolor sit amet.',
-                        ],
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
+                'id' => null,
+                'name' => 'description',
+                'position' => 1,
+            ],
+            [
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => [
+                        'name' => 'Default',
+                        'description' => 'Default',
                     ],
-                ],
-                [
-                    'label' => 'description',
-                    'value' => 'Lorem ipsum dolor sit amet.',
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
+                    self::TEST_LANGUAGE_ID => [
+                        'description' => 'Lorem ipsum dolor sit amet.',
+                    ],
                 ],
             ],
             [
-                [
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
-                    'id' => null,
-                    'name' => 'manufacturerNumber',
-                    'position' => 1,
-                ],
-                [
-                    'manufacturerNumber' => '22ee3d8063da',
-                ],
-                [
-                    'label' => 'manufacturerNumber',
-                    'value' => '22ee3d8063da',
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
-                ],
+                'label' => 'description',
+                'value' => 'Lorem ipsum dolor sit amet.',
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
+            ],
+        ];
+        yield 'manufacturer number is exposed as an attribute feature' => [
+            [
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
+                'id' => null,
+                'name' => 'manufacturerNumber',
+                'position' => 1,
             ],
             [
-                [
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_PROPERTY,
-                    'id' => '7c8e7851ff88447ba254d3c2a7c45101',
-                    'name' => null,
-                    'position' => 2,
-                ],
-                [
-                    'properties' => [
-                        [
-                            'id' => 'bf821e9e206848579049bc1694c5c3e7',
-                        ],
-                        [
-                            'id' => '0cfabe6eab0440b0974b7b7164556612',
-                        ],
+                'manufacturerNumber' => '22ee3d8063da',
+            ],
+            [
+                'label' => 'manufacturerNumber',
+                'value' => '22ee3d8063da',
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_ATTRIBUTE,
+            ],
+        ];
+        yield 'translated property options are exposed as a property feature' => [
+            [
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_PROPERTY,
+                'id' => '7c8e7851ff88447ba254d3c2a7c45101',
+                'name' => null,
+                'position' => 2,
+            ],
+            [
+                'properties' => [
+                    [
+                        'id' => 'bf821e9e206848579049bc1694c5c3e7',
                     ],
-                    'options' => [
-                        [
-                            'id' => 'bf821e9e206848579049bc1694c5c3e7',
-                            'position' => 99,
-                            'colorHexCode' => '#189eff',
-                            'group' => [
-                                'id' => '7c8e7851ff88447ba254d3c2a7c45101',
-                                'position' => 1,
-                                'translations' => [
-                                    Defaults::LANGUAGE_SYSTEM => [
-                                        'name' => 'Default',
-                                        'description' => 'Default',
-                                        'displayType' => 'Default',
-                                        'sortingType' => 'Default',
-                                    ],
-                                    self::TEST_LANGUAGE_ID => [
-                                        'name' => 'swag_color',
-                                        'description' => 'Lorem ipsum',
-                                        'displayType' => 'color',
-                                        'sortingType' => 'alphanumeric',
-                                    ],
-                                ],
-                            ],
+                    [
+                        'id' => '0cfabe6eab0440b0974b7b7164556612',
+                    ],
+                ],
+                'options' => [
+                    [
+                        'id' => 'bf821e9e206848579049bc1694c5c3e7',
+                        'position' => 99,
+                        'colorHexCode' => '#189eff',
+                        'group' => [
+                            'id' => '7c8e7851ff88447ba254d3c2a7c45101',
+                            'position' => 1,
                             'translations' => [
                                 Defaults::LANGUAGE_SYSTEM => [
                                     'name' => 'Default',
+                                    'description' => 'Default',
+                                    'displayType' => 'Default',
+                                    'sortingType' => 'Default',
                                 ],
                                 self::TEST_LANGUAGE_ID => [
-                                    'name' => 'Blue',
+                                    'name' => 'swag_color',
+                                    'description' => 'Lorem ipsum',
+                                    'displayType' => 'color',
+                                    'sortingType' => 'alphanumeric',
                                 ],
                             ],
                         ],
-                        [
-                            'id' => '0cfabe6eab0440b0974b7b7164556612',
-                            'position' => 98,
-                            'colorHexCode' => '#ff0000',
-                            'groupId' => '7c8e7851ff88447ba254d3c2a7c45101',
-                            'translations' => [
-                                Defaults::LANGUAGE_SYSTEM => [
-                                    'name' => 'Default',
-                                ],
-                                self::TEST_LANGUAGE_ID => [
-                                    'name' => 'Red',
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-                [
-                    'label' => 'swag_color',
-                    'value' => [
-                        '0cfabe6eab0440b0974b7b7164556612' => [
-                            'id' => '0cfabe6eab0440b0974b7b7164556612',
-                            'name' => 'Red',
-                            'mediaId' => null,
-                            'colorHexCode' => '#ff0000',
-                        ],
-                        'bf821e9e206848579049bc1694c5c3e7' => [
-                            'id' => 'bf821e9e206848579049bc1694c5c3e7',
-                            'name' => 'Blue',
-                            'mediaId' => null,
-                            'colorHexCode' => '#189eff',
-                        ],
-                    ],
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_PROPERTY,
-                ],
-            ],
-            [
-                [
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
-                    'id' => null,
-                    'name' => 'lorem_ipsum',
-                    'position' => 3,
-                ],
-                [
-                    'translations' => [
-                        Defaults::LANGUAGE_SYSTEM => [
-                            'name' => 'Default',
-                            'customFields' => [
-                                'lorem_ipsum' => 'Default',
-                            ],
-                        ],
-                        self::TEST_LANGUAGE_ID => [
-                            'customFields' => [
-                                'lorem_ipsum' => 'Dolor sit amet.',
-                            ],
-                        ],
-                    ],
-                ],
-                [
-                    'label' => 'lorem_ipsum',
-                    'value' => [
-                        'id' => self::CUSTOM_FIELD_ID,
-                        'type' => CustomFieldTypes::TEXT,
-                        'content' => 'Dolor sit amet.',
-                    ],
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
-                ],
-            ],
-            [
-                [
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE,
-                    'id' => null,
-                    'name' => null,
-                    'position' => 0,
-                ],
-                [
-                    'translations' => [
-                        Defaults::LANGUAGE_SYSTEM => [
-                            'name' => 'Default',
-                            'packUnit' => 'Default',
-                            'packUnitPlural' => 'Default',
-                        ],
-                        self::TEST_LANGUAGE_ID => [
-                            'packUnit' => 'Can',
-                            'packUnitPlural' => 'Cans',
-                        ],
-                    ],
-                    'unit' => [
                         'translations' => [
                             Defaults::LANGUAGE_SYSTEM => [
-                                'shortCode' => 'Default',
                                 'name' => 'Default',
                             ],
                             self::TEST_LANGUAGE_ID => [
-                                'shortCode' => 'l',
-                                'name' => 'litres',
+                                'name' => 'Blue',
                             ],
                         ],
                     ],
-                    'purchaseUnit' => 2,
-                    'referenceUnit' => 0.33,
-                ],
-                [
-                    'label' => ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE,
-                    'value' => [
-                        'purchaseUnit' => 2.0,
-                        'referenceUnit' => 0.33,
-                        'unitName' => 'litres',
+                    [
+                        'id' => '0cfabe6eab0440b0974b7b7164556612',
+                        'position' => 98,
+                        'colorHexCode' => '#ff0000',
+                        'groupId' => '7c8e7851ff88447ba254d3c2a7c45101',
+                        'translations' => [
+                            Defaults::LANGUAGE_SYSTEM => [
+                                'name' => 'Default',
+                            ],
+                            self::TEST_LANGUAGE_ID => [
+                                'name' => 'Red',
+                            ],
+                        ],
                     ],
-                    'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE,
                 ],
+            ],
+            [
+                'label' => 'swag_color',
+                'value' => [
+                    '0cfabe6eab0440b0974b7b7164556612' => [
+                        'id' => '0cfabe6eab0440b0974b7b7164556612',
+                        'name' => 'Red',
+                        'mediaId' => null,
+                        'colorHexCode' => '#ff0000',
+                    ],
+                    'bf821e9e206848579049bc1694c5c3e7' => [
+                        'id' => 'bf821e9e206848579049bc1694c5c3e7',
+                        'name' => 'Blue',
+                        'mediaId' => null,
+                        'colorHexCode' => '#189eff',
+                    ],
+                ],
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_PROPERTY,
+            ],
+        ];
+        yield 'translated custom field is exposed as a custom field feature' => [
+            [
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+                'id' => null,
+                'name' => 'lorem_ipsum',
+                'position' => 3,
+            ],
+            [
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => [
+                        'name' => 'Default',
+                        'customFields' => [
+                            'lorem_ipsum' => 'Default',
+                        ],
+                    ],
+                    self::TEST_LANGUAGE_ID => [
+                        'customFields' => [
+                            'lorem_ipsum' => 'Dolor sit amet.',
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'label' => 'lorem_ipsum',
+                'value' => [
+                    'id' => self::CUSTOM_FIELD_ID,
+                    'type' => CustomFieldTypes::TEXT,
+                    'content' => 'Dolor sit amet.',
+                ],
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+            ],
+        ];
+        yield 'custom field of the system language is exposed as a custom field feature' => [
+            [
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+                'id' => null,
+                'name' => 'lorem_ipsum',
+                'position' => 3,
+            ],
+            [
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => [
+                        'name' => 'Default',
+                        'customFields' => [
+                            'lorem_ipsum' => 'Default',
+                        ],
+                    ],
+                    self::TEST_LANGUAGE_ID => [
+                        'name' => 'Dolor sit amet.',
+                    ],
+                ],
+            ],
+            [
+                'label' => 'lorem_ipsum',
+                'value' => [
+                    'id' => self::CUSTOM_FIELD_ID,
+                    'type' => CustomFieldTypes::TEXT,
+                    'content' => 'Default',
+                ],
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+            ],
+        ];
+        yield 'select custom field exposes the labels of the selected options' => [
+            [
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+                'id' => null,
+                'name' => 'lorem_ipsum',
+                'position' => 3,
+            ],
+            [
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => [
+                        'name' => 'Default',
+                        'customFields' => [
+                            'lorem_ipsum' => ['oak', 'pine'],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'label' => 'lorem_ipsum',
+                'value' => [
+                    'id' => self::CUSTOM_FIELD_ID,
+                    'type' => CustomFieldTypes::SELECT,
+                    'content' => ['oak', 'pine'],
+                    'display' => ['Oak', 'Pine'],
+                ],
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_CUSTOM_FIELD,
+            ],
+            [
+                'type' => CustomFieldTypes::SELECT,
+                'config' => [
+                    'componentName' => 'sw-multi-select',
+                    'customFieldType' => CustomFieldTypes::SELECT,
+                    'label' => [
+                        'en-GB' => 'lorem_ipsum',
+                    ],
+                    'options' => [
+                        ['value' => 'oak', 'label' => ['en-GB' => 'Oak']],
+                        ['value' => 'pine', 'label' => ['en-GB' => 'Pine']],
+                    ],
+                ],
+            ],
+        ];
+        yield 'translated pack unit is exposed as a reference price feature' => [
+            [
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE,
+                'id' => null,
+                'name' => null,
+                'position' => 0,
+            ],
+            [
+                'translations' => [
+                    Defaults::LANGUAGE_SYSTEM => [
+                        'name' => 'Default',
+                        'packUnit' => 'Default',
+                        'packUnitPlural' => 'Default',
+                    ],
+                    self::TEST_LANGUAGE_ID => [
+                        'packUnit' => 'Can',
+                        'packUnitPlural' => 'Cans',
+                    ],
+                ],
+                'unit' => [
+                    'translations' => [
+                        Defaults::LANGUAGE_SYSTEM => [
+                            'shortCode' => 'Default',
+                            'name' => 'Default',
+                        ],
+                        self::TEST_LANGUAGE_ID => [
+                            'shortCode' => 'l',
+                            'name' => 'litres',
+                        ],
+                    ],
+                ],
+                'purchaseUnit' => 2,
+                'referenceUnit' => 0.33,
+            ],
+            [
+                'label' => ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE,
+                'value' => [
+                    'purchaseUnit' => 2.0,
+                    'referenceUnit' => 0.33,
+                    'unitName' => 'litres',
+                ],
+                'type' => ProductFeatureSetDefinition::TYPE_PRODUCT_REFERENCE_PRICE,
             ],
         ];
     }
@@ -588,13 +661,12 @@ class ProductCartProcessorTest extends TestCase
         static::assertInstanceOf(LineItem::class, $actualProduct);
         static::assertNotNull($product->getPriceDefinition());
         static::assertInstanceOf(QuantityPriceDefinition::class, $product->getPriceDefinition());
-        static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
+        static::assertSame($product->getQuantity(), $actualProduct->getQuantity());
         static::assertEquals($product->getPrice(), $this->calculator->calculate($product->getPriceDefinition(), $context));
         static::assertEquals($product, $actualProduct);
     }
 
     #[DataProvider('productDeliverabilityProvider')]
-    #[Group('slow')]
     public function testProcessCartShouldReturnFixedQuantity(int $minPurchase, int $purchaseSteps, int $maxPurchase, int $quantity, int $quantityExpected, ?string $errorKey): void
     {
         $additionalData = [
@@ -627,34 +699,27 @@ class ProductCartProcessorTest extends TestCase
 
         $actualProduct = $cart->get($product->getId());
         static::assertInstanceOf(LineItem::class, $actualProduct);
-        static::assertEquals($quantityExpected, $actualProduct->getQuantity());
+        static::assertSame($quantityExpected, $actualProduct->getQuantity());
         if ($errorKey !== null) {
             $error = $service->getCart($token, $context)->getErrors()->first();
             static::assertNotNull($error);
-            static::assertEquals($errorKey, $error->getMessageKey());
+            static::assertSame($errorKey, $error->getMessageKey());
         }
     }
 
     /**
-     * @return array<string, array{0: int, 1: int, 2: int, 3: int, 4: int, 5: string}>
+     * @return iterable<string, array{0: int, 1: int, 2: int, 3: int, 4: int, 5: string}>
      */
-    public static function productDeliverabilityProvider(): array
+    public static function productDeliverabilityProvider(): iterable
     {
-        return [
-            'fixed quantity should be return 2' => [2, 2, 20, 3, 2, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 4' => [2, 2, 20, 5, 4, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 3' => [1, 2, 20, 4, 3, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 9' => [1, 2, 20, 10, 9, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 5, actual quantity is 6' => [5, 5, 20, 6, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 5, actual quantity is 7' => [5, 5, 20, 7, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 5, actual quantity is 8' => [5, 5, 20, 8, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 5, actual quantity is 9' => [5, 5, 20, 9, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return equal max purchase' => [2, 2, 20, 22, 20, self::PRODUCT_STOCK_REACHED_ERROR_KEY],
-            'fixed quantity should be return equal min purchase' => [2, 2, 20, 1, 2, self::MIN_ORDER_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 1' => [1, 3, 5, 2, 1, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 10 with purchase step error message' => [10, 3, 13, 11, 10, self::PURCHASE_STEP_QUANTITY_ERROR_KEY],
-            'fixed quantity should be return 10, with min order quantity error message' => [10, 2, 20, 2, 10, self::MIN_ORDER_QUANTITY_ERROR_KEY],
-        ];
+        yield 'quantity 5 is reduced to purchase step 4' => [2, 2, 20, 5, 4, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity 10 is reduced to purchase step 9' => [1, 2, 20, 10, 9, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity 6 is reduced to minimum purchase 5' => [5, 5, 20, 6, 5, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity above stock is capped at max purchase' => [2, 2, 20, 22, 20, self::PRODUCT_STOCK_REACHED_ERROR_KEY];
+        yield 'quantity below minimum is raised to min purchase' => [2, 2, 20, 1, 2, self::MIN_ORDER_QUANTITY_ERROR_KEY];
+        yield 'quantity 2 is reduced to purchase step 1' => [1, 3, 5, 2, 1, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity 11 is reduced to purchase step 10' => [10, 3, 13, 11, 10, self::PURCHASE_STEP_QUANTITY_ERROR_KEY];
+        yield 'quantity below high minimum is raised to min purchase' => [10, 2, 20, 2, 10, self::MIN_ORDER_QUANTITY_ERROR_KEY];
     }
 
     public function testProcessCartShouldSetQuantityOfPriceDefinitionWhenAddingASimilarProduct(): void
@@ -689,7 +754,7 @@ class ProductCartProcessorTest extends TestCase
         static::assertInstanceOf(LineItem::class, $actualProduct);
         static::assertNotNull($product->getPriceDefinition());
         static::assertInstanceOf(QuantityPriceDefinition::class, $product->getPriceDefinition());
-        static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
+        static::assertSame($product->getQuantity(), $actualProduct->getQuantity());
         static::assertEquals($product->getPrice(), $this->calculator->calculate($product->getPriceDefinition(), $context));
         static::assertEquals($product, $actualProduct);
     }
@@ -721,7 +786,7 @@ class ProductCartProcessorTest extends TestCase
         static::assertInstanceOf(LineItem::class, $actualProduct);
         static::assertNotNull($product->getPriceDefinition());
         static::assertInstanceOf(QuantityPriceDefinition::class, $product->getPriceDefinition());
-        static::assertEquals($product->getQuantity(), $actualProduct->getQuantity());
+        static::assertSame($product->getQuantity(), $actualProduct->getQuantity());
         static::assertEquals($product->getPrice(), $this->calculator->calculate($product->getPriceDefinition(), $context));
         static::assertEquals($product, $actualProduct);
     }
@@ -898,11 +963,11 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @return list<string>|list<array<string, string>>
+     * @return list<string>
      */
     private function getCountryIds(): array
     {
-        /** @var EntityRepository $repository */
+        /** @var EntityRepository<CountryCollection> $repository */
         $repository = static::getContainer()->get('country.repository');
 
         $criteria = (new Criteria())->setLimit(2)
@@ -1040,11 +1105,11 @@ class ProductCartProcessorTest extends TestCase
     }
 
     /**
-     * @param array{type: string}[]|null $features
+     * @param list<array{type: string, id: string|null, name: string|null, position: int}> $features
      *
      * @return array<string, mixed>
      */
-    private function createFeatureSet(?array $features = []): array
+    private function createFeatureSet(array $features): array
     {
         return [
             'id' => $this->ids->create('product-feature-set'),
@@ -1069,6 +1134,7 @@ class ProductCartProcessorTest extends TestCase
                     'name' => \sprintf('name-%s', $id),
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'parentId' => $parentId,
+                    'active' => true,
                     'translationCode' => [
                         'id' => self::TEST_LOCALE_ID,
                         'code' => self::TEST_LANGUAGE_LOCALE_CODE,

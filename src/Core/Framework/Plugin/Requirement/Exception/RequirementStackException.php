@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 class RequirementStackException extends ShopwareHttpException
 {
     /**
-     * @var RequirementException[]
+     * @var list<RequirementException>
      */
     private readonly array $requirements;
 
@@ -18,7 +18,7 @@ class RequirementStackException extends ShopwareHttpException
         string $method,
         RequirementException ...$requirements
     ) {
-        $this->requirements = $requirements;
+        $this->requirements = array_values($requirements);
 
         parent::__construct(
             'Could not {{ method }} plugin, got {{ failureCount }} failure(s). {{ errors }}',
@@ -41,7 +41,7 @@ class RequirementStackException extends ShopwareHttpException
     }
 
     /**
-     * @return RequirementException[]
+     * @return list<RequirementException>
      */
     public function getRequirements(): array
     {

@@ -3,9 +3,6 @@
  */
 
 import './sw-generic-social-media-card.scss';
-
-import type { PropType } from 'vue';
-
 import type Repository from 'src/core/data/repository.data';
 import template from './sw-generic-social-media-card.html.twig';
 
@@ -17,9 +14,7 @@ const createId = Shopware.Utils.createId;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         ogTitle: {
@@ -33,7 +28,7 @@ export default Shopware.Component.wrapComponentConfig({
             default: '',
         },
         ogImageId: {
-            type: String as PropType<string | null>,
+            type: String as unknown as PropType<EntityKey<'media'> | null>,
             required: false,
             default: null,
         },
@@ -102,7 +97,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.mediaModalIsOpen = false;
         },
 
-        onImageUpload({ targetId }: { targetId: string }) {
+        onImageUpload({ targetId }: { targetId: EntityKey<'media'> }) {
             this.emitMediaId(targetId);
         },
 
@@ -117,7 +112,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.emitMediaId(selection.id);
         },
 
-        emitMediaId(mediaId: string | null) {
+        emitMediaId(mediaId: EntityKey<'media'> | null) {
             this.$emit('update:og-image-id', mediaId);
         },
 

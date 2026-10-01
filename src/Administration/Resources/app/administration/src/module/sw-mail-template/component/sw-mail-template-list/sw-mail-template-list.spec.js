@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-const createWrapper = async (privileges = []) => {
+const createWrapper = async (privileges = [], term = '') => {
     return mount(await wrapTestComponent('sw-mail-template-list', { sync: true }), {
         global: {
             provide: {
@@ -39,23 +39,27 @@ const createWrapper = async (privileges = []) => {
                         return privileges.includes(identifier);
                     },
                 },
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => !!term,
+                },
             },
             mocks: {
                 $route: {
                     query: {
                         page: 1,
                         limit: 25,
+                        term,
                     },
                 },
             },
             stubs: {
                 'mt-card': {
-                    template: '<div><slot name="grid"></slot></div>',
+                    template: '<div><slot></slot><slot name="grid"></slot></div>',
                 },
                 'sw-entity-listing': {
                     props: [
                         'items',
+                        'dataSource',
                         'allowEdit',
                         'allowView',
                         'allowDelete',
@@ -63,20 +67,20 @@ const createWrapper = async (privileges = []) => {
                     ],
                     template: `
                     <div id="mailTemplateGrid">
-                        <template v-for="item in items">
+                        <template v-for="item in (dataSource || items)">
                             <slot name="actions" v-bind="{ item }">
                                 <slot name="detail-action" v-bind="{ item }">
                                     <div class="sw-entity-listing__context-menu-edit-action"
-                                                               v-if="detailRoute"
-                                                               :disabled="!allowEdit && !allowView"
-                                                               :routerLink="{ name: detailRoute, params: { id: item.id } }">
+                                                          v-if="detailRoute"
+                                                          :disabled="!allowEdit && !allowView"
+                                                          :routerLink="{ name: detailRoute, params: { id: item.id } }">
                                         {{ !allowEdit && allowView ? 'global.default.view' : 'global.default.edit' }}
                                     </div>
                                 </slot>
                                 <slot name="more-actions" v-bind="{ item }"></slot>
                                 <slot name="delete-action" v-bind="{ item }">
                                     <div :disabled="!allowDelete || undefined"
-                                                               class="sw-entity-listing__context-menu-edit-delete">
+                                                          class="sw-entity-listing__context-menu-edit-delete">
                                     </div>
                                 </slot>
                             </slot>
@@ -132,10 +136,7 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
     });
 
     it('should allow to edit with edit permission', async () => {
-        const wrapper = await createWrapper([
-            'mail_templates.viewer',
-            'mail_templates.editor',
-        ]);
+        const wrapper = await createWrapper(['mail_templates.viewer', 'mail_templates.editor']);
         await flushPromises();
 
         const editButton = wrapper.find('.sw-entity-listing__context-menu-edit-action');
@@ -220,5 +221,51 @@ describe('modules/sw-mail-template/component/sw-mail-template-list', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
+    });
+
+    it('should offer the create action in the empty state', async () => {
+        const wrapper = await createWrapper(['mail_templates.creator']);
+        await flushPromises();
+
+        wrapper.vm.mailTemplates = [];
+        await flushPromises();
+
+        const button = wrapper.find('.mt-empty-state__button .mt-button');
+
+        expect(button.exists()).toBe(true);
+        expect(button.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should disable the create action of the empty state without create permission', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.mailTemplates = [];
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state__button .mt-button').attributes('disabled')).toBeDefined();
+    });
+    it('should not offer the create action when a search has no hits', async () => {
+        const wrapper = await createWrapper(['mail_templates.creator'], 'no-hit-search');
+        await flushPromises();
+
+        wrapper.vm.mailTemplates = [];
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe('sw-empty-state.messageNoResultSubline');
+    });
+
+    it('should show the first-time empty state with its create action when nothing exists', async () => {
+        const wrapper = await createWrapper(['mail_templates.creator']);
+        await flushPromises();
+
+        wrapper.vm.mailTemplates = [];
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-mail-template.list.emptyStateTitle');
+        expect(wrapper.find('.mt-empty-state__button .mt-button').exists()).toBe(true);
     });
 });

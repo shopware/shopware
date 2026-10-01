@@ -52,9 +52,8 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $plugin->getTranslations()?->add($pluginTranslation);
         $paymentMethod->setPlugin($plugin);
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
-            function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
+            static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('plugin'));
                 static::assertTrue($criteria->hasAssociation('translations'));
                 static::assertTrue($criteria->getAssociation('plugin')->hasAssociation('translations'));
@@ -95,9 +94,8 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
 
         $paymentMethod->setPlugin($plugin);
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
-            function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
+            static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('plugin'));
                 static::assertTrue($criteria->hasAssociation('translations'));
                 static::assertTrue($criteria->getAssociation('plugin')->hasAssociation('translations'));
@@ -123,9 +121,8 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $paymentMethod = new PaymentMethodEntity();
         $paymentMethod->setId(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
-            function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
+            static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('plugin'));
                 static::assertTrue($criteria->hasAssociation('translations'));
                 static::assertTrue($criteria->getAssociation('plugin')->hasAssociation('translations'));
@@ -147,9 +144,8 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $paymentMethod->setId(Uuid::randomHex());
         $paymentMethod->setTranslations(new PaymentMethodTranslationCollection());
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
-            function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
+            static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('plugin'));
                 static::assertTrue($criteria->hasAssociation('translations'));
                 static::assertTrue($criteria->getAssociation('plugin')->hasAssociation('translations'));
@@ -177,9 +173,8 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $paymentMethod->getTranslations()?->add($paymentMethodTranslation);
         $paymentMethod->setPluginId(Uuid::randomHex());
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
-            function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
+            static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('plugin'));
                 static::assertTrue($criteria->hasAssociation('translations'));
                 static::assertTrue($criteria->getAssociation('plugin')->hasAssociation('translations'));
@@ -208,9 +203,8 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $paymentMethod->setPluginId(Uuid::randomHex());
         $paymentMethod->setPlugin(new PluginEntity());
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
-            function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
+            static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('plugin'));
                 static::assertTrue($criteria->hasAssociation('translations'));
                 static::assertTrue($criteria->getAssociation('plugin')->hasAssociation('translations'));
@@ -249,9 +243,8 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $appPaymentMethod->setApp($app);
         $paymentMethod->setAppPaymentMethod($appPaymentMethod);
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
-            function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
+            static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('translations'));
                 static::assertTrue($criteria->hasAssociation('appPaymentMethod'));
                 static::assertTrue($criteria->getAssociation('appPaymentMethod')->hasAssociation('app'));
@@ -292,9 +285,8 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $appPaymentMethod->setApp($app);
         $paymentMethod->setAppPaymentMethod($appPaymentMethod);
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
-            function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
+            static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('translations'));
                 static::assertTrue($criteria->hasAssociation('appPaymentMethod'));
                 static::assertTrue($criteria->getAssociation('appPaymentMethod')->hasAssociation('app'));
@@ -331,9 +323,8 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $appPaymentMethod->setId(Uuid::randomHex());
         $paymentMethod->setAppPaymentMethod($appPaymentMethod);
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
-            function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
+            static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('translations'));
                 static::assertTrue($criteria->hasAssociation('appPaymentMethod'));
                 static::assertTrue($criteria->getAssociation('appPaymentMethod')->hasAssociation('app'));
@@ -367,9 +358,8 @@ class PaymentDistinguishableNameGeneratorTest extends TestCase
         $appPaymentMethod->setApp($app);
         $paymentMethod->setAppPaymentMethod($appPaymentMethod);
 
-        /** @var StaticEntityRepository<PaymentMethodCollection> $paymentRepository */
         $paymentRepository = new StaticEntityRepository([
-            function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
+            static function (Criteria $criteria, Context $context) use ($paymentMethod): PaymentMethodCollection {
                 static::assertTrue($criteria->hasAssociation('translations'));
                 static::assertTrue($criteria->hasAssociation('appPaymentMethod'));
                 static::assertTrue($criteria->getAssociation('appPaymentMethod')->hasAssociation('app'));

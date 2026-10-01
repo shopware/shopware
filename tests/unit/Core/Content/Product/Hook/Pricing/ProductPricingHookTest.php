@@ -24,21 +24,21 @@ class ProductPricingHookTest extends TestCase
 {
     public function testGetProducts(): void
     {
-        $salesChannelContext = static::createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
 
         $productProxy = new ProductProxy(
             (new SalesChannelProductEntity())->assign(['name' => 'foo']),
             $salesChannelContext,
-            $this->createMock(ScriptPriceStubs::class)
+            static::createStub(ScriptPriceStubs::class)
         );
         $productPricingHook = new ProductPricingHook([$productProxy], $salesChannelContext);
 
-        static::assertEquals([$productProxy], $productPricingHook->getProducts());
+        static::assertSame([$productProxy], $productPricingHook->getProducts());
     }
 
     public function testGetServiceIds(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [
                 RepositoryFacadeHookFactory::class,
                 PriceFactoryFactory::class,
@@ -51,16 +51,16 @@ class ProductPricingHookTest extends TestCase
 
     public function testGetName(): void
     {
-        $productPricingHook = new ProductPricingHook([], static::createMock(SalesChannelContext::class));
+        $productPricingHook = new ProductPricingHook([], static::createStub(SalesChannelContext::class));
 
-        static::assertEquals('product-pricing', $productPricingHook->getName());
+        static::assertSame('product-pricing', $productPricingHook->getName());
     }
 
     public function testGetSalesChannelContext(): void
     {
-        $salesChannelContext = static::createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $productPricingHook = new ProductPricingHook([], $salesChannelContext);
 
-        static::assertEquals($salesChannelContext, $productPricingHook->getSalesChannelContext());
+        static::assertSame($salesChannelContext, $productPricingHook->getSalesChannelContext());
     }
 }

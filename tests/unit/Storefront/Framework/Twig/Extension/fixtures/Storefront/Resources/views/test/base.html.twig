@@ -4,3 +4,8 @@
 {% sw_icon 'minus' style {'pack': 'solid' } %}
 {% sw_icon 'minus' style {'pack': 'default' } %}
 {% sw_icon 'minus' style { 'pack': 'default', 'ariaHidden': false } %}
+
+{% set icons = ['cart', 'bag', 'minus'] %}
+{% for icon in icons %}
+    {% sw_icon icon %}
+{% endfor %}

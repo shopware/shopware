@@ -5,10 +5,13 @@ namespace Shopware\Storefront\Theme;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-#[Package('framework')]
+#[Package('discovery')]
 abstract class AbstractResolvedConfigLoader
 {
     abstract public function getDecorated(): AbstractResolvedConfigLoader;
 
+    /**
+     * @return array<string, mixed>
+     */
     abstract public function load(string $themeId, SalesChannelContext $context): array;
 }

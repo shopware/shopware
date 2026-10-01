@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\DeleteCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -19,6 +20,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityDeleteEvent::class)]
 class EntityDeleteEventTest extends TestCase
 {
@@ -31,8 +33,8 @@ class EntityDeleteEventTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new ProductDefinition()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $command = new DeleteCommand(
@@ -63,8 +65,8 @@ class EntityDeleteEventTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new ProductDefinition()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $command = new DeleteCommand(
@@ -89,8 +91,8 @@ class EntityDeleteEventTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [new ProductDefinition(), new MediaDefinition()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         $productDelete = new DeleteCommand(
@@ -121,7 +123,7 @@ class EntityDeleteEventTest extends TestCase
 
         $event = EntityDeleteEvent::create($writeContext, []);
 
-        $callbackFactory = fn () => new class {
+        $callbackFactory = static fn () => new class {
             public int $counter = 0;
 
             public function __invoke(): void
@@ -139,9 +141,9 @@ class EntityDeleteEventTest extends TestCase
 
         $event->success();
 
-        static::assertEquals(2, $callback1->counter);
+        static::assertSame(2, $callback1->counter);
 
         $event->error();
-        static::assertEquals(1, $callback2->counter);
+        static::assertSame(1, $callback2->counter);
     }
 }

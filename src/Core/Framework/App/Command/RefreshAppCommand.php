@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppService;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
@@ -19,12 +18,13 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal only for use by the app-system
  */
-#[AsCommand(name: 'app:refresh', description: 'Refreshes an app', aliases: ['app:update'])]
 #[Package('framework')]
+#[AsCommand(name: 'app:refresh', description: 'Refreshes an app', aliases: ['app:update'])]
 class RefreshAppCommand extends Command
 {
     public function __construct(
@@ -58,7 +58,7 @@ class RefreshAppCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         $context = Context::createCLIContext();
 
@@ -93,9 +93,8 @@ class RefreshAppCommand extends Command
             }
         }
 
-        // in the future: if it was forced then it counts as not accepted, eg: $input->getOption('force') === false
         $fails = $this->appService->doRefreshApps(
-            new AppInstallParameters(activate: $input->getOption('activate')),
+            new AppInstallParameters(activate: $input->getOption('activate'), acceptPermissions: true),
             $context,
             $refreshableApps->getAppNames()
         );
@@ -106,7 +105,7 @@ class RefreshAppCommand extends Command
         return self::SUCCESS;
     }
 
-    private function validateRefreshableApps(RefreshableAppDryRun $refreshableApps, ShopwareStyle $io, Context $context): int
+    private function validateRefreshableApps(RefreshableAppDryRun $refreshableApps, SymfonyStyle $io, Context $context): int
     {
         $refreshableManifests = array_merge(
             $refreshableApps->getToBeInstalled(),
@@ -123,7 +122,7 @@ class RefreshAppCommand extends Command
             }
         }
 
-        if (\count($invalids) > 0) {
+        if ($invalids !== []) {
             foreach ($invalids as $invalid) {
                 $io->error($invalid);
             }
@@ -136,10 +135,10 @@ class RefreshAppCommand extends Command
         return self::SUCCESS;
     }
 
-    private function grantPermissions(RefreshableAppDryRun $refreshableApps, ShopwareStyle $io): void
+    private function grantPermissions(RefreshableAppDryRun $refreshableApps, SymfonyStyle $io): void
     {
         $default = true;
-        if (!empty($refreshableApps->getToBeDeleted())) {
+        if ($refreshableApps->getToBeDeleted() !== []) {
             $default = false;
         }
 
@@ -168,7 +167,7 @@ class RefreshAppCommand extends Command
         }
     }
 
-    private function grantPermissionsForApp(Manifest $app, ShopwareStyle $io, bool $install = true): void
+    private function grantPermissionsForApp(Manifest $app, SymfonyStyle $io, bool $install = true): void
     {
         if ($app->getPermissions()) {
             $this->appPrinter->printPermissions($app, $io, $install);

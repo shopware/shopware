@@ -7,6 +7,8 @@ use Shopware\Administration\Snippet\AppAdministrationSnippetDefinition;
 use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -17,6 +19,7 @@ use Shopware\Storefront\Theme\ThemeDefinition;
 /**
  * @internal
  */
+#[Package('framework')]
 class ApiAwareTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;
@@ -59,7 +62,25 @@ class ApiAwareTest extends TestCase
         if (!\is_string($expected)) {
             static::fail(__DIR__ . '/fixtures/api-aware-fields.json could not be read');
         }
-        $expected = \json_decode($expected, true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+        $expected = \json_decode($expected, true, flags: \JSON_THROW_ON_ERROR);
+
+        if (Feature::isActive('v6.8.0.0')) {
+            // Deprecated fields removed with v6.8.0.0; user_recovery.createdAt loses ApiAware
+            // because defineFields() now overrides the ApiAware default field
+            $expected = array_values(array_diff($expected, [
+                'user_recovery.createdAt',
+                'category.cmsPageIdSwitched',
+                'product.states',
+                'order_address.vatId',
+                'order_line_item.states',
+                // the profile label translation is removed with v6.8 (#18097)
+                'import_export_profile.translated',
+                'import_export_profile_translation.createdAt',
+                'import_export_profile_translation.updatedAt',
+                'import_export_profile_translation.importExportProfileId',
+                'import_export_profile_translation.languageId',
+            ]));
+        }
 
         if (static::getContainer()->has(ThemeDefinition::class)) {
             $expected = array_merge(
@@ -121,9 +142,9 @@ class ApiAwareTest extends TestCase
         This change must be carefully controlled to ensure that no sensitive data is given out via the Store API.';
 
         $diff = array_diff($mapping, $expected);
-        static::assertEquals([], $diff, $message);
+        static::assertSame([], $diff, $message);
 
         $diff = array_diff($expected, $mapping);
-        static::assertEquals([], $diff, $message);
+        static::assertSame([], $diff, $message);
     }
 }

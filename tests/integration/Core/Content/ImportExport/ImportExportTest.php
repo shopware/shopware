@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Content\ImportExport;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestWith;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -38,6 +39,7 @@ use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReaderFactory;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
 use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriterFactory;
+use Shopware\Core\Content\ImportExport\Service\CustomerNumberRangeConfigService;
 use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Strategy\Import\BatchImportStrategy;
@@ -69,7 +71,6 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Content\Test\ImportExport\MockRepository;
 use Shopware\Core\Content\Test\ImportExport\StockSubscriber;
-use Shopware\Core\Content\Test\ImportExport\TestSubscriber;
 use Shopware\Core\Defaults;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
@@ -84,6 +85,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\NumberRange\NumberRangeEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
@@ -92,7 +94,6 @@ use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\System\Unit\UnitEntity;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
@@ -139,6 +140,20 @@ class ImportExportTest extends AbstractImportExportTestCase
     {
         $this->listener->addSubscriber(new StockSubscriber());
 
+        $enrichExportCriteriaCalled = false;
+        $beforeExportRecordCalled = false;
+        $exceptionExportRecordCalled = false;
+
+        $this->addEventListener($this->listener, EnrichExportCriteriaEvent::class, static function () use (&$enrichExportCriteriaCalled): void {
+            $enrichExportCriteriaCalled = true;
+        });
+        $this->addEventListener($this->listener, ImportExportBeforeExportRecordEvent::class, static function () use (&$beforeExportRecordCalled): void {
+            $beforeExportRecordCalled = true;
+        });
+        $this->addEventListener($this->listener, ImportExportExceptionExportRecordEvent::class, static function () use (&$exceptionExportRecordCalled): void {
+            $exceptionExportRecordCalled = true;
+        });
+
         $productId = Uuid::randomHex();
         $product = $this->getTestProduct($productId);
         $newStock = (int) $product['stock'] + 1;
@@ -146,10 +161,9 @@ class ImportExportTest extends AbstractImportExportTestCase
         $criteria = new Criteria([$productId]);
         $progress = $this->export(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, $criteria);
 
-        $events = array_column($this->listener->getCalledListeners(), 'event');
-        static::assertContains(EnrichExportCriteriaEvent::class, $events);
-        static::assertContains(ImportExportBeforeExportRecordEvent::class, $events);
-        static::assertNotContains(ImportExportExceptionExportRecordEvent::class, $events);
+        static::assertTrue($enrichExportCriteriaCalled, 'EnrichExportCriteriaEvent should have been dispatched');
+        static::assertTrue($beforeExportRecordCalled, 'ImportExportBeforeExportRecordEvent should have been dispatched');
+        static::assertFalse($exceptionExportRecordCalled, 'ImportExportExceptionExportRecordEvent should not have been dispatched');
 
         $csv = $this->getCsvContent($progress->getLogId());
         static::assertStringContainsString(\sprintf(';%s;', $newStock), $csv);
@@ -157,13 +171,25 @@ class ImportExportTest extends AbstractImportExportTestCase
 
     public function testImportEvents(): void
     {
-        $this->listener->addSubscriber(new TestSubscriber());
-        $this->importCategoryCsv();
-        $events = array_column($this->listener->getCalledListeners(), 'event');
+        $beforeImportRecordCalled = false;
+        $afterImportRecordCalled = false;
+        $exceptionImportRecordCalled = false;
 
-        static::assertContains(ImportExportBeforeImportRecordEvent::class, $events);
-        static::assertContains(ImportExportAfterImportRecordEvent::class, $events);
-        static::assertNotContains(ImportExportExceptionImportRecordEvent::class, $events);
+        $this->addEventListener($this->listener, ImportExportBeforeImportRecordEvent::class, static function () use (&$beforeImportRecordCalled): void {
+            $beforeImportRecordCalled = true;
+        });
+        $this->addEventListener($this->listener, ImportExportAfterImportRecordEvent::class, static function () use (&$afterImportRecordCalled): void {
+            $afterImportRecordCalled = true;
+        });
+        $this->addEventListener($this->listener, ImportExportExceptionImportRecordEvent::class, static function () use (&$exceptionImportRecordCalled): void {
+            $exceptionImportRecordCalled = true;
+        });
+
+        $this->importCategoryCsv();
+
+        static::assertTrue($beforeImportRecordCalled, 'ImportExportBeforeImportRecordEvent should have been dispatched');
+        static::assertTrue($afterImportRecordCalled, 'ImportExportAfterImportRecordEvent should have been dispatched');
+        static::assertFalse($exceptionImportRecordCalled, 'ImportExportExceptionImportRecordEvent should not have been dispatched');
     }
 
     public function testImportExport(): void
@@ -203,7 +229,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         $criteria->addAssociation('visibilities');
         $criteria->addAssociation('tax');
         $criteria->addAssociation('categories');
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($product);
     }
@@ -211,7 +237,9 @@ class ImportExportTest extends AbstractImportExportTestCase
     #[Group('needsWebserver')]
     public function testMediaWithEncodedUrl(): void
     {
-        $csvContent = \sprintf('url %s', EnvironmentHelper::getVariable('APP_URL')) . '/media/%C3%9Fhopware-log%C3%B6.png';
+        $appUrl = EnvironmentHelper::getVariable('APP_URL');
+        static::assertIsString($appUrl);
+        $csvContent = \sprintf('url %s', $appUrl) . '/media/%C3%9Fhopware-log%C3%B6.png';
 
         $fixturesPath = __DIR__ . '/fixtures/media_encoded_url.csv';
         file_put_contents($fixturesPath, $csvContent);
@@ -317,7 +345,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         $csvColumns = explode(';', $firstLine);
 
         $sortedMappings = $profile['mapping'];
-        usort($sortedMappings, fn ($firstMapping, $secondMapping) => $firstMapping['position'] - $secondMapping['position']);
+        usort($sortedMappings, static fn ($firstMapping, $secondMapping) => $firstMapping['position'] - $secondMapping['position']);
 
         foreach ($sortedMappings as $index => $mapping) {
             static::assertSame(
@@ -462,7 +490,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'alicebluenew'));
         $property = $propertyRepository->search($criteria, $context);
-        static::assertCount(1, $property);
+        static::assertCount(1, $property->getEntities());
     }
 
     public function importPropertyWithDefaultsCsv(): void
@@ -502,7 +530,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         $criteria->addFilter(new EqualsFilter('name', 'MyDefaultNameForProperties'));
         $property = $propertyRepository->search($criteria, $context);
         // import should create 7 properties with default name
-        static::assertCount(7, $property);
+        static::assertCount(7, $property->getEntities());
     }
 
     public function importPropertyWithUserRequiredCsv(): void
@@ -546,7 +574,6 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertStringContainsString('media_url is set to required by the user but has no value', $first['_error']);
     }
 
-    #[Group('slow')]
     public function testProductsCsv(): void
     {
         $context = Context::createDefaultContext();
@@ -602,7 +629,6 @@ class ImportExportTest extends AbstractImportExportTestCase
         static::assertCount(1, $product->getMedia());
     }
 
-    #[Group('slow')]
     public function testProductsWithVariantsCsv(): void
     {
         $connection = static::getContainer()->get(Connection::class);
@@ -634,13 +660,12 @@ class ImportExportTest extends AbstractImportExportTestCase
         $criteria->addAssociation('configuratorSettings');
         $criteria->addFilter(new EqualsFilter('parentId', null));
 
-        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->first();
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertInstanceOf(ProductConfiguratorSettingCollection::class, $settings = $product->getConfiguratorSettings());
         static::assertCount(10, $settings);
     }
 
-    #[Group('slow')]
     public function testProductsWithInvalidVariantsCsv(): void
     {
         $connection = static::getContainer()->get(Connection::class);
@@ -700,7 +725,7 @@ class ImportExportTest extends AbstractImportExportTestCase
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
-        $count = $this->productRepository->search(new Criteria($productIds), $context)->count();
+        $count = $this->productRepository->search(new Criteria($productIds), $context)->getEntities()->count();
         static::assertSame(4, $count);
 
         $name = 'Name has changed';
@@ -716,7 +741,7 @@ class ImportExportTest extends AbstractImportExportTestCase
         $criteria = new Criteria([$productIds[0]]);
         $criteria->addAssociation('categories');
 
-        $product = $this->productRepository->search($criteria, $context)->first();
+        $product = $this->productRepository->search($criteria, $context)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $product);
         static::assertNotSame($name, $product->getName());
@@ -907,21 +932,21 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             'records' => 5,
         ]);
 
-        $importExportService = $this->createMock(ImportExportService::class);
+        $importExportService = static::createStub(ImportExportService::class);
         $importExportService->method('findLog')->willReturn($logEntity);
 
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
             static::getContainer()->get('shopware.filesystem.private'),
-            $this->createMock(EventDispatcherInterface::class),
+            $this->listener,
             static::getContainer()->get(Connection::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $pipe,
             $reader,
             $writer,
             static::getContainer()->get(FileService::class),
-            $this->createMock(ImportStrategyService::class)
+            static::createStub(ImportStrategyService::class)
         );
 
         $importExportService->method('getProgress')
@@ -1015,7 +1040,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
 
         $result = $this->productRepository->search(new Criteria(), Context::createDefaultContext());
 
-        static::assertCount(2, $result);
+        static::assertCount(2, $result->getEntities());
         $products = $result->getEntities();
 
         static::assertTrue($products->has('bf44b430d7cd47fcac93310edf4fe4e1'));
@@ -1215,17 +1240,14 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
     }
 
     /**
-     * @return list<array{0: string}>
+     * @return iterable<string, array{0: string}>
      */
-    public static function salesChannelAssignmentCsvProvider(): array
+    public static function salesChannelAssignmentCsvProvider(): iterable
     {
-        return [
-            ['/fixtures/products_with_visibilities.csv'],
-            ['/fixtures/products_with_visibility_names.csv'],
-        ];
+        yield 'sales channel assignments are imported from visibility ids' => ['/fixtures/products_with_visibilities.csv'];
+        yield 'sales channel assignments are imported from visibility names' => ['/fixtures/products_with_visibility_names.csv'];
     }
 
-    #[Group('slow')]
     public function testCrossSellingCsv(): void
     {
         $context = Context::createDefaultContext();
@@ -1280,7 +1302,6 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         );
     }
 
-    #[Group('slow')]
     public function testCustomersCsv(): void
     {
         $connection = static::getContainer()->get(Connection::class);
@@ -1292,16 +1313,29 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
         $mailSent = false;
 
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-
-        $listenerClosure = function () use (&$mailSent): void {
+        $listenerClosure = static function () use (&$mailSent): void {
             $mailSent = true;
         };
 
-        $this->addEventListener($eventDispatcher, MailSentEvent::class, $listenerClosure);
+        $this->addEventListener($this->listener, MailSentEvent::class, $listenerClosure);
 
-        $progress = $this->import($context, CustomerDefinition::ENTITY_NAME, '/fixtures/customers.csv', 'customers.csv');
-        $eventDispatcher->removeListener(MailSentEvent::class, $listenerClosure);
+        $profile = $this->cloneDefaultProfile(CustomerDefinition::ENTITY_NAME);
+        $mapping = $profile->getMapping();
+        $mapping[] = [
+            'key' => 'password',
+            'mappedKey' => 'password',
+        ];
+        $this->updateProfileMapping($profile->getId(), $mapping);
+
+        $progress = $this->import(
+            $context,
+            CustomerDefinition::ENTITY_NAME,
+            '/fixtures/customers.csv',
+            'customers.csv',
+            $profile->getId(),
+        );
+
+        $this->listener->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
         static::assertFalse($mailSent, 'The mail.sent Event did run');
@@ -1321,6 +1355,12 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertTrue($result->has('0a1dea4bd2de43929ac210fd17339dde'));
         $customerWithMultipleAddresses = $result->get('0a1dea4bd2de43929ac210fd17339dde');
 
+        $passwords = \array_values(array_map(static fn (CustomerEntity $customer) => $customer->getPassword(), $result->getElements()));
+        static::assertCount(3, $passwords);
+        static::assertNull($passwords[0]);
+        static::assertNull($passwords[1]);
+        static::assertNull($passwords[2]);
+
         static::assertInstanceOf(CustomerAddressCollection::class, $customerWithMultipleAddresses->getAddresses());
         static::assertCount(4, $customerWithMultipleAddresses->getAddresses());
         static::assertInstanceOf(CustomerAddressEntity::class, $customerWithMultipleAddresses->getDefaultBillingAddress());
@@ -1334,7 +1374,13 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertInstanceOf(CustomerAddressEntity::class, $customerWithUpdatedAddresses->getDefaultShippingAddress());
         static::assertSame('shopware AG', $customerWithUpdatedAddresses->getDefaultShippingAddress()->getCompany());
 
-        $progress = $this->export($context, CustomerDefinition::ENTITY_NAME);
+        $progress = $this->export(
+            $context,
+            CustomerDefinition::ENTITY_NAME,
+            null,
+            null,
+            $profile->getId()
+        );
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
@@ -1343,6 +1389,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertStringContainsString('shopware AG', $csv);
         static::assertStringContainsString('en-GB', $csv);
         static::assertStringContainsString('Standard customer group', $csv);
+        static::assertStringNotContainsString('password', $csv);
     }
 
     public function testImportWithCreateAndUpdateConfig(): void
@@ -1388,7 +1435,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
     {
         $customerRepository = self::getContainer()->get('customer.repository');
         $customers = $customerRepository->search(new Criteria(), Context::createDefaultContext());
-        static::assertCount(0, $customers);
+        static::assertCount(0, $customers->getEntities());
 
         $context = Context::createDefaultContext();
         $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
@@ -1406,6 +1453,28 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             'name' => 'Sales-Channel-Name',
         ]);
 
+        $numberRangeRepository = self::getContainer()->get('number_range.repository');
+
+        $numberRangeCriteria = new Criteria();
+        $numberRangeCriteria->addAssociation('type');
+        $numberRangeCriteria->addFilter(new EqualsFilter(
+            'type.technicalName',
+            CustomerDefinition::ENTITY_NAME,
+        ));
+        $numberRangeCriteria->addFilter(new EqualsFilter('global', true));
+
+        $customerNumberRange = $numberRangeRepository
+            ->search($numberRangeCriteria, $context)->getEntities()->first();
+
+        static::assertNotNull($customerNumberRange);
+        static::assertInstanceOf(NumberRangeEntity::class, $customerNumberRange);
+
+        $numberRangeRepository->update([[
+            'id' => $customerNumberRange->getId(),
+            'pattern' => 'SWDEMO{n}',
+        ]], $context);
+        static::getContainer()->get(CustomerNumberRangeConfigService::class)->reset();
+
         $progress = $this->import(
             $context,
             CustomerDefinition::ENTITY_NAME,
@@ -1417,7 +1486,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
         $customers = $customerRepository->search(new Criteria(), Context::createDefaultContext());
-        static::assertCount(1, $customers);
+        static::assertCount(1, $customers->getEntities());
         $customer = $customers->getEntities()->first();
         static::assertInstanceOf(CustomerEntity::class, $customer);
 
@@ -1565,6 +1634,63 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
     }
 
+    public function testExportProductsWithDeliveryTimeTranslation(): void
+    {
+        $deliveryTimeId = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        static::getContainer()->get('delivery_time.repository')->create([
+            [
+                'id' => $deliveryTimeId,
+                'name' => '1-3 working days',
+                'min' => 1,
+                'max' => 3,
+                'unit' => 'day',
+            ],
+        ], $context);
+
+        static::getContainer()->get('product.repository')->create([
+            [
+                'id' => $productId,
+                'name' => 'delivery-time-export-test',
+                'productNumber' => 'delivery-time-export-test',
+                'stock' => 10,
+                'price' => [
+                    ['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false],
+                ],
+                'active' => true,
+                'tax' => ['name' => 'delivery-time-tax', 'taxRate' => 19],
+                'deliveryTimeId' => $deliveryTimeId,
+            ],
+        ], $context);
+
+        $profile = $this->cloneDefaultProfile(ProductDefinition::ENTITY_NAME);
+
+        $mappings = $profile->getMapping();
+        static::assertIsArray($mappings);
+
+        array_unshift($mappings, [
+            'key' => 'deliveryTime.translations.DEFAULT.name',
+            'mappedKey' => 'delivery_time',
+            'position' => -1,
+        ]);
+
+        $this->updateProfileMapping($profile->getId(), $mappings);
+
+        $progress = $this->export(Context::createDefaultContext(), ProductDefinition::ENTITY_NAME, new Criteria([$productId]), null, $profile->getId());
+
+        static::assertImportExportSucceeded($progress);
+
+        $csv = $this->getCsvContent($progress->getLogId());
+        $rows = array_map(static fn (string $line) => str_getcsv($line, ';', '"', '\\'), array_filter(explode("\n", trim($csv))));
+
+        static::assertCount(2, $rows);
+        static::assertSame('delivery_time', $rows[0][0]);
+        static::assertSame('1-3 working days', $rows[1][0]);
+    }
+
     public function testImportProductsWithUpdateByMapping(): void
     {
         $this->importCategoryCsv();
@@ -1615,8 +1741,8 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
 
         $products = $this->productRepository->search((new Criteria())->addAssociations(['categories', 'properties']), $context);
 
-        static::assertCount(1, $products);
-        static::assertInstanceOf(ProductEntity::class, $product = $products->first());
+        static::assertCount(1, $products->getEntities());
+        static::assertInstanceOf(ProductEntity::class, $product = $products->getEntities()->first());
         static::assertInstanceOf(CategoryCollection::class, $categories = $product->getCategories());
         static::assertInstanceOf(PropertyGroupOptionCollection::class, $properties = $product->getProperties());
         static::assertCount(3, $categories);
@@ -1635,7 +1761,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $manufacturerCount = static::getContainer()->get('product_manufacturer.repository')->search(
             (new Criteria())->addFilter(new EqualsFilter('name', 'onlyone')),
             $context
-        )->count();
+        )->getEntities()->count();
 
         static::assertSame(1, $manufacturerCount);
 
@@ -1711,7 +1837,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $numberOfCategoriesInCsv = 67;
 
         $categories = $categoryRepository->search(new Criteria(), Context::createDefaultContext());
-        static::assertEquals($categoryCount + $numberOfCategoriesInCsv, $categories->getTotal());
+        static::assertSame($categoryCount + $numberOfCategoriesInCsv, $categories->getTotal());
     }
 
     public function testBatchImportNumberOfCalls(): void
@@ -1736,22 +1862,22 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $pipeFactory = static::getContainer()->get(PipeFactory::class);
         $readerFactory = static::getContainer()->get(CsvReaderFactory::class);
         $writerFactory = static::getContainer()->get(CsvFileWriterFactory::class);
-        $eventDispatcher = static::getContainer()->get(EventDispatcherInterface::class);
 
+        /** @var MockRepository<CustomerCollection> */
         $mockRepository = new MockRepository(static::getContainer()->get(CustomerDefinition::class));
 
         $importExport = new ImportExport(
             $importExportService,
             $logEntity,
             static::getContainer()->get('shopware.filesystem.private'),
-            static::getContainer()->get('event_dispatcher'),
+            $this->listener,
             static::getContainer()->get(Connection::class),
             $mockRepository,
             $pipeFactory->create($logEntity),
             $readerFactory->create($logEntity),
             $writerFactory->create($logEntity),
             static::getContainer()->get(FileService::class),
-            new BatchImportStrategy($eventDispatcher, $mockRepository),
+            new BatchImportStrategy($this->listener, $mockRepository),
             10,
             10
         );
@@ -1762,7 +1888,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
 
         static::assertImportExportSucceeded($progress, $this->getInvalidLogContent($progress->getInvalidRecordsLogId()));
 
-        static::assertEquals(6, $mockRepository->upsertCalls);
+        static::assertSame(6, $mockRepository->upsertCalls);
     }
 
     public function testInvalidFileInBatch(): void
@@ -1794,6 +1920,47 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         $second = $invalid[1];
         static::assertSame('d5e8a6d00ce64f369a6aa3e29c4650cf', $second['id']);
         static::assertStringContainsString('CONSTRAINT `fk.product_', $second['_error']);
+    }
+
+    #[TestWith([false])]
+    #[TestWith([true])]
+    public function testUpdateOnlyProfileWithNonExistingRecords(bool $useBatchMode): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        $connection->executeStatement('DELETE FROM product');
+
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $profile = $this->cloneDefaultProfile(ProductDefinition::ENTITY_NAME);
+        $this->updateProfileConfig($profile->getId(), [
+            'createEntities' => false,
+            'updateEntities' => true,
+        ]);
+
+        $progress = $this->import(
+            $context,
+            ProductDefinition::ENTITY_NAME,
+            '/fixtures/products_with_invalid.csv',
+            'products_with_invalid.csv',
+            $profile->getId(),
+            useBatchImport: $useBatchMode,
+        );
+
+        static::assertImportExportFailed($progress);
+
+        $ids = $this->productRepository->searchIds(new Criteria(), Context::createDefaultContext());
+        static::assertCount(0, $ids->getIds());
+
+        $invalid = $this->getInvalidLogContent($progress->getInvalidRecordsLogId());
+        static::assertGreaterThanOrEqual(1, \count($invalid));
+
+        $errorRecord = $invalid[0];
+        static::assertArrayHasKey('_error', $errorRecord);
+        static::assertSame(
+            'The product record was not found. This import profile only allows updates to existing records.',
+            $errorRecord['_error']
+        );
     }
 
     /**

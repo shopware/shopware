@@ -5,7 +5,7 @@ namespace Shopware\Core\Framework\App\ActionButton;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\AppException;
-use Shopware\Core\Framework\App\Exception\AppUrlChangeDetectedException;
+use Shopware\Core\Framework\App\Exception\ShopIdChangeSuggestedException;
 use Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -47,7 +47,7 @@ class AppActionLoader
 
         try {
             $source = $this->appPayloadServiceHelper->buildSource($app->getVersion(), $app->getName());
-        } catch (AppUrlChangeDetectedException) {
+        } catch (ShopIdChangeSuggestedException) {
             throw AppException::actionNotFound();
         }
 

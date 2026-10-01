@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import * as net from 'net';
 
@@ -128,94 +129,78 @@ export function loadExtensions(): ExtensionDefinition[] {
     };
 
     const apps = Object.entries(extensionDefinitions)
-        .filter(
-            ([
-                name,
-                definition,
-            ]) => {
-                const appEntryPath = path.resolve(
-                    process.env.PROJECT_ROOT as string,
-                    definition.basePath,
-                    definition.administration?.path ?? '',
-                    '../..',
-                    'meteor-app',
-                );
+        .filter(([name, definition]) => {
+            const appEntryPath = path.resolve(
+                process.env.PROJECT_ROOT as string,
+                definition.basePath,
+                definition.administration?.path ?? '',
+                '../..',
+                'meteor-app',
+            );
 
-                return definition.administration?.path && fs.existsSync(path.resolve(appEntryPath, 'index.html'));
-            },
-        )
-        .map(
-            ([
-                name,
-                definition,
-            ]) => {
-                const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
-                const appEntryPath = path.resolve(
-                    process.env.PROJECT_ROOT as string,
-                    definition.basePath,
-                    // @ts-expect-error - We know it is defined at this point because of the filter above
-                    definition.administration.path,
-                    '../..',
-                    'meteor-app',
-                );
+            return definition.administration?.path && fs.existsSync(path.resolve(appEntryPath, 'index.html'));
+        })
+        .map(([name, definition]) => {
+            const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+            const appEntryPath = path.resolve(
+                process.env.PROJECT_ROOT as string,
+                definition.basePath,
+                // @ts-expect-error - We know it is defined at this point because of the filter above
+                definition.administration.path,
+                '../..',
+                'meteor-app',
+            );
 
-                return {
-                    name,
-                    isApp: true,
-                    isPlugin: false,
-                    basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
-                    path: appEntryPath,
-                    filePath: path.resolve(appEntryPath, 'index.html'),
-                    technicalName: technicalName,
-                    technicalFolderName: technicalName.replace(/(-)/g, '').toLowerCase(),
-                } as ExtensionDefinition;
-            },
-        );
+            return {
+                name,
+                isApp: true,
+                isPlugin: false,
+                basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
+                path: appEntryPath,
+                filePath: path.resolve(appEntryPath, 'index.html'),
+                technicalName: technicalName,
+                technicalFolderName: technicalName.replace(/(-)/g, '').toLowerCase(),
+            } as ExtensionDefinition;
+        });
 
     const plugins = Object.entries(extensionDefinitions)
         .filter(
-            ([
-                name,
-                definition,
-            ]) =>
+            ([name, definition]) =>
                 !!definition.administration &&
                 !!definition.administration.entryFilePath &&
                 !process.env.hasOwnProperty(`SKIP_${definition.technicalName.toUpperCase().replace(/-/g, '_')}`),
         )
-        .map(
-            ([
+        .map(([name, definition]) => {
+            const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+
+            return {
                 name,
-                definition,
-            ]) => {
-                const technicalName = definition.technicalName || name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+                isPlugin: true,
+                isApp: false,
+                technicalName: technicalName,
+                // There is an edge case where symfony removes the "bundle" suffix from the bundle name
+                // @see \Shopware\Core\Framework\Adapter\Asset\AssetService::getTargetDirectory
+                technicalFolderName: name
+                    .toLowerCase()
+                    .replace(/bundle$/, '')
+                    .replace(/(-)/g, ''),
+                basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
+                path: path.resolve(
+                    process.env.PROJECT_ROOT as string,
+                    definition.basePath,
+                    // @ts-expect-error - We know it is defined at this point because of the filter above
+                    definition.administration.path,
+                ),
+                filePath: path.resolve(
+                    process.env.PROJECT_ROOT as string,
+                    definition.basePath,
+                    // @ts-expect-error - We know it is defined at this point because of the filter above
+                    definition.administration.entryFilePath,
+                ),
+            } as ExtensionDefinition;
+        });
 
-                return {
-                    name,
-                    isPlugin: true,
-                    isApp: false,
-                    technicalName: technicalName,
-                    technicalFolderName: technicalName.replace(/(-)/g, '').toLowerCase(),
-                    basePath: path.resolve(process.env.PROJECT_ROOT as string, definition.basePath),
-                    path: path.resolve(
-                        process.env.PROJECT_ROOT as string,
-                        definition.basePath,
-                        // @ts-expect-error - We know it is defined at this point because of the filter above
-                        definition.administration.path,
-                    ),
-                    filePath: path.resolve(
-                        process.env.PROJECT_ROOT as string,
-                        definition.basePath,
-                        // @ts-expect-error - We know it is defined at this point because of the filter above
-                        definition.administration.entryFilePath,
-                    ),
-                } as ExtensionDefinition;
-            },
-        );
-
-    return [
-        ...plugins,
-        ...apps,
-    ].filter((extension) => {
+    return [...plugins, ...apps].filter((extension) => {
         return !process.env.hasOwnProperty('SKIP_' + extension.technicalName.toUpperCase().replace(/-/g, '_'));
     });
 }
@@ -226,7 +211,7 @@ export function loadExtensions(): ExtensionDefinition[] {
 export async function findAvailablePorts(startPort = 5173, requiredPorts = 1): Promise<number[]> {
     const ports = [];
     let currentPort = startPort;
-    const maxPort = 6333;
+    const maxPort = 65535;
 
     while (ports.length < requiredPorts) {
         if (currentPort > maxPort) {
@@ -243,3 +228,97 @@ export async function findAvailablePorts(startPort = 5173, requiredPorts = 1): P
 
     return ports;
 }
+
+type ViteServerMapping = {
+    basePath: string;
+    port: number;
+};
+
+/**
+ * @private
+ */
+export async function exportViteServerMapping(): Promise<void> {
+    const extensions = loadExtensions();
+
+    const mapping = new Map<string, ViteServerMapping>();
+    const ports = await findAvailablePorts(Number(process.env.ADMIN_PORT) || 5173, extensions.length + 1);
+    let counter = 1;
+
+    for (const extension of extensions) {
+        mapping.set(extension.technicalName, {
+            basePath: `/_internal_ext/${extension.technicalName}/`,
+            port: ports[counter],
+        });
+        counter += 1;
+    }
+
+    fs.writeFileSync(
+        path.join(__dirname, 'vite-server-mapping.json'),
+        JSON.stringify({ extensions: Object.fromEntries(mapping), vitePort: ports[0] }),
+        'utf-8',
+    );
+}
+
+/**
+ * @private
+ */
+export function getViteServerPorts(): Record<string, number> {
+    const mappingPath = path.join(__dirname, 'vite-server-mapping.json');
+
+    if (!fs.existsSync(mappingPath)) {
+        throw new Error(`Cannot find Vite server mapping for ${mappingPath}`);
+    }
+
+    const rawData = fs.readFileSync(mappingPath, 'utf-8');
+    const parsedData = JSON.parse(rawData) as { vitePort: number; extensions: Record<string, ViteServerMapping> };
+
+    const ports: Record<string, number> = {};
+
+    for (const [key, value] of Object.entries(parsedData.extensions)) {
+        ports[key] = value.port;
+    }
+
+    return ports;
+}
+
+/**
+ * @private
+ */
+export function getMainViteServerConfig(): {
+    proxy: Record<string, { target: string; changeOrigin: boolean; ws: boolean; rewriteWsOrigin: boolean }>;
+    port: number;
+} {
+    const mappingPath = path.join(__dirname, 'vite-server-mapping.json');
+
+    if (!fs.existsSync(mappingPath)) {
+        throw new Error(`Cannot find Vite server mapping for ${mappingPath}`);
+    }
+
+    const rawData = fs.readFileSync(mappingPath, 'utf-8');
+    const parsedData = JSON.parse(rawData) as { vitePort: number; extensions: Record<string, ViteServerMapping> };
+
+    const proxyConfig: Record<string, { target: string; changeOrigin: boolean; ws: true; rewriteWsOrigin: true }> = {};
+
+    for (const [key, value] of Object.entries(parsedData.extensions)) {
+        proxyConfig[value.basePath] = {
+            target: `http://localhost:${value.port}`,
+            changeOrigin: true,
+            ws: true,
+            rewriteWsOrigin: true,
+        };
+    }
+
+    return {
+        proxy: proxyConfig,
+        port: parsedData.vitePort,
+    };
+}
+
+/**
+ * @private
+ * This function checks if a `.dockerenv` file exists in the root directory.
+ */
+export const isInsideDockerContainer = (): boolean => {
+    // Resolve root path
+    return fs.existsSync('/.dockerenv');
+};

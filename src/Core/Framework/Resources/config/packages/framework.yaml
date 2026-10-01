@@ -2,7 +2,7 @@ parameters:
     messenger.default_transport_name: 'v65'
     env(MESSENGER_TRANSPORT_DSN): 'doctrine://default?auto_setup=false'
     env(MESSENGER_TRANSPORT_LOW_PRIORITY_DSN): 'doctrine://default?auto_setup=false&queue_name=low_priority'
-    env(MESSENGER_TRANSPORT_FAILURE_DSN): 'doctrine://default?queue_name=failed&auto_setup=false'
+    env(MESSENGER_TRANSPORT_FAILURE_DSN): 'doctrine://default?auto_setup=false&queue_name=failed'
     env(MAILER_DSN): 'null://null'
     env(LOCK_DSN): 'flock'
     '.container.dumper.inline_class_loader': false
@@ -23,6 +23,10 @@ framework:
         storage_factory_id: session.storage.factory.native
     serializer: { enabled: true }
     secret: "%env(APP_SECRET)%"
+    profiler:
+        enabled: false
+    property_info:
+        with_constructor_extractor: true
     validation:
         enable_attributes: true
         email_validation_mode: html5
@@ -50,6 +54,8 @@ framework:
                 adapter: cache.app
             cache.rate_limiter:
                 adapter: cache.app
+            cache.double_submit:
+                adapter: cache.app
     messenger:
         failure_transport: failed
         serializer:
@@ -76,8 +82,17 @@ framework:
                     delay: 1000
                     multiplier: 2
                     max_delay: 0
+            webhook:
+                dsn: 'shopware-webhook://default'
+                retry_strategy:
+                    max_retries: 0
+        buses:
+            messenger.bus.default:
+                middleware:
+                    - Shopware\Core\Framework\Adapter\Messenger\Middleware\QueuedTimeMiddleware
 
         routing:
+            'Shopware\Core\Framework\Webhook\Message\WebhookEventMessage': webhook
             'Shopware\Core\Framework\MessageQueue\AsyncMessageInterface': async
             'Shopware\Core\Framework\MessageQueue\LowPriorityMessageInterface': low_priority
             'Symfony\Component\Mailer\Messenger\SendEmailMessage': async
@@ -131,8 +146,6 @@ framework:
             log_level: notice
         Shopware\Core\Checkout\Customer\Exception\DuplicateWishlistProductException:
             log_level: notice
-        Shopware\Core\Checkout\Payment\Exception\TokenInvalidatedException:
-            log_level: notice
         Shopware\Core\Checkout\Order\Exception\EmptyCartException:
             log_level: notice
         Shopware\Core\Checkout\Order\Exception\GuestNotAuthenticatedException:
@@ -167,8 +180,6 @@ framework:
             log_level: notice
         Shopware\Core\Framework\Uuid\Exception\InvalidUuidException:
             log_level: notice
-        Shopware\Core\Framework\Routing\Exception\MissingRequestParameterException:
-            log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException:
             log_level: notice
         Shopware\Core\Framework\Store\Exception\ExtensionUpdateRequiresConsentAffirmationException:
@@ -193,23 +204,15 @@ framework:
             log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException:
             log_level: notice
-        Shopware\Core\Content\LandingPage\Exception\LandingPageNotFoundException:
-            log_level: notice
         Shopware\Core\Content\Product\SalesChannel\Exception\ProductSortingNotFoundException:
             log_level: notice
         Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException:
-            log_level: notice
-        Shopware\Core\Content\ImportExport\Exception\UnexpectedFileTypeException:
             log_level: notice
         Shopware\Core\Content\ImportExport\Exception\InvalidFileAccessTokenException:
             log_level: notice
         Shopware\Core\Framework\App\Exception\AppAlreadyInstalledException:
             log_level: notice
         Shopware\Core\Framework\App\Exception\AppRegistrationException:
-            log_level: notice
-        Shopware\Core\System\CustomEntity\Exception\CustomEntityNotFoundException:
-            log_level: notice
-        Shopware\Core\System\SystemConfig\Exception\ConfigurationNotFoundException:
             log_level: notice
         Shopware\Core\Content\Seo\Exception\InvalidTemplateException:
             log_level: notice
@@ -220,4 +223,6 @@ framework:
         Shopware\Core\System\NumberRange\Exception\NoConfigurationException:
             log_level: notice
         Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\ParentAssociationCanNotBeFetched:
+            log_level: notice
+        Shopware\Storefront\Controller\Exception\StorefrontRouteNotFoundException:
             log_level: notice

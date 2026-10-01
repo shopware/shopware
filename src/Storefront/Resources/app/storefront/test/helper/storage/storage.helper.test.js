@@ -53,7 +53,7 @@ describe('storage.helper.js', () => {
 
         expect(
             () => require('src/helper/storage/storage.helper')
-        ).toThrowError('The storage must have a "setItem" function');
+        ).toThrow('The storage must have a "setItem" function');
     });
 
     test('it throws if getItem is not supported', () => {
@@ -70,7 +70,7 @@ describe('storage.helper.js', () => {
 
         expect(
             () => require('src/helper/storage/storage.helper')
-        ).toThrowError('The storage must have a "getItem" function');
+        ).toThrow('The storage must have a "getItem" function');
     });
 
     test('it throws if removeItem is not supported', () => {
@@ -88,7 +88,7 @@ describe('storage.helper.js', () => {
 
         expect(
             () => require('src/helper/storage/storage.helper')
-        ).toThrowError('The storage must have a "removeItem" function');
+        ).toThrow('The storage must have a "removeItem" function');
     });
 
     test('it throws if key is not supported', () => {
@@ -107,7 +107,7 @@ describe('storage.helper.js', () => {
 
         expect(
             () => require('src/helper/storage/storage.helper')
-        ).toThrowError('The storage must have a "key" function');
+        ).toThrow('The storage must have a "key" function');
     });
 
     test('it throws if clear is not supported', () => {
@@ -127,7 +127,7 @@ describe('storage.helper.js', () => {
 
         expect(
             () => require('src/helper/storage/storage.helper')
-        ).toThrowError('The storage must have a "clear" function');
+        ).toThrow('The storage must have a "clear" function');
     });
 });
 

@@ -4,17 +4,23 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig\NamespaceHierar
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class BundleHierarchyBuilderTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<AppCollection>
+     */
     private EntityRepository $appRepository;
 
     protected function setUp(): void
@@ -163,6 +169,7 @@ class BundleHierarchyBuilderTest extends TestCase
             'Administration',
             'Framework',
             'Storefront',
+            'Content',
         ];
 
         // Remove not installed core bundles from hierarchy

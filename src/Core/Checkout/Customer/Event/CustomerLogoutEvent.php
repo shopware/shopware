@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class CustomerLogoutEvent extends Event implements SalesChannelAware, ShopwareSalesChannelEvent, CustomerAware, MailAware, FlowEventAware
 {
@@ -56,7 +59,7 @@ class CustomerLogoutEvent extends Event implements SalesChannelAware, ShopwareSa
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('customer', new EntityType(CustomerDefinition::class));
+            ->add(CustomerAware::CUSTOMER, new EntityType(CustomerDefinition::class));
     }
 
     public function getCustomerId(): string

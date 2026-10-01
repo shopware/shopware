@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\SalesChannel;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
@@ -17,6 +18,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -83,6 +85,92 @@ class CartItemAddRouteTest extends TestCase
 
         static::assertSame('cart', $response['apiAlias']);
         static::assertSame(10, $response['price']['totalPrice']);
+        static::assertCount(1, $response['lineItems']);
+        static::assertSame('Test', $response['lineItems'][0]['label']);
+    }
+
+    public function testFillCartWithoutRequestContextTokenReturnsReusableContextToken(): void
+    {
+        $this->browser->setServerParameters([
+            'HTTP_ACCEPT' => 'application/json',
+            'HTTP_SW_ACCESS_KEY' => $this->browser->getServerParameter('HTTP_SW_ACCESS_KEY'),
+            'test-sales-channel-id' => $this->browser->getServerParameter('test-sales-channel-id'),
+        ]);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p1'),
+                            'label' => 'foo',
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p1'),
+                        ],
+                    ],
+                ]
+            );
+
+        $response = $this->browser->getResponse();
+        static::assertSame(200, $response->getStatusCode());
+
+        $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
+        static::assertNotEmpty($contextToken);
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
+        $this->browser->request('GET', '/store-api/checkout/cart');
+
+        $content = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('cart', $content['apiAlias']);
+        static::assertCount(1, $content['lineItems']);
+        static::assertSame($this->ids->get('p1'), $content['lineItems'][0]['referencedId']);
+    }
+
+    public function testAddExistingLineItemChangesQuantityAndMarksModified(): void
+    {
+        $this->browser
+            ->jsonRequest(
+                'POST',
+                '/store-api/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p2'),
+                            'label' => 'foo',
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p2'),
+                            'quantity' => 9,
+                        ],
+                    ],
+                ]
+            );
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $this->browser
+            ->jsonRequest(
+                'POST',
+                '/store-api/checkout/cart/line-item',
+                [
+                    'items' => [
+                        [
+                            'id' => $this->ids->get('p2'),
+                            'label' => 'foo',
+                            'type' => 'product',
+                            'referencedId' => $this->ids->get('p2'),
+                            'quantity' => 1,
+                        ],
+                    ],
+                ]
+            );
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('cart', $response['apiAlias']);
+        static::assertSame(50, $response['price']['totalPrice']);
         static::assertCount(1, $response['lineItems']);
         static::assertSame('Test', $response['lineItems'][0]['label']);
     }
@@ -264,12 +352,12 @@ class CartItemAddRouteTest extends TestCase
         static::assertCount(2, $shippingCostCalculatedTaxes = $shippingCost['calculatedTaxes']);
 
         // assert there is shipping cost calculated taxes for product and custom items in cart
-        $calculatedTaxForCustomItem = array_filter($shippingCostCalculatedTaxes, fn ($tax) => $tax['taxRate'] === $taxForCustomItem);
+        $calculatedTaxForCustomItem = array_filter($shippingCostCalculatedTaxes, static fn ($tax) => $tax['taxRate'] === $taxForCustomItem);
 
         static::assertNotEmpty($calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
-        $calculatedTaxForProductItem = array_filter($shippingCostCalculatedTaxes, fn ($tax) => $tax['taxRate'] === $taxForProductItem);
+        $calculatedTaxForProductItem = array_filter($shippingCostCalculatedTaxes, static fn ($tax) => $tax['taxRate'] === $taxForProductItem);
 
         static::assertNotEmpty($calculatedTaxForProductItem);
         static::assertCount(1, $calculatedTaxForProductItem);
@@ -321,7 +409,7 @@ class CartItemAddRouteTest extends TestCase
                     'items' => [
                         [
                             'type' => 'promotion',
-                            'referencedId' => $code,
+                            'referencedId' => " \t{$code}\n",
                         ],
                     ],
                 ]
@@ -335,10 +423,23 @@ class CartItemAddRouteTest extends TestCase
         static::assertSame(790, $response['price']['totalPrice']);
         static::assertCount(2, $response['lineItems']);
         static::assertSame('Test', $response['lineItems'][0]['label']);
+
+        $promotionLineItems = array_values(array_filter(
+            $response['lineItems'],
+            static fn (array $lineItem): bool => $lineItem['type'] === LineItem::PROMOTION_LINE_ITEM_TYPE
+        ));
+
+        static::assertCount(1, $promotionLineItems);
+        static::assertSame($code, $promotionLineItems[0]['referencedId']);
     }
 
     private function createTestData(): void
     {
+        $rule = Uuid::randomHex();
+        static::getContainer()->get('rule.repository')->create([
+            ['id' => $rule, 'name' => 'test', 'priority' => 1, 'conditions' => [['type' => (new AlwaysValidRule())->getName()]]],
+        ], Context::createDefaultContext());
+
         $this->productRepository->create([
             [
                 'id' => $this->ids->create('p1'),
@@ -367,6 +468,19 @@ class CartItemAddRouteTest extends TestCase
                 'active' => true,
                 'visibilities' => [
                     ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+                'prices' => [
+                    [
+                        'quantityStart' => 1,
+                        'quantityEnd' => 9,
+                        'ruleId' => $rule,
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 8, 'linked' => false]],
+                    ],
+                    [
+                        'quantityStart' => 10,
+                        'ruleId' => $rule,
+                        'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 5, 'net' => 4, 'linked' => false]],
+                    ],
                 ],
             ],
         ], Context::createDefaultContext());

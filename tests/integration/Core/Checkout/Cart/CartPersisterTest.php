@@ -4,9 +4,9 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Statement;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartCompressor;
@@ -19,24 +19,30 @@ use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Content\Product\Cart\ProductNotFoundError;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(CartPersister::class)]
 class CartPersisterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -44,13 +50,13 @@ class CartPersisterTest extends TestCase
     public function testLoadWithNotExistingToken(): void
     {
         $connection = $this->createMock(Connection::class);
-        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
         $eventDispatcher = new EventDispatcher();
         $connection->expects($this->once())
             ->method('fetchAssociative')
             ->willReturn(false);
 
-        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
 
         $e = null;
 
@@ -66,7 +72,7 @@ class CartPersisterTest extends TestCase
     public function testLoadWithExistingToken(): void
     {
         $connection = $this->createMock(Connection::class);
-        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
         $eventDispatcher = new EventDispatcher();
         $connection->expects($this->once())
             ->method('fetchAssociative')
@@ -74,16 +80,19 @@ class CartPersisterTest extends TestCase
                 ['payload' => serialize(new Cart('existing')), 'rule_ids' => json_encode([]), 'compressed' => 0]
             );
 
-        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
         $cart = $persister->load('existing', Generator::generateSalesChannelContext());
 
-        static::assertEquals(new Cart('existing'), $cart);
+        $expected = new Cart('existing');
+        $expected->setPersisted(true);
+
+        static::assertEquals($expected, $cart);
     }
 
     public function testEmptyCartShouldNotBeSaved(): void
     {
         $connection = $this->createMock(Connection::class);
-        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
 
         $eventDispatcher = new EventDispatcher();
 
@@ -91,7 +100,7 @@ class CartPersisterTest extends TestCase
         // Cart should not be inserted or updated.
         $this->expectSqlQuery($connection, 'DELETE FROM `cart`');
 
-        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
 
         $cart = new Cart('existing');
 
@@ -152,9 +161,142 @@ class CartPersisterTest extends TestCase
         static::assertNotEmpty($token);
     }
 
+    public function testSavingExistingCartDoesNotRecreateDeletedCart(): void
+    {
+        $cart = new Cart('existing');
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        $persister = static::getContainer()->get(CartPersister::class);
+        $context = $this->getSalesChannelContext($cart->getToken());
+
+        $persister->save($cart, $context);
+        $persister->delete($cart->getToken(), $context);
+        $persister->save($cart, $context);
+
+        $token = static::getContainer()->get(Connection::class)
+            ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
+
+        static::assertFalse($token);
+    }
+
+    public function testExistsReflectsStoredCart(): void
+    {
+        $cart = new Cart('existing');
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        $persister = static::getContainer()->get(CartPersister::class);
+        $context = $this->getSalesChannelContext($cart->getToken());
+
+        static::assertFalse($persister->exists($cart->getToken(), $context));
+
+        $persister->save($cart, $context);
+
+        static::assertTrue($persister->exists($cart->getToken(), $context));
+
+        $persister->delete($cart->getToken(), $context);
+
+        static::assertFalse($persister->exists($cart->getToken(), $context));
+    }
+
+    public function testRetokenizedCartIsInsertedUnderTheNewToken(): void
+    {
+        $cart = new Cart(Uuid::randomHex());
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        $persister = static::getContainer()->get(CartPersister::class);
+        $persister->save($cart, $this->getSalesChannelContext($cart->getToken()));
+
+        $loaded = $persister->load($cart->getToken(), $this->getSalesChannelContext($cart->getToken()));
+
+        // extensions hand a persisted cart a new token and store it elsewhere, e.g. as a quote payload
+        $detachedToken = Uuid::randomHex();
+        $loaded->setToken($detachedToken);
+
+        $detached = Serialization::assertUnserializedInstanceOf(Cart::class, serialize($loaded));
+        static::assertInstanceOf(Cart::class, $detached);
+
+        $persister->save($detached, $this->getSalesChannelContext($detachedToken));
+
+        $connection = static::getContainer()->get(Connection::class);
+
+        static::assertSame($detachedToken, $connection->fetchOne(
+            'SELECT token FROM cart WHERE token = :token',
+            ['token' => $detachedToken]
+        ));
+        static::assertSame($cart->getToken(), $connection->fetchOne(
+            'SELECT token FROM cart WHERE token = :token',
+            ['token' => $cart->getToken()]
+        ));
+    }
+
+    public function testRecalculatingARetokenizedCartWritesItUnderTheNewToken(): void
+    {
+        $cart = new Cart(Uuid::randomHex());
+        $cart->add(
+            (new LineItem('A', LineItem::CUSTOM_LINE_ITEM_TYPE))
+                ->setPriceDefinition(new QuantityPriceDefinition(10.0, new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        $persister = static::getContainer()->get(CartPersister::class);
+        $persister->save($cart, $this->getSalesChannelContext($cart->getToken()));
+
+        $loaded = $persister->load($cart->getToken(), $this->getSalesChannelContext($cart->getToken()));
+
+        $newToken = Uuid::randomHex();
+        $loaded->setToken($newToken);
+
+        // Processor::process() carries the persisted state over, so a stale one loses the write here
+        static::getContainer()->get(CartService::class)
+            ->recalculate($loaded, $this->getSalesChannelContext($newToken));
+
+        static::assertSame($newToken, static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT token FROM cart WHERE token = :token',
+            ['token' => $newToken]
+        ));
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed
+     */
     public function testRecalculationCartShouldNotBeSaved(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $cartBehavior = new CartBehavior([], true, true);
+
+        $cart = new Cart('existing');
+        $cart->setBehavior($cartBehavior);
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        static::getContainer()->get(CartPersister::class)
+            ->save($cart, $this->getSalesChannelContext($cart->getToken()));
+
+        $token = static::getContainer()->get(Connection::class)
+            ->fetchOne('SELECT token FROM cart WHERE token = :token', ['token' => $cart->getToken()]);
+
+        static::assertFalse($token);
+    }
+
+    public function testSkipPersistenceCartShouldNotBeSaved(): void
+    {
+        $cartBehavior = new CartBehavior([CheckoutPermissions::SKIP_CART_PERSISTENCE => true], true);
 
         $cart = new Cart('existing');
         $cart->setBehavior($cartBehavior);
@@ -206,25 +348,23 @@ class CartPersisterTest extends TestCase
 
     public function testCartCanBeUnserialized(): void
     {
-        $cart = unserialize((string) file_get_contents(__DIR__ . '/fixtures/cart.blob'));
-
-        static::assertInstanceOf(Cart::class, $cart);
+        $cart = Serialization::assertUnserializedInstanceOf(Cart::class, (string) file_get_contents(__DIR__ . '/fixtures/cart.blob'));
     }
 
     public function testCartVerifyPersistEventIsFiredAndNotPersisted(): void
     {
         $connection = $this->createMock(Connection::class);
-        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
         $eventDispatcher = new EventDispatcher();
 
         $this->expectSqlQuery($connection, 'DELETE FROM `cart`');
 
         $caughtEvent = null;
-        $this->addEventListener($eventDispatcher, CartVerifyPersistEvent::class, function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+        $this->addEventListener($eventDispatcher, CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
-        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'));
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
 
         $cart = new Cart('existing');
 
@@ -316,6 +456,57 @@ class CartPersisterTest extends TestCase
         static::assertContains($ids->get('cart-3'), $carts);
     }
 
+    public function testSaveCartWithoutErrorCleanup(): void
+    {
+        $cart = new Cart('existing');
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        $cart->addErrors(new ProductNotFoundError(Uuid::randomHex()));
+
+        $context = $this->getSalesChannelContext($cart->getToken());
+        $cartPersister = static::getContainer()->get(CartPersister::class);
+        $cartPersister->save($cart, $context);
+
+        $cart = $cartPersister->load($cart->getToken(), $context);
+
+        static::assertNotEmpty($cart->getLineItems());
+        static::assertEmpty($cart->getErrors());
+    }
+
+    public function testSaveCartWithPersistCartErrorPermission(): void
+    {
+        $cart = new Cart('existing');
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setPrice(new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()))
+                ->setLabel('test')
+        );
+
+        $cart->setBehavior(new CartBehavior([
+            AbstractCartPersister::PERSIST_CART_ERROR_PERMISSION => true,
+        ]));
+
+        $productId = Uuid::randomHex();
+        $cart->addErrors(new ProductNotFoundError($productId));
+
+        $context = $this->getSalesChannelContext($cart->getToken());
+        $cartPersister = static::getContainer()->get(CartPersister::class);
+        $cartPersister->save($cart, $context);
+
+        $cart = $cartPersister->load($cart->getToken(), $context);
+
+        static::assertNotEmpty($cart->getLineItems());
+        static::assertNotEmpty($cart->getErrors());
+
+        $error = $cart->getErrors()->first();
+        static::assertInstanceOf(ProductNotFoundError::class, $error);
+        static::assertEquals(['id' => $productId], $error->getParameters());
+    }
+
     private function getSalesChannelContext(string $token): SalesChannelContext
     {
         return static::getContainer()
@@ -328,9 +519,9 @@ class CartPersisterTest extends TestCase
         $connection->expects($this->once())
             ->method('prepare')
             ->with(
-                static::callback(fn (string $sql): bool => \str_starts_with(\trim($sql), $beginOfSql))
+                static::callback(static fn (string $sql): bool => \str_starts_with(\trim($sql), $beginOfSql))
             )
-            ->willReturnCallback(fn (string $sql): Statement => static::getContainer()->get(Connection::class)->prepare($sql));
+            ->willReturnCallback(static fn (string $sql): Statement => static::getContainer()->get(Connection::class)->prepare($sql));
     }
 
     private function createCart(string $token, \DateTimeImmutable $date, ?\DateTimeImmutable $updatedAt = null): void

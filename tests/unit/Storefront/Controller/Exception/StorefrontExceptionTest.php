@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Controller\Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Controller\Exception\StorefrontException;
 use Twig\Error\Error as TwigError;
@@ -13,6 +14,7 @@ use Twig\Source;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorefrontException::class)]
 class StorefrontExceptionTest extends TestCase
 {
@@ -31,7 +33,7 @@ class StorefrontExceptionTest extends TestCase
 
         static::assertSame(500, $res->getStatusCode());
         static::assertSame('STOREFRONT__CAN_NOT_RENDER_VIEW', $res->getErrorCode());
-        static::assertSame('Can not render test.html.twig view: Error message with these parameters: {"param":"Param"}', $res->getMessage());
+        static::assertSame('Can not render test.html.twig view: Error message in "test.html.twig" at line 5 with these parameters: {"param":"Param"}', $res->getMessage());
         static::assertSame(5, $res->getLine());
         static::assertSame('test.html.twig', $res->getFile());
     }
@@ -51,7 +53,7 @@ class StorefrontExceptionTest extends TestCase
 
         static::assertSame(500, $exception->getStatusCode());
         static::assertSame('STOREFRONT__CAN_NOT_RENDER_CUSTOM_APP_VIEW', $exception->getErrorCode());
-        static::assertSame('Can not render test.html.twig view: Error message with these parameters: {"param":"Param"}', $exception->getMessage());
+        static::assertSame('Can not render test.html.twig view: Error message in "test.html.twig" at line 5 with these parameters: {"param":"Param"}', $exception->getMessage());
         static::assertSame(5, $exception->getLine());
         static::assertSame($path, $exception->getFile());
     }

@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\Stub\App\StaticSourceResolver;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
@@ -15,6 +16,7 @@ use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeFilesystemResolver::class)]
 class ThemeFilesystemResolverTest extends TestCase
 {
@@ -38,7 +40,7 @@ class ThemeFilesystemResolverTest extends TestCase
         $pluginConfig = new StorefrontPluginConfiguration('Storefront');
         $fs = $resolver->getFilesystemForStorefrontConfig($pluginConfig);
 
-        static::assertEquals($bundle->getPath(), $fs->location);
+        static::assertSame($bundle->getPath(), $fs->location);
     }
 
     public function testGetFilesystemDelegatesToAppSourceResolverForApps(): void
@@ -47,14 +49,14 @@ class ThemeFilesystemResolverTest extends TestCase
             new StaticSourceResolver([
                 'CoolApp' => new StaticFilesystem(),
             ]),
-            $this->createMock(Kernel::class)
+            static::createStub(Kernel::class)
         );
 
         $pluginConfig = new StorefrontPluginConfiguration('CoolApp');
 
         $fs = $resolver->getFilesystemForStorefrontConfig($pluginConfig);
 
-        static::assertEquals('/app-root', $fs->location);
+        static::assertSame('/app-root', $fs->location);
     }
 
     public function testGetFilesystemForPluginUsesBundleBasePath(): void
@@ -79,6 +81,6 @@ class ThemeFilesystemResolverTest extends TestCase
 
         $fs = $resolver->getFilesystemForStorefrontConfig($pluginConfig);
 
-        static::assertEquals('/some/project/custom/plugins/CoolPlugin', $fs->location);
+        static::assertSame('/some/project/custom/plugins/CoolPlugin', $fs->location);
     }
 }

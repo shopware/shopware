@@ -1,0 +1,4 @@
+interface:
+  display_name: "Shopware Change Scope"
+  short_description: "Scope Shopware fixes and cleanups from root cause."
+  default_prompt: "Scope this Shopware change and identify the root-cause fix."

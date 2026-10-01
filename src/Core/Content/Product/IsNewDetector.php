@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -14,8 +15,10 @@ class IsNewDetector extends AbstractIsNewDetector
     /**
      * @internal
      */
-    public function __construct(private readonly SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        private readonly SystemConfigService $systemConfigService,
+        private readonly ClockInterface $clock
+    ) {
     }
 
     public function getDecorated(): AbstractIsNewDetector
@@ -30,7 +33,7 @@ class IsNewDetector extends AbstractIsNewDetector
             $context->getSalesChannelId()
         );
 
-        $now = new \DateTime();
+        $now = $this->clock->now();
 
         /** @var \DateTimeInterface|null $releaseDate */
         $releaseDate = $product->get('releaseDate');

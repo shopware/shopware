@@ -4,10 +4,12 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Routing\DomainNotMappedListener;
-use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
+use Shopware\Storefront\Framework\StorefrontFrameworkException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Twig\Environment;
@@ -15,6 +17,7 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(DomainNotMappedListener::class)]
 class DomainNotMappedListenerTest extends TestCase
 {
@@ -26,7 +29,7 @@ class DomainNotMappedListenerTest extends TestCase
         $listener = new DomainNotMappedListener($container);
 
         $event = new ExceptionEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             new Request(),
             0,
             new \Exception()
@@ -38,17 +41,20 @@ class DomainNotMappedListenerTest extends TestCase
     public function testSalesChannelMappingException(): void
     {
         $container = $this->createMock(ContainerInterface::class);
-        $container->expects($this->once())->method('get')->willReturn($this->createMock(Environment::class));
+        $container->expects($this->once())->method('get')->willReturn(static::createStub(Environment::class));
 
         $listener = new DomainNotMappedListener($container);
 
         $event = new ExceptionEvent(
-            $this->createMock(HttpKernelInterface::class),
+            static::createStub(HttpKernelInterface::class),
             new Request(),
             0,
-            new SalesChannelMappingException('test')
+            StorefrontFrameworkException::salesChannelMappingException('test')
         );
 
         $listener($event);
+
+        $response = $event->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response?->getStatusCode());
     }
 }

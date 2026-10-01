@@ -1,11 +1,19 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
 import { searchRankingPoint } from 'src/app/service/search-ranking.service';
 import Criteria from 'src/core/data/criteria.data';
-import 'src/app/component/base/sw-empty-state';
 import EntityCollection from 'src/core/data/entity-collection.data';
+
+const userConfigServiceMock = {
+    search: jest.fn(() => Promise.resolve({ data: {} })),
+    upsert: jest.fn(() => Promise.resolve()),
+};
+
+Shopware.Service().register('userConfigService', () => userConfigServiceMock);
 
 const defaultCategoryId = 'default-category-id';
 const defaultProductId = 'default-product-id';
@@ -22,6 +30,7 @@ async function createWrapper(
         'system_config:read',
     ],
     mocks = {},
+    { featureActive = false } = {},
 ) {
     return mount(
         await wrapTestComponent('sw-cms-list', {
@@ -43,10 +52,43 @@ async function createWrapper(
                         template: '<div><slot></slot></div>',
                     },
                     'sw-tabs': {
-                        template: '<div><slot name="content"></slot></div>',
+                        name: 'sw-tabs',
+                        template: '<div class="sw-tabs"><slot name="content"></slot></div>',
+                    },
+                    'mt-tabs': {
+                        name: 'mt-tabs',
+                        emits: ['new-item-active'],
+                        props: {
+                            defaultItem: {
+                                type: String,
+                                required: false,
+                                default: undefined,
+                            },
+                            items: {
+                                type: Array,
+                                required: true,
+                            },
+                            positionIdentifier: {
+                                type: String,
+                                required: true,
+                            },
+                            vertical: {
+                                type: Boolean,
+                                required: false,
+                                default: false,
+                            },
+                        },
+                        template: '<div class="mt-tabs"></div>',
                     },
                     'sw-select-field': true,
                     'sw-pagination': {
+                        name: 'sw-pagination',
+                        props: [
+                            'page',
+                            'limit',
+                            'total',
+                            'steps',
+                        ],
                         template: '<div></div>',
                     },
                     'sw-cms-list-item': await wrapTestComponent('sw-cms-list-item'),
@@ -72,7 +114,6 @@ async function createWrapper(
                     'sw-data-grid-skeleton': true,
                     'sw-loader': true,
                     'sw-skeleton': true,
-                    'sw-empty-state': true,
                     'sw-sorting-select': true,
                     'sw-modal': {
                         template: `
@@ -90,11 +131,7 @@ async function createWrapper(
                         props: ['text'],
                     },
                     'sw-text-field': {
-                        props: [
-                            'value',
-                            'label',
-                            'placeholder',
-                        ],
+                        props: ['value', 'label', 'placeholder'],
                         template:
                             '<input class="sw-text-field" :value="value" @input="$emit(\'input\', $event.target.value)" />',
                     },
@@ -105,9 +142,16 @@ async function createWrapper(
                     'sw-data-grid-column-boolean': true,
                     'sw-data-grid-inline-edit': true,
                     'sw-provide': true,
+                    'sw-time-ago': true,
                 },
                 mocks: {
-                    $route: { query: '' },
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'regular-content',
+                            },
+                        },
+                    },
                     ...mocks,
                 },
                 provide: {
@@ -136,6 +180,9 @@ async function createWrapper(
                         buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                             return criteria;
                         },
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
                     },
                     systemConfigApiService: {
                         getValues: (query) => {
@@ -158,6 +205,9 @@ async function createWrapper(
 
                             return privileges.includes(identifier);
                         },
+                    },
+                    feature: {
+                        isActive: (feature) => feature === 'v6.8.0.0' && featureActive,
                     },
                     cmsPageTypeService: {
                         getTypes: () => [
@@ -205,11 +255,9 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        expect(wrapper.vm).toBeTruthy();
+    beforeEach(() => {
+        userConfigServiceMock.search.mockResolvedValue({ data: {} });
+        userConfigServiceMock.upsert.mockResolvedValue();
     });
 
     it('should show the right list of pageTypes for the filters', async () => {
@@ -233,6 +281,76 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         ]);
     });
 
+    it('should render deprecated tabs when the major feature flag is inactive', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(true);
+        expect(wrapper.findComponent({ name: 'mt-tabs' }).exists()).toBe(false);
+    });
+
+    it('should render meteor tabs when the major feature flag is active', async () => {
+        const wrapper = await createWrapper(undefined, {}, { featureActive: true });
+        await flushPromises();
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+
+        expect(tabs.props('positionIdentifier')).toBe('sw-cms-list-sidebar');
+        expect(tabs.props('defaultItem')).toBe('all-pages');
+        expect(tabs.props('vertical')).toBe(true);
+        expect(tabs.props('items')).toEqual([
+            expect.objectContaining({
+                label: 'sw-cms.sorting.labelSortByAllPages',
+                name: 'all-pages',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'page',
+                name: 'page',
+                onClick: expect.any(Function),
+            }),
+            expect.objectContaining({
+                label: 'landingpage',
+                name: 'landingpage',
+                onClick: expect.any(Function),
+            }),
+        ]);
+        expect(wrapper.findComponent({ name: 'sw-tabs' }).exists()).toBe(false);
+    });
+
+    it('should size the card view pagination steps and skeletons like the card view limit', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(wrapper.vm.limitDefaults.cardView).toBe(9);
+        expect(wrapper.getComponent({ name: 'sw-pagination' }).props('steps')).toEqual([9]);
+
+        wrapper.vm.isLoading = true;
+        await flushPromises();
+
+        expect(wrapper.findAllComponents({ name: 'sw-skeleton' })).toHaveLength(9);
+    });
+
+    it('should filter by page type when a meteor tab item is clicked', async () => {
+        const wrapper = await createWrapper(undefined, {}, { featureActive: true });
+        await flushPromises();
+
+        jest.spyOn(wrapper.vm, 'resetList').mockImplementation(() => {});
+
+        const tabs = wrapper.getComponent({ name: 'mt-tabs' });
+        const pageTab = tabs.props('items').find((item) => item.name === 'page');
+        pageTab.onClick();
+
+        expect(wrapper.vm.currentPageType).toBe('page');
+        expect(wrapper.vm.activePageTypeTab).toBe('page');
+
+        const allPagesTab = tabs.props('items').find((item) => item.name === 'all-pages');
+        allPagesTab.onClick();
+
+        expect(wrapper.vm.currentPageType).toBeNull();
+        expect(wrapper.vm.activePageTypeTab).toBe('all-pages');
+    });
+
     it('should show the correct context menu item for default layouts', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -246,6 +364,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -256,6 +375,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -266,6 +386,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -308,6 +429,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -318,6 +440,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -328,6 +451,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -375,6 +499,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -391,18 +516,9 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     const gridUserSettingsDataProvider = [
-        [
-            'no rights',
-            [],
-        ],
-        [
-            'only create',
-            ['user_config:create'],
-        ],
-        [
-            'only update',
-            ['user_config:update'],
-        ],
+        ['no rights', []],
+        ['only create', ['user_config:create']],
+        ['only update', ['user_config:update']],
     ];
     it.each(gridUserSettingsDataProvider)(
         'should not save GridUserSettings with insufficient rights. [Case: %s]',
@@ -419,13 +535,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 'system_config:read',
             ];
 
-            const wrapper = await createWrapper(
-                [
-                    ...defaultPrivileges,
-                    ...testedPrivileges,
-                ],
-                mocks,
-            );
+            const wrapper = await createWrapper([...defaultPrivileges, ...testedPrivileges], mocks);
             const saveUserSettingsSpy = jest.spyOn(wrapper.vm, 'saveUserSettings');
             await flushPromises();
 
@@ -437,6 +547,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                         sections: [],
                         categories: [],
                         products: [],
+                        landingPages: [],
                         translated: {
                             name: 'CMS Page 1',
                         },
@@ -463,6 +574,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -493,6 +605,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -514,6 +627,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -526,11 +640,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show disabled context fields in data grid view', async () => {
-        const wrapper = await createWrapper([
-            'user_config:read',
-            'user_config:create',
-            'user_config:update',
-        ]);
+        const wrapper = await createWrapper(['user_config:read', 'user_config:create', 'user_config:update']);
         await flushPromises();
 
         await wrapper.find('.sw-cms-list__actions-mode').trigger('click');
@@ -545,6 +655,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -586,6 +697,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -626,6 +738,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -666,6 +779,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -688,11 +802,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show disabled context fields in normal view', async () => {
-        const wrapper = await createWrapper([
-            'user_config:read',
-            'user_config:create',
-            'user_config:update',
-        ]);
+        const wrapper = await createWrapper(['user_config:read', 'user_config:create', 'user_config:update']);
         await flushPromises();
 
         await wrapper.setData({
@@ -703,6 +813,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -721,10 +832,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled preview context field in normal view', async () => {
-        const wrapper = await createWrapper([
-            'user_config:read',
-            'cms.editor',
-        ]);
+        const wrapper = await createWrapper(['user_config:read', 'cms.editor']);
         await flushPromises();
 
         await wrapper.setData({
@@ -735,6 +843,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -753,10 +862,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled duplicate context field in normal view', async () => {
-        const wrapper = await createWrapper([
-            'user_config:read',
-            'cms.creator',
-        ]);
+        const wrapper = await createWrapper(['user_config:read', 'cms.creator']);
         await flushPromises();
 
         await wrapper.setData({
@@ -767,6 +873,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -785,10 +892,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
     });
 
     it('should show enabled delete context field in normal view', async () => {
-        const wrapper = await createWrapper([
-            'user_config:read',
-            'cms.deleter',
-        ]);
+        const wrapper = await createWrapper(['user_config:read', 'cms.deleter']);
         await flushPromises();
 
         await wrapper.setData({
@@ -799,6 +903,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -825,6 +930,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                 sections: [],
                 categories: [],
                 products: [{ id: 'abc' }],
+                landingPages: [],
                 translated: {
                     name: 'CMS Page 1',
                 },
@@ -867,6 +973,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -902,11 +1009,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const expectedCategories = [
-            'Category 1',
-            'Category 3',
-            'Category 2',
-        ];
+        const expectedCategories = ['Category 1', 'Category 3', 'Category 2'];
         const categoryObjects = expectedCategories.map((category, key) => {
             return {
                 key,
@@ -917,14 +1020,17 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             };
         });
 
-        const expectedProducts = [
-            'Product 1',
-            'Product 2',
-            'Product 3',
-        ];
+        const expectedProducts = ['Product 1', 'Product 2', 'Product 3'];
         const productObjects = expectedProducts.map((product) => {
             return {
                 name: product,
+            };
+        });
+
+        const expectedLandingPages = ['LandingPage 1', 'LandingPage 2', 'LandingPage 3'];
+        const landingPageObjects = expectedLandingPages.map((landingPage) => {
+            return {
+                name: landingPage,
             };
         });
 
@@ -933,6 +1039,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             sections: [],
             categories: categoryObjects,
             products: [],
+            landingPages: [],
             translated: {
                 name: 'CMS Page 1',
             },
@@ -948,14 +1055,25 @@ describe('module/sw-cms/page/sw-cms-list', () => {
 
         mockPage.products = productObjects;
 
-        expect(wrapper.vm.getPages(mockPage)).toStrictEqual([
-            ...expectedCategories,
-            ...expectedProducts,
-        ]);
+        expect(wrapper.vm.getPages(mockPage)).toStrictEqual([...expectedCategories, ...expectedProducts]);
         expect(wrapper.vm.getPagesString(mockPage)).toBe('Category 1, Category 3, Category 2, ...');
         expect(wrapper.vm.getPagesTooltip(mockPage)).toStrictEqual({
             width: 300,
             message: 'Category 1, Category 3, Category 2, Product 1, Product 2, Product 3',
+            disabled: false,
+        });
+
+        mockPage.landingPages = landingPageObjects;
+
+        expect(wrapper.vm.getPages(mockPage)).toStrictEqual([
+            ...expectedCategories,
+            ...expectedProducts,
+            ...expectedLandingPages,
+        ]);
+        expect(wrapper.vm.getPagesTooltip(mockPage)).toStrictEqual({
+            width: 300,
+            message:
+                'Category 1, Category 3, Category 2, Product 1, Product 2, Product 3, LandingPage 1, LandingPage 2, LandingPage 3',
             disabled: false,
         });
     });
@@ -971,6 +1089,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 1',
                     },
@@ -980,6 +1099,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     translated: {
                         name: 'CMS Page 2',
                     },
@@ -1099,11 +1219,9 @@ describe('module/sw-cms/page/sw-cms-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
@@ -1125,6 +1243,7 @@ describe('module/sw-cms/page/sw-cms-list', () => {
                     sections: [],
                     categories: [],
                     products: [],
+                    landingPages: [],
                     name: 'CMS Page 1',
                     translated: {
                         name: 'CMS Page 1',
@@ -1151,5 +1270,55 @@ describe('module/sw-cms/page/sw-cms-list', () => {
             },
         });
         expect(cloneMockLastCall[2]).toStrictEqual(Shopware.Context.api);
+    });
+
+    it('should wait for loadGridUserSettings before calling resetList', async () => {
+        const wrapper = await createWrapper();
+        const deferred = (() => {
+            let resolve;
+            const promise = new Promise((r) => {
+                resolve = r;
+            });
+            return { promise, resolve };
+        })();
+
+        const resetListSpy = jest.spyOn(wrapper.vm, 'resetList').mockImplementation(() => {});
+        jest.spyOn(wrapper.vm, 'loadGridUserSettings').mockReturnValue(deferred.promise);
+
+        wrapper.vm.createdComponent();
+
+        expect(resetListSpy).not.toHaveBeenCalled();
+
+        deferred.resolve();
+        await flushPromises();
+
+        expect(resetListSpy).toHaveBeenCalled();
+    });
+
+    it('should call resetList when loadGridUserSettings fails', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const resetListSpy = jest.spyOn(wrapper.vm, 'resetList').mockImplementation(() => {});
+        jest.spyOn(wrapper.vm, 'loadGridUserSettings').mockRejectedValue(new Error('Unable to load user settings'));
+
+        await wrapper.vm.createdComponent();
+
+        expect(resetListSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+        [9, 'grid'],
+        [10, 'list'],
+    ])('should set limit to %i when %s view is saved', async (limit, listMode) => {
+        const wrapper = await createWrapper();
+
+        jest.spyOn(wrapper.vm, 'getUserSettings').mockResolvedValue({
+            listMode,
+        });
+
+        await wrapper.vm.createdComponent();
+
+        expect(wrapper.vm.limit).toBe(limit);
     });
 });

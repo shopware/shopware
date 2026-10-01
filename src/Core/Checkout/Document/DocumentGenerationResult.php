@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Checkout\Document;
 
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
 use Shopware\Core\Framework\Api\EventListener\ErrorResponseFactory;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -10,6 +12,11 @@ use Shopware\Core\Framework\Struct\Struct;
  * @final
  */
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    replacement: RenderResult::class,
+)]
 class DocumentGenerationResult extends Struct
 {
     private readonly DocumentIdCollection $success;
@@ -56,7 +63,7 @@ class DocumentGenerationResult extends Struct
         }
 
         return [
-            'data' => $this->success->map(fn (DocumentIdStruct $documentIdStruct) => [
+            'data' => $this->success->map(static fn (DocumentIdStruct $documentIdStruct) => [
                 'documentId' => $documentIdStruct->getId(),
                 'documentMediaId' => $documentIdStruct->getMediaId(),
                 'documentDeepLink' => $documentIdStruct->getDeepLinkCode(),

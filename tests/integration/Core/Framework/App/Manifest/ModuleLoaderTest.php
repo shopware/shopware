@@ -3,10 +3,15 @@
 namespace Shopware\Tests\Integration\Core\Framework\App\Manifest;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Manifest\ModuleLoader;
+use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
+use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -18,12 +23,16 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
  *
  * @phpstan-import-type AppModule from ModuleLoader
  */
+#[Package('framework')]
 class ModuleLoaderTest extends TestCase
 {
     use CacheTestBehaviour;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
+    /**
+     * @var EntityRepository<AppCollection>
+     */
     private EntityRepository $appRepository;
 
     private Context $context;
@@ -95,19 +104,50 @@ class ModuleLoaderTest extends TestCase
         ], $loadedModules);
     }
 
-    public function testLoadModulesReturnsNothingIfAppUrlChangeWasDetected(): void
+    public function testLoadModulesReturnsNothingIfShopIdFingerprintsHaveChanged(): void
     {
         $this->registerAppsWithModules();
 
         $systemConfigService = static::getContainer()->get(SystemConfigService::class);
-        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY, [
-            'app_url' => 'https://test.com',
-            'value' => Uuid::randomHex(),
-        ]);
+        $systemConfigService->set(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2, (array) ShopId::v2(Uuid::randomHex(), [
+            AppUrl::IDENTIFIER => 'https://test.com',
+        ]));
 
         $loadedModules = $this->getSortedModules();
 
         static::assertSame([], $loadedModules);
+    }
+
+    public function testLoadModulesFiltersAppsWithoutPermission(): void
+    {
+        $this->createApp('AllowedApp', [
+            'modules' => [
+                [
+                    'label' => ['en-GB' => 'allowed module'],
+                    'source' => 'https://allowed.app.com',
+                    'name' => 'allowed-module',
+                ],
+            ],
+        ]);
+        $this->createApp('ForbiddenApp', [
+            'modules' => [
+                [
+                    'label' => ['en-GB' => 'forbidden module'],
+                    'source' => 'https://forbidden.app.com',
+                    'name' => 'forbidden-module',
+                ],
+            ],
+        ]);
+
+        $source = new AdminApiSource(null);
+        $source->setPermissions(['app.AllowedApp']);
+        $context = Context::createDefaultContext($source);
+
+        $modules = $this->moduleLoader->loadModules($context);
+
+        static::assertCount(1, $modules);
+        static::assertSame('AllowedApp', $modules[0]['name']);
+        static::assertSame('allowed-module', $modules[0]['modules'][0]['name']);
     }
 
     public function testMainModules(): void
@@ -235,7 +275,7 @@ class ModuleLoaderTest extends TestCase
     {
         $modules = $this->moduleLoader->loadModules($this->context);
 
-        usort($modules, fn ($a, $b) => $a['name'] <=> $b['name']);
+        usort($modules, static fn ($a, $b) => $a['name'] <=> $b['name']);
 
         return $modules;
     }
@@ -269,13 +309,14 @@ class ModuleLoaderTest extends TestCase
         $expectedUrl = parse_url($urlPath);
         static::assertSame($expectedUrl, $url);
 
-        $shopId = static::getContainer()->get(SystemConfigService::class)->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY);
-        static::assertIsArray($shopId);
+        $shopIdConfig = static::getContainer()->get(SystemConfigService::class)->get(ShopIdProvider::SHOP_ID_SYSTEM_CONFIG_KEY_V2);
+        static::assertIsArray($shopIdConfig);
+        $shopId = ShopId::fromSystemConfig($shopIdConfig);
 
         parse_str($queryString, $query);
         static::assertSame($_SERVER['APP_URL'], $query['shop-url']);
         static::assertArrayHasKey('shop-id', $query);
-        static::assertSame($shopId['value'], $query['shop-id']);
+        static::assertSame($shopId->id, $query['shop-id']);
         static::assertArrayHasKey('sw-version', $query);
         static::assertSame(static::getContainer()->getParameter('kernel.shopware_version'), $query['sw-version']);
         static::assertArrayHasKey('sw-context-language', $query);

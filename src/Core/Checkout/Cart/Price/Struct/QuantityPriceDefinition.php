@@ -69,7 +69,7 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     public static function fromArray(array $data): self
     {
         $taxRules = array_map(
-            fn (array $tax) => new TaxRule(
+            static fn (array $tax) => new TaxRule(
                 (float) $tax['taxRate'],
                 (float) $tax['percentage']
             ),
@@ -85,6 +85,15 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
         $self->setIsCalculated(\array_key_exists('isCalculated', $data) ? $data['isCalculated'] : false);
         $self->setListPrice(isset($data['listPrice']) ? (float) $data['listPrice'] : null);
         $self->setRegulationPrice(isset($data['regulationPrice']) ? (float) $data['regulationPrice'] : null);
+
+        $reference = $data['referencePriceDefinition'] ?? null;
+        if (\is_array($reference) && isset($reference['purchaseUnit'], $reference['referenceUnit'], $reference['unitName'])) {
+            $self->setReferencePriceDefinition(new ReferencePriceDefinition(
+                (float) $reference['purchaseUnit'],
+                (float) $reference['referenceUnit'],
+                (string) $reference['unitName']
+            ));
+        }
 
         return $self;
     }

@@ -11,12 +11,14 @@ use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Content\Product\Cart\ProductCartProcessor;
 use Shopware\Core\Content\Product\Cart\ProductLineItemValidator;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(ProductLineItemValidator::class)]
 class ProductLineItemValidatorTest extends TestCase
 {
@@ -24,7 +26,7 @@ class ProductLineItemValidatorTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
         $builder = new ProductLineItemFactory(new PriceDefinitionFactory());
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $cart->add(
             $builder
                 ->create(['id' => 'product-1', 'referencedId' => 'product-1'], $salesChannelContext)
@@ -63,7 +65,7 @@ class ProductLineItemValidatorTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
         $builder = new ProductLineItemFactory(new PriceDefinitionFactory());
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $cart->add(
             $builder
             ->create(['id' => 'product-1', 'referencedId' => 'product-1'], $salesChannelContext)
@@ -98,7 +100,7 @@ class ProductLineItemValidatorTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
         $builder = new ProductLineItemFactory(new PriceDefinitionFactory());
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $cart->add(
             $builder
             ->create(['id' => 'product-1', 'referencedId' => 'product-1'], $salesChannelContext)
@@ -133,7 +135,7 @@ class ProductLineItemValidatorTest extends TestCase
     {
         $cart = new Cart(Uuid::randomHex());
         $builder = new ProductLineItemFactory(new PriceDefinitionFactory());
-        $salesChannelContext = $this->createMock(SalesChannelContext::class);
+        $salesChannelContext = static::createStub(SalesChannelContext::class);
         $cart->add($builder->create(['id' => 'product-1', 'referencedId' => 'product-1'], $salesChannelContext));
         $cart->add($builder->create(['id' => 'product-2', 'referencedId' => 'product-2'], $salesChannelContext)->setReferencedId('product-1'));
 

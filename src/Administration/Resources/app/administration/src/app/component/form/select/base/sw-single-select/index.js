@@ -5,13 +5,13 @@
 import './sw-single-select.scss';
 import template from './sw-single-select.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { debounce, get } = Shopware.Utils;
 
 /**
  * @private
  */
-Component.register('sw-single-select', {
+export default {
     template,
 
     inject: ['feature'],
@@ -25,16 +25,13 @@ Component.register('sw-single-select', {
         'paginate',
     ],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error')],
 
     props: {
         options: {
             required: true,
             type: Array,
         },
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },
@@ -46,7 +43,6 @@ Component.register('sw-single-select', {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         placeholder: {
@@ -100,6 +96,11 @@ Component.register('sw-single-select', {
             required: false,
             default: undefined,
         },
+        autocomplete: {
+            type: String,
+            required: false,
+            default: undefined,
+        },
     },
 
     data() {
@@ -141,7 +142,9 @@ Component.register('sw-single-select', {
                 });
             },
             set(newValue) {
-                this.currentValue = this.getKey(newValue, this.valueProperty);
+                // getKey (lodash get) returns undefined instead of null when clearing,
+                // which JSON.stringify drops from the save payload
+                this.currentValue = newValue ? this.getKey(newValue, this.valueProperty) : null;
                 this.$emit('item-selected', newValue);
             },
         },
@@ -251,4 +254,4 @@ Component.register('sw-single-select', {
             this.setValue(null);
         },
     },
-});
+};

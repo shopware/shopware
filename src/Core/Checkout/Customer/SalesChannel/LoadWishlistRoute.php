@@ -8,7 +8,9 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerWishlistLoaderCriteriaEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerWishlistProductListingResultEvent;
+use Shopware\Core\Checkout\Customer\Extension\LoadWishlistRouteExtension;
 use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -16,8 +18,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -25,8 +30,8 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class LoadWishlistRoute extends AbstractLoadWishlistRoute
 {
     /**
@@ -40,7 +45,8 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
         private readonly SalesChannelRepository $productRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly SystemConfigService $systemConfigService,
-        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory
+        private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -49,8 +55,25 @@ class LoadWishlistRoute extends AbstractLoadWishlistRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/customer/wishlist', name: 'store-api.customer.wishlist.load', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_entity' => 'product'])]
+    #[Route(
+        path: '/store-api/customer/wishlist',
+        name: 'store-api.customer.wishlist.load',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_ENTITY => ProductDefinition::ENTITY_NAME,
+        ],
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
+    )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): LoadWishlistRouteResponse
+    {
+        return $this->extensions->publish(
+            name: LoadWishlistRouteExtension::NAME,
+            extension: new LoadWishlistRouteExtension($request, $context, $criteria, $customer),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): LoadWishlistRouteResponse
     {
         if (!$criteria->getTitle()) {
             $criteria->setTitle('wishlist::load-products');

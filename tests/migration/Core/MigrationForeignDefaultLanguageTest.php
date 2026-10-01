@@ -3,8 +3,8 @@
 namespace Shopware\Tests\Migration\Core;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
@@ -13,15 +13,19 @@ use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Migration\Traits\MigrationUntouchedDbTestTrait;
 use Shopware\Core\Migration\V6_3\Migration1536233560BasicData;
+use Shopware\Tests\Migration\MigrationUntouchedDbTestTrait;
 
 /**
  * @internal
+ *
+ * MigrationCollection would be the natural covers target, but the migration job scopes
+ * the coverage source to the src/*\/Migration directories, so no Framework class is a
+ * valid target here; the replayed migrations must not receive smoke-level attribution either.
  */
 #[Package('framework')]
-#[Group('slow')]
-#[CoversClass(MigrationCollection::class)]
+#[RunTestsInSeparateProcesses]
+#[CoversNothing]
 class MigrationForeignDefaultLanguageTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -85,7 +89,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ]
         );
         static::assertIsArray($templateDefault);
-        static::assertEquals('Password recovery', $templateDefault['subject']);
+        static::assertSame('Password recovery', $templateDefault['subject']);
 
         $deDeLanguage = $connection->fetchAssociative(
             'SELECT * FROM `language` WHERE `name` = :name',
@@ -105,7 +109,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
         );
 
         static::assertIsArray($templateDeDe);
-        static::assertEquals('Password-Wiederherstellung', $templateDeDe['subject']);
+        static::assertSame('Password-Wiederherstellung', $templateDeDe['subject']);
 
         $orgConnection->beginTransaction();
     }
@@ -195,7 +199,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ]
         );
         static::assertIsArray($templateDefault);
-        static::assertEquals('Password recovery', $templateDefault['subject']);
+        static::assertSame('Password recovery', $templateDefault['subject']);
 
         $templateDeLu = $connection->fetchAssociative(
             'SELECT subject FROM mail_template_translation
@@ -286,7 +290,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ]
         );
         static::assertIsArray($templateDefault);
-        static::assertEquals('Password recovery', $templateDefault['subject']);
+        static::assertSame('Password recovery', $templateDefault['subject']);
 
         $templateEnGb = $connection->fetchAssociative(
             'SELECT subject FROM mail_template_translation
@@ -297,7 +301,7 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             ]
         );
         static::assertIsArray($templateEnGb);
-        static::assertEquals('Password recovery', $templateEnGb['subject']);
+        static::assertSame('Password recovery', $templateEnGb['subject']);
 
         $orgConnection->beginTransaction();
     }
@@ -330,7 +334,6 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             array_merge(
                 $orgConnection->getParams(),
                 [
-                    'url' => $_SERVER['DATABASE_URL'],
                     'dbname' => $this->databaseName,
                 ]
             ),
@@ -338,8 +341,8 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             $orgConnection->getConfiguration(),
         );
 
-        /** @var string $dumpFile */
         $dumpFile = file_get_contents(__DIR__ . '/../../../src/Core/schema.sql');
+        static::assertIsString($dumpFile);
 
         $connection->executeStatement($dumpFile);
 

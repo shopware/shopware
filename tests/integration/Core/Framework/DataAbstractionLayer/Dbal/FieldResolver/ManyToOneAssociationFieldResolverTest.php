@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Dbal\Fi
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
+use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -34,6 +36,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 /**
  * @internal
  */
+#[Package('framework')]
 class ManyToOneAssociationFieldResolverTest extends TestCase
 {
     use DocumentTrait;
@@ -55,6 +58,9 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
      */
     protected EntityRepository $productRepository;
 
+    /**
+     * @var EntityRepository<DocumentCollection>
+     */
     protected EntityRepository $documentRepository;
 
     protected Connection $connection;
@@ -218,7 +224,7 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         $cart = $this->generateDemoCart(2);
         $orderId = $this->persistCart($cart);
 
-        $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->first();
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $this->context)->getEntities()->first();
         static::assertInstanceOf(OrderEntity::class, $order);
 
         // 2. Generate a document attached to the order
@@ -245,13 +251,13 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
             $this->context,
         );
 
-        static::assertCount(1, $documents);
-        static::assertEquals(1, $documents->getTotal());
+        static::assertCount(1, $documents->getEntities());
+        static::assertSame(1, $documents->getTotal());
 
         $document = $documents->getEntities()->first();
         static::assertInstanceOf(DocumentEntity::class, $document);
         static::assertNotNull($document->getOrder());
-        static::assertEquals('00000000000000000000000000000000', $document->getOrder()->getVersionId());
+        static::assertSame('00000000000000000000000000000000', $document->getOrder()->getVersionId());
     }
 
     public function testManyToOneInheritedWorks(): void
@@ -277,7 +283,7 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
         $criteria = new Criteria([$ids->get('p1'), $ids->get('p2')]);
         $criteria->addAssociation('cover.media');
 
-        $products = array_values($this->productRepository->search($criteria, $context)->getElements());
+        $products = array_values($this->productRepository->search($criteria, $context)->getEntities()->getElements());
 
         static::assertCount(2, $products);
 
@@ -289,7 +295,7 @@ class ManyToOneAssociationFieldResolverTest extends TestCase
 
         $context->setConsiderInheritance(true);
 
-        $products = array_values($this->productRepository->search($criteria, $context)->getElements());
+        $products = array_values($this->productRepository->search($criteria, $context)->getEntities()->getElements());
 
         static::assertCount(2, $products);
 

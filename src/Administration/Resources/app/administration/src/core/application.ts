@@ -17,9 +17,10 @@ interface bundlesSinglePluginResponse {
     html?: string;
     baseUrl?: null | string;
     type?: 'app' | 'plugin';
+    sourceType?: string;
     version?: string;
     // Properties below this line are only available for apps
-    integrationId?: string;
+    integrationId?: EntityKey<'integration'>;
     active?: boolean;
 }
 
@@ -46,19 +47,18 @@ class ApplicationBootstrapper {
      * Provides the necessary class properties for the class to work probably
      */
     constructor(container: Bottle) {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        const noop = (): void => {};
         this.$container = container;
 
         this.view = null;
 
         // Create an empty DI container for the core initializers & services, so we can separate the core initializers
         // and the providers
-        this.$container.service('service', noop);
-        this.$container.service('init', noop);
-        this.$container.service('factory', noop);
-        this.$container.service('init-pre', noop);
-        this.$container.service('init-post', noop);
+        class Noop {}
+        this.$container.service('service', Noop);
+        this.$container.service('init', Noop);
+        this.$container.service('factory', Noop);
+        this.$container.service('init-pre', Noop);
+        this.$container.service('init-post', Noop);
     }
 
     /**
@@ -376,7 +376,7 @@ class ApplicationBootstrapper {
      * Boot the login.
      */
     bootLogin(): Promise<void | ApplicationBootstrapper> {
-        // set force reload after successful login
+        // trigger a full page reload after successful login to rebuild the administration
         sessionStorage.setItem('sw-login-should-reload', 'true');
 
         /**
@@ -427,20 +427,18 @@ class ApplicationBootstrapper {
      * Creates the application root and injects the provider container into the
      * view instance to keep the dependency injection of Vue.js in place.
      */
-    createApplicationRoot(): Promise<ApplicationBootstrapper> {
+    async createApplicationRoot(): Promise<ApplicationBootstrapper> {
         const initContainer = this.getContainer('init');
-        // eslint-disable-next-line max-len
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         const router = initContainer.router.getRouterInstance();
 
         // We're in a test environment, we're not needing an application root
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         if (Shopware.Context.app.environment === 'testing') {
-            return Promise.resolve(this);
+            return this;
         }
 
         if (!this.view) {
-            return Promise.reject(new Error('The ViewAdapter was not defined in the application.'));
+            throw new Error('The ViewAdapter was not defined in the application.');
         }
 
         this.view.init(
@@ -451,27 +449,33 @@ class ApplicationBootstrapper {
             this.getContainer('service'),
         );
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-member-access
         const firstRunWizard = Shopware.Context.app.firstRunWizard;
 
         const loginService = this.getContainer('service').loginService;
-        if (
-            firstRunWizard &&
-            loginService.isLoggedIn() &&
+        if (firstRunWizard && loginService.isLoggedIn()) {
+            // Wait for the router to resolve its initial navigation before deciding whether the
+            // user needs to be redirected into the wizard. Directly after `view.init` the router
+            // still reports the START location (an empty route name), so a reload that lands on a
+            // deeper wizard step - e.g. the PayPal credentials step after activating the plugin -
+            // would otherwise be pushed back to the wizard start and the wizard would appear to
+            // restart. See issue #6210.
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            !router?.currentRoute?.value?.name?.startsWith('sw.first.run.wizard')
-        ) {
+            await router.isReady().catch(() => {});
+
             // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-            router.push({
-                name: 'sw.first.run.wizard.index',
-            });
+            if (!router?.currentRoute?.value?.name?.startsWith('sw.first.run.wizard')) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
+                router.push({
+                    name: 'sw.first.run.wizard.index',
+                });
+            }
         }
 
         if (typeof this._resolveViewInitialized === 'function') {
             this._resolveViewInitialized();
         }
 
-        return Promise.resolve(this);
+        return this;
     }
 
     _resolveViewInitialized: undefined | ((arg0?: unknown) => void);
@@ -490,7 +494,6 @@ class ApplicationBootstrapper {
     createApplicationRootError(error: unknown): void {
         console.error(error);
         const container = this.getContainer('init');
-        // eslint-disable-next-line max-len
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         const router = container.router.getRouterInstance();
 
@@ -517,7 +520,6 @@ class ApplicationBootstrapper {
     /**
      * Initialize the initializers for Vite.
      */
-    // eslint-disable-next-line max-len
     private initializeInitializers(
         container: InitContainer | InitPreContainer | InitPostContainer,
         suffix: '' | '-pre' | '-post' = '',
@@ -537,14 +539,14 @@ class ApplicationBootstrapper {
      * Initialize the initializers right away cause these are the mandatory services for the application
      * to boot successfully.
      */
-    private initializeLoginInitializer(): Promise<unknown[]> {
+    private async initializeLoginInitializer(): Promise<unknown[]> {
         const loginInitializer = [
             'login',
             'baseComponents',
-            'locale',
             'coreDirectives',
-            'apiServices',
+            'locale',
             'store',
+            'theme',
         ];
 
         const initContainer = this.getContainer('init');
@@ -574,13 +576,15 @@ class ApplicationBootstrapper {
         });
 
         this.$container.digest(pre);
+        // Ensure that the api services are available for the locale.init.ts
+        await Shopware.Application.getContainer('init-pre').apiServices;
+
         this.$container.digest(init);
         this.$container.digest(post);
 
         return Promise.all(this.getAsyncInitializers(loginInitializer));
     }
 
-    // eslint-disable-next-line max-len
     getAsyncInitializers(
         initializer: InitContainer | InitPostContainer | InitPreContainer | string[],
         suffix: '' | '-pre' | '-post' = '',
@@ -603,7 +607,6 @@ class ApplicationBootstrapper {
 
             // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             if (service?.constructor?.name === 'Promise') {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 asyncInitializers.push(service);
             }
         });
@@ -628,7 +631,6 @@ class ApplicationBootstrapper {
                 delete plugins.metadata;
             }
         } else {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             plugins = Shopware.Context.app.config.bundles as bundlesPluginResponse;
         }
 
@@ -645,63 +647,44 @@ class ApplicationBootstrapper {
             .filter(([pluginName]) => {
                 // Filter the swag-commercial bundle because it was loaded beforehand
                 // Filter the Administration bundle because it is the main application
-                return ![
-                    'swag-commercial',
-                    'SwagCommercial',
-                    'Administration',
-                ].includes(pluginName);
+                return !['swag-commercial', 'SwagCommercial', 'Administration'].includes(pluginName);
             })
-            .map(
-                ([
-                    ,
-                    plugin,
-                ]) => this.injectPlugin(plugin),
-            );
+            .map(([, plugin]) => this.injectPlugin(plugin));
 
         // inject iFrames of plugins
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         const bundles = Shopware.Context.app.config.bundles as bundlesPluginResponse;
-        Object.entries(bundles).forEach(
-            ([
-                bundleName,
-                bundle,
-            ]) => {
-                if (isDevelopmentMode) {
-                    // replace the baseUrl with the webpack url of the html file
-                    Object.entries(plugins).forEach(
-                        ([
-                            pluginName,
-                            entryFiles,
-                        ]) => {
-                            const stringUtils = Shopware.Utils.string;
-                            const camelCasePluginName = stringUtils.upperFirst(stringUtils.camelCase(pluginName));
+        Object.entries(bundles).forEach(([bundleName, bundle]) => {
+            if (isDevelopmentMode) {
+                // replace the baseUrl with the webpack url of the html file
+                Object.entries(plugins).forEach(([pluginName, entryFiles]) => {
+                    const stringUtils = Shopware.Utils.string;
+                    const camelCasePluginName = stringUtils.upperFirst(stringUtils.camelCase(pluginName));
 
-                            if (bundleName === camelCasePluginName && !!entryFiles.html) {
-                                bundle.baseUrl = entryFiles.html;
-                            }
+                    if (bundleName === camelCasePluginName && !!entryFiles.html) {
+                        bundle.baseUrl = entryFiles.html;
+                    }
 
-                            // add origin if not set yet
-                            if (bundle.baseUrl) {
-                                bundle.baseUrl = new URL(bundle.baseUrl, window.origin).toString();
-                            }
-                        },
-                    );
-                }
-
-                if (!bundle.baseUrl) {
-                    return;
-                }
-
-                this.injectIframe({
-                    active: bundle.active,
-                    integrationId: bundle.integrationId,
-                    bundleName,
-                    bundleVersion: bundle.version,
-                    iframeSrc: bundle.baseUrl,
-                    bundleType: bundle.type,
+                    // add origin if not set yet
+                    if (bundle.baseUrl) {
+                        bundle.baseUrl = new URL(bundle.baseUrl, window.origin).toString();
+                    }
                 });
-            },
-        );
+            }
+
+            if (!bundle.baseUrl) {
+                return;
+            }
+
+            this.injectIframe({
+                active: bundle.active,
+                integrationId: bundle.integrationId,
+                bundleName,
+                bundleVersion: bundle.version,
+                iframeSrc: bundle.baseUrl,
+                bundleType: bundle.type,
+                sourceType: bundle.sourceType,
+            });
+        });
 
         return Promise.all(injectAllPlugins);
     }
@@ -719,9 +702,7 @@ class ApplicationBootstrapper {
             allScripts.push(this.injectJs(plugin.js as string));
 
             try {
-                return await Promise.all([
-                    ...allScripts,
-                ]);
+                return await Promise.all([...allScripts]);
             } catch (_) {
                 console.warn('Error while loading plugin', plugin);
 
@@ -744,10 +725,7 @@ class ApplicationBootstrapper {
         }
 
         try {
-            return await Promise.all([
-                ...allScripts,
-                ...allStyles,
-            ]);
+            return await Promise.all([...allScripts, ...allStyles]);
         } catch (_) {
             console.warn('Error while loading plugin', plugin);
 
@@ -816,13 +794,15 @@ class ApplicationBootstrapper {
         iframeSrc,
         bundleVersion,
         bundleType,
+        sourceType,
     }: {
         active?: boolean;
-        integrationId?: string;
+        integrationId?: EntityKey<'integration'>;
         bundleName: string;
         iframeSrc: string;
         bundleVersion?: string;
         bundleType?: 'app' | 'plugin';
+        sourceType?: string;
     }): void {
         const bundles = Shopware.Context.app.config.bundles;
         let permissions = null;
@@ -833,11 +813,12 @@ class ApplicationBootstrapper {
 
         const extension: {
             active?: boolean;
-            integrationId?: string;
+            integrationId?: EntityKey<'integration'>;
             name: string;
             baseUrl: string;
             version?: string;
             type: 'app' | 'plugin';
+            sourceType?: string;
             permissions: Record<string, unknown>;
         } = {
             active,
@@ -846,11 +827,23 @@ class ApplicationBootstrapper {
             baseUrl: iframeSrc,
             version: bundleVersion,
             type: bundleType ?? 'plugin',
+            sourceType,
             permissions: {},
         };
 
         // To keep permissions reactive no matter if empty or not
         extension.permissions = permissions ?? reactive({});
+
+        // Check if extension is a plugin, then it has full permissions access
+        if (extension.type === 'plugin') {
+            extension.permissions = {
+                additional: ['*'],
+                create: ['*'],
+                read: ['*'],
+                update: ['*'],
+                delete: ['*'],
+            };
+        }
 
         Shopware.Store.get('extensions').addExtension(extension);
     }

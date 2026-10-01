@@ -14,7 +14,6 @@ async function createWrapper(privileges = []) {
                     template: '<div><slot name="smart-bar-actions"></slot><slot name="content">CONTENT</slot></div>',
                 },
                 'sw-entity-listing': true,
-                'sw-empty-state': true,
                 'sw-loader': true,
                 'router-link': true,
                 'sw-search-bar': true,
@@ -38,22 +37,26 @@ async function createWrapper(privileges = []) {
                     buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                         return criteria;
                     },
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
                 },
             },
             mocks: {
-                $route: { query: '' },
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'regular-content',
+                            description: 'sw-manufacturer.general.descriptionTextModule',
+                        },
+                    },
+                },
             },
         },
     });
 }
 
 describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have an enabled create button', async () => {
         const wrapper = await createWrapper(['product_manufacturer.creator']);
         const addButton = wrapper.find('.sw-manufacturer-list__add-manufacturer');
@@ -68,9 +71,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should be able to inline edit', async () => {
-        const wrapper = await createWrapper([
-            'product_manufacturer.editor',
-        ]);
+        const wrapper = await createWrapper(['product_manufacturer.editor']);
         await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-manufacturer-list__grid');
@@ -88,9 +89,7 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
     });
 
     it('should be able to inline delete', async () => {
-        const wrapper = await createWrapper([
-            'product_manufacturer.deleter',
-        ]);
+        const wrapper = await createWrapper(['product_manufacturer.deleter']);
         await wrapper.vm.$nextTick();
 
         const entityListing = wrapper.find('.sw-manufacturer-list__grid');
@@ -185,14 +184,22 @@ describe('src/module/sw-manufacturer/page/sw-manufacturer-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state')).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+    });
+
+    it('should show empty state with module snippets when there are no manufacturers', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.getList();
+
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-manufacturer.list.messageEmpty');
+        expect(wrapper.find('.mt-empty-state__description').text()).toBe('sw-manufacturer.general.descriptionTextModule');
+        expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
     });
 });

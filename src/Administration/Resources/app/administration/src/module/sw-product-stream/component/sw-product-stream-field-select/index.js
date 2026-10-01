@@ -1,20 +1,14 @@
-/*
- * @sw-package inventory
- */
-
 import template from './sw-product-stream-field-select.html.twig';
 import './sw-product-stream-field-select.scss';
 
 /**
+ * @sw-package inventory
  * @private
  */
 export default {
     template,
 
-    inject: [
-        'conditionDataProviderService',
-        'productCustomFields',
-    ],
+    inject: ['conditionDataProviderService', 'productCustomFields'],
 
     emits: ['field-changed'],
 
@@ -87,14 +81,6 @@ export default {
 
             return entityFields;
         },
-
-        arrowPrimaryColor() {
-            if (this.hasError) {
-                return '#de294c';
-            }
-
-            return '#758ca3';
-        },
     },
 
     watch: {
@@ -125,7 +111,7 @@ export default {
 
         getPropertyTranslation(property) {
             const translationKey = `sw-product-stream.filter.values.${property}`;
-            const translated = this.$tc(translationKey);
+            const translated = this.$t(translationKey);
 
             return translated === translationKey ? property : translated;
         },

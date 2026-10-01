@@ -35,7 +35,6 @@ export default {
             showPropertyGroups: false,
             showProductInfo: false,
             nextButtonDisabled: true,
-            addButtonDisabled: true,
             showNextButton: true,
             valuesLoading: false,
             customFields: [],
@@ -44,52 +43,59 @@ export default {
                 {
                     id: 'fc472b0728ce4000969214a0fa61f2df',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.description'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.description'),
                     name: 'description',
                 },
                 {
                     id: 'f64801aad24a4de7bfea4d312f957258',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.releaseDate'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.releaseDate'),
                     name: 'releaseDate',
                 },
                 {
                     id: 'f4a361187eac4f6ea4507ebf20c2e9d7',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.manufacturerNumber'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.manufacturerNumber'),
                     name: 'manufacturerNumber',
                 },
                 {
                     id: 'eb6c8ec9b6e24811a176be5a5c9871cf',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.ean'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.ean'),
                     name: 'ean',
                 },
                 {
                     id: '09110f8260804f009ab4536a1ffbc938',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.width'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.width'),
                     name: 'width',
                 },
                 {
                     id: 'e8a48d5fce2f402e8696477b03d7e8e7',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.height'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.height'),
                     name: 'height',
                 },
                 {
                     id: 'e4cf3f607a704f569c3912fb85ada9ad',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.length'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.length'),
                     name: 'length',
                 },
                 {
                     id: 'e06c53dc014a4130a8850fe64e395046',
                     type: 'product',
-                    label: this.$tc('sw-settings-product-feature-sets.modal.label.weight'),
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.weight'),
                     name: 'weight',
                 },
+                {
+                    id: 'd6eb6d4fbd754b0e9958ecc77abee3de',
+                    type: 'product',
+                    label: this.$t('sw-settings-product-feature-sets.modal.label.packUnit'),
+                    name: 'packUnit',
+                },
             ],
+            isApplyingSelections: false,
         };
     },
 
@@ -166,22 +172,22 @@ export default {
                 {
                     value: 'property',
                     disabled: this.propertyGroups.length < 1,
-                    name: this.$tc('sw-settings-product-feature-sets.modal.textPropertyLabel'),
+                    name: this.$t('sw-settings-product-feature-sets.modal.textPropertyLabel'),
                 },
                 {
                     value: 'customField',
                     disabled: this.customFields.length < 1,
-                    name: this.$tc('sw-settings-product-feature-sets.modal.textCustomFieldLabel'),
+                    name: this.$t('sw-settings-product-feature-sets.modal.textCustomFieldLabel'),
                 },
                 {
                     value: 'product',
                     disabled: this.productInfo.length < 1,
-                    name: this.$tc('sw-settings-product-feature-sets.modal.textProductInfoLabel'),
+                    name: this.$t('sw-settings-product-feature-sets.modal.textProductInfoLabel'),
                 },
                 {
                     value: 'referencePrice',
                     disabled: this.checkIfReferencePriceSelected,
-                    name: this.$tc('sw-settings-product-feature-sets.modal.textReferencePriceLabel'),
+                    name: this.$t('sw-settings-product-feature-sets.modal.textReferencePriceLabel'),
                 },
             ];
         },
@@ -192,6 +198,15 @@ export default {
 
         propertyGroupTotal() {
             return this.propertyGroups.total || 0;
+        },
+
+        addButtonDisabled() {
+            if (this.referencePriceSelected) {
+                return false;
+            }
+
+            const currentSelection = this.getCurrentSelection();
+            return Object.keys(currentSelection).length < 1;
         },
     },
 
@@ -259,6 +274,8 @@ export default {
             return this.getList(this.customFieldsRepository, this.customFieldCriteria, (items) => {
                 this.customFields = items;
                 this.valuesLoading = false;
+
+                this.applySelectionsToActiveGrid();
             });
         },
 
@@ -266,6 +283,8 @@ export default {
             return this.getList(this.propertyGroupsRepository, this.propertyGroupCriteria, (items) => {
                 this.propertyGroups = items;
                 this.valuesLoading = false;
+
+                this.applySelectionsToActiveGrid();
             });
         },
 
@@ -294,8 +313,6 @@ export default {
 
         onChangeOption() {
             this.checkIfReferencePriceIsSelected();
-
-            this.addButtonDisabled = !this.referencePriceSelected;
 
             if (this.nextButtonDisabled) {
                 this.nextButtonDisabled = false;
@@ -328,8 +345,8 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        title: this.$t('global.default.error'),
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                     });
                 })
                 .finally(() => {
@@ -348,37 +365,67 @@ export default {
             });
         },
 
-        setFeatureSelection(features, count) {
-            // Return early if we do not need to take pagination/preselection into account
-            if (!(this.showCustomField || this.showPropertyGroups)) {
-                if (count < 1) {
-                    this.addButtonDisabled = true;
-
-                    return;
-                }
-
-                this.selectedFeatures.set(1, features);
-                this.addButtonDisabled = false;
-
+        setFeatureSelection(features) {
+            if (this.isApplyingSelections) {
                 return;
             }
 
-            const criteria = this.showCustomField ? this.customFieldCriteria : this.propertyGroupCriteria;
-            const page = criteria.page;
-            const preSelected = this.selectedFeatures.get(page);
+            let selectionKey = 1;
+            const isPaginatedGridActive = this.showCustomField || this.showPropertyGroups;
 
-            // Apply the current selection, if there wasn't anything selected on this page before
-            if (!preSelected || Object.keys(preSelected).length < 1) {
-                this.selectedFeatures.set(page, features);
-                this.addButtonDisabled = false;
+            if (isPaginatedGridActive) {
+                const criteria = this.showCustomField ? this.customFieldCriteria : this.propertyGroupCriteria;
+                selectionKey = criteria.page || 1;
+            }
 
+            this.selectedFeatures.set(selectionKey, { ...features });
+        },
+
+        applySelectionsToActiveGrid() {
+            if (this.isApplyingSelections) {
                 return;
             }
 
-            const grid = this.showCustomField ? this.$refs.customFieldGrid : this.$refs.propertyGroupGrid;
+            let gridComponentRef;
+            let selectionKey;
+            let currentGridDataSource;
 
-            // Mark all preselected items as selected
-            Object.keys(preSelected).forEach((key) => grid.selectItem(true, preSelected[key]));
+            if (this.showCustomField) {
+                gridComponentRef = this.$refs.customFieldGrid;
+                selectionKey = this.customFieldCriteria.page || 1;
+                currentGridDataSource = this.customFields;
+            }
+
+            if (this.showPropertyGroups) {
+                gridComponentRef = this.$refs.propertyGroupGrid;
+                selectionKey = this.propertyGroupCriteria.page || 1;
+                currentGridDataSource = this.propertyGroups;
+            }
+
+            if (!gridComponentRef) {
+                return;
+            }
+
+            if (!currentGridDataSource || currentGridDataSource.length === 0) {
+                return;
+            }
+
+            const selectionsForThisContext = this.selectedFeatures.get(selectionKey);
+
+            this.isApplyingSelections = true;
+
+            try {
+                currentGridDataSource.forEach((itemInGrid) => {
+                    const shouldBeSelected = selectionsForThisContext && selectionsForThisContext[itemInGrid.id];
+                    if (!shouldBeSelected) {
+                        return;
+                    }
+
+                    gridComponentRef.selectItem(true, itemInGrid);
+                });
+            } finally {
+                this.isApplyingSelections = false;
+            }
         },
 
         getPropertyGroupColumns() {
@@ -434,6 +481,21 @@ export default {
             const fallback = Shopware.Context.app.fallbackLocale;
 
             return field.config.label[language] || field.config.label[fallback];
+        },
+
+        getCurrentSelection() {
+            if (this.showCustomField || this.showPropertyGroups) {
+                const criteria = this.showCustomField ? this.customFieldCriteria : this.propertyGroupCriteria;
+                const selectionKey = criteria.page || 1;
+
+                return this.selectedFeatures.get(selectionKey) || {};
+            }
+
+            if (this.showProductInfo || (this.selectedFeatureType && !this.showNextButton && !this.referencePriceSelected)) {
+                return this.selectedFeatures.get(1) || {};
+            }
+
+            return {};
         },
     },
 };

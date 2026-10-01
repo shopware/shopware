@@ -4,8 +4,10 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Command\MakerCommand;
+use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\EntityGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
@@ -13,14 +15,19 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginService;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MakerCommand::class)]
 class MakerCommandTest extends TestCase
 {
@@ -30,7 +37,7 @@ class MakerCommandTest extends TestCase
         $scaffoldingWriter->expects($this->once())
             ->method('write')
             ->with(static::callback(static function (StubCollection $stubCollection) {
-                $stub = $stubCollection->get('src/Resources/config/services.xml');
+                $stub = $stubCollection->get('src/Resources/config/services.php');
 
                 return $stub !== null && str_contains($stub->getContent() ?? '', 'Dummy content');
             }), static::callback(static function (PluginScaffoldConfiguration $configuration) {
@@ -44,22 +51,86 @@ class MakerCommandTest extends TestCase
             ->willReturn($this->getPluginEntity());
 
         $generator = new DummyScaffoldingGenerator();
+        $otherGenerator = $this->createMock(ScaffoldingGenerator::class);
+        $otherGenerator->expects($this->never())->method('generateStubs');
 
-        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService);
+        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator, $otherGenerator]), $scaffoldingWriter, $pluginService);
         $command->setName('make:foo');
 
         $tester = new CommandTester($command);
         $tester->setInputs(['ExamplePlugin']);
         $res = $tester->execute([]);
 
-        static::assertEquals(Command::SUCCESS, $res);
+        static::assertSame(Command::SUCCESS, $res);
+    }
+
+    public function testEntitiesOptionAcceptsCommaSeparatedList(): void
+    {
+        $scaffoldingWriter = $this->createMock(ScaffoldingWriter::class);
+        $scaffoldingWriter->expects($this->once())
+            ->method('write')
+            ->with(static::anything(), static::callback(static function (PluginScaffoldConfiguration $configuration): bool {
+                static::assertSame(['Foo', 'Bar'], $configuration->getOption(EntityGenerator::OPTION_NAME));
+
+                return true;
+            }));
+
+        $pluginService = static::createStub(PluginService::class);
+        $pluginService->method('getPluginByName')->willReturn($this->getPluginEntity());
+
+        $generator = new EntityGenerator(new MockClock());
+        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService);
+        $command->setName('make:plugin:entity');
+
+        // StringInput parses like the real CLI; the ArrayInput used by CommandTester accepts values for flag options
+        $input = new StringInput('ExamplePlugin --entities=Foo,Bar');
+        $input->setInteractive(false);
+
+        static::assertSame(Command::SUCCESS, $command->run($input, new NullOutput()));
+    }
+
+    public function testInteractRejectsBlankPluginName(): void
+    {
+        $generator = new DummyScaffoldingGenerator();
+        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), static::createStub(ScaffoldingWriter::class), static::createStub(PluginService::class));
+        $command->setName('make:foo');
+
+        $tester = new CommandTester($command);
+        // First input is blank (rejected by NotBlank validator), second is valid
+        $tester->setInputs(['', 'ExamplePlugin']);
+
+        $tester->execute([], ['interactive' => true]);
+
+        static::assertStringContainsString('This value should not be blank', $tester->getDisplay());
+    }
+
+    public function testInteractSetsValidPluginNameOnArgument(): void
+    {
+        $scaffoldingWriter = static::createStub(ScaffoldingWriter::class);
+
+        $pluginService = $this->createMock(PluginService::class);
+        $pluginService->expects($this->once())
+            ->method('getPluginByName')
+            ->with('MyPlugin')
+            ->willReturn($this->getPluginEntity());
+
+        $generator = new DummyScaffoldingGenerator();
+        $command = new MakerCommand($generator, new ScaffoldingCollector([$generator]), $scaffoldingWriter, $pluginService);
+        $command->setName('make:foo');
+
+        $tester = new CommandTester($command);
+        $tester->setInputs(['MyPlugin']);
+
+        $res = $tester->execute([]);
+
+        static::assertSame(Command::SUCCESS, $res);
     }
 
     public function testExecuteWithNoNameErrors(): void
     {
-        $scaffoldingWriter = $this->createMock(ScaffoldingWriter::class);
+        $scaffoldingWriter = static::createStub(ScaffoldingWriter::class);
 
-        $pluginService = $this->createMock(PluginService::class);
+        $pluginService = static::createStub(PluginService::class);
 
         $generator = new DummyScaffoldingGenerator();
 
@@ -69,13 +140,13 @@ class MakerCommandTest extends TestCase
         $tester = new CommandTester($command);
         $res = $tester->execute([], ['interactive' => false]);
 
-        static::assertEquals(Command::FAILURE, $res);
+        static::assertSame(Command::FAILURE, $res);
         static::assertStringContainsString('Plugin name is required', $tester->getDisplay());
     }
 
     public function testExecuteWithoutPluginPathErrors(): void
     {
-        $scaffoldingWriter = $this->createMock(ScaffoldingWriter::class);
+        $scaffoldingWriter = static::createStub(ScaffoldingWriter::class);
 
         $pluginService = $this->createMock(PluginService::class);
         $pluginService->expects($this->once())
@@ -92,7 +163,7 @@ class MakerCommandTest extends TestCase
         $tester->setInputs(['ExamplePlugin']);
         $res = $tester->execute([]);
 
-        static::assertEquals(Command::FAILURE, $res);
+        static::assertSame(Command::FAILURE, $res);
         static::assertStringContainsString('Plugin base path is null', $tester->getDisplay());
     }
 
@@ -119,19 +190,9 @@ class ExamplePlugin extends Plugin
  */
 class DummyScaffoldingGenerator implements ScaffoldingGenerator
 {
-    public function hasCommandOption(): bool
+    public function getCommandOption(): InputOption
     {
-        return true;
-    }
-
-    public function getCommandOptionName(): string
-    {
-        return 'plugin-name';
-    }
-
-    public function getCommandOptionDescription(): string
-    {
-        return 'Plugin Name';
+        return new InputOption('plugin-name', null, InputOption::VALUE_NONE, 'Plugin Name');
     }
 
     public function addScaffoldConfig(PluginScaffoldConfiguration $config, InputInterface $input, SymfonyStyle $io): void
@@ -145,6 +206,6 @@ class DummyScaffoldingGenerator implements ScaffoldingGenerator
             return;
         }
 
-        $stubCollection->append('src/Resources/config/services.xml', 'Dummy content');
+        $stubCollection->append('src/Resources/config/services.php', 'Dummy content');
     }
 }

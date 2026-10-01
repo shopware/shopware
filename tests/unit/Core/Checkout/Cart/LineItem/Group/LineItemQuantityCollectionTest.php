@@ -52,8 +52,8 @@ class LineItemQuantityCollectionTest extends TestCase
 
         static::assertCount(3, $collection);
 
-        static::assertEquals(7, $collection->getElements()[0]->getQuantity());
-        static::assertEquals(5, $collection->getElements()[1]->getQuantity());
-        static::assertEquals(1, $collection->getElements()[2]->getQuantity());
+        static::assertSame(7, $collection->getElements()[0]->getQuantity());
+        static::assertSame(5, $collection->getElements()[1]->getQuantity());
+        static::assertSame(1, $collection->getElements()[2]->getQuantity());
     }
 }

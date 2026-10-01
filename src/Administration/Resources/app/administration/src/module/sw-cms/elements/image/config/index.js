@@ -1,7 +1,7 @@
 import template from './sw-cms-el-config-image.html.twig';
 import './sw-cms-el-config-image.scss';
 
-const { Mixin } = Shopware;
+const { Mixin, Filter } = Shopware;
 
 /**
  * @private
@@ -14,9 +14,7 @@ export default {
 
     emits: ['element-update'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data() {
         return {
@@ -39,7 +37,26 @@ export default {
                 return this.element.data.media;
             }
 
-            return this.element.config.media.value;
+            const elemConfig = this.element.config.media;
+
+            /**
+             * A default source holds an asset path instead of a media id. Returning it as a URL
+             * lets the media preview render it directly instead of querying the media API with it.
+             */
+            if (elemConfig.source === 'default' && elemConfig.value) {
+                const fileName = elemConfig.value.slice(elemConfig.value.lastIndexOf('/') + 1);
+
+                return new URL(
+                    this.assetFilter(`administration/administration/static/img/cms/${fileName}`),
+                    window.location.origin,
+                );
+            }
+
+            return elemConfig.value;
+        },
+
+        assetFilter() {
+            return Filter.getByName('asset');
         },
 
         displayModeOptions() {
@@ -47,17 +64,17 @@ export default {
                 {
                     id: 1,
                     value: 'standard',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStandard'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeStandard'),
                 },
                 {
                     id: 2,
                     value: 'stretch',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeStretch'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeStretch'),
                 },
                 {
                     id: 3,
                     value: 'cover',
-                    label: this.$tc('sw-cms.elements.general.config.label.displayModeCover'),
+                    label: this.$t('sw-cms.elements.general.config.label.displayModeCover'),
                 },
             ];
         },
@@ -67,17 +84,17 @@ export default {
                 {
                     id: 1,
                     value: 'flex-start',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignTop'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignTop'),
                 },
                 {
                     id: 2,
                     value: 'center',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignCenter'),
                 },
                 {
                     id: 3,
                     value: 'flex-end',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignBottom'),
                 },
             ];
         },
@@ -87,17 +104,17 @@ export default {
                 {
                     id: 1,
                     value: 'flex-start',
-                    label: this.$tc('sw-cms.elements.general.config.label.horizontalAlignLeft'),
+                    label: this.$t('sw-cms.elements.general.config.label.horizontalAlignLeft'),
                 },
                 {
                     id: 2,
                     value: 'center',
-                    label: this.$tc('sw-cms.elements.general.config.label.horizontalAlignCenter'),
+                    label: this.$t('sw-cms.elements.general.config.label.horizontalAlignCenter'),
                 },
                 {
                     id: 3,
                     value: 'flex-end',
-                    label: this.$tc('sw-cms.elements.general.config.label.horizontalAlignRight'),
+                    label: this.$t('sw-cms.elements.general.config.label.horizontalAlignRight'),
                 },
             ];
         },
@@ -162,18 +179,39 @@ export default {
         },
 
         onChangeMinHeight(value) {
-            this.element.config.minHeight.value = value === null ? '' : value;
-
-            this.$emit('element-update', this.element);
+            this.element.config.minHeight.value = this.formatMinHeight(value);
+            this.emitUpdate();
         },
 
-        onChangeDisplayMode() {
-            this.$emit('element-update', this.element);
+        formatMinHeight(value) {
+            if (value === null || value === '') {
+                return '';
+            }
+
+            const trimmed = String(value).trim();
+
+            return this.isUnitlessNumber(trimmed) ? `${trimmed}px` : trimmed;
+        },
+
+        isUnitlessNumber(value) {
+            return /^\d+(\.\d+)?$/.test(value);
+        },
+
+        onChangeDisplayMode(value) {
+            // min-height is only meaningful in cover mode; clear it otherwise so no value is persisted/sent
+            if (value !== 'cover') {
+                this.element.config.minHeight.value = '';
+            }
+
+            this.emitUpdate();
         },
 
         onChangeIsDecorative(value) {
             this.element.config.isDecorative.value = value;
+            this.emitUpdate();
+        },
 
+        emitUpdate() {
             this.$emit('element-update', this.element);
         },
     },

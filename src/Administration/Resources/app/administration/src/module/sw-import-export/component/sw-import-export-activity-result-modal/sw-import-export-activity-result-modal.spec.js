@@ -10,7 +10,7 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
             activity: 'import',
             records: 1,
             username: 'admin',
-            profileName: 'Default product',
+            profileName: 'default_product',
             config: {},
             result: {
                 product: {
@@ -27,7 +27,7 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
                 username: 'admin',
             },
             profile: {
-                label: 'Default product',
+                technicalName: 'default_product',
                 sourceEntity: 'product',
             },
             file: {
@@ -57,6 +57,7 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
                         'sw-color-badge': true,
                         'sw-grid': true,
                         'sw-grid-column': true,
+                        'sw-time-ago': await wrapTestComponent('sw-time-ago', { sync: true }),
                     },
                 },
             },
@@ -64,36 +65,12 @@ describe('module/sw-import-export/components/sw-import-export-activity-result-mo
     }
 
     it.each([
-        [
-            'Profile name',
-            'Default product',
-            'profile',
-        ],
-        [
-            'File name',
-            'Default product_20211108-141453.csv',
-            'file-name',
-        ],
-        [
-            'Imported records',
-            '1',
-            'imported',
-        ],
-        [
-            'Date / time',
-            '8 November 2021 at 14:50',
-            'date',
-        ],
-        [
-            'User',
-            'admin',
-            'user',
-        ],
-        [
-            'Type',
-            'sw-import-export.activity.detail.importLabel',
-            'type',
-        ],
+        ['Profile name', 'default_product', 'profile'],
+        ['File name', 'Default product_20211108-141453.csv', 'file-name'],
+        ['Imported records', '1', 'imported'],
+        ['Date / time', '08/11/2021, 14:50', 'date'],
+        ['User', 'admin', 'user'],
+        ['Type', 'sw-import-export.activity.detail.importLabel', 'type'],
     ])('should display %s', async (_, expectedValue, selector) => {
         const wrapper = await createWrapper();
         await flushPromises();

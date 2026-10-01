@@ -58,10 +58,7 @@ async function createWrapper(privileges = [], isBasedItem = true) {
                         template: '<div class="sw-modal"><slot></slot><slot name="modal-footer"></slot></div>',
                     },
                     'sw-data-grid': {
-                        props: [
-                            'dataSource',
-                            'columns',
-                        ],
+                        props: ['dataSource', 'columns'],
                         template: `
                     <div class="sw-data-grid-stub">
                     <template v-for="item in dataSource">
@@ -83,12 +80,6 @@ async function createWrapper(privileges = [], isBasedItem = true) {
 }
 
 describe('module/sw-settings-country/component/sw-settings-country-currency-dependent-modal', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should able to show right column on grid', async () => {
         const wrapper = await createWrapper();
         await flushPromises();

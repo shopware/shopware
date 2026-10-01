@@ -7,10 +7,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFolders;
 use Shopware\Core\Framework\Adapter\Cache\Message\CleanupOldCacheFoldersHandler;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CleanupOldCacheFoldersHandler::class)]
 class CleanupOldCacheFoldersHandlerTest extends TestCase
 {

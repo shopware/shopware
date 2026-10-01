@@ -1,4 +1,3 @@
-// eslint-disable-next-line max-len
 import SwTextEditorToolbarButtonCmsDataMappingButton from 'src/app/component/meteor-wrapper/mt-text-editor/sw-text-editor-toolbar-button-cms-data-mapping';
 import template from './sw-cms-el-config-text.html.twig';
 
@@ -13,25 +12,38 @@ export default {
 
     emits: ['element-update'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    inject: ['feature'],
+
+    mixins: [Mixin.getByName('cms-element')],
+
+    data() {
+        return {
+            activeTab: 'content',
+        };
+    },
 
     computed: {
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.settings'),
+                    name: 'settings',
+                },
+            ];
+        },
+
         availableDataMappings() {
             let mappings = [];
 
             Object.entries(Shopware.Store.get('cmsPage').currentMappingTypes).forEach((entry) => {
-                const [
-                    type,
-                    value,
-                ] = entry;
+                const [type, value] = entry;
 
                 if (type === 'string') {
-                    mappings = [
-                        ...mappings,
-                        ...value,
-                    ];
+                    mappings = [...mappings, ...value];
                 }
             });
 
@@ -39,9 +51,7 @@ export default {
         },
 
         customTextEditorButtons() {
-            return [
-                SwTextEditorToolbarButtonCmsDataMappingButton(() => this.availableDataMappings),
-            ];
+            return [SwTextEditorToolbarButtonCmsDataMappingButton(() => this.availableDataMappings)];
         },
 
         alignmentOptions() {
@@ -49,17 +59,17 @@ export default {
                 {
                     id: 1,
                     value: 'flex-start',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignTop'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignTop'),
                 },
                 {
                     id: 2,
                     value: 'center',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignCenter'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignCenter'),
                 },
                 {
                     id: 3,
                     value: 'flex-end',
-                    label: this.$tc('sw-cms.elements.general.config.label.verticalAlignBottom'),
+                    label: this.$t('sw-cms.elements.general.config.label.verticalAlignBottom'),
                 },
             ];
         },
@@ -72,6 +82,16 @@ export default {
     methods: {
         createdComponent() {
             this.initElementConfig('text');
+        },
+
+        async handleUpdateContent() {
+            const editor = this.$refs.swCmsTextEditor;
+
+            if (!editor?.validate) {
+                return true;
+            }
+
+            return editor.validate();
         },
 
         onBlur(content) {

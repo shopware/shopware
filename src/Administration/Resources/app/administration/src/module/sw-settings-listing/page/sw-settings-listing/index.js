@@ -11,15 +11,9 @@ const { ShopwareError } = Shopware.Classes;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'systemConfigApiService',
-    ],
+    inject: ['repositoryFactory', 'systemConfigApiService'],
 
-    mixins: [
-        'notification',
-        'sw-inline-snippet',
-    ],
+    mixins: ['notification', 'sw-inline-snippet'],
 
     data() {
         return {
@@ -36,6 +30,7 @@ export default {
             isDefaultSalesChannelLoading: false,
             customFields: [],
             hasDefaultSortingError: false,
+            hasDefaultSearchResultSortingError: false,
         };
     },
 
@@ -61,8 +56,6 @@ export default {
 
             criteria.addSorting(Criteria.sort('priority', 'DESC'));
 
-            criteria.addFilter(Criteria.equals('locked', false));
-
             return criteria;
         },
 
@@ -78,8 +71,6 @@ export default {
             const criteria = new Criteria(1, 25);
 
             criteria.addSorting(Criteria.sort('priority', 'DESC'));
-
-            criteria.addFilter(Criteria.equals('locked', false));
 
             criteria.addFilter(Criteria.contains('label', this.productSortingOptionsSearchTerm));
 
@@ -99,21 +90,22 @@ export default {
                 {
                     property: 'label',
                     routerLink: 'sw.settings.listing.edit',
-                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.name'),
+                    label: this.$t('sw-settings-listing.index.productSorting.grid.header.name'),
                 },
                 {
                     property: 'criteria',
-                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.criteria'),
+                    label: this.$t('sw-settings-listing.index.productSorting.grid.header.criteria'),
                     multiLine: true,
                 },
                 {
                     property: 'priority',
                     inlineEdit: 'number',
-                    label: this.$tc('sw-settings-listing.index.productSorting.grid.header.priority'),
+                    label: this.$t('sw-settings-listing.index.productSorting.grid.header.priority'),
                 },
             ];
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
@@ -174,16 +166,29 @@ export default {
             this.isSaveSuccessful = false;
             this.isLoading = true;
             this.hasDefaultSortingError = false;
+            this.hasDefaultSearchResultSortingError = false;
 
-            const validateSalesChannelDefaultSortingOption = new Promise((resolve, reject) => {
+            const validateDefaultSortingConfigs = new Promise((resolve, reject) => {
                 if (!this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSorting']) {
                     this.hasDefaultSortingError = true;
-                    reject();
                 }
+
+                if (!this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSearchResultSorting']) {
+                    this.hasDefaultSearchResultSortingError = true;
+                }
+
+                if (this.hasDefaultSortingError || this.hasDefaultSearchResultSortingError) {
+                    /**
+                     * display both errors in the UI
+                     * instead of just one using reject() right after the first error
+                     */
+                    reject(new Error(this.$t('sw-settings-listing.general.messageSaveDefaultValuesEmpty')));
+                }
+
                 resolve();
             });
 
-            return validateSalesChannelDefaultSortingOption
+            return validateDefaultSortingConfigs
                 .then(async () => {
                     const saveSalesChannelConfig = this.$refs.systemConfig.saveAll();
 
@@ -207,15 +212,15 @@ export default {
                     this.isSaveSuccessful = true;
 
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-listing.general.messageSaveSuccess'),
+                        message: this.$t('sw-settings-listing.general.messageSaveSuccess'),
                     });
                 })
                 .catch((e) => {
                     const options = {
-                        message: e?.response.data?.errors[0]?.detail || 'Unknown error',
+                        message: e?.response?.data?.errors[0]?.detail || e?.message || 'Unknown error',
                     };
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-listing.general.messageSaveError', options),
+                        message: this.$t('sw-settings-listing.general.messageSaveError', options),
                     });
                 })
                 .finally(() => {
@@ -261,7 +266,7 @@ export default {
                 .delete(item.id)
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-listing.index.productSorting.messageDeleteError'),
+                        message: this.$t('sw-settings-listing.index.productSorting.messageDeleteError'),
                     });
                 })
                 .finally(() => {
@@ -310,9 +315,7 @@ export default {
                     return this.getCustomFieldLabelByCriteriaName(currentField.field);
                 }
 
-                return this.$tc(
-                    `sw-settings-listing.general.productSortingCriteriaGrid.options.label.${currentField.field}`,
-                );
+                return this.$t(`sw-settings-listing.general.productSortingCriteriaGrid.options.label.${currentField.field}`);
             });
 
             return labels.join(', ');
@@ -386,10 +389,6 @@ export default {
             return fieldName.replace(/customFields\./, '');
         },
 
-        isProductSortingEditable(item) {
-            return !item.locked;
-        },
-
         onChangeLanguage() {
             this.fetchProductSortingOptions();
         },
@@ -398,16 +397,11 @@ export default {
             const defaultSortingId = this.$refs.systemConfig.actualConfigData.null['core.listing.defaultSorting'];
 
             if (defaultSortingId) {
-                Object.entries(this.productSortingOptions).forEach(
-                    ([
-                        ,
-                        productSorting,
-                    ]) => {
-                        if (productSorting.id === defaultSortingId) {
-                            productSorting.active = true;
-                        }
-                    },
-                );
+                Object.entries(this.productSortingOptions).forEach(([, productSorting]) => {
+                    if (productSorting.id === defaultSortingId) {
+                        productSorting.active = true;
+                    }
+                });
             }
         },
 
@@ -423,6 +417,21 @@ export default {
 
         onLoadingChanged(loading) {
             this.isLoading = loading;
+        },
+
+        allowProductSortingOptionDelete(productSortingOption) {
+            return !(productSortingOption.locked || this.isItemDefaultSorting(productSortingOption.id));
+        },
+
+        getProductSortingOptionDeleteTooltip(item) {
+            const state = item.locked ? 'locked' : 'default';
+            const snippetKey = `sw-settings-listing.index.productSorting.grid.deleteTooltip.${state}`;
+
+            return {
+                showDelay: 300,
+                message: this.$t(snippetKey),
+                disabled: this.allowProductSortingOptionDelete(item),
+            };
         },
     },
 };

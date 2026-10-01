@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class SalesChannelContextSwitchEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {

@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package fundamentals@after-sales
  */
@@ -621,9 +623,7 @@ describe('src/app/component/rule/sw-condition-tree', () => {
                 expect(wrapper.emitted('conditions-changed')).toHaveLength(2);
 
                 const { deletedIds } = wrapper.emitted('conditions-changed')[1][0];
-                expect(deletedIds).toEqual([
-                    'child-node-to-be-removed',
-                ]);
+                expect(deletedIds).toEqual(['child-node-to-be-removed']);
             });
 
             it('throws error if parent condition is not set', async () => {
@@ -670,19 +670,13 @@ describe('src/app/component/rule/sw-condition-tree', () => {
             it('provides the conditionScopes', async () => {
                 const wrapper = await createWrapper({
                     initialConditions: createInitialOrContainer(),
-                    scopes: [
-                        'cart',
-                        'checkout',
-                    ],
+                    scopes: ['cart', 'checkout'],
                 });
 
                 const node = wrapper.getComponent(swConditionTreeNode);
 
                 expect(node.vm.conditionScopes).toBeDefined();
-                expect(node.vm.conditionScopes).toEqual([
-                    'cart',
-                    'checkout',
-                ]);
+                expect(node.vm.conditionScopes).toEqual(['cart', 'checkout']);
             });
         });
     });

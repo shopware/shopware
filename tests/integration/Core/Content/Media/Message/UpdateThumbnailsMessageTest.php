@@ -4,17 +4,19 @@ namespace Shopware\Tests\Integration\Core\Content\Media\Message;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Message\UpdateThumbnailsMessage;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class UpdateThumbnailsMessageTest extends TestCase
 {
     use KernelTestBehaviour;
 
-    private Serializer $serializer;
+    private SerializerInterface $serializer;
 
     protected function setUp(): void
     {

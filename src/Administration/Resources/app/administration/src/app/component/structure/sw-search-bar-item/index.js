@@ -1,7 +1,8 @@
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-search-bar-item.html.twig';
 import './sw-search-bar-item.scss';
 
-const { Component, Application } = Shopware;
+const { Application } = Shopware;
 /**
  * @sw-package framework
  *
@@ -15,7 +16,7 @@ const { Component, Application } = Shopware;
  * </sw-search-bar-item>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-search-bar-item', {
+export default {
     template,
 
     inject: {
@@ -124,14 +125,14 @@ Component.register('sw-search-bar-item', {
             const { action, label, entity, title } = this.item;
 
             if (title && !action) {
-                return this.$tc(`${title}`, 2);
+                return this.$t(`${title}`, 2);
             }
 
             return action
-                ? this.$tc(
+                ? this.$t(
                       'global.sw-search-bar-item.addNewEntity',
                       {
-                          entity: label?.toLowerCase() ?? this.$tc(`global.entities.${entity}`).toLowerCase(),
+                          entity: label?.toLowerCase() ?? this.$t(`global.entities.${entity}`).toLowerCase(),
                       },
                       0,
                   )
@@ -143,19 +144,17 @@ Component.register('sw-search-bar-item', {
         },
 
         iconName() {
-            return [
-                'module',
-                'frequently_used',
-            ].includes(this.type) && this.item?.icon
+            return ['module', 'frequently_used'].includes(this.type) && this.item?.icon
                 ? this.item.icon
                 : this.entityIconName;
         },
 
         iconColor() {
-            return [
-                'module',
-                'frequently_used',
-            ].includes(this.type) && this.item?.color
+            if (!useModuleIconColors().enabled.value) {
+                return 'var(--color-icon-primary-default)';
+            }
+
+            return ['module', 'frequently_used'].includes(this.type) && this.item?.color
                 ? this.item.color
                 : this.entityIconColor;
         },
@@ -167,7 +166,16 @@ Component.register('sw-search-bar-item', {
                 return false;
             }
 
-            return this.$tc(`global.sw-search-bar-item.shortcuts.${name}`, action ? 2 : 1);
+            const shortcut = this.$t(`global.sw-search-bar-item.shortcuts.${name}`, action ? 2 : 1);
+
+            // `&nbsp;` is used as a placeholder in the snippets when a module has no
+            // shortcut for the requested state (e.g. adding a landing page reuses the
+            // category module which has no "add" shortcut). Don't render an empty box.
+            if (shortcut.trim() === '&nbsp;') {
+                return false;
+            }
+
+            return shortcut;
         },
 
         productDisplayName() {
@@ -259,4 +267,4 @@ Component.register('sw-search-bar-item', {
             this.recentlySearchService.add(this.currentUser.id, entity, id, payload);
         },
     },
-});
+};

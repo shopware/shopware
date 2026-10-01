@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Test\PHPUnit\Extension\FeatureFlag;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\FeatureFlagExtension;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FeatureFlagExtension::class)]
 class FeatureFlagExtensionTest extends TestCase
 {
@@ -29,7 +31,7 @@ class FeatureFlagExtensionTest extends TestCase
     }
 
     /**
-     * @param class-string<\Throwable> $exceptionClass
+     * @param class-string<\Exception> $exceptionClass
      */
     #[DataProvider('invalidNamespaceDataProvider')]
     public function testAddingInvalidNamespaceWillThrowException(
@@ -37,12 +39,15 @@ class FeatureFlagExtensionTest extends TestCase
         string $exceptionClass,
         string $exceptionMessage
     ): void {
-        $this->expectException($exceptionClass);
-        $this->expectExceptionMessage($exceptionMessage);
+        $namespacesBefore = FeatureFlagExtension::getTestNamespaces();
 
-        FeatureFlagExtension::addTestNamespace($namespace);
+        $this->expectExceptionObject(new $exceptionClass($exceptionMessage));
 
-        static::assertNotContains($namespace, FeatureFlagExtension::getTestNamespaces());
+        try {
+            FeatureFlagExtension::addTestNamespace($namespace);
+        } finally {
+            static::assertSame($namespacesBefore, FeatureFlagExtension::getTestNamespaces());
+        }
     }
 
     /**

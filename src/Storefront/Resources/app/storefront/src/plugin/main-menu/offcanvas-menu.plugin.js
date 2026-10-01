@@ -39,8 +39,12 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        this.el.removeEventListener(this.options.triggerEvent, this._getLinkEventHandler.bind(this));
-        this.el.addEventListener(this.options.triggerEvent, this._getLinkEventHandler.bind(this));
+        if (!this._boundGetLinkEventHandler) {
+            this._boundGetLinkEventHandler = this._getLinkEventHandler.bind(this);
+        }
+
+        this.el.removeEventListener(this.options.triggerEvent, this._boundGetLinkEventHandler);
+        this.el.addEventListener(this.options.triggerEvent, this._boundGetLinkEventHandler);
 
         if (OffCanvas.exists()) {
             const offCanvasElements = OffCanvas.getOffCanvas();
@@ -53,9 +57,9 @@ export default class OffcanvasMenuPlugin extends Plugin {
                         this._getLinkEventHandler(event, link);
                     });
                 });
+
+                window.PluginManager.initializePluginsInParentElement(offcanvas);
             });
-            // initialize the plugins again, after Off-Canvas init, otherwise you will miss the JS event listener
-            window.PluginManager.initializePlugins();
         }
         // re-open the menu if the url parameter is set
         this._openMenuViaUrlParameter();
@@ -99,7 +103,6 @@ export default class OffcanvasMenuPlugin extends Plugin {
      * @private
      */
     _getLinkEventHandler(event, link) {
-
         // Initial navigation
         if (!link) {
             const initialContentElement = document.querySelector(this.options.initialContentSelector);

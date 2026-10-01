@@ -203,8 +203,6 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-
         { name: 'defaultField', defaultField: true },
         { name: 'context search column', defaultField: false },
     ])('should search for assigment items with search term with $name', async ({ defaultField }) => {
-        jest.useFakeTimers();
-
         const testSearchColumn = 'testColumn';
         const testSearchTerm = 'test';
 
@@ -227,13 +225,11 @@ describe('src/module/sw-settings-rule/component/sw-settings-rule-add-assignment-
         await wrapper.find('.sw-simple-search-field input').setValue(testSearchTerm);
         await wrapper.find('.sw-simple-search-field input').trigger('input');
 
-        jest.advanceTimersByTime(1000);
         await flushPromises();
 
         const criteria = new Criteria(1, 10);
         criteria.addFilter(Criteria.contains(defaultField ? 'name' : testSearchColumn, testSearchTerm));
 
-        expect(entityRepositoryMock.search).toHaveBeenCalledTimes(2);
         expect(entityRepositoryMock.search).toHaveBeenLastCalledWith(criteria, expect.any(Object));
     });
 

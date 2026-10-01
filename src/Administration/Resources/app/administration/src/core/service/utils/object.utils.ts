@@ -1,9 +1,11 @@
-import objectMerge from 'lodash/merge';
-import objectMergeWith from 'lodash/mergeWith';
-import objectCopy from 'lodash/cloneDeep';
-import objectGet from 'lodash/get';
-import objectSet from 'lodash/set';
-import objectPick from 'lodash/pick';
+import objectMerge from 'lodash-es/merge';
+import objectMergeWith from 'lodash-es/mergeWith';
+import objectCopy from 'lodash-es/cloneDeep';
+import objectGet from 'lodash-es/get';
+import objectSet from 'lodash-es/set';
+import objectPick from 'lodash-es/pick';
+import objectUnset from 'lodash-es/unset';
+import objectHas from 'lodash-es/has';
 import type from 'src/core/service/utils/types.utils';
 
 /**
@@ -23,6 +25,8 @@ export default {
     get: objectGet,
     set: objectSet,
     pick: objectPick,
+    unset: objectUnset,
+    has: objectHas,
 };
 
 /**
@@ -45,6 +49,12 @@ export const set = objectSet;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const pick = objectPick;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export const unset = objectUnset;
+
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export const has = objectHas;
 
 /**
  * Shorthand method for `Object.prototype.hasOwnProperty`
@@ -102,48 +112,47 @@ export function getObjectDiff(a: any, b: any): any {
         return b;
     }
 
-    return Object.keys(b).reduce((acc, key) => {
-        if (!hasOwnProperty(a, key)) {
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            return { ...acc, [key]: b[key] };
+    const currentObject = a as Record<string, unknown>;
+    const nextObject = b as Record<string, unknown>;
+
+    return Object.keys(nextObject).reduce<Record<string, unknown>>((acc, key) => {
+        const currentValue = currentObject[key];
+        const nextValue = nextObject[key];
+
+        if (!hasOwnProperty(currentObject, key)) {
+            return { ...acc, [key]: nextValue };
         }
 
-        // @ts-expect-error
-        if (type.isArray(b[key])) {
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-argument
-            const changes = getArrayChanges(a[key], b[key]);
+        if (type.isArray(nextValue)) {
+            if (!type.isArray(currentValue) || currentValue.length !== nextValue.length) {
+                return { ...acc, [key]: nextValue };
+            }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            const changes = getArrayChanges(currentValue, nextValue);
+
             if (Object.keys(changes).length > 0) {
-                // @ts-expect-error
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                return { ...acc, [key]: b[key] };
+                return { ...acc, [key]: nextValue };
             }
 
             return acc;
         }
 
-        // @ts-expect-error
-        if (type.isObject(b[key])) {
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            const changes = getObjectDiff(a[key], b[key]);
+        if (type.isObject(nextValue)) {
+            if (type.isObject(currentValue) && Object.keys(currentValue).length > Object.keys(nextValue).length) {
+                return { ...acc, [key]: nextValue };
+            }
+
+            const changes: unknown = getObjectDiff(currentValue, nextValue);
 
             if (!type.isObject(changes) || Object.keys(changes).length > 0) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 return { ...acc, [key]: changes };
             }
 
             return acc;
         }
 
-        // @ts-expect-error
-        if (a[key] !== b[key]) {
-            // @ts-expect-error
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-            return { ...acc, [key]: b[key] };
+        if (currentValue !== nextValue) {
+            return { ...acc, [key]: nextValue };
         }
 
         return acc;
@@ -163,7 +172,6 @@ export function getArrayChanges(a: any[], b: any[]): any[] {
     }
 
     if (!type.isArray(a) || !type.isArray(b)) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return b;
     }
 

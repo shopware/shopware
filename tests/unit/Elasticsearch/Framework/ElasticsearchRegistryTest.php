@@ -5,18 +5,20 @@ namespace Shopware\Tests\Unit\Elasticsearch\Framework;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchRegistry;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ElasticsearchRegistry::class)]
 class ElasticsearchRegistryTest extends TestCase
 {
     public function testRegistry(): void
     {
-        $definition = $this->createMock(ElasticsearchProductDefinition::class);
+        $definition = static::createStub(ElasticsearchProductDefinition::class);
         $definition
             ->method('getEntityDefinition')
             ->willReturn(new ProductDefinition());
@@ -31,6 +33,6 @@ class ElasticsearchRegistryTest extends TestCase
         static::assertFalse($registry->has('category'));
         static::assertNull($registry->get('category'));
 
-        static::assertEquals(['product'], $registry->getDefinitionNames());
+        static::assertSame(['product'], $registry->getDefinitionNames());
     }
 }

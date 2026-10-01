@@ -19,6 +19,11 @@ async function createWrapper(privileges = []) {
                             page: 1,
                             limit: 25,
                         },
+                        meta: {
+                            $module: {
+                                icon: 'regular-content',
+                            },
+                        },
                     },
                 },
                 stubs: {
@@ -40,13 +45,14 @@ async function createWrapper(privileges = []) {
                     'sw-entity-listing': {
                         props: [
                             'items',
+                            'dataSource',
                             'allowEdit',
                             'allowDelete',
                             'detailRoute',
                         ],
                         template: `
                     <div>
-                        <template v-for="item in items">
+                        <template v-for="item in (dataSource || items)">
                             <slot name="actions" v-bind="{ item }">
                                 <slot name="detail-action" v-bind="{ item }">
                                     <div class="sw-entity-listing__context-menu-edit-action"
@@ -62,7 +68,6 @@ async function createWrapper(privileges = []) {
                         </template>
                     </div>`,
                     },
-                    'sw-empty-state': true,
                     'router-link': true,
                     'sw-search-bar': true,
                     'sw-language-info': true,
@@ -100,6 +105,9 @@ async function createWrapper(privileges = []) {
                         buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                             return criteria;
                         },
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
                     },
                 },
             },
@@ -110,9 +118,7 @@ async function createWrapper(privileges = []) {
 // These two functions contain the bare minimum for the unit test to complete
 function createCustomerGroupWithCustomer() {
     return {
-        customers: [
-            {},
-        ],
+        customers: [{}],
         salesChannels: [],
     };
 }
@@ -313,14 +319,48 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 
         wrapper.vm.searchRankingService.getSearchFieldsByEntity.mockRestore();
+    });
+
+    it('should show the empty state inside the card instead of the grid when a searchable term has no result', async () => {
+        const wrapper = await createWrapper();
+        // the initial getList() would otherwise reset total after the setData below
+        await flushPromises();
+        await wrapper.setData({
+            isLoading: false,
+            term: 'foo',
+            entitySearchable: true,
+            total: 0,
+        });
+
+        expect(wrapper.vm.showEmptyState).toBe(true);
+
+        // the grid must give way, otherwise its header renders behind the empty state
+        expect(wrapper.find('.sw-settings-customer-group-list-grid').exists()).toBe(false);
+
+        const emptyState = wrapper.find('.mt-empty-state');
+        expect(emptyState.exists()).toBe(true);
+        expect(emptyState.text()).toContain('sw-empty-state.messageNoResultTitle');
+    });
+
+    it('should show the grid and no empty state when the search has results', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+        await wrapper.setData({
+            isLoading: false,
+            term: 'foo',
+            entitySearchable: true,
+            total: 1,
+        });
+
+        expect(wrapper.vm.showEmptyState).toBe(false);
+        expect(wrapper.find('.sw-settings-customer-group-list-grid').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(false);
     });
 });

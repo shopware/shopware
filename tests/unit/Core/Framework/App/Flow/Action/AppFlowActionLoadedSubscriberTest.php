@@ -9,17 +9,19 @@ use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionEntity;
 use Shopware\Core\Framework\App\Flow\Action\AppFlowActionLoadedSubscriber;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AppFlowActionLoadedSubscriber::class)]
 class AppFlowActionLoadedSubscriberTest extends TestCase
 {
     public function testGetSubscribedEvents(): void
     {
-        static::assertEquals([
+        static::assertSame([
             'app_flow_action.loaded' => 'unserialize',
         ], AppFlowActionLoadedSubscriber::getSubscribedEvents());
     }
@@ -33,7 +35,7 @@ class AppFlowActionLoadedSubscriberTest extends TestCase
         $iconPath = __DIR__ . '/../../Manifest/_fixtures/icon.png';
 
         $fileIcon = '';
-        if (file_exists($iconPath)) {
+        if (\is_file($iconPath)) {
             $fileIcon = \file_get_contents($iconPath);
         }
 
@@ -45,7 +47,7 @@ class AppFlowActionLoadedSubscriberTest extends TestCase
         $subscriber->unserialize($event);
         static::assertNotFalse($fileIcon);
 
-        static::assertEquals(
+        static::assertSame(
             base64_encode($fileIcon),
             $appFlowAction->getIcon()
         );

@@ -1,7 +1,4 @@
-/*
- * @sw-package inventory
- */
-
+import shuffle from 'lodash-es/shuffle';
 import template from './sw-product-stream-modal-preview.html.twig';
 import './sw-product-stream-modal-preview.scss';
 
@@ -10,15 +7,13 @@ const { Criteria } = Shopware.Data;
 const PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID = 'ed535e5722134ac1aa6524f73e26881b';
 
 /**
+ * @sw-package inventory
  * @private
  */
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'productStreamPreviewService',
-    ],
+    inject: ['repositoryFactory', 'productStreamPreviewService'],
 
     emits: ['modal-close'],
 
@@ -37,6 +32,13 @@ export default {
             validator(value) {
                 return value === null || value.split(':').length === 2;
             },
+        },
+        /**
+         * Whether matching variants are grouped, mirroring the product stream's "display as group" setting.
+         */
+        displayAsGroup: {
+            type: Boolean,
+            default: false,
         },
     },
     data() {
@@ -61,11 +63,7 @@ export default {
 
         salesChannelCriteria() {
             return new Criteria(1, 1)
-                .addFilter(
-                    Criteria.not('OR', [
-                        Criteria.equals('typeId', PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID),
-                    ]),
-                )
+                .addFilter(Criteria.not('OR', [Criteria.equals('typeId', PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID)]))
                 .addSorting(Criteria.sort('type.iconName', 'ASC'));
         },
 
@@ -73,11 +71,12 @@ export default {
             const criteria = new Criteria(this.page, this.limit).setTerm(this.searchTerm);
 
             if (this.sorting) {
-                const [
-                    field,
-                    direction,
-                ] = this.sorting.split(':');
-                criteria.addSorting(Criteria.sort(field, direction));
+                if (this.sorting === 'random') {
+                    this.addRandomSort(criteria);
+                } else {
+                    const [field, direction] = this.sorting.split(':');
+                    criteria.addSorting(Criteria.sort(field, direction));
+                }
             }
 
             return criteria;
@@ -85,11 +84,7 @@ export default {
 
         previewSelectionCriteria() {
             return new Criteria()
-                .addFilter(
-                    Criteria.not('OR', [
-                        Criteria.equals('typeId', PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID),
-                    ]),
-                )
+                .addFilter(Criteria.not('OR', [Criteria.equals('typeId', PRODUCT_COMPARISON_SALES_CHANNEL_TYPE_ID)]))
                 .addSorting(Criteria.sort('name', 'ASC'));
         },
 
@@ -97,27 +92,27 @@ export default {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-product-stream.filter.values.product'),
+                    label: this.$t('sw-product-stream.filter.values.product'),
                     type: 'text',
                     routerLink: 'sw.product.detail',
                 },
                 {
                     property: 'manufacturer.name',
-                    label: this.$tc('sw-product-stream.filter.values.manufacturerId'),
+                    label: this.$t('sw-product-stream.filter.values.manufacturerId'),
                 },
                 {
                     property: 'active',
-                    label: this.$tc('sw-product-stream.filter.values.active'),
+                    label: this.$t('sw-product-stream.filter.values.active'),
                     align: 'center',
                     type: 'bool',
                 },
                 {
                     property: 'price',
-                    label: this.$tc('sw-product-stream.filter.values.price'),
+                    label: this.$t('sw-product-stream.filter.values.price'),
                 },
                 {
                     property: 'stock',
-                    label: this.$tc('sw-product-stream.filter.values.stock'),
+                    label: this.$t('sw-product-stream.filter.values.stock'),
                     align: 'right',
                 },
             ];
@@ -176,10 +171,16 @@ export default {
             }
 
             return this.productStreamPreviewService
-                .preview(this.selectedSalesChannel, this.previewCriteria, this.mapFiltersForSearch(this.filters), {
-                    'sw-currency-id': this.selectedCurrencyId,
-                    'sw-inheritance': true,
-                })
+                .preview(
+                    this.selectedSalesChannel,
+                    this.previewCriteria,
+                    this.mapFiltersForSearch(this.filters),
+                    {
+                        'sw-currency-id': this.selectedCurrencyId,
+                        'sw-inheritance': true,
+                    },
+                    this.displayAsGroup,
+                )
                 .then((result) => {
                     this.products = Object.values(result.elements);
                     this.total = result.total;
@@ -214,10 +215,7 @@ export default {
                         operator: newOperator,
                         value: null,
                         parameters: null,
-                        queries: [
-                            mapped,
-                            { ...mapped, ...{ field: 'parentId' } },
-                        ],
+                        queries: [mapped, { ...mapped, ...{ field: 'parentId' } }],
                     };
                 }
 
@@ -274,6 +272,24 @@ export default {
 
         isNotEqualToAnyType(type, parentType) {
             return type === 'equalsAny' && parentType === 'not';
+        },
+
+        addRandomSort(criteria) {
+            let fields = [
+                'name',
+                'createdAt',
+                'cheapestPrice',
+                'releaseDate',
+            ];
+
+            fields = shuffle(fields);
+            const selectedFields = fields.slice(0, 2);
+            const directions = ['ASC', 'DESC'];
+            const randomDirection = directions[Math.floor(Math.random() * directions.length)];
+
+            selectedFields.forEach((field) => {
+                criteria.addSorting(Criteria.sort(field, randomDirection));
+            });
         },
     },
 };

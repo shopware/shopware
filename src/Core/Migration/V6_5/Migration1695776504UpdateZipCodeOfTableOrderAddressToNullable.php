@@ -21,8 +21,4 @@ class Migration1695776504UpdateZipCodeOfTableOrderAddressToNullable extends Migr
     {
         $connection->executeStatement('ALTER TABLE `order_address` MODIFY COLUMN `zipcode` varchar(50) NULL');
     }
-
-    /**
-     * @codeCoverageIgnore
-     */
 }

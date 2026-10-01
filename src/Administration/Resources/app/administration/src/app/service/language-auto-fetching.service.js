@@ -26,5 +26,5 @@ export default function LanguageAutoFetchingService() {
         Shopware.Store.get('context').api.language = newLanguage;
     }
 
-    watch(Shopware.Store.get('context').api.languageId, loadLanguage);
+    watch(() => Shopware.Store.get('context').api.languageId, loadLanguage);
 }

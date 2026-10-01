@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Service\ScheduledTask;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Service\ScheduledTask\InstallServicesTask;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(InstallServicesTask::class)]
 class InstallServicesTaskTest extends TestCase
 {
@@ -19,6 +21,6 @@ class InstallServicesTaskTest extends TestCase
         static::assertSame(86_400, InstallServicesTask::getDefaultInterval());
 
         static::assertTrue(InstallServicesTask::shouldRun(new ParameterBag()));
-        static::assertFalse(InstallServicesTask::shouldRescheduleOnFailure());
+        static::assertTrue(InstallServicesTask::shouldRescheduleOnFailure());
     }
 }

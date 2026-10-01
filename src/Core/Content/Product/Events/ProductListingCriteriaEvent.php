@@ -10,23 +10,17 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductListingCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    protected Request $request;
-
-    protected Criteria $criteria;
-
-    protected SalesChannelContext $context;
-
     public function __construct(
-        Request $request,
-        Criteria $criteria,
-        SalesChannelContext $context
+        protected Request $request,
+        protected Criteria $criteria,
+        protected SalesChannelContext $context,
     ) {
-        $this->request = $request;
-        $this->criteria = $criteria;
-        $this->context = $context;
     }
 
     public function getRequest(): Request

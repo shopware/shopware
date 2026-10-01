@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Flow\Rule;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\FlowRule;
 use Shopware\Core\Framework\Rule\Rule;
@@ -52,33 +53,45 @@ class OrderTransactionStatusRule extends FlowRule
             return false;
         }
 
-        if (!$transactions = $scope->getOrder()->getTransactions()) {
+        if (!Feature::isActive('v6.8.0.0')) {
+            if (!$transactions = $scope->getOrder()->getTransactions()) {
+                return false;
+            }
+
+            /** @var OrderTransactionEntity $last */
+            $last = $transactions->last();
+            $paymentMethodId = $last->getStateId();
+
+            foreach ($transactions->getElements() as $transaction) {
+                $technicalName = $transaction->getStateMachineState()?->getTechnicalName();
+                if ($technicalName !== null
+                    && $technicalName !== OrderTransactionStates::STATE_FAILED
+                    && $technicalName !== OrderTransactionStates::STATE_CANCELLED
+                ) {
+                    $paymentMethodId = $transaction->getStateId();
+
+                    break;
+                }
+            }
+
+            return RuleComparison::stringArray($paymentMethodId, $this->stateIds, $this->operator);
+        }
+
+        if (!$scope->getOrder()->getPrimaryOrderTransaction()) {
             return false;
         }
 
-        /** @var OrderTransactionEntity $last */
-        $last = $transactions->last();
-        $paymentMethodId = $last->getStateId();
-
-        foreach ($transactions->getElements() as $transaction) {
-            $technicalName = $transaction->getStateMachineState()?->getTechnicalName();
-            if ($technicalName !== null
-                && $technicalName !== OrderTransactionStates::STATE_FAILED
-                && $technicalName !== OrderTransactionStates::STATE_CANCELLED
-            ) {
-                $paymentMethodId = $transaction->getStateId();
-
-                break;
-            }
-        }
-
-        return RuleComparison::stringArray($paymentMethodId, $this->stateIds, $this->operator);
+        return RuleComparison::stringArray(
+            $scope->getOrder()->getPrimaryOrderTransaction()->getStateId(),
+            $this->stateIds,
+            $this->operator,
+        );
     }
 
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, false, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING)
             ->entitySelectField(
                 'stateIds',
                 StateMachineStateDefinition::ENTITY_NAME,

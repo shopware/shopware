@@ -1,8 +1,8 @@
 import template from './sw-condition-customer-custom-field.html.twig';
 import './sw-condition-customer-custom-field.scss';
+import { RULE_BETWEEN_OPERATOR_MIXIN_NAME } from 'src/app/mixin/rule-between-operator.mixin';
 
-const { Component, Mixin } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { Filter, Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 
 /**
@@ -14,29 +14,20 @@ const { Criteria } = Shopware.Data;
  * @component-example
  * <sw-condition-customer-custom-field :condition="condition"></sw-condition-customer-custom-field>
  */
-Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['feature'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName(RULE_BETWEEN_OPERATOR_MIXIN_NAME)],
 
     computed: {
-        /**
-         * Fetch custom fields that are related to the previously selected custom field set
-         * @returns {Object.Criteria}
-         */
         customFieldCriteria() {
-            const criteria = new Criteria(1, 25);
-            criteria.addAssociation('customFieldSet');
-            criteria.addFilter(Criteria.equals('customFieldSet.relations.entityName', 'customer'));
-            criteria.addSorting(Criteria.sort('customFieldSet.name', 'ASC'));
-            return criteria;
+            return new Criteria(1, 25)
+                .addAssociation('customFieldSet')
+                .addFilter(Criteria.equals('customFieldSet.relations.entityName', 'customer'))
+                .addSorting(Criteria.sort('customFieldSet.name', 'ASC'));
         },
 
         operator: {
@@ -110,40 +101,29 @@ Component.extend('sw-condition-customer-custom-field', 'sw-condition-base', {
             return this.conditionDataProviderService.getOperatorSetByComponent(this.renderedField);
         },
 
-        ...mapPropertyErrors('condition', [
-            'value.renderedField',
-            'value.selectedField',
-            'value.selectedFieldSet',
-            'value.operator',
-            'value.renderedFieldValue',
-        ]),
-
-        currentError() {
-            return (
-                this.conditionValueRenderedFieldError ||
-                this.conditionValueSelectedFieldError ||
-                this.conditionValueSelectedFieldSetError ||
-                this.conditionValueOperatorError ||
-                this.conditionValueRenderedFieldValueError
-            );
+        truncateFilter() {
+            return Filter.getByName('truncate');
         },
     },
 
     methods: {
-        /**
-         * Clear any further field's values if no custom field has been selected
-         * @param id
-         */
+        getFieldDescription(item) {
+            return this.getInlineSnippet(item.customFieldSet.config.label) || item.customFieldSet.name;
+        },
+
         onFieldChange(id) {
-            if (this.$refs.selectedField.resultCollection.has(id)) {
-                this.renderedField = this.$refs.selectedField.resultCollection.get(id);
-                this.selectedFieldSet = this.renderedField.customFieldSetId;
-            } else {
+            if (!this.$refs.selectedField.resultCollection?.has(id)) {
+                this.operator = null;
+                this.renderedFieldValue = null;
                 this.renderedField = null;
+                this.selectedFieldSet = null;
+                return;
             }
 
             this.operator = null;
             this.renderedFieldValue = null;
+            this.renderedField = this.$refs.selectedField.resultCollection.get(id);
+            this.selectedFieldSet = this.renderedField.customFieldSetId;
         },
     },
-});
+};

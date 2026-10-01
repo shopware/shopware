@@ -22,7 +22,8 @@ class SystemConfigChangedHook implements Hookable
     public function __construct(
         private readonly array $values,
         private readonly array $appMapping,
-        public readonly ?string $salesChannelId = null
+        public readonly ?string $salesChannelId = null,
+        public readonly bool $silent = false,
     ) {
     }
 
@@ -32,7 +33,7 @@ class SystemConfigChangedHook implements Hookable
     }
 
     /**
-     * @return array{changes: array<string>}
+     * @return array{changes: list<string>, salesChannelId: string|null}
      */
     public function getWebhookPayload(?AppEntity $app = null): array
     {

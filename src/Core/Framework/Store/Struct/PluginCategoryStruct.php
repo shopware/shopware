@@ -11,16 +11,10 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class PluginCategoryStruct extends Struct
 {
-    protected string $name;
-
-    protected string $label;
-
     public function __construct(
-        string $name,
-        string $label
+        protected string $name,
+        protected string $label,
     ) {
-        $this->name = $name;
-        $this->label = $label;
     }
 
     public function getName(): string

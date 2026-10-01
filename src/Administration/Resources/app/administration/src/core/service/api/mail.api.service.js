@@ -20,7 +20,6 @@ class MailApiService extends ApiService {
 
         let languageIdHeader = {};
 
-        // eslint-disable-next-line no-restricted-globals
         if (self?.Shopware && typeof apiContext.languageId === 'string') {
             languageIdHeader = {
                 'sw-language-id': apiContext.languageId,
@@ -45,13 +44,19 @@ class MailApiService extends ApiService {
     ) {
         const apiRoute = `/_action/${this.getApiBasePath()}/send`;
 
+        if (!Shopware.Feature.isActive('v6.8.0.0')) {
+            if (!templateData) {
+                templateData = mailTemplate.mailTemplateType.templateData;
+            }
+        }
+
         return this.httpClient
             .post(
                 apiRoute,
                 {
                     contentHtml: mailTemplate.contentHtml ?? mailTemplate.translated?.contentHtml,
                     contentPlain: mailTemplate.contentPlain ?? mailTemplate.translated?.contentPlain,
-                    mailTemplateData: templateData ?? mailTemplate.mailTemplateType.templateData,
+                    mailTemplateData: templateData,
                     recipients: { [recipientMail]: recipient },
                     salesChannelId: salesChannelId,
                     mediaIds: mailTemplateMedia.getIds(),
@@ -72,6 +77,9 @@ class MailApiService extends ApiService {
             });
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed.
+     */
     testMailTemplate(
         recipient,
         mailTemplate,
@@ -95,6 +103,9 @@ class MailApiService extends ApiService {
         );
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed.
+     */
     buildRenderPreview(mailTemplateType, mailTemplate) {
         const apiRoute = `/_action/${this.getApiBasePath()}/build`;
 
@@ -104,6 +115,89 @@ class MailApiService extends ApiService {
                 {
                     mailTemplateType: mailTemplateType,
                     mailTemplate: mailTemplate,
+                },
+                {
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    previewMailTemplate(
+        mailTemplateId,
+        entities = {},
+        templateData = {},
+        salesChannelId = null,
+        includeHeaderFooter = false,
+        strictRendering = true,
+        additionalHeaders = {},
+    ) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/preview`;
+
+        return this.httpClient
+            .post(
+                apiRoute,
+                {
+                    mailTemplateId,
+                    entities,
+                    templateData,
+                    salesChannelId,
+                    includeHeaderFooter,
+                    strictRendering,
+                },
+                {
+                    headers: this.getBasicHeaders(additionalHeaders),
+                },
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    getDataAndSendMailTemplate(payload, additionalHeaders = {}) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/get-data-and-send`;
+
+        return this.httpClient
+            .post(apiRoute, payload, {
+                headers: this.getBasicHeaders(additionalHeaders),
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    simulateMailTemplate(templateParts, eventName, salesChannelId = null, strictRendering = true) {
+        const apiRoute = `/_action/${this.getApiBasePath()}/simulate`;
+
+        return this.httpClient
+            .post(
+                apiRoute,
+                {
+                    templateParts,
+                    eventName,
+                    salesChannelId,
+                    strictRendering,
+                },
+                {
+                    headers: this.getBasicHeaders(),
+                },
+            )
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    loadAvailableVariables(eventName, parentVariablePath = '') {
+        const apiRoute = `/_action/${this.getApiBasePath()}/available-variables`;
+
+        return this.httpClient
+            .post(
+                apiRoute,
+                {
+                    eventName,
+                    parentVariablePath,
                 },
                 {
                     headers: this.getBasicHeaders(),

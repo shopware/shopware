@@ -12,6 +12,9 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 #[Package('framework')]
 class SalesChannelContextValueResolver implements ValueResolverInterface
 {
+    /**
+     * @return \Generator<SalesChannelContext>
+     */
     public function resolve(Request $request, ArgumentMetadata $argument): \Generator
     {
         if ($argument->getType() !== SalesChannelContext::class) {

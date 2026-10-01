@@ -12,6 +12,7 @@ use Shopware\Core\Content\Flow\FlowDefinition;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterDefinition;
 use Shopware\Core\Content\MailTemplate\MailTemplateDefinition;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -21,7 +22,9 @@ use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Framework\Demodata\Command\DemodataCommand;
 use Shopware\Core\Framework\Demodata\DemodataService;
 use Shopware\Core\Framework\Demodata\Event\DemodataRequestCreatedEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomField\Aggregate\CustomFieldSet\CustomFieldSetDefinition;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\Tag\TagDefinition;
 use Shopware\Core\System\User\UserDefinition;
 use Symfony\Component\Console\Command\Command;
@@ -32,6 +35,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('fundamentals@after-sales')]
 #[CoversClass(DemodataCommand::class)]
 class DemodataCommandTest extends TestCase
 {
@@ -53,6 +57,8 @@ class DemodataCommandTest extends TestCase
         CustomFieldSetDefinition::class,
         MailTemplateDefinition::class,
         MailHeaderFooterDefinition::class,
+        SalesChannelDomainDefinition::class,
+        NewsletterRecipientDefinition::class,
     ];
 
     private EventDispatcher $dispatcher;
@@ -63,10 +69,27 @@ class DemodataCommandTest extends TestCase
     {
         $this->dispatcher = new EventDispatcher();
         $this->command = new DemodataCommand(
-            $this->createMock(DemodataService::class),
+            static::createStub(DemodataService::class),
             $this->dispatcher,
-            $this->name() === 'testShowNoticeWhenNotProd' ? 'dev' : 'prod'
+            $this->name() === 'testShowNoticeWhenNotProd' ? 'dev' : 'prod',
+            [self::class], // always-present class, avoids dependency on shopware/dev-tools in unit tests
         );
+    }
+
+    public function testMissingDependencyReturnsFailure(): void
+    {
+        $command = new DemodataCommand(
+            static::createStub(DemodataService::class),
+            $this->dispatcher,
+            'prod',
+            ['NonExistent\Class\That\DoesNotExist'], // @phpstan-ignore argument.type (non-existent class is intentional for the test)
+        );
+
+        $tester = new CommandTester($command);
+        $tester->execute([]);
+
+        static::assertStringContainsString('Please install composer package "shopware/dev-tools"', $tester->getDisplay());
+        static::assertSame(Command::FAILURE, $tester->getStatusCode());
     }
 
     public function testShowNoticeWhenNotProd(): void
@@ -80,7 +103,7 @@ class DemodataCommandTest extends TestCase
         $tester->execute([]);
 
         static::assertFalse($eventCalled, 'Event was fired.');
-        static::assertStringContainsString('Demo data command should only be used in production environment.', $tester->getDisplay());
+        static::assertStringContainsString('Demo data command requires the app environment set to production to run.', $tester->getDisplay());
         static::assertSame(Command::INVALID, $tester->getStatusCode());
     }
 
@@ -93,7 +116,10 @@ class DemodataCommandTest extends TestCase
             $items = $event->getRequest()->all();
             foreach (self::DEFAULT_DEFINITIONS as $definition) {
                 static::assertArrayHasKey($definition, $items);
+                unset($items[$definition]);
             }
+
+            self::assertSame([], $items);
         });
 
         $tester = new CommandTester($this->command);

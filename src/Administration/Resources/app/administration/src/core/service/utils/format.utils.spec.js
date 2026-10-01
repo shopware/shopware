@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { fileSize, date, dateWithUserTimezone, toISODate } from 'src/core/service/utils/format.utils';
+import { fileSize, date, dateWithUserTimezone, toISODate, localeName } from 'src/core/service/utils/format.utils';
 
 describe('src/core/service/utils/format.utils.js', () => {
     describe('filesize', () => {
@@ -101,7 +101,6 @@ describe('src/core/service/utils/format.utils.js', () => {
 
         it('should convert the date correctly with timezone Pacific/Pago_Pago', async () => {
             setTimeZone('Pacific/Samoa');
-            // eslint-disable-next-line no-shadow
             const date = new Date(2000, 1, 1, 11, 13, 37);
 
             expect(dateWithUserTimezone(date).toString()).toBe(
@@ -111,7 +110,6 @@ describe('src/core/service/utils/format.utils.js', () => {
 
         it('should convert the date correctly with timezone UTC as fallback', async () => {
             setTimeZone(null);
-            // eslint-disable-next-line no-shadow
             const date = new Date(2000, 1, 1, 0, 13, 37);
 
             expect(dateWithUserTimezone(date).toString()).toBe(
@@ -197,6 +195,46 @@ describe('src/core/service/utils/format.utils.js', () => {
             const dateWithoutTime = new Date(Date.UTC(2021, 0, 1, 13, 37, 0));
 
             expect(toISODate(dateWithoutTime, false)).toBe('2021-01-01');
+        });
+    });
+
+    describe('localeName', () => {
+        const setUiLocale = (locale) =>
+            Shopware.Store.get('session').setAdminLocaleState({
+                locales: [locale],
+                locale,
+                languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+            });
+
+        afterEach(() => {
+            setUiLocale('en-GB');
+        });
+
+        it('renders the native name with language and region in the UI language', async () => {
+            setUiLocale('de-DE');
+
+            expect(localeName('fr-FR')).toBe('Français (Französisch, Frankreich)');
+            expect(localeName('en-GB')).toBe('English (Englisch, Vereinigtes Königreich)');
+        });
+
+        it('follows the UI language of the session', async () => {
+            setUiLocale('en-GB');
+
+            expect(localeName('de-DE')).toBe('Deutsch (German, Germany)');
+        });
+
+        it('prefers an explicitly given UI locale', async () => {
+            setUiLocale('de-DE');
+
+            expect(localeName('de-DE', 'fr-FR')).toBe('Deutsch (allemand, Allemagne)');
+        });
+
+        it('omits the region part for codes without a region', async () => {
+            expect(localeName('de', 'en-GB')).toBe('Deutsch (German)');
+        });
+
+        it('falls back to the raw code when it is not a valid locale', async () => {
+            expect(localeName('not a locale', 'en-GB')).toBe('not a locale');
         });
     });
 });

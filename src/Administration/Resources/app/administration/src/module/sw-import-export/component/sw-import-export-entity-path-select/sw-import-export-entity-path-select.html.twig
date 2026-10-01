@@ -27,11 +27,13 @@
                         {{ getKey(singleSelection, labelProperty) }}
                     </slot>
                 </template>
+
                 <template v-else>
                     {{ placeholder }}
                 </template>
             </div>
             {% endblock %}
+
             {% block sw_import_export_entity_path_select_single_selection_inner_input %}
             <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
             <input
@@ -57,7 +59,7 @@
             ref="resultsList"
             :options="visibleResults"
             :is-loading="isLoading"
-            :empty-message="$tc('global.sw-single-select.messageNoResults', { term: searchInput }, 0)"
+            :empty-message="$t('global.sw-single-select.messageNoResults', { term: searchInput }, 0)"
             :focus-el="$refs.swSelectInput"
             :popover-classes="resultListClasses"
             @paginate="$emit('paginate')"
@@ -76,6 +78,7 @@
                         {{ notMappedItem.label }}
                         {% endblock %}
                     </sw-select-result>
+
                     <hr class="sw-import-export-entity-path-select__listing-seperator">
                 </slot>
             </template>
@@ -102,14 +105,15 @@
                                 :text="getKey(item, labelProperty)"
                                 :search-term="searchTerm"
                             />
+
                             <template v-else>
                                 {{ getKey(item, labelProperty) }}
                             </template>
 
                             <mt-icon
                                 v-if="item.relation && item.relation !== 'many_to_many'"
-                                name="regular-chevron-right-xxs"
-                                size="16px"
+                                name="regular-chevron-right-xs"
+                                size="10px"
                             />
                         </slot>
                         {% endblock %}

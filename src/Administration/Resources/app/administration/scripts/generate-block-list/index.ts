@@ -2,22 +2,22 @@ import path from 'path';
 import fs from 'fs';
 import { globSync } from 'glob';
 import { extractBlocks } from './extract-blocks';
+import { isTemplateSourceFile } from '../public-api-source-files';
 
 const BLOCKS_LIST_FILE = path.join(__dirname, '../../blocks-list.json');
 
 function main() {
     const sourcePath = path.join(__dirname, '../../src');
-    const listOfTwigFiles = globSync(`${sourcePath}/**/*.html.twig`);
+    const blocks = globSync(`${sourcePath}/**/*.*`)
+        .filter(isTemplateSourceFile)
+        .flatMap((filePath) => extractBlocks(fs.readFileSync(filePath, 'utf8')));
 
-    const blocks = extractBlocks(listOfTwigFiles);
     updateBlocksList(blocks);
 }
 
 export function updateBlocksList(blocks: string[]) {
-    console.log('Updating blocks list...');
     const uniqueBlocks = unique(blocks).sort((a, b) => a.localeCompare(b));
     fs.writeFileSync(BLOCKS_LIST_FILE, JSON.stringify(uniqueBlocks, null, 1));
-    console.log(`Blocks list updated with ${uniqueBlocks.length} blocks in total.`);
 }
 
 // Most performant way to remove duplicates from an array

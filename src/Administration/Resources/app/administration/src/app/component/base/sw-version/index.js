@@ -5,19 +5,15 @@
 import template from './sw-version.html.twig';
 import './sw-version.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
- * @description Shows the header in the administration main menu
+ * @description Shows the current Shopware version, e.g. in the user actions menu of the admin menu
  * @status ready
  * @example-type static
  * @component-example
- * <div style="background: linear-gradient(to bottom, #303A4F, #2A3345); padding: 30px;">
- *     <sw-version class="collapsible-text"></sw-version>
- * </div>
+ * <sw-version></sw-version>
  */
-Component.register('sw-version', {
+export default {
     template,
 
     computed: {
@@ -85,4 +81,4 @@ Component.register('sw-version', {
             return text;
         },
     },
-});
+};

@@ -10,10 +10,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-    ],
+    inject: ['acl', 'repositoryFactory'],
 
     props: {
         discount: {
@@ -25,11 +22,7 @@ export default {
             type: String,
             required: true,
             validator(value) {
-                return [
-                    'basic',
-                    'buy-x-get-y',
-                    'shipping-discount',
-                ].includes(value);
+                return ['basic', 'buy-x-get-y', 'shipping-discount'].includes(value);
             },
         },
 
@@ -53,10 +46,7 @@ export default {
             type: String,
             required: false,
             validator(value) {
-                return [
-                    'ALL',
-                    'SELECT',
-                ].includes(value);
+                return ['ALL', 'SELECT'].includes(value);
             },
             default() {
                 return 'ALL';
@@ -75,34 +65,27 @@ export default {
 
     computed: {
         isPercentageType() {
-            return [
-                'percentage',
-                'free',
-            ].includes(this.discount.type);
+            return ['percentage', 'free'].includes(this.discount.type);
         },
 
         labelValue() {
-            return this.$tc('sw-promotion-v2.detail.discounts.settings.discountType.labelValue', !this.isPercentageType);
+            return this.$t('sw-promotion-v2.detail.discounts.settings.discountType.labelValue', {}, !this.isPercentageType);
         },
 
         showAdvancedPricesLink() {
-            return [
-                'absolute',
-                'fixed',
-                'fixed_unit',
-            ].includes(this.discount.type);
+            return ['absolute', 'fixed', 'fixed_unit'].includes(this.discount.type);
         },
 
         currencyPriceColumns() {
             return [
                 {
                     property: 'currency.translated.name',
-                    label: this.$tc('sw-promotion-v2.detail.discounts.pricesModal.labelCurrency'),
+                    label: this.$t('sw-promotion-v2.detail.discounts.pricesModal.labelCurrency'),
                 },
                 {
                     property: 'price',
                     dataIndex: 'price',
-                    label: this.$tc('sw-promotion-v2.detail.discounts.pricesModal.labelPrice'),
+                    label: this.$t('sw-promotion-v2.detail.discounts.pricesModal.labelPrice'),
                 },
             ];
         },
@@ -116,7 +99,7 @@ export default {
         },
 
         currencyCriteria() {
-            return new Criteria(1, 25).addSorting(Criteria.sort('name', 'ASC'));
+            return new Criteria(1, 500).addSorting(Criteria.sort('name', 'ASC'));
         },
 
         showMaxValueAdvancedPrices() {
@@ -213,19 +196,19 @@ export default {
             return [
                 {
                     value: 'percentage',
-                    display: this.$tc(`${prefix}.displayPercentage`),
+                    display: this.$t(`${prefix}.displayPercentage`),
                 },
                 {
                     value: this.discount.scope === 'delivery' ? 'absolute' : 'fixed',
-                    display: this.$tc(`${prefix}.displayFixedDiscount`),
+                    display: this.$t(`${prefix}.displayFixedDiscount`),
                 },
                 {
                     value: 'fixed_unit',
-                    display: this.$tc(`${prefix}.displayFixedPrice`),
+                    display: this.$t(`${prefix}.displayFixedPrice`),
                 },
                 {
                     value: 'free',
-                    display: this.$tc(`${prefix}.displayFree`),
+                    display: this.$t(`${prefix}.displayFree`),
                 },
             ];
         },
@@ -236,11 +219,11 @@ export default {
             return [
                 {
                     value: 'ALL',
-                    display: this.$tc(`${prefix}.displayTotalPrice`),
+                    display: this.$t(`${prefix}.displayTotalPrice`),
                 },
                 {
                     value: 'SELECT',
-                    display: this.$tc(`${prefix}.displayProductPrice`),
+                    display: this.$t(`${prefix}.displayProductPrice`),
                 },
             ];
         },

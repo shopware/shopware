@@ -5,7 +5,7 @@ async function createWrapper(propsData = {}) {
         global: {
             mocks: {
                 $t: (key, values) => {
-                    return key + JSON.stringify(Object.values(values));
+                    return values ? key + JSON.stringify(Object.values(values)) : key;
                 },
             },
             stubs: {},
@@ -28,7 +28,6 @@ describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
 
         let title = wrapper.vm.title;
 
-        // eslint-disable-next-line max-len
         expect(title).toBe('sw-extension-store.component.sw-extension-removal-modal.titleCancel["Awesome extension"]');
 
         await wrapper.setProps({
@@ -36,7 +35,6 @@ describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
         });
 
         title = wrapper.vm.title;
-        // eslint-disable-next-line max-len
         expect(title).toBe('sw-extension-store.component.sw-extension-removal-modal.titleRemove["Awesome extension"]');
     });
 
@@ -45,7 +43,6 @@ describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
 
         let alert = wrapper.vm.alert;
 
-        // eslint-disable-next-line max-len
         expect(alert).toBe('sw-extension-store.component.sw-extension-removal-modal.alertCancel');
 
         await wrapper.setProps({
@@ -53,7 +50,6 @@ describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
         });
 
         alert = wrapper.vm.alert;
-        // eslint-disable-next-line max-len
         expect(alert).toBe('sw-extension-store.component.sw-extension-removal-modal.alertRemove');
     });
 
@@ -62,7 +58,6 @@ describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
 
         let btnLabel = wrapper.vm.btnLabel;
 
-        // eslint-disable-next-line max-len
         expect(btnLabel).toBe('sw-extension-store.component.sw-extension-removal-modal.labelCancel');
 
         await wrapper.setProps({
@@ -70,7 +65,6 @@ describe('src/module/sw-extension/component/sw-extension-removal-modal', () => {
         });
 
         btnLabel = wrapper.vm.alert;
-        // eslint-disable-next-line max-len
         expect(btnLabel).toBe('sw-extension-store.component.sw-extension-removal-modal.alertRemove');
     });
 

@@ -53,7 +53,7 @@ class MainCategoryExtensionTest extends TestCase
         $criteria->addAssociation('mainCategories');
 
         /** @var ProductEntity $product */
-        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->first();
+        $product = $this->productRepository->search($criteria, $salesChannelContext->getContext())->getEntities()->first();
 
         static::assertNotNull($product->getMainCategories());
         static::assertInstanceOf(MainCategoryCollection::class, $product->getMainCategories());
@@ -86,8 +86,8 @@ class MainCategoryExtensionTest extends TestCase
 
         $mainCategory = $mainCategories->filterBySalesChannelId($salesChannelId)->first();
         static::assertInstanceOf(MainCategoryEntity::class, $mainCategory);
-        static::assertEquals($salesChannelId, $mainCategory->getSalesChannelId());
-        static::assertEquals($categories->firstId(), $mainCategory->getCategoryId());
+        static::assertSame($salesChannelId, $mainCategory->getSalesChannelId());
+        static::assertSame($categories->firstId(), $mainCategory->getCategoryId());
     }
 
     private function createTestProduct(): string

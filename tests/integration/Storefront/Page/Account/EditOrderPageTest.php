@@ -15,6 +15,7 @@ use Shopware\Core\Content\Rule\RuleCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -29,6 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class EditOrderPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -49,11 +51,11 @@ class EditOrderPageTest extends TestCase
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
+        $request->attributes->set('orderId', $orderId);
 
         $event = null;
         $this->catchEvent(AccountEditOrderPageLoadedEvent::class, $event);
 
-        $request->request->set('orderId', $orderId);
         $page = $this->getPageLoader()->load($request, $context);
 
         self::assertPageEvent(AccountEditOrderPageLoadedEvent::class, $event, $context, $request, $page);
@@ -66,11 +68,11 @@ class EditOrderPageTest extends TestCase
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
+        $request->attributes->set('orderId', $orderId);
 
         $event = null;
         $this->catchEvent(AccountEditOrderPageLoadedEvent::class, $event);
 
-        $request->request->set('orderId', $orderId);
         $page = $this->getPageLoader()->load($request, $context);
 
         self::assertPageEvent(AccountEditOrderPageLoadedEvent::class, $event, $context, $request, $page);
@@ -89,7 +91,7 @@ class EditOrderPageTest extends TestCase
             $context->getContext()
         );
 
-        $request->request->set('orderId', $orderId);
+        $request->attributes->set('orderId', $orderId);
         $page = $this->getPageLoader()->load($request, $context);
 
         self::assertPageEvent(AccountEditOrderPageLoadedEvent::class, $event, $context, $request, $page);
@@ -97,16 +99,34 @@ class EditOrderPageTest extends TestCase
         static::assertCount(0, $page->getPaymentMethods());
     }
 
+    public function testEditOrderPageSelectsThePaymentMethodOfTheOrder(): void
+    {
+        $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+        $orderId = $this->placeRandomOrder($context);
+        $orderPaymentMethodId = $context->getPaymentMethod()->getId();
+
+        // the customer selected another payment method after the order was placed
+        $context->assign(['paymentMethod' => $this->createCustomPaymentMethod($context, [])]);
+
+        $request = new Request();
+        $request->attributes->set('orderId', $orderId);
+
+        $page = $this->getPageLoader()->load($request, $context);
+
+        static::assertSame($orderPaymentMethodId, $page->getSelectedPaymentMethodId());
+    }
+
     public function testEditPageNotAvailableOrderIsPaid(): void
     {
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
+        $request->attributes->set('orderId', $orderId);
+
         $this->setOrderToTransactionState($orderId, $context, StateMachineTransitionActions::ACTION_PAID);
 
         $this->expectException(OrderException::class);
 
-        $request->request->set('orderId', $orderId);
         $this->getPageLoader()->load($request, $context);
     }
 
@@ -115,10 +135,11 @@ class EditOrderPageTest extends TestCase
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
+        $request->attributes->set('orderId', $orderId);
 
-        // Get customer from USA rule
+        // Get digital products rule
         $ruleCriteria = new Criteria();
-        $ruleCriteria->addFilter(new EqualsFilter('name', 'Customers from USA'));
+        $ruleCriteria->addFilter(new EqualsFilter('name', 'Shopping cart / Order with digital products'));
 
         /** @var EntityRepository<RuleCollection> $ruleRepository */
         $ruleRepository = static::getContainer()->get('rule.repository');
@@ -141,7 +162,8 @@ class EditOrderPageTest extends TestCase
     {
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
-        $this->placeRandomOrder($context);
+        $orderId = $this->placeRandomOrder($context);
+        $request->attributes->set('orderId', $orderId);
 
         $primaryMethod = $this->createCustomPaymentMethod($context, ['position' => 1]);
 
@@ -162,6 +184,7 @@ class EditOrderPageTest extends TestCase
         $request = new Request();
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
+        $request->attributes->set('orderId', $orderId);
 
         $page = $this->getPageLoader()->load($request, $context);
 

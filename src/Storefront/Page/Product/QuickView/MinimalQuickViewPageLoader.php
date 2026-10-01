@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageLoader. Always use a store-api route to get or put data.
  */
-#[Package('framework')]
+#[Package('discovery')]
 class MinimalQuickViewPageLoader
 {
     /**
@@ -31,7 +31,7 @@ class MinimalQuickViewPageLoader
      */
     public function load(Request $request, SalesChannelContext $salesChannelContext): MinimalQuickViewPage
     {
-        $productId = $request->get('productId');
+        $productId = $request->attributes->get('productId');
         if (!$productId) {
             throw RoutingException::missingRequestParameter('productId', '/productId');
         }

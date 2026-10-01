@@ -1,0 +1,17 @@
+name: SaaS Update PR
+on:
+  pull_request_target:
+    types:
+      - closed
+    branches:
+      - 6.[0-9]+.[0-9]+.x
+
+jobs:
+  create_saas_update_pr:
+    name: Create SaaS Update PR
+    runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.merged && github.repository == 'shopware/shopware' }}
+    permissions:
+      id-token: write
+    steps:
+      - uses: shopware/github-actions/update-saas-refs@main

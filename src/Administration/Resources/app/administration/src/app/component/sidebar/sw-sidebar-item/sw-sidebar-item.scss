@@ -1,56 +1,59 @@
-@import "~scss/variables";
-
-$sw-sidebar-item-headline-color: $color-darkgray-200;
-$sw-sidebar-item-color-border: $color-gray-300;
-$sw-sidebar-item-width-navigation: 64px;
-$sw-sidebar-item-width-content: 400px;
-
 .sw-sidebar-item {
-    width: $sw-sidebar-item-width-content;
+    width: 25rem;
     height: 100%;
     display: grid;
-    grid-template-rows: $sw-sidebar-item-width-navigation 1fr;
-    border-left: 1px solid $sw-sidebar-item-color-border;
+    grid-template-rows: var(--scale-size-64) 1fr;
+    border-left: 1px solid var(--color-border-secondary-default);
     overflow: hidden;
 
-    .sw-sidebar-item__headline {
-        display: grid;
-        grid-template-columns: 1fr 32px;
-        margin: 25px 25px 0;
+    &__headline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 var(--scale-size-12);
+        margin: var(--scale-size-12);
     }
 
-    .sw-sidebar-item__title {
+    &__title {
         margin: 0;
-        font-size: $font-size-m;
-        color: $sw-sidebar-item-headline-color;
+        font-family: var(--font-family-headings);
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-m);
+        color: var(--color-text-primary-default);
     }
 
-    .sw-sidebar-item__close-button {
-        color: $sw-sidebar-item-headline-color;
-        height: 24px;
-        width: 24px;
+    &__close-button {
+        color: var(--color-icon-primary-default);
+        height: var(--scale-size-32);
+        width: var(--scale-size-32);
+        border-radius: var(--border-radius-button);
+        transition: background-color 0.15s ease-out;
         justify-self: end;
         background: none;
         border: none;
         outline: none;
         cursor: pointer;
 
-        .mt-icon {
-            width: 20px;
-            height: 20px;
-            padding: 4px;
+        &:hover,
+        &:focus-visible {
+            background-color: var(--color-interaction-secondary-hover);
+        }
+
+        &:focus-visible {
+            outline: var(--scale-size-2) solid var(--color-border-brand-default);
+            outline-offset: var(--scale-size-2);
         }
     }
 
-    .sw-sidebar-item__content {
+    &__content {
         position: relative;
         width: 100%;
         height: 100%;
     }
 
-    .sw-sidebar-item__scrollable-container {
+    &__scrollable-container {
         position: absolute;
-        width: $sw-sidebar-item-width-content;
+        width: 25rem;
         height: 100%;
         overflow-y: auto;
         -webkit-overflow-scrolling: touch;

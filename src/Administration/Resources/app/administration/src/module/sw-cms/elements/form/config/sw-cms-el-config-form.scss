@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-cms-el-config-form__tab-options {
     span.sw-label {
         margin: 8px 6px 0 0;
@@ -9,7 +7,7 @@
         cursor: not-allowed;
 
         &:hover {
-            border-color: $color-gray-300;
+            border-color: var(--color-border-primary-default);
 
             .sw-label__caption {
                 width: 100%;

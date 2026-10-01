@@ -12,6 +12,17 @@ function getConsumeRequests(history) {
     return history.post.filter((r) => r.url === '/_action/message-queue/consume');
 }
 
+/**
+ * Flushes the microtask queue multiple times to handle the dispatcher's promise chain.
+ * The new HTTP dispatcher architecture adds extra promise layers (dispatcher → adapter → client),
+ * requiring multiple microtask flushes to fully resolve all promises.
+ */
+async function flushMicrotasks() {
+    // Flush microtask queue twice to handle dispatcher → adapter → client promise chain
+    await Promise.resolve();
+    await Promise.resolve();
+}
+
 describe('core/worker/admin-worker.worker.js', () => {
     beforeEach(async () => {
         await AdminWorker.onMessage({ data: { type: 'logout' } });
@@ -79,10 +90,7 @@ describe('core/worker/admin-worker.worker.js', () => {
     it('should restart the consume call after 20 seconds when handledMessages dont exist', async () => {
         axiosMock.reset();
         axiosMock.onAny().reply(() => {
-            return [
-                200,
-                { handledMessages: 0 },
-            ];
+            return [200, { handledMessages: 0 }];
         });
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(0);
@@ -100,23 +108,24 @@ describe('core/worker/admin-worker.worker.js', () => {
         }); // start AdminWorker
         await jest.runAllTimers(); // start consumeMessages
         await jest.runAllTimers(); // consume firstMessage
+        await flushMicrotasks();
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(1);
 
         // should retry after 20 seconds
         await jest.advanceTimersByTime(19999);
+        await flushMicrotasks();
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(1);
         await jest.advanceTimersByTime(1);
+        await jest.runAllTimers(); // run the newly scheduled timer
+        await flushMicrotasks();
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(2);
     });
 
     it('should restart the consume call directly when handledMessages exist', async () => {
         axiosMock.reset();
         axiosMock.onAny().reply(() => {
-            return [
-                200,
-                { handledMessages: 50 },
-            ];
+            return [200, { handledMessages: 50 }];
         });
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(0);
@@ -132,23 +141,25 @@ describe('core/worker/admin-worker.worker.js', () => {
                 transports: ['default'],
             },
         }); // start AdminWorker
-        await jest.runAllTimers(); // start consumeMessages
-        await jest.runAllTimers(); // consume firstMessage
+
+        // Wait for all pending microtasks to resolve (multiple layers due to dispatcher)
+        await flushMicrotasks();
+        await flushMicrotasks();
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(1);
 
-        // should retry after 20 seconds
+        // should retry immediately when messages were handled (timeout: 0)
         await jest.advanceTimersByTime(0);
+        await jest.runAllTimers();
+        await flushMicrotasks();
+
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(2);
     });
 
     it('should reset timeout to send request before 20 seconds (no messages)', async () => {
         axiosMock.reset();
         axiosMock.onAny().reply(() => {
-            return [
-                200,
-                { handledMessages: 0 },
-            ];
+            return [200, { handledMessages: 0 }];
         });
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(0);
@@ -164,8 +175,9 @@ describe('core/worker/admin-worker.worker.js', () => {
         };
 
         await AdminWorker.onMessage({ data: message }); // start AdminWorker
-        await jest.runAllTimers(); // start consumeMessages
-        await jest.runAllTimers(); // consume firstMessage
+
+        // Wait for initial request to complete
+        await flushMicrotasks();
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(1);
 
@@ -174,27 +186,27 @@ describe('core/worker/admin-worker.worker.js', () => {
         await AdminWorker.onMessage({
             data: { ...message, ...{ type: 'consumeReset' } },
         }); // reset consume cycle
-        await jest.runAllTimers(); // start consumeMessages
-        await jest.runAllTimers(); // consume firstMessage
+
+        // Wait for reset request to complete
+        await flushMicrotasks();
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(2);
 
         // there should not have been a request since timeout should have been cleared earlier
         await jest.advanceTimersByTime(19500);
+        await flushMicrotasks();
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(2);
 
         // should be the first request by the new timeout after the earlier one has been reset
         await jest.advanceTimersByTime(500);
+        await flushMicrotasks();
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(3);
     });
 
     it('should cancel current consume request', async () => {
         axiosMock.reset();
         axiosMock.onAny().reply(() => {
-            return [
-                200,
-                { handledMessages: 0 },
-            ];
+            return [200, { handledMessages: 0 }];
         });
 
         expect(getConsumeRequests(axiosMock.history)).toHaveLength(0);
@@ -231,9 +243,7 @@ describe('core/worker/admin-worker.worker.js', () => {
 
     it('should set the onMessage method to the first port on connect', async () => {
         const mockEvent = {
-            ports: [
-                { postMessage: jest.fn() },
-            ],
+            ports: [{ postMessage: jest.fn() }],
         };
 
         expect(mockEvent.ports[0].onmessage).toBeUndefined();

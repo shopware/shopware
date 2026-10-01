@@ -3,7 +3,6 @@
  * @deprecated tag:v6.8.0 - Will be removed without replacement
  */
 
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import type { Store } from 'vuex';
 
 class State {

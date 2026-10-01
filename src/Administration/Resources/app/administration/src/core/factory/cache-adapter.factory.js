@@ -12,14 +12,15 @@ const allowUrlList = [
     '/search/salutation',
     '/search/product-search-config',
     '/search/product-search-config-field',
-    '/app-system/action-button/product/list',
     '_action/system-config',
     '/_action/system-config',
-    'app-system/action-button/product/list',
     '/search/currency',
     '/search/order',
     '/search/customer',
     '/_info/me',
+    '/_info/config-me',
+    '_action/product/types',
+    '/_action/product/types',
 ];
 
 /**
@@ -36,6 +37,7 @@ const flushCacheUrls = [
     '_action/sync',
     '/product-visibility',
     'product-visibility',
+    '/_info/config-me',
 ];
 
 // the timeout at which the response in the cache gets cleared
@@ -55,10 +57,7 @@ const requestCacheTimeout = 1500;
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default function cacheAdapterFactory(originalAdapter, requestCaches = {}) {
     return (config) => {
-        const requestChangesData = [
-            'delete',
-            'patch',
-        ].includes(config?.method);
+        const requestChangesData = ['delete', 'patch'].includes(config?.method);
         const shouldFlushCache = flushCacheUrls.includes(config?.url);
 
         // remove all caches when something gets changed
@@ -71,7 +70,10 @@ export default function cacheAdapterFactory(originalAdapter, requestCaches = {})
         }
 
         // ignore requests which are not in the allowedUrlList
-        const isNotInAllowList = !allowUrlList.includes(config?.url);
+        const isNotInAllowList = !allowUrlList.some((url) =>
+            config?.url?.replace(/^\//, '').startsWith(url.replace(/^\//, '')),
+        );
+
         if (isNotInAllowList) {
             return originalAdapter(config);
         }
@@ -97,12 +99,15 @@ export default function cacheAdapterFactory(originalAdapter, requestCaches = {})
         // create a new one with the original adapter
         requestCaches[requestHash] = originalAdapter(config);
 
-        // remove the request cache entry after 1.5 seconds
-        setTimeout(() => {
-            if (requestCaches[requestHash]) {
-                delete requestCaches[requestHash];
-            }
-        }, requestCacheTimeout);
+        // Only set timeout for non-config endpoints (config endpoints cached indefinitely)
+        if (!config?.url?.includes('_info/')) {
+            // remove the request cache entry after 1.5 seconds
+            setTimeout(() => {
+                if (requestCaches[requestHash]) {
+                    delete requestCaches[requestHash];
+                }
+            }, requestCacheTimeout);
+        }
 
         // return a clone of the created request from the request cache
         return cloneResponse(requestCaches[requestHash]);

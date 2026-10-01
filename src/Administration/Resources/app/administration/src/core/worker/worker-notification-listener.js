@@ -1,15 +1,26 @@
 /**
  * @sw-package framework
+ *
+ * @deprecated tag:v6.8.0 - Will be removed with increment-based message queue statistics
  */
 
 const { Application, WorkerNotification } = Shopware;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed with increment-based message queue statistics
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const POLL_BACKGROUND_INTERVAL = 30000;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed with increment-based message queue statistics
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const POLL_FOREGROUND_INTERVAL = 5000;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed with increment-based message queue statistics
+ */
 class WorkerNotificationListener {
     constructor(context) {
         this._context = context;
@@ -23,7 +34,11 @@ class WorkerNotificationListener {
     }
 
     start() {
-        if (!Shopware.Context.app.config.adminWorker.enableQueueStatsWorker) {
+        if (Shopware.Feature.isActive('v6.8.0.0')) {
+            return;
+        }
+
+        if (!Shopware.Context.app.config.adminWorker?.enableQueueStatsWorker) {
             return;
         }
 
@@ -127,5 +142,6 @@ class WorkerNotificationListener {
 
 /**
  * @private
+ * @deprecated tag:v6.8.0 - Class will be removed. The increment-based message queue statistics are deprecated.
  */
 export default WorkerNotificationListener;

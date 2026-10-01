@@ -4,21 +4,19 @@ namespace Shopware\Core\Content\Sitemap\Struct;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\Clock\Clock;
 
 #[Package('discovery')]
 class Sitemap extends Struct
 {
-    protected string $filename;
-
     protected \DateTimeInterface $created;
 
     public function __construct(
-        string $filename,
+        protected string $filename,
         private int $urlCount,
-        ?\DateTimeInterface $created = null
+        ?\DateTimeInterface $created = null,
     ) {
-        $this->filename = $filename;
-        $this->created = $created ?: new \DateTime('NOW', new \DateTimeZone('UTC'));
+        $this->created = $created ?: Clock::get()->now()->setTimezone(new \DateTimeZone('UTC'));
     }
 
     public function getFilename(): string

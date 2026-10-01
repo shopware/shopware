@@ -35,10 +35,7 @@ const mockParent = {
     type: 'product',
     label: 'Parent Item',
     quantity: 1,
-    children: [
-        getMockChild('1', 'parent'),
-        getMockChild('2', 'parent'),
-    ],
+    children: [getMockChild('1', 'parent'), getMockChild('2', 'parent')],
     totalPrice: 200,
     unitPrice: 200,
     price: {
@@ -106,17 +103,14 @@ async function createWrapper() {
                     'sw-modal': await wrapTestComponent('sw-modal', {
                         sync: true,
                     }),
-                    'sw-loader': await wrapTestComponent('sw-loader', {
-                        sync: true,
-                    }),
+                    'mt-loader': true,
                     'sw-order-nested-line-items-row': await wrapTestComponent('sw-order-nested-line-items-row', {
                         sync: true,
                     }),
-                    'sw-loader-deprecated': true,
                     'router-link': true,
                 },
                 mocks: {
-                    $tc: (snippet) => snippet,
+                    $t: (snippet) => snippet,
                 },
             },
         },

@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package checkout
  */
@@ -22,9 +24,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
 
         return mount(await wrapTestComponent('sw-bulk-edit-customer', { sync: true }), {
             global: {
-                plugins: [
-                    router,
-                ],
+                plugins: [router],
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-loader': await wrapTestComponent('sw-loader'),
@@ -37,7 +37,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-bulk-edit-form-field-renderer': await wrapTestComponent('sw-bulk-edit-form-field-renderer'),
                     'sw-bulk-edit-change-type': await wrapTestComponent('sw-bulk-edit-change-type'),
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
-                    'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
@@ -71,6 +70,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'sw-ignore-class': true,
                     'sw-entity-tag-select': true,
                     'sw-error-summary': true,
+                    'sw-context-menu-item': true,
                     'sw-bulk-edit-save-modal-error': await wrapTestComponent('sw-bulk-edit-save-modal-error', {
                         sync: true,
                     }),
@@ -85,6 +85,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     }),
                     'sw-bulk-edit-save-modal': await wrapTestComponent('sw-bulk-edit-save-modal', { sync: true }),
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-help-center-v2': true,
                     'mt-loader': true,
                     'sw-loader-deprecated': true,
@@ -101,8 +102,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                     'mt-switch': true,
                 },
                 provide: {
+                    customFieldDataProviderService: {
+                        getCustomFieldSets: () => Promise.resolve([{ id: 'field-set-id-1' }]),
+                    },
                     validationService: {},
                     orderDocumentApiService: {},
+                    documentV2Service: {},
                     repositoryFactory: {
                         create: () => {
                             return {
@@ -183,6 +188,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
                         startEventListener: () => {},
                         stopEventListener: () => {},
                     },
+                    syncService: {},
                 },
             },
             props: {
@@ -279,9 +285,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
             },
         });
 
-        Shopware.Store.get('swBulkEdit').selectedIds = [
-            Shopware.Utils.createId(),
-        ];
+        Shopware.Store.get('swBulkEdit').selectedIds = [Shopware.Utils.createId()];
     });
 
     it('should show all form fields', async () => {
@@ -299,8 +303,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
             isLoading: false,
         });
 
-        const emptyState = wrapper.find('.sw-empty-state');
-        expect(emptyState.find('.sw-empty-state__title').text()).toBe('sw-bulk-edit.customer.messageEmptyTitle');
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-bulk-edit.customer.messageEmptyTitle');
     });
 
     it('should open confirm modal', async () => {
@@ -471,7 +474,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-customer', () => {
 
         wrapper.vm.createdComponent();
         expect(wrapper.vm.setRouteMetaModule).toHaveBeenCalled();
-        expect(wrapper.vm.$route.meta.$module.color).toBe('#F88962');
+        expect(wrapper.vm.$route.meta.$module.color).toBe('var(--sw-color-module-orange-default)');
         expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-users');
 
         wrapper.vm.setRouteMetaModule.mockRestore();

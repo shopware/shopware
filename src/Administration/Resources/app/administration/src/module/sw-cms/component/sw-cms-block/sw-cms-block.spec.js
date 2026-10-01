@@ -39,14 +39,6 @@ describe('module/sw-cms/component/sw-cms-block', () => {
         await setupCmsEnvironment();
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-        expect(wrapper.vm.block.backgroundMediaMode).toBe('cover');
-        expect(wrapper.vm.block.backgroundColor).toBe('');
-    });
-
     it('should have the overlay by default', async () => {
         const wrapper = await createWrapper();
 

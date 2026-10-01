@@ -10,11 +10,7 @@ const types = Shopware.Utils.types;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'ruleConditionDataProviderService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'ruleConditionDataProviderService'],
 
     props: {
         promotion: {
@@ -42,6 +38,9 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
+         */
         personaRuleFilter() {
             const criteria = new Criteria(1, 25);
 
@@ -50,6 +49,9 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
+         */
         cartConditionsRuleFilter() {
             const criteria = new Criteria(1, 25);
 
@@ -58,6 +60,9 @@ export default {
             return criteria;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, does not offer additional filtering compared to default ruleFilter
+         */
         orderConditionsFilter() {
             const criteria = new Criteria(1, 25);
 
@@ -83,7 +88,9 @@ export default {
             }
 
             const promotionRepository = this.repositoryFactory.create('promotion');
-            const criteria = new Criteria(1, 25).addFilter(Criteria.equalsAny('id', this.promotion.exclusionIds));
+            const criteria = new Criteria(1, this.promotion.exclusionIds.length).addFilter(
+                Criteria.equalsAny('id', this.promotion.exclusionIds),
+            );
 
             promotionRepository.search(criteria).then((excluded) => {
                 this.excludedPromotions = excluded;

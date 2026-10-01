@@ -11,13 +11,15 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal only for use by the app-system
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class AppPaymentMethodEntity extends Entity
 {
     use EntityIdTrait;
 
-    protected ?string $appId;
+    protected ?string $appId = null;
 
     protected ?AppEntity $app = null;
 

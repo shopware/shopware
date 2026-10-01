@@ -1,14 +1,12 @@
 import './sw-grid-column.scss';
 import template from './sw-grid-column.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  */
-Component.register('sw-grid-column', {
+export default {
     template,
 
     inject: {
@@ -37,7 +35,6 @@ Component.register('sw-grid-column', {
             type: String,
             default: 'left',
         },
-        // eslint-disable-next-line vue/require-prop-types
         flex: {
             required: false,
             default: 1,
@@ -102,7 +99,7 @@ Component.register('sw-grid-column', {
                 return column.label === this.label;
             });
 
-            if (!hasColumn && this.label) {
+            if (!hasColumn) {
                 parentGridColumns.push({
                     label: this.label,
                     iconLabel: this.iconLabel,
@@ -116,4 +113,4 @@ Component.register('sw-grid-column', {
             }
         },
     },
-});
+};

@@ -50,6 +50,11 @@ class Migration1697112043TemporaryPaymentAndShippingTechnicalNamesTest extends T
         }
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1697112043, (new Migration1697112043TemporaryPaymentAndShippingTechnicalNames())->getCreationTimestamp());
+    }
+
     public function testMigrate(): void
     {
         $this->rollback();
@@ -70,7 +75,7 @@ class Migration1697112043TemporaryPaymentAndShippingTechnicalNamesTest extends T
             ['ids' => ArrayParameterType::BINARY],
         );
 
-        static::assertEquals([
+        static::assertSame([
             [
                 'id' => $this->ids->get('payment-method'),
                 'technical_name' => 'temporary_' . $this->ids->get('payment-method'),
@@ -81,7 +86,7 @@ class Migration1697112043TemporaryPaymentAndShippingTechnicalNamesTest extends T
             ],
         ], $paymentMethods);
 
-        static::assertEquals([
+        static::assertSame([
             [
                 'id' => $this->ids->get('shipping-method'),
                 'technical_name' => 'temporary_' . $this->ids->get('shipping-method'),

@@ -7,23 +7,48 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartLocker;
+use Shopware\Core\Checkout\Cart\Extension\CartItemAddRouteExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
-#[CoversClass(CartItemAddRoute::class)]
 #[Package('checkout')]
+#[CoversClass(CartItemAddRoute::class)]
 class CartItemAddRouteTest extends TestCase
 {
+    private const SALES_CHANNEL_ID = 'af0eb8b68a5f4e6d95f1cbd4f0bdcb45';
+
+    public function testGetDecoratedThrows(): void
+    {
+        static::expectExceptionObject(new DecorationPatternException(CartItemAddRoute::class));
+
+        (new CartItemAddRoute(
+            static::createStub(CartCalculator::class),
+            static::createStub(AbstractCartPersister::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(LineItemFactoryRegistry::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(CartLocker::class),
+            new ExtensionDispatcher(new EventDispatcher())
+        ))->getDecorated();
+    }
+
     public function testRateLimitationWithoutIp(): void
     {
         $cartItemAddRoute = $this->createCartItemAddRoute(null);
@@ -37,14 +62,14 @@ class CartItemAddRouteTest extends TestCase
         $cartItemAddRoute->add(
             $this->createRequest($item, null),
             new Cart('test'),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             null
         );
     }
 
     public function testRateLimitationId(): void
     {
-        $cartItemAddRoute = $this->createCartItemAddRoute('line-item-id-127.0.0.1');
+        $cartItemAddRoute = $this->createCartItemAddRoute('line-item-id-127.0.0.1-' . self::SALES_CHANNEL_ID);
 
         $item = [
             'id' => 'line-item-id',
@@ -55,14 +80,14 @@ class CartItemAddRouteTest extends TestCase
         $cartItemAddRoute->add(
             $this->createRequest($item),
             new Cart(Uuid::randomHex()),
-            $this->createMock(SalesChannelContext::class),
+            $this->createSalesChannelContext(),
             null
         );
     }
 
     public function testRateLimitationReferenceId(): void
     {
-        $cartItemAddRoute = $this->createCartItemAddRoute('line-item-referenced-id-127.0.0.1');
+        $cartItemAddRoute = $this->createCartItemAddRoute('line-item-referenced-id-127.0.0.1-' . self::SALES_CHANNEL_ID);
 
         $item = [
             'id' => 'line-item-id',
@@ -74,20 +99,99 @@ class CartItemAddRouteTest extends TestCase
         $cartItemAddRoute->add(
             $this->createRequest($item),
             new Cart(Uuid::randomHex()),
-            $this->createMock(SalesChannelContext::class),
+            $this->createSalesChannelContext(),
             null
         );
     }
 
-    private function createCartItemAddRoute(?string $expectedCacheKey): CartItemAddRoute
+    public function testAddReturnsContextTokenHeader(): void
+    {
+        $cartItemAddRoute = $this->createCartItemAddRoute(null);
+
+        $item = [
+            'id' => 'line-item-id',
+            'type' => 'line-item-type',
+            'quantity' => 1,
+        ];
+
+        $context = static::createStub(SalesChannelContext::class);
+        $context
+            ->method('getToken')
+            ->willReturn('context-token');
+
+        $response = $cartItemAddRoute->add(
+            $this->createRequest($item, null),
+            new Cart(Uuid::randomHex()),
+            $context,
+            null
+        );
+
+        static::assertSame('context-token', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+    }
+
+    public function testRouteUsesLock(): void
+    {
+        $cartLocker = $this->createMock(CartLocker::class);
+        $cartLocker
+            ->expects($this->once())
+            ->method('locked')
+            ->willReturnCallback(static fn (SalesChannelContext $context, \Closure $closure) => $closure());
+
+        $cartItemAddRoute = $this->createCartItemAddRoute(null, $cartLocker);
+
+        $item = [
+            'id' => 'line-item-id',
+            'type' => 'line-item-type',
+            'quantity' => 1,
+        ];
+
+        $cartItemAddRoute->add(
+            $this->createRequest($item, null),
+            new Cart(Uuid::randomHex()),
+            static::createStub(SalesChannelContext::class),
+            null
+        );
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $cart = new Cart(Uuid::randomHex());
+        $context = Generator::generateSalesChannelContext();
+        $items = [new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE)];
+        $response = new CartResponse(new Cart('token'));
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('cart-item-add-route.add.pre', static function (CartItemAddRouteExtension $extension) use ($request, $cart, $context, $items, $response): void {
+            static::assertSame(['request' => $request, 'cart' => $cart, 'context' => $context, 'items' => $items], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new CartItemAddRoute(
+            static::createStub(CartCalculator::class),
+            static::createStub(AbstractCartPersister::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(LineItemFactoryRegistry::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(CartLocker::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->add($request, $cart, $context, $items));
+    }
+
+    private function createCartItemAddRoute(?string $expectedCacheKey, ?CartLocker $cartLocker = null): CartItemAddRoute
     {
         $rateLimiter = $this->createMock(RateLimiter::class);
         $rateLimiter
             ->expects($this->exactly($expectedCacheKey === null ? 0 : 1))
             ->method('ensureAccepted')
-            ->willReturnCallback(function (string $route, string $key) use ($expectedCacheKey): void {
+            ->willReturnCallback(static function (string $route, string $key, ?string $salesChannelId = null) use ($expectedCacheKey): void {
                 static::assertSame($route, RateLimiter::CART_ADD_LINE_ITEM);
                 static::assertSame($expectedCacheKey, $key);
+                static::assertSame(self::SALES_CHANNEL_ID, $salesChannelId);
             });
 
         $lineItemFactory = $this->createMock(LineItemFactoryRegistry::class);
@@ -95,16 +199,31 @@ class CartItemAddRouteTest extends TestCase
             ->expects($this->atLeastOnce())
             ->method('create')
             ->willReturnCallback(
-                fn ($dataBag): LineItem => new LineItem($dataBag['id'], $dataBag['type'], $dataBag['referencedId'] ?? null, $dataBag['quantity'])
+                static fn ($dataBag): LineItem => new LineItem($dataBag['id'], $dataBag['type'], $dataBag['referencedId'] ?? null, $dataBag['quantity'])
             );
 
+        if ($cartLocker === null) {
+            $cartLocker = static::createStub(CartLocker::class);
+            $cartLocker->method('locked')->willReturnCallback(static fn (SalesChannelContext $context, \Closure $closure) => $closure());
+        }
+
         return new CartItemAddRoute(
-            $this->createMock(CartCalculator::class),
-            $this->createMock(AbstractCartPersister::class),
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(CartCalculator::class),
+            static::createStub(AbstractCartPersister::class),
+            static::createStub(EventDispatcherInterface::class),
             $lineItemFactory,
-            $rateLimiter
+            $rateLimiter,
+            $cartLocker,
+            new ExtensionDispatcher(new EventDispatcher())
         );
+    }
+
+    private function createSalesChannelContext(): SalesChannelContext
+    {
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getSalesChannelId')->willReturn(self::SALES_CHANNEL_ID);
+
+        return $context;
     }
 
     /**

@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Content\Flow\Dispatching\Action\AddOrderTagAction;
 use Shopware\Core\Content\Flow\Dispatching\Action\RemoveOrderTagAction;
+use Shopware\Core\Content\Flow\FlowCollection;
 use Shopware\Core\Content\Test\Flow\OrderActionTrait;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -26,6 +27,9 @@ class AddOrderTagActionTest extends TestCase
 {
     use OrderActionTrait;
 
+    /**
+     * @var EntityRepository<FlowCollection>
+     */
     private EntityRepository $flowRepository;
 
     private Connection $connection;

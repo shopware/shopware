@@ -10,11 +10,7 @@ export default {
 
     inject: ['firstRunWizardService'],
 
-    emits: [
-        'frw-set-title',
-        'buttons-update',
-        'frw-redirect',
-    ],
+    emits: ['frw-set-title', 'buttons-update', 'frw-redirect'],
 
     data() {
         return {
@@ -38,7 +34,7 @@ export default {
         },
 
         nextAction() {
-            if (Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
+            if (Shopware.Store.get('context').app.config.settings?.disableExtensionManagement) {
                 return 'sw.first.run.wizard.index.finish';
             }
 
@@ -93,14 +89,14 @@ export default {
         },
 
         setTitle() {
-            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.shopwareAccount.modalTitle'));
+            this.$emit('frw-set-title', this.$t('sw-first-run-wizard.shopwareAccount.modalTitle'));
         },
 
         updateButtons() {
             const buttonConfig = [
                 {
                     key: 'back',
-                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
+                    label: this.$t('global.default.back'),
                     position: 'left',
                     variant: 'secondary',
                     action: 'sw.first.run.wizard.index.shopware.account',
@@ -108,7 +104,7 @@ export default {
                 },
                 {
                     key: 'next',
-                    label: this.$tc('sw-first-run-wizard.general.buttonNext'),
+                    label: this.$t('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
                     variant: 'primary',
                     action: this.verifyDomain.bind(this),

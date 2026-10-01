@@ -3,8 +3,8 @@
 .sw-theme-modal {
     &__header {
         &-search {
-            background-color: $color-gray-100;
-            border-bottom: 1px solid $color-gray-200;
+            background-color: var(--color-background-secondary-default);
+            border-bottom: 1px solid var(--color-border-primary-default);
         }
     }
 
@@ -19,7 +19,7 @@
 
             &.is--selected {
                 .sw-theme-list-item {
-                    border-color: $color-shopware-brand-500;
+                    border-color: var(--color-border-brand-default);
                 }
             }
 

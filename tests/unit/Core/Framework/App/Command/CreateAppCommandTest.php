@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Command\CreateAppCommand;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
@@ -14,6 +15,7 @@ use Symfony\Component\Filesystem\Filesystem;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(CreateAppCommand::class)]
 class CreateAppCommandTest extends TestCase
 {
@@ -46,7 +48,7 @@ class CreateAppCommandTest extends TestCase
         );
 
         static::assertFileExists($this->appDir . '/TestApp/manifest.xml');
-        static::assertEquals(
+        static::assertSame(
             <<<EOL
             <?xml version="1.0" encoding="UTF-8"?>
             <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -80,7 +82,7 @@ class CreateAppCommandTest extends TestCase
 
         static::assertFileExists($this->appDir . '/TestApp/manifest.xml');
         static::assertFileExists($this->appDir . '/TestApp/Resources/theme.json');
-        static::assertEquals(
+        static::assertSame(
             <<<EOL
             <?xml version="1.0" encoding="UTF-8"?>
             <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -100,7 +102,7 @@ class CreateAppCommandTest extends TestCase
             file_get_contents($this->appDir . '/TestApp/manifest.xml')
         );
 
-        static::assertEquals(
+        static::assertSame(
             <<<EOL
             {
               "name": "TestApp",
@@ -142,7 +144,7 @@ class CreateAppCommandTest extends TestCase
 
         static::assertFileExists($this->appDir . '/TestApp/manifest.xml');
 
-        static::assertEquals(
+        static::assertSame(
             <<<EOL
             <?xml version="1.0" encoding="UTF-8"?>
             <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -183,7 +185,7 @@ class CreateAppCommandTest extends TestCase
 
         static::assertFileExists($this->appDir . '/TestApp/manifest.xml');
 
-        static::assertEquals(
+        static::assertSame(
             <<<EOL
             <?xml version="1.0" encoding="UTF-8"?>
             <manifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -344,7 +346,7 @@ class CreateAppCommandTest extends TestCase
 
         $commandTester = new CommandTester($appCreateCommand);
         $application = new Application();
-        $application->add($appCreateCommand);
+        $application->addCommand($appCreateCommand);
 
         return $commandTester;
     }

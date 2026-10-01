@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-slot.html.twig';
 import './sw-cms-slot.scss';
 import { type CmsElementConfig } from '../../service/cms.service';
@@ -12,10 +11,7 @@ const { deepCopyObject } = Shopware.Utils.object;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'cmsService',
-        'cmsElementFavorites',
-    ],
+    inject: ['cmsService', 'cmsElementFavorites'],
 
     props: {
         element: {
@@ -39,6 +35,7 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             showElementSettings: false,
+            isElementSettingsInitialized: false,
             showElementSelection: false,
             elementNotFound: false,
         };
@@ -55,6 +52,14 @@ export default Shopware.Component.wrapComponentConfig({
 
         elementConfig() {
             return this.cmsServiceState.elementRegistry[this.element.type];
+        },
+
+        elementModalTitle() {
+            const title = this.$t('sw-cms.detail.title.elementSettingsModal');
+            if (this.elementConfig?.label !== undefined) {
+                return `${title} (${this.$t(this.elementConfig.label)})`;
+            }
+            return title;
         },
 
         cmsElements() {
@@ -110,7 +115,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         cmsSlotSettingsClasses() {
-            if (this.elementConfig?.defaultConfig && !this.element?.locked) {
+            if (this.elementConfig?.defaultConfig && !this.isElementLocked) {
                 return null;
             }
 
@@ -120,19 +125,27 @@ export default Shopware.Component.wrapComponentConfig({
         tooltipDisabled() {
             if (this.elementConfig?.disabledConfigInfoTextKey) {
                 return {
-                    message: this.$tc(this.elementConfig.disabledConfigInfoTextKey),
-                    disabled: !!this.elementConfig.defaultConfig && !this.element.locked,
+                    message: this.$t(this.elementConfig.disabledConfigInfoTextKey),
+                    disabled: !!this.elementConfig.defaultConfig && !this.isElementLocked,
                 };
             }
 
             return {
-                message: this.$tc('sw-cms.elements.general.config.tab.settings'),
+                message: this.$t('sw-cms.elements.general.config.tab.settings'),
                 disabled: true,
             };
         },
 
         modalVariant() {
             return this.element.type === 'html' ? 'full' : 'large';
+        },
+
+        isElementLocked() {
+            return (
+                this.element.locked ||
+                (Shopware.Store.get('cmsPage').currentPage?.type === 'product_detail' &&
+                    ['buy-box', 'product-description-reviews'].includes(this.element.type))
+            );
         },
     },
 
@@ -151,19 +164,31 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         onSettingsButtonClick() {
-            if (!this.elementConfig?.defaultConfig || this.element?.locked) {
+            if (!this.elementConfig?.defaultConfig || this.isElementLocked) {
                 return;
             }
+
+            this.isElementSettingsInitialized = true;
             this.showElementSettings = true;
         },
 
-        onCloseSettingsModal() {
-            const childComponent = this.$refs.elementComponentRef as {
-                handleUpdateContent: () => void;
-            };
+        async onCloseSettingsModal() {
+            if (!this.showElementSettings) {
+                return;
+            }
+
+            const childComponent = this.$refs.elementComponentRef as
+                | {
+                      handleUpdateContent?: () => boolean | void | Promise<boolean | void>;
+                  }
+                | undefined;
 
             if (childComponent?.handleUpdateContent) {
-                childComponent.handleUpdateContent();
+                const result = await childComponent.handleUpdateContent();
+
+                if (result === false) {
+                    return;
+                }
             }
 
             this.showElementSettings = false;
@@ -192,6 +217,17 @@ export default Shopware.Component.wrapComponentConfig({
 
         onToggleElementFavorite(elementName: string) {
             this.cmsElementFavorites.update(!this.cmsElementFavorites.isFavorite(elementName), elementName);
+        },
+
+        toggleHoverElement(element: CmsElementConfig, targetState: boolean) {
+            element.hover = targetState;
+        },
+
+        getFavoriteIconToggleState(element: CmsElementConfig): boolean {
+            return (
+                (this.cmsElementFavorites.isFavorite(element.name) && !element?.hover) ||
+                (!this.cmsElementFavorites.isFavorite(element.name) && !!element?.hover)
+            );
         },
 
         elementInElementGroup(element: CmsElementConfig, elementGroup: string) {

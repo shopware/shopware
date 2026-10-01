@@ -30,20 +30,22 @@ class ProductVariationBuilder extends AbstractProductVariationBuilder
         $options = $options->getElements();
 
         uasort($options, static function (Entity $a, Entity $b) {
-            if ($a->get('group') === null || $b->get('group') === null) {
+            $aGroup = $a->get('group');
+            $bGroup = $b->get('group');
+            if (!$aGroup instanceof Entity || !$bGroup instanceof Entity) {
                 return $a->get('groupId') <=> $b->get('groupId');
             }
 
-            if ($a->get('group')->get('position') === $b->get('group')->get('position')) {
-                return $a->get('group')->getTranslation('name') <=> $b->get('group')->getTranslation('name');
+            if ($aGroup->get('position') === $bGroup->get('position')) {
+                return $aGroup->getTranslation('name') <=> $bGroup->getTranslation('name');
             }
 
-            return $a->get('group')->get('position') <=> $b->get('group')->get('position');
+            return $aGroup->get('position') <=> $bGroup->get('position');
         });
 
         // fallback - simply take all option names unordered
         $names = array_map(static function (Entity $option) {
-            if (!$option->get('group')) {
+            if (!$option->get('group') instanceof Entity) {
                 return [];
             }
 

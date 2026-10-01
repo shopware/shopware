@@ -7,6 +7,9 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@after-sales')]
 class ImportExportExceptionExportRecordEvent extends Event
 {
@@ -45,7 +48,7 @@ class ImportExportExceptionExportRecordEvent extends Event
 
     public function hasExceptions(): bool
     {
-        return \count($this->exceptions) > 0;
+        return $this->exceptions !== [];
     }
 
     /**

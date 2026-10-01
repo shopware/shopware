@@ -1,9 +1,6 @@
 import template from './sw-condition-goods-price.html.twig';
 import './sw-condition-goods-price.scss';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
-
 /**
  * @public
  * @sw-package fundamentals@after-sales
@@ -13,7 +10,8 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-goods-price :condition="condition" :level="0"></sw-condition-goods-price>
  */
-Component.extend('sw-condition-goods-price', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     data() {
@@ -37,14 +35,5 @@ Component.extend('sw-condition-goods-price', 'sw-condition-base', {
                 this.condition.value = { ...this.condition.value, amount };
             },
         },
-
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.amount',
-        ]),
-
-        currentError() {
-            return this.conditionValueOperatorError || this.conditionValueAmountError;
-        },
     },
-});
+};

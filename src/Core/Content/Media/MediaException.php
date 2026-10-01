@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media;
 
+use Shopware\Core\Content\Media\Exception\IllegalFileNameException;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,6 +24,16 @@ class MediaException extends HttpException
     public const MEDIA_EMPTY_FILE = 'CONTENT__MEDIA_EMPTY_FILE';
     public const MEDIA_INVALID_FILE = 'CONTENT__MEDIA_INVALID_FILE';
     public const MEDIA_EMPTY_FILE_NAME = 'CONTENT__MEDIA_EMPTY_FILE_NAME';
+    public const MEDIA_EMPTY_PATH = 'CONTENT__MEDIA_EMPTY_PATH';
+    public const MEDIA_INVALID_THUMBNAIL_ID = 'CONTENT__MEDIA_INVALID_THUMBNAIL_ID';
+    public const MEDIA_INVALID_THUMBNAIL_DATA = 'CONTENT__MEDIA_INVALID_THUMBNAIL_DATA';
+    public const MEDIA_INVALID_DIMENSION = 'CONTENT__MEDIA_INVALID_DIMENSION';
+    public const MEDIA_EXTERNAL_MEDIA_REQUIRED = 'CONTENT__MEDIA_EXTERNAL_MEDIA_REQUIRED';
+    /**
+     * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
+     */
+    public const INVALID_EVENT_DATA = 'CONTENT__MEDIA_INVALID_EVENT_DATA';
+
     public const MEDIA_FOLDER_NOT_FOUND = 'CONTENT__MEDIA_FOLDER_NOT_FOUND';
     public const MEDIA_FOLDER_NAME_NOT_FOUND = 'CONTENT__MEDIA_FOLDER_NAME_NOT_FOUND';
     public const MEDIA_DEFAULT_FOLDER_ENTITY_NOT_FOUND = 'CONTENT__MEDIA_DEFAULT_FOLDER_ENTITY_NOT_FOUND';
@@ -52,6 +63,26 @@ class MediaException extends HttpException
 
     public const MEDIA_THUMBNAIL_GENERATION_DISABLED = 'CONTENT__MEDIA_THUMBNAIL_GENERATION_DISABLED';
     public const MEDIA_UNKNOWN_LOCATION_TYPE = 'CONTENT__MEDIA_UNKNOWN_LOCATION_TYPE';
+    public const CONTENT_MEDIA_NO_FORM_DATA_FIELD_PROVIDED = 'CONTENT__MEDIA_NO_FORM_DATA_FIELD_PROVIDED';
+    public const CONTENT_MEDIA_NO_MIME_TYPE_PROVIDED = 'CONTENT__MEDIA_NO_MIME_TYPE_PROVIDED';
+    public const MEDIA_INVALID_REQUEST_PARAMETER = 'CONTENT__MEDIA_INVALID_REQUEST_PARAMETER';
+    public const MEDIA_PRESIGNED_UPLOAD_DISABLED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_DISABLED';
+    public const MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED';
+    public const MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION';
+    public const MEDIA_PRESIGNED_UPLOAD_FAILED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_FAILED';
+    public const MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED = 'CONTENT__MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED';
+
+    /**
+     * @internal tag:v6.8.0 - Will be removed once $context is required in event constructors
+     */
+    public static function invalidEventData(string $message): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::INVALID_EVENT_DATA,
+            $message
+        );
+    }
 
     public static function cannotBanRequest(string $url, string $error, ?\Throwable $e = null): self
     {
@@ -151,12 +182,7 @@ class MediaException extends HttpException
 
     public static function illegalFileName(string $filename, string $cause): self
     {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::MEDIA_ILLEGAL_FILE_NAME,
-            'Provided filename "{{ fileName }}" is not permitted: {{ cause }}',
-            ['fileName' => $filename, 'cause' => $cause]
-        );
+        return new IllegalFileNameException($filename, $cause);
     }
 
     public static function mediaNotFound(string $mediaId): self
@@ -166,6 +192,15 @@ class MediaException extends HttpException
             self::MEDIA_NOT_FOUND,
             self::$couldNotFindMessage,
             ['entity' => 'media', 'field' => 'id', 'value' => $mediaId]
+        );
+    }
+
+    public static function emptyFile(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_EMPTY_FILE,
+            'Provided file is empty.'
         );
     }
 
@@ -185,6 +220,16 @@ class MediaException extends HttpException
             Response::HTTP_BAD_REQUEST,
             self::MEDIA_EMPTY_FILE_NAME,
             'A valid filename must be provided.'
+        );
+    }
+
+    public static function emptyMediaPath(string $mediaId): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::MEDIA_EMPTY_PATH,
+            self::$couldNotFindMessage,
+            ['entity' => 'path', 'field' => 'entity', 'value' => $mediaId]
         );
     }
 
@@ -245,6 +290,16 @@ class MediaException extends HttpException
             self::MEDIA_FILE_TYPE_NOT_SUPPORTED,
             'The file extension "{{ extension }}" for media object with id {{ mediaId }} is not supported.',
             ['mediaId' => $mediaId, 'extension' => $extension]
+        );
+    }
+
+    public static function mediaFileTypeNotSupported(string $mediaId, string $expectedType): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_FILE_TYPE_NOT_SUPPORTED,
+            'Media with id {{ mediaId }} must be of type "{{ expectedType }}".',
+            ['mediaId' => $mediaId, 'expectedType' => $expectedType]
         );
     }
 
@@ -434,6 +489,124 @@ class MediaException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::MEDIA_UNKNOWN_LOCATION_TYPE,
             'Unknown location type'
+        );
+    }
+
+    public static function fileNotProvided(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CONTENT_MEDIA_NO_FORM_DATA_FIELD_PROVIDED,
+            'No file provided in request body'
+        );
+    }
+
+    public static function mimeTypeNotProvided(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::CONTENT_MEDIA_NO_MIME_TYPE_PROVIDED,
+            'mimeType is not provided'
+        );
+    }
+
+    public static function invalidRequestParameter(string $name): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_INVALID_REQUEST_PARAMETER,
+            'The parameter "{{ parameter }}" is invalid.',
+            ['parameter' => $name]
+        );
+    }
+
+    public static function invalidDimension(string $dimension, int $value): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_INVALID_DIMENSION,
+            'The {{ dimension }} "{{ value }}" is invalid. It must be a positive integer.',
+            ['dimension' => $dimension, 'value' => $value]
+        );
+    }
+
+    public static function externalMediaRequired(string $id): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_EXTERNAL_MEDIA_REQUIRED,
+            'Media with id "{{ id }}" is not external media. Only external media can have external thumbnails.',
+            ['id' => $id]
+        );
+    }
+
+    public static function invalidThumbnailId(string $id): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::MEDIA_INVALID_THUMBNAIL_ID,
+            'Thumbnail with id "{{ id }}" not found or does not belong to this media.',
+            ['id' => $id]
+        );
+    }
+
+    public static function invalidThumbnailData(string $message): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_INVALID_THUMBNAIL_DATA,
+            'Invalid thumbnail data: {{ message }}',
+            ['message' => $message]
+        );
+    }
+
+    public static function presignedUploadDisabled(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_PRESIGNED_UPLOAD_DISABLED,
+            'Presigned upload is disabled.'
+        );
+    }
+
+    public static function presignedUploadNotSupported(): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_PRESIGNED_UPLOAD_NOT_SUPPORTED,
+            'Presigned upload is not supported. S3 filesystem must be configured.'
+        );
+    }
+
+    public static function presignedUploadInvalidConfiguration(string $message, ?\Throwable $e = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MEDIA_PRESIGNED_UPLOAD_INVALID_CONFIGURATION,
+            'Invalid presigned upload configuration: {{ message }}',
+            ['message' => $message],
+            $e
+        );
+    }
+
+    public static function presignedUploadFailed(\Throwable $e): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MEDIA_PRESIGNED_UPLOAD_FAILED,
+            'Failed to generate presigned URL: {{ message }}',
+            ['message' => $e->getMessage()],
+            $e
+        );
+    }
+
+    public static function presignedUploadFinalizeFailed(string $mediaId): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MEDIA_PRESIGNED_UPLOAD_FINALIZE_FAILED,
+            'Could not verify uploaded file for media with id "{{ mediaId }}".',
+            ['mediaId' => $mediaId]
         );
     }
 }

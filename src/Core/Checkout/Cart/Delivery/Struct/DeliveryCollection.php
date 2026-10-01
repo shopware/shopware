@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Cart\Delivery\Struct;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Order\IdStruct;
+use Shopware\Core\Checkout\Cart\Order\OrderConverter;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -10,6 +12,10 @@ use Shopware\Core\Framework\Struct\Collection;
 
 /**
  * @extends Collection<Delivery>
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Checkout\Cart\CartSerializationCleanerTest
  */
 #[Package('checkout')]
 class DeliveryCollection extends Collection
@@ -19,12 +25,12 @@ class DeliveryCollection extends Collection
      */
     public function sortDeliveries(): self
     {
-        $this->sort(function (Delivery $a, Delivery $b) {
+        $this->sort(static function (Delivery $a, Delivery $b) {
             if ($a->getLocation() !== $b->getLocation()) {
                 return -1;
             }
 
-            return $a->getDeliveryDate()->getEarliest() > $b->getDeliveryDate()->getEarliest();
+            return (int) ($a->getDeliveryDate()->getEarliest() > $b->getDeliveryDate()->getEarliest());
         });
 
         return $this;
@@ -65,7 +71,7 @@ class DeliveryCollection extends Collection
     public function getShippingCosts(): PriceCollection
     {
         return new PriceCollection(
-            $this->map(fn (Delivery $delivery) => $delivery->getShippingCosts())
+            $this->map(static fn (Delivery $delivery) => $delivery->getShippingCosts())
         );
     }
 
@@ -80,6 +86,20 @@ class DeliveryCollection extends Collection
         }
 
         return $addresses;
+    }
+
+    /**
+     * Returns the primary delivery, or the first with shipping costs >= 0 as fallback
+     */
+    public function getPrimaryDelivery(?string $primaryDeliveryId): ?Delivery
+    {
+        if ($primaryDeliveryId) {
+            $delivery = $this->firstWhere(static function (Delivery $delivery) use ($primaryDeliveryId) {
+                return $delivery->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId() === $primaryDeliveryId;
+            });
+        }
+
+        return $delivery ?? $this->filter(static fn (Delivery $delivery) => $delivery->getShippingCosts()->getTotalPrice() >= 0)->first();
     }
 
     public function getApiAlias(): string

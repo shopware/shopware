@@ -4,8 +4,8 @@ namespace Shopware\Core\Framework\Demodata;
 
 use Faker\Factory;
 use Faker\Generator;
-use Maltyxx\ImagesGenerator\ImagesGeneratorProvider;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Demodata\Faker\Commerce;
@@ -20,6 +20,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 #[Package('framework')]
 class DemodataService
 {
+    public const DEMODATA_CUSTOM_FIELDS_KEY = 'shopwareDemoData';
+
     /**
      * @internal
      *
@@ -28,14 +30,15 @@ class DemodataService
     public function __construct(
         private readonly \IteratorAggregate $generators,
         private readonly string $projectDir,
-        private readonly DefinitionInstanceRegistry $registry
+        private readonly DefinitionInstanceRegistry $registry,
+        private readonly ClockInterface $clock
     ) {
     }
 
     public function generate(DemodataRequest $request, Context $context, ?SymfonyStyle $console): DemodataContext
     {
         if (!$console) {
-            $console = new ShopwareStyle(new ArgvInput(), new NullOutput());
+            $console = new SymfonyStyle(new ArgvInput(), new NullOutput());
         }
 
         $faker = $this->getFaker();
@@ -53,21 +56,19 @@ class DemodataService
 
             $validGenerators = array_filter(iterator_to_array($this->generators), static fn (DemodataGeneratorInterface $generator) => $generator->getDefinition() === $definitionClass);
 
-            if (empty($validGenerators)) {
-                throw new \RuntimeException(
-                    \sprintf('Could not generate demodata for "%s" because no generator is registered.', $definitionClass)
-                );
+            if ($validGenerators === []) {
+                throw DemodataException::noGeneratorFound($definitionClass);
             }
 
-            $start = microtime(true);
+            $start = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
 
             foreach ($validGenerators as $generator) {
                 $generator->generate($numberOfItems, $demodataContext, $request->getOptions($definitionClass));
             }
 
-            $end = microtime(true) - $start;
+            $end = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $start;
 
-            $console->note(\sprintf('Took %f seconds', $end));
+            $console->note(\sprintf('Took %F seconds', $end));
 
             $demodataContext->setTiming($definition, $numberOfItems, $end);
         }
@@ -79,7 +80,6 @@ class DemodataService
     {
         $faker = Factory::create('de-DE');
         $faker->addProvider(new Commerce($faker));
-        $faker->addProvider(new ImagesGeneratorProvider($faker));
 
         return $faker;
     }

@@ -13,10 +13,7 @@ const { Criteria } = Shopware.Data;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-    ],
+    inject: ['acl', 'feature', 'repositoryFactory'],
 
     data(): {
         isLoading: boolean;
@@ -34,18 +31,42 @@ export default Shopware.Component.wrapComponentConfig({
 
     metaInfo() {
         return {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call
             title: this.$createTitle(),
         };
     },
 
     computed: {
+        searchType(): string {
+            if (this.$route.name === 'sw.flow.index.templates') {
+                return 'flow_template';
+            }
+
+            return 'flow';
+        },
+
         flowRepository(): Repository<'flow'> {
             return this.repositoryFactory.create('flow');
         },
 
         flowCriteria(): CriteriaType {
             return new Criteria(1, null);
+        },
+
+        flowTabs(): Array<{ label: string; name: string; onClick: () => void }> {
+            const createRouteTab = (label: string, routeName: string) => {
+                return {
+                    label: this.$t(label),
+                    name: routeName,
+                    onClick: () => {
+                        void this.$router.push({ name: routeName });
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-flow.general.tabMyFlows', 'sw.flow.index.flows'),
+                createRouteTab('sw-flow.general.tabFlowTemplates', 'sw.flow.index.templates'),
+            ];
         },
     },
 
@@ -59,10 +80,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async getTotal(): Promise<void> {
-            // eslint-disable-next-line max-len
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment
             const { total } = await this.flowRepository.searchIds(this.flowCriteria);
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             this.total = total;
         },
 

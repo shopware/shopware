@@ -68,14 +68,14 @@ class SyncOperation extends Struct
     {
         $errors = [];
 
-        if (empty($this->entity)) {
+        if ($this->entity === '') {
             $errors[] = \sprintf(
                 'Missing "entity" argument for operation with key "%s". It needs to be a non-empty string.',
                 $this->key
             );
         }
 
-        if (empty($this->action) || !\in_array($this->action, $this->getSupportedActions(), true)) {
+        if ($this->action === '' || !\in_array($this->action, $this->getSupportedActions(), true)) {
             $errors[] = \sprintf(
                 'Missing or invalid "action" argument for operation with key "%s". Supported actions are [%s]',
                 $this->key,
@@ -83,7 +83,7 @@ class SyncOperation extends Struct
             );
         }
 
-        if (empty($this->payload) && empty($this->criteria)) {
+        if ($this->payload === [] && $this->criteria === []) {
             $errors[] = \sprintf(
                 'Missing "payload"|"criteria" argument for operation with key "%s". It needs to be a non-empty array.',
                 $this->key
@@ -113,7 +113,7 @@ class SyncOperation extends Struct
 
     public function hasCriteria(): bool
     {
-        return !empty($this->criteria);
+        return $this->criteria !== [];
     }
 
     /**
@@ -132,7 +132,7 @@ class SyncOperation extends Struct
         );
 
         $errors = $syncOperation->validate();
-        if (!empty($errors)) {
+        if ($errors !== []) {
             throw ApiException::invalidSyncOperationException(implode('; ', $errors));
         }
 

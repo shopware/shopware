@@ -8,10 +8,7 @@ import './sw-extension-deactivation-modal.scss';
 export default {
     template,
 
-    emits: [
-        'modal-close',
-        'extension-deactivate',
-    ],
+    emits: ['modal-close', 'extension-deactivate'],
 
     props: {
         extensionName: {
@@ -30,12 +27,12 @@ export default {
 
     computed: {
         removeHint() {
-            return this.$tc(
+            return this.$t(
                 'sw-extension-store.component.sw-extension-deactivation-modal.descriptionCancel',
                 {
                     removeLabel: this.isLicensed
-                        ? this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel')
-                        : this.$tc('sw-extension-store.component.sw-extension-card-base.contextMenu.removeLabel'),
+                        ? this.$t('sw-extension-store.component.sw-extension-card-base.contextMenu.cancelAndRemoveLabel')
+                        : this.$t('global.default.remove'),
                 },
                 0,
             );

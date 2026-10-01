@@ -14,14 +14,14 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(CustomerBeforeLoginEvent::class)]
 #[Package('checkout')]
+#[CoversClass(CustomerBeforeLoginEvent::class)]
 class CustomerBeforeLoginEventTest extends TestCase
 {
     public function testRestoreScalarValuesCorrectly(): void
     {
         $event = new CustomerBeforeLoginEvent(
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             'my-email'
         );
 
@@ -34,6 +34,6 @@ class CustomerBeforeLoginEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('email', $flow->data());
-        static::assertEquals('my-email', $flow->data()['email']);
+        static::assertSame('my-email', $flow->data()['email']);
     }
 }

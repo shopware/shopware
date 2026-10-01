@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -44,9 +45,11 @@ class NewsletterConfirmRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->browser->getResponse();
+        $responseBody = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame('CONTENT__NEWSLETTER_RECIPIENT_NOT_FOUND', $response['errors'][0]['code']);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        static::assertSame('CONTENT__NEWSLETTER_RECIPIENT_NOT_FOUND', $responseBody['errors'][0]['code']);
     }
 
     public function testWithInvalidHash(): void
@@ -61,9 +64,11 @@ class NewsletterConfirmRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->browser->getResponse();
+        $responseBody = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame('CONTENT__NEWSLETTER_RECIPIENT_NOT_FOUND', $response['errors'][0]['code']);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        static::assertSame('CONTENT__NEWSLETTER_RECIPIENT_NOT_FOUND', $responseBody['errors'][0]['code']);
     }
 
     public function testWithInvalidMail(): void
@@ -78,9 +83,11 @@ class NewsletterConfirmRouteTest extends TestCase
                 ]
             );
 
-        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
+        $response = $this->browser->getResponse();
+        $responseBody = json_decode($response->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertSame('CONTENT__NEWSLETTER_RECIPIENT_NOT_FOUND', $response['errors'][0]['code']);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        static::assertSame('CONTENT__NEWSLETTER_RECIPIENT_NOT_FOUND', $responseBody['errors'][0]['code']);
     }
 
     public function testConfirm(): void
@@ -109,6 +116,10 @@ class NewsletterConfirmRouteTest extends TestCase
                     'hash' => $hash,
                 ]
             );
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         $status = static::getContainer()->get(Connection::class)->fetchOne('SELECT status FROM newsletter_recipient WHERE email = "test@test.de"');
         static::assertSame('optIn', $status);

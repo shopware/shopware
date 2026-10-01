@@ -21,7 +21,7 @@ class LicenseController extends InstallerController
     #[Route(path: '/installer/license', name: 'installer.license', methods: ['GET', 'POST'])]
     public function license(Request $request): Response
     {
-        if ($request->isMethod('POST') && $request->request->get('tos', false)) {
+        if ($request->isMethod(Request::METHOD_POST) && $request->request->get('tos', false)) {
             return $this->redirectToRoute('installer.database-configuration');
         }
 

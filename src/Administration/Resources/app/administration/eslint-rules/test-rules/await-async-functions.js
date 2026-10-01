@@ -1,5 +1,5 @@
 /**
- * @package admin
+ * @sw-package framework
  */
 
 /* eslint-disable max-len */
@@ -58,7 +58,7 @@ module.exports = {
 
                     fix(fixer) {
                         return [
-                            fixer.replaceTextRange([node.start, node.start], 'await '),
+                            fixer.replaceTextRange([node.range[0], node.range[0]], 'await '),
                         ];
                     },
                 });

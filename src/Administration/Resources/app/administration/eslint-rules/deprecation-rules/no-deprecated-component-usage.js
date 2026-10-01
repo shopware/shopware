@@ -12,7 +12,6 @@ const { handleMtTabs } = require("./no-deprecated-component-usage-checks/mt-tabs
 const { handleMtSelect } = require("./no-deprecated-component-usage-checks/mt-select.check");
 const { handleMtTextarea } = require("./no-deprecated-component-usage-checks/mt-textarea.check");
 const { handleMtBanner } = require("./no-deprecated-component-usage-checks/mt-banner.check");
-const { handleMtExternalLink } = require("./no-deprecated-component-usage-checks/mt-external-link.check");
 const { handleMtDatepicker } = require("./no-deprecated-component-usage-checks/mt-datepicker.check");
 const { handleMtColorpicker } = require("./no-deprecated-component-usage-checks/mt-colorpicker.check");
 const { handleMtEmailField } = require("./no-deprecated-component-usage-checks/mt-email-field.check");
@@ -20,11 +19,12 @@ const { handleMtPasswordField } = require("./no-deprecated-component-usage-check
 const { handleMtUrlField } = require("./no-deprecated-component-usage-checks/mt-url-field.check");
 const { handleMtProgressBar } = require("./no-deprecated-component-usage-checks/mt-progress-bar.check");
 const { handleMtFloatingUi } = require("./no-deprecated-component-usage-checks/mt-floating-ui.check");
+const { handleSwEntityListing } = require("./no-deprecated-component-usage-checks/sw-entity-listing.check");
 
 /* eslint-disable max-len */
 
 /**
- * @package admin
+ * @sw-package framework
  *
  * This rule checks if converted components still use the old logic, props, etc.
  *
@@ -46,7 +46,7 @@ module.exports = {
     },
     /** @param {RuleContext} context */
     create(context) {
-        return context.parserServices.defineTemplateBodyVisitor(
+        return context.sourceCode.parserServices.defineTemplateBodyVisitor(
             // Event handlers for <template> tags
             {
                 VElement(node) {
@@ -72,8 +72,6 @@ module.exports = {
                     handleMtTextarea(context, node);
                     // Handle mt-banner
                     handleMtBanner(context, node);
-                    // Handle mt-external-link
-                    handleMtExternalLink(context, node);
                     // Handle mt-datepicker
                     handleMtDatepicker(context, node);
                     // Handle mt-colorpicker
@@ -88,6 +86,8 @@ module.exports = {
                     handleMtProgressBar(context, node);
                     // Handle mt-floating-ui
                     handleMtFloatingUi(context, node);
+                    // Handle sw-entity-listing
+                    handleSwEntityListing(context, node);
                 },
             }
         )

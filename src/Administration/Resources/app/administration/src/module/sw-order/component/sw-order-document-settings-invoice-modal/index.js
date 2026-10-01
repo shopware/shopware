@@ -1,20 +1,18 @@
 import template from './sw-order-document-settings-invoice-modal.html.twig';
 
-/**
- * @sw-package checkout
- */
-
 const { Mixin } = Shopware;
 
+/**
+ * @sw-package after-sales
+ * @deprecated tag:v6.9.0 - Removed with document generation v1.
+ */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
     emits: ['loading-preview'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     computed: {
         documentNumber: {
@@ -22,7 +20,7 @@ export default {
                 return String(this.documentConfig.documentNumber);
             },
             set(value) {
-                this.documentConfig.documentNumber = Number(value);
+                this.documentConfig.documentNumber = value;
             },
         },
     },

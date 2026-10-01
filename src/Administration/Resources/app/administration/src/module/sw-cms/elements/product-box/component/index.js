@@ -10,10 +10,7 @@ const { Mixin, Filter } = Shopware;
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('cms-element'), Mixin.getByName('placeholder')],
 
     computed: {
         product() {
@@ -23,12 +20,10 @@ export default {
                     description: `Lorem ipsum dolor sit amet, consetetur sadipscing elitr,
                     sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat,
                     sed diam voluptua.`,
-                    price: [
-                        { gross: 19.9 },
-                    ],
+                    price: [{ gross: 19.9 }],
                     cover: {
                         media: {
-                            url: '/administration/administration/static/img/cms/preview_glasses_large.jpg',
+                            url: '/administration/administration/static/img/cms/preview_glasses_large.webp',
                             alt: 'Lorem Ipsum dolor',
                         },
                     },
@@ -51,7 +46,7 @@ export default {
                 return this.assetFilter(this.product.cover.media.url);
             }
 
-            return this.assetFilter('administration/administration/static/img/cms/preview_glasses_large.jpg');
+            return this.assetFilter('administration/administration/static/img/cms/preview_glasses_large.webp');
         },
 
         altTag() {

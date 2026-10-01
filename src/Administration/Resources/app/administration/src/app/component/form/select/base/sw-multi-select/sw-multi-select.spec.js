@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 const createMultiSelect = async (customOptions) => {
     const options = {
@@ -23,7 +23,6 @@ const createMultiSelect = async (customOptions) => {
                 'sw-inheritance-switch': true,
                 'sw-ai-copilot-badge': true,
                 'sw-help-text': true,
-                'mt-floating-ui': true,
                 'sw-color-badge': true,
             },
         },
@@ -62,18 +61,12 @@ const createMultiSelect = async (customOptions) => {
 };
 
 describe('components/sw-multi-select', () => {
-    it('should be a Vue.js component', async () => {
-        const swMultiSelect = await createMultiSelect();
-
-        expect(swMultiSelect.vm).toBeTruthy();
-    });
-
     it('should open the result list on click on .sw-select__selection', async () => {
         const swMultiSelect = await createMultiSelect();
         await swMultiSelect.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const resultList = swMultiSelect.find('.sw-select-result-list__content');
+        const resultList = new DOMWrapper(document.body).find('.sw-select-result-list__content');
         expect(resultList.isVisible()).toBeTruthy();
     });
 
@@ -82,13 +75,13 @@ describe('components/sw-multi-select', () => {
         await swMultiSelect.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const entryOne = swMultiSelect.find('.sw-select-option--0');
+        const entryOne = new DOMWrapper(document.body).get('.sw-select-option--0');
         expect(entryOne.text()).toBe('Entry 1');
 
-        const entryTwo = swMultiSelect.find('.sw-select-option--1');
+        const entryTwo = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(entryTwo.text()).toBe('Entry 2');
 
-        const entryThree = swMultiSelect.find('.sw-select-option--2');
+        const entryThree = new DOMWrapper(document.body).get('.sw-select-option--2');
         expect(entryThree.text()).toBe('Entry 3');
     });
 
@@ -97,14 +90,12 @@ describe('components/sw-multi-select', () => {
         await swMultiSelect.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const entryOne = swMultiSelect.find('.sw-select-option--0');
+        const entryOne = new DOMWrapper(document.body).get('.sw-select-option--0');
         expect(entryOne.text()).toBe('Entry 1');
 
         await entryOne.trigger('click');
         await flushPromises();
-        expect(swMultiSelect.emitted('update:value')).toEqual([
-            [['entryOneValue']],
-        ]);
+        expect(swMultiSelect.emitted('update:value')).toEqual([[['entryOneValue']]]);
     });
 
     it('should emit the second option', async () => {
@@ -112,14 +103,12 @@ describe('components/sw-multi-select', () => {
         await swMultiSelect.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const entryTwo = swMultiSelect.find('.sw-select-option--1');
+        const entryTwo = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(entryTwo.text()).toBe('Entry 2');
 
         await entryTwo.trigger('click');
         await flushPromises();
-        expect(swMultiSelect.emitted('update:value')).toEqual([
-            [['entryTwoValue']],
-        ]);
+        expect(swMultiSelect.emitted('update:value')).toEqual([[['entryTwoValue']]]);
     });
 
     it('should emit two options', async () => {
@@ -134,20 +123,13 @@ describe('components/sw-multi-select', () => {
         await swMultiSelect.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const entryTwo = swMultiSelect.find('.sw-select-option--1');
+        const entryTwo = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(entryTwo.text()).toBe('Entry 2');
 
         await entryTwo.trigger('click');
         await flushPromises();
 
-        expect(swMultiSelect.emitted('update:value')).toEqual([
-            [
-                [
-                    'entryOneValue',
-                    'entryTwoValue',
-                ],
-            ],
-        ]);
+        expect(swMultiSelect.emitted('update:value')).toEqual([[['entryOneValue', 'entryTwoValue']]]);
     });
 
     it('should not close the result list after clicking an item', async () => {
@@ -156,7 +138,7 @@ describe('components/sw-multi-select', () => {
         await swMultiSelect.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        await swMultiSelect.find('.sw-select-option--0').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--0').trigger('click');
         await flushPromises();
 
         await swMultiSelect.setProps({
@@ -164,7 +146,7 @@ describe('components/sw-multi-select', () => {
         });
         await flushPromises();
 
-        const resultList = swMultiSelect.find('.sw-select-result-list__content');
+        const resultList = new DOMWrapper(document.body).find('.sw-select-result-list__content');
         expect(resultList.exists()).toBeTruthy();
     });
 
@@ -196,10 +178,7 @@ describe('components/sw-multi-select', () => {
     it('should show multiple labels for the selected values properties', async () => {
         const swMultiSelect = await createMultiSelect({
             props: {
-                value: [
-                    'entryOneValue',
-                    'entryThreeValue',
-                ],
+                value: ['entryOneValue', 'entryThreeValue'],
                 options: [
                     {
                         label: 'Entry 1',

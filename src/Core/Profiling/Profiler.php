@@ -28,7 +28,7 @@ class Profiler
     private static array $tags = [];
 
     /**
-     * @var array<string>
+     * @var array<bool|string>
      */
     private static array $openTraces = [];
 
@@ -44,7 +44,7 @@ class Profiler
         self::$profilers = array_intersect_key($profilers, array_flip($activeProfilers));
         self::$tags = [];
 
-        register_shutdown_function(fn () => self::cleanup());
+        register_shutdown_function(static fn () => self::cleanup());
     }
 
     /**
@@ -79,7 +79,7 @@ class Profiler
      */
     public static function start(string $title, string $category, array $tags): void
     {
-        self::$openTraces[] = $title;
+        self::$openTraces[$title] = true;
         $tags = array_merge(self::$tags, $tags);
 
         foreach (self::$profilers as $profiler) {
@@ -98,7 +98,7 @@ class Profiler
 
     public static function cleanup(): void
     {
-        foreach (self::$openTraces as $name) {
+        foreach (array_keys(self::$openTraces) as $name) {
             foreach (self::$profilers as $profiler) {
                 $profiler->stop($name);
             }

@@ -57,6 +57,11 @@ class Migration1723193659UpdateVatPatternForCountryTest extends TestCase
         $this->prepare($this->connection);
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1723193659, (new Migration1723193659UpdateVatPatternForCountry())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $patterns = $this->connection->fetchAllKeyValue(

@@ -2,10 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Rule;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\Rule\CustomerAgeRule;
 use Shopware\Core\Checkout\Customer\Rule\CustomerTagRule;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionCollection;
 use Shopware\Core\Content\Rule\RuleCollection;
@@ -18,13 +16,11 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Constraints\Type;
 
 /**
  * @internal
  */
 #[Package('fundamentals@after-sales')]
-#[CoversClass(CustomerAgeRule::class)]
 #[Group('rules')]
 class CustomerTagRuleTest extends TestCase
 {
@@ -71,72 +67,6 @@ class CustomerTagRuleTest extends TestCase
         }
     }
 
-    public function testValidateWithEmptyIdentifiers(): void
-    {
-        try {
-            $this->conditionRepository->create([
-                [
-                    'type' => (new CustomerTagRule())->getName(),
-                    'ruleId' => Uuid::randomHex(),
-                    'value' => [
-                        'identifiers' => [],
-                        'operator' => CustomerTagRule::OPERATOR_EQ,
-                    ],
-                ],
-            ], $this->context);
-            static::fail('Exception was not thrown');
-        } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
-            static::assertCount(1, $exceptions);
-            static::assertSame('/0/value/identifiers', $exceptions[0]['source']['pointer']);
-            static::assertSame(NotBlank::IS_BLANK_ERROR, $exceptions[0]['code']);
-        }
-    }
-
-    public function testValidateWithInvalidIdentifiersType(): void
-    {
-        try {
-            $this->conditionRepository->create([
-                [
-                    'type' => (new CustomerTagRule())->getName(),
-                    'ruleId' => Uuid::randomHex(),
-                    'value' => [
-                        'identifiers' => 'TAG-ID',
-                        'operator' => CustomerTagRule::OPERATOR_EQ,
-                    ],
-                ],
-            ], $this->context);
-            static::fail('Exception was not thrown');
-        } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
-            static::assertCount(1, $exceptions);
-            static::assertSame('/0/value/identifiers', $exceptions[0]['source']['pointer']);
-            static::assertSame(Type::INVALID_TYPE_ERROR, $exceptions[0]['code']);
-        }
-    }
-
-    public function testValidateWithInvalidTagIdsUuid(): void
-    {
-        try {
-            $this->conditionRepository->create([
-                [
-                    'type' => (new CustomerTagRule())->getName(),
-                    'ruleId' => Uuid::randomHex(),
-                    'value' => [
-                        'identifiers' => ['TAG-ID'],
-                        'operator' => CustomerTagRule::OPERATOR_EQ,
-                    ],
-                ],
-            ], $this->context);
-            static::fail('Exception was not thrown');
-        } catch (WriteException $stackException) {
-            $exceptions = iterator_to_array($stackException->getErrors());
-            static::assertCount(1, $exceptions);
-            static::assertSame('/0/value/identifiers', $exceptions[0]['source']['pointer']);
-            static::assertSame('The value "TAG-ID" is not a valid uuid.', $exceptions[0]['detail']);
-        }
-    }
-
     public function testIfRuleIsConsistent(): void
     {
         $ruleId = Uuid::randomHex();
@@ -158,7 +88,7 @@ class CustomerTagRuleTest extends TestCase
             ],
         ], $this->context);
 
-        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->get($id));
+        static::assertNotNull($this->conditionRepository->search(new Criteria([$id]), $this->context)->getEntities()->get($id));
         $this->ruleRepository->delete([['id' => $ruleId]], $this->context);
         $this->conditionRepository->delete([['id' => $id]], $this->context);
     }

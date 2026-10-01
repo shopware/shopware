@@ -1,12 +1,13 @@
 import { mount } from '@vue/test-utils';
 import ShopwareError from 'src/core/data/ShopwareError';
-
-// eslint-disable-next-line import/named
-import CUSTOMER from '../../constant/sw-customer.constant';
+import Entity from 'src/core/data/entity.data';
+import EntityValidationService from 'src/app/service/entity-validation.service';
 
 /**
  * @sw-package checkout
  */
+
+const { CUSTOMER } = Shopware.Constants;
 
 async function createWrapper() {
     const responses = global.repositoryFactoryMock.responses;
@@ -29,14 +30,13 @@ async function createWrapper() {
 
     return mount(await wrapTestComponent('sw-customer-address-form', { sync: true }), {
         props: {
-            customer: {},
-            address: {
-                _isNew: true,
+            customer: new Entity('customerId', 'customer', {
+                company: 'foo',
+            }),
+            address: new Entity('1', 'customer_address', {
                 id: '1',
-                getEntityName: () => {
-                    return 'customer_address';
-                },
-            },
+                company: 'foo',
+            }),
         },
         global: {
             stubs: {
@@ -91,7 +91,29 @@ async function createWrapper() {
     });
 }
 
+const MANAGED_FLAG_FIELDS = ['company', 'countryStateId', 'zipcode'];
+
 describe('module/sw-customer/page/sw-customer-address-form', () => {
+    let flagSnapshot = {};
+
+    beforeEach(() => {
+        const definition = Shopware.EntityDefinition.get('customer_address');
+
+        flagSnapshot = Object.fromEntries(
+            MANAGED_FLAG_FIELDS.map((field) => [field, definition.properties[field].flags.required]),
+        );
+    });
+
+    afterEach(() => {
+        const definition = Shopware.EntityDefinition.get('customer_address');
+
+        MANAGED_FLAG_FIELDS.forEach((field) => {
+            definition.properties[field].flags.required = flagSnapshot[field];
+        });
+
+        Shopware.Store.get('error').resetApiErrors();
+    });
+
     it('should exclude the default salutation from selectable salutations', async () => {
         const wrapper = await createWrapper();
         const criteria = wrapper.vm.salutationCriteria;
@@ -152,7 +174,7 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
             customer: {
                 accountType: CUSTOMER.ACCOUNT_TYPE_BUSINESS,
             },
-            address: {},
+            address: new Entity('1', 'customer_address', {}),
         });
 
         await flushPromises();
@@ -179,7 +201,9 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
             customer: {
                 company: 'shopware',
             },
-            address: {},
+            address: new Entity('1', 'customer_address', {
+                id: '1',
+            }),
         });
 
         expect(wrapper.find('label[for="sw-field--address-company"]').exists()).toBeTruthy();
@@ -221,8 +245,8 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
 
         const definition = Shopware.EntityDefinition.get('customer_address');
 
-        expect(definition.properties.zipcode.flags?.required).toBeUndefined();
-        expect(definition.properties.countryStateId.flags?.required).toBeUndefined();
+        expect(definition.properties.zipcode.flags?.required).toBe(false);
+        expect(definition.properties.countryStateId.flags?.required).toBe(false);
 
         await wrapper.setData({
             country: {
@@ -237,12 +261,62 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
         expect(definition.properties.countryStateId.flags?.required).toBe(true);
     });
 
-    it('should dispatch error/removeApiError based on the configuration of the country', async () => {
-        // spy for the removeApiError method
-        const errorStore = Shopware.Store.get('error');
-        jest.spyOn(errorStore, 'removeApiError');
+    it('should not inherit the required flags of a previously edited address', async () => {
+        const definition = Shopware.EntityDefinition.get('customer_address');
 
+        definition.properties.zipcode.flags.required = true;
+        definition.properties.countryStateId.flags.required = true;
+
+        await createWrapper();
+
+        await flushPromises();
+
+        expect(definition.properties.zipcode.flags.required).toBe(false);
+        expect(definition.properties.countryStateId.flags.required).toBe(false);
+    });
+
+    it('should reset the country dependent required flags when the form is closed', async () => {
         const wrapper = await createWrapper();
+
+        const definition = Shopware.EntityDefinition.get('customer_address');
+
+        await wrapper.setData({
+            country: {
+                postalCodeRequired: true,
+                forceStateInRegistration: true,
+            },
+        });
+
+        await flushPromises();
+
+        expect(definition.properties.zipcode.flags.required).toBe(true);
+        expect(definition.properties.countryStateId.flags.required).toBe(true);
+
+        wrapper.unmount();
+
+        expect(definition.properties.zipcode.flags.required).toBe(false);
+        expect(definition.properties.countryStateId.flags.required).toBe(false);
+    });
+
+    it('should drop the required field errors when the country stops requiring the fields', async () => {
+        const wrapper = await createWrapper();
+        const errorStore = Shopware.Store.get('error');
+
+        await wrapper.setData({
+            country: {
+                postalCodeRequired: true,
+                forceStateInRegistration: true,
+            },
+        });
+
+        await flushPromises();
+
+        ['zipcode', 'countryStateId'].forEach((field) => {
+            errorStore.addApiError({
+                expression: `customer_address.1.${field}`,
+                error: new ShopwareError({ code: EntityValidationService.ERROR_CODE_REQUIRED }),
+            });
+        });
 
         await wrapper.setData({
             country: {
@@ -251,9 +325,49 @@ describe('module/sw-customer/page/sw-customer-address-form', () => {
             },
         });
 
-        const address = wrapper.vm.address;
+        expect(errorStore.getApiError(wrapper.vm.address, 'zipcode')).toBeNull();
+        expect(errorStore.getApiError(wrapper.vm.address, 'countryStateId')).toBeNull();
+    });
 
-        expect(errorStore.removeApiError).toHaveBeenCalledWith(`${address.getEntityName()}.${address.id}.zipcode`);
-        expect(errorStore.removeApiError).toHaveBeenCalledWith(`${address.getEntityName()}.${address.id}.countryStateId`);
+    it('should keep a server reported error when the form is mounted and when it is closed', async () => {
+        const errorStore = Shopware.Store.get('error');
+
+        errorStore.addApiError({
+            expression: 'customer_address.1.zipcode',
+            error: new ShopwareError({ code: 'ZIPCODE_IS_TOO_LONG' }),
+        });
+
+        const wrapper = await createWrapper();
+
+        await flushPromises();
+
+        expect(errorStore.getApiError(wrapper.vm.address, 'zipcode')).toBeInstanceOf(ShopwareError);
+
+        wrapper.unmount();
+
+        expect(errorStore.getApiError({ getEntityName: () => 'customer_address', id: '1' }, 'zipcode')).toBeInstanceOf(
+            ShopwareError,
+        );
+    });
+
+    it('should set customer company for new customer', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.customer.markAsNew();
+        wrapper.vm.address.company = 'bar';
+
+        await flushPromises();
+
+        expect(wrapper.vm.customer.company).toBe('bar');
+    });
+
+    it('should not change customer company for existing customer', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.address.company = 'bar';
+
+        await flushPromises();
+
+        expect(wrapper.vm.customer.company).toBe('foo');
     });
 });

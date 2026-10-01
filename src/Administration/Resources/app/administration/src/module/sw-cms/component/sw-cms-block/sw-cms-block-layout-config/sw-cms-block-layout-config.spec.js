@@ -2,7 +2,7 @@
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
-import { kebabCase } from 'lodash';
+import kebabCase from 'lodash-es/kebabCase';
 import { setupCmsEnvironment } from 'src/module/sw-cms/test-utils';
 
 const expectedProps = {
@@ -50,11 +50,6 @@ describe('module/sw-cms/component/sw-cms-block-layout-config', () => {
 
     beforeEach(() => {
         Shopware.Store.get('cmsPage').resetCmsPageState();
-    });
-
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it.each(Object.entries(expectedProps))('should be able to use the provided %s block data', async (property, value) => {

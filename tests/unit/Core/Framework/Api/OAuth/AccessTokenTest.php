@@ -9,10 +9,12 @@ use Shopware\Core\Framework\Api\OAuth\Client\ApiClient;
 use Shopware\Core\Framework\Api\OAuth\FakeCryptKey;
 use Shopware\Core\Framework\Api\OAuth\JWTConfigurationFactory;
 use Shopware\Core\Framework\Api\OAuth\Scope\WriteScope;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AccessToken::class)]
 class AccessTokenTest extends TestCase
 {
@@ -25,8 +27,8 @@ class AccessTokenTest extends TestCase
             'test'
         );
 
-        static::assertEquals('test', $token->getUserIdentifier());
-        static::assertEquals('administration', $token->getClient()->getIdentifier());
+        static::assertSame('test', $token->getUserIdentifier());
+        static::assertSame('administration', $token->getClient()->getIdentifier());
         static::assertCount(0, $token->getScopes());
 
         $config = JWTConfigurationFactory::createJWTConfiguration();
@@ -34,7 +36,7 @@ class AccessTokenTest extends TestCase
         $token->setClient($client);
         $token->setPrivateKey(new FakeCryptKey($config));
         $token->setIdentifier('administration');
-        static::assertEquals('administration', $token->getIdentifier());
+        static::assertSame('administration', $token->getIdentifier());
         static::assertSame($client, $token->getClient());
         $token->setExpiryDateTime(new \DateTimeImmutable());
 

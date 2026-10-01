@@ -1,7 +1,6 @@
 /**
  * @sw-package inventory
  */
-// eslint-disable-next-line max-len
 import FeatureGridTranslationService from 'src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service';
 import template from './sw-settings-product-feature-sets-list.html.twig';
 
@@ -12,15 +11,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     data() {
         return {
@@ -56,7 +49,6 @@ export default {
 
         featureGridTranslationService() {
             if (this.translationService === null) {
-                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                 this.translationService = new FeatureGridTranslationService(
                     this,
                     this.propertyGroupRepository,
@@ -94,10 +86,7 @@ export default {
                 .then((items) => {
                     const allFeatures = items.reduce((features, featureSet) => {
                         if (featureSet.features && featureSet.features.length) {
-                            features = [
-                                ...features,
-                                ...(featureSet.features || []),
-                            ];
+                            features = [...features, ...(featureSet.features || [])];
                         }
                         return features;
                     }, []);
@@ -121,7 +110,7 @@ export default {
             promise
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc(
+                        message: this.$t(
                             'sw-settings-product-feature-sets.detail.messageSaveSuccess',
                             {
                                 name: productFeatureSets.name,
@@ -133,7 +122,7 @@ export default {
                 .catch(() => {
                     this.getList();
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-product-feature-sets.detail.messageSaveError'),
+                        message: this.$t('sw-settings-product-feature-sets.detail.messageSaveError'),
                     });
                 });
         },

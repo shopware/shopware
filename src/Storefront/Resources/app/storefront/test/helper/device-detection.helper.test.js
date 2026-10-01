@@ -28,18 +28,19 @@ describe('device-detection.helper', () => {
         return correctlyDetected;
     }
 
+    beforeEach(() => {
+        jest.spyOn(DeviceDetection, 'isTouchDevice').mockReturnValue(false);
+    });
+
     function setUserAgent(agent) {
-        navigator.__defineGetter__('userAgent', function() {
-            return agent;
-        })
+        Object.defineProperty(navigator, 'userAgent', {
+            get: () => agent,
+            configurable: true,
+        });
     }
 
-    const originalUserAgent = navigator.userAgent;
-
     afterEach(() => {
-        navigator.__defineGetter__('userAgent', function() {
-            return originalUserAgent;
-        });
+        delete navigator.userAgent;
     });
 
     test('it detects nothing', () => {

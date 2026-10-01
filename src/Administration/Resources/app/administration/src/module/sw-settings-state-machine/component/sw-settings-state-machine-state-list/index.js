@@ -12,14 +12,9 @@ export default Component.wrapComponentConfig({
 
     compatConfig: Shopware.compatConfig,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         stateMachineId: {
@@ -55,14 +50,14 @@ export default Component.wrapComponentConfig({
                 {
                     property: 'name',
                     dataIndex: 'name',
-                    label: this.$tc('sw-settings-state-machine.state.list.grid.columnName'),
+                    label: this.$t('sw-settings-state-machine.state.list.grid.columnName'),
                     width: '50%',
                     inlineEdit: 'string',
                 },
                 {
                     property: 'technicalName',
                     dataIndex: 'technicalName',
-                    label: this.$tc('sw-settings-state-machine.state.list.grid.columnTechnicalName'),
+                    label: this.$t('sw-settings-state-machine.state.list.grid.columnTechnicalName'),
                     width: '50%',
                 },
             ];
@@ -91,7 +86,7 @@ export default Component.wrapComponentConfig({
                 this.stateMachineStates = await this.stateMachineStateRepository.search(this.stateMachineStateCriteria);
             } catch (error) {
                 this.createNotificationError({
-                    message: this.$tc(error.message),
+                    message: this.$t(error.message),
                 });
             } finally {
                 this.isLoading = false;
@@ -109,15 +104,15 @@ export default Component.wrapComponentConfig({
                 await this.stateMachineStateRepository.save(stateMachineState);
 
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
-                    message: this.$tc('sw-settings-state-machine.state.notification.successMessage'),
+                    title: this.$t('global.default.success'),
+                    message: this.$t('sw-settings-state-machine.state.notification.successMessage'),
                 });
 
                 this.loadStateMachineStates();
             } catch {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('sw-settings-state-machine.state.notification.errorMessage'),
+                    title: this.$t('global.default.error'),
+                    message: this.$t('sw-settings-state-machine.state.notification.errorMessage'),
                 });
             } finally {
                 this.isLoading = false;

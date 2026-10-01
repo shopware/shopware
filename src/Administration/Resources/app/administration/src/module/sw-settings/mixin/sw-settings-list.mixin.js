@@ -8,10 +8,7 @@ const {
 const { debug } = Shopware.Utils;
 
 Mixin.register('sw-settings-list', {
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     inject: ['repositoryFactory'],
 
@@ -22,11 +19,7 @@ Mixin.register('sw-settings-list', {
             isLoading: false,
             showDeleteModal: false,
             deleteEntity: null,
-            steps: [
-                10,
-                25,
-                50,
-            ],
+            steps: [10, 25, 50],
         };
     },
 
@@ -47,10 +40,10 @@ Mixin.register('sw-settings-list', {
 
         titleSaveSuccess() {
             if (this.$te(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`)) {
-                return this.$tc(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`);
+                return this.$t(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.titleDeleteSuccess`);
             }
 
-            return this.$tc('global.default.success');
+            return this.$t('global.default.success');
         },
 
         messageSaveSuccess() {
@@ -61,12 +54,12 @@ Mixin.register('sw-settings-list', {
                 }
 
                 if (this.$te(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess)`)) {
-                    return this.$tc(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess`, 0, {
+                    return this.$t(`sw-settings-${this.entityName.replace(/[_]/g, '-')}.list.messageDeleteSuccess`, 0, {
                         name: name,
                     });
                 }
 
-                return this.$tc(
+                return this.$t(
                     'global.notification.messageDeleteSuccess',
                     {
                         name: name,

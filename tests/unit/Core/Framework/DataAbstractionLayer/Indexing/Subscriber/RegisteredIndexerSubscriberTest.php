@@ -8,19 +8,24 @@ use Shopware\Core\Content\Media\Infrastructure\Path\MediaPathPostUpdater;
 use Shopware\Core\Content\Product\DataAbstractionLayer\ProductIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Subscriber\RegisteredIndexerSubscriber;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\IndexerQueuer;
+use Shopware\Core\Framework\Plugin\Event\PluginPostInstallEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUninstallEvent;
+use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Shopware\Core\Framework\Store\Event\FirstRunWizardFinishedEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RegisteredIndexerSubscriber::class)]
 class RegisteredIndexerSubscriberTest extends TestCase
 {
     public function testSendsMessage(): void
     {
-        $productIndexer = $this->createMock(ProductIndexer::class);
+        $productIndexer = static::createStub(ProductIndexer::class);
         $productIndexer->method('getOptions')->willReturn(['seo', 'search', 'other-stuff']);
 
         $queuer = $this->createMock(IndexerQueuer::class);
@@ -41,7 +46,7 @@ class RegisteredIndexerSubscriberTest extends TestCase
 
     public function testSendsMessageWithoutOptions(): void
     {
-        $productIndexer = $this->createMock(ProductIndexer::class);
+        $productIndexer = static::createStub(ProductIndexer::class);
         $productIndexer->method('getOptions')->willReturn(['seo', 'search', 'other-stuff']);
 
         $queuer = $this->createMock(IndexerQueuer::class);
@@ -62,7 +67,7 @@ class RegisteredIndexerSubscriberTest extends TestCase
 
     public function testSendsMessageToSynchronousPostUpdaterIndexer(): void
     {
-        $pathPostUpdater = $this->createMock(MediaPathPostUpdater::class);
+        $pathPostUpdater = static::createStub(MediaPathPostUpdater::class);
 
         $queuer = $this->createMock(IndexerQueuer::class);
         $queuer->expects($this->once())->method('getIndexers')->willReturn(['media.path.post_update' => []]);
@@ -88,7 +93,7 @@ class RegisteredIndexerSubscriberTest extends TestCase
 
         $subscriber = new RegisteredIndexerSubscriber(
             $queuer,
-            $this->createMock(EntityIndexerRegistry::class)
+            static::createStub(EntityIndexerRegistry::class)
         );
 
         $subscriber->runRegisteredIndexers();
@@ -96,7 +101,7 @@ class RegisteredIndexerSubscriberTest extends TestCase
 
     public function testIgnoresUnknownIndexer(): void
     {
-        $productIndexer = $this->createMock(ProductIndexer::class);
+        $productIndexer = static::createStub(ProductIndexer::class);
         $productIndexer->method('getOptions')->willReturn(['seo', 'search', 'other-stuff']);
 
         $queuer = $this->createMock(IndexerQueuer::class);
@@ -125,6 +130,9 @@ class RegisteredIndexerSubscriberTest extends TestCase
             [
                 UpdatePostFinishEvent::class => 'runRegisteredIndexers',
                 FirstRunWizardFinishedEvent::class => 'runRegisteredIndexers',
+                PluginPostInstallEvent::class => 'runRegisteredIndexers',
+                PluginPostUpdateEvent::class => 'runRegisteredIndexers',
+                PluginPostUninstallEvent::class => 'runRegisteredIndexers',
             ],
             RegisteredIndexerSubscriber::getSubscribedEvents()
         );

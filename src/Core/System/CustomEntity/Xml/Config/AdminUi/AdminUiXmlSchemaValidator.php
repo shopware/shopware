@@ -3,13 +3,14 @@
 namespace Shopware\Core\System\CustomEntity\Xml\Config\AdminUi;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomEntity\CustomEntityException;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\CardField;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Column;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Detail;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Entity as AdminUiEntity;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Listing;
-use Shopware\Core\System\CustomEntity\Xml\Config\CustomEntityConfigurationException;
 use Shopware\Core\System\CustomEntity\Xml\Entity;
+use Shopware\Core\System\CustomEntity\Xml\Field\Field;
 
 /**
  * @internal
@@ -20,7 +21,7 @@ class AdminUiXmlSchemaValidator
     public function validateConfigurations(AdminUiEntity $adminUiEntity, Entity $entity): void
     {
         $entityFields = \array_map(
-            fn ($arr) => $arr->getName(),
+            static fn (Field $arr): string => $arr->getName(),
             $entity->getFields()
         );
         $this->validateListingConfiguration(
@@ -36,7 +37,7 @@ class AdminUiXmlSchemaValidator
     }
 
     /**
-     * @param string[] $entityFields
+     * @param list<string> $entityFields
      */
     private function validateListingConfiguration(
         array $entityFields,
@@ -52,18 +53,15 @@ class AdminUiXmlSchemaValidator
     }
 
     /**
-     * @param string[] $entityFields
+     * @param list<string> $entityFields
      */
     private function validateDetailConfiguration(
         array $entityFields,
         Detail $detail,
         string $customEntityName
     ): void {
-        $tabs = $detail->getTabs()->getContent();
-
-        foreach ($tabs as $tab) {
-            $cards = $tab->getCards();
-            foreach ($cards as $card) {
+        foreach ($detail->getTabs()->getContent() as $tab) {
+            foreach ($tab->getCards() as $card) {
                 $this->checkReferences(
                     $entityFields,
                     $this->getRefsAsList($card->getFields()),
@@ -75,8 +73,8 @@ class AdminUiXmlSchemaValidator
     }
 
     /**
-     * @param string[] $entityFields
-     * @param string[] $referencedFields
+     * @param list<string> $entityFields
+     * @param list<string> $referencedFields
      */
     private function checkReferences(
         array $entityFields,
@@ -85,7 +83,7 @@ class AdminUiXmlSchemaValidator
         string $xmlElement
     ): void {
         if (\count($referencedFields) !== \count(\array_unique($referencedFields))) {
-            throw CustomEntityConfigurationException::duplicateReferences(
+            throw CustomEntityException::duplicateReferences(
                 AdminUiXmlSchema::FILENAME,
                 $customEntityName,
                 $xmlElement,
@@ -93,9 +91,9 @@ class AdminUiXmlSchemaValidator
             );
         }
 
-        $invalidFields = array_diff($referencedFields, $entityFields);
-        if (!empty($invalidFields)) {
-            throw CustomEntityConfigurationException::invalidReferences(
+        $invalidFields = array_values(array_diff($referencedFields, $entityFields));
+        if ($invalidFields !== []) {
+            throw CustomEntityException::invalidReferences(
                 AdminUiXmlSchema::FILENAME,
                 $customEntityName,
                 $xmlElement,
@@ -105,13 +103,13 @@ class AdminUiXmlSchemaValidator
     }
 
     /**
-     * @param string[] $entries
+     * @param list<string> $entries
      *
-     * @return string[]
+     * @return list<string>
      */
     private function getDuplicates(array $entries): array
     {
-        return array_unique(array_diff_assoc($entries, array_unique($entries)));
+        return array_values(array_unique(array_diff_assoc($entries, array_unique($entries))));
     }
 
     /**
@@ -122,7 +120,7 @@ class AdminUiXmlSchemaValidator
     private function getRefsAsList(array $listOfObjectsWithRefProperty): array
     {
         return \array_map(
-            fn ($object) => $object->getRef(),
+            static fn (Column|CardField $object): string => $object->getRef(),
             $listOfObjectsWithRefProperty
         );
     }

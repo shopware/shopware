@@ -10,15 +10,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     data() {
         return {
@@ -81,14 +75,15 @@ export default {
         onInlineEditSave(promise, currency) {
             promise
                 .then(() => {
+                    this.invalidateCurrencyCaches();
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-currency.detail.messageSaveSuccess', { name: currency.name }, 0),
+                        message: this.$t('sw-settings-currency.detail.messageSaveSuccess', { name: currency.name }, 0),
                     });
                 })
                 .catch(() => {
                     this.getList();
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-currency.detail.messageSaveError'),
+                        message: this.$t('sw-settings-currency.detail.messageSaveError'),
                     });
                 });
         },
@@ -105,7 +100,19 @@ export default {
             this.showDeleteModal = false;
 
             return this.currencyRepository.delete(id).then(() => {
+                this.invalidateCurrencyCaches();
                 this.getList();
+            });
+        },
+
+        invalidateCurrencyCaches() {
+            const cacheService = Shopware.Service('cacheService');
+
+            cacheService.invalidateCaches({
+                cacheKey: ['shared-data', 'currencies'],
+            });
+            cacheService.invalidateCaches({
+                cacheKey: ['shared-data', 'system-currency'],
             });
         },
 

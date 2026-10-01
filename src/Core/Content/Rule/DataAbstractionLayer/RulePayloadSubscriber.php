@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Container\FilterRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\ScriptRule;
-use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -24,9 +24,7 @@ class RulePayloadSubscriber implements EventSubscriberInterface
      */
     public function __construct(
         private readonly RulePayloadUpdater $updater,
-        private readonly ScriptTraces $traces,
-        private readonly string $cacheDir,
-        private readonly bool $debug
+        private readonly ContainerInterface $container,
     ) {
     }
 
@@ -50,7 +48,8 @@ class RulePayloadSubscriber implements EventSubscriberInterface
                 continue;
             }
 
-            $payload = unserialize($payload);
+            /** @phpstan-ignore shopware.unserializeUsage */
+            $payload = \unserialize($payload);
 
             $this->enrichConditions([$payload]);
 
@@ -71,7 +70,7 @@ class RulePayloadSubscriber implements EventSubscriberInterface
             }
         }
 
-        if (!\count($rules)) {
+        if ($rules === []) {
             return;
         }
 
@@ -89,11 +88,7 @@ class RulePayloadSubscriber implements EventSubscriberInterface
     {
         foreach ($conditions as $condition) {
             if ($condition instanceof ScriptRule) {
-                $condition->assign([
-                    'traces' => $this->traces,
-                    'cacheDir' => $this->cacheDir,
-                    'debug' => $this->debug,
-                ]);
+                $condition->configureDependencies($this->container);
 
                 continue;
             }

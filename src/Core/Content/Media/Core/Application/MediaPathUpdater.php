@@ -37,7 +37,7 @@ class MediaPathUpdater
      */
     public function updateMedia(iterable $ids): void
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -45,13 +45,13 @@ class MediaPathUpdater
 
         $locations = $this->builder->media($ids);
 
-        if (empty($locations)) {
+        if ($locations === []) {
             return;
         }
 
         $paths = $this->strategy->generate($locations);
 
-        if (empty($paths)) {
+        if ($paths === []) {
             return;
         }
 
@@ -68,19 +68,19 @@ class MediaPathUpdater
      */
     public function updateThumbnails(iterable $ids): void
     {
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
         $ids = $ids instanceof \Traversable ? \iterator_to_array($ids) : $ids;
 
         $locations = $this->builder->thumbnails($ids);
-        if (empty($locations)) {
+        if ($locations === []) {
             return;
         }
 
         $paths = $this->strategy->generate($locations);
-        if (empty($paths)) {
+        if ($paths === []) {
             return;
         }
 

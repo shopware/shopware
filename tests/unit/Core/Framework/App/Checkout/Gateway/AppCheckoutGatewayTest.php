@@ -22,25 +22,25 @@ use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGateway;
 use Shopware\Core\Framework\App\Checkout\Gateway\AppCheckoutGatewayResponse;
 use Shopware\Core\Framework\App\Checkout\Payload\AppCheckoutGatewayPayload;
 use Shopware\Core\Framework\App\Checkout\Payload\AppCheckoutGatewayPayloadService;
+use Shopware\Core\Framework\App\Privileges\AppCapability;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\ExceptionLogger;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
-use Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture\TestCheckoutGatewayCommand;
-use Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture\TestCheckoutGatewayHandler;
+use Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture\StubCheckoutGatewayCommand;
+use Shopware\Tests\Unit\Core\Checkout\Gateway\Command\_fixture\StubCheckoutGatewayHandler;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
-#[CoversClass(AppCheckoutGateway::class)]
 #[Package('checkout')]
+#[CoversClass(AppCheckoutGateway::class)]
 class AppCheckoutGatewayTest extends TestCase
 {
     public function testProcessWithoutAppsDoesNothing(): void
@@ -51,13 +51,14 @@ class AppCheckoutGatewayTest extends TestCase
             ->method('search');
 
         $gateway = new AppCheckoutGateway(
-            $this->createMock(AppCheckoutGatewayPayloadService::class),
+            static::createStub(AppCheckoutGatewayPayloadService::class),
             new CheckoutGatewayCommandExecutor($this->getRegistry(), new ExceptionLogger('test', false, new NullLogger())),
-            $this->createMock(CheckoutGatewayCommandRegistry::class),
+            static::createStub(CheckoutGatewayCommandRegistry::class),
             $appRepository,
-            $this->createMock(EventDispatcherInterface::class),
-            $this->createMock(ExceptionLogger::class),
-            $this->createMock(ActiveAppsLoader::class)
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(ExceptionLogger::class),
+            static::createStub(ActiveAppsLoader::class),
+            static::createStub(AppCapability::class)
         );
 
         $gateway->process(new CheckoutGatewayPayloadStruct(new Cart('hatoken'), Generator::generateSalesChannelContext(), new PaymentMethodCollection(), new ShippingMethodCollection()));
@@ -72,9 +73,7 @@ class AppCheckoutGatewayTest extends TestCase
 
         $criteria->addFilter(
             new EqualsFilter('active', true),
-            new NotFilter(MultiFilter::CONNECTION_AND, [
-                new EqualsFilter('checkoutGatewayUrl', null),
-            ]),
+            new NotEqualsFilter('checkoutGatewayUrl', null),
         );
 
         $app = new AppEntity();
@@ -123,9 +122,9 @@ class AppCheckoutGatewayTest extends TestCase
             )
             ->willReturn(new AppCheckoutGatewayResponse([['command' => 'test', 'payload' => [['test-method']]]]));
 
-        $registry = new CheckoutGatewayCommandRegistry([new TestCheckoutGatewayHandler()]);
+        $registry = new CheckoutGatewayCommandRegistry([new StubCheckoutGatewayHandler()]);
 
-        $expectedCollection = new CheckoutGatewayCommandCollection([new TestCheckoutGatewayCommand(['test-method'])]);
+        $expectedCollection = new CheckoutGatewayCommandCollection([new StubCheckoutGatewayCommand(['test-method'])]);
 
         $executor = new CheckoutGatewayCommandExecutor($this->getRegistry(), new ExceptionLogger('test', false, new NullLogger()));
 
@@ -137,8 +136,13 @@ class AppCheckoutGatewayTest extends TestCase
             ->method('dispatch')
             ->with(static::equalTo(new CheckoutGatewayCommandsCollectedEvent($payload, $expectedCollection)));
 
-        $loader = $this->createMock(ActiveAppsLoader::class);
+        $loader = static::createStub(ActiveAppsLoader::class);
         $loader->method('getActiveApps')->willReturn([$app]);
+
+        $capabilityAccess = static::createStub(AppCapability::class);
+        $capabilityAccess->method('whenGranted')->willReturnCallback(
+            static fn (string $appId, string $action, callable $callback): mixed => $callback()
+        );
 
         $gateway = new AppCheckoutGateway(
             $payloadService,
@@ -146,15 +150,60 @@ class AppCheckoutGatewayTest extends TestCase
             $registry,
             $appRepo,
             $eventDispatcher,
-            $this->createMock(ExceptionLogger::class),
-            $loader
+            static::createStub(ExceptionLogger::class),
+            $loader,
+            $capabilityAccess
         );
 
         $gateway->process($payload);
     }
 
+    public function testProcessSkipsAppWithoutGrantedPermission(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $app = new AppEntity();
+        $app->setId(Uuid::randomHex());
+        $app->setUniqueIdentifier(Uuid::randomHex());
+        $app->setCheckoutGatewayUrl('https://example.com');
+
+        $result = new EntitySearchResult(
+            'app',
+            1,
+            new AppCollection([$app]),
+            null,
+            new Criteria(),
+            $context->getContext()
+        );
+
+        $appRepo = static::createStub(EntityRepository::class);
+        $appRepo->method('search')->willReturn($result);
+
+        $payloadService = $this->createMock(AppCheckoutGatewayPayloadService::class);
+        $payloadService->expects($this->never())->method('request');
+
+        $loader = static::createStub(ActiveAppsLoader::class);
+        $loader->method('getActiveApps')->willReturn([$app]);
+
+        $capabilityAccess = static::createStub(AppCapability::class);
+        $capabilityAccess->method('whenGranted')->willReturn(null);
+
+        $gateway = new AppCheckoutGateway(
+            $payloadService,
+            new CheckoutGatewayCommandExecutor($this->getRegistry(), new ExceptionLogger('test', false, new NullLogger())),
+            static::createStub(CheckoutGatewayCommandRegistry::class),
+            $appRepo,
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(ExceptionLogger::class),
+            $loader,
+            $capabilityAccess
+        );
+
+        $gateway->process(new CheckoutGatewayPayloadStruct(new Cart('hatoken'), $context, new PaymentMethodCollection(), new ShippingMethodCollection()));
+    }
+
     private function getRegistry(): CheckoutGatewayCommandRegistry
     {
-        return new CheckoutGatewayCommandRegistry([new TestCheckoutGatewayHandler()]);
+        return new CheckoutGatewayCommandRegistry([new StubCheckoutGatewayHandler()]);
     }
 }

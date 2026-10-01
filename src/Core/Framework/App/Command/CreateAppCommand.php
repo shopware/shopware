@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Lifecycle\AbstractAppLifecycle;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
@@ -17,6 +16,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 use function Symfony\Component\String\u;
@@ -26,8 +26,8 @@ use function Symfony\Component\String\u;
  *
  * @phpstan-type PropertyDefinitions array<string, array{name: string, description: string, prompt: string, default: string, validator?: callable(string): string, normaliser?: callable(string): string}>
  */
-#[AsCommand(name: 'app:create', description: 'Creates an app skeleton')]
 #[Package('framework')]
+#[AsCommand(name: 'app:create', description: 'Creates an app skeleton')]
 class CreateAppCommand extends Command
 {
     /**
@@ -52,7 +52,7 @@ class CreateAppCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $propertyDefinitions = self::getPropertyDefinitions();
 
         $details = $this->gatherDetails($propertyDefinitions, $io, $input);
@@ -103,10 +103,10 @@ class CreateAppCommand extends Command
      *
      * @return array<string, string>
      */
-    private function gatherDetails(array $propertyDefinitions, ShopwareStyle $io, InputInterface $input): array
+    private function gatherDetails(array $propertyDefinitions, SymfonyStyle $io, InputInterface $input): array
     {
         return array_map(
-            function (array $property) use ($io, $input) {
+            static function (array $property) use ($io, $input) {
                 if ($input->getArgument($property['name']) !== null) {
                     return $input->getArgument($property['name']);
                 }
@@ -165,7 +165,7 @@ class CreateAppCommand extends Command
                     '/^[A-Za-z]\w{3,}$/',
                     'The app name is too short (min 4 characters), contains invalid characters'
                 ),
-                'normaliser' => fn (string $name): string => u($name)->replace('_', ' ')->camel()->title()->toString(),
+                'normaliser' => static fn (string $name): string => u($name)->replace('_', ' ')->camel()->title()->toString(),
             ],
             [
                 'name' => 'label',
@@ -221,7 +221,7 @@ class CreateAppCommand extends Command
         ];
 
         return array_combine(
-            array_map(fn (array $property) => $property['name'], $properties),
+            array_map(static fn (array $property) => $property['name'], $properties),
             $properties
         );
     }
@@ -237,7 +237,7 @@ class CreateAppCommand extends Command
         return array_combine(
             array_keys($details),
             array_map(
-                fn (string $propertyName, string $value) => isset($propertyDefinitions[$propertyName]['normaliser'])
+                static fn (string $propertyName, string $value) => isset($propertyDefinitions[$propertyName]['normaliser'])
                     ? $propertyDefinitions[$propertyName]['normaliser']($value)
                     : $value,
                 array_keys($details),
@@ -299,7 +299,7 @@ class CreateAppCommand extends Command
      */
     private function createApp(string $appDirectory, array $details, bool $createThemeConfig): void
     {
-        if (file_exists($appDirectory)) {
+        if (\is_dir($appDirectory)) {
             throw AppException::directoryAlreadyExists($details['name']);
         }
 
@@ -341,7 +341,7 @@ class CreateAppCommand extends Command
     private function replaceTemplateValues(string $manifestTemplate, array $details): string
     {
         return str_replace(
-            array_map(fn ($param) => \sprintf('{{%s}}', $param), array_keys($details)),
+            array_map(static fn ($param) => \sprintf('{{%s}}', $param), array_keys($details)),
             array_values($details),
             $manifestTemplate
         );

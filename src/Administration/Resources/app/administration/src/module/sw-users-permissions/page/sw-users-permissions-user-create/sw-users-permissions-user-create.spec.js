@@ -22,6 +22,7 @@ async function createWrapper(privileges = []) {
 
                             return privileges.includes(identifier);
                         },
+                        isAdmin: () => !!Shopware.Store.get('session').currentUser?.admin,
                     },
                     loginService: {},
                     userService: {
@@ -76,6 +77,11 @@ async function createWrapper(privileges = []) {
                         params: {
                             id: '1a2b3c4d',
                         },
+                        meta: {
+                            $module: {
+                                icon: 'regular-content',
+                            },
+                        },
                     },
                 },
                 stubs: {
@@ -91,7 +97,6 @@ async function createWrapper(privileges = []) {
                     'sw-entity-multi-select': true,
                     'sw-single-select': true,
                     'sw-skeleton': true,
-                    'sw-empty-state': true,
                     'sw-data-grid': true,
                     'sw-context-menu-item': true,
                     'sw-button-process': true,
@@ -121,13 +126,9 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
         Shopware.Store.get('session').languageId = '';
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should create a new user', async () => {
         expect(wrapper.vm.user).toStrictEqual({
-            admin: false,
+            active: true,
             localeId: '',
             username: '',
             firstName: '',
@@ -151,6 +152,12 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-create', (
     it('should not be an admin by default', async () => {
         await wrapper.setData({ isLoading: false });
 
-        expect(wrapper.vm.user.admin).toBe(false);
+        expect(wrapper.vm.user.admin).toBeUndefined();
+    });
+
+    it('should be active by default', async () => {
+        await wrapper.setData({ isLoading: false });
+
+        expect(wrapper.vm.user.active).toBe(true);
     });
 });

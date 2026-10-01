@@ -1,0 +1,19 @@
+.sw-cms-el-config-video {
+    &__checkboxes {
+        display: flex;
+        flex-wrap: wrap;
+        column-gap: 30px;
+        row-gap: 5px;
+        margin: 27px 0;
+
+        > .sw-cms-inherit-wrapper {
+            flex: 0 0 calc(50% - 15px);
+        }
+    }
+
+    .sw-media-upload-v2 {
+        .sw-media-upload-v2__header {
+            display: none;
+        }
+    }
+}

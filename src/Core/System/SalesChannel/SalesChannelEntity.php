@@ -17,6 +17,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Cms\CmsPageEntity;
 use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\MailTemplate\Aggregate\MailHeaderFooter\MailHeaderFooterEntity;
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
@@ -27,6 +28,7 @@ use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
@@ -38,6 +40,7 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeSalesChannel\NumberRan
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelAnalytics\SalesChannelAnalyticsEntity;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelFile\SalesChannelFileCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTypeEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigCollection;
@@ -115,7 +118,14 @@ class SalesChannelEntity extends Entity
     protected bool $maintenance;
 
     /**
-     * @var array<mixed>|null
+     * @var list<string>|null
+     */
+    protected ?array $maintenanceIpAllowlist = null;
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use $maintenanceIpAllowlist instead.
+     *
+     * @var list<string>|null
      */
     protected ?array $maintenanceIpWhitelist = null;
 
@@ -188,6 +198,8 @@ class SalesChannelEntity extends Entity
 
     protected ?ProductExportCollection $productExports = null;
 
+    protected ?SalesChannelFileCollection $salesChannelFiles = null;
+
     protected bool $hreflangActive;
 
     protected ?string $hreflangDefaultDomainId = null;
@@ -205,6 +217,10 @@ class SalesChannelEntity extends Entity
     protected ?CustomerWishlistCollection $wishlists = null;
 
     protected ?LandingPageCollection $landingPages = null;
+
+    protected MeasurementUnits $measurementUnits;
+
+    protected ?string $businessTimeZone = null;
 
     public function getMailHeaderFooter(): ?MailHeaderFooterEntity
     {
@@ -363,19 +379,50 @@ class SalesChannelEntity extends Entity
     }
 
     /**
-     * @return array<mixed>|null
+     * @return list<string>|null
      */
-    public function getMaintenanceIpWhitelist(): ?array
+    public function getMaintenanceIpAllowlist(): ?array
     {
-        return $this->maintenanceIpWhitelist;
+        return $this->maintenanceIpAllowlist;
     }
 
     /**
-     * @param array<mixed>|null $maintenanceIpWhitelist
+     * @param list<string>|null $maintenanceIpAllowlist
+     */
+    public function setMaintenanceIpAllowlist(?array $maintenanceIpAllowlist): void
+    {
+        $this->maintenanceIpAllowlist = $maintenanceIpAllowlist;
+        $this->maintenanceIpWhitelist = $maintenanceIpAllowlist;
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use getMaintenanceIpAllowlist() instead.
+     *
+     * @return list<string>|null
+     */
+    public function getMaintenanceIpWhitelist(): ?array
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'getMaintenanceIpAllowlist()')
+        );
+
+        return $this->getMaintenanceIpAllowlist();
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use setMaintenanceIpAllowlist() instead.
+     *
+     * @param list<string>|null $maintenanceIpWhitelist
      */
     public function setMaintenanceIpWhitelist(?array $maintenanceIpWhitelist): void
     {
-        $this->maintenanceIpWhitelist = $maintenanceIpWhitelist;
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'setMaintenanceIpAllowlist()')
+        );
+
+        $this->setMaintenanceIpAllowlist($maintenanceIpWhitelist);
     }
 
     public function getCurrency(): ?CurrencyEntity
@@ -810,6 +857,16 @@ class SalesChannelEntity extends Entity
         $this->productExports = $productExports;
     }
 
+    public function getSalesChannelFiles(): ?SalesChannelFileCollection
+    {
+        return $this->salesChannelFiles;
+    }
+
+    public function setSalesChannelFiles(SalesChannelFileCollection $salesChannelFiles): void
+    {
+        $this->salesChannelFiles = $salesChannelFiles;
+    }
+
     public function getNavigationCategoryDepth(): int
     {
         return $this->navigationCategoryDepth;
@@ -958,5 +1015,25 @@ class SalesChannelEntity extends Entity
     public function setServiceCategoryVersionId(?string $serviceCategoryVersionId): void
     {
         $this->serviceCategoryVersionId = $serviceCategoryVersionId;
+    }
+
+    public function getMeasurementUnits(): MeasurementUnits
+    {
+        return $this->measurementUnits;
+    }
+
+    public function setMeasurementUnits(MeasurementUnits $measurementUnits): void
+    {
+        $this->measurementUnits = $measurementUnits;
+    }
+
+    public function getBusinessTimeZone(): ?string
+    {
+        return $this->businessTimeZone;
+    }
+
+    public function setBusinessTimeZone(?string $businessTimeZone): void
+    {
+        $this->businessTimeZone = $businessTimeZone;
     }
 }

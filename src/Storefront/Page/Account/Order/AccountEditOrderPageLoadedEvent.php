@@ -7,17 +7,17 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class AccountEditOrderPageLoadedEvent extends PageLoadedEvent
 {
-    protected AccountEditOrderPage $page;
-
     public function __construct(
-        AccountEditOrderPage $page,
+        protected AccountEditOrderPage $page,
         SalesChannelContext $salesChannelContext,
-        Request $request
+        Request $request,
     ) {
-        $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }
 

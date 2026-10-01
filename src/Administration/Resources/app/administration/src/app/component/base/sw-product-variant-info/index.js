@@ -1,8 +1,6 @@
 import template from './sw-product-variant-info.html.twig';
 import './sw-product-variant-info.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -13,7 +11,7 @@ const { Component } = Shopware;
  * @component-example
  * <sw-product-variant-info :variations="variations"></sw-product-variant-info>
  */
-Component.register('sw-product-variant-info', {
+export default {
     template,
 
     inject: ['feature'],
@@ -46,7 +44,6 @@ Component.register('sw-product-variant-info', {
         showTooltip: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
@@ -92,7 +89,9 @@ Component.register('sw-product-variant-info', {
         },
 
         getFirstSlot() {
-            return this.$slots?.default?.()?.[0]?.children || '';
+            const label = this.$slots?.default?.()?.[0]?.children;
+
+            return typeof label === 'string' ? label : label?.default?.()?.[0]?.children || '';
         },
 
         setHelpText() {
@@ -112,4 +111,4 @@ Component.register('sw-product-variant-info', {
             }
         },
     },
-});
+};

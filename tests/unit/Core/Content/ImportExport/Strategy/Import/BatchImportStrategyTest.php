@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\ImportExport\Strategy\Import;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportBatchEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Event\ImportExportExceptionImportRecordEvent;
 use Shopware\Core\Content\ImportExport\Strategy\Import\BatchImportStrategy;
@@ -39,10 +40,13 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
         $progress = new Progress('logId', Progress::STATE_PROGRESS);
         $config = new Config([], [], []);
 
+        $this->repository->expects($this->never())->method('upsert');
+        $this->eventDispatcher->expects($this->never())->method('dispatch');
+
         $result = $this->strategy->import(['some' => 'data'], [], $config, $progress, $context);
 
-        static::assertEquals([], $result->results);
-        static::assertEquals([], $result->failedRecords);
+        static::assertSame([], $result->results);
+        static::assertSame([], $result->failedRecords);
     }
 
     #[DataProvider('importProvider')]
@@ -57,15 +61,15 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
         $writeResult = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
 
         $this->repository->expects($this->once())->method($method)->willReturn($writeResult);
-        $this->eventDispatcher->expects($this->exactly(2))->method('dispatch');
+        $this->eventDispatcher->expects($this->exactly(3))->method('dispatch');
 
         $progress = new Progress('logId', Progress::STATE_PROGRESS);
 
         $result = $this->strategy->commit($config, $progress, $context);
 
-        static::assertEquals([$writeResult], $result->results);
-        static::assertEquals([], $result->failedRecords);
-        static::assertEquals(2, $progress->getProcessedRecords());
+        static::assertSame([$writeResult], $result->results);
+        static::assertSame([], $result->failedRecords);
+        static::assertSame(2, $progress->getProcessedRecords());
     }
 
     public function testFailedCommit(): void
@@ -88,7 +92,7 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
         $writeResult = new EntityWrittenContainerEvent(Context::createDefaultContext(), new NestedEventCollection(), []);
 
         $this->repository->expects($this->exactly(3))->method('create')->willReturnCallback(
-            function () use ($writeResult) {
+            static function () use ($writeResult) {
                 static $counter = 0;
                 if ($counter++ < 2) {
                     throw new \Exception('Error');
@@ -98,17 +102,18 @@ class BatchImportStrategyTest extends ImportStrategyTestCase
             }
         );
 
-        $this->eventDispatcher->expects($this->exactly(2))
+        $this->eventDispatcher->expects($this->exactly(3))
             ->method('dispatch')
             ->with(static::logicalOr(
                 static::isInstanceOf(ImportExportAfterImportRecordEvent::class),
-                static::isInstanceOf(ImportExportExceptionImportRecordEvent::class)
+                static::isInstanceOf(ImportExportExceptionImportRecordEvent::class),
+                static::isInstanceOf(ImportExportAfterImportBatchEvent::class),
             ));
 
         $result = $this->strategy->commit($config, $progress, $context);
 
-        static::assertEquals([$writeResult], $result->results);
-        static::assertEquals([
+        static::assertSame([$writeResult], $result->results);
+        static::assertSame([
             ['some' => 'data', '_error' => 'Error'],
         ], $result->failedRecords);
     }

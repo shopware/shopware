@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
@@ -21,6 +23,9 @@ import { h, defineComponent } from 'vue';
 window.performance.mark = () => {};
 window.performance.measure = () => {};
 window.performance.clearMarks = () => {};
+window.performance.clearMeasures = () => {};
+
+window.removePageLoadingIndicator = jest.fn();
 
 jest.mock('src/app/adapter/view/sw-vue-devtools', () => {
     return jest.fn();
@@ -67,16 +72,10 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             });
         }
 
-        Shopware.Store.get('system').locales = [
-            'en-GB',
-            'de-DE',
-        ];
+        Shopware.Store.get('system').locales = ['en-GB', 'de-DE'];
 
         Shopware.Store.get('session').setAdminLocaleState({
-            locales: [
-                'en-GB',
-                'de-DE',
-            ],
+            locales: ['en-GB', 'de-DE'],
             locale: 'en-GB',
             languageId: '12345678',
         });
@@ -90,6 +89,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
     afterEach(() => {
         AsyncComponentFactory.markComponentTemplatesAsNotResolved();
+        window.removePageLoadingIndicator.mockClear();
     });
 
     it('should be an class', async () => {
@@ -184,9 +184,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                     title: 'testComponent',
                 };
             },
-            mixins: [
-                Shopware.Mixin.getByName('foo1'),
-            ],
+            mixins: [Shopware.Mixin.getByName('foo1')],
             methods: {
                 bar() {
                     return 'bar';
@@ -222,9 +220,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                     title: 'testComponent',
                 };
             },
-            mixins: [
-                Shopware.Mixin.getByName('foo2'),
-            ],
+            mixins: [Shopware.Mixin.getByName('foo2')],
             methods: {
                 bar() {
                     return 'bar';
@@ -274,9 +270,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                     title: 'testComponent3',
                 };
             },
-            mixins: [
-                'foo3',
-            ],
+            mixins: ['foo3'],
             methods: {
                 bar() {},
             },
@@ -308,9 +302,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                     title: 'testComponent4',
                 };
             },
-            mixins: [
-                'foo4',
-            ],
+            mixins: ['foo4'],
             methods: {
                 bar() {},
             },
@@ -359,9 +351,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                     sortBy: 'date',
                 };
             },
-            mixins: [
-                'foo-with-data',
-            ],
+            mixins: ['foo-with-data'],
             methods: {
                 bar() {},
                 fooBar() {
@@ -418,9 +408,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                     title: 'testComponent',
                 };
             },
-            mixins: [
-                'swFoo',
-            ],
+            mixins: ['swFoo'],
             methods: {
                 bar() {},
             },
@@ -428,9 +416,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
 
         Shopware.Component.extend('sw-test-component-extended', 'extendable-component', {
             template: '{% block foo %}<div>bbbbb</div>{% endblock %}',
-            mixins: [
-                'swBar',
-            ],
+            mixins: ['swBar'],
             data() {
                 return {
                     title: 'testComponentExtended',
@@ -485,10 +471,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         });
 
         Shopware.Component.override('base-component', {
-            mixins: [
-                'second-mixin',
-                'first-mixin',
-            ],
+            mixins: ['second-mixin', 'first-mixin'],
         });
 
         Shopware.Component.markComponentAsSync('base-component');
@@ -501,6 +484,180 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
         expect(wrapper.vm.bar()).toBe('bar');
 
         expect(lifecycleSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should compose route guards from extends, mixins and component config for route-loaded components', async () => {
+        const guardOrder = {
+            enter: [],
+            update: [],
+            leave: [],
+        };
+        const guardContext = {
+            update: [],
+            leave: [],
+        };
+        const enterCallbacks = [];
+        const suffix = Shopware.Utils.createId();
+        const firstMixinName = `route-guard-first-${suffix}`;
+        const secondMixinName = `route-guard-second-${suffix}`;
+        const baseComponentName = `route-guard-base-${suffix}`;
+        const componentName = `route-guard-component-${suffix}`;
+
+        Shopware.Mixin.register(firstMixinName, {
+            beforeRouteEnter(to, from, next) {
+                guardOrder.enter.push('first-mixin');
+                next((vm) => enterCallbacks.push(`first-mixin:${vm.id}`));
+            },
+            beforeRouteUpdate(to, from, next) {
+                guardOrder.update.push('first-mixin');
+                guardContext.update.push(this.id);
+                next();
+            },
+            beforeRouteLeave(to, from, next) {
+                guardOrder.leave.push('first-mixin');
+                guardContext.leave.push(this.id);
+                next();
+            },
+        });
+
+        Shopware.Mixin.register(secondMixinName, {
+            beforeRouteEnter(to, from, next) {
+                guardOrder.enter.push('second-mixin');
+                next((vm) => enterCallbacks.push(`second-mixin:${vm.id}`));
+            },
+            beforeRouteUpdate(to, from, next) {
+                guardOrder.update.push('second-mixin');
+                guardContext.update.push(this.id);
+                next();
+            },
+            beforeRouteLeave(to, from, next) {
+                guardOrder.leave.push('second-mixin');
+                guardContext.leave.push(this.id);
+                next();
+            },
+        });
+
+        Shopware.Component.register(baseComponentName, {
+            template: '<div></div>',
+            name: baseComponentName,
+            beforeRouteEnter(to, from, next) {
+                guardOrder.enter.push('base-component');
+                next((vm) => enterCallbacks.push(`base-component:${vm.id}`));
+            },
+            beforeRouteUpdate(to, from, next) {
+                guardOrder.update.push('base-component');
+                guardContext.update.push(this.id);
+                next();
+            },
+            beforeRouteLeave(to, from, next) {
+                guardOrder.leave.push('base-component');
+                guardContext.leave.push(this.id);
+                next();
+            },
+        });
+
+        Shopware.Component.extend(componentName, baseComponentName, {
+            template: '<div></div>',
+            name: componentName,
+            mixins: [firstMixinName, secondMixinName],
+            beforeRouteEnter(to, from, next) {
+                guardOrder.enter.push('component');
+                next((vm) => enterCallbacks.push(`component:${vm.id}`));
+            },
+            beforeRouteUpdate(to, from, next) {
+                guardOrder.update.push('component');
+                guardContext.update.push(this.id);
+                next();
+            },
+            beforeRouteLeave(to, from, next) {
+                guardOrder.leave.push('component');
+                guardContext.leave.push(this.id);
+                next();
+            },
+        });
+
+        const routeComponent = await vueAdapter.getComponentForRoute(componentName)();
+
+        expect(routeComponent).not.toBe(false);
+
+        let enterGuardCallback;
+        await routeComponent.beforeRouteEnter({}, {}, (callback) => {
+            enterGuardCallback = callback;
+        });
+
+        expect(guardOrder.enter).toEqual([
+            'base-component',
+            'first-mixin',
+            'second-mixin',
+            'component',
+        ]);
+        expect(typeof enterGuardCallback).toBe('function');
+
+        enterGuardCallback({ id: 'vm-instance' });
+
+        expect(enterCallbacks).toEqual([
+            'base-component:vm-instance',
+            'first-mixin:vm-instance',
+            'second-mixin:vm-instance',
+            'component:vm-instance',
+        ]);
+
+        const routeGuardVm = { id: 'route-vm' };
+
+        await routeComponent.beforeRouteUpdate.call(routeGuardVm, {}, {}, jest.fn());
+
+        expect(guardOrder.update).toEqual([
+            'base-component',
+            'first-mixin',
+            'second-mixin',
+            'component',
+        ]);
+        expect(guardContext.update).toEqual([
+            'route-vm',
+            'route-vm',
+            'route-vm',
+            'route-vm',
+        ]);
+
+        await routeComponent.beforeRouteLeave.call(routeGuardVm, {}, {}, jest.fn());
+
+        expect(guardOrder.leave).toEqual([
+            'base-component',
+            'first-mixin',
+            'second-mixin',
+            'component',
+        ]);
+        expect(guardContext.leave).toEqual([
+            'route-vm',
+            'route-vm',
+            'route-vm',
+            'route-vm',
+        ]);
+    });
+
+    it('should ignore synchronous errors thrown after next() in callback-style route guards', async () => {
+        const suffix = Shopware.Utils.createId();
+        const componentName = `route-guard-post-next-throw-${suffix}`;
+
+        Shopware.Component.register(componentName, {
+            template: '<div></div>',
+            name: componentName,
+            beforeRouteUpdate(to, from, next) {
+                next();
+                throw new Error('post-next cleanup failed');
+            },
+        });
+
+        const routeComponent = await vueAdapter.getComponentForRoute(componentName)();
+
+        expect(routeComponent).not.toBe(false);
+
+        const next = jest.fn();
+
+        await expect(routeComponent.beforeRouteUpdate.call({ id: 'route-vm' }, {}, {}, next)).resolves.toBeUndefined();
+
+        expect(next).toHaveBeenCalledTimes(1);
+        expect(next).toHaveBeenCalledWith();
     });
 
     it('should build & create a vue.js component', async () => {
@@ -653,6 +810,34 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             expect(rootComponent.config.globalProperties.$tc).toBeDefined();
             expect(rootComponent.config.globalProperties.$store).toBeDefined();
             expect(rootComponent.config.globalProperties.$dataScope).toBeDefined();
+            expect(rootComponent.config.globalProperties.$swLegacyBlockIf).toBeDefined();
+            expect(rootComponent.config.globalProperties.$swLegacyBlockElseIf).toBeDefined();
+            expect(rootComponent.config.globalProperties.$swLegacyBlockElse).toBeDefined();
+        });
+
+        it('should scope legacy block helpers by component instance', () => {
+            const vmOne = { $: { uid: 1 } };
+            const vmTwo = { $: { uid: 2 } };
+            const firstCase = {
+                segmentCaseIndex: 0,
+                renderOrderSegment: 'defaultSlot',
+                isStartingCondition: true,
+            };
+            const fallbackCase = {
+                segmentCaseIndex: 1,
+                renderOrderSegment: 'defaultSlot',
+                isStartingCondition: false,
+            };
+
+            expect(rootComponent.config.globalProperties.$swLegacyBlockIf.call(vmOne, 'test-block', false, firstCase)).toBe(
+                false,
+            );
+            expect(rootComponent.config.globalProperties.$swLegacyBlockElse.call(vmTwo, 'test-block', fallbackCase)).toBe(
+                false,
+            );
+            expect(rootComponent.config.globalProperties.$swLegacyBlockElse.call(vmOne, 'test-block', fallbackCase)).toBe(
+                true,
+            );
         });
 
         it('should initialize the directives correctly', async () => {
@@ -667,7 +852,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             const result = rootComponent.config.globalProperties.$createTitle.call(
                 {
                     $root: {
-                        $tc: (v) => rootComponent.$tc(v),
+                        $t: (v) => rootComponent.$t(v),
                     },
                     $route: {
                         meta: {
@@ -705,6 +890,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
                 'mt-select',
                 'mt-switch',
                 'mt-text-field',
+                'mt-search',
                 'mt-textarea',
                 'mt-icon',
                 'mt-data-table',
@@ -742,10 +928,7 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             const expectedLocale = 'de-DE';
 
             Shopware.Store.get('session').setAdminLocaleState({
-                locales: [
-                    'en-GB',
-                    'de-DE',
-                ],
+                locales: ['en-GB', 'de-DE'],
                 locale: expectedLocale,
                 languageId: '12345678',
             });
@@ -753,6 +936,12 @@ describe('ASYNC app/adapter/view/vue.adapter.js', () => {
             await flushPromises();
 
             expect(vueAdapter.i18n.global.locale.value).toEqual(expectedLocale);
+        });
+
+        it('should remove the loading indicator after vue is mounted', async () => {
+            // it is difficult to actually test for removal because the js code is located at /app/administration/shared,
+            // which is not included in the test environment.
+            expect(window.removePageLoadingIndicator).toHaveBeenCalled();
         });
     });
 });

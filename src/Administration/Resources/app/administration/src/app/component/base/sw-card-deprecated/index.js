@@ -1,8 +1,6 @@
 import template from './sw-card-deprecated.html.twig';
 import './sw-card-deprecated.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -15,7 +13,7 @@ const { Component } = Shopware;
  *     Your content
  * </sw-card>
  */
-Component.register('sw-card-deprecated', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -60,7 +58,6 @@ Component.register('sw-card-deprecated', {
         },
         contentPadding: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -100,4 +97,4 @@ Component.register('sw-card-deprecated', {
             };
         },
     },
-});
+};

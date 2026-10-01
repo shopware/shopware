@@ -3,8 +3,11 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
+use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
+use Shopware\Core\Content\Product\Extension\ProductReviewSaveRouteExtension;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
+use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -12,16 +15,20 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityNotExists;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\GreaterThanOrEqual;
 use Symfony\Component\Validator\Constraints\Length;
@@ -29,18 +36,22 @@ use Symfony\Component\Validator\Constraints\LessThanOrEqual;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('after-sales')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductReviewCollection> $repository
      */
     public function __construct(
         private readonly EntityRepository $repository,
         private readonly DataValidator $validator,
         private readonly SystemConfigService $config,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ProductProvider $productProvider,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -49,8 +60,22 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/product/{productId}/review', name: 'store-api.product-review.save', methods: ['POST'], defaults: ['_loginRequired' => true])]
+    #[Route(
+        path: '/store-api/product/{productId}/review',
+        name: 'store-api.product-review.save',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function save(string $productId, RequestDataBag $data, SalesChannelContext $context): NoContentResponse
+    {
+        return $this->extensions->publish(
+            name: ProductReviewSaveRouteExtension::NAME,
+            extension: new ProductReviewSaveRouteExtension($productId, $data, $context),
+            function: $this->_save(...),
+        );
+    }
+
+    private function _save(string $productId, RequestDataBag $data, SalesChannelContext $context): NoContentResponse
     {
         $salesChannelId = $context->getSalesChannelId();
         if (!$this->config->getBool('core.listing.showReview', $salesChannelId)) {
@@ -96,6 +121,11 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
             $review['id'] = $data->get('id');
         }
 
+        $product = $this->productProvider->getData($productId, $context->getContext());
+        if ($product === null) {
+            throw ProductException::productNotFound($productId);
+        }
+
         $this->repository->upsert([$review], $context->getContext());
 
         $mail = $review['externalEmail'];
@@ -106,7 +136,8 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
             new MailRecipientStruct([$mail => $review['externalUser'] . ' ' . $data->get('lastName')]),
             $data,
             $productId,
-            $customerId
+            $customerId,
+            $product
         );
 
         $this->eventDispatcher->dispatch(
@@ -122,8 +153,8 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         $definition = new DataValidationDefinition('product.create_rating');
 
         $definition->add('name', new NotBlank());
-        $definition->add('title', new NotBlank(), new Length(['min' => 5]));
-        $definition->add('content', new NotBlank(), new Length(['min' => 40]));
+        $definition->add('title', new NotBlank(), new Length(min: 5));
+        $definition->add('content', new NotBlank(), new Length(min: 40));
 
         $definition->add('points', new GreaterThanOrEqual(1), new LessThanOrEqual(5));
 
@@ -133,20 +164,20 @@ class ProductReviewSaveRoute extends AbstractProductReviewSaveRoute
         if ($data->get('id')) {
             $criteria->addFilter(new EqualsFilter('id', $data->get('id')));
 
-            $definition->add('id', new EntityExists([
-                'entity' => 'product_review',
-                'context' => $context,
-                'criteria' => $criteria,
-            ]));
+            $definition->add('id', new EntityExists(
+                entity: 'product_review',
+                context: $context,
+                criteria: $criteria,
+            ));
         } else {
             $criteria->addFilter(new EqualsFilter('productId', $data->get('productId')));
 
-            $definition->add('customerId', new EntityNotExists([
-                'entity' => 'product_review',
-                'context' => $context,
-                'criteria' => $criteria,
-                'primaryProperty' => 'customerId',
-            ]));
+            $definition->add('customerId', new EntityNotExists(
+                entity: 'product_review',
+                context: $context,
+                primaryProperty: 'customerId',
+                criteria: $criteria,
+            ));
         }
 
         $this->validator->validate($data->all(), $definition);

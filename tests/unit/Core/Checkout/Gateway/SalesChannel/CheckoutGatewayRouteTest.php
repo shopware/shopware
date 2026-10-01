@@ -17,7 +17,9 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Gateway\CheckoutGatewayInterface;
 use Shopware\Core\Checkout\Gateway\CheckoutGatewayResponse;
 use Shopware\Core\Checkout\Gateway\Command\Struct\CheckoutGatewayPayloadStruct;
+use Shopware\Core\Checkout\Gateway\Extension\CheckoutGatewayRouteExtension;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute;
+use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodDefinition;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -30,28 +32,29 @@ use Shopware\Core\Checkout\Shipping\ShippingMethodDefinition;
 use Shopware\Core\Checkout\Shipping\ShippingMethodEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\Rule\RuleIdMatcher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
-#[CoversClass(CheckoutGatewayRoute::class)]
 #[Package('checkout')]
+#[CoversClass(CheckoutGatewayRoute::class)]
 class CheckoutGatewayRouteTest extends TestCase
 {
     public function testDecoratedThrows(): void
     {
         $route = new CheckoutGatewayRoute(
-            $this->createMock(AbstractPaymentMethodRoute::class),
-            $this->createMock(AbstractShippingMethodRoute::class),
-            $this->createMock(CheckoutGatewayInterface::class),
-            $this->createMock(RuleIdMatcher::class),
+            static::createStub(AbstractPaymentMethodRoute::class),
+            static::createStub(AbstractShippingMethodRoute::class),
+            static::createStub(CheckoutGatewayInterface::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $this->expectException(DecorationPatternException::class);
@@ -126,13 +129,7 @@ class CheckoutGatewayRouteTest extends TestCase
             ->with(static::equalTo($payload))
             ->willReturn($response);
 
-        $ruleIdMatcher = $this->createMock(RuleIdMatcher::class);
-        $ruleIdMatcher
-            ->expects($this->exactly(2))
-            ->method('filterCollection')
-            ->willReturnArgument(0);
-
-        $route = new CheckoutGatewayRoute($paymentMethodRoute, $shippingMethodRoute, $checkoutGateway, $ruleIdMatcher);
+        $route = new CheckoutGatewayRoute($paymentMethodRoute, $shippingMethodRoute, $checkoutGateway, new ExtensionDispatcher(new EventDispatcher()));
         $result = $route->load($request, $cart, $context);
 
         static::assertSame($paymentMethods->getPaymentMethods(), $result->getPaymentMethods());
@@ -217,17 +214,11 @@ class CheckoutGatewayRouteTest extends TestCase
             ->with(static::equalTo($payload))
             ->willReturn($response);
 
-        $ruleIdMatcher = $this->createMock(RuleIdMatcher::class);
-        $ruleIdMatcher
-            ->expects($this->exactly(2))
-            ->method('filterCollection')
-            ->willReturnArgument(0);
-
         $route = new CheckoutGatewayRoute(
             $paymentMethodRoute,
             $shippingMethodRoute,
             $checkoutGateway,
-            $ruleIdMatcher
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $result = $route->load($request, $cart, $context);
@@ -244,7 +235,7 @@ class CheckoutGatewayRouteTest extends TestCase
 
         static::assertNotNull($error);
         static::assertSame('shipping-method-blocked', $error->getMessageKey());
-        static::assertSame('Shipping method Foo not available', $error->getMessage());
+        static::assertSame('Shipping method Foo not available. Reason: not allowed', $error->getMessage());
     }
 
     public function testOnlyAvailableFlagIsSet(): void
@@ -264,7 +255,7 @@ class CheckoutGatewayRouteTest extends TestCase
             ->method('load')
             ->with($request, $context, static::isInstanceOf(Criteria::class));
 
-        $checkoutGateway = $this->createMock(CheckoutGatewayInterface::class);
+        $checkoutGateway = static::createStub(CheckoutGatewayInterface::class);
         $checkoutGateway
             ->method('process')
             ->willReturn(new CheckoutGatewayResponse(
@@ -277,9 +268,34 @@ class CheckoutGatewayRouteTest extends TestCase
             $paymentMethodRoute,
             $shippingMethodRoute,
             $checkoutGateway,
-            new RuleIdMatcher()
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $route->load(new Request(), new Cart('hatoken'), $context);
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $cart = new Cart(Uuid::randomHex());
+        $context = Generator::generateSalesChannelContext();
+        $response = static::createStub(CheckoutGatewayRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('checkout-gateway-route.load.pre', static function (CheckoutGatewayRouteExtension $extension) use ($request, $cart, $context, $response): void {
+            static::assertSame(['request' => $request, 'cart' => $cart, 'context' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new CheckoutGatewayRoute(
+            static::createStub(AbstractPaymentMethodRoute::class),
+            static::createStub(AbstractShippingMethodRoute::class),
+            static::createStub(CheckoutGatewayInterface::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($request, $cart, $context));
     }
 }

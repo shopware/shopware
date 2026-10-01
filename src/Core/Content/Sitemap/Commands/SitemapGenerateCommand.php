@@ -2,43 +2,34 @@
 
 namespace Shopware\Core\Content\Sitemap\Commands;
 
-use Shopware\Core\Content\Sitemap\Event\SitemapSalesChannelCriteriaEvent;
 use Shopware\Core\Content\Sitemap\Exception\AlreadyLockedException;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
-use Shopware\Core\Defaults;
+use Shopware\Core\Content\Sitemap\Service\SitemapSalesChannelLoader;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'sitemap:generate',
     description: 'Generates sitemap files',
 )]
-#[Package('discovery')]
 class SitemapGenerateCommand extends Command
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly EntityRepository $salesChannelRepository,
+        private readonly SitemapSalesChannelLoader $salesChannelLoader,
         private readonly SitemapExporterInterface $sitemapExporter,
-        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory
     ) {
         parent::__construct();
     }
@@ -66,24 +57,13 @@ class SitemapGenerateCommand extends Command
 
         $context = Context::createCLIContext();
 
-        $criteria = $this->createCriteria($salesChannelId);
+        $salesChannels = $this->salesChannelLoader->loadSalesChannels($context, $salesChannelId);
 
-        $this->eventDispatcher->dispatch(
-            new SitemapSalesChannelCriteriaEvent($criteria, $context)
-        );
-
-        $salesChannels = $this->salesChannelRepository->search($criteria, $context);
-
-        /** @var SalesChannelEntity $salesChannel */
         foreach ($salesChannels as $salesChannel) {
-            /** @var list<string> $languageIds */
-            $languageIds = $salesChannel->getDomains()->map(fn (SalesChannelDomainEntity $salesChannelDomain) => $salesChannelDomain->getLanguageId());
-
-            $languageIds = array_unique($languageIds);
-
-            foreach ($languageIds as $languageId) {
+            foreach ($this->salesChannelLoader->getLanguageIds($salesChannel) as $languageId) {
                 $salesChannelContext = $this->salesChannelContextFactory->create('', $salesChannel->getId(), [SalesChannelContextService::LANGUAGE_ID => $languageId]);
-                $output->writeln(\sprintf('Generating sitemaps for sales channel %s (%s) with and language %s...', $salesChannel->getId(), $salesChannel->getName(), $languageId));
+
+                $output->writeln(\sprintf('Generating sitemaps for sales channel %s (%s) with and language %s...', $salesChannel->getId(), $salesChannel->getName() ?? '', $languageId));
 
                 try {
                     $this->generateSitemap($salesChannelContext, $input->getOption('force'));
@@ -104,20 +84,5 @@ class SitemapGenerateCommand extends Command
         if ($result->isFinish() === false) {
             $this->generateSitemap($salesChannelContext, $force, $result->getProvider(), $result->getOffset());
         }
-    }
-
-    private function createCriteria(?string $salesChannelId = null): Criteria
-    {
-        $criteria = $salesChannelId ? new Criteria([$salesChannelId]) : new Criteria();
-        $criteria->addAssociation('domains');
-        $criteria->addFilter(new NotFilter(
-            NotFilter::CONNECTION_AND,
-            [new EqualsFilter('domains.id', null)]
-        ));
-
-        $criteria->addAssociation('type');
-        $criteria->addFilter(new EqualsFilter('type.id', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
-
-        return $criteria;
     }
 }

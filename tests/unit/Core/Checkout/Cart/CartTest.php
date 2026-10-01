@@ -1,0 +1,148 @@
+<?php declare(strict_types=1);
+
+namespace Shopware\Tests\Unit\Core\Checkout\Cart;
+
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartException;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
+use Shopware\Core\Content\Product\Cart\ProductNotFoundError;
+use Shopware\Core\Framework\Log\Package;
+
+/**
+ * @internal
+ */
+#[Package('checkout')]
+#[CoversClass(Cart::class)]
+class CartTest extends TestCase
+{
+    public function testEmptyCartHasNoGoods(): void
+    {
+        $cart = new Cart('test');
+        static::assertCount(0, $cart->getLineItems()->filterGoods());
+    }
+
+    public function testChangingTheTokenDropsThePersistedState(): void
+    {
+        $cart = new Cart('test');
+        $cart->setPersisted(true);
+
+        $cart->setToken('other');
+
+        static::assertFalse($cart->isPersisted());
+    }
+
+    public function testKeepingTheTokenKeepsThePersistedState(): void
+    {
+        $cart = new Cart('test');
+        $cart->setPersisted(true);
+
+        $cart->setToken('test');
+
+        static::assertTrue($cart->isPersisted());
+    }
+
+    public function testCartWithLineItemsHasGoods(): void
+    {
+        $cart = new Cart('test');
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setGood(true)
+                ->setStackable(true)
+        );
+        $cart->add(
+            (new LineItem('A', 'test'))
+                ->setGood(false)
+                ->setStackable(true)
+        );
+
+        static::assertCount(1, $cart->getLineItems()->filterGoods());
+    }
+
+    public function testCartHasNoGoodsIfNoLineItemDefinedAsGoods(): void
+    {
+        $cart = new Cart('test');
+
+        $cart->add((new LineItem('A', 'test'))->setGood(false));
+        $cart->add((new LineItem('B', 'test'))->setGood(false));
+
+        static::assertCount(0, $cart->getLineItems()->filterGoods());
+    }
+
+    public function testCartWithNestedLineItemHasChildren(): void
+    {
+        $cart = new Cart('test');
+
+        $cart->add(
+            (new LineItem('nested', 'nested'))
+                ->setChildren(
+                    new LineItemCollection([
+                        (new LineItem('A', 'test'))->setGood(true),
+                        (new LineItem('B', 'test'))->setGood(true),
+                    ])
+                )
+        );
+
+        $cart->add(
+            (new LineItem('flat', 'flat'))->setGood(true)
+        );
+
+        static::assertCount(4, $cart->getLineItems()->getFlat());
+        static::assertCount(2, $cart->getLineItems());
+    }
+
+    /**
+     * @throws CartException
+     */
+    public function testRemoveNonRemovableLineItemFromCart(): void
+    {
+        $cart = new Cart('test');
+
+        $lineItem = new LineItem('A', 'test');
+        $lineItem->setRemovable(false);
+
+        $cart->add($lineItem);
+
+        $this->expectExceptionObject(CartException::lineItemNotRemovable($lineItem->getId()));
+
+        try {
+            $cart->remove($lineItem->getId());
+        } finally {
+            static::assertCount(1, $cart->getLineItems());
+        }
+    }
+
+    public function testHashing(): void
+    {
+        $cart = new Cart('test');
+
+        static::assertSame('', $cart->getErrorHash());
+
+        $cart->setErrorHash('test');
+
+        static::assertSame('test', $cart->getErrorHash());
+
+        static::assertArrayHasKey('errorHash', $cart->jsonSerialize());
+    }
+
+    public function testCloningACartWithErrorsSharesTheErrorInstances(): void
+    {
+        $cart = new Cart('test');
+        $cart->add(new LineItem('line-item', 'test'));
+
+        $error = new ProductNotFoundError('product-id');
+        $cart->addErrors($error);
+
+        $clonedCart = clone $cart;
+
+        static::assertNotSame($cart->getLineItems(), $clonedCart->getLineItems());
+        static::assertNotSame($cart->getLineItems()->first(), $clonedCart->getLineItems()->first());
+
+        static::assertNotSame($cart->getErrors(), $clonedCart->getErrors());
+        static::assertSame($error, $clonedCart->getErrors()->first());
+        static::assertCount(1, $cart->getErrors());
+        static::assertSame($error, $cart->getErrors()->first());
+    }
+}

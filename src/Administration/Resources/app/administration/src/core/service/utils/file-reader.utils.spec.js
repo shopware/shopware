@@ -46,4 +46,18 @@ describe('src/core/service/utils/file-reader.utils.js', () => {
             fileName: 'picture with blanks',
         });
     });
+
+    it('should extract filenames from content-disposition headers', () => {
+        let response = { headers: { 'content-disposition': 'attachment; filename="normal filename.pdf"' } };
+        let result = fileReaderUtils.getFilenameFromResponse(response);
+        expect(result).toBe('normal filename.pdf');
+
+        response = { headers: { 'content-disposition': 'attachment; filename=unquoted-name.txt' } };
+        result = fileReaderUtils.getFilenameFromResponse(response);
+        expect(result).toBe('unquoted-name.txt');
+
+        response = { headers: { 'content-disposition': "attachment; filename*=UTF-8''%E2%82%ACrates.csv" } };
+        result = fileReaderUtils.getFilenameFromResponse(response);
+        expect(result).toBe('%E2%82%ACrates.csv');
+    });
 });

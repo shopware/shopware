@@ -8,27 +8,34 @@
              aria-hidden="true"
              aria-labelledby="ar-qr-modal-title">
             <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header p-2">
+                <div class="modal-content ar-qr-modal-content">
+                    <div class="modal-header ar-qr-modal-header">
                         {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                         {% block spatial_ar_qr_code_modal_show_qr_header %}
-                            <h5 id="ar-qr-modal-title" class="modal-title text-center w-100">{{ 'spatial.scanQrCode'|trans|striptags }}</h5>
-                            <button type="button" class="btn-close close m-1" data-bs-dismiss="modal" aria-label="{{ 'global.default.close'|trans|striptags }}"></button>
+                            <h3 id="ar-qr-modal-title" class="modal-title text-center w-100">{{ 'spatial.ar.scanQrCode'|trans|striptags }}</h3>
+                            <button type="button" class="btn-close close" data-bs-dismiss="modal" aria-label="{{ 'global.default.close'|trans|striptags }}"></button>
                         {% endblock %}
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body ar-qr-modal-body">
                         {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                         {% block spatial_ar_qr_code_modal_show_qr_body %}
-                            <div class="text-center">
-                                <span>{{ 'spatial.pointToQrCode'|trans|striptags }}</span>
-                            </div>
-                            <div class="text-center m-3">
-                                <div class="arQRCode mx-auto" style="max-width: 256px" data-page-qrcode-generator {% if qrCodeOptions %} data-page-qrcode-generator-options="{{ qrCodeOptions|json_encode|escape('html_attr') }}"{% endif %}></div>
+                            <div class="text-center ar-qr-modal-body-text">
+                                <span>{{ 'spatial.ar.pointToQrCode'|trans|striptags }}</span>
                             </div>
                             <div class="text-center">
-                                <span>{{ 'spatial.arSupportInFollowingDevices'|trans|striptags }}</span>
-                                <span>{{ 'spatial.arSupportDevices'|trans|striptags }}</span>
-                                <span class="hidden-desktop">{{ 'spatial.arSupportMobileHint'|trans|striptags }}</span>
+                                <div class="ar-qr-modal-body-qr-code" data-page-qrcode-generator {% if qrCodeOptions %} data-page-qrcode-generator-options="{{ qrCodeOptions|json_encode|escape('html_attr') }}"{% endif %}></div>
+                            </div>
+                        {% endblock %}
+                    </div>
+                    <div class="modal-footer ar-qr-modal-footer">
+                        {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
+                        {% block spatial_ar_qr_code_modal_show_qr_footer %}
+                            <div class="text-center ar-qr-modal-footer-headline">
+                                <span>{{ 'spatial.ar.whyDoISeeThis'|trans|striptags }}</span>
+                            </div>
+                            <div class="text-center">
+                                <span id="ar-qr-modal-error-reason">{{ 'spatial.ar.errors.unknownARError.reason'|trans|striptags }}</span>
+                                <span id="ar-qr-modal-error-solution">{{ 'spatial.ar.errors.unknownARError.solution'|trans|striptags }}</span>
                             </div>
                         {% endblock %}
                     </div>
@@ -49,7 +56,7 @@
                     <div class="modal-header p-2">
                         {# @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES #}
                         {% block spatial_ar_qr_code_modal_open_ar_session_header %}
-                            <h5 id="ar-qr-session-modal-title" class="modal-title">{{ 'spatial.augmentedRealityView'|trans|striptags }}</h5>
+                            <h5 id="ar-qr-session-modal-title" class="modal-title">{{ 'spatial.ar.augmentedRealityView'|trans|striptags }}</h5>
                             <button type="button" class="btn-close close m-1" data-bs-dismiss="modal" aria-label="{{ 'global.default.close'|trans|striptags }}"></button>
                         {% endblock %}
                     </div>
@@ -74,7 +81,7 @@
                                         {% sw_icon 'augmented' style {
                                             size: 'sm'
                                         } %}
-                                        <span>{{ 'spatial.openArView'|trans|striptags }}</span>
+                                        <span id="ar-btn-open-session-text">{{ 'spatial.ar.openArView'|trans|striptags }}</span>
                                     </div>
                                 </button>
                             </div>

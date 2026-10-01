@@ -1,14 +1,12 @@
 import template from './sw-tree-item.html.twig';
 import './sw-tree-item.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
  * @private
  */
-Component.register('sw-tree-item', {
+export default {
     template,
 
     inject: {
@@ -30,6 +28,10 @@ Component.register('sw-tree-item', {
         },
         treeMoveDrag: {
             from: 'moveDrag',
+            default: null,
+        },
+        treeOpenById: {
+            from: 'openTreeById',
             default: null,
         },
         treeAddSubElement: {
@@ -101,7 +103,6 @@ Component.register('sw-tree-item', {
 
         disableContextMenu: {
             type: Boolean,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -134,10 +135,15 @@ Component.register('sw-tree-item', {
         sortable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
+        },
+
+        allowDropIntoFolder: {
+            type: Boolean,
+            required: false,
+            default: false,
         },
 
         markInactive: {
@@ -169,7 +175,6 @@ Component.register('sw-tree-item', {
         displayCheckbox: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -178,7 +183,6 @@ Component.register('sw-tree-item', {
         allowNewCategories: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -187,7 +191,6 @@ Component.register('sw-tree-item', {
         allowDeleteCategories: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return true;
             },
@@ -196,7 +199,6 @@ Component.register('sw-tree-item', {
         allowCreateWithoutPosition: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -205,7 +207,6 @@ Component.register('sw-tree-item', {
         allowDuplicate: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: () => {
                 return false;
             },
@@ -243,6 +244,7 @@ Component.register('sw-tree-item', {
             rootParent: null,
             checkedGhost: false,
             currentEditElement: null,
+            dragHoverTimeout: null,
         };
     },
 
@@ -252,7 +254,6 @@ Component.register('sw-tree-item', {
                 return this.item.checked;
             },
             set(isChecked) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.item.checked = isChecked;
             },
         },
@@ -261,11 +262,14 @@ Component.register('sw-tree-item', {
             return this.$route.params[this.item.activeElementId] || null;
         },
 
+        dragHoverDelay() {
+            return 1200;
+        },
+
         isOpened() {
             if (this.item.initialOpened) {
                 this.openTreeItem(true);
                 this.getTreeItemChildren(this.item);
-                // eslint-disable-next-line vue/no-side-effects-in-computed-properties,vue/no-mutating-props
                 this.item.initialOpened = false;
             }
             return this.opened;
@@ -300,6 +304,7 @@ Component.register('sw-tree-item', {
                 data: this.item,
                 onDragStart: this.dragStart,
                 onDragEnter: this.onMouseEnter,
+                onDragLeave: this.onMouseLeave,
                 onDrop: this.dragEnd,
                 preventEvent: true,
                 disabled: !this.sortable,
@@ -328,7 +333,7 @@ Component.register('sw-tree-item', {
 
             return {
                 showDelay: 300,
-                message: this.$tc(`${this.translationContext}.general.actions.actionsDisabledInLanguage`),
+                message: this.$t(`${this.translationContext}.general.actions.actionsDisabledInLanguage`),
                 disabled: !this.disableContextMenu,
             };
         },
@@ -342,14 +347,10 @@ Component.register('sw-tree-item', {
         },
 
         contentSlot() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots.content;
         },
 
         actionsSlot() {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots.actions;
         },
     },
@@ -361,6 +362,10 @@ Component.register('sw-tree-item', {
 
         newElementId(newId) {
             this.currentEditElement = newId;
+
+            if (newId === this.item.data.id) {
+                this.editElementName();
+            }
         },
 
         activeParentIds: {
@@ -498,6 +503,7 @@ Component.register('sw-tree-item', {
         },
 
         dragEnd() {
+            this.clearDragHoverTimeout();
             this.treeEndDrag();
         },
 
@@ -507,6 +513,26 @@ Component.register('sw-tree-item', {
             }
 
             this.treeMoveDrag(dragData, dropData);
+            if (!this.allowDropIntoFolder) {
+                return;
+            }
+
+            this.clearDragHoverTimeout();
+            this.dragHoverTimeout = window.setTimeout(() => {
+                this.treeOpenById(dropData.id);
+                this.treeMoveDrag(dragData, dropData, true);
+            }, this.dragHoverDelay);
+        },
+
+        onMouseLeave() {
+            this.clearDragHoverTimeout();
+        },
+
+        clearDragHoverTimeout() {
+            if (this.dragHoverTimeout !== null) {
+                window.clearTimeout(this.dragHoverTimeout);
+                this.dragHoverTimeout = null;
+            }
         },
 
         startDrag(draggedComponent) {
@@ -517,8 +543,8 @@ Component.register('sw-tree-item', {
             this.treeEndDrag();
         },
 
-        moveDrag(draggedComponent, droppedComponent) {
-            return this.treeMoveDrag(draggedComponent, droppedComponent);
+        moveDrag(draggedComponent, droppedComponent, dropInto = false) {
+            return this.treeMoveDrag(draggedComponent, droppedComponent, dropInto);
         },
 
         // Bubbles this method to the root tree from any item depth
@@ -530,11 +556,9 @@ Component.register('sw-tree-item', {
         toggleItemCheck(event, item) {
             if (this.checkedGhost && !item.checked) {
                 this.checked = true;
-                // eslint-disable-next-line vue/no-mutating-props
                 this.item.checked = true;
             } else {
                 this.checked = event;
-                // eslint-disable-next-line vue/no-mutating-props
                 this.item.checked = event;
             }
 
@@ -559,11 +583,12 @@ Component.register('sw-tree-item', {
         },
 
         editElementName() {
+            // The naming field is rendered too late to be focused from here, v-autofocus does that.
             this.$nextTick(() => {
-                const elementNameField = this.$el.querySelector('.sw-tree-detail__edit-tree-item input');
-                if (elementNameField) {
-                    elementNameField.focus();
-                }
+                this.$el.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                });
             });
         },
 
@@ -614,15 +639,11 @@ Component.register('sw-tree-item', {
         },
 
         renderContentSlotNode({ item, openTreeItem, getName }) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots.content({ item, openTreeItem, getName });
         },
 
         renderActionsSlotNode({ item, openTreeItem }) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
-
             return this.$slots.actions({ item, openTreeItem });
         },
     },
-});
+};

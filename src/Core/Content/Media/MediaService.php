@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Media;
 
 use Psr\Http\Message\StreamInterface;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\File\FileFetcher;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\File\FileSaver;
@@ -20,6 +21,9 @@ class MediaService
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<MediaCollection> $mediaRepository
+     * @param EntityRepository<MediaFolderCollection> $mediaFolderRepository
      */
     public function __construct(
         private readonly EntityRepository $mediaRepository,

@@ -12,6 +12,8 @@ class LandingPage extends Page
 {
     protected ?LandingPageEntity $landingPage = null;
 
+    protected ?string $navigationId = null;
+
     public function getEntityName(): string
     {
         return LandingPageDefinition::ENTITY_NAME;
@@ -25,5 +27,15 @@ class LandingPage extends Page
     public function setLandingPage(?LandingPageEntity $landingPage): void
     {
         $this->landingPage = $landingPage;
+    }
+
+    public function getNavigationId(): ?string
+    {
+        return $this->navigationId;
+    }
+
+    public function setNavigationId(?string $navigationId): void
+    {
+        $this->navigationId = $navigationId;
     }
 }

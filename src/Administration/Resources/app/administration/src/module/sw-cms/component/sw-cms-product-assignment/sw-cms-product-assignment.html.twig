@@ -37,7 +37,7 @@
                         ref="swSelectResultList"
                         :options="resultCollection"
                         :is-loading="isLoadingResults"
-                        :empty-message="$tc('global.sw-entity-many-to-many-select.messageNoResults', { term: searchTerm }, 0)"
+                        :empty-message="$t('global.sw-entity-many-to-many-select.messageNoResults', { term: searchTerm }, 0)"
                         :focus-el="$refs.searchInput"
                         @paginate="paginateResult"
                         @item-select="onItemSelect"
@@ -71,16 +71,13 @@
                                         name="result-label-property"
                                         v-bind="{ item, index, labelProperty, valueProperty: 'id', searchTerm, highlightSearchTerm, getKey }"
                                     >
-
-                                        <sw-highlight-text
-                                            v-if="highlightSearchTerm"
-                                            :text="getKey(item, `translated.${labelProperty}`)"
+                                        <sw-product-variant-info
+                                            :variations="item.variation"
                                             :search-term="searchTerm"
-                                        />
-
-                                        <template v-else>
+                                            highlighted
+                                        >
                                             {{ getKey(item, `translated.${labelProperty}`) }}
-                                        </template>
+                                        </sw-product-variant-info>
                                     </slot>
                                 {% endblock %}
                                 </sw-select-result>
@@ -139,7 +136,7 @@
                 :disabled="disabled"
                 @click="removeFromGrid(item)"
             >
-                {{ $tc('global.entity-components.labelRemoveAssociation') }}
+                {{ $t('global.entity-components.labelRemoveAssociation') }}
             </sw-context-menu-item>
             {% endblock %}
         </template>

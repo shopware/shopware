@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1574082635AddOrderLineItemProductId extends MigrationStep
@@ -29,7 +27,7 @@ class Migration1574082635AddOrderLineItemProductId extends MigrationStep
 
         $connection->executeStatement('UPDATE IGNORE order_line_item SET product_id = UNHEX(referenced_id) WHERE type = \'product\'');
 
-        $connection->executeStatement('ALTER TABLE `order_line_item` ADD FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE SET NULL ON UPDATE CASCADE');
+        $connection->executeStatement('ALTER TABLE `order_line_item` ADD CONSTRAINT `fk.order_line_item.product` FOREIGN KEY (`product_id`, `product_version_id`) REFERENCES `product` (`id`, `version_id`) ON DELETE SET NULL ON UPDATE CASCADE');
     }
 
     public function updateDestructive(Connection $connection): void

@@ -45,8 +45,12 @@ export default class AjaxModalPlugin extends Plugin {
      * @private
      */
     _registerEvents() {
-        this.el.removeEventListener('click', this._onClickHandleAjaxModal.bind(this));
-        this.el.addEventListener('click', this._onClickHandleAjaxModal.bind(this));
+        if (!this._boundOnClickHandleAjaxModal) {
+            this._boundOnClickHandleAjaxModal = this._onClickHandleAjaxModal.bind(this);
+        }
+
+        this.el.removeEventListener('click', this._boundOnClickHandleAjaxModal);
+        this.el.addEventListener('click', this._boundOnClickHandleAjaxModal);
     }
 
     /**
@@ -126,7 +130,11 @@ export default class AjaxModalPlugin extends Plugin {
     _processResponse(response, loadingIndicatorUtil, pseudoModalUtil, modalBodyEl) {
         loadingIndicatorUtil.remove();
         pseudoModalUtil.updateContent(response, this._renderBackButton.bind(this, pseudoModalUtil));
-        window.PluginManager.initializePlugins();
+        
+        // Initialize plugins only within the modal
+        const modal = pseudoModalUtil.getModal();
+        window.PluginManager.initializePluginsInParentElement(modal);
+        
         modalBodyEl.classList.remove(this.options.centerLoadingIndicatorClass);
     }
 
@@ -174,7 +182,9 @@ export default class AjaxModalPlugin extends Plugin {
     _onModalOpen(pseudoModalUtil, classes) {
         const modal = pseudoModalUtil.getModal();
         modal.classList.add(...classes);
-        window.PluginManager.initializePlugins();
+
+        window.PluginManager.initializePluginsInParentElement(modal);
+
         this.$emitter.publish('ajaxModalOpen', { modal });
     }
 }

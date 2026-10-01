@@ -11,16 +11,12 @@ const { Criteria, EntityCollection } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -34,6 +30,11 @@ export default {
     },
 
     computed: {
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
+        assetFilter() {
+            return Shopware.Filter.getByName('asset');
+        },
+
         product() {
             return Shopware.Store.get('swProductDetail').product;
         },
@@ -56,14 +57,33 @@ export default {
 
         onAddCrossSellingTooltipMessage() {
             if (this.isSystemDefaultLanguage) {
-                return this.$tc('sw-privileges.tooltip.warning');
+                return this.$t('sw-privileges.tooltip.warning');
             }
 
-            return this.$tc('sw-product.crossselling.buttonAddCrossSellingLanguageWarning');
+            return this.$t('sw-product.crossselling.buttonAddCrossSellingLanguageWarning');
         },
 
-        assetFilter() {
-            return Shopware.Filter.getByName('asset');
+        emptyStateDescription() {
+            if (!this.isChild) {
+                return this.$t('sw-product.crossselling.emptyStateDescription');
+            }
+
+            if (this.isInherited) {
+                return this.$t('sw-product.crossselling.inheritedEmptyStateDescription');
+            }
+
+            return this.$t('sw-product.crossselling.notInheritedEmptyStateDescription');
+        },
+
+        parentCrossSellingHref() {
+            if (!this.isChild || !this.isInherited) {
+                return undefined;
+            }
+
+            return this.$router.resolve({
+                name: 'sw.product.detail.crossSelling',
+                params: { id: this.product.parentId },
+            }).href;
         },
 
         crossSellingRepository() {

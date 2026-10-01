@@ -9,7 +9,7 @@ use Shopware\Core\SalesChannelRequest;
 use Symfony\Component\Asset\VersionStrategy\VersionStrategyInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
-#[Package('framework')]
+#[Package('discovery')]
 class ThemeAssetPackage extends FallbackUrlPackage
 {
     /**
@@ -37,7 +37,7 @@ class ThemeAssetPackage extends FallbackUrlPackage
             $url = '/' . $url;
         }
 
-        $url = $this->getVersionStrategy()->applyVersion($this->appendThemePath($url) . $url);
+        $url = $this->getVersionStrategy()->applyVersion($this->prependThemePath($url) . $url);
 
         if ($this->isAbsoluteUrl($url)) {
             return $url;
@@ -46,7 +46,7 @@ class ThemeAssetPackage extends FallbackUrlPackage
         return $this->getBaseUrl($path) . $url;
     }
 
-    private function appendThemePath(string $url): string
+    private function prependThemePath(string $url): string
     {
         $currentRequest = $this->requestStack->getMainRequest();
 

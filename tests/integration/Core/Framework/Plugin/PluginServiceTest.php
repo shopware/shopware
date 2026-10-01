@@ -3,16 +3,16 @@
 namespace Shopware\Tests\Integration\Core\Framework\Plugin;
 
 use Composer\IO\NullIO;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
-use Shopware\Core\Framework\Plugin\Exception\PluginNotFoundException;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\Framework\Plugin\PluginService;
@@ -21,6 +21,7 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Test\Plugin\PluginTestsHelper;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\Locale\LocaleEntity;
 use SwagTestNoDefaultLang\SwagTestNoDefaultLang;
 use SwagTestPlugin\SwagTestPlugin;
@@ -28,7 +29,7 @@ use SwagTestPlugin\SwagTestPlugin;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class PluginServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -49,7 +50,7 @@ class PluginServiceTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->fixturePath = __DIR__ . '/../../../../../src/Core/Framework/Test/Plugin/_fixture/';
+        $this->fixturePath = __DIR__ . '/../../../../../tests/integration/Core/Framework/Plugin/_fixtures/';
         require_once $this->fixturePath . 'plugins/SwagTestPlugin/src/SwagTestPlugin.php';
         require_once $this->fixturePath . 'plugins/SwagTestNoDefaultLang/src/SwagTestNoDefaultLang.php';
         $this->pluginRepo = static::getContainer()->get('plugin.repository');
@@ -76,6 +77,16 @@ class PluginServiceTest extends TestCase
         static::assertSame('https://www.test.com/support', $plugin->getSupportLink());
     }
 
+    public function testRefreshPluginsWithAdminApiContext(): void
+    {
+        $source = new AdminApiSource(Uuid::randomHex());
+        $source->setIsAdmin(true);
+
+        $this->pluginService->refreshPlugins(new Context($source), new NullIO());
+
+        $this->assertDefaultPlugin($this->fetchSwagTestPluginEntity());
+    }
+
     public function testRefreshPluginsWithRootComposerJsonContainingPlugin(): void
     {
         $this->pluginService = $this->createPluginService(
@@ -99,19 +110,21 @@ class PluginServiceTest extends TestCase
 
         static::assertTrue($errors->count() > 0);
 
-        $composerJsonException = $errors->filter(fn (ShopwareHttpException $error) => $error instanceof PluginComposerJsonInvalidException);
+        $composerJsonException = $errors->filter(static fn (ShopwareHttpException $error) => $error instanceof PluginComposerJsonInvalidException);
 
-        static::assertNotEmpty($composerJsonException);
+        static::assertNotSame(0, $composerJsonException->count());
+        static::assertContainsOnlyInstancesOf(PluginComposerJsonInvalidException::class, $composerJsonException);
 
         $errorFound = false;
         $errorString = 'Plugin composer.json has invalid "type" (must be "shopware-platform-plugin"), or invalid "extra/shopware-plugin-class" value, or missing extra.label property';
 
-        foreach ($composerJsonException->getIterator() as $exception) {
-            if (empty($exception->getParameters()['composerJsonPath']) || !str_contains($exception->getParameters()['composerJsonPath'], '/plugins/SwagTestNoExtraLabelProperty/composer.json')) {
+        foreach ($composerJsonException as $exception) {
+            $parameters = $exception->getParameters();
+            if (!\array_key_exists('composerJsonPath', $parameters) || !str_contains($parameters['composerJsonPath'], '/plugins/SwagTestNoExtraLabelProperty/composer.json')) {
                 continue;
             }
 
-            if (!empty($exception->getParameters()['errorsString']) && $exception->getParameters()['errorsString'] === $errorString) {
+            if (\array_key_exists('errorsString', $parameters) && $parameters['errorsString'] === $errorString) {
                 $errorFound = true;
             }
         }
@@ -230,24 +243,6 @@ class PluginServiceTest extends TestCase
         static::assertNull($plugin->getUpgradeVersion());
     }
 
-    public function testGetPluginByName(): void
-    {
-        $this->createPlugin($this->pluginRepo, $this->context);
-
-        $plugin = $this->pluginService->getPluginByName('SwagTestPlugin', $this->context);
-
-        $this->assertDefaultPlugin($plugin);
-    }
-
-    public function testGetPluginByNameThrowsException(): void
-    {
-        $this->createPlugin($this->pluginRepo, $this->context);
-
-        $this->expectException(PluginNotFoundException::class);
-        $this->expectExceptionMessage('Plugin by name "SwagFoo" not found');
-        $this->pluginService->getPluginByName('SwagFoo', $this->context);
-    }
-
     private function assertDefaultPlugin(PluginEntity $plugin): void
     {
         static::assertSame(SwagTestPlugin::class, $plugin->getBaseClass());
@@ -296,7 +291,7 @@ class PluginServiceTest extends TestCase
         /** @var PluginEntity|null $first */
         $first = $this->pluginRepo
             ->search($criteria, $context)
-            ->first();
+            ->getEntities()->first();
 
         static::assertNotNull($first);
 
@@ -314,7 +309,7 @@ class PluginServiceTest extends TestCase
         /** @var PluginEntity|null $first */
         $first = $this->pluginRepo
             ->search($criteria, $context)
-            ->first();
+            ->getEntities()->first();
 
         static::assertNotNull($first);
 
@@ -339,6 +334,7 @@ class PluginServiceTest extends TestCase
                     'name' => $iso,
                     'localeId' => $localeId,
                     'translationCodeId' => $localeId,
+                    'active' => true,
                 ],
             ],
             Context::createDefaultContext()
@@ -367,7 +363,7 @@ class PluginServiceTest extends TestCase
 
     private function getIsoId(string $iso): string
     {
-        /** @var EntityRepository $localeRepository */
+        /** @var EntityRepository<LocaleCollection> $localeRepository */
         $localeRepository = static::getContainer()->get('locale.repository');
 
         $criteria = new Criteria();
@@ -375,7 +371,7 @@ class PluginServiceTest extends TestCase
         $criteria->addFilter(new EqualsFilter('code', $iso));
 
         /** @var LocaleEntity|null $locale */
-        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->first();
+        $locale = $localeRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         static::assertNotNull($locale, \sprintf('Locale with code %s not found', $iso));
 

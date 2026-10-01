@@ -34,7 +34,7 @@ class OrderCreatedByAdminRuleTest extends TestCase
 
     public function testGetName(): void
     {
-        static::assertEquals('orderCreatedByAdmin', $this->rule->getName());
+        static::assertSame('orderCreatedByAdmin', $this->rule->getName());
     }
 
     public function testRuleConfig(): void
@@ -60,13 +60,13 @@ class OrderCreatedByAdminRuleTest extends TestCase
         static::assertArrayHasKey('shouldOrderBeCreatedByAdmin', $constraints, 'Constraint shouldOrderBeCreatedByAdmin not found in Rule');
         static::assertEquals($constraints['shouldOrderBeCreatedByAdmin'], [
             new NotNull(),
-            new Type(['type' => 'bool']),
+            new Type(type: 'bool'),
         ]);
     }
 
     public function testMatchWithWrongRuleScope(): void
     {
-        $scope = $this->createMock(TestRuleScope::class);
+        $scope = static::createStub(TestRuleScope::class);
 
         $match = $this->rule->match($scope);
 
@@ -79,11 +79,11 @@ class OrderCreatedByAdminRuleTest extends TestCase
         $scope = new FlowRuleScope(
             $order,
             new Cart('test'),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $match = $rule->match($scope);
-        static::assertEquals($match, $isMatching);
+        static::assertSame($match, $isMatching);
     }
 
     public static function getCaseTestMatchValues(): \Generator

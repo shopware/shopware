@@ -1,5 +1,3 @@
-import type { ACTION } from '../constant/flow.constant';
-
 /**
  * @sw-package after-sales
  */
@@ -25,7 +23,7 @@ type EntityActions =
     | 'SET_CUSTOMER_GROUP_CUSTOM_FIELD'
     | 'ADD_CUSTOMER_AFFILIATE_AND_CAMPAIGN_CODE';
 
-type EntityActionName = (typeof ACTION)[EntityActions];
+type EntityActionName = (typeof Shopware.Constants.FLOW.ACTION)[EntityActions];
 
 const swFlowStore = Shopware.Store.register('swFlow', {
     state: () => ({
@@ -125,7 +123,9 @@ const swFlowStore = Shopware.Store.register('swFlow', {
             return (
                 state.flow.sequences
                     ?.filter((item) => item.actionName === Service('flowBuilderService').getActionName('MAIL_SEND'))
-                    .map((item: Sequence) => (item.config as { mailTemplateId?: string })?.mailTemplateId) ?? []
+                    .map(
+                        (item: Sequence) => (item.config as { mailTemplateId?: EntityKey<'mail_template'> })?.mailTemplateId,
+                    ) ?? []
             );
         },
 
@@ -139,7 +139,9 @@ const swFlowStore = Shopware.Store.register('swFlow', {
                             item.actionName === service.getActionName('SET_ORDER_CUSTOM_FIELD') ||
                             item.actionName === service.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'),
                     )
-                    .map((item) => (item.config as { customFieldSetId?: string })?.customFieldSetId) ?? []
+                    .map(
+                        (item) => (item.config as { customFieldSetId?: EntityKey<'custom_field_set'> })?.customFieldSetId,
+                    ) ?? []
             );
         },
 
@@ -153,7 +155,7 @@ const swFlowStore = Shopware.Store.register('swFlow', {
                             item.actionName === service.getActionName('SET_ORDER_CUSTOM_FIELD') ||
                             item.actionName === service.getActionName('SET_CUSTOMER_GROUP_CUSTOM_FIELD'),
                     )
-                    .map((item) => (item.config as { customFieldId?: string })?.customFieldId) ?? []
+                    .map((item) => (item.config as { customFieldId?: EntityKey<'custom_field'> })?.customFieldId) ?? []
             );
         },
 
@@ -201,6 +203,7 @@ const swFlowStore = Shopware.Store.register('swFlow', {
 
         setFlow(flow: Flow & { config?: Flow }) {
             this.flow = flow;
+
             if (flow.config) {
                 this.flow.description = flow.config.description;
                 this.flow.sequences = flow.config.sequences;
@@ -209,10 +212,27 @@ const swFlowStore = Shopware.Store.register('swFlow', {
         },
 
         setOriginFlow(flow: Flow) {
-            this.originFlow = {
-                ...flow,
-                sequences: flow.sequences?.map((item) => ({ ...item })) as Sequences,
-            } as Flow;
+            const clonedFlow = Shopware.Utils.object.cloneDeep(flow);
+
+            if (!flow.sequences) {
+                this.originFlow = clonedFlow;
+                return;
+            }
+
+            const sequences = new EntityCollection(
+                flow.sequences.source,
+                flow.sequences.entity,
+                Shopware.Context.api,
+                null,
+                [],
+            );
+
+            flow.sequences.forEach((item) => {
+                sequences.add(Shopware.Utils.object.cloneDeep(item) as Sequence);
+            });
+
+            clonedFlow.sequences = sequences;
+            this.originFlow = clonedFlow;
         },
 
         setEventName(eventName: string) {

@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package checkout
  */
@@ -6,6 +8,30 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import Criteria from 'src/core/data/criteria.data';
 
 const selectedOrderId = Shopware.Utils.createId();
+
+const documentIds = ['document-id-1', 'document-id-2'];
+
+const deleteDocumentTypesFixtures = [
+    {
+        id: 'invoice-id',
+        technicalName: 'invoice',
+        translated: { name: 'Invoice' },
+        selected: true,
+    },
+];
+
+const documentRepositoryMock = {
+    searchIds: jest.fn(() =>
+        Promise.resolve({
+            data: documentIds,
+            total: documentIds.length,
+        }),
+    ),
+};
+
+const syncServiceMock = {
+    sync: jest.fn(() => Promise.resolve()),
+};
 
 function createEntityCollection(entities = []) {
     return new Shopware.Data.EntityCollection('collection', 'collection', {}, null, entities);
@@ -16,7 +42,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     let routes;
     const searchIdsSpy = jest.fn();
 
-    async function createWrapper(isResponseError = false) {
+    async function createWrapper(isResponseError = false, selectedDocumentTypesForDeletion = []) {
         // delete global $router and $routes mocks
         delete config.global.mocks.$router;
         delete config.global.mocks.$route;
@@ -28,11 +54,19 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         router.push('/');
         await router.isReady();
 
+        Shopware.Store.get('swBulkEdit').selectedIds = [selectedOrderId];
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
+            type: 'delete',
+            value: [...selectedDocumentTypesForDeletion],
+        });
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({
+            type: 'delete',
+            isChanged: selectedDocumentTypesForDeletion.length > 0,
+        });
+
         return mount(await wrapTestComponent('sw-bulk-edit-order', { sync: true }), {
             global: {
-                plugins: [
-                    router,
-                ],
+                plugins: [router],
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-loader': true,
@@ -46,7 +80,6 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-bulk-edit-form-field-renderer': await wrapTestComponent('sw-bulk-edit-form-field-renderer'),
                     'sw-bulk-edit-change-type': await wrapTestComponent('sw-bulk-edit-change-type'),
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
-                    'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-bulk-edit-order-documents': await wrapTestComponent('sw-bulk-edit-order-documents'),
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
@@ -54,6 +87,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
                     'sw-text-field-deprecated': await wrapTestComponent('sw-text-field-deprecated', { sync: true }),
                     'sw-textarea-field': await wrapTestComponent('sw-textarea-field'),
+                    'sw-textarea-field-deprecated': await wrapTestComponent('sw-textarea-field-deprecated', { sync: true }),
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'sw-contextual-field': await wrapTestComponent('sw-contextual-field'),
@@ -69,6 +103,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-search-bar': true,
                     'sw-datepicker': true,
                     'sw-text-editor': true,
+                    'sw-context-menu-item': true,
                     'sw-language-switch': true,
                     'sw-notification-center': true,
                     'sw-help-center': true,
@@ -84,10 +119,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-bulk-edit-order-documents-generate-delivery-note': true,
                     'sw-bulk-edit-order-documents-generate-credit-note': true,
                     'sw-bulk-edit-order-documents-download-documents': true,
+                    'sw-bulk-edit-order-documents-delete-documents': true,
                     'sw-entity-tag-select': true,
                     'sw-inherit-wrapper': await wrapTestComponent('sw-inherit-wrapper'),
                     'sw-error-summary': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-help-center-v2': true,
                     'sw-context-button': true,
                     'sw-inheritance-switch': true,
@@ -102,6 +139,26 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     'sw-media-collapse': true,
                 },
                 provide: {
+                    customFieldDataProviderService: {
+                        getCustomFieldSets: () =>
+                            Promise.resolve(
+                                createEntityCollection([
+                                    {
+                                        id: 'field-set-id-1',
+                                        name: 'example',
+                                        customFields: [
+                                            {
+                                                name: 'customFieldName',
+                                                type: 'text',
+                                                config: {
+                                                    label: 'configFieldLabel',
+                                                },
+                                            },
+                                        ],
+                                    },
+                                ]),
+                            ),
+                    },
                     validationService: {},
                     repositoryFactory: {
                         create: (entity) => {
@@ -133,6 +190,10 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                                 return {
                                     searchIds: searchIdsSpy,
                                 };
+                            }
+
+                            if (entity === 'document') {
+                                return documentRepositoryMock;
                             }
 
                             return {
@@ -224,10 +285,15 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                             });
                         },
                     },
+                    documentV2Service: {},
+                    documentV2ApiService: {
+                        getAvailableTypes: () => Promise.resolve({ documentTypes: {} }),
+                    },
                     shortcutService: {
                         startEventListener: () => {},
                         stopEventListener: () => {},
                     },
+                    syncService: syncServiceMock,
                 },
             },
             props: {
@@ -343,11 +409,16 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         expect(wrapper.find('.sw-bulk-edit-change-field-renderer').exists()).toBeTruthy();
     });
 
-    it('should disable status mails and documents by default', async () => {
+    it('should disable transitionInternalComment, status mails and documents by default', async () => {
         wrapper = await createWrapper();
 
         await flushPromises();
 
+        expect(
+            wrapper
+                .find('.sw-bulk-edit-change-field-transitionInternalComment .mt-field--checkbox__container input')
+                .attributes().disabled,
+        ).toBeDefined();
         expect(
             wrapper.find('.sw-bulk-edit-change-field-statusMails .mt-field--checkbox__container input').attributes()
                 .disabled,
@@ -357,7 +428,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         ).toBeDefined();
     });
 
-    it('should enable status mails when one of the status fields has changed', async () => {
+    it('should enable transitionInternalComment and status mails when one of the status fields has changed', async () => {
         wrapper = await createWrapper();
 
         await flushPromises();
@@ -374,6 +445,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await wrapper.vm.$nextTick();
 
+        expect(
+            wrapper
+                .find('.sw-bulk-edit-change-field-transitionInternalComment .mt-field--checkbox__container input')
+                .attributes().disabled,
+        ).toBeUndefined();
         expect(
             wrapper.find('.sw-bulk-edit-change-field-statusMails .mt-field--checkbox__container input').attributes()
                 .disabled,
@@ -412,20 +488,16 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         wrapper = await createWrapper();
 
         const spyOnCustomFieldsChange = jest.spyOn(wrapper.vm, 'onCustomFieldsChange');
+        const customFields = { customFieldName: 'custom field value' };
 
         await flushPromises();
 
-        await wrapper.vm.$nextTick();
+        await wrapper.getComponent('.sw-bulk-edit__custom-fields').vm.$emit('change', customFields);
+        await flushPromises();
 
-        await wrapper
-            .find('.sw-bulk-edit__custom-fields .sw-bulk-edit-custom-fields__change.mt-field--checkbox__container input')
-            .setValue('checked');
-
-        await wrapper.vm.$nextTick();
-
-        expect(spyOnCustomFieldsChange).toHaveBeenCalledTimes(1);
+        expect(spyOnCustomFieldsChange).toHaveBeenCalledWith(customFields);
         wrapper.vm.onCustomFieldsChange.mockRestore();
-        expect(wrapper.vm.bulkEditData.customFields.value).toHaveProperty('customFieldName');
+        expect(wrapper.vm.bulkEditData.customFields.value).toEqual(customFields);
     });
 
     it('should call onChangeDocument when a document field changed is changed', async () => {
@@ -529,8 +601,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         expect(wrapper.vm.selectedIds).toHaveLength(0);
 
-        const emptyState = wrapper.find('.sw-empty-state');
-        expect(emptyState.find('.sw-empty-state__title').text()).toBe('sw-bulk-edit.order.messageEmptyTitle');
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-bulk-edit.order.messageEmptyTitle');
     });
 
     it('should open confirm modal', async () => {
@@ -645,7 +716,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         wrapper.vm.createdComponent();
         expect(wrapper.vm.setRouteMetaModule).toHaveBeenCalled();
-        expect(wrapper.vm.$route.meta.$module.color).toBe('#A092F0');
+        expect(wrapper.vm.$route.meta.$module.color).toBe('var(--sw-color-module-purple-default)');
         expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-shopping-bag');
 
         wrapper.vm.setRouteMetaModule.mockRestore();
@@ -677,9 +748,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const orderTransactionStateCriteria = new Criteria(1, null);
         orderTransactionStateCriteria.addFilter(
             Criteria.multi('AND', [
-                Criteria.equalsAny('orderTransactions.orderId', [
-                    selectedOrderId,
-                ]),
+                Criteria.equalsAny('orderTransactions.orderId', [selectedOrderId]),
                 Criteria.equals('orderTransactions.orderVersionId', liveVersionId),
             ]),
         );
@@ -688,9 +757,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         const orderDeliveryStateCriteria = new Criteria(1, null);
         orderDeliveryStateCriteria.addFilter(
             Criteria.multi('AND', [
-                Criteria.equalsAny('orderDeliveries.orderId', [
-                    selectedOrderId,
-                ]),
+                Criteria.equalsAny('orderDeliveries.orderId', [selectedOrderId]),
                 Criteria.equals('orderDeliveries.orderVersionId', liveVersionId),
             ]),
         );
@@ -712,6 +779,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                     isChanged: false,
                 },
                 orderDeliveries: {
+                    isChanged: false,
+                },
+                transitionInternalComment: {
                     isChanged: false,
                 },
                 statusMails: {
@@ -736,6 +806,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 orderDeliveries: {
                     isChanged: false,
                 },
+                transitionInternalComment: {
+                    isChanged: false,
+                },
                 statusMails: {
                     isChanged: false,
                 },
@@ -743,6 +816,56 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
         });
         expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
     });
+
+    function setInvoiceFileFormats(fileFormats) {
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsValue({
+            type: 'invoice',
+            value: {
+                documentDate: '',
+                documentComment: null,
+                forceDocumentCreation: false,
+                fileFormats,
+            },
+        });
+    }
+
+    it('should disable the save action when a selected document generation type has no file formats', async () => {
+        global.activeFeatureFlags = ['DOCUMENT_GENERATION_REWORK'];
+        wrapper = await createWrapper();
+        await flushPromises();
+        await wrapper.setData({ isLoading: false, bulkEditData: { orders: { isChanged: true } } });
+
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
+
+        setInvoiceFileFormats([]);
+        Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({ type: 'invoice', isChanged: true });
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled') !== undefined).toBe(true);
+
+        setInvoiceFileFormats(['pdf']);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
+
+        global.activeFeatureFlags = [];
+    });
+
+    // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
+    it.deprecated('DOCUMENT_GENERATION_REWORK')(
+        'should not require file formats for document generation types outside DOCUMENT_GENERATION_REWORK',
+        async () => {
+            wrapper = await createWrapper();
+            await flushPromises();
+            await wrapper.setData({ isLoading: false, bulkEditData: { orders: { isChanged: true } } });
+
+            setInvoiceFileFormats([]);
+            Shopware.Store.get('swBulkEdit').setOrderDocumentsIsChanged({ type: 'invoice', isChanged: true });
+            await wrapper.vm.$nextTick();
+
+            expect(wrapper.find('.sw-bulk-edit-order__save-action').attributes('disabled')).toBeUndefined();
+        },
+    );
 
     it('should get latest order status correctly', async () => {
         wrapper = await createWrapper();
@@ -759,6 +882,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
                 },
                 orderDeliveries: {
                     isChanged: true,
+                },
+                transitionInternalComment: {
+                    isChanged: false,
                 },
                 statusMails: {
                     isChanged: false,
@@ -777,7 +903,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
     it('should restrict fields on including orders without delivery', async () => {
         wrapper = await createWrapper();
 
-        expect(wrapper.vm.statusFormFields).toHaveLength(5);
+        expect(wrapper.vm.statusFormFields).toHaveLength(6);
         expect(wrapper.vm.statusFormFields[1].name).toBe('orderDeliveries');
 
         await wrapper.vm.$router.push({
@@ -787,7 +913,68 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-order', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.statusFormFields).toHaveLength(4);
+        expect(wrapper.vm.statusFormFields).toHaveLength(5);
         expect(wrapper.vm.statusFormFields[1].name).not.toBe('orderDeliveries');
+    });
+
+    it('should reset order documents isChanged on component creation', async () => {
+        const store = Shopware.Store.get('swBulkEdit');
+        const resetSpy = jest.spyOn(store, 'resetOrderDocumentsIsChanged');
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        expect(resetSpy).toHaveBeenCalled();
+    });
+
+    describe('delete documents', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+        });
+
+        it('should show additional warning banner when deleting documents', async () => {
+            wrapper = await createWrapper(false, deleteDocumentTypesFixtures);
+            await flushPromises();
+
+            const deleteDocumentsCheckbox = wrapper.find(
+                '.sw-bulk-edit-change-field-delete .sw-bulk-edit-change-field-renderer__change-field input',
+            );
+            expect(deleteDocumentsCheckbox.exists()).toBe(true);
+            await deleteDocumentsCheckbox.setValue('checked');
+
+            await flushPromises();
+
+            const additionalWarningBanner = wrapper.find('.sw-bulk-edit-save-modal__warning-document-deletion');
+            expect(additionalWarningBanner.exists()).toBe(true);
+            expect(additionalWarningBanner.text()).toBe('sw-bulk-edit.modal.warningTextDocumentDeletion');
+        });
+
+        it('should show error message in modal when deleting documents that have depending documents', async () => {
+            syncServiceMock.sync.mockRejectedValueOnce({
+                response: {
+                    data: {
+                        errors: [
+                            {
+                                status: '422',
+                                code: 'ERROR_CODE',
+                                detail: 'Detailed error message',
+                            },
+                        ],
+                    },
+                },
+            });
+            wrapper = await createWrapper(false, deleteDocumentTypesFixtures);
+            await flushPromises();
+
+            await wrapper
+                .find('.sw-bulk-edit-change-field-delete .sw-bulk-edit-change-field-renderer__change-field input')
+                .setValue('checked');
+            await flushPromises();
+
+            await wrapper.find('.sw-bulk-edit-save-modal .mt-button--primary').trigger('click');
+            await flushPromises();
+
+            expect(wrapper.find('.sw-bulk-edit-save-modal .sw-bulk-edit-save-modal-error').exists()).toBe(true);
+        });
     });
 });

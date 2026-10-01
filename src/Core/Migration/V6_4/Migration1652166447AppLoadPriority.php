@@ -5,11 +5,10 @@ namespace Shopware\Core\Migration\V6_4;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1652166447AppLoadPriority extends MigrationStep
@@ -21,16 +20,10 @@ class Migration1652166447AppLoadPriority extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        $columns = array_column($connection->fetchAllAssociative('SHOW COLUMNS FROM app'), 'Field');
-
-        if (\in_array('template_load_priority', $columns, true)) {
+        if (TableHelper::columnExists($connection, 'app', 'template_load_priority')) {
             return;
         }
 
         $connection->executeStatement('ALTER TABLE app ADD template_load_priority INT DEFAULT "0"');
-    }
-
-    public function updateDestructive(Connection $connection): void
-    {
     }
 }

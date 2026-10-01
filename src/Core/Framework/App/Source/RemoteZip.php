@@ -64,7 +64,7 @@ readonly class RemoteZip implements Source
     public function reset(array $filesystems): void
     {
         $this->io->remove(
-            array_map(fn (Filesystem $fs) => $fs->location, $filesystems)
+            array_map(static fn (Filesystem $fs) => $fs->location, $filesystems)
         );
     }
 

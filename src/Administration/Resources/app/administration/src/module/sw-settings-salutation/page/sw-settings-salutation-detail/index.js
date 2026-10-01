@@ -13,11 +13,7 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'customFieldDataProviderService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -75,7 +71,7 @@ export default {
             return this.placeholder(
                 this.salutation,
                 'salutationKey',
-                this.$tc('sw-settings-salutation.detail.placeholderNewSalutation'),
+                this.$t('sw-settings-salutation.detail.placeholderNewSalutation'),
             );
         },
 
@@ -95,7 +91,7 @@ export default {
         tooltipSave() {
             if (!this.allowSave) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
                     showOnDisabledElements: true,
                 };
@@ -117,6 +113,7 @@ export default {
         },
 
         ...mapPropertyErrors('salutation', [
+            'position',
             'displayName',
             'letterName',
             'salutationKey',
@@ -194,8 +191,8 @@ export default {
                     this.isLoading = false;
 
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
-                        message: this.$tc('sw-settings-salutation.detail.notificationErrorMessage'),
+                        title: this.$t('global.default.error'),
+                        message: this.$t('sw-settings-salutation.detail.notificationErrorMessage'),
                     });
                 });
         },
@@ -224,9 +221,7 @@ export default {
             criteria.addFilter(
                 Criteria.multi('AND', [
                     Criteria.equals('salutationKey', this.salutation.salutationKey),
-                    Criteria.not('AND', [
-                        Criteria.equals('id', this.salutation.id),
-                    ]),
+                    Criteria.not('AND', [Criteria.equals('id', this.salutation.id)]),
                 ]),
             );
 

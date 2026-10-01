@@ -4,25 +4,27 @@ namespace Shopware\Tests\Unit\Core\Framework\Uuid;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Uuid::class)]
 class UuidTest extends TestCase
 {
     public function testRandomHex(): void
     {
-        static::assertNotEquals(Uuid::randomHex(), Uuid::randomHex());
+        static::assertNotSame(Uuid::randomHex(), Uuid::randomHex());
         static::assertTrue(Uuid::isValid(Uuid::randomHex()));
         static::assertStringNotContainsString('-', Uuid::randomHex());
     }
 
     public function testRandomBytes(): void
     {
-        static::assertNotEquals(Uuid::randomBytes(), Uuid::randomBytes());
+        static::assertNotSame(Uuid::randomBytes(), Uuid::randomBytes());
         static::assertSame(16, mb_strlen(Uuid::randomBytes(), '8bit'));
     }
 
@@ -64,6 +66,8 @@ class UuidTest extends TestCase
 
         static::assertFalse(Uuid::isValid('1111aaabbbFFF1111111111CCC111111'));
         static::assertFalse(Uuid::isValid('74d25156-60e6-444c-a177-a96e67ecfc5f'));
+
+        static::assertFalse(Uuid::isValid("bd5303139e5e47c68eeda68746b73436\n"));
     }
 
     public function testUuidFormat(): void

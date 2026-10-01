@@ -8,6 +8,9 @@ use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidLengthException;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class UuidException extends HttpException
 {

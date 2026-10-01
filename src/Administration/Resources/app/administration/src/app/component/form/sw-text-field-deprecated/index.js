@@ -1,7 +1,7 @@
 import { inject } from 'vue';
 import template from './sw-text-field-deprecated.html.twig';
 
-const { Component, Mixin } = Shopware;
+const { Mixin } = Shopware;
 
 /**
  * @sw-package framework
@@ -14,27 +14,18 @@ const { Component, Mixin } = Shopware;
  * <sw-text-field label="Name" placeholder="placeholder goes here..."></sw-text-field>
  * @deprecated tag:v6.8.0 - Will be removed, use mt-text-field instead
  */
-Component.register('sw-text-field-deprecated', {
+export default {
     template,
 
     inheritAttrs: false,
 
     inject: ['feature'],
 
-    emits: [
-        'update:value',
-        'inheritance-restore',
-        'inheritance-remove',
-    ],
+    emits: ['update:value', 'inheritance-restore', 'inheritance-remove'],
 
-    mixins: [
-        Mixin.getByName('sw-form-field'),
-        Mixin.getByName('remove-api-error'),
-        Mixin.getByName('validation'),
-    ],
+    mixins: [Mixin.getByName('sw-form-field'), Mixin.getByName('remove-api-error'), Mixin.getByName('validation')],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types, vue/require-default-prop
         value: {
             required: false,
         },
@@ -92,10 +83,7 @@ Component.register('sw-text-field-deprecated', {
         filteredInputAttributes() {
             // Filter attributes and remove "size" attribute
             return Object.keys(this.$attrs).reduce((acc, key) => {
-                const filteredValues = [
-                    'size',
-                    'class',
-                ];
+                const filteredValues = ['size', 'class'];
 
                 if (!filteredValues.includes(key)) {
                     acc[key] = this.$attrs[key];
@@ -133,4 +121,4 @@ Component.register('sw-text-field-deprecated', {
             return `${identification}-${this.idSuffix}`;
         },
     },
-});
+};

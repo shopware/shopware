@@ -8,6 +8,7 @@ use Shopware\Core\Content\LandingPage\LandingPageCollection;
 use Shopware\Core\Content\LandingPage\LandingPageEntity;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
+use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Content\Sitemap\Provider\LandingPageUrlProvider;
 use Shopware\Core\Content\Sitemap\Service\ConfigHandler;
 use Shopware\Core\Content\Sitemap\Struct\Url;
@@ -22,7 +23,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
-use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @internal
@@ -55,11 +55,7 @@ class LandingPageUrlProviderTest extends TestCase
             'test-landing-pages-sitemap',
         );
 
-        $this->landingPageUrlProvider = new LandingPageUrlProvider(
-            static::getContainer()->get(ConfigHandler::class),
-            static::getContainer()->get(Connection::class),
-            static::getContainer()->get(RouterInterface::class),
-        );
+        $this->landingPageUrlProvider = static::getContainer()->get(LandingPageUrlProvider::class);
     }
 
     public function testLandingPageUrlIsCorrect(): void
@@ -70,7 +66,7 @@ class LandingPageUrlProviderTest extends TestCase
 
         static::assertCount(10, $urlResult->getUrls());
 
-        $invalidUrl = array_filter($urlResult->getUrls(), function (Url $url) {
+        $invalidUrl = array_filter($urlResult->getUrls(), static function (Url $url) {
             return \in_array($url->getLoc(), [
                 '/landing-page-11',
                 '/landing-page-12',
@@ -93,13 +89,17 @@ class LandingPageUrlProviderTest extends TestCase
         $excludedId = Uuid::randomHex();
 
         $configHandler = $this->createMock(ConfigHandler::class);
-        $configHandler->method('get')->with(ConfigHandler::EXCLUDED_URLS_KEY)->willReturn([
-            [
-                'resource' => LandingPageEntity::class,
-                'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
-                'identifier' => $excludedId,
-            ],
-        ]);
+        $configHandler
+            ->expects($this->once())
+            ->method('get')
+            ->with(ConfigHandler::EXCLUDED_URLS_KEY)
+            ->willReturn([
+                [
+                    'resource' => LandingPageEntity::class,
+                    'salesChannelId' => $this->salesChannelContext->getSalesChannelId(),
+                    'identifier' => $excludedId,
+                ],
+            ]);
 
         $this->landingPageRepository->upsert([
             [
@@ -126,7 +126,8 @@ class LandingPageUrlProviderTest extends TestCase
         $landingPageUrlProvider = new LandingPageUrlProvider(
             $configHandler,
             static::getContainer()->get(Connection::class),
-            static::getContainer()->get(RouterInterface::class),
+            static::getContainer()->get(EntityRouteResolver::class),
+            static::getContainer()->get('event_dispatcher'),
         );
 
         $urlResult = $landingPageUrlProvider->getUrls($this->salesChannelContext, 20);
@@ -160,7 +161,7 @@ class LandingPageUrlProviderTest extends TestCase
         $seuUrlRepository = static::getContainer()->get('seo_url.repository');
 
         /** @var SeoUrlEntity|null $seoUrl */
-        $seoUrl = $seuUrlRepository->search($criteria, $this->salesChannelContext->getContext())->first();
+        $seoUrl = $seuUrlRepository->search($criteria, $this->salesChannelContext->getContext())->getEntities()->first();
 
         static::assertNotNull($seoUrl);
 
@@ -203,12 +204,12 @@ class LandingPageUrlProviderTest extends TestCase
         // first run
         $urlResult = $this->landingPageUrlProvider->getUrls($this->salesChannelContext, 3);
         static::assertCount(3, $urlResult->getUrls());
-        static::assertEquals(3, $urlResult->getNextOffset());
+        static::assertSame(3, $urlResult->getNextOffset());
 
         // 1+n run
         $urlResult = $this->landingPageUrlProvider->getUrls($this->salesChannelContext, 2, $urlResult->getNextOffset());
         static::assertCount(2, $urlResult->getUrls());
-        static::assertEquals(5, $urlResult->getNextOffset());
+        static::assertSame(5, $urlResult->getNextOffset());
 
         // last run
         $urlResult = $this->landingPageUrlProvider->getUrls($this->salesChannelContext, 100, $urlResult->getNextOffset()); // test with high number to get last chunk
@@ -217,6 +218,7 @@ class LandingPageUrlProviderTest extends TestCase
 
     private function createLandingPages(): void
     {
+        $validLandingPages = [];
         // add valid landing pages
         for ($i = 1; $i <= 10; ++$i) {
             $validLandingPages[] = [
@@ -230,10 +232,7 @@ class LandingPageUrlProviderTest extends TestCase
             ];
         }
 
-        $this->landingPageRepository->upsert(
-            $validLandingPages,
-            $this->salesChannelContext->getContext()
-        );
+        $this->landingPageRepository->upsert($validLandingPages, $this->salesChannelContext->getContext());
 
         $newSalesChannelContext = $this->createStorefrontSalesChannelContext(
             Uuid::randomHex(),

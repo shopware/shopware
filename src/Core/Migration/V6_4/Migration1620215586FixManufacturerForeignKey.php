@@ -8,8 +8,6 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1620215586FixManufacturerForeignKey extends MigrationStep
@@ -22,7 +20,7 @@ class Migration1620215586FixManufacturerForeignKey extends MigrationStep
     public function update(Connection $connection): void
     {
         $this->dropForeignKeyIfExists($connection, 'product', 'fk.product.product_manufacturer_id');
-        $connection->executeStatement('ALTER TABLE `product` ADD FOREIGN KEY (`product_manufacturer_id`, `product_manufacturer_version_id`) REFERENCES `product_manufacturer` (`id`, `version_id`) ON DELETE SET NULL ON UPDATE CASCADE;');
+        $connection->executeStatement('ALTER TABLE `product` ADD CONSTRAINT `fk.product.product_manufacturer` FOREIGN KEY (`product_manufacturer_id`, `product_manufacturer_version_id`) REFERENCES `product_manufacturer` (`id`, `version_id`) ON DELETE SET NULL ON UPDATE CASCADE;');
     }
 
     public function updateDestructive(Connection $connection): void

@@ -1,0 +1,10 @@
+{
+  "sw-settings-sitemap": {
+    "general": {
+      "mainMenuItemGeneral": "Sitemap",
+      "description": "Change the sitemap settings here.",
+      "textHeadline": "Sitemap",
+      "messageSaveSuccess": "The configuration has been saved."
+    }
+  }
+}

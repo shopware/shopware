@@ -23,7 +23,7 @@ class StoreLicenseStruct extends Struct
 
     protected \DateTimeInterface $expirationDate;
 
-    protected ?StoreLicenseSubscriptionStruct $subscription;
+    protected ?StoreLicenseSubscriptionStruct $subscription = null;
 
     protected StoreLicenseTypeStruct $type;
 

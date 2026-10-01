@@ -5,12 +5,27 @@
 </div>
 
 <div v-else>
+    {% block sw_product_detail_specifications_measurement %}
+    <mt-card
+        v-if="showProductCard('measurement') && !isDigitalProduct"
+        class="sw-product-detail-specification__measurement"
+        position-identifier="sw-product-detail-specifications-measurement"
+        :title="$t('sw-product.specifications.cardTitleMeasurement')"
+    >
+        {% block sw_product_detail_specifications_measurement_content %}
+        <sw-product-measurement-form
+            :allow-edit="acl.can('product.editor')"
+        />
+        {% endblock %}
+    </mt-card>
+    {% endblock %}
+
     {% block sw_product_detail_specifications_measures_packaging %}
     <mt-card
-        v-if="showProductCard('measures_packaging') && !productStates.includes('is-download')"
-        class="sw-product-detail-specification__measures-packaging"
+        v-if="showProductCard('selling_packaging') && !isDigitalProduct"
+        class="sw-product-detail-specification__selling-packaging"
         position-identifier="sw-product-detail-specifications-measures-packaging"
-        :title="$tc('sw-product.specifications.cardTitleMeasuresPackaging')"
+        :title="$t('sw-product.specifications.cardTitleSellingPackaging')"
     >
         {% block sw_product_detail_specifications_measures_packaging_content %}
         <sw-product-packaging-form
@@ -32,7 +47,7 @@
         v-show="showProductCard('essential_characteristics')"
         class="sw-product-detail-specification__essential-characteristics"
         position-identifier="sw-product-detail-specifications-essential-characteristics"
-        :title="$tc('sw-product.specifications.cardTitleEssentialCharacteristics')"
+        :title="$t('sw-product.specifications.cardTitleEssentialCharacteristics')"
     >
         {% block sw_product_detail_specifications_essential_characteristics_content %}
         <sw-product-feature-set-form :allow-edit="acl.can('product.editor')" />
@@ -48,7 +63,7 @@
         v-show="showCustomFieldsCard"
         class="sw-product-detail-specification__custom-fields"
         position-identifier="sw-product-detail-specifications-custom-fields"
-        :title="$tc('sw-product.specifications.cardTitleCustomFields')"
+        :title="$t('sw-product.specifications.cardTitleCustomFields')"
     >
         {% block sw_product_detail_specifications_custom_fields_content %}
         <sw-custom-field-set-renderer

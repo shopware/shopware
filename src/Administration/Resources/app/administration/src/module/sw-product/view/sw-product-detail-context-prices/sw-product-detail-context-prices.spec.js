@@ -13,6 +13,13 @@ const createWrapper = async () => {
         }),
         {
             global: {
+                mocks: {
+                    $router: {
+                        resolve: jest.fn((route) => ({
+                            href: `#/sw/product/detail/${route.params.id}/prices`,
+                        })),
+                    },
+                },
                 stubs: {
                     'sw-container': await wrapTestComponent('sw-container'),
                     'sw-loader': true,
@@ -140,6 +147,61 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
 
         expect(wrapper.vm.isChild).toBe(false);
         expect(wrapper.vm.isInherited).toBe(false);
+    });
+
+    it('should render the empty state without a parent link for a main product', async () => {
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'productId',
+            parentId: null,
+            prices: [],
+        };
+
+        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const emptyState = wrapper.find('.sw-product-detail-context-prices__empty-state');
+        expect(emptyState.classes()).toContain('mt-empty-state');
+        expect(emptyState.text()).toContain('sw-product.advancedPrices.advancedPricesNotExisting');
+        expect(emptyState.find('.mt-empty-state__link').exists()).toBe(false);
+    });
+
+    it('should link to the parent prices while the variant inherits', async () => {
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'productId',
+            parentId: 'parentProductId',
+            prices: [],
+        };
+        Shopware.Store.get('swProductDetail').parentProduct = {
+            id: 'parentProductId',
+        };
+
+        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const emptyState = wrapper.find('.sw-product-detail-context-prices__empty-state');
+        expect(emptyState.text()).toContain('sw-product.advancedPrices.advancedPricesInherited');
+        expect(emptyState.find('.mt-empty-state__link').exists()).toBe(true);
+    });
+
+    it('should describe the removed inheritance without a parent link', async () => {
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'productId',
+            parentId: 'parentProductId',
+            prices: [],
+        };
+        Shopware.Store.get('swProductDetail').parentProduct = {
+            id: 'parentProductId',
+        };
+
+        wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.isInherited = false;
+        await wrapper.vm.$nextTick();
+
+        const emptyState = wrapper.find('.sw-product-detail-context-prices__empty-state');
+        expect(emptyState.text()).toContain('sw-product.advancedPrices.advancedPricesNotInherited');
+        expect(emptyState.find('.mt-empty-state__link').exists()).toBe(false);
     });
 
     it('first start quantity input should be disabled', async () => {
@@ -292,5 +354,61 @@ describe('src/module/sw-product/view/sw-product-detail-context-prices', () => {
             '.context-price-group-1 .sw-data-grid__row--0 .sw-data-grid__cell--price-EUR .sw-list-price-field__price input[name="sw-price-field-gross"]',
         );
         expect(secondPriceFieldGross.element.value).toBe('0');
+    });
+
+    it('should accept the value entered in the “To” field without changing it automatically for valid inputs on non-last rules', async () => {
+        const entities = [
+            {
+                ruleId: 'ruleId',
+                quantityStart: 1,
+                quantityEnd: 5,
+                price: [{ currencyId: 'euro', gross: 10, net: 10, linked: true, listPrice: null }],
+            },
+            {
+                ruleId: 'ruleId',
+                quantityStart: 11,
+                quantityEnd: null,
+                price: [{ currencyId: 'euro', gross: 8, net: 8, linked: true, listPrice: null }],
+            },
+        ];
+
+        Shopware.Store.get('swProductDetail').product = {
+            id: 'productId',
+            parentId: null,
+            prices: new EntityCollection(
+                '/test-price',
+                'product_price',
+                null,
+                { isShopwareContext: true },
+                entities,
+                entities.length,
+                null,
+            ),
+        };
+        Shopware.Store.get('swProductDetail').parentProduct = { id: 'parentProductId' };
+        Shopware.Store.get('swProductDetail').currencies = [
+            { id: 'euro', translated: { name: 'Euro' }, isSystemDefault: true, isoCode: 'EUR' },
+        ];
+
+        wrapper = await createWrapper();
+        await flushPromises();
+
+        const firstQuantityEndInput = wrapper.find('.sw-data-grid__row--0 input[name="ruleId-1-quantityEnd"]');
+        expect(firstQuantityEndInput.element.value).toBe('5');
+
+        const newValue = 10;
+        await firstQuantityEndInput.setValue(newValue);
+        await firstQuantityEndInput.trigger('blur');
+        await wrapper.vm.$nextTick();
+
+        expect(firstQuantityEndInput.element.value).toBe(newValue.toString());
+        expect(wrapper.vm.product.prices).toHaveLength(2);
+        expect(wrapper.vm.product.prices[0].quantityEnd).toBe(newValue);
+    });
+
+    it('should keep the deprecated assetFilter for template overrides', async () => {
+        wrapper = await createWrapper();
+
+        expect(wrapper.vm.assetFilter).toBe(Shopware.Filter.getByName('asset'));
     });
 });

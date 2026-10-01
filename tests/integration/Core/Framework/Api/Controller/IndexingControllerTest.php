@@ -40,7 +40,7 @@ class IndexingControllerTest extends TestCase
     #[DataProvider('provideOffsets')]
     public function testIterateIndexerApiShouldReturnCorrectOffset(int $offset): void
     {
-        $productIndexer = $this->createMock(ProductIndexer::class);
+        $productIndexer = static::createStub(ProductIndexer::class);
         if ($offset === 100) {
             $productIndexer->method('iterate')->willReturn(null);
         } else {
@@ -51,7 +51,7 @@ class IndexingControllerTest extends TestCase
                 ['offset' => $offset + 50]
             ));
         }
-        $registry = $this->getMockBuilder(EntityIndexerRegistry::class)->disableOriginalConstructor()->getMock();
+        $registry = static::createStub(EntityIndexerRegistry::class);
         $registry->method('getIndexer')->willReturn($productIndexer);
         $indexer = new IndexingController($registry, static::getContainer()->get('messenger.default_bus'));
 
@@ -64,7 +64,7 @@ class IndexingControllerTest extends TestCase
             static::assertTrue($response['finish']);
         } else {
             static::assertFalse($response['finish']);
-            static::assertEquals(['offset' => $offset + 50], $response['offset']);
+            static::assertSame(['offset' => $offset + 50], $response['offset']);
         }
     }
 

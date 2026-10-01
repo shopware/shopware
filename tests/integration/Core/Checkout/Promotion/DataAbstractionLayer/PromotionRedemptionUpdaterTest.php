@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Shopware\Tests\Integration\Core\Checkout\Promotion\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -19,6 +20,7 @@ use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionIndividualCode\PromotionIndividualCodeCollection;
 use Shopware\Core\Checkout\Promotion\DataAbstractionLayer\PromotionRedemptionUpdater;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
+use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\Subscriber\PromotionIndividualCodeRedeemer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -70,6 +72,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
                 $this->ids->get('voucherA'),
                 $this->ids->get('voucherB'),
                 $this->ids->get('voucherD'),
+                Uuid::randomHex(), // Test an invalid promotionId
             ],
             Context::createDefaultContext()
         );
@@ -87,7 +90,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         /** @var OrderEntity|null $order */
         $order = static::getContainer()
             ->get('order.repository')
-            ->search($criteria, $this->salesChannelContext->getContext())
+            ->search($criteria, $this->salesChannelContext->getContext())->getEntities()
             ->first();
 
         static::assertNotNull($order);
@@ -101,54 +104,10 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $this->assertUpdatedCounts();
     }
 
-    public function testItDoesNotFailWithZeroCustomerCount(): void
+    #[DataProvider('individualCodeDataProvider')]
+    public function testIndividualCodeGotCustomerAssignment(string $orderCode): void
     {
-        $this->createPromotionsAndOrder();
-
-        $voucherA = $this->ids->get('voucherA');
-
-        $connection = static::getContainer()->get(Connection::class);
-
-        // field is write protected - use plain sql here
-        $connection->executeStatement(
-            'UPDATE `promotion` SET `orders_per_customer_count` = "0" WHERE id = :id',
-            ['id' => Uuid::fromHexToBytes($voucherA)]
-        );
-
-        $criteria = new Criteria([$this->ids->create('order')]);
-        $criteria->addAssociation('lineItems');
-
-        /** @var OrderEntity|null $order */
-        $order = static::getContainer()
-            ->get('order.repository')
-            ->search($criteria, Context::createDefaultContext())
-            ->first();
-
-        static::assertNotNull($order);
-
-        $event = new EntityWrittenEvent(OrderDefinition::ENTITY_NAME, [new EntityWriteResult($order->getId(), [], OrderDefinition::ENTITY_NAME, EntityWriteResult::OPERATION_UPDATE)], $this->salesChannelContext->getContext());
-
-        $updater = static::getContainer()->get(PromotionRedemptionUpdater::class);
-        $updater->orderUpdated($event);
-
-        $promotions = $connection->fetchAllAssociative(
-            'SELECT `id`, `orders_per_customer_count` FROM `promotion` WHERE `id` = :id',
-            ['id' => Uuid::fromHexToBytes($voucherA)]
-        );
-
-        $expected_json = json_encode([$this->ids->get('customer') => 1], \JSON_THROW_ON_ERROR);
-        static::assertIsString($expected_json);
-
-        static::assertCount(1, $promotions);
-        static::assertJsonStringEqualsJsonString(
-            $expected_json,
-            $promotions[0]['orders_per_customer_count']
-        );
-    }
-
-    public function testIndividualCodeGotCustomerAssignment(): void
-    {
-        $this->createPromotionsAndOrder();
+        $this->createPromotionsAndOrder($orderCode);
 
         $voucherD = $this->ids->get('voucherD');
 
@@ -160,7 +119,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         /** @var OrderEntity|null $order */
         $order = static::getContainer()
             ->get('order.repository')
-            ->search($criteria, Context::createDefaultContext())
+            ->search($criteria, Context::createDefaultContext())->getEntities()
             ->first();
 
         static::assertNotNull($order);
@@ -212,12 +171,173 @@ class PromotionRedemptionUpdaterTest extends TestCase
         );
     }
 
-    private function createPromotionsAndOrder(): void
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function individualCodeDataProvider(): iterable
+    {
+        yield 'stored casing' => ['test-FABPB-test'];
+        yield 'different casing' => ['TEST-fabpb-TEST'];
+    }
+
+    public function testRemoveItemMultipleOrders(): void
+    {
+        $this->createPromotionsAndOrder();
+        $firstCustomer = $this->ids->get('customer');
+
+        $this->ids->set('customer', $this->createCustomer('second@example.com'));
+
+        $secondCustomer = $this->ids->get('customer');
+        $secondOrderLineItemId = Uuid::randomHex();
+
+        // Create second order with different customer
+        static::getContainer()->get('order.repository')->create(
+            [[
+                'id' => Uuid::randomHex(),
+                'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.01, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                'orderDateTime' => (new \DateTimeImmutable())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                'price' => new CartPrice(10, 10, 10, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET),
+                'shippingCosts' => new CalculatedPrice(10, 10, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                'orderCustomer' => [
+                    'customerId' => $secondCustomer,
+                    'email' => 'test@example.com',
+                    'salutationId' => $this->fetchFirstIdFromTable('salutation'),
+                    'firstName' => 'Max',
+                    'lastName' => 'Mustermann',
+                ],
+                'stateId' => $this->fetchFirstIdFromTable('state_machine_state'),
+                'paymentMethodId' => $this->fetchFirstIdFromTable('payment_method'),
+                'currencyId' => Defaults::CURRENCY,
+                'currencyFactor' => 1.0,
+                'salesChannelId' => TestDefaults::SALES_CHANNEL,
+                'billingAddressId' => Uuid::randomHex(),
+                'addresses' => [
+                    [
+                        'id' => Uuid::randomHex(),
+                        'salutationId' => $this->fetchFirstIdFromTable('salutation'),
+                        'firstName' => 'Max',
+                        'lastName' => 'Mustermann',
+                        'street' => 'Ebbinghoff 10',
+                        'zipcode' => '48624',
+                        'city' => 'Schöppingen',
+                        'countryId' => $this->fetchFirstIdFromTable('country'),
+                    ],
+                ],
+                'lineItems' => [
+                    [
+                        'id' => $secondOrderLineItemId,
+                        'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
+                        'code' => '',
+                        'identifier' => $this->ids->get('voucherA'),
+                        'quantity' => 1,
+                        'payload' => [
+                            'promotionId' => $this->ids->get('voucherA'),
+                            'code' => '',
+                            'promotionCodeType' => 'global',
+                        ],
+                        'promotionId' => $this->ids->get('voucherA'),
+                        'label' => 'label',
+                        'price' => new CalculatedPrice(200, 200, new CalculatedTaxCollection(), new TaxRuleCollection()),
+                        'priceDefinition' => new QuantityPriceDefinition(200, new TaxRuleCollection(), 2),
+                    ],
+                ],
+                'deliveries' => [],
+                'context' => '{}',
+                'payload' => '{}',
+            ]],
+            Context::createDefaultContext()
+        );
+
+        $promotionRepository = static::getContainer()->get('promotion.repository');
+
+        $promotionA = $promotionRepository->search(new Criteria([$this->ids->get('voucherA')]), Context::createDefaultContext())->getEntities()->first();
+
+        static::assertInstanceOf(PromotionEntity::class, $promotionA);
+        static::assertIsArray($promotionA->getOrdersPerCustomerCount());
+        static::assertArrayHasKey($firstCustomer, $promotionA->getOrdersPerCustomerCount());
+        static::assertArrayHasKey($secondCustomer, $promotionA->getOrdersPerCustomerCount());
+        static::assertSame(2, $promotionA->getOrderCount());
+        static::assertSame(1, $promotionA->getOrdersPerCustomerCount()[$firstCustomer]);
+        static::assertSame(1, $promotionA->getOrdersPerCustomerCount()[$secondCustomer]);
+
+        static::getContainer()
+            ->get('order_line_item.repository')
+            ->delete([['id' => $this->ids->get('voucherA')]], Context::createDefaultContext());
+
+        $promotionALater = $promotionRepository->search(new Criteria([$this->ids->get('voucherA')]), Context::createDefaultContext())->getEntities()->first();
+
+        static::assertInstanceOf(PromotionEntity::class, $promotionALater);
+        static::assertIsArray($promotionALater->getOrdersPerCustomerCount());
+        static::assertArrayNotHasKey($firstCustomer, $promotionALater->getOrdersPerCustomerCount());
+        static::assertArrayHasKey($secondCustomer, $promotionALater->getOrdersPerCustomerCount());
+        static::assertSame(1, $promotionALater->getOrdersPerCustomerCount()[$secondCustomer]);
+        static::assertSame(1, $promotionALater->getOrderCount());
+
+        static::getContainer()
+            ->get('order_line_item.repository')
+            ->delete([['id' => $secondOrderLineItemId]], Context::createDefaultContext());
+
+        $promotionAEvenLater = $promotionRepository->search(new Criteria([$this->ids->get('voucherA')]), Context::createDefaultContext())->getEntities()->first();
+
+        static::assertInstanceOf(PromotionEntity::class, $promotionAEvenLater);
+        static::assertSame(0, $promotionAEvenLater->getOrderCount());
+        static::assertNull($promotionAEvenLater->getOrdersPerCustomerCount());
+    }
+
+    public function testLineItemOfAnotherTypeCountsTowardsRedemptions(): void
+    {
+        $this->createPromotionsAndOrder();
+
+        /** @var EntityRepository<PromotionCollection> $promotionRepository */
+        $promotionRepository = static::getContainer()->get('promotion.repository');
+        $promotionId = $this->ids->create('customLineItemPromotion');
+        $this->createPromotion($promotionId, $promotionId, $promotionRepository, $this->salesChannelContext);
+
+        $lineItemId = Uuid::randomHex();
+        static::getContainer()->get('order_line_item.repository')->create([[
+            'id' => $lineItemId,
+            'orderId' => $this->ids->get('order'),
+            'orderVersionId' => Defaults::LIVE_VERSION,
+            'identifier' => $lineItemId,
+            'type' => 'custom',
+            'quantity' => 1,
+            'position' => 1,
+            'label' => 'label',
+            'promotionId' => $promotionId,
+            'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        ]], Context::createDefaultContext());
+
+        static::assertSame(1, $this->fetchPromotion($promotionId)->getOrderCount());
+
+        static::getContainer()
+            ->get('order_line_item.repository')
+            ->delete([['id' => $lineItemId]], Context::createDefaultContext());
+
+        static::assertSame(0, $this->fetchPromotion($promotionId)->getOrderCount());
+    }
+
+    private function fetchPromotion(string $promotionId): PromotionEntity
     {
         /** @var EntityRepository<PromotionCollection> $promotionRepository */
         $promotionRepository = static::getContainer()->get('promotion.repository');
 
-        /** @var EntityRepository<PromotionIndividualCodeCollection> $promotionRepository */
+        $promotion = $promotionRepository
+            ->search(new Criteria([$promotionId]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+
+        static::assertInstanceOf(PromotionEntity::class, $promotion);
+
+        return $promotion;
+    }
+
+    private function createPromotionsAndOrder(string $orderCode = 'test-FABPB-test'): void
+    {
+        /** @var EntityRepository<PromotionCollection> */
+        $promotionRepository = static::getContainer()->get('promotion.repository');
+
+        /** @var EntityRepository<PromotionIndividualCodeCollection> */
         $promotionIndividualCodeRepository = static::getContainer()->get('promotion_individual_code.repository');
 
         $voucherA = $this->ids->create('voucherA');
@@ -235,7 +355,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         );
 
         $this->ids->set('customer', $this->createCustomer('johndoe@example.com'));
-        $this->createOrder($this->ids->get('customer'));
+        $this->createOrder($this->ids->get('customer'), $orderCode);
 
         $lineItems = $this->connection->fetchAllAssociative('SELECT id FROM order_line_item;');
 
@@ -250,22 +370,21 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
         $actualVoucherA = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherA') ? $promotions[0] : $promotions[1];
         static::assertNotEmpty($actualVoucherA);
-        static::assertEquals('1', $actualVoucherA['order_count']);
+        static::assertSame('1', $actualVoucherA['order_count']);
         $customerCount = json_decode((string) $actualVoucherA['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals(1, $customerCount[$this->ids->get('customer')]);
+        static::assertSame(1, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherD = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherD') ? $promotions[0] : $promotions[1];
         static::assertNotEmpty($actualVoucherD);
-        static::assertEquals('2', $actualVoucherD['order_count']);
+        static::assertSame('1', $actualVoucherD['order_count']);
         $customerCount = json_decode((string) $actualVoucherD['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals(2, $customerCount[$this->ids->get('customer')]);
+        static::assertSame(1, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherB = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherB') ? $promotions[0] : $promotions[1];
         static::assertNotEmpty($actualVoucherB);
-        // VoucherB is used twice, it's mean group by works
-        static::assertEquals('2', $actualVoucherB['order_count']);
+        static::assertSame('1', $actualVoucherB['order_count']);
         $customerCount = json_decode((string) $actualVoucherB['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals(2, $customerCount[$this->ids->get('customer')]);
+        static::assertSame(1, $customerCount[$this->ids->get('customer')]);
     }
 
     private function assertNonUpdatedCounts(): void
@@ -276,22 +395,22 @@ class PromotionRedemptionUpdaterTest extends TestCase
 
         $actualVoucherA = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherA') ? $promotions[0] : $promotions[1];
         static::assertNotEmpty($actualVoucherA);
-        static::assertEquals('1', $actualVoucherA['order_count']);
+        static::assertSame('1', $actualVoucherA['order_count']);
         $customerCount = json_decode((string) $actualVoucherA['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals(1, $customerCount[$this->ids->get('customer')]);
+        static::assertSame(1, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherD = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherD') ? $promotions[0] : $promotions[1];
         static::assertNotEmpty($actualVoucherD);
-        static::assertEquals('2', $actualVoucherD['order_count']);
+        static::assertSame('1', $actualVoucherD['order_count']);
         $customerCount = json_decode((string) $actualVoucherD['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals(2, $customerCount[$this->ids->get('customer')]);
+        static::assertSame(1, $customerCount[$this->ids->get('customer')]);
 
         $actualVoucherB = Uuid::fromBytesToHex($promotions[0]['id']) === $this->ids->get('voucherB') ? $promotions[0] : $promotions[1];
         static::assertNotEmpty($actualVoucherB);
-        // VoucherB is used twice, it's mean group by works
-        static::assertEquals('2', $actualVoucherB['order_count']);
+        // voucherB is used twice, it's mean group by works
+        static::assertSame('1', $actualVoucherB['order_count']);
         $customerCount = json_decode((string) $actualVoucherB['orders_per_customer_count'], true, 512, \JSON_THROW_ON_ERROR);
-        static::assertEquals(2, $customerCount[$this->ids->get('customer')]);
+        static::assertSame(1, $customerCount[$this->ids->get('customer')]);
     }
 
     /**
@@ -320,7 +439,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         return $salesChannelContextFactory->create($token, TestDefaults::SALES_CHANNEL, $options);
     }
 
-    private function createOrder(string $customerId): void
+    private function createOrder(string $customerId, string $individualCode): void
     {
         static::getContainer()->get('order.repository')->create(
             [[
@@ -357,10 +476,10 @@ class PromotionRedemptionUpdaterTest extends TestCase
                 ],
                 'lineItems' => [
                     [
-                        'id' => $this->ids->get('VoucherA'),
+                        'id' => $this->ids->get('voucherA'),
                         'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
                         'code' => '',
-                        'identifier' => $this->ids->get('VoucherA'),
+                        'identifier' => $this->ids->get('voucherA'),
                         'quantity' => 1,
                         'payload' => [
                             'promotionId' => $this->ids->get('voucherA'),
@@ -373,14 +492,14 @@ class PromotionRedemptionUpdaterTest extends TestCase
                         'priceDefinition' => new QuantityPriceDefinition(200, new TaxRuleCollection(), 2),
                     ],
                     [
-                        'id' => $this->ids->get('VoucherD'),
+                        'id' => $this->ids->get('voucherD'),
                         'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
                         'code' => null,
-                        'identifier' => $this->ids->get('VoucherD'),
+                        'identifier' => $this->ids->get('voucherD'),
                         'quantity' => 1,
                         'payload' => [
                             'promotionId' => $this->ids->get('voucherD'),
-                            'code' => 'test-FABPB-test',
+                            'code' => $individualCode,
                             'promotionCodeType' => 'individual',
                         ],
                         'promotionId' => $this->ids->get('voucherD'),
@@ -389,13 +508,13 @@ class PromotionRedemptionUpdaterTest extends TestCase
                         'priceDefinition' => new QuantityPriceDefinition(200, new TaxRuleCollection(), 2),
                     ],
                     [
-                        'id' => $this->ids->get('VoucherC'),
+                        'id' => $this->ids->get('voucherC'),
                         'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
-                        'code' => $this->ids->get('VoucherC'),
-                        'identifier' => $this->ids->get('VoucherC'),
+                        'code' => $this->ids->get('voucherC'),
+                        'identifier' => $this->ids->get('voucherC'),
                         'payload' => [
                             'promotionId' => $this->ids->get('voucherB'),
-                            'code' => $this->ids->get('VoucherC'),
+                            'code' => $this->ids->get('voucherC'),
                         ],
                         'promotionId' => $this->ids->get('voucherB'),
                         'quantity' => 1,
@@ -404,13 +523,13 @@ class PromotionRedemptionUpdaterTest extends TestCase
                         'priceDefinition' => new QuantityPriceDefinition(200, new TaxRuleCollection(), 2),
                     ],
                     [
-                        'id' => $this->ids->get('VoucherB'),
+                        'id' => $this->ids->get('voucherB'),
                         'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
-                        'code' => $this->ids->get('VoucherB'),
-                        'identifier' => $this->ids->get('VoucherB'),
+                        'code' => $this->ids->get('voucherB'),
+                        'identifier' => $this->ids->get('voucherB'),
                         'payload' => [
                             'promotionId' => $this->ids->get('voucherB'),
-                            'code' => $this->ids->get('VoucherB'),
+                            'code' => $this->ids->get('voucherB'),
                         ],
                         'promotionId' => $this->ids->get('voucherB'),
                         'quantity' => 1,

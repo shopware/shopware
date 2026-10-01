@@ -30,10 +30,12 @@ async function createWrapper() {
                     'sw-ignore-class': true,
                     'sw-loader': true,
                     'sw-app-actions': true,
+                    'sw-context-menu-item': true,
                     'sw-extension-component-section': true,
                     'sw-skeleton': true,
                     'sw-error-summary': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-help-center-v2': true,
                     'router-link': true,
                     'sw-sales-channel-switch': true,
@@ -53,10 +55,38 @@ async function createWrapper() {
                 },
                 provide: {
                     systemConfigApiService: {
-                        getConfig: () =>
-                            Promise.resolve({
+                        getSchema: () => {
+                            return Promise.resolve([
+                                {
+                                    title: null,
+                                    name: null,
+                                    cards: [
+                                        {
+                                            title: {
+                                                'en-GB': 'SEO',
+                                            },
+                                            name: null,
+                                            elements: [
+                                                {
+                                                    name: 'redirectToCanonicalUrl',
+                                                    type: 'bool',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'Redirect to canonical URL',
+                                                        },
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            ]);
+                        },
+                        getValues: () => {
+                            return Promise.resolve({
                                 'core.seo.redirectToCanonicalUrl': true,
-                            }),
+                            });
+                        },
                     },
                 },
             },
@@ -71,10 +101,6 @@ describe('src/module/sw-settings-seo/page/sw-settings-seo', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the settings card', async () => {
         await wrapper.vm.$nextTick();
         expect(
@@ -85,5 +111,16 @@ describe('src/module/sw-settings-seo/page/sw-settings-seo', () => {
                 .find(`.${classes.settingsCard}`)
                 .exists(),
         ).toBeTruthy();
+    });
+
+    it('should hide the system config when a headless sales channel is selected', async () => {
+        await wrapper.vm.$nextTick();
+        expect(wrapper.find(`.${classes.systemConfig}`).exists()).toBe(true);
+
+        // the seo url template card reports that a headless sales channel was selected
+        wrapper.vm.onSalesChannelChanged(true);
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find(`.${classes.systemConfig}`).exists()).toBe(false);
     });
 });

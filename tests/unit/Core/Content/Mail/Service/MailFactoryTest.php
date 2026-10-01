@@ -6,18 +6,20 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\Service\Mail;
 use Shopware\Core\Content\Mail\Service\MailFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\HappyPathValidator;
 use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(MailFactory::class)]
 class MailFactoryTest extends TestCase
 {
     public function testCreateWithFeatureFlag(): void
     {
-        $validatorMock = $this->createMock(HappyPathValidator::class);
+        $validatorMock = static::createStub(HappyPathValidator::class);
 
         $mailFactory = new MailFactory($validatorMock);
         $validatorMock->method('validate')->willReturn(new ConstraintViolationList());
@@ -65,7 +67,7 @@ class MailFactoryTest extends TestCase
 
         static::assertCount(1, $mail->getAttachments());
 
-        static::assertEquals($attachments, $mail->getAttachmentUrls());
+        static::assertSame($attachments, $mail->getAttachmentUrls());
 
         static::assertSame('ccMailRecipient@example.com', $mail->getCc()[0]->getAddress());
 

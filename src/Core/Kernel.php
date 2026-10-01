@@ -14,20 +14,25 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Parameter\AdditionalBundleParameters;
 use Shopware\Core\Framework\Plugin\KernelPluginCollection;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\Framework\Util\IOStreamHelper;
 use Shopware\Core\Framework\Util\VersionParser;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
-use Symfony\Component\HttpKernel\Bundle\BundleInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
+use Symfony\Component\Yaml\Yaml;
+use Symfony\UX\TwigComponent\TwigComponentBundle;
 
 #[Package('framework')]
 class Kernel extends HttpKernel
@@ -49,10 +54,10 @@ class Kernel extends HttpKernel
 
     private bool $rebooting = false;
 
+    private string $cacheRootDir;
+
     /**
      * @internal
-     *
-     * {@inheritdoc}
      */
     public function __construct(
         string $environment,
@@ -61,39 +66,37 @@ class Kernel extends HttpKernel
         private string $cacheId,
         string $version,
         Connection $connection,
-        protected string $projectDir
+        protected string $projectDir,
     ) {
         date_default_timezone_set('UTC');
 
         parent::__construct($environment, $debug);
         self::$connection = $connection;
 
-        $version = VersionParser::parseShopwareVersion($version);
-        $this->shopwareVersion = $version['version'];
-        $this->shopwareVersionRevision = $version['revision'];
+        $versionArray = VersionParser::parseShopwareVersion($version);
+        $this->shopwareVersion = $versionArray['version'];
+        $this->shopwareVersionRevision = $versionArray['revision'];
+
+        $this->cacheRootDir = EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()) . '/var/cache';
     }
 
-    /**
-     * @return iterable<BundleInterface>
-     */
     public function registerBundles(): iterable
     {
         /** @var array<class-string<Bundle>, array<string, bool>> $bundles */
-        $bundles = require $this->getProjectDir() . '/config/bundles.php';
-        $instanciatedBundleNames = [];
+        $bundles = require $this->getBundlesPath();
+        $instantiatedBundleNames = [];
 
         $kernelParameters = $this->getKernelParameters();
 
         foreach ($bundles as $class => $envs) {
             if (isset($envs['all']) || isset($envs[$this->environment])) {
-                /** @var ShopwareBundle|Bundle $bundle */
                 $bundle = new $class();
 
-                if ($this->isBundleRegistered($bundle, $instanciatedBundleNames)) {
+                if ($this->isBundleRegistered($bundle, $instantiatedBundleNames)) {
                     continue;
                 }
 
-                $instanciatedBundleNames[] = $bundle->getName();
+                $instantiatedBundleNames[] = $bundle->getName();
 
                 yield $bundle;
 
@@ -104,17 +107,22 @@ class Kernel extends HttpKernel
                 $classLoader = new ClassLoader();
                 $parameters = new AdditionalBundleParameters($classLoader, new KernelPluginCollection(), $kernelParameters);
                 foreach ($bundle->getAdditionalBundles($parameters) as $additionalBundle) {
-                    if ($this->isBundleRegistered($additionalBundle, $instanciatedBundleNames)) {
+                    if ($this->isBundleRegistered($additionalBundle, $instantiatedBundleNames)) {
                         continue;
                     }
 
-                    $instanciatedBundleNames[] = $additionalBundle->getName();
+                    $instantiatedBundleNames[] = $additionalBundle->getName();
                     yield $additionalBundle;
                 }
             }
         }
 
-        yield from $this->pluginLoader->getBundles($kernelParameters, $instanciatedBundleNames);
+        if (!Feature::isActive('v6.8.0.0') && !isset($bundles[TwigComponentBundle::class])) {
+            Feature::triggerDeprecationOrThrow('v6.8.0.0', \sprintf('The %s bundle should be added to config/bundles.php', TwigComponentBundle::class));
+            yield new TwigComponentBundle();
+        }
+
+        yield from $this->pluginLoader->getBundles($kernelParameters, $instantiatedBundleNames);
     }
 
     public function getProjectDir(): string
@@ -124,39 +132,25 @@ class Kernel extends HttpKernel
 
     public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
     {
-        if (!$this->booted) {
-            $this->boot();
-        }
+        $this->boot();
 
         return $this->getHttpKernel()->handle($request, $type, $catch);
     }
 
     public function boot(): void
     {
-        if ($this->booted === true) {
-            if ($this->debug) {
-                $this->startTime = microtime(true);
+        if (!$this->booted) {
+            if ($this->debug && !EnvironmentHelper::hasVariable('SHELL_VERBOSITY')) {
+                putenv('SHELL_VERBOSITY=1');
+                $_ENV['SHELL_VERBOSITY'] = 1;
+                $_SERVER['SHELL_VERBOSITY'] = 1;
             }
 
-            return;
-        }
-
-        if ($this->debug) {
-            $this->startTime = microtime(true);
-        }
-
-        if ($this->debug && !EnvironmentHelper::hasVariable('SHELL_VERBOSITY')) {
-            putenv('SHELL_VERBOSITY=1');
-            $_ENV['SHELL_VERBOSITY'] = 1;
-            $_SERVER['SHELL_VERBOSITY'] = 1;
-        }
-
-        try {
-            // initialize plugins before booting
-            $this->pluginLoader->initializePlugins($this->getProjectDir());
-        } catch (DBALException $e) {
-            if (\defined('\STDERR')) {
-                fwrite(\STDERR, 'Warning: Failed to load plugins. Message: ' . $e->getMessage() . \PHP_EOL);
+            try {
+                // initialize plugins before booting
+                $this->pluginLoader->initializePlugins($this->getProjectDir());
+            } catch (DBALException $e) {
+                IOStreamHelper::writeError('Warning: Failed to load plugins', $e);
             }
         }
 
@@ -177,8 +171,8 @@ class Kernel extends HttpKernel
     public function getCacheDir(): string
     {
         return \sprintf(
-            '%s/var/cache/%s_h%s',
-            EnvironmentHelper::getVariable('APP_CACHE_DIR', $this->getProjectDir()),
+            '%s/%s_h%s',
+            $this->cacheRootDir,
             $this->getEnvironment(),
             $this->getCacheHash(),
         );
@@ -240,6 +234,18 @@ class Kernel extends HttpKernel
 
         $confDir = $this->getProjectDir() . '/config';
 
+        // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML package configuration is no longer loaded
+        foreach ($this->getXmlFilesRecursive($confDir . '/packages') as $path) {
+            $this->triggerXmlConfigDeprecation($path, 'Migrate the package configuration to YAML or PHP format.');
+        }
+
+        // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML service definitions are no longer loaded
+        foreach ([$confDir . '/services.xml', $confDir . '/services_' . $this->environment . '.xml'] as $path) {
+            if (is_file($path)) {
+                $this->triggerXmlConfigDeprecation($path, \sprintf('Migrate the service definitions to PHP format (%s).', basename($path, '.xml') . '.php'));
+            }
+        }
+
         $loader->load($confDir . '/{packages}/*' . self::CONFIG_EXTS, 'glob');
         $loader->load($confDir . '/{packages}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, 'glob');
         $loader->load($confDir . '/{services}' . self::CONFIG_EXTS, 'glob');
@@ -249,6 +255,13 @@ class Kernel extends HttpKernel
     protected function configureRoutes(RoutingConfigurator $routes): void
     {
         $confDir = $this->getProjectDir() . '/config';
+
+        // @deprecated tag:v6.8.0 - remove the deprecation trigger, XML route definitions are no longer loaded
+        foreach ([...$this->getXmlFilesRecursive($confDir . '/routes'), $confDir . '/routes.xml'] as $path) {
+            if (is_file($path)) {
+                $this->triggerXmlConfigDeprecation($path, \sprintf('Migrate the route definitions to PHP format (%s).', basename($path, '.xml') . '.php'));
+            }
+        }
 
         $routes->import($confDir . '/{routes}/*' . self::CONFIG_EXTS, 'glob');
         $routes->import($confDir . '/{routes}/' . $this->environment . '/**/*' . self::CONFIG_EXTS, 'glob');
@@ -261,9 +274,7 @@ class Kernel extends HttpKernel
     }
 
     /**
-     * {@inheritdoc}
-     *
-     * @return array<string, mixed>
+     * @phpstan-ignore missingType.iterableValue (Needs to be fixed in upstream parent method)
      */
     protected function getKernelParameters(): array
     {
@@ -313,12 +324,46 @@ class Kernel extends HttpKernel
             $plugins[$plugin['name']] = $plugin['version'];
         }
 
-        asort($plugins);
+        // sort by name, so the hash does not depend on the order in which the plugin loader returns the plugins
+        ksort($plugins);
+
+        // The feature registry is initialized after the container cache is selected.
+        /** @var list<string>|null $majorVersionFlagNames */
+        static $majorVersionFlagNames = null;
+        if ($majorVersionFlagNames === null) {
+            /** @var array{shopware: array{feature: array{flags: list<array{name: string, major: bool}>}}} $config */
+            $config = Yaml::parseFile(__DIR__ . '/Framework/Resources/config/packages/feature.yaml');
+            $majorVersionFlagNames = [];
+            foreach ($config['shopware']['feature']['flags'] as $flag) {
+                if (!$flag['major'] || \preg_match('/^v\d+(?:\.\d+){1,3}$/i', $flag['name']) !== 1) {
+                    continue;
+                }
+
+                $majorVersionFlagNames[] = Feature::normalizeName($flag['name']);
+            }
+        }
+
+        $majorFeatureFlags = [];
+        foreach ($majorVersionFlagNames as $name) {
+            if (!EnvironmentHelper::hasVariable($name) && !EnvironmentHelper::hasVariable(strtolower($name))) {
+                continue;
+            }
+
+            $value = EnvironmentHelper::hasVariable($name)
+                ? EnvironmentHelper::getVariable($name)
+                : EnvironmentHelper::getVariable(strtolower($name));
+            $value = (string) $value;
+            $majorFeatureFlags[$name] = (bool) $value && $value !== 'false';
+        }
+
+        ksort($majorFeatureFlags);
 
         return Hasher::hash([
             $this->cacheId,
             (string) $this->shopwareVersionRevision,
             $plugins,
+            (string) EnvironmentHelper::getVariable('FEATURE_ALL', ''),
+            $majorFeatureFlags,
         ]);
     }
 
@@ -327,41 +372,52 @@ class Kernel extends HttpKernel
      */
     protected function initializeDatabaseConnectionVariables(): void
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'The method initializeDatabaseConnectionVariables is deprecated and will be removed in 6.8.0.0. All MySQL connection variables are configured in ' . MySQLFactory::class);
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            'The method initializeDatabaseConnectionVariables is deprecated and will be removed in 6.8.0.0. All MySQL connection variables are configured in ' . MySQLFactory::class
+        );
 
         self::$connection = self::getConnection();
     }
 
-    /**
-     * Dumps the preload file to an always known location outside the generated cache folder name
-     */
     protected function dumpContainer(ConfigCache $cache, ContainerBuilder $container, string $class, string $baseClass): void
     {
         parent::dumpContainer($cache, $container, $class, $baseClass);
+
+        $filesystem = new Filesystem();
+        $filesystem->dumpFile($this->cacheRootDir . \DIRECTORY_SEPARATOR . 'CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
+
         $cacheDir = $container->getParameter('kernel.cache_dir');
-        $cacheName = basename($cacheDir);
-        $fileName = substr(basename($cache->getPath()), 0, -3) . 'preload.php';
 
-        file_put_contents(\dirname($cacheDir) . '/CACHEDIR.TAG', 'Signature: 8a477f597d28d172789f06886806bc55');
+        // Do not dump the preload file if the cache dir is a warmup dir.
+        // See https://github.com/symfony/symfony/blob/v7.2.6/src/Symfony/Bundle/FrameworkBundle/Command/CacheClearCommand.php#L115-L117
+        if (str_ends_with($cacheDir, '_')) {
+            return;
+        }
 
-        $preloadFile = \dirname($cacheDir) . '/opcache-preload.php';
+        $cacheDirectoryName = basename($cacheDir);
+        $containerPreloadFileName = $class . '.preload.php';
 
-        $loader = <<<PHP
+        $preloadFileContent = <<<PHP
 <?php
 
 require_once __DIR__ . '/#CACHE_PATH#';
 PHP;
 
-        file_put_contents($preloadFile, str_replace(
-            ['#CACHE_PATH#'],
-            [$cacheName . '/' . $fileName],
-            $loader
-        ));
+        // Dumps the preload file to an always known location outside the generated cache folder name
+        $filesystem->dumpFile(
+            $this->cacheRootDir . \DIRECTORY_SEPARATOR . 'opcache-preload.php',
+            str_replace(
+                '#CACHE_PATH#',
+                $cacheDirectoryName . \DIRECTORY_SEPARATOR . $containerPreloadFileName,
+                $preloadFileContent,
+            )
+        );
     }
 
     private function addApiRoutes(RoutingConfigurator $routes): void
     {
-        $routes->import('.', 'api');
+        $routes->import('.', ApiRouteScope::ID);
     }
 
     private function addBundleRoutes(RoutingConfigurator $routes): void
@@ -394,11 +450,41 @@ PHP;
     }
 
     /**
-     * @param array<int, string> $instanciatedBundleNames
+     * @param array<int, string> $instantiatedBundleNames
      */
-    private function isBundleRegistered(Bundle|ShopwareBundle $bundle, array $instanciatedBundleNames): bool
+    private function isBundleRegistered(Bundle|ShopwareBundle $bundle, array $instantiatedBundleNames): bool
     {
-        return \array_key_exists($bundle->getName(), $instanciatedBundleNames)
+        return \array_key_exists($bundle->getName(), $instantiatedBundleNames)
             || \array_key_exists($bundle->getName(), $this->bundles);
+    }
+
+    // @deprecated tag:v6.8.0 - remove together with the XML configuration deprecation triggers
+    private function triggerXmlConfigDeprecation(string $path, string $migrationHint): void
+    {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            \sprintf(
+                'The XML configuration file "%s" in the project configuration directory is deprecated and will not be loaded in v6.8.0.0. %s',
+                $path,
+                $migrationHint,
+            ),
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getXmlFilesRecursive(string $dir): array
+    {
+        if (!is_dir($dir)) {
+            return [];
+        }
+
+        $files = [];
+        foreach ((new Finder())->files()->in($dir)->name('*.xml')->sortByName() as $file) {
+            $files[] = $file->getPathname();
+        }
+
+        return $files;
     }
 }

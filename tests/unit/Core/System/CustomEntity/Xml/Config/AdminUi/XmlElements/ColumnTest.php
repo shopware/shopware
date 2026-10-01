@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Xml\Config\AdminUi\XmlEle
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\CustomEntity\Xml\Config\AdminUi\XmlElements\Column;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Column::class)]
 class ColumnTest extends TestCase
 {
@@ -25,8 +27,8 @@ class ColumnTest extends TestCase
         }
 
         $column = Column::fromXml($columnElement);
-        static::assertEquals($result, $column->isHidden());
-        static::assertEquals('column ref', $column->getRef());
+        static::assertSame($result, $column->isHidden());
+        static::assertSame('column ref', $column->getRef());
     }
 
     public static function provider(): \Generator

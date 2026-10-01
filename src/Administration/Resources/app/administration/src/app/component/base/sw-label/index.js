@@ -1,8 +1,6 @@
 import './sw-label.scss';
 import template from './sw-label.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -14,13 +12,10 @@ const { Component } = Shopware;
  *     Text
  * </sw-label>
  */
-Component.register('sw-label', {
+export default {
     template,
 
-    emits: [
-        'selected',
-        'dismiss',
-    ],
+    emits: ['selected', 'dismiss'],
 
     props: {
         variant: {
@@ -55,17 +50,9 @@ Component.register('sw-label', {
             type: String,
             required: false,
             default: 'default',
-            validValues: [
-                'small',
-                'medium',
-                'default',
-            ],
+            validValues: ['small', 'medium', 'default'],
             validator(value) {
-                return [
-                    'small',
-                    'medium',
-                    'default',
-                ].includes(value);
+                return ['small', 'medium', 'default'].includes(value);
             },
         },
         appearance: {
@@ -100,7 +87,6 @@ Component.register('sw-label', {
         dismissable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         light: {
@@ -133,4 +119,4 @@ Component.register('sw-label', {
             return !!this.$props.onDismiss && this.dismissable;
         },
     },
-});
+};

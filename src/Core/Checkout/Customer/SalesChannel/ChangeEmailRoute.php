@@ -2,23 +2,31 @@
 
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Extension\ChangeEmailRouteExtension;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerPasswordMatches;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Constraints\EqualTo;
@@ -26,19 +34,27 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api'], '_contextTokenRequired' => true])]
 #[Package('checkout')]
+#[Route(
+    defaults: [
+        PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID],
+        PlatformRequest::ATTRIBUTE_CONTEXT_TOKEN_REQUIRED => true,
+    ]
+)]
 class ChangeEmailRoute extends AbstractChangeEmailRoute
 {
     /**
      * @internal
      *
      * @param EntityRepository<CustomerCollection> $customerRepository
+     * @param EntityRepository<CustomerRecoveryCollection> $customerRecoveryRepository
      */
     public function __construct(
         private readonly EntityRepository $customerRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly DataValidator $validator
+        private readonly DataValidator $validator,
+        private readonly EntityRepository $customerRecoveryRepository,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -47,8 +63,22 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/change-email', name: 'store-api.account.change-email', methods: ['POST'], defaults: ['_loginRequired' => true])]
+    #[Route(
+        path: '/store-api/account/change-email',
+        name: 'store-api.account.change-email',
+        defaults: [PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true],
+        methods: [Request::METHOD_POST]
+    )]
     public function change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
+    {
+        return $this->extensions->publish(
+            name: ChangeEmailRouteExtension::NAME,
+            extension: new ChangeEmailRouteExtension($requestDataBag, $context, $customer),
+            function: $this->_change(...),
+        );
+    }
+
+    private function _change(RequestDataBag $requestDataBag, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         EmailIdnConverter::encodeDataBag($requestDataBag);
         EmailIdnConverter::encodeDataBag($requestDataBag, 'emailConfirmation');
@@ -62,6 +92,12 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
 
         $this->customerRepository->update([$customerData], $context->getContext());
 
+        $criteria = (new Criteria())->addFilter(new EqualsFilter('customerId', $customer->getId()));
+        $ids = $this->customerRecoveryRepository->searchIds($criteria, $context->getContext())->getPrimaryKeyData();
+        if ($ids !== []) {
+            $this->customerRecoveryRepository->delete($ids, $context->getContext());
+        }
+
         return new SuccessResponse();
     }
 
@@ -69,22 +105,20 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     {
         $validation = new DataValidationDefinition('customer.email.update');
 
-        $options = ['salesChannelContext' => $context];
-
         $validation
             ->add(
                 'email',
                 new Email(),
-                new EqualTo(['propertyPath' => 'emailConfirmation']),
-                new CustomerEmailUnique($options)
+                new EqualTo(propertyPath: 'emailConfirmation'),
+                new CustomerEmailUnique(salesChannelContext: $context)
             )
-            ->add('password', new CustomerPasswordMatches($options));
+            ->add('password', new CustomerPasswordMatches(salesChannelContext: $context));
 
         $this->dispatchValidationEvent($validation, $data, $context->getContext());
 
         $this->validator->validate($data->all(), $validation);
 
-        $this->tryValidateEqualtoConstraint($data->all(), 'email', $validation);
+        $this->tryValidateEqualToConstraint($data->all(), 'email', $validation);
     }
 
     private function dispatchValidationEvent(DataValidationDefinition $definition, DataBag $data, Context $context): void
@@ -94,19 +128,14 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
     }
 
     /**
-     * @param mixed[] $data
+     * @param array<string, mixed> $data
      */
-    private function tryValidateEqualtoConstraint(array $data, string $field, DataValidationDefinition $validation): void
+    private function tryValidateEqualToConstraint(array $data, string $field, DataValidationDefinition $validation): void
     {
         $validations = $validation->getProperties();
 
-        if (!\array_key_exists($field, $validations)) {
-            return;
-        }
+        $fieldValidations = $validations[$field] ?? [];
 
-        $fieldValidations = $validations[$field];
-
-        /** @var EqualTo|null $equalityValidation */
         $equalityValidation = null;
 
         foreach ($fieldValidations as $emailValidation) {
@@ -121,12 +150,12 @@ class ChangeEmailRoute extends AbstractChangeEmailRoute
             return;
         }
 
-        $compareValue = $data[$equalityValidation->propertyPath] ?? null;
+        $compareValue = $data[$equalityValidation->propertyPath ?? ''] ?? null;
         if ($data[$field] === $compareValue) {
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue, (string) $equalityValidation->message);
+        $message = str_replace('{{ compared_value }}', $compareValue, $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));

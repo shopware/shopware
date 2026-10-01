@@ -4,6 +4,9 @@ namespace Shopware\Core\Framework\App;
 
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
+use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptCollection;
+use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceCollection;
+use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolCollection;
 use Shopware\Core\Framework\App\Aggregate\AppPaymentMethod\AppPaymentMethodCollection;
 use Shopware\Core\Framework\App\Aggregate\AppScriptCondition\AppScriptConditionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
@@ -24,8 +27,10 @@ use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 
 /**
- * @phpstan-type Module array{name: string, label: array<string, string>, parent: string, source: string|null, position: int}
- * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: int, entries?: list<array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: int}>}
+ * @phpstan-type Module array{name: string, label: array<string, string>, parent: string, source?: string|null, position: int}
+ * @phpstan-type Cookie array{snippet_name: string, snippet_description?: string, cookie?: string, value?: string, expiration?: string, entries?: list<array{snippet_name: string, snippet_description?: string, cookie: string, value?: string, expiration?: string}>}
+ *
+ * @phpstan-import-type SourceConfig from AppDefinition
  */
 #[Package('framework')]
 class AppEntity extends Entity
@@ -52,6 +57,8 @@ class AppEntity extends Entity
     protected ?string $baseAppUrl = null;
 
     protected ?string $checkoutGatewayUrl = null;
+
+    protected ?string $contextGatewayUrl = null;
 
     protected ?string $inAppPurchasesGatewayUrl = null;
 
@@ -94,6 +101,15 @@ class AppEntity extends Entity
      * @internal
      */
     protected ?string $appSecret = null;
+
+    /**
+     * @internal
+     *
+     * The uncommitted secrets the app might still hold, most-recent first.
+     *
+     * @var list<string>|null
+     */
+    protected ?array $unconfirmedAppSecrets = null;
 
     protected string $integrationId;
 
@@ -143,16 +159,27 @@ class AppEntity extends Entity
      */
     protected ?EntityCollection $appShippingMethods = null;
 
+    protected ?AppMcpToolCollection $mcpTools = null;
+
+    protected ?AppMcpPromptCollection $mcpPrompts = null;
+
+    protected ?AppMcpResourceCollection $mcpResources = null;
+
     protected int $templateLoadPriority;
 
     protected string $sourceType = 'local';
 
     /**
-     * @var array<string, string|null>
+     * @var SourceConfig
      */
     protected array $sourceConfig = [];
 
     protected bool $selfManaged = false;
+
+    /**
+     * @var list<string>
+     */
+    protected array $requestedPrivileges = [];
 
     public function getName(): string
     {
@@ -245,6 +272,16 @@ class AppEntity extends Entity
     public function setCheckoutGatewayUrl(?string $checkoutGatewayUrl): void
     {
         $this->checkoutGatewayUrl = $checkoutGatewayUrl;
+    }
+
+    public function getContextGatewayUrl(): ?string
+    {
+        return $this->contextGatewayUrl;
+    }
+
+    public function setContextGatewayUrl(?string $contextGatewayUrl): void
+    {
+        $this->contextGatewayUrl = $contextGatewayUrl;
     }
 
     public function getInAppPurchasesGatewayUrl(): ?string
@@ -442,9 +479,31 @@ class AppEntity extends Entity
     /**
      * @internal
      */
-    public function setAppSecret(?string $appSecret): void
+    public function setAppSecret(#[\SensitiveParameter] ?string $appSecret): void
     {
         $this->appSecret = $appSecret;
+    }
+
+    /**
+     * @internal
+     *
+     * @return list<string>|null
+     */
+    public function getUnconfirmedAppSecrets(): ?array
+    {
+        $this->checkIfPropertyAccessIsAllowed('unconfirmedAppSecrets');
+
+        return $this->unconfirmedAppSecrets;
+    }
+
+    /**
+     * @internal
+     *
+     * @param list<string>|null $unconfirmedAppSecrets
+     */
+    public function setUnconfirmedAppSecrets(#[\SensitiveParameter] ?array $unconfirmedAppSecrets): void
+    {
+        $this->unconfirmedAppSecrets = $unconfirmedAppSecrets;
     }
 
     public function isActive(): bool
@@ -615,6 +674,36 @@ class AppEntity extends Entity
         $this->appShippingMethods = $appShippingMethods;
     }
 
+    public function getMcpTools(): ?AppMcpToolCollection
+    {
+        return $this->mcpTools;
+    }
+
+    public function setMcpTools(AppMcpToolCollection $mcpTools): void
+    {
+        $this->mcpTools = $mcpTools;
+    }
+
+    public function getMcpPrompts(): ?AppMcpPromptCollection
+    {
+        return $this->mcpPrompts;
+    }
+
+    public function setMcpPrompts(AppMcpPromptCollection $mcpPrompts): void
+    {
+        $this->mcpPrompts = $mcpPrompts;
+    }
+
+    public function getMcpResources(): ?AppMcpResourceCollection
+    {
+        return $this->mcpResources;
+    }
+
+    public function setMcpResources(AppMcpResourceCollection $mcpResources): void
+    {
+        $this->mcpResources = $mcpResources;
+    }
+
     public function jsonSerialize(): array
     {
         $serializedData = parent::jsonSerialize();
@@ -638,9 +727,6 @@ class AppEntity extends Entity
         return $this->templateLoadPriority;
     }
 
-    /**
-     * @codeCoverageIgnore
-     */
     public function setTemplateLoadPriority(int $templateLoadPriority): void
     {
         $this->templateLoadPriority = $templateLoadPriority;
@@ -657,7 +743,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @return array<string, string|null>
+     * @return SourceConfig
      */
     public function getSourceConfig(): array
     {
@@ -665,7 +751,7 @@ class AppEntity extends Entity
     }
 
     /**
-     * @param array<string, string|null> $config
+     * @param SourceConfig $config
      */
     public function setSourceConfig(array $config): void
     {
@@ -685,5 +771,21 @@ class AppEntity extends Entity
     public function setSelfManaged(bool $selfManaged): void
     {
         $this->selfManaged = $selfManaged;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function getRequestedPrivileges(): array
+    {
+        return $this->requestedPrivileges;
+    }
+
+    /**
+     * @param list<string> $requestedPrivileges
+     */
+    public function setRequestedPrivileges(array $requestedPrivileges): void
+    {
+        $this->requestedPrivileges = $requestedPrivileges;
     }
 }

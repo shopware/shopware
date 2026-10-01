@@ -4,9 +4,13 @@ namespace Shopware\Elasticsearch\Product;
 
 use Shopware\Core\Content\Product\DataAbstractionLayer\SearchKeywordUpdater;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 
+/**
+ * @deprecated tag:v6.8.0 - Will be removed, as `elasticsearch.indexing_enabled` already prevents the indexing of search keywords.
+ */
 #[Package('framework')]
 class SearchKeywordReplacement extends SearchKeywordUpdater
 {
@@ -24,6 +28,12 @@ class SearchKeywordReplacement extends SearchKeywordUpdater
      */
     public function update(array $ids, Context $context): void
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->decorated->update($ids, $context);
+
+            return;
+        }
+
         if ($this->helper->allowIndexing()) {
             return;
         }
@@ -33,6 +43,12 @@ class SearchKeywordReplacement extends SearchKeywordUpdater
 
     public function reset(): void
     {
+        if (Feature::isActive('v6.8.0.0')) {
+            $this->decorated->reset();
+
+            return;
+        }
+
         $this->decorated->reset();
     }
 }

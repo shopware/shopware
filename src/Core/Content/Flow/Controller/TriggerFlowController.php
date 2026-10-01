@@ -3,12 +3,15 @@
 namespace Shopware\Core\Content\Flow\Controller;
 
 use Shopware\Core\Content\Flow\FlowException;
+use Shopware\Core\Framework\App\Aggregate\FlowEvent\AppFlowEventCollection;
 use Shopware\Core\Framework\App\Event\CustomAppEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -16,12 +19,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['api']])]
 #[Package('after-sales')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [ApiRouteScope::ID]])]
 class TriggerFlowController extends AbstractController
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<AppFlowEventCollection> $appFlowEventRepository
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
@@ -29,7 +34,7 @@ class TriggerFlowController extends AbstractController
     ) {
     }
 
-    #[Route(path: '/api/_action/trigger-event/{eventName}', name: 'api.action.trigger_event', methods: ['POST'])]
+    #[Route(path: '/api/_action/trigger-event/{eventName}', name: 'api.action.trigger_event', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['flow:dispatch']], methods: ['POST'])]
     public function trigger(string $eventName, Request $request, Context $context): JsonResponse
     {
         $data = $request->request->all();
@@ -50,6 +55,6 @@ class TriggerFlowController extends AbstractController
         $criteria->addFilter(new EqualsFilter('name', $eventName));
         $criteria->addFilter(new EqualsFilter('app.active', 1));
 
-        $this->appFlowEventRepository->search($criteria, $context)->first() ?? throw FlowException::customTriggerByNameNotFound($eventName);
+        $this->appFlowEventRepository->search($criteria, $context)->getEntities()->first() ?? throw FlowException::customTriggerByNameNotFound($eventName);
     }
 }

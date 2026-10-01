@@ -1,37 +1,50 @@
-@import "~scss/variables";
-
 .sw-first-run-wizard-data-import {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    height: 80%;
     align-self: center;
+
+    &__card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 380px;
+
+        .button-plugin-install {
+            margin-top: auto;
+        }
+
+        .plugin-status {
+            margin-top: auto;
+        }
+    }
 
     &__icon-demodata {
         width: 154px;
-        margin: 45px auto;
+        margin: 25px auto;
     }
 
     &__icon-migration {
         width: 206px;
-        margin: 40px auto;
+        margin: 19px auto;
     }
 
-    &__headline {
-        font-size: $font-size-m;
-        font-weight: $font-weight-semi-bold;
-        letter-spacing: 0.1px;
-        line-height: 25px;
+    h5 {
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary-default);
+        margin-bottom: var(--scale-size-8);
     }
 
-    &__message {
-        width: 270px;
-        height: 80px;
-        font-weight: normal;
-        letter-spacing: 0.1px;
-        margin: 0 auto 40px;
+    p {
+        width: 300px;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        font-weight: var(--font-weight-regular);
+        color: var(--color-text-primary-default);
     }
 
     .installing-plugin {
@@ -43,29 +56,39 @@
     }
 
     .sw-loader-info-text {
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary-default);
+        margin-top: var(--scale-size-32);
         position: relative;
         width: 100%;
-        top: 60px;
+        top: var(--scale-size-56);
         text-align: center;
     }
 
+    .plugin-status {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
     .plugin-installed {
-        height: 23px;
-        color: $color-emerald-500;
-        font-size: $font-size-xs;
-        font-weight: normal;
-        letter-spacing: 0.1px;
-        line-height: 22px;
-        margin-right: 24px;
+        display: flex;
+        align-items: center;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary-default);
 
         .mt-icon {
-            margin-right: 5px;
+            color: var(--color-icon-positive-default);
+            margin-right: var(--scale-size-6);
         }
     }
 
     .sw-first-run-wizard-plugin-installation__error {
-        width: 520px;
-        margin-top: 25px;
+        width: 100%;
     }
 }
 

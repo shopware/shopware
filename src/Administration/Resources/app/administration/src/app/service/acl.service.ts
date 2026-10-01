@@ -4,7 +4,6 @@
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default class AclService {
     isAdmin(): boolean {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         return !!Shopware.Store.get('session').currentUser?.admin;
     }
 
@@ -13,7 +12,6 @@ export default class AclService {
             return true;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         return (Shopware.Store.get('session').userPrivileges as string[]).includes(privilegeKey);
     }
 
@@ -40,7 +38,6 @@ export default class AclService {
 
     hasActiveSettingModules(): boolean {
         // @ts-expect-error
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-argument
         const groups = Object.values(Shopware.Store.get('settingsItems').settingsGroups) as [[{ privilege?: string }]];
 
         let hasActive = false;
@@ -59,7 +56,6 @@ export default class AclService {
     }
 
     get privileges(): string[] {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         return Shopware.Store.get('session').userPrivileges as string[];
     }
 }

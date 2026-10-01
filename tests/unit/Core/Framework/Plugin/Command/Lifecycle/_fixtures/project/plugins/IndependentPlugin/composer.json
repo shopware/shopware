@@ -1,0 +1,9 @@
+{
+    "name": "swag/independent-plugin",
+    "description": "Plugin install command test fixture",
+    "version": "1.0.0",
+    "type": "shopware-platform-plugin",
+    "extra": {
+        "shopware-plugin-class": "IndependentPlugin\\IndependentPlugin"
+    }
+}

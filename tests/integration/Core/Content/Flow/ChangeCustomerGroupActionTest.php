@@ -5,9 +5,11 @@ namespace Shopware\Tests\Integration\Core\Content\Flow;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerLoginEvent;
 use Shopware\Core\Content\Flow\Dispatching\Action\ChangeCustomerGroupAction;
+use Shopware\Core\Content\Flow\FlowCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -32,12 +34,18 @@ class ChangeCustomerGroupActionTest extends TestCase
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
+    /**
+     * @var EntityRepository<FlowCollection>
+     */
     private EntityRepository $flowRepository;
 
     private KernelBrowser $browser;
 
     private IdsCollection $ids;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
     protected function setUp(): void
@@ -106,10 +114,10 @@ class ChangeCustomerGroupActionTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('name', 'Test group'));
         /** @var CustomerGroupEntity $customerGroupId */
-        $customerGroupId = static::getContainer()->get('customer_group.repository')->search($criteria, Context::createDefaultContext())->first();
+        $customerGroupId = static::getContainer()->get('customer_group.repository')->search($criteria, Context::createDefaultContext())->getEntities()->first();
 
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), Context::createDefaultContext())->first();
+        $customer = $this->customerRepository->search(new Criteria([$this->ids->get('customer')]), Context::createDefaultContext())->getEntities()->first();
 
         static::assertSame($customerGroupId->getId(), $customer->getGroupId());
     }

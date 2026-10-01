@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\Constraint\NoHtml;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -46,7 +47,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
     public function testCreateWithSalesChannelContext(): void
     {
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             $this->accountTypes,
         );
 
@@ -125,7 +126,7 @@ class CustomerProfileValidationFactoryTest extends TestCase
     public function testUpdateWithSalesChannelContext(): void
     {
         $customerProfileValidationFactory = new CustomerProfileValidationFactory(
-            $this->createMock(SystemConfigService::class),
+            static::createStub(SystemConfigService::class),
             $this->accountTypes,
         );
 
@@ -201,6 +202,25 @@ class CustomerProfileValidationFactoryTest extends TestCase
         static::assertEquals($expected, $actual);
     }
 
+    public function testNameFieldsRejectHtml(): void
+    {
+        $customerProfileValidationFactory = new CustomerProfileValidationFactory(
+            static::createStub(SystemConfigService::class),
+            $this->accountTypes,
+        );
+
+        $properties = $customerProfileValidationFactory->create($this->getSalesChannelContext())->getProperties();
+
+        foreach (['title', 'firstName', 'lastName'] as $field) {
+            static::assertArrayHasKey($field, $properties);
+
+            $noHtml = array_values(array_filter($properties[$field], static fn ($constraint) => $constraint instanceof NoHtml));
+
+            static::assertCount(1, $noHtml, \sprintf('Expected exactly one NoHtml constraint on "%s".', $field));
+            static::assertSame('VIOLATION::CONTAINS_HTML_ERROR', $noHtml[0]->getMessage());
+        }
+    }
+
     private function getSalesChannelContext(): SalesChannelContext
     {
         $salesChannel = new SalesChannelEntity();
@@ -215,20 +235,23 @@ class CustomerProfileValidationFactoryTest extends TestCase
     private function addConstraintsSalesChannelContext(DataValidationDefinition $definition, SalesChannelContext $context): void
     {
         $definition
-            ->add('salutationId', new EntityExists(['entity' => SalutationDefinition::ENTITY_NAME, 'context' => $context->getContext()]))
+            ->add('salutationId', new EntityExists(entity: SalutationDefinition::ENTITY_NAME, context: $context->getContext()))
             ->add('firstName', new NotBlank())
             ->add('lastName', new NotBlank())
-            ->add('accountType', new Choice($this->accountTypes))
-            ->add('title', new Length(['max' => CustomerDefinition::MAX_LENGTH_TITLE]))
-            ->add('firstName', new Length(['max' => CustomerDefinition::MAX_LENGTH_FIRST_NAME]))
-            ->add('lastName', new Length(['max' => CustomerDefinition::MAX_LENGTH_LAST_NAME]));
+            ->add('accountType', new Choice(choices: $this->accountTypes))
+            ->add('title', new Length(max: CustomerDefinition::MAX_LENGTH_TITLE))
+            ->add('firstName', new Length(max: CustomerDefinition::MAX_LENGTH_FIRST_NAME))
+            ->add('lastName', new Length(max: CustomerDefinition::MAX_LENGTH_LAST_NAME))
+            ->add('title', new NoHtml(message: 'VIOLATION::CONTAINS_HTML_ERROR'))
+            ->add('firstName', new NoHtml(message: 'VIOLATION::CONTAINS_HTML_ERROR'))
+            ->add('lastName', new NoHtml(message: 'VIOLATION::CONTAINS_HTML_ERROR'));
     }
 
     private function addConstraintsBirthday(DataValidationDefinition $definition): void
     {
         $definition
-            ->add('birthdayDay', new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 31]))
-            ->add('birthdayMonth', new GreaterThanOrEqual(['value' => 1]), new LessThanOrEqual(['value' => 12]))
-            ->add('birthdayYear', new GreaterThanOrEqual(['value' => 1900]), new LessThanOrEqual(['value' => date('Y')]));
+            ->add('birthdayDay', new NotBlank(), new GreaterThanOrEqual(value: 1), new LessThanOrEqual(value: 31))
+            ->add('birthdayMonth', new NotBlank(), new GreaterThanOrEqual(value: 1), new LessThanOrEqual(value: 12))
+            ->add('birthdayYear', new NotBlank(), new GreaterThanOrEqual(value: 1900), new LessThanOrEqual(value: date('Y')));
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Storefront\Page\Checkout;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPage;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('checkout')]
 class FinishPageTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -32,7 +34,7 @@ class FinishPageTest extends TestCase
 
     public function testMissingOrderThrows(): void
     {
-        $request = new Request([], [], ['orderId' => 'foo']);
+        $request = new Request(['orderId' => 'foo']);
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
 
         $this->expectException(OrderException::class);
@@ -44,7 +46,7 @@ class FinishPageTest extends TestCase
     {
         $context = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
         $orderId = $this->placeRandomOrder($context);
-        $request = new Request([], [], ['orderId' => $orderId]);
+        $request = new Request(['orderId' => $orderId]);
         $eventWasThrown = false;
         $criteria = new Criteria([$orderId]);
 

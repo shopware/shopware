@@ -1,10 +1,8 @@
-@import "~scss/variables";
-
-$sw-color-badge-color-fallback: $color-gray-300;
-$sw-color-badge-color-warning: $color-pumpkin-spice-500;
-$sw-color-badge-color-error: $color-crimson-500;
-$sw-color-badge-color-success: $color-emerald-500;
-$sw-color-badge-color-info: $color-shopware-brand-500;
+$sw-color-badge-color-fallback: var(--color-icon-secondary-default);
+$sw-color-badge-color-warning: var(--color-icon-attention-default);
+$sw-color-badge-color-error: var(--color-icon-critical-default);
+$sw-color-badge-color-success: var(--color-icon-positive-default);
+$sw-color-badge-color-info: var(--color-icon-brand-default);
 
 .sw-color-badge {
     display: inline-block;

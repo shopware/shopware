@@ -10,42 +10,69 @@
     {% block sw_sales_channel_menu_headline %}
     <div class="sw-admin-menu__headline">
         {% block sw_sales_channel_menu_headline_text %}
-        <div class="collapsible-text sw-admin-menu__headline_text">
+        <div class="collapsible-text sw-admin-menu__headline_text hide-on-collapse">
             <router-link
                 :to="{ name: 'sw.sales.channel.list' }"
-            >{{ $tc('sw-sales-channel.general.titleMenuItems') }}</router-link>
+            >{{ $t('sw-sales-channel.general.titleMenuItems') }}</router-link>
         </div>
         {% endblock %}
 
         {% block sw_sales_channel_menu_headline_context_button %}
-        <sw-context-button
-            class="sw-admin-menu__headline-context-menu"
-            icon="solid-ellipsis-h"
+        <mt-dropdown-menu-root
+            :open="contextMenuOpen"
+            @update:open="contextMenuOpen = $event"
         >
-            {% block sw_sales_channel_menu_headline_context_button_item %}
-            <sw-context-menu-item
-                class="sw-admin-menu__headline-context-menu-manage-sales-channels"
-                :router-link="{ name: 'sw.sales.channel.list' }"
-            >
-                {{ $tc('sw-sales-channel.general.manageSalesChannels') }}
-            </sw-context-menu-item>
-            {% endblock %}
-        </sw-context-button>
-        {% endblock %}
+            <mt-dropdown-menu-trigger as-child>
+                <mt-button
+                    class="sw-admin-menu__headline-action"
+                    variant="tertiary"
+                    size="x-small"
+                    square
+                    :aria-label="$t('sw-sales-channel.general.manageSalesChannels')"
+                >
+                    <template #iconFront>
+                        <mt-icon
+                            name="solid-ellipsis-h-s"
+                            size="14px"
+                        />
+                    </template>
+                </mt-button>
+            </mt-dropdown-menu-trigger>
 
-        {% block sw_sales_channel_menu_headline_action %}
-        <button
-            v-if="canCreateSalesChannels"
-            :aria-label="$tc('sw-sales-channel.general.addSalesChannel')"
-            class="sw-admin-menu__headline-action"
-            @click="openSalesChannelModal"
-        >
-            <mt-icon
-                class="sw-admin-menu__headline-icon"
-                name="regular-plus-circle-s"
-                size="16px"
-            />
-        </button>
+            <mt-dropdown-menu-portal>
+                <mt-action-menu
+                    :side="isSidebarExpanded ? 'bottom' : 'right'"
+                    :side-offset="isSidebarExpanded ? 4 : 12"
+                >
+                    {% block sw_sales_channel_menu_headline_context_button_item %}
+                    <router-link
+                        v-slot="{ navigate }"
+                        :to="{ name: 'sw.sales.channel.list' }"
+                        custom
+                    >
+                        <mt-action-menu-item
+                            class="sw-admin-menu__headline-context-menu-manage-sales-channels"
+                            icon="regular-pencil-s"
+                            @click="navigate"
+                        >
+                            {{ $t('sw-sales-channel.general.manageSalesChannels') }}
+                        </mt-action-menu-item>
+                    </router-link>
+                    {% endblock %}
+
+                    {% block sw_sales_channel_menu_headline_action %}
+                    <mt-action-menu-item
+                        v-if="canCreateSalesChannels"
+                        class="sw-admin-menu__headline-context-menu-add-sales-channel"
+                        icon="regular-plus-circle"
+                        @click="openSalesChannelModal"
+                    >
+                        {{ $t('sw-sales-channel.general.addSalesChannel') }}
+                    </mt-action-menu-item>
+                    {% endblock %}
+                </mt-action-menu>
+            </mt-dropdown-menu-portal>
+        </mt-dropdown-menu-root>
         {% endblock %}
     </div>
     {% endblock %}
@@ -62,23 +89,30 @@
                 :key="entry.id || index"
                 class="sw-admin-menu__sales-channel-item"
                 :entry="entry"
+                :sidebar-expanded="isSidebarExpanded"
                 icon-size="16px"
                 :class="['sw-admin-menu__sales-channel-item--' + index]"
             >
                 <template #additional-text>
                     {% block sw_sales_channel_menu_navigation_item_additional_text %}
-                    <button
+                    <mt-button
                         v-if="entry.domainLink && entry.active"
                         class="sw-sales-channel-menu-domain-link"
-                        :title="$tc('sw-sales-channel.general.tooltipOpenStorefront')"
+                        variant="tertiary"
+                        size="x-small"
+                        square
+                        :aria-label="$t('sw-sales-channel.general.tooltipOpenStorefront')"
+                        :title="$t('sw-sales-channel.general.tooltipOpenStorefront')"
                         @click.prevent="openStorefrontLink(entry.domainLink)"
                     >
-                        <mt-icon
-                            class="sw-sales-channel-menu-domain-link__icon"
-                            name="regular-eye-s"
-                            size="16px"
-                        />
-                    </button>
+                        <template #iconFront>
+                            <mt-icon
+                                class="sw-sales-channel-menu-domain-link__icon hide-on-collapse"
+                                name="regular-eye"
+                                size="16px"
+                            />
+                        </template>
+                    </mt-button>
                     {% endblock %}
                 </template>
             </sw-admin-menu-item>
@@ -88,29 +122,39 @@
             <sw-admin-menu-item
                 v-if="moreSalesChannelAvailable"
                 :entry="moreItemsEntry"
+                :sidebar-expanded="isSidebarExpanded"
+                :show-active-state="false"
                 class="sw-admin-menu__sales-channel-more-items"
                 icon-size="16px"
             />
             {% endblock %}
+
+            {% block sw_sales_channel_menu_navigation_add_channel %}
+            <li
+                v-if="showAddChannelMenuItem"
+                class="sw-admin-menu__navigation-list-item sw-sales-channel-menu__add-channel"
+            >
+                <div class="sw-admin-menu__navigation-item-row">
+                    <button
+                        type="button"
+                        class="sw-admin-menu__navigation-link"
+                        :aria-label="$t('sw-sales-channel.general.addSalesChannel')"
+                        @click="openSalesChannelModal"
+                    >
+                        <mt-icon
+                            name="regular-plus-circle"
+                            size="16px"
+                            class="sw-admin-menu__navigation-link-icon"
+                        />
+                        <span class="sw-admin-menu__navigation-link-label collapsible-text hide-on-collapse">
+                            {{ $t('sw-sales-channel.general.addSalesChannel') }}
+                        </span>
+                    </button>
+                </div>
+            </li>
+            {% endblock %}
         </ul>
         {% endblock %}
-
-        {% block sw_sales_channel_menu_context_button_collapsed %}
-        <sw-context-button
-            class="sw-sales-channel-menu__collapsed-context-menu"
-            icon="regular-ellipsis-v"
-            aria-label="sw-sales-channel.general.manageSalesChannels"
-            icon-size="20px"
-        >
-            <sw-context-menu-item
-                class="sw-admin-menu__headline-context-menu-manage-sales-channels"
-                :router-link="{ name: 'sw.sales.channel.list' }"
-            >
-                {{ $tc('sw-sales-channel.general.manageSalesChannels') }}
-            </sw-context-menu-item>
-        </sw-context-button>
-        {% endblock %}
-
     </nav>
     {% endblock %}
 </div>

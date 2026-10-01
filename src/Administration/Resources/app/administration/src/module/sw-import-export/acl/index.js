@@ -11,6 +11,7 @@ Shopware.Service('privileges').addPrivilegeMappingEntry({
                 'import_export_log:read',
                 'import_export_file:read',
                 'import_export_file:create',
+                'import_export_file:update',
                 'user:read',
                 'import_export_profile:read',
                 'import_export_profile:create',

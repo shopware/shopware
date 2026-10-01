@@ -5,15 +5,18 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection\CompilerPass;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompilerPass;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(RateLimiterCompilerPass::class)]
 class RateLimiterCompilerPassTest extends TestCase
 {
@@ -48,14 +51,16 @@ class RateLimiterCompilerPassTest extends TestCase
 
     public function testSystemServiceConfigReference(): void
     {
-        static::assertEquals('registerLimiterFactory', $this->rateLimiterDef->getMethodCalls()[0][0]);
+        static::assertSame('registerLimiterFactory', $this->rateLimiterDef->getMethodCalls()[0][0]);
 
         $registerLimiterFactoryCall = $this->rateLimiterDef->getMethodCalls()[0][1];
-        static::assertEquals('cart_add_line_item', $registerLimiterFactoryCall[0]);
+        static::assertSame('cart_add_line_item', $registerLimiterFactoryCall[0]);
 
-        /** @var Definition $rateLimiterDef */
         $rateLimiterDef = $registerLimiterFactoryCall[1];
+        static::assertInstanceOf(Definition::class, $rateLimiterDef);
 
-        static::assertEquals(SystemConfigService::class, $rateLimiterDef->getArgument(2));
+        $reference = $rateLimiterDef->getArgument(2);
+        static::assertInstanceOf(Reference::class, $reference);
+        static::assertSame(SystemConfigService::class, $reference->__toString());
     }
 }

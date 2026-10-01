@@ -19,6 +19,10 @@ export default function addShopwareUpdatesListener(loginService, serviceContaine
     let applicationRoot = null;
 
     loginService.addOnLoginListener(() => {
+        if (Shopware.Context.app.hideUpdateModule) {
+            return;
+        }
+
         if (!Shopware.Service('acl').can('system.core_update')) {
             return;
         }
@@ -26,7 +30,7 @@ export default function addShopwareUpdatesListener(loginService, serviceContaine
         serviceContainer.updateService
             .checkForUpdates()
             .then((response) => {
-                if (response.version) {
+                if (response.version && response.autoUpdateEnabled !== false) {
                     createUpdatesAvailableNotification(response);
                 }
             })
@@ -34,8 +38,8 @@ export default function addShopwareUpdatesListener(loginService, serviceContaine
     });
 
     function createUpdatesAvailableNotification(response) {
-        const cancelLabel = getApplicationRootReference().$tc('global.default.cancel');
-        const updateLabel = getApplicationRootReference().$tc(
+        const cancelLabel = getApplicationRootReference().$t('global.default.cancel');
+        const updateLabel = getApplicationRootReference().$t(
             'global.notification-center.shopware-updates-listener.updateNow',
         );
 

@@ -13,7 +13,7 @@ const { EntityCollection } = Shopware.Data;
  * @component-example
  * <sw-condition-all-line-items-container :condition="condition" :level="0"></sw-condition-all-line-items-container>
  */
-Component.register('sw-condition-all-line-items-container', {
+export default {
     template,
 
     provide() {
@@ -22,14 +22,9 @@ Component.register('sw-condition-all-line-items-container', {
         };
     },
 
-    emits: [
-        'create-before',
-        'create-after',
-    ],
+    emits: ['create-before', 'create-after'],
 
-    mixins: [
-        Mixin.getByName('ruleContainer'),
-    ],
+    mixins: [Mixin.getByName('ruleContainer')],
 
     computed: {
         children() {
@@ -43,15 +38,13 @@ Component.register('sw-condition-all-line-items-container', {
 
             return this.children.first().type;
         },
+
+        childrenLength() {
+            return this.condition.children.length;
+        },
     },
 
     watch: {
-        children() {
-            if (this.children.length === 0) {
-                this.removeNodeFromTree(this.parentCondition, this.condition);
-            }
-        },
-
         childType(type) {
             if (!type) {
                 return;
@@ -64,6 +57,12 @@ Component.register('sw-condition-all-line-items-container', {
                 this.unwrapCondition(this.children.first());
             }
             this.setConditionValue();
+        },
+
+        childrenLength(length) {
+            if (length === 0) {
+                this.removeNodeFromTree(this.parentCondition, this.condition);
+            }
         },
     },
 
@@ -78,13 +77,16 @@ Component.register('sw-condition-all-line-items-container', {
 
         setConditionValue() {
             this.condition.value = [];
+
             if (this.children.first().type === 'promotionLineItem') {
-                this.condition.value = { type: 'promotion' };
+                this.condition.value = { types: ['promotion'] };
                 return;
             }
 
             if (this.children.first().type !== 'cartLineItemOfType') {
-                this.condition.value = { type: 'product' };
+                this.condition.value = {
+                    types: ['product', 'custom'],
+                };
             }
         },
 
@@ -120,4 +122,4 @@ Component.register('sw-condition-all-line-items-container', {
             this.$emit('create-after');
         },
     },
-});
+};

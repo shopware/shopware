@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Do not use direct or indirect repository calls in a PageletLoader. Always use a store-api route to get or put data.
  */
-#[Package('framework')]
+#[Package('discovery')]
 class MenuOffcanvasPageletLoader implements MenuOffcanvasPageletLoaderInterface
 {
     /**
@@ -33,7 +33,7 @@ class MenuOffcanvasPageletLoader implements MenuOffcanvasPageletLoaderInterface
      */
     public function load(Request $request, SalesChannelContext $context): MenuOffcanvasPagelet
     {
-        $navigationId = (string) $request->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
+        $navigationId = (string) $request->query->get('navigationId', $context->getSalesChannel()->getNavigationCategoryId());
         if ($navigationId === '') {
             throw RoutingException::missingRequestParameter('navigationId');
         }

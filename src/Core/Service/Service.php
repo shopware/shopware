@@ -4,9 +4,11 @@ namespace Shopware\Core\Service;
 
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Service\DependencyInjection\ServiceExtension;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\DependencyInjection\Extension\Extension;
+use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 
 /**
  * @internal
@@ -16,13 +18,18 @@ use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 #[Package('framework')]
 class Service extends Bundle
 {
+    public function getContainerExtension(): Extension
+    {
+        return new ServiceExtension();
+    }
+
     /**
      * {@inheritdoc}
      */
     public function build(ContainerBuilder $container): void
     {
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection'));
-        $loader->load('services.xml');
+        $loader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection'));
+        $loader->load('services.php');
         parent::build($container);
     }
 }

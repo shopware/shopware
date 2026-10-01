@@ -1,0 +1,102 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": {
+        "/revocation-request-form": {
+            "post": {
+                "tags": [
+                    "Content"
+                ],
+                "summary": "Submit a revocation request form message",
+                "description": "Used for submitting revocation request forms. Be aware that there can be more required fields, depending on the system settings.",
+                "operationId": "sendRevocationRequestMail",
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "contractNumber",
+                                    "firstName",
+                                    "lastName"
+                                ],
+                                "properties": {
+                                    "firstName": {
+                                        "description": "First name. Required on a default installation, can be turned off with the `core.basicInformation.firstNameFieldRequired` setting.",
+                                        "type": "string"
+                                    },
+                                    "lastName": {
+                                        "description": "Last name. Required on a default installation, can be turned off with the `core.basicInformation.lastNameFieldRequired` setting.",
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "description": "Email address.",
+                                        "type": "string"
+                                    },
+                                    "contractNumber": {
+                                        "description": "The number of the contract.",
+                                        "type": "string"
+                                    },
+                                    "comment": {
+                                        "description": "The message of the revocation request form.",
+                                        "type": "string"
+                                    },
+                                    "navigationId": {
+                                        "description": "Identifier of the navigation page. Can be used to override the configuration.\nTake a look at the settings of a category containing a revocation form in the administration.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "slotId": {
+                                        "description": "Identifier of the cms element.",
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
+                                    },
+                                    "cmsPageType": {
+                                        "description": "Type of the content management page.",
+                                        "type": "string"
+                                    },
+                                    "entityName": {
+                                        "description": "Entity name for slot config.",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Message sent successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/RevocationRequestRouteResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted revocation request data failed validation, e.g. a missing email address or order number."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            }
+        }
+    }
+}

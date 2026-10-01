@@ -27,6 +27,8 @@ const searchTypeConstants = Object.freeze({
     MODULE: 'module',
 });
 
+const DEFAULT_MIN_SEARCH_TERM_LENGTH = 2;
+
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export const KEY_USER_SEARCH_PREFERENCE = 'search.preferences';
 /**
@@ -43,6 +45,7 @@ export default function createSearchRankingService() {
     const cacheModules = {};
     let cacheUserSearchConfiguration;
     let cacheDefaultUserSearchPreference;
+    let minSearchTermLength = getConfiguredMinSearchTermLength();
 
     loginService.addOnLoginListener(clearCacheUserSearchConfiguration);
 
@@ -53,6 +56,9 @@ export default function createSearchRankingService() {
         buildGlobalSearchQueries,
         clearCacheUserSearchConfiguration,
         searchRankingPoint,
+        getMinSearchTermLength,
+        saveMinSearchTermLength,
+        isValidTerm,
     };
 
     /**
@@ -117,21 +123,30 @@ export default function createSearchRankingService() {
     async function getUserSearchPreference() {
         const userConfigSearchFields = await _fetchUserConfig();
         const defaultUserSearchPreference = _getDefaultUserSearchPreference();
+
         if (!userConfigSearchFields) {
             return defaultUserSearchPreference;
         }
+
         const result = {};
+
         Object.keys(defaultUserSearchPreference).forEach((entityName) => {
             if (!userConfigSearchFields[entityName] && Object.keys(defaultUserSearchPreference[entityName]).length > 0) {
                 result[entityName] = defaultUserSearchPreference[entityName];
                 return;
             }
 
-            if (!_isEntitySearchable(userConfigSearchFields[entityName], searchTypeConstants.ALL)) {
+            const currentModule = _getModule(entityName);
+            const sanitizedSearchFields = _sanitizeSearchFields(
+                userConfigSearchFields[entityName],
+                currentModule.defaultSearchConfiguration,
+            );
+
+            if (!_isEntitySearchable(sanitizedSearchFields, searchTypeConstants.ALL)) {
                 return;
             }
 
-            result[entityName] = _scoring(userConfigSearchFields[entityName], entityName);
+            result[entityName] = _scoring(sanitizedSearchFields, entityName);
         });
 
         return result;
@@ -155,11 +170,43 @@ export default function createSearchRankingService() {
             return {};
         }
 
-        return _scoring(userConfigSearchFieldsByEntity, entityName);
+        const sanitizedSearchFields = _sanitizeSearchFields(
+            userConfigSearchFieldsByEntity,
+            currentModule.defaultSearchConfiguration,
+        );
+
+        return _scoring(sanitizedSearchFields, entityName);
     }
 
     function clearCacheUserSearchConfiguration() {
         cacheUserSearchConfiguration = undefined;
+        Shopware.Service('cacheService').invalidateCaches({
+            cacheKey: ['user-config'],
+        });
+    }
+
+    async function getMinSearchTermLength() {
+        return minSearchTermLength;
+    }
+
+    async function saveMinSearchTermLength(newMinSearchTermLength) {
+        const systemConfigApiService = Service('systemConfigApiService');
+
+        try {
+            await systemConfigApiService.saveValues({ 'core.search.minSearchTermLength': newMinSearchTermLength });
+            minSearchTermLength = newMinSearchTermLength;
+            Shopware.Context.app.config.settings = {
+                ...(Shopware.Context.app.config.settings ?? {}),
+                minSearchTermLength: newMinSearchTermLength,
+            };
+            return newMinSearchTermLength;
+        } catch (error) {
+            return error;
+        }
+    }
+
+    function isValidTerm(searchTerm) {
+        return _isValidTerm(searchTerm);
     }
 
     /**
@@ -192,6 +239,10 @@ export default function createSearchRankingService() {
         }
         cacheDefaultUserSearchPreference = {};
         Module.getModuleRegistry().forEach(({ manifest }) => {
+            if (!manifest.entity) {
+                return;
+            }
+
             cacheDefaultUserSearchPreference[manifest.entity] = _getDefaultSearchFieldsByEntity(manifest);
         });
 
@@ -204,7 +255,11 @@ export default function createSearchRankingService() {
      * @returns {Boolean}
      */
     function _isValidTerm(searchTerm) {
-        return searchTerm && searchTerm.trim().length > 1;
+        if (!searchTerm) {
+            return false;
+        }
+
+        return searchTerm && searchTerm.trim().length >= minSearchTermLength;
     }
 
     /**
@@ -257,7 +312,7 @@ export default function createSearchRankingService() {
      */
     function _buildQueryScores(fieldScores, searchTerm) {
         let terms = searchTerm.split(' ').filter((term) => {
-            return term.length > 1;
+            return term.length >= minSearchTermLength;
         });
         terms = [...new Set(terms)];
 
@@ -265,14 +320,82 @@ export default function createSearchRankingService() {
 
         Object.keys(fieldScores).forEach((field) => {
             terms.forEach((term) => {
-                queryScores.push([
-                    Criteria.contains(field, term),
-                    fieldScores[field],
-                ]);
+                queryScores.push([Criteria.contains(field, term), fieldScores[field]]);
             });
         });
 
         return queryScores;
+    }
+
+    /**
+     * Removes stale fields from persisted search preferences by comparing them with
+     * the current default search configuration. Persisted values keep precedence for
+     * valid fields while internal defaults such as `_searchable` are restored if missing.
+     *
+     * @private
+     * @param {Object} searchFields
+     * @param {Object} defaultSearchFields
+     * @returns {Object}
+     */
+    function _sanitizeSearchFields(searchFields, defaultSearchFields) {
+        if (_isEmptyObject(searchFields) || _isEmptyObject(defaultSearchFields)) {
+            return {};
+        }
+
+        const sanitizedFields = Object.keys(searchFields).reduce((accumulator, field) => {
+            if (!Object.hasOwn(defaultSearchFields, field)) {
+                return accumulator;
+            }
+
+            if (field.startsWith('_')) {
+                accumulator[field] =
+                    typeof searchFields[field] === typeof defaultSearchFields[field]
+                        ? searchFields[field]
+                        : defaultSearchFields[field];
+
+                return accumulator;
+            }
+
+            const nestedSearchFields = searchFields[field];
+            const defaultNestedSearchFields = defaultSearchFields[field];
+
+            if (_isEmptyObject(nestedSearchFields) || _isEmptyObject(defaultNestedSearchFields)) {
+                return accumulator;
+            }
+
+            if (Object.hasOwn(defaultNestedSearchFields, '_searchable')) {
+                accumulator[field] = {
+                    _searchable:
+                        typeof nestedSearchFields._searchable === 'boolean'
+                            ? nestedSearchFields._searchable
+                            : defaultNestedSearchFields._searchable,
+                    _score:
+                        typeof nestedSearchFields._score === 'number'
+                            ? nestedSearchFields._score
+                            : defaultNestedSearchFields._score,
+                };
+
+                return accumulator;
+            }
+
+            const sanitizedNestedSearchFields = _sanitizeSearchFields(nestedSearchFields, defaultNestedSearchFields);
+
+            if (!_isEmptyObject(sanitizedNestedSearchFields)) {
+                accumulator[field] = sanitizedNestedSearchFields;
+            }
+
+            return accumulator;
+        }, {});
+
+        Object.keys(defaultSearchFields).forEach((field) => {
+            if (!field.startsWith('_') || Object.hasOwn(sanitizedFields, field)) {
+                return;
+            }
+
+            sanitizedFields[field] = defaultSearchFields[field];
+        });
+
+        return sanitizedFields;
     }
 
     /**
@@ -316,21 +439,22 @@ export default function createSearchRankingService() {
             return entityName ? cacheUserSearchConfiguration[entityName] : cacheUserSearchConfiguration;
         }
 
-        const userConfigService = Service('userConfigService');
+        return Shopware.Service('userConfigService')
+            .search([KEY_USER_SEARCH_PREFERENCE])
+            .then((response) => {
+                const value = response?.data?.[KEY_USER_SEARCH_PREFERENCE];
 
-        return userConfigService.search([KEY_USER_SEARCH_PREFERENCE]).then((response) => {
-            const value = response.data[KEY_USER_SEARCH_PREFERENCE];
-            if (!value) {
-                return undefined;
-            }
+                if (!value) {
+                    return undefined;
+                }
 
-            cacheUserSearchConfiguration = Object.assign({}, ...value);
-            if (entityName) {
-                return cacheUserSearchConfiguration[entityName];
-            }
+                cacheUserSearchConfiguration = Object.assign({}, ...value);
+                if (entityName) {
+                    return cacheUserSearchConfiguration[entityName];
+                }
 
-            return cacheUserSearchConfiguration;
-        });
+                return cacheUserSearchConfiguration;
+            });
     }
 
     /**
@@ -350,5 +474,15 @@ export default function createSearchRankingService() {
         cacheModules[entityName] = module.manifest;
 
         return cacheModules[entityName];
+    }
+
+    function getConfiguredMinSearchTermLength() {
+        const configuredMinSearchTermLength = Shopware.Context.app.config?.settings?.minSearchTermLength;
+
+        if (typeof configuredMinSearchTermLength !== 'number') {
+            return DEFAULT_MIN_SEARCH_TERM_LENGTH;
+        }
+
+        return configuredMinSearchTermLength;
     }
 }

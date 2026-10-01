@@ -1,0 +1,10 @@
+{
+  "sw-settings-cart": {
+    "general": {
+      "mainMenuItemGeneral": "Cart settings",
+      "textHeadline": "Cart settings",
+      "description": "Manage cart settings here.",
+      "messageSaveSuccess": "The configuration has been saved."
+    }
+  }
+}

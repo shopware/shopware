@@ -1,0 +1,20 @@
+.sw-customer-guest-convert-customer-modal {
+    &__title {
+        color: var(--color-text-primary-default);
+        font-weight: var(--font-weight-semibold);
+    }
+
+    &__description {
+        margin-top: var(--scale-size-4);
+        margin-bottom: var(--scale-size-16);
+        color: var(--color-text-secondary-default);
+    }
+
+    &__option--manual {
+        margin-top: var(--scale-size-40);
+    }
+
+    &__input {
+        margin-bottom: var(--scale-size-16);
+    }
+}

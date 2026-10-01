@@ -40,7 +40,7 @@ class MediaPathPostUpdater extends SynchronousPostUpdateIndexer
 
         $ids = $iterator->fetch();
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return null;
         }
 

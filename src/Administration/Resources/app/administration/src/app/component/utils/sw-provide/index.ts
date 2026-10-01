@@ -6,7 +6,7 @@ import { computed, provide } from 'vue';
 /**
  * @private
  */
-Shopware.Component.register('sw-provide', {
+export default Shopware.Component.wrapComponentConfig({
     template: '<slot />',
     inheritAttrs: false,
     setup(_props, { attrs }) {

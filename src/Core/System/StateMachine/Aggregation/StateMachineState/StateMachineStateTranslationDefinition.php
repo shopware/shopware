@@ -9,6 +9,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class StateMachineStateTranslationDefinition extends EntityTranslationDefinition
 {
@@ -22,6 +25,11 @@ class StateMachineStateTranslationDefinition extends EntityTranslationDefinition
     public function getEntityClass(): string
     {
         return StateMachineStateTranslationEntity::class;
+    }
+
+    public function getCollectionClass(): string
+    {
+        return StateMachineStateTranslationCollection::class;
     }
 
     public function since(): ?string

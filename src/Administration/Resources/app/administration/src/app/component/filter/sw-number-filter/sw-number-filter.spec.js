@@ -131,4 +131,28 @@ describe('components/sw-number-filter', () => {
 
         expect(wrapper.emitted()['filter-reset']).toBeTruthy();
     });
+
+    it('should emit `filter-update` event when user input both `From` and `To` fields with value 0', async () => {
+        const { wrapper, inputFrom, inputTo } = await createWrapper();
+
+        // type "0" in From field
+        await inputFrom.setValue('0');
+        await inputFrom.trigger('change');
+
+        expect(wrapper.emitted('filter-update')[0]).toEqual([
+            'stock',
+            [Criteria.range('stock', { gte: 0 })],
+            { from: 0, to: null },
+        ]);
+
+        // type "0" in To field
+        await inputTo.setValue('0');
+        await inputTo.trigger('change');
+
+        expect(wrapper.emitted()['filter-update'][1]).toEqual([
+            'stock',
+            [Criteria.range('stock', { gte: 0, lte: 0 })],
+            { from: 0, to: 0 },
+        ]);
+    });
 });

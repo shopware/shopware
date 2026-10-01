@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(DiscountCalculatorResult::class)]
 #[Package('checkout')]
+#[CoversClass(DiscountCalculatorResult::class)]
 class DiscountCalculatorResultTest extends TestCase
 {
     /**
@@ -33,7 +33,7 @@ class DiscountCalculatorResultTest extends TestCase
             []
         );
 
-        static::assertEquals(29, $result->getPrice()->getTotalPrice());
+        static::assertSame(29.0, $result->getPrice()->getTotalPrice());
     }
 
     /**

@@ -24,11 +24,37 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 
 #[Package('framework')]
 class RequestCriteriaBuilder
 {
+    /**
+     * State indicating that no explicit limit was provided in the request.
+     * When this state is set, the criteria limit comes from a static fallback value,
+     * and dynamic system configuration should be preferred instead.
+     */
+    public const STATE_NO_EXPLICIT_LIMIT_IN_REQUEST = 'no-explicit-limit-in-request';
+
+    final public const KNOWN_FIELDS = [
+        'ids',
+        'total-count-mode',
+        'limit',
+        'page',
+        'includes',
+        'excludes',
+        'filter',
+        'grouping',
+        'post-filter',
+        'query',
+        'term',
+        'sort',
+        'aggregations',
+        'associations',
+        'fields',
+    ];
+
     private const TOTAL_COUNT_MODE_MAPPING = [
         'none' => Criteria::TOTAL_COUNT_MODE_NONE,
         'exact' => Criteria::TOTAL_COUNT_MODE_EXACT,
@@ -42,16 +68,28 @@ class RequestCriteriaBuilder
         private readonly AggregationParser $aggregationParser,
         private readonly ApiCriteriaValidator $validator,
         private readonly CriteriaArrayConverter $converter,
-        private readonly ?int $maxLimit = null
+        private readonly CompressedCriteriaDecoder $compressedCriteriaDecoder,
+        private readonly ?int $maxLimit = null,
     ) {
     }
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
-        if ($request->getMethod() === Request::METHOD_GET) {
+        if ($request->isMethod(Request::METHOD_GET)) {
+            // Check for _criteria parameter first
+            if ($request->query->has('_criteria')) {
+                $payload = $this->compressedCriteriaDecoder->decode((string) $request->query->get('_criteria'));
+
+                return $this->fromArray($payload, $criteria, $definition, $context);
+            }
             $criteria = $this->fromArray($request->query->all(), $criteria, $definition, $context);
         } else {
             $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context);
+        }
+
+        // @deprecated tag:v6.8.0 - switch the default to 0
+        if ($request->headers->get(PlatformRequest::HEADER_INCLUDE_SEARCH_INFO, '1') === '0') {
+            $criteria->addState(Criteria::STATE_DISABLE_SEARCH_INFO);
         }
 
         return $criteria;
@@ -114,15 +152,16 @@ class RequestCriteriaBuilder
             }
 
             if (isset($payload['limit'])) {
-                $this->addLimit($payload, $criteria, $searchException, $maxLimit);
+                $this->addLimit($payload['limit'], $criteria, $searchException, $maxLimit);
             }
 
             if ($criteria->getLimit() === null && $maxLimit !== null) {
                 $criteria->setLimit($maxLimit);
+                $criteria->addState(self::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
             }
 
             if (isset($payload['page'])) {
-                $this->setPage($payload, $criteria, $searchException);
+                $this->setPage($payload['page'], $criteria, $searchException);
             }
         }
 
@@ -136,8 +175,18 @@ class RequestCriteriaBuilder
             $criteria->setIncludes($payload['includes']);
         }
 
+        if (isset($payload['excludes'])) {
+            if (!\is_array($payload['excludes'])) {
+                throw DataAbstractionLayerException::expectedArrayWithType(
+                    'excludes',
+                    \gettype($payload['excludes'])
+                );
+            }
+            $criteria->setExcludes($payload['excludes']);
+        }
+
         if (isset($payload['filter'])) {
-            $this->addFilter($definition, $payload, $criteria, $searchException);
+            $this->addFilter($definition, $payload['filter'], $criteria, $searchException);
         }
 
         if (isset($payload['grouping'])) {
@@ -147,7 +196,7 @@ class RequestCriteriaBuilder
         }
 
         if (isset($payload['post-filter'])) {
-            $this->addPostFilter($definition, $payload, $criteria, $searchException);
+            $this->addPostFilter($definition, $payload['post-filter'], $criteria, $searchException);
         }
 
         if (isset($payload['query']) && \is_array($payload['query'])) {
@@ -170,7 +219,7 @@ class RequestCriteriaBuilder
         }
 
         if (isset($payload['sort'])) {
-            $this->addSorting($payload, $criteria, $definition, $searchException);
+            $this->addSorting($payload['sort'], $criteria, $definition, $searchException);
         }
 
         if (isset($payload['aggregations'])) {
@@ -216,7 +265,7 @@ class RequestCriteriaBuilder
     }
 
     /**
-     * @param list<array{order: string, type: string, field: string}> $sorting
+     * @param list<array{order: string, type: string, field?: string}> $sorting
      *
      * @return list<FieldSorting>
      */
@@ -257,7 +306,7 @@ class RequestCriteriaBuilder
     {
         $parts = array_filter(explode(',', $query));
 
-        if (empty($parts)) {
+        if ($parts === []) {
             throw DataAbstractionLayerException::invalidSortQuery('The "sort" parameter needs to be a sorting array or a comma separated list of fields', '/sort');
         }
 
@@ -280,8 +329,12 @@ class RequestCriteriaBuilder
     /**
      * @param array<string, mixed> $filters
      */
-    private function parseSimpleFilter(EntityDefinition $definition, array $filters, SearchRequestException $searchRequestException): MultiFilter
-    {
+    private function parseSimpleFilter(
+        EntityDefinition $definition,
+        array $filters,
+        SearchRequestException $searchRequestException,
+        string $path,
+    ): MultiFilter {
         $queries = [];
 
         $index = -1;
@@ -289,18 +342,22 @@ class RequestCriteriaBuilder
             ++$index;
 
             if ($field === '') {
+                $pointer = '/' . $path . '/' . $index;
+
                 $searchRequestException->add(
-                    DataAbstractionLayerException::invalidFilterQuery(\sprintf('The key for filter at position "%d" must not be blank.', $index), '/filter/' . $index),
-                    '/filter/' . $index
+                    DataAbstractionLayerException::invalidFilterQuery(\sprintf('The key for %s at position "%d" must not be blank.', $path, $index), $pointer),
+                    $pointer
                 );
 
                 continue;
             }
 
+            $pointer = '/' . $path . '/' . $field;
+
             if ($value === '') {
                 $searchRequestException->add(
-                    DataAbstractionLayerException::invalidFilterQuery(\sprintf('The value for filter "%s" must not be blank.', $field), '/filter/' . $field),
-                    '/filter/' . $field
+                    DataAbstractionLayerException::invalidFilterQuery(\sprintf('The value for %s "%s" must not be blank.', $path, $field), $pointer),
+                    $pointer
                 );
 
                 continue;
@@ -308,8 +365,8 @@ class RequestCriteriaBuilder
 
             if (!\is_scalar($value)) {
                 $searchRequestException->add(
-                    DataAbstractionLayerException::invalidFilterQuery(\sprintf('The value for filter "%s" must be scalar.', $field), '/filter/' . $field),
-                    '/filter/' . $field
+                    DataAbstractionLayerException::invalidFilterQuery(\sprintf('The value for %s "%s" must be scalar.', $path, $field), $pointer),
+                    $pointer
                 );
 
                 continue;
@@ -322,60 +379,60 @@ class RequestCriteriaBuilder
     }
 
     /**
-     * @param array{page: int, limit?: int} $payload
+     * @param int|numeric-string $page
      */
-    private function setPage(array $payload, Criteria $criteria, SearchRequestException $searchRequestException): void
+    private function setPage(mixed $page, Criteria $criteria, SearchRequestException $searchRequestException): void
     {
-        if ($payload['page'] === '') {
+        if ($page === '') {
             $searchRequestException->add(new InvalidPageQueryException('(empty)'), '/page');
 
             return;
         }
 
-        if (!is_numeric($payload['page'])) {
-            $searchRequestException->add(new InvalidPageQueryException($payload['page']), '/page');
+        if (!is_numeric($page)) {
+            $searchRequestException->add(new InvalidPageQueryException($page), '/page');
 
             return;
         }
 
-        $page = (int) $payload['page'];
-        $limit = (int) ($payload['limit'] ?? 0);
-
+        $page = (int) $page;
         if ($page <= 0) {
             $searchRequestException->add(new InvalidPageQueryException($page), '/page');
 
             return;
         }
 
+        $limit = $criteria->getLimit() ?? 0;
+
         $offset = $limit * ($page - 1);
         $criteria->setOffset($offset);
     }
 
     /**
-     * @param array{limit: int} $payload
+     * @param int|numeric-string $limit
      */
-    private function addLimit(array $payload, Criteria $criteria, SearchRequestException $searchRequestException, ?int $maxLimit): void
+    private function addLimit(mixed $limit, Criteria $criteria, SearchRequestException $searchRequestException, ?int $maxLimit): void
     {
-        if ($payload['limit'] === '') {
+        if ($limit === '') {
             $searchRequestException->add(new InvalidLimitQueryException('(empty)'), '/limit');
 
             return;
         }
 
-        if (!is_numeric($payload['limit'])) {
-            $searchRequestException->add(new InvalidLimitQueryException($payload['limit']), '/limit');
+        if (!is_numeric($limit)) {
+            $searchRequestException->add(new InvalidLimitQueryException($limit), '/limit');
 
             return;
         }
 
-        $limit = (int) $payload['limit'];
+        $limit = (int) $limit;
         if ($limit <= 0) {
             $searchRequestException->add(new InvalidLimitQueryException($limit), '/limit');
 
             return;
         }
 
-        if ($maxLimit > 0 && $limit > $maxLimit) {
+        if ($maxLimit !== null && $maxLimit > 0 && $limit > $maxLimit) {
             $searchRequestException->add(new QueryLimitExceededException($this->maxLimit, $limit), '/limit');
 
             return;
@@ -385,18 +442,18 @@ class RequestCriteriaBuilder
     }
 
     /**
-     * @param array{filter: array<mixed>} $payload
+     * @param array<array<string, mixed>> $filter
      */
-    private function addFilter(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
+    private function addFilter(EntityDefinition $definition, mixed $filter, Criteria $criteria, SearchRequestException $searchException): void
     {
-        if (!\is_array($payload['filter'])) {
+        if (!\is_array($filter)) {
             $searchException->add(DataAbstractionLayerException::invalidFilterQuery('The filter parameter has to be a list of filters.', '/filter'), '/filter');
 
             return;
         }
 
-        if ($this->hasNumericIndex($payload['filter'])) {
-            foreach ($payload['filter'] as $index => $query) {
+        if (array_is_list($filter)) {
+            foreach ($filter as $index => $query) {
                 if (!\is_array($query)) {
                     $searchException->add(DataAbstractionLayerException::invalidFilterQuery('The filter parameter has to be an array.', '/filter/' . $index), '/filter/' . $index);
 
@@ -414,22 +471,28 @@ class RequestCriteriaBuilder
             return;
         }
 
-        $criteria->addFilter($this->parseSimpleFilter($definition, $payload['filter'], $searchException));
+        $criteria->addFilter($this->parseSimpleFilter($definition, $filter, $searchException, 'filter'));
     }
 
     /**
-     * @param array{post-filter: array<mixed>} $payload
+     * @param array<array<string, mixed>> $postFilter
      */
-    private function addPostFilter(EntityDefinition $definition, array $payload, Criteria $criteria, SearchRequestException $searchException): void
+    private function addPostFilter(EntityDefinition $definition, mixed $postFilter, Criteria $criteria, SearchRequestException $searchException): void
     {
-        if (!\is_array($payload['post-filter'])) {
-            $searchException->add(DataAbstractionLayerException::invalidFilterQuery('The filter parameter has to be a list of filters.'), '/post-filter');
+        if (!\is_array($postFilter)) {
+            $searchException->add(DataAbstractionLayerException::invalidFilterQuery('The post-filter parameter has to be a list of filters.', '/post-filter'), '/post-filter');
 
             return;
         }
 
-        if ($this->hasNumericIndex($payload['post-filter'])) {
-            foreach ($payload['post-filter'] as $index => $query) {
+        if (array_is_list($postFilter)) {
+            foreach ($postFilter as $index => $query) {
+                if (!\is_array($query)) {
+                    $searchException->add(DataAbstractionLayerException::invalidFilterQuery('The post-filter parameter has to be an array.', '/post-filter/' . $index), '/post-filter/' . $index);
+
+                    continue;
+                }
+
                 try {
                     $filter = QueryStringParser::fromArray($definition, $query, $searchException, '/post-filter/' . $index);
                     $criteria->addPostFilter($filter);
@@ -441,37 +504,23 @@ class RequestCriteriaBuilder
             return;
         }
 
-        $criteria->addPostFilter(
-            $this->parseSimpleFilter(
-                $definition,
-                $payload['post-filter'],
-                $searchException
-            )
-        );
+        $criteria->addPostFilter($this->parseSimpleFilter($definition, $postFilter, $searchException, 'post-filter'));
     }
 
     /**
-     * @param array<mixed> $data
+     * @param list<array{order: string, type: string, field: string}>|string $sort
      */
-    private function hasNumericIndex(array $data): bool
-    {
-        return array_keys($data) === range(0, \count($data) - 1);
-    }
-
-    /**
-     * @param array{sort: list<array{order: string, type: string, field: string}>|string} $payload
-     */
-    private function addSorting(array $payload, Criteria $criteria, EntityDefinition $definition, SearchRequestException $searchException): void
+    private function addSorting(mixed $sort, Criteria $criteria, EntityDefinition $definition, SearchRequestException $searchException): void
     {
         try {
-            if (\is_array($payload['sort'])) {
-                $sorting = $this->parseSorting($definition, $payload['sort']);
+            if (\is_array($sort)) {
+                $sorting = $this->parseSorting($definition, $sort);
                 $criteria->addSorting(...$sorting);
 
                 return;
             }
 
-            $sorting = $this->parseSimpleSorting($definition, $payload['sort']);
+            $sorting = $this->parseSimpleSorting($definition, $sort);
             $criteria->addSorting(...$sorting);
         } catch (InvalidSortQueryException $ex) {
             $searchException->add($ex, $ex->getParameters()['path']);
@@ -480,7 +529,7 @@ class RequestCriteriaBuilder
 
     private function buildFieldName(EntityDefinition $definition, string $fieldName): string
     {
-        if ($fieldName === '_score') {
+        if ($fieldName === Criteria::SCORE_FIELD) {
             // Do not prefix _score fields because they are not actual entity properties but a calculated field in the
             // SQL selection.
             return $fieldName;
@@ -488,7 +537,7 @@ class RequestCriteriaBuilder
 
         $prefix = $definition->getEntityName() . '.';
 
-        if (mb_strpos($fieldName, $prefix) === false) {
+        if (!str_contains($fieldName, $prefix)) {
             return $prefix . $fieldName;
         }
 

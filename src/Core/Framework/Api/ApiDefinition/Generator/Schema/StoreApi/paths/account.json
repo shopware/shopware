@@ -1,5 +1,5 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
         "/account/newsletter-recipient": {
@@ -17,11 +17,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/Criteria"
                             }
                         }
                     }
@@ -36,6 +32,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in, or the logged in customer is a guest."
                     }
                 },
                 "security": [
@@ -43,12 +51,33 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "name": "sw-include-search-info",
+                        "in": "header",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/change-profile": {
             "post": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Change the customer's information",
                 "description": "Make changes to a customer's account, like changing their name, salutation or title.",
                 "operationId": "changeProfile",
@@ -58,7 +87,10 @@
                         "application/json": {
                             "schema": {
                                 "type": "object",
-                                "required": ["firstName", "lastName"],
+                                "required": [
+                                    "firstName",
+                                    "lastName"
+                                ],
                                 "properties": {
                                     "salutationId": {
                                         "description": "Id of the salutation for the customer account. Fetch options using `salutation` endpoint.",
@@ -87,50 +119,65 @@
                                     "birthdayYear": {
                                         "description": "Birthday year",
                                         "type": "integer"
+                                    },
+                                    "customFields": {
+                                        "description": "Custom fields of the customer. Only fields defined for the customer entity are stored.",
+                                        "type": "object"
                                     }
                                 },
-                                "oneOf": [
+                                "allOf": [
                                     {
-                                        "properties": {
-                                            "accountType": {
-                                                "description": "Type of the customer account. Default value is 'private'.",
-                                                "type": "string",
-                                                "enum": ["private"],
-                                                "default": "private"
+                                        "anyOf": [
+                                            {
+                                                "properties": {
+                                                    "accountType": {
+                                                        "description": "Type of the customer account. Default value is 'private'.",
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "private"
+                                                        ],
+                                                        "default": "private"
+                                                    },
+                                                    "company": {
+                                                        "description": "Not used for a private account, the value is cleared.",
+                                                        "type": "string"
+                                                    },
+                                                    "vatIds": {
+                                                        "description": "Not used for a private account, the value is cleared.",
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
                                             },
-                                            "company": {
-                                                "type": "null"
-                                            },
-                                            "vatIds": {
-                                                "type": "null"
+                                            {
+                                                "required": [
+                                                    "accountType",
+                                                    "company"
+                                                ],
+                                                "properties": {
+                                                    "accountType": {
+                                                        "description": "Type of the customer account. Can be `private` or `business`.",
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "business"
+                                                        ]
+                                                    },
+                                                    "company": {
+                                                        "description": "Company of the customer. Required whenever `accountType` is `business`.",
+                                                        "type": "string"
+                                                    },
+                                                    "vatIds": {
+                                                        "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`, and only required when the country of the default billing address has `vatIdRequired` enabled.",
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
                                             }
-                                        }
-                                    },
-                                    {
-                                        "required": [
-                                            "accountType",
-                                            "company",
-                                            "vatIds"
-                                        ],
-                                        "properties": {
-                                            "accountType": {
-                                                "description": "Type of the customer account. Can be `private` or `business`.",
-                                                "type": "string",
-                                                "enum": ["business"]
-                                            },
-                                            "company": {
-                                                "description": "Company of the customer. Only required when `accountType` is `business`.",
-                                                "type": "string"
-                                            },
-                                            "vatIds": {
-                                                "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`.",
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                },
-                                                "minItems": 1
-                                            }
-                                        }
+                                        ]
                                     }
                                 ]
                             }
@@ -147,6 +194,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted profile data failed validation, e.g. a missing salutation, a missing company name for a business account or an invalid VAT ID."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -154,12 +213,19 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/change-email": {
             "post": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Change the customer's email address",
                 "description": "Changes a customer's email address to a new email address, using their current password as a validation.",
                 "operationId": "changeEmail",
@@ -202,6 +268,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted data failed validation, e.g. a malformed email address, a confirmation that does not match, an email that is already in use or a wrong password."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in, or the logged in customer is a guest."
                     }
                 },
                 "security": [
@@ -209,12 +287,19 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/change-language": {
             "post": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Change the customer's language.",
                 "description": "Changes the language of the logged in customer",
                 "operationId": "changeLanguage",
@@ -223,11 +308,14 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["languageId"],
+                                "required": [
+                                    "languageId"
+                                ],
                                 "properties": {
-                                    "language": {
+                                    "languageId": {
                                         "description": "New languageId",
-                                        "type": "string"
+                                        "type": "string",
+                                        "pattern": "^[0-9a-f]{32}$"
                                     }
                                 },
                                 "type": "object"
@@ -245,6 +333,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `languageId` is not a valid UUID or does not reference a language assigned to the current sales channel."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in, or the logged in customer is a guest."
                     }
                 },
                 "security": [
@@ -252,12 +352,19 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/change-password": {
             "post": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Change the customer's password",
                 "description": "Changes a customer's password using their current password as a validation.",
                 "operationId": "changePassword",
@@ -292,6 +399,63 @@
                 },
                 "responses": {
                     "200": {
+                        "$ref": "#/components/responses/ContextTokenResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted data failed validation, e.g. a password confirmation that does not match, a new password below the configured minimum length or a wrong current password."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in, or the logged in customer is a guest."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": [],
+                        "ContextToken": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
+                ]
+            }
+        },
+        "/account/convert-guest": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Convert a guest customer to a registered customer",
+                "description": "Takes a password to convert a guest customer to a registered customer. The customer can then log in with the provided password in the future.",
+                "operationId": "convertGuest",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "password"
+                                ],
+                                "properties": {
+                                    "password": {
+                                        "description": "New Password for the customer",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
                         "description": "Returns a success response indicating a successful update.",
                         "content": {
                             "application/json": {
@@ -300,6 +464,24 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "The customer is not a guest customer.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/failure"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -307,12 +489,19 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/customer-recovery-is-expired": {
             "post": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Checks if the customer recovery entry for a given hash is expired.",
                 "description": "This can be used to validate a provided hash has a valid and not expired customer recovery hash.",
                 "operationId": "getCustomerRecoveryIsExpired",
@@ -321,7 +510,9 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["hash"],
+                                "required": [
+                                    "hash"
+                                ],
                                 "properties": {
                                     "hash": {
                                         "description": "Parameter from the link in the confirmation mail sent in Step 1",
@@ -341,51 +532,61 @@
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object",
-                                                "properties": {
-                                                    "isExpired": {
-                                                        "type": "boolean"
-                                                    }
-                                                },
-                                                "required": ["isExpired"]
-                                            }
+                                        "isExpired": {
+                                            "type": "boolean"
                                         },
                                         "apiAlias": {
-                                            "enum": ["array_struct"],
-                                            "type": "string"
+                                            "type": "string",
+                                            "const": "array_struct"
                                         }
-                                    }
+                                    },
+                                    "required": [
+                                        "isExpired"
+                                    ]
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `hash` is missing or is not a 32 character string."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "No customer recovery exists for the given `hash`."
                     }
                 },
                 "security": [
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/customer": {
             "post": {
-                "tags": ["Profile", "Endpoints supporting Criteria "],
+                "tags": [
+                    "Profile",
+                    "Endpoints supporting Criteria "
+                ],
                 "summary": "Get information about current customer",
-                "description": "Returns information about the current customer.",
+                "description": "Returns information about the current customer.\n\n**Available Associations:**\n- `group` - Customer group determining pricing and permissions\n- `language` - Preferred language for customer communication\n- `lastPaymentMethod` - Last used payment method by the customer\n- `defaultBillingAddress` - Default billing address for the customer\n- `activeBillingAddress` - Currently active billing address in the session\n- `defaultShippingAddress` - Default shipping address for the customer\n- `activeShippingAddress` - Currently active shipping address in the session\n- `salutation` - Customer salutation (e.g., Mr., Mrs., Ms.)\n- `addresses` - All addresses saved for the customer\n- `tags` - Tags assigned to the customer for organization and segmentation",
                 "operationId": "readCustomer",
                 "requestBody": {
                     "required": false,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/NoneFieldsCriteria"
                             }
                         }
                     }
@@ -400,6 +601,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -407,16 +620,45 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "name": "sw-include-search-info",
+                        "in": "header",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             },
             "delete": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Delete the customer's profile",
                 "description": "Deletes a customer profile along with their addresses, wishlists and associated data. Created orders and their payment/shipping information (addresses) and reviews are not deleted.",
                 "operationId": "deleteCustomer",
                 "responses": {
                     "204": {
                         "description": "Returns a no content response indicating a successful removal of the customer profile"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -429,7 +671,9 @@
         },
         "/account/address/{addressId}": {
             "delete": {
-                "tags": ["Address"],
+                "tags": [
+                    "Address"
+                ],
                 "summary": "Delete an address of a customer",
                 "description": "Delete an address of customer.\n\n    Only addresses which are not set as default addresses for shipping or billing can be deleted. You can check the current default addresses of your customer using the profile information endpoint and change them using the default address endpoint.\n\n    **A customer must have at least one address (which can be used for shipping and billing).**\n\n    An automatic fallback is not applied.",
                 "operationId": "deleteCustomerAddress",
@@ -450,6 +694,14 @@
                     },
                     "400": {
                         "description": "Response containing a list of errors, most likely due to the address being in use"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -460,7 +712,9 @@
                 ]
             },
             "patch": {
-                "tags": ["Address"],
+                "tags": [
+                    "Address"
+                ],
                 "summary": "Modify an address of a customer",
                 "description": "Modifies an existing address of a customer.",
                 "operationId": "updateCustomerAddress",
@@ -473,6 +727,9 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -501,6 +758,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The address does not belong to the logged in customer, or the submitted address data failed validation."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -513,7 +782,10 @@
         },
         "/account/list-address": {
             "post": {
-                "tags": ["Address", "Endpoints supporting Criteria "],
+                "tags": [
+                    "Address",
+                    "Endpoints supporting Criteria "
+                ],
                 "summary": "Fetch addresses of a customer",
                 "description": "Lists all addresses of the current customer and allows filtering them based on a criteria.",
                 "operationId": "listAddress",
@@ -522,11 +794,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/Criteria"
                             }
                         }
                     }
@@ -540,7 +808,9 @@
                                     "allOf": [
                                         {
                                             "type": "object",
-                                            "required": ["elements"],
+                                            "required": [
+                                                "elements"
+                                            ],
                                             "properties": {
                                                 "elements": {
                                                     "type": "array",
@@ -557,6 +827,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -564,12 +846,33 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "name": "sw-include-search-info",
+                        "in": "header",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/login": {
             "post": {
-                "tags": ["Login & Registration"],
+                "tags": [
+                    "Login & Registration"
+                ],
                 "summary": "Log in a customer",
                 "description": "Logs in customers given their credentials.",
                 "operationId": "loginCustomer",
@@ -578,18 +881,42 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["username", "password"],
-                                "properties": {
-                                    "username": {
-                                        "description": "Email",
-                                        "type": "string"
+                                "anyOf": [
+                                    {
+                                        "type": "object",
+                                        "required": [
+                                            "email",
+                                            "password"
+                                        ],
+                                        "properties": {
+                                            "email": {
+                                                "description": "Email address of the customer. Takes precedence over `username` when both are sent.",
+                                                "type": "string"
+                                            },
+                                            "password": {
+                                                "description": "Password",
+                                                "type": "string"
+                                            }
+                                        }
                                     },
-                                    "password": {
-                                        "description": "Password",
-                                        "type": "string"
+                                    {
+                                        "type": "object",
+                                        "required": [
+                                            "username",
+                                            "password"
+                                        ],
+                                        "properties": {
+                                            "username": {
+                                                "description": "Email address of the customer. Kept for backwards compatibility; `email` is the preferred field.",
+                                                "type": "string"
+                                            },
+                                            "password": {
+                                                "description": "Password",
+                                                "type": "string"
+                                            }
+                                        }
                                     }
-                                },
-                                "type": "object"
+                                ]
                             }
                         }
                     }
@@ -607,18 +934,29 @@
                                 }
                             }
                         }
+                    },
+                    "429": {
+                        "$ref": "#/components/responses/429",
+                        "description": "Too many failed login attempts for this email address or client IP. The `Retry-After` window is contained in the error."
                     }
                 },
                 "security": [
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/login/imitate-customer": {
             "post": {
-                "tags": ["Login & Registration"],
+                "tags": [
+                    "Login & Registration"
+                ],
                 "summary": "Imitate the log in as a customer",
                 "description": "Imitate the log in as a customer given a generated token.",
                 "operationId": "imitateCustomerLogin",
@@ -627,7 +965,11 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["token", "customerId", "userId"],
+                                "required": [
+                                    "token",
+                                    "customerId",
+                                    "userId"
+                                ],
                                 "properties": {
                                     "token": {
                                         "description": "Generated customer impersonation token",
@@ -660,24 +1002,39 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing. The response also uses this status when the customer to imitate cannot be authenticated."
                     }
                 },
                 "security": [
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/logout": {
             "post": {
-                "tags": ["Login & Registration"],
+                "tags": [
+                    "Login & Registration"
+                ],
                 "summary": "Log out a customer",
                 "description": "Logs out a customer.",
                 "operationId": "logoutCustomer",
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/ContextTokenResponse"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     },
                     "403": {
                         "$ref": "#/components/responses/403"
@@ -688,12 +1045,19 @@
                         "ApiKey": [],
                         "ContextToken": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/register-confirm": {
             "post": {
-                "tags": ["Login & Registration"],
+                "tags": [
+                    "Login & Registration"
+                ],
                 "summary": "Confirm a customer registration",
                 "description": "Confirms a customer registration when double opt-in is activated.\n\nLearn more about double opt-in registration in our guide \"Register a customer\".",
                 "operationId": "registerConfirm",
@@ -702,7 +1066,10 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["hash", "em"],
+                                "required": [
+                                    "hash",
+                                    "em"
+                                ],
                                 "properties": {
                                     "hash": {
                                         "description": "Hash from the email received",
@@ -720,7 +1087,20 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Returns the logged in customer. The customer is automatically logged in with the `sw-context-token` header provided, which can be reused for subsequent requests."
+                        "description": "Returns the logged in customer. The customer is automatically logged in with the `sw-context-token` header provided, which can be reused for subsequent requests.",
+                        "headers": {
+                            "sw-context-token": {
+                                "description": "Contains the new sw-context-token value.",
+                                "required": true,
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     },
                     "404": {
                         "description": "No hash provided"
@@ -733,12 +1113,19 @@
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/register": {
             "post": {
-                "tags": ["Login & Registration"],
+                "tags": [
+                    "Login & Registration"
+                ],
                 "summary": "Register a customer",
                 "description": "Registers a customer. Used both for normal customers and guest customers.See the Guide \"Register a customer\" for more information on customer registration.",
                 "operationId": "register",
@@ -761,26 +1148,32 @@
                                         "type": "string"
                                     },
                                     "firstName": {
-                                        "description": "Customer first name. Value will be reused for shipping and billing address if not provided explicitly.",
+                                        "description": "Customer first name. Required unless a `billingAddress` is sent, whose first name is used instead. When both are sent, this value also replaces the first name of the billing address.",
                                         "type": "string"
                                     },
                                     "lastName": {
-                                        "description": "Customer last name. Value will be reused for shipping and billing address if not provided explicitly.",
+                                        "description": "Customer last name. Required unless a `billingAddress` is sent, whose last name is used instead. When both are sent, this value also replaces the last name of the billing address.",
                                         "type": "string"
                                     },
                                     "acceptedDataProtection": {
-                                        "description": "Flag indicating accepted data protection",
+                                        "description": "Flag indicating accepted data protection. Only required when the `core.loginRegistration.requireDataProtectionCheckbox` setting is enabled, which is off by default.",
                                         "type": "boolean"
                                     },
                                     "storefrontUrl": {
-                                        "description": "URL of the storefront for that registration. Used in confirmation emails. Has to be one of the configured domains of the sales channel.",
+                                        "description": "URL of the storefront for that registration. Used in the double opt-in confirmation email. Only required when double opt-in is enabled, through `core.loginRegistration.doubleOptInRegistration` for customers or `core.loginRegistration.doubleOptInGuestOrder` for guests, both off by default. The value then has to match one of the domains configured for the sales channel.",
+                                        "type": "string"
+                                    },
+                                    "requestedGroupId": {
+                                        "description": "Optional customer group registration request. The customer is created in the current sales channel group and this field stores the requested target group. The group must be available for registration in the current sales channel.",
                                         "type": "string"
                                     },
                                     "billingAddress": {
-                                        "$ref": "#/components/schemas/CustomerAddress"
+                                        "description": "Billing address of the customer. Required unless a `shippingAddress` is sent, which is then used as the billing address as well.",
+                                        "$ref": "#/components/schemas/CustomerAddressBody"
                                     },
                                     "shippingAddress": {
-                                        "$ref": "#/components/schemas/CustomerAddress"
+                                        "description": "Shipping address of the customer. When no `billingAddress` is sent, this address becomes the default billing address too.",
+                                        "$ref": "#/components/schemas/CustomerAddressBody"
                                     },
                                     "guest": {
                                         "description": "If set, will create a guest customer. Guest customers can re-use an email address and don't need a password.",
@@ -810,59 +1203,149 @@
                                     "campaignCode": {
                                         "description": "Field can be used to store a campaign tracking code",
                                         "type": "string"
+                                    },
+                                    "customFields": {
+                                        "description": "Custom fields of the customer. Only fields defined for the customer entity are stored.",
+                                        "type": "object"
+                                    },
+                                    "redirectTo": {
+                                        "description": "Route name the double opt-in confirmation link points to. Only used when double opt-in registration is enabled.",
+                                        "type": "string"
+                                    },
+                                    "redirectParameters": {
+                                        "description": "Additional parameters for the double opt-in confirmation link, as a JSON encoded string. Only used when double opt-in registration is enabled.",
+                                        "type": "string"
                                     }
                                 },
                                 "required": [
-                                    "email",
-                                    "password",
-                                    "firstName",
-                                    "lastName",
-                                    "acceptedDataProtection",
-                                    "storefrontUrl",
-                                    "billingAddress"
+                                    "email"
                                 ],
-                                "oneOf": [
+                                "allOf": [
                                     {
-                                        "properties": {
-                                            "accountType": {
-                                                "description": "Type of the customer account. Default value is 'private'.",
-                                                "type": "string",
-                                                "enum": ["private"],
-                                                "default": "private"
+                                        "anyOf": [
+                                            {
+                                                "required": [
+                                                    "billingAddress"
+                                                ],
+                                                "properties": {
+                                                    "billingAddress": {
+                                                        "$ref": "#/components/schemas/CustomerAddressBody"
+                                                    }
+                                                }
                                             },
-                                            "company": {
-                                                "type": "null"
-                                            },
-                                            "vatIds": {
-                                                "type": "null"
+                                            {
+                                                "required": [
+                                                    "shippingAddress",
+                                                    "firstName",
+                                                    "lastName"
+                                                ],
+                                                "properties": {
+                                                    "shippingAddress": {
+                                                        "$ref": "#/components/schemas/CustomerAddressBody"
+                                                    },
+                                                    "firstName": {
+                                                        "type": "string"
+                                                    },
+                                                    "lastName": {
+                                                        "type": "string"
+                                                    }
+                                                }
                                             }
-                                        }
+                                        ]
                                     },
                                     {
-                                        "required": [
-                                            "accountType",
-                                            "company",
-                                            "vatIds"
-                                        ],
-                                        "properties": {
-                                            "accountType": {
-                                                "description": "Type of the customer account. Can be `private` or `business`.",
-                                                "type": "string",
-                                                "enum": ["business"]
+                                        "anyOf": [
+                                            {
+                                                "required": [
+                                                    "guest"
+                                                ],
+                                                "properties": {
+                                                    "guest": {
+                                                        "const": true
+                                                    }
+                                                }
                                             },
-                                            "company": {
-                                                "description": "Company of the customer. Only required when `accountType` is `business`.",
-                                                "type": "string"
-                                            },
-                                            "vatIds": {
-                                                "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`.",
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                },
-                                                "minItems": 1
+                                            {
+                                                "required": [
+                                                    "password"
+                                                ],
+                                                "properties": {
+                                                    "password": {
+                                                        "type": "string"
+                                                    }
+                                                }
                                             }
-                                        }
+                                        ]
+                                    },
+                                    {
+                                        "anyOf": [
+                                            {
+                                                "properties": {
+                                                    "accountType": {
+                                                        "description": "Type of the customer account. Default value is 'private'.",
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "private"
+                                                        ],
+                                                        "default": "private"
+                                                    },
+                                                    "company": {
+                                                        "description": "Not used for a private account, the value is ignored.",
+                                                        "type": "string"
+                                                    },
+                                                    "vatIds": {
+                                                        "description": "Not used for a private account, the value is ignored.",
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            {
+                                                "required": [
+                                                    "accountType"
+                                                ],
+                                                "properties": {
+                                                    "accountType": {
+                                                        "description": "Type of the customer account. Can be `private` or `business`.",
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "business"
+                                                        ]
+                                                    },
+                                                    "billingAddress": {
+                                                        "description": "For a business account the billing address has to carry the `company`, which becomes the company of the customer. Only enforced while the `core.loginRegistration.showAccountTypeSelection` setting is enabled.",
+                                                        "allOf": [
+                                                            {
+                                                                "$ref": "#/components/schemas/CustomerAddressBody"
+                                                            },
+                                                            {
+                                                                "required": [
+                                                                    "company"
+                                                                ],
+                                                                "properties": {
+                                                                    "company": {
+                                                                        "type": "string"
+                                                                    }
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    "company": {
+                                                        "description": "Not read during registration. The company of the customer is taken from `billingAddress`, falling back to `shippingAddress`.",
+                                                        "type": "string"
+                                                    },
+                                                    "vatIds": {
+                                                        "description": "VAT IDs of the customer's company. Only valid when `accountType` is `business`, and only required when the country of the sent address has `vatIdRequired` enabled.",
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        ]
                                     }
                                 ],
                                 "type": "object"
@@ -873,6 +1356,14 @@
                 "responses": {
                     "200": {
                         "description": "Success",
+                        "headers": {
+                            "sw-context-token": {
+                                "description": "Contains the new sw-context-token value.",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        },
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -880,18 +1371,33 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted registration data failed validation, e.g. a missing required field, an email address that is already registered or an unknown country."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/recovery-password-confirm": {
             "post": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Reset a password with recovery credentials",
                 "description": "This operation is Step 2 of the password reset flow. It is required to conduct Step 1 \"Send a password recovery mail\" in order to obtain the required credentials for this step.Resets a customer's password using credentials from a password recovery mail as a validation.",
                 "operationId": "recoveryPassword",
@@ -934,18 +1440,40 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted data failed validation, e.g. a missing hash or a new password that does not match its confirmation."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "No customer recovery exists for the given `hash`."
+                    },
+                    "410": {
+                        "description": "The password recovery hash has expired and can no longer be used."
                     }
                 },
                 "security": [
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/recovery-password": {
             "post": {
-                "tags": ["Profile"],
+                "tags": [
+                    "Profile"
+                ],
                 "summary": "Send a password recovery mail",
                 "description": "This operation is Step 1 of the password reset flow. Make sure to implement Step 2 \"Reset password with recovery credentials\" in order to allow for the complete flow in your application. Sends a recovery mail containing a link with credentials that allows a customer to reset their password.",
                 "operationId": "sendRecoveryMail",
@@ -954,7 +1482,10 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": ["email", "storefrontUrl"],
+                                "required": [
+                                    "email",
+                                    "storefrontUrl"
+                                ],
                                 "properties": {
                                     "email": {
                                         "description": "E-Mail address to identify the customer",
@@ -980,18 +1511,33 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted data failed validation, e.g. a malformed email address or a storefront URL that does not belong to the sales channel."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing. The response also uses this status when no customer exists for the given email address in this sales channel."
                     }
                 },
                 "security": [
                     {
                         "ApiKey": []
                     }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
+                    }
                 ]
             }
         },
         "/account/address/default-shipping/{addressId}": {
             "patch": {
-                "tags": ["Address"],
+                "tags": [
+                    "Address"
+                ],
                 "summary": "Change a customer's default shipping address",
                 "description": "Updates the default (preselected) shipping addresses of a customer.",
                 "operationId": "defaultShippingAddress",
@@ -1004,11 +1550,26 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": ""
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The address does not exist or does not belong to the logged in customer."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -1021,7 +1582,9 @@
         },
         "/account/address/default-billing/{addressId}": {
             "patch": {
-                "tags": ["Address"],
+                "tags": [
+                    "Address"
+                ],
                 "summary": "Change a customer's default billing address",
                 "description": "Updates the default (preselected) billing addresses of a customer.",
                 "operationId": "defaultBillingAddress",
@@ -1034,11 +1597,26 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": ""
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The address does not exist or does not belong to the logged in customer."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
@@ -1051,7 +1629,9 @@
         },
         "/account/address": {
             "post": {
-                "tags": ["Address"],
+                "tags": [
+                    "Address"
+                ],
                 "summary": "Create a new address for a customer",
                 "description": "Creates a new address for a customer.",
                 "operationId": "createCustomerAddress",
@@ -1081,12 +1661,29 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The submitted address data failed validation, e.g. a missing required field or a zip code that does not match the selected country."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
                     }
                 },
                 "security": [
                     {
                         "ApiKey": [],
                         "ContextToken": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]
             }

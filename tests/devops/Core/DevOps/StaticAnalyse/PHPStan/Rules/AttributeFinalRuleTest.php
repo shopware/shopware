@@ -4,15 +4,15 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AttributeFinalRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends  RuleTestCase<AttributeFinalRule>
  */
-#[CoversClass(AttributeFinalRule::class)]
+#[Package('framework')]
 class AttributeFinalRuleTest extends RuleTestCase
 {
     public function testFinalAttributeClass(): void

@@ -11,11 +11,7 @@ export default {
 
     inject: ['systemConfigApiService'],
 
-    emits: [
-        'buttons-update',
-        'frw-set-title',
-        'frw-redirect',
-    ],
+    emits: ['buttons-update', 'frw-set-title', 'frw-redirect'],
 
     data() {
         return {
@@ -36,17 +32,17 @@ export default {
             return [
                 {
                     value: '-bs',
-                    name: this.$tc('sw-settings-mailer.sendmail.sync'),
+                    name: this.$t('sw-settings-mailer.sendmail.sync'),
                 },
                 {
                     value: '-t -i',
-                    name: this.$tc('sw-settings-mailer.sendmail.async'),
+                    name: this.$t('sw-settings-mailer.sendmail.async'),
                 },
             ];
         },
 
         nextAction() {
-            if (Shopware.Store.get('context').app.config.settings.disableExtensionManagement) {
+            if (Shopware.Store.get('context').app.config.settings?.disableExtensionManagement) {
                 return 'sw.first.run.wizard.index.shopware.account';
             }
 
@@ -57,7 +53,7 @@ export default {
             return [
                 {
                     key: 'back',
-                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
+                    label: this.$t('global.default.back'),
                     position: 'left',
                     variant: 'secondary',
                     action: 'sw.first.run.wizard.index.mailer.selection',
@@ -65,7 +61,7 @@ export default {
                 },
                 {
                     key: 'configure-later',
-                    label: this.$tc('sw-first-run-wizard.general.buttonConfigureLater'),
+                    label: this.$t('sw-first-run-wizard.general.buttonConfigureLater'),
                     position: 'right',
                     variant: 'secondary',
                     action: this.nextAction,
@@ -73,7 +69,7 @@ export default {
                 },
                 {
                     key: 'next',
-                    label: this.$tc('sw-first-run-wizard.general.buttonNext'),
+                    label: this.$t('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
                     variant: 'primary',
                     action: this.saveMailerSettings.bind(this),
@@ -115,7 +111,7 @@ export default {
         },
 
         setTitle() {
-            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.mailerLocal.headline'));
+            this.$emit('frw-set-title', this.$t('sw-first-run-wizard.mailerLocal.headline'));
         },
 
         async loadMailerSettings() {

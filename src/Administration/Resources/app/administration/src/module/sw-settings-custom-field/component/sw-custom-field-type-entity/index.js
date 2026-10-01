@@ -9,9 +9,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
     mounted() {
         this.customEntityRepository.search(new Criteria(), Shopware.Context.api).then((result) => {
@@ -29,56 +27,53 @@ export default {
         entityTypes() {
             const entityTypes = [
                 {
-                    label: this.$tc('sw-settings-custom-field.customField.entity.product'),
+                    label: this.$t('sw-settings-custom-field.customField.entity.product'),
                     value: 'product',
                 },
                 {
-                    label: this.$tc('sw-settings-custom-field.customField.entity.category'),
+                    label: this.$t('sw-settings-custom-field.customField.entity.category'),
                     value: 'category',
                 },
                 {
-                    label: this.$tc('sw-settings-custom-field.customField.entity.shippingMethod'),
+                    label: this.$t('sw-settings-custom-field.customField.entity.shippingMethod'),
                     value: 'shipping_method',
                 },
                 {
-                    label: this.$tc('sw-settings-custom-field.customField.entity.paymentMethod'),
+                    label: this.$t('sw-settings-custom-field.customField.entity.paymentMethod'),
                     value: 'payment_method',
                 },
                 {
-                    label: this.$tc('sw-settings-custom-field.customField.entity.country'),
+                    label: this.$t('sw-settings-custom-field.customField.entity.country'),
                     value: 'country',
                 },
                 {
-                    label: this.$tc('sw-settings-custom-field.customField.entity.customer'),
+                    label: this.$t('sw-settings-custom-field.customField.entity.customer'),
                     value: 'customer',
                     config: {
-                        labelProperty: [
-                            'firstName',
-                            'lastName',
-                        ],
+                        labelProperty: ['firstName', 'lastName'],
                     },
                 },
                 {
-                    label: this.$tc('sw-settings-custom-field.customField.entity.salesChannel'),
+                    label: this.$t('sw-settings-custom-field.customField.entity.salesChannel'),
                     value: 'sales_channel',
                 },
                 {
-                    label: this.$tc('sw-settings-custom-field.customField.entity.manufacturer'),
+                    label: this.$t('sw-settings-custom-field.customField.entity.manufacturer'),
                     value: 'product_manufacturer',
                 },
                 {
-                    label: this.$tc('sw-settings-custom-field.customField.entity.dynamicProductGroup'),
+                    label: this.$t('sw-settings-custom-field.customField.entity.dynamicProductGroup'),
                     value: 'product_stream',
                 },
                 {
-                    label: this.$tc('sw-settings-custom-field.customField.entity.shoppingExperienceLayout'),
+                    label: this.$t('sw-settings-custom-field.customField.entity.shoppingExperienceLayout'),
                     value: 'cms_page',
                 },
             ];
 
             this.customFieldsAwareCustomEntities.forEach((customEntity) => {
                 entityTypes.push({
-                    label: this.$tc(`${customEntity.name}.label`),
+                    label: this.$t(`${customEntity.name}.label`),
                     value: customEntity.name,
                     config: {
                         labelProperty: customEntity.labelProperty,
@@ -98,7 +93,6 @@ export default {
         },
 
         sortedEntityTypes() {
-            // eslint-disable-next-line vue/no-side-effects-in-computed-properties
             return this.entityTypes.sort((a, b) => {
                 return a.label.localeCompare(b.label);
             });
@@ -112,13 +106,7 @@ export default {
             }
 
             const componentName = this.currentCustomField.config.componentName;
-            if (
-                !componentName ||
-                ![
-                    'sw-entity-single-select',
-                    'sw-entity-multi-id-select',
-                ].includes(componentName)
-            ) {
+            if (!componentName || !['sw-entity-single-select', 'sw-entity-multi-id-select'].includes(componentName)) {
                 this.currentCustomField.config.componentName = 'sw-entity-single-select';
             }
 

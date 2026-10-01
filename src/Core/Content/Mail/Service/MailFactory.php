@@ -11,6 +11,9 @@ use Symfony\Component\Mime\Email;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+/**
+ * @phpstan-import-type MailNameCombination from AbstractMailFactory
+ */
 #[Package('after-sales')]
 class MailFactory extends AbstractMailFactory
 {
@@ -108,7 +111,7 @@ class MailFactory extends AbstractMailFactory
     }
 
     /**
-     * @param array<string, string|null> $addresses
+     * @param MailNameCombination $addresses
      *
      * @return list<Address>
      */

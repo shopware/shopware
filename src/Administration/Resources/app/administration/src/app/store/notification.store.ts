@@ -28,7 +28,7 @@ export interface NotificationType {
     actions?: {
         label: string;
         disabled?: boolean;
-        route?: string;
+        route?: string | { name: string };
         method?: () => void;
     }[];
 
@@ -58,7 +58,6 @@ export function initializeUserNotifications() {
     }
 }
 
-// eslint-disable-next-line no-use-before-define
 function _getOriginalNotification(notificationId: string, store: NotificationStore) {
     let originalNotification = store.notifications[notificationId];
     if (originalNotification === undefined) {
@@ -155,6 +154,7 @@ const notificationStore = Shopware.Store.register({
         growlNotifications: {} as Record<string, NotificationType>,
         threshold: 5,
         workerProcessPollInterval: POLL_BACKGROUND_INTERVAL,
+        transformers: {} as Record<string, (notification: NotificationType) => NotificationType>,
     }),
 
     actions: {
@@ -256,6 +256,11 @@ const notificationStore = Shopware.Store.register({
                 return null;
             }
 
+            // Apply transformer if registered
+            if (this.transformers[notification.message]) {
+                notification = this.transformers[notification.message](notification);
+            }
+
             if (notification.growl === undefined || notification.growl) {
                 this.createGrowlNotification(notification);
             }
@@ -311,6 +316,10 @@ const notificationStore = Shopware.Store.register({
             }
 
             return originalNotification.uuid;
+        },
+
+        registerTransformer(key: string, transformer: (notification: NotificationType) => NotificationType) {
+            this.transformers[key] = transformer;
         },
     },
 });

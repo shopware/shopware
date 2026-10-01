@@ -27,22 +27,18 @@ class CartTestHook extends Hook implements CartAware
 
     /**
      * @param list<class-string<object>> $serviceIds
-     * @param array<string, mixed> $data
      */
     public function __construct(
         private readonly string $name,
         private readonly Cart $cart,
         SalesChannelContext $context,
-        array $data = [],
+        IdsCollection $ids,
         array $serviceIds = []
     ) {
         parent::__construct($context->getContext());
         $this->salesChannelContext = $context;
         self::$serviceIds = $serviceIds;
-
-        foreach ($data as $key => $value) {
-            $this->$key = $value; /* @phpstan-ignore-line */
-        }
+        $this->ids = $ids;
     }
 
     public function getCart(): Cart

@@ -12,6 +12,8 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Order\IdStruct;
 use Shopware\Core\Checkout\Cart\Order\OrderConverter;
+use Shopware\Core\Checkout\CheckoutPermissions;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension;
 use Shopware\Core\Checkout\Promotion\Gateway\PromotionGatewayInterface;
 use Shopware\Core\Checkout\Promotion\Gateway\Template\PermittedAutomaticPromotions;
@@ -21,6 +23,7 @@ use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Checkout\Promotion\PromotionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -37,29 +40,37 @@ class PromotionCollector implements CartDataCollectorInterface
      * Promotions may **not** be recalculated based on their price definition.
      *
      * Takes precedence over {@see PIN_MANUAL_PROMOTIONS} and {@see PIN_MANUAL_PROMOTIONS}.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::SKIP_PROMOTION}
      */
-    final public const SKIP_PROMOTION = 'skipPromotion';
+    final public const SKIP_PROMOTION = CheckoutPermissions::SKIP_PROMOTION;
 
     /**
      * Skips the addition of automatic promotion.
      * If {@see PIN_AUTOMATIC_PROMOTIONS} is not set, all existing automatic promotions will be deleted.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS}
      */
-    final public const SKIP_AUTOMATIC_PROMOTIONS = 'skipAutomaticPromotions';
+    final public const SKIP_AUTOMATIC_PROMOTIONS = CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS;
 
     /**
      * Existing set of manual/fixed promotions will not be changed,
      * but new manual/fixed promotions can be added.
      * Promotions may be recalculated based on their price definition.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::PIN_MANUAL_PROMOTIONS}
      */
-    final public const PIN_MANUAL_PROMOTIONS = 'pinManualPromotions';
+    final public const PIN_MANUAL_PROMOTIONS = CheckoutPermissions::PIN_MANUAL_PROMOTIONS;
 
     /**
      * Existing set of automatic promotions will not be changed.
      * Promotions may be recalculated based on their price definition.
      *
      * Takes precedence over {@see SKIP_AUTOMATIC_PROMOTIONS}.
+     *
+     * @deprecated tag:v6.8.0 - Will be removed and is replaced by {@see CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS}
      */
-    final public const PIN_AUTOMATIC_PROMOTIONS = 'pinAutomaticPromotions';
+    final public const PIN_AUTOMATIC_PROMOTIONS = CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS;
 
     private const CACHE_KEY_CODE = 'promotions-code';
     private const CACHE_KEY_AUTO = 'promotions-auto';
@@ -109,7 +120,7 @@ class PromotionCollector implements CartDataCollectorInterface
 
             // if we are in recalculation,
             // we must not re-add any promotions. just leave it as it is.
-            if ($behavior->hasPermission(self::SKIP_PROMOTION)) {
+            if ($behavior->hasPermission(CheckoutPermissions::SKIP_PROMOTION)) {
                 return;
             }
 
@@ -126,7 +137,7 @@ class PromotionCollector implements CartDataCollectorInterface
             // Pinned: We want to allow the addition of any promotion by code even if promotions are pinned
             $allPromotions = $this->searchPromotionsByCodes($data, $allCodes, $context);
 
-            if (!$behavior->hasPermission(self::SKIP_AUTOMATIC_PROMOTIONS) && !$behavior->hasPermission(self::PIN_AUTOMATIC_PROMOTIONS)) {
+            if (!$behavior->hasPermission(CheckoutPermissions::SKIP_AUTOMATIC_PROMOTIONS) && !$behavior->hasPermission(CheckoutPermissions::PIN_AUTOMATIC_PROMOTIONS)) {
                 $allPromotions->addAutomaticPromotions($this->searchPromotionsAuto($data, $context));
             }
 
@@ -134,16 +145,52 @@ class PromotionCollector implements CartDataCollectorInterface
 
             $foundCodes = $discountLineItems->fmap(static fn (LineItem $item) => $item->getReferencedId());
 
+            // maps the id of an already applied promotion to the code that added it, so additional
+            // codes referencing the same promotion can be rejected (a promotion applies once per cart)
+            $appliedPromotionCodes = [];
+            foreach ($discountLineItems as $pinned) {
+                $pinnedPromotionId = $pinned->getPayloadValue('promotionId');
+                if (\is_string($pinnedPromotionId) && $pinnedPromotionId !== '') {
+                    $appliedPromotionCodes[$pinnedPromotionId] = (string) $pinned->getReferencedId();
+                }
+            }
+
+            // codes excluded because their redemption limit was reached
+            $redeemedCodes = [];
+
             foreach ($allPromotions->getPromotionCodeTuples() as $tuple) {
                 if (!$this->isEligible($tuple->getPromotion(), $context->getCustomerId(), $currentOrderId)) {
+                    if ($this->isRedemptionLimitReached($tuple->getPromotion(), $context->getCustomerId())) {
+                        $redeemedCodes[$tuple->getCode()] = true;
+                    }
+
                     continue;
                 }
 
-                if ($cartExtension->isPromotionBlocked($tuple->getPromotion()->getId())) {
+                // @deprecated tag:v6.8.0 - remove complete following block incl. `isPromotionBlocked` variable
+                $isPromotionBlocked = false;
+                Feature::callSilentIfInactive('PERMANENT_AUTOMATIC_PROMOTIONS', static function () use ($tuple, $cartExtension, &$isPromotionBlocked): void {
+                    $isPromotionBlocked = $cartExtension->isPromotionBlocked($tuple->getPromotion()->getId());
+                });
+                if ($isPromotionBlocked) {
                     continue;
                 }
 
-                $foundCodes[] = $tuple->getCode();
+                $code = $tuple->getCode();
+                $promotionId = $tuple->getPromotion()->getId();
+
+                // a promotion may only be applied once per cart. if it was already added through
+                // another code (e.g. a second individual code of the same promotion), drop the
+                // redundant code and inform the customer instead of silently ignoring it.
+                if ($code !== '' && \array_key_exists($promotionId, $appliedPromotionCodes) && $appliedPromotionCodes[$promotionId] !== $code) {
+                    $foundCodes[] = $code;
+                    $cartExtension->removeCode($code);
+                    $this->addPromotionAlreadyAddedError($this->htmlSanitizer->sanitize($code, null, true), $original);
+
+                    continue;
+                }
+
+                $foundCodes[] = $code;
 
                 // skip adding a discount if we don't have a line item to apply a discount on
                 if (!$this->hasLineItemToDiscount($original)) {
@@ -158,19 +205,34 @@ class PromotionCollector implements CartDataCollectorInterface
                         $discountLineItems->add($nested);
                     }
                 }
+
+                if ($code !== '') {
+                    $appliedPromotionCodes[$promotionId] = $code;
+                }
             }
 
             // now iterate through all codes that have been added and add errors for all removed promotions
             foreach (\array_diff($allCodes, \array_unique($foundCodes)) as $code) {
                 $cartExtension->removeCode((string) $code);
 
-                $this->addPromotionNotFoundError($this->htmlSanitizer->sanitize((string) $code, null, true), $original);
+                $sanitizedCode = $this->htmlSanitizer->sanitize((string) $code, null, true);
+
+                // valid code, no longer redeemable: clear reason instead of "not found"
+                if (isset($redeemedCodes[(string) $code])) {
+                    $this->addPromotionAlreadyRedeemedError($sanitizedCode, $original);
+                } else {
+                    $original->addErrors(new PromotionNotFoundError($sanitizedCode));
+                }
             }
 
             // when being in a recalculation, having notifications about the removal of automatic promotion is desired
             // addition notifications are handled as usual in the PromotionCalculator
-            if ($behavior->isRecalculation()) {
-                $oldPromotions = $original->getLineItems()->filter(static fn (LineItem $item) => !$item->getReferencedId())->getElements();
+            /** @deprecated tag:v6.8.0 - `$isRecalculation` will be removed without replacement */
+            $isRecalculation = !Feature::isActive('v6.8.0.0') && $behavior->isRecalculation();
+            if ($isRecalculation || $behavior->hasPermission(CheckoutPermissions::AUTOMATIC_PROMOTION_DELETION_NOTICES)) {
+                $oldPromotions = $original->getLineItems()
+                    ->filter(static fn (LineItem $item) => $item->getType() === PromotionProcessor::LINE_ITEM_TYPE && !$item->getReferencedId())
+                    ->getElements();
                 $newPromotions = $discountLineItems->filter(static fn (LineItem $item) => !$item->getReferencedId())->getElements();
 
                 foreach (\array_diff_key($oldPromotions, $newPromotions) as $removedPromotion) {
@@ -352,11 +414,20 @@ class PromotionCollector implements CartDataCollectorInterface
         }
 
         // check if no discounts have been set
-        if (!$promotion->hasDiscount()) {
-            return false;
+        return $promotion->hasDiscount();
+    }
+
+    /**
+     * Whether an ineligible promotion was excluded because its global or per-customer redemption
+     * limit was reached. Only valid after {@see isEligible} returned false (promotion not in the current order).
+     */
+    private function isRedemptionLimitReached(PromotionEntity $promotion, ?string $customerId): bool
+    {
+        if (!$promotion->isOrderCountValid()) {
+            return true;
         }
 
-        return true;
+        return $customerId !== null && !$promotion->isOrderCountPerCustomerCountValid($customerId);
     }
 
     private function isUsedInCurrentOrder(string $promotionId, string $orderId): bool

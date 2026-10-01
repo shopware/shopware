@@ -8,11 +8,13 @@ use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsBlock\CmsBlockEntity;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotCollection;
 use Shopware\Core\Content\Cms\Aggregate\CmsSlot\CmsSlotEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(CmsBlockCollection::class)]
 class CmsBlockCollectionTest extends TestCase
 {
@@ -44,7 +46,7 @@ class CmsBlockCollectionTest extends TestCase
         /** @var CmsSlotEntity $lastSlot */
         $lastSlot = $collection->getSlots()->last();
 
-        static::assertEquals(['overwrite' => true], $lastSlot->getConfig());
+        static::assertSame(['overwrite' => true], $lastSlot->getConfig());
     }
 
     private function getBlock(): CmsBlockEntity

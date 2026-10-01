@@ -3,14 +3,18 @@
 namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig\Extension;
 
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Twig\Extension\MediaExtension;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class MediaExtensionTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -32,7 +36,7 @@ class MediaExtensionTest extends TestCase
             'context' => Context::createDefaultContext(),
         ]);
 
-        static::assertEquals('testImage/', $result);
+        static::assertSame('testImage/', $result);
     }
 
     public function testMultiSearch(): void
@@ -52,7 +56,7 @@ class MediaExtensionTest extends TestCase
             'context' => Context::createDefaultContext(),
         ]);
 
-        static::assertEquals('image-1/image-2/', $result);
+        static::assertSame('image-1/image-2/', $result);
     }
 
     public function testEmptySearch(): void
@@ -62,7 +66,7 @@ class MediaExtensionTest extends TestCase
             'context' => Context::createDefaultContext(),
         ]);
 
-        static::assertEquals('', $result);
+        static::assertSame('', $result);
     }
 
     /**
@@ -70,15 +74,13 @@ class MediaExtensionTest extends TestCase
      */
     private function render(string $template, array $data): string
     {
-        $twig = static::getContainer()->get('twig');
-
-        $originalLoader = $twig->getLoader();
-        $twig->setLoader(new ArrayLoader([
-            'test.html.twig' => file_get_contents(__DIR__ . '/fixture/' . $template),
+        // an own environment with the container-built extension: rendering through the shared `twig` would cache its
+        // request-dependent Storefront globals empty for every later test
+        $twig = new Environment(new ArrayLoader([
+            'test.html.twig' => (string) file_get_contents(__DIR__ . '/fixture/' . $template),
         ]));
-        $output = $twig->render('test.html.twig', $data);
-        $twig->setLoader($originalLoader);
+        $twig->addExtension(static::getContainer()->get(MediaExtension::class));
 
-        return $output;
+        return $twig->render('test.html.twig', $data);
     }
 }

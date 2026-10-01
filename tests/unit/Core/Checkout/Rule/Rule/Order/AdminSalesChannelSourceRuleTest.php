@@ -34,7 +34,7 @@ class AdminSalesChannelSourceRuleTest extends TestCase
 
     public function testGetName(): void
     {
-        static::assertEquals('adminSalesChannelSource', $this->rule->getName());
+        static::assertSame('adminSalesChannelSource', $this->rule->getName());
     }
 
     public function testRuleConfig(): void
@@ -59,7 +59,7 @@ class AdminSalesChannelSourceRuleTest extends TestCase
 
         static::assertArrayHasKey('hasAdminSalesChannelSource', $constraints, 'Constraint hasAdminSalesChannelSource not found in Rule');
         static::assertEquals($constraints['hasAdminSalesChannelSource'], [
-            new Type(['type' => 'bool']),
+            new Type(type: 'bool'),
         ]);
     }
 
@@ -78,7 +78,7 @@ class AdminSalesChannelSourceRuleTest extends TestCase
         $scope = new CheckoutRuleScope($context);
 
         $match = $rule->match($scope);
-        static::assertEquals($match, $isMatching);
+        static::assertSame($match, $isMatching);
     }
 
     public static function getCaseTestMatchValues(): \Generator

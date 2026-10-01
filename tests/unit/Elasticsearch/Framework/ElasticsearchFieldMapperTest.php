@@ -9,6 +9,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
@@ -18,6 +19,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ElasticsearchFieldMapper::class)]
 class ElasticsearchFieldMapperTest extends TestCase
 {
@@ -109,8 +111,8 @@ class ElasticsearchFieldMapperTest extends TestCase
          * Specifically check, that this case does not happen anymore:
          * https://github.com/shopware/shopware/issues/4459 (comments)
          **/
-        static::assertNotEquals($formatted[$deLanguageId]['cf_bar'], \INF);
-        static::assertNotEquals($formatted[$enLanguageId]['cf_bar'], \INF);
+        static::assertNotSame($formatted[$deLanguageId]['cf_bar'], \INF);
+        static::assertNotSame($formatted[$enLanguageId]['cf_bar'], \INF);
 
         static::assertEquals([
             $deLanguageId => [

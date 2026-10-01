@@ -7,10 +7,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Storage\MySQLKeyValueStorage;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MySQLKeyValueStorage::class)]
 class MySQLKeyValueStorageTest extends TestCase
 {
@@ -46,10 +48,10 @@ class MySQLKeyValueStorageTest extends TestCase
             'key-2' => null,
         ]);
 
-        static::assertEquals('value-1', $this->keyValueStorage->get('key-1', 'default'));
+        static::assertSame('value-1', $this->keyValueStorage->get('key-1', 'default'));
         static::assertNull($this->keyValueStorage->get('key-2'));
-        static::assertEquals('default', $this->keyValueStorage->get('key-2', 'default'));
-        static::assertEquals('default', $this->keyValueStorage->get('key-3', 'default'));
+        static::assertSame('default', $this->keyValueStorage->get('key-2', 'default'));
+        static::assertSame('default', $this->keyValueStorage->get('key-3', 'default'));
     }
 
     public function testRemove(): void
@@ -85,7 +87,7 @@ class MySQLKeyValueStorageTest extends TestCase
 
         $this->keyValueStorage->remove('key-1');
 
-        static::assertEquals('default', $this->keyValueStorage->get('key-1', 'default'));
+        static::assertSame('default', $this->keyValueStorage->get('key-1', 'default'));
     }
 
     public function testGetAfterSet(): void
@@ -101,7 +103,7 @@ class MySQLKeyValueStorageTest extends TestCase
         ]);
 
         static::assertTrue($this->keyValueStorage->has('key-1'));
-        static::assertEquals('value-1', $this->keyValueStorage->get('key-1'));
+        static::assertSame('value-1', $this->keyValueStorage->get('key-1'));
 
         $this->keyValueStorage->set('key-1', null);
 

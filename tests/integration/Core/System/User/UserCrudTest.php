@@ -5,11 +5,13 @@ namespace Shopware\Tests\Integration\Core\System\User;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('fundamentals@framework')]
 class UserCrudTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -37,7 +39,7 @@ class UserCrudTest extends TestCase
             'admin' => false,
             'locale' => [
                 'name' => 'somewhere',
-                'code' => 'swh',
+                'code' => 'de-DE-1',
                 'territory' => 'somewhere',
             ],
             'media' => [
@@ -51,7 +53,7 @@ class UserCrudTest extends TestCase
 
         $userRepository->delete([['id' => $userId]], Context::createDefaultContext());
 
-        $user = $userRepository->search(new Criteria([$userId]), Context::createDefaultContext())->first();
+        $user = $userRepository->search(new Criteria([$userId]), Context::createDefaultContext())->getEntities()->first();
         static::assertNull($user);
     }
 }

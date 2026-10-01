@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1663402950SetDoubleOptinCustomerActive;
@@ -15,6 +16,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1663402950SetDoubleOptinCustomerActive::class)]
 class Migration1663402950SetDoubleOptinCustomerActiveTest extends TestCase
 {
@@ -27,16 +29,22 @@ class Migration1663402950SetDoubleOptinCustomerActiveTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1663402950, (new Migration1663402950SetDoubleOptinCustomerActive())->getCreationTimestamp());
+    }
+
     public function testMigration(): void
     {
         $customerId = Uuid::randomBytes();
         $countAffectedRows = $this->addCustomerWithDoubleOptInButNotConfirmed($customerId);
-        static::assertEquals(1, $countAffectedRows);
+        static::assertSame(1, $countAffectedRows);
         static::assertFalse($this->checkCustomerIsActive($customerId));
 
         $migration = new Migration1663402950SetDoubleOptinCustomerActive();
         $migration->update($this->connection);
         static::assertTrue($this->checkCustomerIsActive($customerId));
+        static::assertSame(1663402950, $migration->getCreationTimestamp());
     }
 
     public function testCanBeExecutedMultipleTimes(): void

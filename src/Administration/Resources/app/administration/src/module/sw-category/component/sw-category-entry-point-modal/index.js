@@ -8,10 +8,7 @@ import './sw-category-entry-point-modal.scss';
 export default {
     template,
 
-    inject: [
-        'acl',
-        'cmsPageTypeService',
-    ],
+    inject: ['acl', 'cmsPageTypeService'],
 
     emits: ['modal-close'],
 
@@ -28,11 +25,7 @@ export default {
             salesChannelOptions: [],
             selectedSalesChannelId: '',
             showLayoutSelectionModal: false,
-            pageTypes: [
-                'page',
-                'landingpage',
-                'product_list',
-            ],
+            pageTypes: ['page', 'landingpage', 'product_list'],
             nextRoute: null,
             isDisplayingLeavePageWarning: false,
         };
@@ -80,14 +73,14 @@ export default {
         },
 
         getCmsPageTypeName(name) {
-            const fallback = this.$tc('sw-category.base.cms.defaultDesc');
+            const fallback = this.$t('sw-category.base.cms.defaultDesc');
 
             if (!name) {
                 return fallback;
             }
 
             const nameSnippetKey = this.cmsPageTypeService.getType(name)?.title;
-            return nameSnippetKey ? this.$tc(nameSnippetKey) : fallback;
+            return nameSnippetKey ? this.$t(nameSnippetKey) : fallback;
         },
 
         onLayoutSelect(layoutId, layout) {

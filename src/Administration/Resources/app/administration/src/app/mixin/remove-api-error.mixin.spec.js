@@ -12,9 +12,7 @@ async function createWrapper(attrs = {}) {
               <slot></slot>
             </div>
         `,
-            mixins: [
-                Shopware.Mixin.getByName('remove-api-error'),
-            ],
+            mixins: [Shopware.Mixin.getByName('remove-api-error')],
             data() {
                 return {
                     name: 'sw-mock-field',
@@ -53,10 +51,6 @@ describe('src/app/mixin/remove-api-error.mixin.ts', () => {
         }
 
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should call  removeApiError on value change', async () => {

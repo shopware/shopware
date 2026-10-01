@@ -14,9 +14,7 @@ async function createWrapper(propsData = {}) {
               <slot></slot>
             </div>
         `,
-            mixins: [
-                Shopware.Mixin.getByName('ruleContainer'),
-            ],
+            mixins: [Shopware.Mixin.getByName('ruleContainer')],
             data() {
                 return {
                     name: 'sw-mock-field',
@@ -68,10 +66,6 @@ describe('src/app/mixin/rule-container.mixin.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should compute the correct containerRowClass with even level', () => {
         expect(wrapper.vm.containerRowClass).toEqual({
             'container-condition-level__is--even': true,
@@ -109,10 +103,7 @@ describe('src/app/mixin/rule-container.mixin.ts', () => {
         await wrapper.setProps({
             childAssociationField: 'childAssociationField',
             condition: {
-                childAssociationField: [
-                    {},
-                    {},
-                ],
+                childAssociationField: [{}, {}],
             },
         });
 
@@ -125,10 +116,7 @@ describe('src/app/mixin/rule-container.mixin.ts', () => {
         await wrapper.setProps({
             childAssociationField: 'childAssociationField',
             condition: {
-                childAssociationField: [
-                    {},
-                    {},
-                ],
+                childAssociationField: [{}, {}],
             },
         });
 

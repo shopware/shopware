@@ -1,4 +1,3 @@
-import type { PropType } from 'vue';
 import template from './sw-custom-entity-input-field.html.twig';
 
 /**

@@ -5,32 +5,27 @@
 import template from './sw-product-basic-form.html.twig';
 import './sw-product-basic-form.scss';
 
-const { Criteria } = Shopware.Data;
-const { Context, Mixin } = Shopware;
+const { Mixin } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['feature'],
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     props: {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         showSettingsInformation: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -38,6 +33,7 @@ export default {
     data() {
         return {
             productNumberRangeId: null,
+            hideCoverImageDescriptionHint: true,
         };
     },
 
@@ -63,10 +59,6 @@ export default {
             'markAsTopseller',
         ]),
 
-        numberRangeRepository() {
-            return this.repositoryFactory.create('number_range');
-        },
-
         isTitleRequired() {
             return Shopware.Store.get('context').isSystemDefaultLanguage;
         },
@@ -85,13 +77,13 @@ export default {
         },
 
         productNumberHelpText() {
-            return this.$tc(
+            return this.$t(
                 'sw-product.basicForm.productNumberHelpText.label',
                 {
                     link: `<sw-internal-link
                            :router-link=${JSON.stringify(this.productNumberRangeLink)}
                            :inline="true">
-                           ${this.$tc('sw-product.basicForm.productNumberHelpText.linkText')}
+                           ${this.$t('sw-product.basicForm.productNumberHelpText.linkText')}
                        </sw-internal-link>`,
                 },
                 0,
@@ -108,31 +100,22 @@ export default {
                 params: { key: 'listing.boxLabelTopseller' },
             };
 
-            return this.$tc(
+            return this.$t(
                 'sw-product.basicForm.highlightHelpText.label',
                 {
                     themesLink: `<sw-internal-link
                                  :router-link=${JSON.stringify(themesLink)}
                                  :inline="true">
-                                 ${this.$tc('sw-product.basicForm.highlightHelpText.themeLinkText')}
+                                 ${this.$t('sw-product.basicForm.highlightHelpText.themeLinkText')}
                              </sw-internal-link>`,
                     snippetLink: `<sw-internal-link
                                   :router-link=${JSON.stringify(snippetLink)}
                                   :inline="true">
-                                  ${this.$tc('sw-product.basicForm.highlightHelpText.snippetLinkText')}
+                                  ${this.$t('sw-product.basicForm.highlightHelpText.snippetLinkText')}
                               </sw-internal-link>`,
                 },
                 0,
             );
-        },
-
-        numberRangeCriteria() {
-            const criteria = new Criteria(1, 25);
-
-            criteria.addFilter(Criteria.equals('type.technicalName', 'product'));
-            criteria.addFilter(Criteria.equals('global', true));
-
-            return criteria;
         },
     },
 
@@ -143,6 +126,24 @@ export default {
     methods: {
         createdComponent() {
             this.loadProductNumberRangeId();
+            this.loadCoverImageDescriptionHintConfig();
+        },
+
+        async loadCoverImageDescriptionHintConfig() {
+            const config = (await Shopware.Service('userConfigService').search(['product.hideCoverImageDescriptionHint']))
+                ?.data?.['product.hideCoverImageDescriptionHint'];
+
+            this.hideCoverImageDescriptionHint = !!config?.value;
+        },
+
+        async onCloseCoverImageDescriptionHint() {
+            this.hideCoverImageDescriptionHint = true;
+
+            await Shopware.Service('userConfigService').upsert({
+                'product.hideCoverImageDescriptionHint': {
+                    value: true,
+                },
+            });
         },
 
         updateIsTitleRequired() {
@@ -159,9 +160,20 @@ export default {
         },
 
         loadProductNumberRangeId() {
-            return this.numberRangeRepository.searchIds(this.numberRangeCriteria, Context.api).then((numberRangeIds) => {
-                this.productNumberRangeId = numberRangeIds.data[0];
-            });
+            const criteria = new Shopware.Data.Criteria(1, 25);
+
+            criteria.addFilter(Shopware.Data.Criteria.equals('type.technicalName', 'product'));
+            criteria.addFilter(Shopware.Data.Criteria.equals('global', true));
+
+            return Shopware.Service('repositoryFactory')
+                .create('number_range')
+                .searchIds(criteria, Shopware.Context.api, {
+                    cacheKey: ['shared-data', 'number-range-ids', 'product'],
+                    ttl: 5 * 60 * 1000,
+                })
+                .then((numberRangeIds) => {
+                    this.productNumberRangeId = numberRangeIds.data[0];
+                });
         },
     },
 };

@@ -4,20 +4,26 @@ namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class ParentChildTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<CategoryCollection>
+     */
     private EntityRepository $categoryRepository;
 
     private Connection $connection;
@@ -55,7 +61,7 @@ class ParentChildTest extends TestCase
         $first = $e->getExceptions()[0];
 
         static::assertInstanceOf(ExpectedArrayException::class, $first);
-        static::assertEquals('/0/children', $first->getPath());
+        static::assertSame('/0/children', $first->getPath());
     }
 
     public function testICanWriteChildren(): void
@@ -125,7 +131,7 @@ class ParentChildTest extends TestCase
             )
         );
 
-        static::assertEquals(
+        static::assertSame(
             Uuid::fromHexToBytes($parent),
             $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
@@ -133,7 +139,7 @@ class ParentChildTest extends TestCase
             )
         );
 
-        static::assertEquals(
+        static::assertSame(
             Uuid::fromHexToBytes($child1),
             $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
@@ -141,7 +147,7 @@ class ParentChildTest extends TestCase
             )
         );
 
-        static::assertEquals(
+        static::assertSame(
             Uuid::fromHexToBytes($child2),
             $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
@@ -174,7 +180,7 @@ class ParentChildTest extends TestCase
                 ['id' => Uuid::fromHexToBytes($parent)]
             )
         );
-        static::assertEquals(
+        static::assertSame(
             Uuid::fromHexToBytes($parent),
             $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
@@ -212,14 +218,14 @@ class ParentChildTest extends TestCase
                 ['id' => Uuid::fromHexToBytes($parent)]
             )
         );
-        static::assertEquals(
+        static::assertSame(
             Uuid::fromHexToBytes($parent),
             $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',
                 ['id' => Uuid::fromHexToBytes($child1)]
             )
         );
-        static::assertEquals(
+        static::assertSame(
             Uuid::fromHexToBytes($child1),
             $this->connection->fetchOne(
                 'SELECT parent_id FROM category WHERE id = :id',

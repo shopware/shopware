@@ -62,28 +62,28 @@ export default {
             if (this.allowOverwrite) {
                 options.push({
                     value: 'overwrite',
-                    label: this.$tc('sw-bulk-edit.changeTypes.overwrite'),
+                    label: this.$t('sw-bulk-edit.changeTypes.overwrite'),
                 });
             }
 
             if (this.allowClear) {
                 options.push({
                     value: 'clear',
-                    label: this.$tc('sw-bulk-edit.changeTypes.clear'),
+                    label: this.$t('sw-bulk-edit.changeTypes.clear'),
                 });
             }
 
             if (this.allowAdd) {
                 options.push({
                     value: 'add',
-                    label: this.$tc('global.default.add'),
+                    label: this.$t('global.default.add'),
                 });
             }
 
             if (this.allowRemove) {
                 options.push({
                     value: 'remove',
-                    label: this.$tc('global.default.remove'),
+                    label: this.$t('global.default.remove'),
                 });
             }
 

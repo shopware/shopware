@@ -15,23 +15,14 @@ class TreeItem extends Struct
      */
     public ?string $afterId = null;
 
-    protected ?CategoryEntity $category = null;
-
-    /**
-     * @var TreeItem[]
-     */
-    protected array $children;
-
     /**
      * @param TreeItem[] $children
      */
     public function __construct(
-        ?CategoryEntity $category,
-        array $children
+        protected ?CategoryEntity $category,
+        protected array $children,
     ) {
-        $this->category = $category;
-        $this->children = $children;
-        $this->afterId = $category ? $category->getAfterCategoryId() : null;
+        $this->afterId = $this->category?->getAfterCategoryId();
     }
 
     public function getId(): string

@@ -26,6 +26,11 @@ class Migration1736154963FixCyprusVatIdPatternTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1736154963, (new Migration1736154963FixCyprusVatIdPattern())->getCreationTimestamp());
+    }
+
     public function testMigrate(): void
     {
         $this->connection->update('country', ['vat_id_pattern' => 'CY\d{8}L'], ['iso' => 'CY']);

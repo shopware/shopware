@@ -26,11 +26,6 @@ async function createWrapper(
 }
 
 describe('src/app/component/meteor-wrapper/mt-text-editor', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should use custom link button', async () => {
         const wrapper = await createWrapper();
 
@@ -80,9 +75,7 @@ describe('src/app/component/meteor-wrapper/mt-text-editor', () => {
 
         // Exclude the bold button
         await wrapper.setProps({
-            excludedButtons: [
-                'bold',
-            ],
+            excludedButtons: ['bold'],
         });
 
         // Check if button with aria-label "Bold" is not present

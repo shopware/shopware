@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-// eslint-disable-next-line import/no-extraneous-dependencies
 import colors from 'picocolors';
 import RepositoryFactory from 'src/core/data/repository-factory.data';
 import EntityHydrator from 'src/core/data/entity-hydrator.data';
@@ -10,10 +9,10 @@ import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import EntityFactory from 'src/core/data/entity-factory.data';
 import ErrorResolverError from 'src/core/data/error-resolver.data';
 import createHTTPClient from 'src/core/factory/http.factory';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import MockAdapter from 'axios-mock-adapter';
-// eslint-disable-next-line import/no-unresolved
 import EntitySchema from '../../_mocks_/entity-schema.json';
+
+const TEST_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
 
 // Add all entities from entity-schema
 Object.entries(EntitySchema).forEach(([entityName, entityInformation]) => {
@@ -26,7 +25,8 @@ function throwMissingImplementationError(config) {
         return;
     }
 
-    console.error(colors.yellow(`
+    console.error(
+        colors.yellow(`
 You should to implement mock data for this route: "${config.url}".
 
 ############### Example ###############
@@ -55,7 +55,8 @@ responses.addResponse({
 You can disable this error with this code:
 
 global.repositoryFactoryMock.showError = false;
-`));
+`),
+    );
 }
 
 // This registry contains all customs test responses (with axios-mock-adapter)
@@ -79,8 +80,9 @@ class ResponseRegistry {
     }
 
     getResponse({ url, method }) {
-        return this.registry.find(response => {
-            const isUrlValid = (response.url instanceof RegExp && response.url.match) ? response.url.match(url) : response.url === url;
+        return this.registry.find((response) => {
+            const isUrlValid =
+                response.url instanceof RegExp && response.url.match ? response.url.match(url) : response.url === url;
 
             return isUrlValid && response.method.toUpperCase() === method.toUpperCase();
         });
@@ -94,7 +96,7 @@ function clientMockFactory() {
 
     const responses = new ResponseRegistry();
 
-    clientMock.onAny().reply(config => {
+    const replyHandler = (config) => {
         const customResponse = responses.getResponse({
             url: config.url,
             method: config.method,
@@ -110,9 +112,38 @@ function clientMockFactory() {
 
         throwMissingImplementationError(config);
         return [500, {}];
-    });
+    };
+
+    clientMock.onAny().reply(replyHandler);
 
     // Add default responses
+    responses.addResponse({
+        method: 'POST',
+        url: '/search/language',
+        response: {
+            data: [
+                {
+                    id: TEST_LANGUAGE_ID,
+                    attributes: {
+                        id: TEST_LANGUAGE_ID,
+                        name: 'English',
+                        active: true,
+                    },
+                    relationships: [],
+                },
+            ],
+            meta: {
+                total: 1,
+            },
+        },
+    });
+
+    responses.addResponse({
+        method: 'POST',
+        url: '/search-ids/number-range',
+        response: { data: [] },
+    });
+
     responses.addResponse({
         method: 'POST',
         url: /\/api\/v\d\/search\/.*/g,
@@ -144,12 +175,6 @@ const changesetGenerator = new ChangesetGenerator();
 const entityFactory = new EntityFactory();
 const errorResolver = new ErrorResolverError();
 
-const repositoryFactory = new RepositoryFactory(
-    hydrator,
-    changesetGenerator,
-    entityFactory,
-    httpClient,
-    errorResolver,
-);
+const repositoryFactory = new RepositoryFactory(hydrator, changesetGenerator, entityFactory, httpClient, errorResolver);
 
 export default repositoryFactory;

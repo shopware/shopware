@@ -19,9 +19,12 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class HttpCacheKernel extends HttpCache
 {
-    final public const MAINTENANCE_WHITELIST_HEADER = 'sw-maintenance-whitelist';
+    final public const MAINTENANCE_ALLOWLIST_HEADER = 'sw-maintenance-allowlist';
 
-    private StoreInterface $store;
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, use MAINTENANCE_ALLOWLIST_HEADER instead.
+     */
+    final public const MAINTENANCE_WHITELIST_HEADER = 'sw-maintenance-whitelist';
 
     /**
      * @internal
@@ -30,15 +33,13 @@ class HttpCacheKernel extends HttpCache
      */
     public function __construct(
         HttpKernelInterface $kernel,
-        StoreInterface $store,
+        private StoreInterface $store,
         SurrogateInterface $surrogate,
         array $options,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly bool $externalReverseProxyEnabled
+        private readonly bool $externalReverseProxyEnabled,
     ) {
-        $this->store = $store;
-
-        parent::__construct($kernel, $store, $surrogate, $options);
+        parent::__construct($kernel, $this->store, $surrogate, $options);
     }
 
     public function handle(Request $request, int $type = HttpKernelInterface::MAIN_REQUEST, bool $catch = true): Response
@@ -69,7 +70,8 @@ class HttpCacheKernel extends HttpCache
             $response = $this->getKernel()->handle($request, $type, $catch);
         }
 
-        if ($ips = $response->headers->get(self::MAINTENANCE_WHITELIST_HEADER)) {
+        // @deprecated tag:v6.8.0 - the deprecated MAINTENANCE_WHITELIST_HEADER fallback will be removed
+        if ($ips = $response->headers->get(self::MAINTENANCE_ALLOWLIST_HEADER) ?? $response->headers->get(self::MAINTENANCE_WHITELIST_HEADER)) {
             $ips = array_filter(explode(',', $ips));
 
             if (IpUtils::checkIp((string) $request->getClientIp(), $ips)) {
@@ -77,6 +79,8 @@ class HttpCacheKernel extends HttpCache
             }
         }
 
+        $response->headers->remove(self::MAINTENANCE_ALLOWLIST_HEADER);
+        // @deprecated tag:v6.8.0 - the deprecated MAINTENANCE_WHITELIST_HEADER removal will be removed
         $response->headers->remove(self::MAINTENANCE_WHITELIST_HEADER);
 
         $event = new BeforeSendResponseEvent($request, $response);

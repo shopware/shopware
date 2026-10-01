@@ -8,10 +8,7 @@ import './sw-bulk-edit-save-modal.scss';
 export default {
     template,
 
-    emits: [
-        'modal-close',
-        'bulk-save',
-    ],
+    emits: ['modal-close', 'bulk-save'],
 
     props: {
         itemTotal: {
@@ -118,11 +115,11 @@ export default {
         },
 
         addEventListeners() {
-            window.addEventListener('beforeunload', (event) => this.beforeUnloadListener(event));
+            window.addEventListener('beforeunload', this.beforeUnloadListener);
         },
 
         removeEventListeners() {
-            window.removeEventListener('beforeunload', (event) => this.beforeUnloadListener(event));
+            window.removeEventListener('beforeunload', this.beforeUnloadListener);
         },
 
         beforeUnloadListener(event) {
@@ -131,9 +128,9 @@ export default {
             }
 
             event.preventDefault();
-            event.returnValue = this.$tc('sw-bulk-edit.modal.messageBeforeTabLeave');
+            event.returnValue = this.$t('sw-bulk-edit.modal.messageBeforeTabLeave');
 
-            return this.$tc('sw-bulk-edit.modal.messageBeforeTabLeave');
+            return this.$t('sw-bulk-edit.modal.messageBeforeTabLeave');
         },
 
         onModalClose() {

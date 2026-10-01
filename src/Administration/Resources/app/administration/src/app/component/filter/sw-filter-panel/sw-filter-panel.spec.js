@@ -67,6 +67,8 @@ const filters = [
 ];
 
 let savedFilterData = {};
+let getStoredFiltersMock = () => Promise.resolve(savedFilterData);
+let saveFiltersMock = (storeKey, storedFilters) => Promise.resolve(storedFilters);
 
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-filter-panel', { sync: true }), {
@@ -87,18 +89,18 @@ async function createWrapper() {
         },
         global: {
             stubs: {
-                'sw-boolean-filter': await Shopware.Component.build('sw-boolean-filter'),
+                'sw-boolean-filter': await wrapTestComponent('sw-boolean-filter', { sync: true }),
                 'sw-select-field': await wrapTestComponent('sw-select-field', {
                     sync: true,
                 }),
                 'sw-select-field-deprecated': await wrapTestComponent('sw-select-field-deprecated', { sync: true }),
-                'sw-block-field': await Shopware.Component.build('sw-block-field'),
-                'sw-base-field': await Shopware.Component.build('sw-base-field'),
-                'sw-base-filter': await Shopware.Component.build('sw-base-filter'),
+                'sw-block-field': await wrapTestComponent('sw-block-field', { sync: true }),
+                'sw-base-field': await wrapTestComponent('sw-base-field', { sync: true }),
+                'sw-base-filter': await wrapTestComponent('sw-base-filter', { sync: true }),
                 'sw-field-error': {
                     template: '<div></div>',
                 },
-                'sw-existence-filter': await Shopware.Component.build('sw-existence-filter'),
+                'sw-existence-filter': await wrapTestComponent('sw-existence-filter', { sync: true }),
                 'sw-multi-select-filter': true,
                 'sw-string-filter': true,
                 'sw-number-filter': true,
@@ -129,12 +131,18 @@ async function createWrapper() {
 
 Shopware.Service().register('filterService', () => {
     return {
-        getStoredFilters: () => Promise.resolve(savedFilterData),
-        saveFilters: (storeKey, storedFilters) => Promise.resolve(storedFilters),
+        getStoredFilters: (...args) => getStoredFiltersMock(...args),
+        saveFilters: (...args) => saveFiltersMock(...args),
     };
 });
 
 describe('components/sw-filter-panel', () => {
+    beforeEach(() => {
+        savedFilterData = {};
+        getStoredFiltersMock = () => Promise.resolve(savedFilterData);
+        saveFiltersMock = (storeKey, storedFilters) => Promise.resolve(storedFilters);
+    });
+
     it('should render filter components correctly', async () => {
         const wrapper = await createWrapper();
 
@@ -179,10 +187,7 @@ describe('components/sw-filter-panel', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            defaults: [
-                'filter1',
-                'filter2',
-            ],
+            defaults: ['filter1', 'filter2'],
         });
 
         expect(wrapper.find('.sw-boolean-filter').exists()).toBeTruthy();
@@ -230,5 +235,72 @@ describe('components/sw-filter-panel', () => {
         await wrapper.vm.$nextTick();
 
         expect(Object.keys(wrapper.vm.activeFilters)).toHaveLength(1);
+    });
+
+    it('should keep filter changes while stored filters are still loading', async () => {
+        let resolveStoredFilters;
+        getStoredFiltersMock = () =>
+            new Promise((resolve) => {
+                resolveStoredFilters = resolve;
+            });
+
+        const wrapper = await createWrapper();
+        const filterCriteria = [
+            {
+                type: 'equalsAny',
+                field: 'stateMachineState.id',
+                value: ['state-open'],
+            },
+        ];
+        const filterValue = [
+            {
+                id: 'state-open',
+                name: 'Open',
+            },
+        ];
+
+        wrapper.vm.updateFilter('filter3', filterCriteria, filterValue);
+        await wrapper.vm.$nextTick();
+
+        resolveStoredFilters({});
+        await flushPromises();
+
+        expect(wrapper.vm.activeFilters.filter3).toEqual(filterCriteria);
+        expect(wrapper.vm.storedFilters.filter3).toEqual({
+            value: filterValue,
+            criteria: filterCriteria,
+        });
+    });
+
+    it('should return breadcrumb path when item has breadcrumb array', async () => {
+        const wrapper = await createWrapper();
+
+        const itemWithBreadcrumb = {
+            breadcrumb: ['Category 1', 'Category 2', 'Category 3'],
+            name: 'Product Name',
+            translated: {
+                name: 'Translated Product Name',
+            },
+        };
+
+        const result = wrapper.vm.getBreadcrumb(itemWithBreadcrumb);
+
+        expect(result).toBe('Category 1 / Category 2 / Category 3');
+    });
+
+    it('should return name when item has no breadcrumb', async () => {
+        const wrapper = await createWrapper();
+
+        const itemWithoutBreadcrumb = {
+            breadcrumb: [],
+            name: 'Product Name',
+            translated: {
+                name: 'Translated Product Name',
+            },
+        };
+
+        const result = wrapper.vm.getBreadcrumb(itemWithoutBreadcrumb);
+
+        expect(result).toBe('Translated Product Name');
     });
 });

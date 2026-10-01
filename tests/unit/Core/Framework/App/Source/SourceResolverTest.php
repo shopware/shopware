@@ -31,24 +31,22 @@ class SourceResolverTest extends TestCase
     {
         static::expectException(AppException::class);
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
-        $resolver = new SourceResolver([], $repo, $this->createMock(NoDatabaseSourceResolver::class));
+        $resolver = new SourceResolver([], $repo, static::createStub(NoDatabaseSourceResolver::class));
 
-        $app = $this->createMock(Manifest::class);
+        $app = static::createStub(Manifest::class);
 
         $resolver->resolveSourceType($app);
     }
 
     public function testCanResolveManifestToType(): void
     {
-        $app = $this->createMock(Manifest::class);
+        $app = static::createStub(Manifest::class);
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
-        $resolver = new SourceResolver([new SupportingSource()], $repo, $this->createMock(NoDatabaseSourceResolver::class));
+        $resolver = new SourceResolver([new SupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));
 
         static::assertSame('supporting-source', $resolver->resolveSourceType($app));
     }
@@ -57,24 +55,22 @@ class SourceResolverTest extends TestCase
     {
         static::expectException(AppException::class);
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
-        $resolver = new SourceResolver([new NonSupportingSource()], $repo, $this->createMock(NoDatabaseSourceResolver::class));
+        $resolver = new SourceResolver([new NonSupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));
 
-        $app = $this->createMock(Manifest::class);
+        $app = static::createStub(Manifest::class);
 
         $resolver->filesystemForManifest($app);
     }
 
     public function testFilesystemForManifest(): void
     {
-        $app = $this->createMock(Manifest::class);
+        $app = static::createStub(Manifest::class);
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
-        $resolver = new SourceResolver([new SupportingSource()], $repo, $this->createMock(NoDatabaseSourceResolver::class));
+        $resolver = new SourceResolver([new SupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));
 
         static::assertSame('/', $resolver->filesystemForManifest($app)->location);
     }
@@ -83,10 +79,9 @@ class SourceResolverTest extends TestCase
     {
         static::expectException(AppException::class);
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
-        $resolver = new SourceResolver([new NonSupportingSource()], $repo, $this->createMock(NoDatabaseSourceResolver::class));
+        $resolver = new SourceResolver([new NonSupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));
 
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
@@ -103,10 +98,9 @@ class SourceResolverTest extends TestCase
         $app->setName('TestApp');
         $app->setVersion('1.0.0');
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
-        $resolver = new SourceResolver([new SupportingSource()], $repo, $this->createMock(NoDatabaseSourceResolver::class));
+        $resolver = new SourceResolver([new SupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));
 
         static::assertSame('/', $resolver->filesystemForApp($app)->location);
     }
@@ -118,7 +112,6 @@ class SourceResolverTest extends TestCase
         $app->setName('TestApp');
         $app->setVersion('1.0.0');
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
         $fs = new Filesystem('/');
@@ -132,7 +125,7 @@ class SourceResolverTest extends TestCase
             ->with($app)
             ->willReturn(true);
 
-        $resolver = new SourceResolver([$sourceMock], $repo, $this->createMock(NoDatabaseSourceResolver::class));
+        $resolver = new SourceResolver([$sourceMock], $repo, static::createStub(NoDatabaseSourceResolver::class));
 
         static::assertSame($fs, $resolver->filesystemForApp($app));
         // Second call should return the same instance and not call the source
@@ -151,7 +144,6 @@ class SourceResolverTest extends TestCase
         $secondApp->setName('TestApp');
         $secondApp->setVersion('2.0.0');
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
         $firstFs = new Filesystem('/one/');
@@ -165,7 +157,7 @@ class SourceResolverTest extends TestCase
             ->method('supports')
             ->willReturn(true);
 
-        $resolver = new SourceResolver([$sourceMock], $repo, $this->createMock(NoDatabaseSourceResolver::class));
+        $resolver = new SourceResolver([$sourceMock], $repo, static::createStub(NoDatabaseSourceResolver::class));
 
         static::assertSame($firstFs, $resolver->filesystemForApp($firstApp));
         static::assertSame($secondFs, $resolver->filesystemForApp($secondApp));
@@ -178,7 +170,6 @@ class SourceResolverTest extends TestCase
         $app->setName('TestApp');
         $app->setVersion('1.0.0');
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
         $fs = new Filesystem('/');
@@ -195,7 +186,7 @@ class SourceResolverTest extends TestCase
             ->method('reset')
             ->with([$fs]);
 
-        $resolver = new SourceResolver([$sourceMock], $repo, $this->createMock(NoDatabaseSourceResolver::class));
+        $resolver = new SourceResolver([$sourceMock], $repo, static::createStub(NoDatabaseSourceResolver::class));
 
         static::assertSame($fs, $resolver->filesystemForApp($app));
         $resolver->reset();
@@ -206,10 +197,9 @@ class SourceResolverTest extends TestCase
     {
         static::expectException(AppException::class);
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([new AppCollection()]);
 
-        $resolver = new SourceResolver([new NonSupportingSource()], $repo, $this->createMock(NoDatabaseSourceResolver::class));
+        $resolver = new SourceResolver([new NonSupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));
 
         $resolver->filesystemForAppName('my-app');
     }
@@ -223,10 +213,9 @@ class SourceResolverTest extends TestCase
         $app->setName('TestApp');
         $app->setVersion('1.0.0');
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([new AppCollection([$app])]);
 
-        $resolver = new SourceResolver([new NonSupportingSource()], $repo, $this->createMock(NoDatabaseSourceResolver::class));
+        $resolver = new SourceResolver([new NonSupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));
 
         $resolver->filesystemForApp($app);
     }
@@ -238,10 +227,9 @@ class SourceResolverTest extends TestCase
         $app->setName('TestApp');
         $app->setVersion('1.0.0');
 
-        /** @var StaticEntityRepository<AppCollection> $repo */
         $repo = new StaticEntityRepository([new AppCollection([$app])]);
 
-        $resolver = new SourceResolver([new SupportingSource()], $repo, $this->createMock(NoDatabaseSourceResolver::class));
+        $resolver = new SourceResolver([new SupportingSource()], $repo, static::createStub(NoDatabaseSourceResolver::class));
 
         static::assertSame('/', $resolver->filesystemForAppName($app->getName())->location);
     }
@@ -251,7 +239,7 @@ class SourceResolverTest extends TestCase
         $repo = $this->createMock(EntityRepository::class);
         $repo->expects($this->once())
             ->method('search')
-            ->willThrowException(new ConnectionException($this->createMock(DriverException::class), null));
+            ->willThrowException(new ConnectionException(static::createStub(DriverException::class), null));
 
         $fs = new StaticFilesystem();
         $noDbResolver = $this->createMock(NoDatabaseSourceResolver::class);

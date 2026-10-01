@@ -11,8 +11,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(AddCartErrorCommand::class)]
 #[Package('checkout')]
+#[CoversClass(AddCartErrorCommand::class)]
 class AddCartErrorCommandTest extends TestCase
 {
     public function testCommand(): void

@@ -1,5 +1,4 @@
 import template from './sw-order-state-change-modal.html.twig';
-import './sw-order-state-change-modal.scss';
 
 /**
  * @sw-package checkout
@@ -9,10 +8,7 @@ import './sw-order-state-change-modal.scss';
 export default {
     template,
 
-    emits: [
-        'page-leave',
-        'page-leave-confirm',
-    ],
+    emits: ['page-leave', 'page-leave-confirm'],
 
     props: {
         order: {
@@ -40,7 +36,7 @@ export default {
 
     computed: {
         modalTitle() {
-            return this.$tc('sw-order.assignMailTemplateCard.cardTitle');
+            return this.$t('sw-order.stateCard.cartTitleChangeState');
         },
     },
 
@@ -49,8 +45,8 @@ export default {
             this.$emit('page-leave');
         },
 
-        onDocsConfirm(docIds, sendMail = true) {
-            this.$emit('page-leave-confirm', docIds, sendMail);
+        onDocsConfirm(docIds, sendMail = true, internalComment = null) {
+            this.$emit('page-leave-confirm', docIds, sendMail, internalComment);
         },
     },
 };

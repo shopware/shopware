@@ -63,23 +63,19 @@ export default class AppClientService {
             return data.headers;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const data = JSON.parse(this.storage.getItem(key));
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument,@typescript-eslint/no-unsafe-member-access
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         if (new Date(data.expires) < new Date()) {
             this.storage.removeItem(key);
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
             return await this.getHeaders();
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-member-access
         return data.headers;
     }
 
     private async fetchHeaders(): Promise<{ headers: { [key: string]: string }, expires: string }> {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
         const url = window['router']['frontend.app-system.generate-token'].replace('Placeholder', encodeURIComponent(this.name));
         // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
         const response = await fetch(url, {
@@ -106,7 +102,6 @@ export default class AppClientService {
             options.headers = {};
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         options.headers = {...options.headers, ...await this.getHeaders()};
 
         return fetch(url, options);

@@ -4,11 +4,12 @@ export default class AnalyticsEvent
 
     /* eslint-disable no-unused-vars */
     /**
-     * @param {string} controllerName
-     * @param {string} actionName
+     * @param {string} controllerName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
+     * @param {string} actionName @deprecated tag:v6.8.0 - Will be removed, use activeRoute instead.
+     * @param {string} activeRoute
      * @returns {boolean}
      */
-    supports(controllerName, actionName) {
+    supports(controllerName, actionName, activeRoute) {
         console.warn('[Google Analytics Plugin] Method \'supports\' was not overridden by `' + this.constructor.name + '`. Default return set to false.');
         return false;
     }

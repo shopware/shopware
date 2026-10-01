@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTaskHandler;
 use Shopware\Core\System\UsageData\Services\EntityDispatchService;
@@ -24,9 +25,12 @@ class CollectEntityDataTaskHandlerTest extends TestCase
         $entityDispatchService->expects($this->once())
             ->method('dispatchCollectEntityDataMessage');
 
+        /** @var StaticEntityRepository<ScheduledTaskCollection> */
+        $repository = new StaticEntityRepository([], new ScheduledTaskDefinition());
+
         $taskHandler = new CollectEntityDataTaskHandler(
-            new StaticEntityRepository([], new ScheduledTaskDefinition()),
-            $this->createMock(LoggerInterface::class),
+            $repository,
+            static::createStub(LoggerInterface::class),
             $entityDispatchService
         );
 

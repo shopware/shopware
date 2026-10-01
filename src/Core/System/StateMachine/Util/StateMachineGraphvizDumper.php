@@ -60,9 +60,10 @@ class StateMachineGraphvizDumper
                 $attributes['color'] = '#FF0000';
                 $attributes['shape'] = 'doublecircle';
             }
-            $states[$state->getName()] = [
-                'attributes' => $attributes,
-            ];
+            $stateName = $state->getName();
+            if ($stateName !== null) {
+                $states[$stateName] = ['attributes' => $attributes];
+            }
         }
 
         return $states;
@@ -126,7 +127,11 @@ class StateMachineGraphvizDumper
             if ($fromStateMachineState === null || $toStateMachineState === null) {
                 continue;
             }
-            $edges[$fromStateMachineState->getName()][] = [
+            $fromStateMachineStateName = $fromStateMachineState->getName();
+            if ($fromStateMachineStateName === null) {
+                continue;
+            }
+            $edges[$fromStateMachineStateName][] = [
                 'name' => $transition->getActionName(),
                 'to' => $toStateMachineState->getName() ?? $toStateMachineState->getTechnicalName(),
             ];
@@ -174,7 +179,7 @@ class StateMachineGraphvizDumper
             \assert(\is_string($k));
             if ($v !== null) {
                 \assert(\is_scalar($v) || $v instanceof \Stringable);
-                $code[] = \sprintf('%s="%s"', $k, $v);
+                $code[] = \sprintf('%s="%s"', $k, (string) $v);
             }
         }
 

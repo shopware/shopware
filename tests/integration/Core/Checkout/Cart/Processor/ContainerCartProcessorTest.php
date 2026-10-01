@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Processor\ContainerCartProcessor;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -56,22 +57,22 @@ class ContainerCartProcessorTest extends TestCase
         static::assertTrue($new->has($item->getId()));
 
         static::assertInstanceOf(CalculatedPrice::class, $item->getPrice());
-        static::assertEquals($expected->getUnitPrice(), $item->getPrice()->getUnitPrice());
-        static::assertEquals($expected->getTotalPrice(), $item->getPrice()->getTotalPrice());
-        static::assertEquals($expected->getCalculatedTaxes()->getAmount(), $item->getPrice()->getCalculatedTaxes()->getAmount());
+        static::assertSame($expected->getUnitPrice(), $item->getPrice()->getUnitPrice());
+        static::assertSame($expected->getTotalPrice(), $item->getPrice()->getTotalPrice());
+        static::assertSame($expected->getCalculatedTaxes()->getAmount(), $item->getPrice()->getCalculatedTaxes()->getAmount());
 
         foreach ($expected->getCalculatedTaxes() as $tax) {
             $actual = $item->getPrice()->getCalculatedTaxes()->get((string) $tax->getTaxRate());
 
-            static::assertInstanceOf(CalculatedTax::class, $actual, \sprintf('Missing tax for rate %f', $tax->getTaxRate()));
-            static::assertEquals($tax->getTax(), $actual->getTax());
+            static::assertInstanceOf(CalculatedTax::class, $actual, \sprintf('Missing tax for rate %F', $tax->getTaxRate()));
+            static::assertSame($tax->getTax(), $actual->getTax());
         }
 
         foreach ($item->getPrice()->getCalculatedTaxes() as $tax) {
             $actual = $expected->getCalculatedTaxes()->get((string) $tax->getTaxRate());
 
-            static::assertInstanceOf(CalculatedTax::class, $actual, \sprintf('Missing tax for rate %f', $tax->getTaxRate()));
-            static::assertEquals($tax->getTax(), $actual->getTax());
+            static::assertInstanceOf(CalculatedTax::class, $actual, \sprintf('Missing tax for rate %F', $tax->getTaxRate()));
+            static::assertSame($tax->getTax(), $actual->getTax());
         }
     }
 
@@ -141,7 +142,8 @@ class ContainerCartProcessorTest extends TestCase
                     new PercentageItem(-10),
                 ]),
             ]),
-            new CalculatedPrice(97.56, 97.56, new CalculatedTaxes([19 => 7.77, 7 => 3.20]), new HighTaxes()),
+            // v6.8: PercentagePriceCalculator scales and rounds each calculated tax instead of recalculating
+            new CalculatedPrice(97.56, 97.56, new CalculatedTaxes(Feature::isActive('v6.8.0.0') ? [19 => 7.78, 7 => 3.19] : [19 => 7.77, 7 => 3.20]), new HighTaxes()),
         ];
     }
 }

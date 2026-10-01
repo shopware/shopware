@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 
 /**
@@ -102,13 +104,16 @@ async function createWrapper() {
                     template: '<div class="sw-context-button"><slot></slot></div>',
                 },
                 'sw-context-menu-item': true,
-                'sw-empty-state': true,
                 'sw-card-filter': {
                     data() {
                         return { term: '' };
                     },
-                    template:
-                        '<input class="sw-card-filter" :value="term" @input="$emit(\'sw-card-filter-term-change\', $event.target.value)">',
+                    template: `
+                        <div>
+                            <input class="sw-card-filter" :value="term" @input="$emit(\'sw-card-filter-term-change\', $event.target.value)">
+                            <slot name="filter"></slot>
+                        </div>
+                    `,
                 },
                 'sw-field': true,
                 'router-link': true,
@@ -120,10 +125,7 @@ async function createWrapper() {
                 'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-select-result': {
-                    props: [
-                        'item',
-                        'index',
-                    ],
+                    props: ['item', 'index'],
                     template: `
                         <li class="sw-select-result" @click.stop="onClickResult">
                             <slot></slot>
@@ -160,10 +162,12 @@ async function createWrapper() {
                                     {
                                         id: '1234',
                                         name: 'Lazada',
+                                        languageId: '8888',
                                     },
                                     {
                                         id: '123456',
                                         name: 'Tiki',
+                                        languageId: '5678',
                                     },
                                 ]);
                             }
@@ -179,12 +183,6 @@ async function createWrapper() {
                 },
             },
             mocks: {
-                $tc: (key, value) => {
-                    if (!value) {
-                        return key;
-                    }
-                    return key + JSON.stringify(value);
-                },
                 $t: (key, value) => {
                     if (!value) {
                         return key;
@@ -247,8 +245,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-        expect(emptyState.exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
     it('should show empty title correctly', async () => {
@@ -257,16 +254,14 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        let emptyState = wrapper.find('sw-empty-state-stub');
-        expect(emptyState.attributes('title')).toBe('sw-customer.list.messageEmpty');
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-customer.list.messageEmpty');
 
         const searchField = wrapper.find('.sw-card-filter');
 
         await searchField.setValue('Hello World');
         await searchField.trigger('input');
 
-        emptyState = wrapper.find('sw-empty-state-stub');
-        expect(emptyState.attributes('title')).toBe(
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe(
             'sw-order.initialModal.customerGrid.textEmptySearch{"name":"Hello World"}',
         );
     });
@@ -277,8 +272,7 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-        expect(emptyState.exists()).toBeFalsy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeFalsy();
 
         const gridBody = wrapper.find('.sw-data-grid__body');
         expect(gridBody.findAll('.sw-data-grid__row')).toHaveLength(customers.length);
@@ -373,6 +367,56 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         await flushPromises();
 
         expect(spyGetCart).toHaveBeenCalled();
+    });
+
+    it('should show a dedicated maintenance mode error when switching customer fails', async () => {
+        const customer = {
+            ...customers[0],
+            salesChannelId: '1234',
+            boundSalesChannelId: '1234',
+        };
+
+        setCustomerData([customer]);
+        Shopware.Store.get('swOrder').setCustomer(null);
+        Shopware.Store.get('swOrder').setCartToken('1d8af3ddddbd378ba0065debd5e4e4b1');
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.customerRepository.get = jest.fn(() => Promise.resolve(customer));
+        wrapper.vm.$t = jest.fn((key) => {
+            if (key === 'global.error-codes.FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE') {
+                return 'Translated maintenance mode error';
+            }
+
+            return key;
+        });
+
+        const updateCustomerContextSpy = jest.spyOn(wrapper.vm, 'updateCustomerContext').mockRejectedValue({
+            response: {
+                data: {
+                    errors: [
+                        {
+                            code: 'FRAMEWORK__API_SALES_CHANNEL_MAINTENANCE_MODE',
+                        },
+                    ],
+                },
+            },
+        });
+
+        const createNotificationErrorSpy = jest.spyOn(wrapper.vm, 'createNotificationError').mockImplementation(() => {});
+
+        const firstRow = wrapper.find('.sw-data-grid__body .sw-data-grid__row--0');
+        await firstRow.find('.sw-field__radio-input input').setChecked(true);
+
+        await flushPromises();
+
+        expect(createNotificationErrorSpy).toHaveBeenCalledWith({
+            message: 'sw-order.create.messageSwitchCustomerError: Translated maintenance mode error',
+        });
+
+        updateCustomerContextSpy.mockRestore();
+        createNotificationErrorSpy.mockRestore();
     });
 
     it('should check customer initially if customer exists', async () => {
@@ -490,6 +534,9 @@ describe('src/module/sw-order/view/sw-order-customer-grid', () => {
         await buttonSelect.trigger('click');
 
         expect(handleSelectCustomerSpy).toHaveBeenCalled();
+
+        // First call on customer select, second call after sales channel select
+        expect(Shopware.Store.get('context').api.languageId).toBe('8888');
     });
 
     it('should show sales channel select modal when customer sales channel is not in the allowed list and has no bound sales channel', async () => {

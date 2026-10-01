@@ -2,8 +2,6 @@
  * @sw-package inventory
  */
 
-import type { PropType } from 'vue';
-
 import template from './sw-generic-seo-general-card.html.twig';
 import './sw-generic-seo-general-card.scss';
 
@@ -13,9 +11,7 @@ import './sw-generic-seo-general-card.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         seoMetaTitle: {

@@ -5,12 +5,15 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1679581138RemoveAssociationFields;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1679581138RemoveAssociationFields::class)]
 class Migration1679581138RemoveAssociationFieldsTest extends TestCase
 {
@@ -21,21 +24,25 @@ class Migration1679581138RemoveAssociationFieldsTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1679581138, (new Migration1679581138RemoveAssociationFields())->getCreationTimestamp());
+    }
+
     public function testUpdateMakesColumnNullable(): void
     {
-        $existed = $this->columnExists();
+        $existed = TableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields');
         if (!$existed) {
             $this->addColumn();
         }
 
-        $columns = $this->connection->fetchAllAssociativeIndexed('SHOW COLUMNS FROM `media_default_folder`');
-        static::assertSame('NO', $columns['association_fields']['Null']);
+        static::assertTrue(TableHelper::getColumnOfTable($this->connection, 'media_default_folder', 'association_fields')->isNotNull);
 
         $migration = new Migration1679581138RemoveAssociationFields();
         $migration->update($this->connection);
+        $migration->update($this->connection);
 
-        $columns = $this->connection->fetchAllAssociativeIndexed('SHOW COLUMNS FROM `media_default_folder`');
-        static::assertSame('YES', $columns['association_fields']['Null']);
+        static::assertFalse(TableHelper::getColumnOfTable($this->connection, 'media_default_folder', 'association_fields')->isNotNull);
 
         if (!$existed) {
             $migration->updateDestructive($this->connection);
@@ -48,7 +55,7 @@ class Migration1679581138RemoveAssociationFieldsTest extends TestCase
     {
         $migration = new Migration1679581138RemoveAssociationFields();
 
-        $existed = $this->columnExists();
+        $existed = TableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields');
 
         $tableData = null;
         if ($existed) {
@@ -56,11 +63,12 @@ class Migration1679581138RemoveAssociationFieldsTest extends TestCase
             $migration->updateDestructive($this->connection);
         }
 
-        static::assertFalse($this->columnExists());
+        static::assertFalse(TableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields'));
 
         $migration->update($this->connection);
+        $migration->update($this->connection);
 
-        static::assertFalse($this->columnExists());
+        static::assertFalse(TableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields'));
 
         if ($existed) {
             $this->addColumn();
@@ -70,7 +78,7 @@ class Migration1679581138RemoveAssociationFieldsTest extends TestCase
 
     public function testUpdateDestructiveRemovesColumn(): void
     {
-        $existed = $this->columnExists();
+        $existed = TableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields');
 
         $tableData = null;
         if ($existed) {
@@ -83,7 +91,7 @@ class Migration1679581138RemoveAssociationFieldsTest extends TestCase
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
 
-        static::assertFalse($this->columnExists());
+        static::assertFalse(TableHelper::columnExists($this->connection, 'media_default_folder', 'association_fields'));
 
         if ($existed) {
             $this->addColumn();
@@ -118,14 +126,5 @@ class Migration1679581138RemoveAssociationFieldsTest extends TestCase
         $this->connection->executeStatement(
             'ALTER TABLE `media_default_folder` ADD COLUMN `association_fields` JSON NOT NULL'
         );
-    }
-
-    private function columnExists(): bool
-    {
-        $exists = $this->connection->fetchOne(
-            'SHOW COLUMNS FROM `media_default_folder` WHERE `Field` LIKE "association_fields"',
-        );
-
-        return !empty($exists);
     }
 }

@@ -89,9 +89,7 @@ class StoreApiExceptionTest extends TestCase
             )
         );
 
-        $exception = new StoreApiException($clientException);
-
-        foreach ($exception->getErrors() as $error) {
+        foreach ((new StoreApiException($clientException))->getErrors() as $error) {
             static::assertSame('title', $error['title']);
         }
     }
@@ -108,9 +106,7 @@ class StoreApiExceptionTest extends TestCase
             )
         );
 
-        $exception = new StoreApiException($clientException);
-
-        foreach ($exception->getErrors() as $error) {
+        foreach ((new StoreApiException($clientException))->getErrors() as $error) {
             static::assertSame('https://shopware.docs', $error['meta']['documentationLink']);
         }
     }
@@ -139,7 +135,32 @@ class StoreApiExceptionTest extends TestCase
             static::assertSame('title', $error['title']);
             static::assertSame('description', $error['detail']);
             static::assertSame('https://shopware.docs', $error['meta']['documentationLink']);
-            static::assertIsString($error['trace']);
+            static::assertIsString($error['trace'] ?? null);
         }
+    }
+
+    public function testGetErrors(): void
+    {
+        $clientException = new ClientException(
+            'message',
+            new Request('GET', 'https://example.com'),
+            new \GuzzleHttp\Psr7\Response(400, [], (string) json_encode([
+                'title' => 'Store error',
+                'description' => 'Extension not licensed',
+                'documentationLink' => 'https://docs.example.com',
+            ]))
+        );
+
+        $errors = iterator_to_array((new StoreApiException($clientException))->getErrors(), false);
+
+        static::assertCount(1, $errors);
+        static::assertSame('FRAMEWORK__STORE_ERROR', $errors[0]['code']);
+        static::assertSame('Store error', $errors[0]['title']);
+        static::assertSame('Extension not licensed', $errors[0]['detail']);
+        static::assertSame('https://docs.example.com', $errors[0]['meta']['documentationLink']);
+        static::assertArrayNotHasKey('trace', $errors[0]);
+
+        $withTrace = iterator_to_array((new StoreApiException($clientException))->getErrors(true), false);
+        static::assertArrayHasKey('trace', $withTrace[0]);
     }
 }

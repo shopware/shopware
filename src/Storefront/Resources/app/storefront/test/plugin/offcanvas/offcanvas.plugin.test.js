@@ -9,6 +9,9 @@ describe('OffCanvas tests', () => {
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
+            // @todo: Remove when upstream issue https://github.com/twbs/bootstrap/issues/42503 is resolved.
+            _addFocusTrapGuard: jest.fn(),
+            _removeFocusTrapGuard: jest.fn(),
         };
     });
 
@@ -58,6 +61,69 @@ describe('OffCanvas tests', () => {
         // Ensure OffCanvas is no longer existing in the DOM
         expect(document.querySelector('.offcanvas')).toBeFalsy();
         expect(OffCanvas.exists()).toBe(false);
+    });
+
+    it('restores the previous accessibility state of the background after closing', () => {
+        document.body.innerHTML = `
+            <header id="header"></header>
+            <main id="main" aria-hidden="false"></main>
+            <footer id="footer" inert></footer>
+        `;
+
+        const header = document.getElementById('header');
+        const main = document.getElementById('main');
+        const footer = document.getElementById('footer');
+        footer.inert = true;
+
+        jest.useFakeTimers();
+        OffCanvas.open('Interesting content');
+        jest.runAllTimers();
+
+        [header, main, footer].forEach(element => {
+            expect(element.inert).toBe(true);
+            expect(element.getAttribute('aria-hidden')).toBe('true');
+        });
+
+        OffCanvas.close();
+        jest.runAllTimers();
+
+        expect(header.inert).not.toBe(true);
+        expect(header.hasAttribute('aria-hidden')).toBe(false);
+        expect(main.inert).not.toBe(true);
+        expect(main.getAttribute('aria-hidden')).toBe('false');
+        expect(footer.inert).toBe(true);
+        expect(footer.hasAttribute('aria-hidden')).toBe(false);
+    });
+
+    it('saves and restores the focused trigger before making the background inaccessible', () => {
+        document.body.innerHTML = `
+            <main id="main">
+                <button id="trigger">Open offcanvas</button>
+            </main>
+        `;
+
+        const main = document.getElementById('main');
+        const trigger = document.getElementById('trigger');
+        let savedFocus = null;
+
+        window.focusHandler.saveFocusState.mockImplementation(() => {
+            expect(main.inert).not.toBe(true);
+            expect(main.hasAttribute('aria-hidden')).toBe(false);
+            savedFocus = document.activeElement;
+        });
+        window.focusHandler.resumeFocusState.mockImplementation(() => savedFocus?.focus());
+
+        trigger.focus();
+        jest.useFakeTimers();
+        OffCanvas.open('Interesting content');
+        jest.runAllTimers();
+
+        expect(window.focusHandler.saveFocusState).toHaveBeenCalledWith('offcanvas');
+
+        OffCanvas.close();
+        jest.runAllTimers();
+
+        expect(document.activeElement).toBe(trigger);
     });
 
     it('should close via click on backdrop', () => {
@@ -224,7 +290,7 @@ describe('OffCanvas tests', () => {
                 true,
                 { foo: 'Not allowed' } // Cause some trouble
             )
-        }).toThrowError('The type "object" is not supported. Please pass an array or a string.');
+        }).toThrow('The type "object" is not supported. Please pass an array or a string.');
     });
 
     it('should add aria-labelledby attribute to the OffCanvas', () => {
@@ -280,7 +346,7 @@ describe('OffCanvas tests', () => {
             <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
                 Open Bootstrap offcanvas
             </button>
-            
+
             <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
                 <div class="offcanvas-header">
                     <h5 class="offcanvas-title" id="offcanvasExampleLabel">Offcanvas</h5>
@@ -315,5 +381,37 @@ describe('OffCanvas tests', () => {
 
         // Ensure the hard-coded Bootstrap offcanvas is still in the DOM
         expect(document.getElementById('offcanvasExample')).toBeTruthy();
+    });
+
+    it('should properly dispose Bootstrap instances when removing existing offcanvas', () => {
+        jest.useFakeTimers();
+
+        // Open first offcanvas
+        OffCanvas.open('First offcanvas');
+        jest.runAllTimers();
+
+        const firstOffcanvas = document.querySelector('.js-offcanvas-singleton');
+        expect(firstOffcanvas).toBeTruthy();
+
+        // Mock bootstrap.Offcanvas.getInstance and dispose
+        const mockDispose = jest.fn();
+        const mockInstance = { dispose: mockDispose };
+        const getInstanceSpy = jest.spyOn(bootstrap.Offcanvas, 'getInstance').mockReturnValue(mockInstance);
+
+        // Open second offcanvas (should remove first one)
+        OffCanvas.open('Second offcanvas');
+        jest.runAllTimers();
+
+        // Verify dispose was called on the first offcanvas instance
+        expect(getInstanceSpy).toHaveBeenCalledWith(firstOffcanvas);
+        expect(mockDispose).toHaveBeenCalled();
+
+        // Verify only one offcanvas exists
+        const allOffcanvas = document.querySelectorAll('.js-offcanvas-singleton');
+        expect(allOffcanvas.length).toBe(1);
+        expect(allOffcanvas[0].innerHTML).toBe('Second offcanvas');
+
+        // Cleanup
+        getInstanceSpy.mockRestore();
     });
 });

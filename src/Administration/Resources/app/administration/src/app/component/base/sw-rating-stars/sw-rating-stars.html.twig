@@ -4,10 +4,8 @@
     class="sw-rating-stars"
     :style="dynamicWidthStyle"
 >
-
     {% block sw_rating_stars_placeholder %}
     <div class="sw-rating-stars__placeholder">
-
         {% block sw_rating_stars_placeholder_stars %}
         <mt-icon
             v-for="currentStar in maxStars"
@@ -22,7 +20,6 @@
 
     {% block sw_rating_stars_value %}
     <div class="sw-rating-stars__value">
-
         {% block sw_rating_stars_value_stars %}
         {% block sw_rating_stars_value_stars_full %}
         <mt-icon

@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ConfigJsonDefinition;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('framework')]
 class ConfigJsonFieldTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -93,14 +95,14 @@ EOF;
         $result = $searcher->search($this->configJsonDefinition, $criteria, $context);
 
         static::assertCount(1, $result->getIds());
-        static::assertEquals([$stringId], $result->getIds());
+        static::assertSame([$stringId], $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('data.foo', 'bar'));
         $result = $searcher->search($this->configJsonDefinition, $criteria, $context);
 
         static::assertCount(1, $result->getIds());
-        static::assertEquals([$objectId], $result->getIds());
+        static::assertSame([$objectId], $result->getIds());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('data', 'not found'));

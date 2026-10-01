@@ -2,7 +2,6 @@
  * @sw-package framework
  */
 
-// eslint-disable-next-line import/no-named-default
 import type { Router, RouteRecordRaw } from 'vue-router';
 
 /**
@@ -21,6 +20,10 @@ export default function initializeTabs(): void {
         }
     });
 
+    Shopware.ExtensionAPI.handle('uiTabsSetVisibility', (setVisibilityConfig) => {
+        Shopware.Store.get('tabs').setVisibility(setVisibilityConfig);
+    });
+
     // Wait until the view is initialized
     void Shopware.Application.viewInitialized.then(() => {
         // Catch non-matching routes, check if they exist in the tabs and create them
@@ -34,10 +37,7 @@ export default function initializeTabs(): void {
 
             // Get all tab routes
             const tabRoutes = Object.values(Shopware.Store.get('tabs').tabItems).reduce<string[]>((acc, tabItems) => {
-                acc = [
-                    ...acc,
-                    ...tabItems.map((tabItem) => tabItem.componentSectionId),
-                ];
+                acc = [...acc, ...tabItems.map((tabItem) => tabItem.componentSectionId)];
                 return acc;
             }, []);
 
@@ -97,7 +97,6 @@ export default function initializeTabs(): void {
             router.addRoute(parentRoute.name ?? '', newRoute);
 
             // Reload current route after adding the new route
-            // eslint-disable-next-line consistent-return
             return { path: to.fullPath };
         });
     });

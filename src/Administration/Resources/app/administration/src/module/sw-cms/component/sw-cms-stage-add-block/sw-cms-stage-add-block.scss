@@ -1,5 +1,3 @@
-@import "~scss/variables";
-
 .sw-cms-stage-add-block {
     width: 100%;
     height: 32px;
@@ -19,8 +17,8 @@
     }
 
     &.is--valid-drop {
-        background: rgba($color-shopware-brand-500, 0.2);
-        border: 2px dashed $color-shopware-brand-500;
+        background: var(--color-background-brand-default);
+        border: 2px dashed var(--color-border-brand-default);
 
         .sw-cms-stage-add-block__handle,
         .sw-cms-stage-add-block__button {
@@ -32,8 +30,8 @@
         display: none;
         height: 2px;
         width: 100%;
-        background-color: $color-shopware-brand-500;
-        box-shadow: 0 0 10px 0 rgba($color-shopware-brand-500, 0.6);
+        background-color: var(--color-icon-brand-default);
+        box-shadow: 0 0 10px 0 var(--color-elevation-shadow-default);
         position: relative;
     }
 
@@ -44,8 +42,8 @@
         border-radius: 15px;
         justify-content: center;
         align-items: center;
-        background-color: $color-shopware-brand-500;
-        color: $color-white;
+        background-color: var(--color-icon-brand-default);
+        color: var(--color-static-white);
         position: absolute;
     }
 }

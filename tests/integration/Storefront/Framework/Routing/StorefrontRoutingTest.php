@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Storefront\Framework\Routing;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Seo\SeoResolver;
@@ -12,6 +11,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformer as CoreRequestTransformer;
 use Shopware\Core\Framework\Routing\RequestTransformerInterface;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -30,7 +30,7 @@ use Symfony\Component\Routing\RequestContext;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('discovery')]
 class StorefrontRoutingTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -51,7 +51,8 @@ class StorefrontRoutingTest extends TestCase
             new CoreRequestTransformer(),
             static::getContainer()->get(SeoResolver::class),
             static::getContainer()->getParameter('shopware.routing.registered_api_prefixes'),
-            static::getContainer()->get(DomainLoader::class)
+            static::getContainer()->get(DomainLoader::class),
+            static::getContainer()->getParameter('shopware.routing.api_context_route_prefixes'),
         );
 
         $this->seoUrlReplacer = static::getContainer()->get(SeoUrlPlaceholderHandlerInterface::class);
@@ -94,10 +95,10 @@ class StorefrontRoutingTest extends TestCase
         static::assertSame($case->getPathInfo(), $pathInfo, var_export($case, true));
 
         $matches = $this->router->matchRequest($transformedRequest);
-        static::assertEquals($case->route, $matches['_route']);
+        static::assertSame($case->route, $matches['_route']);
 
         $matches = $this->router->match($transformedRequest->getPathInfo());
-        static::assertEquals($case->route, $matches['_route']);
+        static::assertSame($case->route, $matches['_route']);
 
         // test seo url generation
         $host = $transformedRequest->attributes->get(RequestTransformer::SALES_CHANNEL_ABSOLUTE_BASE_URL)
@@ -115,9 +116,9 @@ class StorefrontRoutingTest extends TestCase
     }
 
     /**
-     * @return array<array<int, RequestTestCase>>
+     * @return iterable<string, array<int, RequestTestCase>>
      */
-    public static function getRequestTestCaseProvider(): array
+    public static function getRequestTestCaseProvider(): iterable
     {
         $config = [
             'https' => [false, true],
@@ -127,7 +128,15 @@ class StorefrontRoutingTest extends TestCase
         ];
         $cases = self::generateCases(array_keys($config), $config);
 
-        return array_map(fn ($params) => [self::createCase($params['https'], $params['host'], $params['subDir'], $params['salesChannel'])], $cases);
+        foreach ($cases as $params) {
+            yield \sprintf(
+                '%s host %s subdir %s sales channel %s',
+                $params['https'] ? 'https' : 'http',
+                $params['host'],
+                $params['subDir'] === '' ? 'root' : trim($params['subDir'], '/'),
+                $params['salesChannel'] === '' ? 'root' : trim($params['salesChannel'], '/')
+            ) => [self::createCase($params['https'], $params['host'], $params['subDir'], $params['salesChannel'])];
+        }
     }
 
     private function getContext(Request $request): RequestContext
@@ -170,7 +179,7 @@ class StorefrontRoutingTest extends TestCase
      */
     private static function generateCases(array $keys, array $config): array
     {
-        if (empty($keys)) {
+        if ($keys === []) {
             return [];
         }
 
@@ -183,7 +192,7 @@ class StorefrontRoutingTest extends TestCase
                 $base = array_merge($base, $childResult);
                 $results[] = $base;
             }
-            if (empty($childResults)) {
+            if ($childResults === []) {
                 $results[] = $base;
             }
         }

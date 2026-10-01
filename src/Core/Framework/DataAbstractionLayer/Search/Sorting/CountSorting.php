@@ -11,4 +11,9 @@ use Shopware\Core\Framework\Log\Package;
 class CountSorting extends FieldSorting
 {
     protected string $type = 'count';
+
+    public function getApiAlias(): string
+    {
+        return 'dal_count_sorting';
+    }
 }

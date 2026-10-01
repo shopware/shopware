@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Media\Message;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Content\Media\Aggregate\MediaThumbnail\MediaThumbnailCollection;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -14,11 +15,13 @@ use Shopware\Core\Content\Test\Media\MediaFixtures;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 class GenerateThumbnailsHandlerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -65,16 +68,21 @@ class GenerateThumbnailsHandlerTest extends TestCase
                 'mediaId' => $media->getId(),
                 'width' => 987,
                 'height' => 987,
+                'mediaThumbnailSize' => [
+                    'width' => 987,
+                    'height' => 987,
+                ],
             ],
             [
                 'mediaId' => $media->getId(),
                 'width' => 150,
                 'height' => 150,
+                'mediaThumbnailSizeId' => $this->thumbnailSize150Id,
             ],
         ], $this->context);
 
         /** @var MediaEntity $media */
-        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->getEntities()->get($media->getId());
 
         $this->getPublicFilesystem()->writeStream(
             $media->getPath(),
@@ -91,15 +99,16 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $criteria->addAssociation('thumbnails');
 
         /** @var MediaEntity $media */
-        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($media->getId());
         $mediaThumbnailCollection = $media->getThumbnails();
         static::assertNotNull($mediaThumbnailCollection);
-        static::assertEquals(2, $mediaThumbnailCollection->count());
+        static::assertCount(2, $mediaThumbnailCollection);
 
         foreach ($mediaThumbnailCollection as $thumbnail) {
+            // Keep aspect ratio is true so the width and height can differ from the media thumbnail size configuration
             static::assertTrue(
-                ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
-                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
+                ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 160)
+                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 80)
             );
 
             $path = $thumbnail->getPath();
@@ -124,11 +133,15 @@ class GenerateThumbnailsHandlerTest extends TestCase
                 'mediaId' => $media->getId(),
                 'width' => 987,
                 'height' => 987,
+                'mediaThumbnailSize' => [
+                    'width' => 987,
+                    'height' => 987,
+                ],
             ],
         ], $this->context);
 
         /** @var MediaEntity $media */
-        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search(new Criteria([$media->getId()]), $this->context)->getEntities()->get($media->getId());
 
         $url = $media->getPath();
 
@@ -148,15 +161,16 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $criteria->addAssociation('mediaFolder.configuration.thumbnailSizes');
 
         /** @var MediaEntity $media */
-        $media = $this->mediaRepository->search($criteria, $this->context)->get($media->getId());
+        $media = $this->mediaRepository->search($criteria, $this->context)->getEntities()->get($media->getId());
         $mediaThumbnailCollection = $media->getThumbnails();
         static::assertNotNull($mediaThumbnailCollection);
-        static::assertEquals(2, $mediaThumbnailCollection->count());
+        static::assertCount(2, $mediaThumbnailCollection);
 
         foreach ($mediaThumbnailCollection as $thumbnail) {
+            // Keep aspect ratio is true so the width and height can differ from the media thumbnail size configuration
             static::assertTrue(
-                ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 300)
-                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 150)
+                ($thumbnail->getWidth() === 300 && $thumbnail->getHeight() === 160)
+                || ($thumbnail->getWidth() === 150 && $thumbnail->getHeight() === 80)
             );
 
             $path = $thumbnail->getPath();
@@ -173,10 +187,9 @@ class GenerateThumbnailsHandlerTest extends TestCase
             return;
         }
 
-        $thumbnailServiceMock = $this->getMockBuilder(ThumbnailService::class)
-            ->disableOriginalConstructor()->getMock();
+        $thumbnailServiceMock = $this->createMock(ThumbnailService::class);
 
-        $handler = new GenerateThumbnailsHandler($thumbnailServiceMock, $this->mediaRepository);
+        $handler = new GenerateThumbnailsHandler($thumbnailServiceMock, $this->mediaRepository, new NullLogger());
 
         $randomCriteria = (new Criteria())
             /* @see GenerateThumbnailsHandler Association as in target method is required for the ease of PHPUnit's constraint evaluation */
@@ -217,7 +230,7 @@ class GenerateThumbnailsHandlerTest extends TestCase
 
         $thumbnailServiceMock->expects($this->exactly($testEntities2->count() + $testEntities3->count()))
             ->method('updateThumbnails')
-            ->willReturnCallback(function (...$params) use (&$parameters): void {
+            ->willReturnCallback(static function (...$params) use (&$parameters): void {
                 $parameters[] = $params;
             });
 
@@ -225,6 +238,6 @@ class GenerateThumbnailsHandlerTest extends TestCase
         $handler->__invoke($updateMessage1);
         $handler->__invoke($updateMessage2);
 
-        static::assertEquals($consecutiveUpdateMessageParams, $parameters);
+        static::assertSame($consecutiveUpdateMessageParams, $parameters);
     }
 }

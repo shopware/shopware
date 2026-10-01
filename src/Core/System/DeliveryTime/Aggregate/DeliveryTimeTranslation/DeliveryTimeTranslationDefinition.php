@@ -11,6 +11,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\DeliveryTime\DeliveryTimeDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class DeliveryTimeTranslationDefinition extends EntityTranslationDefinition
 {
@@ -24,6 +27,11 @@ class DeliveryTimeTranslationDefinition extends EntityTranslationDefinition
     public function getEntityClass(): string
     {
         return DeliveryTimeTranslationEntity::class;
+    }
+
+    public function getCollectionClass(): string
+    {
+        return DeliveryTimeTranslationCollection::class;
     }
 
     public function since(): ?string

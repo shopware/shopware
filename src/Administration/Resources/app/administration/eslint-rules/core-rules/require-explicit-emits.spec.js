@@ -2,7 +2,7 @@ const RulerTester = require('eslint').RuleTester;
 const rule = require('./require-explicit-emits');
 
 const tester = new RulerTester({
-    parserOptions: {
+    languageOptions: {
         ecmaVersion: 2015,
         sourceType: 'module',
     },

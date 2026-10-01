@@ -1,15 +1,13 @@
-@import "~scss/mixins";
 @import "~scss/variables";
 
 .sw-meteor-card {
     max-width: 960px;
     margin: 0 auto 40px;
     position: relative;
-    color: $color-darkgray-200;
-    border-radius: $border-radius-lg;
-    background: $color-white;
-
-    @include drop-shadow-default;
+    color: var(--color-text-primary-default);
+    border-radius: var(--border-radius-card);
+    background: var(--color-elevation-surface-raised);
+    border: 1px solid var(--color-border-secondary-default);
 
     .sw-meteor-card__header {
         .sw-meteor-card__header-grid {
@@ -24,16 +22,16 @@
             }
 
             .sw-meteor-card__title {
-                font-size: $font-size-m;
-                font-weight: $font-weight-semi-bold;
+                font-size: var(--font-size-m);
+                font-weight: var(--font-weight-semibold);
             }
         }
 
         .sw-meteor-card__toolbar {
             padding: 24px 32px;
-            background-color: $color-gray-100;
-            border-top: 1px solid $color-gray-300;
-            border-bottom: 1px solid $color-gray-300;
+            background-color: var(--color-elevation-surface-sunken);
+            border-top: 1px solid var(--color-border-secondary-default);
+            border-bottom: 1px solid var(--color-border-secondary-default);
 
             @media screen and (max-width: 960px) {
                 padding: 15px;
@@ -43,7 +41,7 @@
 
     &.sw-meteor-card--hero {
         background: none;
-        box-shadow: none;
+        border: none;
 
         .sw-meteor-card__content {
             background: none;
@@ -60,20 +58,20 @@
     }
 
     &.has--header .sw-meteor-card__content {
-        border-top: 1px solid #d1d9e0;
+        border-top: 1px solid var(--color-border-secondary-default);
     }
 
     .sw-meteor-card__content {
         position: relative;
         line-height: 22px;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
 
         & > .sw-grid {
             border: none;
         }
 
         h1 {
-            font-size: $font-size-xl;
+            font-size: var(--font-size-xl);
         }
 
         h2 {
@@ -81,13 +79,13 @@
         }
 
         h3 {
-            font-size: $font-size-m;
+            font-size: var(--font-size-m);
         }
 
         h4,
         h5,
         h6 {
-            font-size: $font-size-s;
+            font-size: var(--font-size-s);
         }
 
         a.sw-meteor-card__quick-link {
@@ -96,11 +94,11 @@
             grid-column-gap: 6px;
             align-items: center;
             text-decoration: none;
-            color: $color-shopware-brand-500;
-            font-size: $font-size-xs;
+            color: var(--color-text-brand-default);
+            font-size: var(--font-size-xs);
 
             &:hover {
-                color: $color-shopware-brand-800;
+                color: var(--color-text-brand-hover);
             }
         }
 
@@ -124,22 +122,22 @@
             border-bottom-right-radius: 0;
 
             &:hover {
-                border-bottom-color: $color-gray-300;
+                border-bottom-color: var(--color-border-secondary-default);
             }
 
             &:focus {
-                background-color: $color-gray-100;
-                border-bottom-color: $color-gray-300;
+                background-color: var(--color-background-secondary-default);
+                border-bottom-color: var(--color-border-secondary-default);
             }
 
             &:active {
-                border-bottom-color: $color-white;
-                background-color: $color-white;
+                border-bottom-color: var(--color-elevation-surface-raised);
+                background-color: var(--color-elevation-surface-raised);
             }
 
             &.router-link-active {
-                background-color: $color-white;
-                border-bottom-color: $color-white;
+                background-color: var(--color-elevation-surface-raised);
+                border-bottom-color: var(--color-elevation-surface-raised);
             }
         }
     }
@@ -153,11 +151,11 @@
     }
 
     .sw-meteor-card__footer {
-        border-top: 1px solid $color-gray-300;
+        border-top: 1px solid var(--color-border-secondary-default);
         padding: 24px 32px;
         position: relative;
         line-height: 22px;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
 
         @media screen and (max-width: 960px) {
             padding: 15px;
@@ -168,6 +166,37 @@
 .sw-meteor-card.sw-meteor-card--tabs {
     &:not(.sw-meteor-card--toolbar) .sw-meteor-card__header-grid {
         padding-bottom: 0;
+    }
+
+    & .sw-meteor-card__header > .mt-tabs {
+        padding: 0 32px;
+        border-radius: $border-radius-default $border-radius-default 0 0;
+        box-shadow: none;
+        margin-bottom: 0;
+
+        @media screen and (max-width: 960px) {
+            padding: 0 15px;
+        }
+
+        .mt-tabs__item {
+            padding: 19px 0 15px;
+            margin-right: 14px;
+            font-weight: $font-weight-regular;
+            border-color: transparent;
+            font-size: $font-size-xs;
+
+            @media screen and (max-width: 960px) {
+                padding: 15px 0 10px;
+            }
+
+            &:last-of-type {
+                margin-right: 0;
+            }
+
+            &.mt-tabs__item--active {
+                font-weight: $font-weight-semi-bold;
+            }
+        }
     }
 
     & .sw-meteor-card__header > .sw-tabs {
@@ -201,9 +230,9 @@
         .sw-tabs-item {
             padding: 19px 0 15px;
             margin-right: 14px;
-            font-weight: $font-weight-regular;
+            font-weight: var(--font-weight-regular);
             border-color: transparent;
-            font-size: $font-size-xs;
+            font-size: var(--font-size-xs);
 
             @media screen and (max-width: 960px) {
                 padding: 15px 0 10px;
@@ -214,7 +243,7 @@
             }
 
             &.sw-tabs-item--active {
-                font-weight: $font-weight-semi-bold;
+                font-weight: var(--font-weight-semibold);
             }
         }
     }

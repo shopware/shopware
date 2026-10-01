@@ -25,10 +25,6 @@ describe('src/module/sw-cms/blocks/html/html/component/index.ts', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render slot content', () => {
         expect(wrapper.html()).toContain('<div>Test</div>');
     });

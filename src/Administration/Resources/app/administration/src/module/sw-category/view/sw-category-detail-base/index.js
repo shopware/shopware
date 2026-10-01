@@ -10,14 +10,9 @@ const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Shopware.Mixin.getByName('placeholder'),
-    ],
+    mixins: [Shopware.Mixin.getByName('placeholder')],
 
     props: {
         isLoading: {
@@ -31,20 +26,17 @@ export default {
             return Shopware.Store.get('swCategoryDetail').customFieldSets ?? [];
         },
 
-        ...mapPropertyErrors('category', [
-            'name',
-            'type',
-        ]),
+        ...mapPropertyErrors('category', ['name', 'type']),
 
         categoryTypes() {
             return [
                 {
                     value: 'page',
-                    label: this.$tc('sw-category.base.general.types.page'),
+                    label: this.$t('sw-category.base.general.types.page'),
                 },
                 {
                     value: 'folder',
-                    label: this.$tc('sw-category.base.general.types.folder'),
+                    label: this.$t('sw-category.base.general.types.folder'),
                 },
                 // eslint-disable-next-line no-warning-comments
                 // @todo NEXT-22697 - Re-implement, when re-enabling cms-aware
@@ -62,21 +54,15 @@ export default {
 
         typeLinkLabel() {
             if (this.isSalesChannelEntryPoint) {
-                return this.$tc('sw-category.base.general.types.linkUnavailable');
+                return this.$t('sw-category.base.general.types.linkUnavailable');
             }
 
-            return this.$tc('sw-category.base.general.types.link');
+            return this.$t('sw-category.base.general.types.link');
         },
 
         categoryTypeHelpText() {
-            if (
-                [
-                    'page',
-                    'folder',
-                    'link',
-                ].includes(this.category.type)
-            ) {
-                return this.$tc(`sw-category.base.general.types.helpText.${this.category.type}`);
+            if (['page', 'folder', 'link'].includes(this.category.type)) {
+                return this.$t(`sw-category.base.general.types.helpText.${this.category.type}`);
             }
 
             return null;

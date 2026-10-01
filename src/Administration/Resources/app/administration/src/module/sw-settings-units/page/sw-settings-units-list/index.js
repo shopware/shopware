@@ -13,14 +13,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -45,10 +40,7 @@ export default {
 
         unitList() {
             if (this.newUnit) {
-                return [
-                    ...this.units,
-                    this.newUnit,
-                ];
+                return [...this.units, this.newUnit];
             }
 
             return this.units;
@@ -61,7 +53,7 @@ export default {
         tooltipCreate() {
             if (!this.acl.can('scale_unit.creator')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('scale_unit.creator'),
                     showOnDisabledElements: true,
                 };
@@ -69,7 +61,7 @@ export default {
 
             return {
                 showOnDisabledElements: true,
-                message: this.$tc('sw-settings-units.general.disableAddNewUnitMessage'),
+                message: this.$t('sw-settings-units.general.disableAddNewUnitMessage'),
                 disabled: !this.isAddingUnitsDisabled,
             };
         },
@@ -123,8 +115,8 @@ export default {
                     this.newUnit = null;
 
                     // throw success notification
-                    const titleSaveSuccess = this.$tc('global.default.success');
-                    const messageSaveSuccess = this.$tc('sw-settings-units.notification.successMessage');
+                    const titleSaveSuccess = this.$t('global.default.success');
+                    const messageSaveSuccess = this.$t('sw-settings-units.notification.successMessage');
 
                     this.createNotificationSuccess({
                         title: titleSaveSuccess,
@@ -135,8 +127,8 @@ export default {
                     this.isLoading = false;
 
                     // throw error notification
-                    const titleSaveError = this.$tc('global.default.error');
-                    const messageSaveError = this.$tc('sw-settings-units.notification.errorMessage');
+                    const titleSaveError = this.$t('global.default.error');
+                    const messageSaveError = this.$t('sw-settings-units.notification.errorMessage');
 
                     this.createNotificationError({
                         title: titleSaveError,

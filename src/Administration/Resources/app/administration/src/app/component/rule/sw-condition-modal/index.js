@@ -1,21 +1,18 @@
 import template from './sw-condition-modal.html.twig';
 import './sw-condition-modal.scss';
 
-const { Component } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
 /**
  * @private
  * @sw-package fundamentals@after-sales
  */
-Component.register('sw-condition-modal', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'modal-close',
-    ],
+    emits: ['modal-close'],
 
     props: {
         conditionDataProviderService: {
@@ -73,17 +70,13 @@ Component.register('sw-condition-modal', {
     methods: {
         onConditionsChanged({ conditions, deletedIds }) {
             this.childConditions = conditions;
-            this.deletedIds = [
-                ...this.deletedIds,
-                ...deletedIds,
-            ];
+            this.deletedIds = [...this.deletedIds, ...deletedIds];
         },
 
         deleteAndClose() {
             const childrenToDelete = this.condition[this.childAssociationField].filter((child) => !child.isNew()).getIds();
 
             this.deleteChildren(childrenToDelete, this.condition[this.childAssociationField].context).then(() => {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.condition[this.childAssociationField] = new EntityCollection(
                     this.condition[this.childAssociationField].source,
                     this.condition[this.childAssociationField].entity,
@@ -95,7 +88,6 @@ Component.register('sw-condition-modal', {
 
         saveAndCloseModal() {
             this.deleteChildren(this.deletedIds, this.condition[this.childAssociationField].context).then(() => {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.condition[this.childAssociationField] = this.childConditions;
                 this.closeModal();
             });
@@ -117,4 +109,4 @@ Component.register('sw-condition-modal', {
             this.$emit('modal-close');
         },
     },
-});
+};

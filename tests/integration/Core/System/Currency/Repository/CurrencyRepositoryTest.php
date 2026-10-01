@@ -11,15 +11,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTermInterpreter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Currency\CurrencyDefinition;
+use Shopware\Core\System\Currency\CurrencyException;
 
 /**
  * @internal
  */
+#[Package('fundamentals@framework')]
 class CurrencyRepositoryTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -84,7 +87,7 @@ class CurrencyRepositoryTest extends TestCase
 
         static::assertCount(2, $result->getIds());
 
-        static::assertEquals(
+        static::assertSame(
             [$recordA, $recordB],
             $result->getIds()
         );
@@ -119,7 +122,7 @@ class CurrencyRepositoryTest extends TestCase
         $deleteEventElement = $this->currencyRepository->delete([['id' => $recordA]], $context)->getEventByEntityName(CurrencyDefinition::ENTITY_NAME);
 
         static::assertNotNull($deleteEventElement);
-        static::assertEquals($recordA, $deleteEventElement->getWriteResults()[0]->getPrimaryKey());
+        static::assertSame($recordA, $deleteEventElement->getWriteResults()[0]->getPrimaryKey());
     }
 
     public function testDeleteDefaultCurrency(): void
@@ -128,5 +131,30 @@ class CurrencyRepositoryTest extends TestCase
 
         $this->expectException(RestrictDeleteViolationException::class);
         $this->currencyRepository->delete([['id' => Defaults::CURRENCY]], $context);
+    }
+
+    public function testCreateDuplicateIsoCodeReturnsCurrencyException(): void
+    {
+        $this->expectExceptionObject(CurrencyException::isoCodeNotUnique('EUR'));
+
+        $this->currencyRepository->create([[
+            'id' => Uuid::randomHex(),
+            'decimalPrecision' => 2,
+            'name' => 'Euro Austria',
+            'isoCode' => 'EUR',
+            'shortName' => 'Euro Austria',
+            'factor' => 1.1,
+            'symbol' => '€',
+            'itemRounding' => [
+                'decimals' => 2,
+                'interval' => 0.01,
+                'roundForNet' => true,
+            ],
+            'totalRounding' => [
+                'decimals' => 2,
+                'interval' => 0.01,
+                'roundForNet' => true,
+            ],
+        ]], Context::createDefaultContext());
     }
 }

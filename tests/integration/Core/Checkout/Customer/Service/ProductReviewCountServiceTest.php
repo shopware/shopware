@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\Service;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -21,8 +20,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Package('fundamentals@after-sales')]
-#[CoversClass(ProductReviewCountService::class)]
+#[Package('checkout')]
 class ProductReviewCountServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -44,6 +42,7 @@ class ProductReviewCountServiceTest extends TestCase
         $this->createProduct('p2');
 
         $this->createCustomer('c1');
+        $createdReviews = [];
         $createdReviews[] = $this->createReview('c1', 'p1', true);
         $createdReviews[] = $this->createReview('c1', 'p2', false);
 
@@ -54,15 +53,15 @@ class ProductReviewCountServiceTest extends TestCase
 
         $customerRepo = static::getContainer()->get('customer.repository');
         /** @var CustomerCollection $customers */
-        $customers = $customerRepo->search(new Criteria([$this->ids->get('c1'), $this->ids->get('c2')]), Context::createDefaultContext());
+        $customers = $customerRepo->search(new Criteria([$this->ids->get('c1'), $this->ids->get('c2')]), Context::createDefaultContext())->getEntities();
 
         $firstCustomer = $customers->get($this->ids->get('c1'));
         static::assertInstanceOf(CustomerEntity::class, $firstCustomer);
-        static::assertEquals(1, $firstCustomer->getReviewCount());
+        static::assertSame(1, $firstCustomer->getReviewCount());
 
         $secondCustomer = $customers->get($this->ids->get('c2'));
         static::assertInstanceOf(CustomerEntity::class, $secondCustomer);
-        static::assertEquals(1, $secondCustomer->getReviewCount());
+        static::assertSame(1, $secondCustomer->getReviewCount());
     }
 
     private function createCustomer(string $customerNumber): void

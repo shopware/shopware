@@ -3,6 +3,8 @@
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Service\ProductExportFileHandlerInterface;
@@ -10,13 +12,11 @@ use Shopware\Core\Content\ProductExport\Service\ProductExportGeneratorInterface;
 use Shopware\Core\Content\ProductExport\Service\ProductExportRendererInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\Exception\SalesChannelNotFoundException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
@@ -30,26 +30,28 @@ use Symfony\Component\Messenger\MessageBusInterface;
 /**
  * @internal
  */
-#[AsMessageHandler]
 #[Package('inventory')]
-final class ProductExportPartialGenerationHandler
+#[AsMessageHandler]
+final readonly class ProductExportPartialGenerationHandler
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ProductExportCollection> $productExportRepository
      */
     public function __construct(
-        private readonly ProductExportGeneratorInterface $productExportGenerator,
-        private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
-        private readonly EntityRepository $productExportRepository,
-        private readonly ProductExportFileHandlerInterface $productExportFileHandler,
-        private readonly MessageBusInterface $messageBus,
-        private readonly ProductExportRendererInterface $productExportRender,
-        private readonly AbstractTranslator $translator,
-        private readonly SalesChannelContextServiceInterface $salesChannelContextService,
-        private readonly SalesChannelContextPersister $contextPersister,
-        private readonly Connection $connection,
-        private readonly int $readBufferSize,
-        private readonly LanguageLocaleCodeProvider $languageLocaleProvider
+        private ProductExportGeneratorInterface $productExportGenerator,
+        private AbstractSalesChannelContextFactory $salesChannelContextFactory,
+        private EntityRepository $productExportRepository,
+        private ProductExportFileHandlerInterface $productExportFileHandler,
+        private MessageBusInterface $messageBus,
+        private ProductExportRendererInterface $productExportRender,
+        private AbstractTranslator $translator,
+        private SalesChannelContextServiceInterface $salesChannelContextService,
+        private SalesChannelContextPersister $contextPersister,
+        private Connection $connection,
+        private LanguageLocaleCodeProvider $languageLocaleProvider,
+        private ClockInterface $clock,
     ) {
     }
 
@@ -62,7 +64,8 @@ final class ProductExportPartialGenerationHandler
             return;
         }
 
-        $exportResult = $this->runExport($productExport, $productExportPartialGeneration->getOffset(), $context);
+        $offset = $productExportPartialGeneration->getOffset();
+        $exportResult = $this->runExport($productExport, $offset, $context);
 
         $filePath = $this->productExportFileHandler->getFilePath($productExport, true);
 
@@ -75,15 +78,15 @@ final class ProductExportPartialGenerationHandler
         $this->productExportFileHandler->writeProductExportContent(
             $exportResult->getContent(),
             $filePath,
-            $productExportPartialGeneration->getOffset() > 0
+            $offset > 0
         );
 
-        if ($productExportPartialGeneration->getOffset() + $this->readBufferSize < $exportResult->getTotal()) {
+        if ($exportResult->hasNextBatch()) {
             $this->messageBus->dispatch(
                 new ProductExportPartialGeneration(
-                    $productExportPartialGeneration->getProductExportId(),
-                    $productExportPartialGeneration->getSalesChannelId(),
-                    $productExportPartialGeneration->getOffset() + $this->readBufferSize
+                    productExportId: $productExportPartialGeneration->getProductExportId(),
+                    salesChannelId: $productExportPartialGeneration->getSalesChannelId(),
+                    offset: $exportResult->getOffset()
                 )
             );
 
@@ -100,8 +103,8 @@ final class ProductExportPartialGenerationHandler
             $productExportPartialGeneration->getSalesChannelId()
         );
 
-        if ($context->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_STOREFRONT) {
-            throw new SalesChannelNotFoundException();
+        if (!\in_array($context->getSalesChannel()->getTypeId(), ProductExportEntity::ALLOWED_SALES_CHANNEL_TYPE_IDS, true)) {
+            throw ProductExportException::salesChannelNotFound();
         }
 
         return $context->getContext();
@@ -119,12 +122,7 @@ final class ProductExportPartialGenerationHandler
             ->addAssociation('productStream.filters.queries')
             ->setLimit(1);
 
-        /** @var ProductExportEntity|null $productExport */
-        $productExport = $this->productExportRepository
-            ->search($criteria, $context)
-            ->first();
-
-        return $productExport;
+        return $this->productExportRepository->search($criteria, $context)->getEntities()->first();
     }
 
     private function runExport(
@@ -132,20 +130,28 @@ final class ProductExportPartialGenerationHandler
         int $offset,
         Context $context
     ): ?ProductExportResult {
-        $this->productExportRepository->update([[
+        // Mark running on every batch: this refreshes product_export.updated_at, which
+        // ProductExportGenerateTaskHandler::isStale() relies on as a heartbeat to detect a
+        // stuck export. Skipping it for later batches would make long exports look stale and
+        // get re-dispatched while still running.
+        $update = [
             'id' => $productExport->getId(),
             'isRunning' => true,
-        ]], $context);
+        ];
+
+        if ($offset === 0) {
+            $update['nextGenerationAt'] = $this->clock->now()->modify(\sprintf('+%d seconds', $productExport->getInterval()));
+        }
+
+        $this->productExportRepository->update([$update], $context);
 
         return $this->productExportGenerator->generate(
             $productExport,
             new ExportBehavior(
-                false,
-                false,
-                true,
-                false,
-                false,
-                $offset
+                batchMode: true,
+                generateHeader: false,
+                generateFooter: false,
+                offset: $offset
             )
         );
     }
@@ -206,7 +212,7 @@ final class ProductExportPartialGenerationHandler
             [
                 [
                     'id' => $productExport->getId(),
-                    'generatedAt' => new \DateTime(),
+                    'generatedAt' => $this->clock->now(),
                     'isRunning' => false,
                 ],
             ],

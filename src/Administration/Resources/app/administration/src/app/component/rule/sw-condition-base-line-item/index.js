@@ -1,8 +1,9 @@
 import template from './sw-condition-base-line-item.html.twig';
 import './sw-condition-base-line-item.scss';
 
-const { Component } = Shopware;
 const { EntityCollection } = Shopware.Data;
+
+const NON_GENERIC_MATCH_ANY_CONDITIONS = ['cartLineItem'];
 
 /**
  * @public
@@ -13,7 +14,8 @@ const { EntityCollection } = Shopware.Data;
  * @component-example
  * <sw-condition-base-line-item :condition="condition"></sw-condition-base-line-item>
  */
-Component.extend('sw-condition-base-line-item', 'sw-condition-base', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
 
     inject: [
@@ -41,22 +43,33 @@ Component.extend('sw-condition-base-line-item', 'sw-condition-base', {
         },
 
         allowMatchesAll() {
-            if (this.conditionScopes) {
-                return this.conditionScopes.includes('cart');
+            const inCartScope = this.conditionScopes ? this.conditionScopes.includes('cart') : true;
+
+            if (!inCartScope) {
+                return false;
             }
 
-            return true;
+            if (NON_GENERIC_MATCH_ANY_CONDITIONS.includes(this.condition.type)) {
+                return true;
+            }
+
+            const config = Shopware.Store.get('ruleConditionsConfig').getConfigForType(this.condition.type);
+
+            const operatorMatchAny = !!config?.operatorSet?.isMatchAny;
+            const configMatchAny = Object.values(config?.fields ?? {}).some((field) => field?.config?.isMatchAny);
+
+            return operatorMatchAny || configMatchAny;
         },
 
         matchesAllOptions() {
             return [
                 {
                     value: false,
-                    label: this.$tc('global.sw-condition.condition.lineItemCondition.any'),
+                    label: this.$t('global.sw-condition.condition.lineItemCondition.any'),
                 },
                 {
                     value: true,
-                    label: this.$tc('global.sw-condition.condition.lineItemCondition.all'),
+                    label: this.$t('global.sw-condition.condition.lineItemCondition.all'),
                 },
             ];
         },
@@ -106,14 +119,16 @@ Component.extend('sw-condition-base-line-item', 'sw-condition-base', {
 
         createEntity(condition) {
             const entity = this.ruleConditionRepository.create();
+
             Object.keys(condition).forEach((key) => {
                 if (key === 'id') {
                     return;
                 }
+
                 entity[key] = condition[key];
             });
 
             return entity;
         },
     },
-});
+};

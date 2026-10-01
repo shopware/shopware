@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Aggrega
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\BucketAggregation;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(BucketAggregation::class)]
 class BucketAggregationTest extends TestCase
 {
@@ -30,8 +32,8 @@ class BucketAggregationTest extends TestCase
         $aggregation = new BucketAggregation('test', 'test', null);
         $clone = clone $aggregation;
 
-        static::assertEquals($aggregation->getField(), $clone->getField());
-        static::assertEquals($aggregation->jsonSerialize(), $clone->jsonSerialize());
+        static::assertSame($aggregation->getField(), $clone->getField());
+        static::assertSame($aggregation->jsonSerialize(), $clone->jsonSerialize());
         static::assertNotSame($aggregation, $clone);
     }
 }

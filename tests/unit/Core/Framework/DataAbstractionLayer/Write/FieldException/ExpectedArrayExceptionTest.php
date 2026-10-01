@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Write\FieldExc
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ExpectedArrayException::class)]
 class ExpectedArrayExceptionTest extends TestCase
 {
@@ -17,9 +19,9 @@ class ExpectedArrayExceptionTest extends TestCase
     {
         $e = new ExpectedArrayException('some/path/0');
 
-        static::assertEquals('Expected data at some/path/0 to be an array.', $e->getMessage());
-        static::assertEquals('some/path/0', $e->getParameters()['path']);
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
-        static::assertEquals('FRAMEWORK__WRITE_MALFORMED_INPUT', $e->getErrorCode());
+        static::assertSame('Expected data at some/path/0 to be an array.', $e->getMessage());
+        static::assertSame('some/path/0', $e->getParameters()['path']);
+        static::assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
+        static::assertSame('FRAMEWORK__WRITE_MALFORMED_INPUT', $e->getErrorCode());
     }
 }

@@ -5,21 +5,26 @@ namespace Shopware\Core\Checkout\Cart\SalesChannel;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
+use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\AfterLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\BeforeLineItemAddedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartChangedEvent;
+use Shopware\Core\Checkout\Cart\Extension\CartItemAddRouteExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CartItemAddRoute extends AbstractCartItemAddRoute
 {
     /**
@@ -30,7 +35,9 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
         private readonly AbstractCartPersister $cartPersister,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LineItemFactoryRegistry $lineItemFactory,
-        private readonly RateLimiter $rateLimiter
+        private readonly RateLimiter $rateLimiter,
+        private readonly CartLocker $cartLocker,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -45,35 +52,52 @@ class CartItemAddRoute extends AbstractCartItemAddRoute
     #[Route(path: '/store-api/checkout/cart/line-item', name: 'store-api.checkout.cart.add', methods: ['POST'])]
     public function add(Request $request, Cart $cart, SalesChannelContext $context, ?array $items): CartResponse
     {
-        if ($items === null) {
-            $items = [];
+        return $this->extensions->publish(
+            name: CartItemAddRouteExtension::NAME,
+            extension: new CartItemAddRouteExtension($request, $cart, $context, $items),
+            function: $this->_add(...),
+        );
+    }
 
-            /** @var array<mixed> $item */
-            foreach ($request->request->all('items') as $item) {
-                $items[] = $this->lineItemFactory->create($item, $context);
+    /**
+     * @param array<LineItem>|null $items
+     */
+    private function _add(Request $request, Cart $cart, SalesChannelContext $context, ?array $items): CartResponse
+    {
+        return $this->cartLocker->locked($context, function () use ($request, $cart, $context, $items) {
+            if ($items === null) {
+                $items = [];
+
+                /** @var array<mixed> $item */
+                foreach ($request->request->all('items') as $item) {
+                    $items[] = $this->lineItemFactory->create($item, $context);
+                }
             }
-        }
 
-        foreach ($items as $item) {
-            if ($request->getClientIp() !== null) {
-                $cacheKey = ($item->getReferencedId() ?? $item->getId()) . '-' . $request->getClientIp();
-                $this->rateLimiter->ensureAccepted(RateLimiter::CART_ADD_LINE_ITEM, $cacheKey);
+            foreach ($items as $item) {
+                if ($request->getClientIp() !== null) {
+                    $cacheKey = ($item->getReferencedId() ?? $item->getId()) . '-' . $request->getClientIp() . '-' . $context->getSalesChannelId();
+                    $this->rateLimiter->ensureAccepted(RateLimiter::CART_ADD_LINE_ITEM, $cacheKey, $context->getSalesChannelId());
+                }
+
+                $alreadyExists = $cart->has($item->getId());
+                $cart->add($item);
+
+                $this->eventDispatcher->dispatch(new BeforeLineItemAddedEvent($item, $cart, $context, $alreadyExists));
             }
 
-            $alreadyExists = $cart->has($item->getId());
-            $cart->add($item);
+            $cart->markModified();
 
-            $this->eventDispatcher->dispatch(new BeforeLineItemAddedEvent($item, $cart, $context, $alreadyExists));
-        }
+            $cart = $this->cartCalculator->calculate($cart, $context);
+            $this->cartPersister->save($cart, $context);
 
-        $cart->markModified();
+            $this->eventDispatcher->dispatch(new AfterLineItemAddedEvent($items, $cart, $context));
+            $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
 
-        $cart = $this->cartCalculator->calculate($cart, $context);
-        $this->cartPersister->save($cart, $context);
+            $response = new CartResponse($cart);
+            $response->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $context->getToken());
 
-        $this->eventDispatcher->dispatch(new AfterLineItemAddedEvent($items, $cart, $context));
-        $this->eventDispatcher->dispatch(new CartChangedEvent($cart, $context));
-
-        return new CartResponse($cart);
+            return $response;
+        });
     }
 }

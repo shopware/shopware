@@ -31,6 +31,11 @@ class Migration1726557614FixProductComparisonIdealoWithHtmlFormatTest extends Te
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1726557614, (new Migration1726557614FixProductComparisonIdealoWithHtmlFormat())->getCreationTimestamp());
+    }
+
     public function testCreationTimestamp(): void
     {
         $migration = new Migration1726557614FixProductComparisonIdealoWithHtmlFormat();
@@ -59,19 +64,17 @@ class Migration1726557614FixProductComparisonIdealoWithHtmlFormatTest extends Te
     }
 
     /**
-     * @return array{array{array{oldTemplate: 'do_not_update_for_modified_template', expectedTemplate: 'do_not_update_for_modified_template'}}, array{array{oldTemplate: string, expectedTemplate: string}}}
+     * @return iterable<string, array{array{oldTemplate: string, expectedTemplate: string}}>
      */
-    public static function dataProvider(): array
+    public static function dataProvider(): iterable
     {
         /** @var string $oldTemplate */
         $oldTemplate = file_get_contents(__DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/next-37658/old-template-idealo.csv.twig');
         /** @var string $newTemplate */
         $newTemplate = file_get_contents(__DIR__ . '/../../../../src/Core/Migration/Fixtures/productComparison-export-profiles/next-37658/new-template-idealo.csv.twig');
 
-        return [
-            [['oldTemplate' => 'do_not_update_for_modified_template', 'expectedTemplate' => 'do_not_update_for_modified_template']],
-            [['oldTemplate' => $oldTemplate, 'expectedTemplate' => $newTemplate]],
-        ];
+        yield 'provider old template do not update for expected' => [['oldTemplate' => 'do_not_update_for_modified_template', 'expectedTemplate' => 'do_not_update_for_modified_template']];
+        yield 'provider old template old template expected template template' => [['oldTemplate' => $oldTemplate, 'expectedTemplate' => $newTemplate]];
     }
 
     /**

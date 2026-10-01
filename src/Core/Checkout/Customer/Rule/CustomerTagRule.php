@@ -38,7 +38,7 @@ class CustomerTagRule extends Rule
             return false;
         }
 
-        if (!$customer = $scope->getSalesChannelContext()->getCustomer()) {
+        if (!$customer = $scope->getCustomer()) {
             return RuleComparison::isNegativeOperator($this->operator);
         }
 
@@ -63,7 +63,7 @@ class CustomerTagRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true)
             ->entitySelectField('identifiers', TagDefinition::ENTITY_NAME, true);
     }
 

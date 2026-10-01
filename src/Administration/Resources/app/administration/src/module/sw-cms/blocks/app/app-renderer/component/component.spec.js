@@ -15,12 +15,6 @@ describe('src/module/sw-cms/blocks/app/app-renderer/component/index.ts', () => {
         await flushPromises;
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render all given block slots', async () => {
         const wrapper = await createWrapper({
             props: {

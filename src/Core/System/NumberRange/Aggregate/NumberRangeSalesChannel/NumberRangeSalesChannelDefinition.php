@@ -14,6 +14,9 @@ use Shopware\Core\System\NumberRange\Aggregate\NumberRangeType\NumberRangeTypeDe
 use Shopware\Core\System\NumberRange\NumberRangeDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class NumberRangeSalesChannelDefinition extends EntityDefinition
 {
@@ -47,10 +50,10 @@ class NumberRangeSalesChannelDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('number_range_id', 'numberRangeId', NumberRangeDefinition::class))->addFlags(new Required()),
-            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required()),
-            new FkField('number_range_type_id', 'numberRangeTypeId', NumberRangeTypeDefinition::class),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of Sales channels\'s number rage.'),
+            (new FkField('number_range_id', 'numberRangeId', NumberRangeDefinition::class))->addFlags(new Required())->setDescription('Unique identity of number rage.'),
+            (new FkField('sales_channel_id', 'salesChannelId', SalesChannelDefinition::class))->addFlags(new Required())->setDescription('Unique identity of Sales channels.'),
+            (new FkField('number_range_type_id', 'numberRangeTypeId', NumberRangeTypeDefinition::class))->setDescription('Unique identity of number rage type.'),
             new ManyToOneAssociationField('numberRange', 'number_range_id', NumberRangeDefinition::class),
             new ManyToOneAssociationField('salesChannel', 'sales_channel_id', SalesChannelDefinition::class),
             new ManyToOneAssociationField('numberRangeType', 'number_range_type_id', NumberRangeTypeDefinition::class),

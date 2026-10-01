@@ -5,10 +5,12 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Aggrega
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\MinAggregation;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MinAggregation::class)]
 class MinAggregationTest extends TestCase
 {
@@ -29,8 +31,8 @@ class MinAggregationTest extends TestCase
         $aggregation = new MinAggregation('foo', 'bar');
         $clone = clone $aggregation;
 
-        static::assertEquals('foo', $clone->getName());
-        static::assertEquals('bar', $clone->getField());
-        static::assertEquals($aggregation->jsonSerialize(), $clone->jsonSerialize());
+        static::assertSame('foo', $clone->getName());
+        static::assertSame('bar', $clone->getField());
+        static::assertSame($aggregation->jsonSerialize(), $clone->jsonSerialize());
     }
 }

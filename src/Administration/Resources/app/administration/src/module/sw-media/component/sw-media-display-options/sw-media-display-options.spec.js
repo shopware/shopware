@@ -10,10 +10,17 @@ const createWrapper = async (customOptions) => {
 };
 
 describe('src/module/sw-media/component/sw-media-display-options', () => {
-    it('should be a Vue.JS component', async () => {
+    // @deprecated tag:v6.8.0 - The test will be removed with the legacy ascending media sort default.
+    it.deprecated('v6.8.0.0')('should default to created at ascending', async () => {
         const wrapper = await createWrapper();
 
-        expect(wrapper.vm).toBeTruthy();
+        expect(wrapper.vm.sortingConCat).toBe('createdAt:asc');
+    });
+
+    it.activeFeatureFlags(['v6.8.0.0'])('should default to created at descending', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.sortingConCat).toBe('createdAt:desc');
     });
 
     it('should return the correct presentationOptions', async () => {
@@ -31,5 +38,20 @@ describe('src/module/sw-media/component/sw-media-display-options', () => {
         expect(selectResults[1].text()).toBe('sw-media.presentation.labelPresentationMedium');
         expect(selectResults[2].text()).toBe('sw-media.presentation.labelPresentationLarge');
         expect(selectResults[3].text()).toBe('sw-media.presentation.labelPresentationList');
+    });
+
+    it('should disable the presentation select when disabled prop is true', async () => {
+        const wrapper = await createWrapper({
+            props: {
+                disabled: true,
+            },
+        });
+        await flushPromises();
+
+        const presentationSelect = wrapper.find('.sw-media-display-options__label-presentation');
+        expect(presentationSelect.classes()).toContain('is--disabled');
+
+        const sortSelect = wrapper.find('.sw-media-display-options__label-sort');
+        expect(sortSelect.classes()).toContain('is--disabled');
     });
 });

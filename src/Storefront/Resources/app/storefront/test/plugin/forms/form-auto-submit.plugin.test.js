@@ -5,6 +5,7 @@ import FormAutoSubmitPlugin from 'src/plugin/forms/form-auto-submit.plugin';
  */
 describe('Form auto submit plugin', () => {
     let spyNativeFormSubmit = jest.fn();
+    let spyNativeFormRequestSubmit = jest.fn();
     let spyOnSubmit = jest.fn();
     let spyOnChange = jest.fn();
     let spyUpdateParams = jest.fn();
@@ -25,6 +26,7 @@ describe('Form auto submit plugin', () => {
 
     beforeEach(() => {
         window.HTMLFormElement.prototype.submit = spyNativeFormSubmit;
+        window.HTMLFormElement.prototype.requestSubmit = spyNativeFormRequestSubmit;
 
         window.PluginManager.initializePlugins = jest.fn();
 
@@ -37,15 +39,32 @@ describe('Form auto submit plugin', () => {
 
         document.body.innerHTML = template;
 
+        // Spy and mock native form submission APIs to emulate browser behavior in JSDOM
+        spyNativeFormSubmit = jest
+            .spyOn(window.HTMLFormElement.prototype, 'submit')
+            .mockImplementation(function () {
+                this.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+            });
+
+        spyNativeFormRequestSubmit = jest
+            .spyOn(window.HTMLFormElement.prototype, 'requestSubmit')
+            .mockImplementation(function () {
+                if (typeof this.checkValidity !== 'function' || this.checkValidity()) {
+                    this.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                }
+            });
+
         spyOnSubmit = jest.spyOn(FormAutoSubmitPlugin.prototype, '_onSubmit');
         spyOnChange = jest.spyOn(FormAutoSubmitPlugin.prototype, '_onChange');
         spyUpdateParams = jest.spyOn(FormAutoSubmitPlugin.prototype, '_updateRedirectParameters');
         spyNativeFormSubmit = jest.spyOn(window.HTMLFormElement.prototype, 'submit');
+        spyNativeFormRequestSubmit = jest.spyOn(window.HTMLFormElement.prototype, 'requestSubmit');
     });
 
     afterEach(() => {
         document.body.innerHTML = '';
         spyNativeFormSubmit.mockClear();
+        spyNativeFormRequestSubmit.mockClear();
         spyOnSubmit.mockClear();
         spyOnChange.mockClear();
         spyUpdateParams.mockClear();
@@ -65,7 +84,8 @@ describe('Form auto submit plugin', () => {
         // Fire change event on input field which bubbles up to the form
         emailField.dispatchEvent(new Event('change', { bubbles: true }));
 
-        expect(spyNativeFormSubmit).toHaveBeenCalledTimes(1);
+        expect(spyNativeFormRequestSubmit).toHaveBeenCalledTimes(1);
+        expect(spyNativeFormSubmit).toHaveBeenCalledTimes(0);
         expect(spyOnChange).toHaveBeenCalledTimes(1);
         expect(spyOnSubmit).toHaveBeenCalledTimes(0);
     });
@@ -74,7 +94,7 @@ describe('Form auto submit plugin', () => {
         global.fetch = jest.fn(() =>
             Promise.resolve({
                 text: () => Promise.resolve('<div>Response</div>'),
-            })
+            }),
         );
 
         createPlugin({ useAjax: true, ajaxContainerSelector: '#newsletterForm' });
@@ -86,6 +106,7 @@ describe('Form auto submit plugin', () => {
         await new Promise(process.nextTick);
 
         expect(spyOnSubmit).toHaveBeenCalledTimes(1);
+        expect(spyNativeFormRequestSubmit).toHaveBeenCalledTimes(0);
         expect(spyNativeFormSubmit).toHaveBeenCalledTimes(0);
         expect(spyOnChange).toHaveBeenCalledTimes(0);
     });
@@ -104,7 +125,8 @@ describe('Form auto submit plugin', () => {
         unsubscribeField.dispatchEvent(changeEvent);
 
         expect(spyOnChange).toHaveBeenCalledTimes(3);
-        expect(spyNativeFormSubmit).toHaveBeenCalledTimes(3);
+        expect(spyNativeFormRequestSubmit).toHaveBeenCalledTimes(3);
+        expect(spyNativeFormSubmit).toHaveBeenCalledTimes(0);
         expect(spyOnSubmit).toHaveBeenCalledTimes(0);
     });
 
@@ -124,18 +146,91 @@ describe('Form auto submit plugin', () => {
         // General on change method should be executed for every change
         expect(spyOnChange).toHaveBeenCalledTimes(3);
         // Native form submit should only be performed when configured elements changed
-        expect(spyNativeFormSubmit).toHaveBeenCalledTimes(2);
+        expect(spyNativeFormRequestSubmit).toHaveBeenCalledTimes(2);
+        expect(spyNativeFormSubmit).toHaveBeenCalledTimes(0);
+        expect(spyOnSubmit).toHaveBeenCalledTimes(0);
+    });
+
+    it('should use validation and fail on invalid', () => {
+        const plugin = createPlugin({ useRequestSubmit: true, useAjax: false });
+
+        // Listen for submit to verify whether a submission actually happened
+        let submitEventFired = false;
+        plugin._form.addEventListener('submit', () => { submitEventFired = true; });
+
+        const emailField = document.querySelector('.form-email');
+        // invalid email
+        emailField.value = 'foobar';
+        const changeEvent = new Event('change', { bubbles: true });
+
+        // Fire change events on input fields which bubble up to the form
+        emailField.dispatchEvent(changeEvent);
+
+        // General on change method should be executed for every change
+        expect(spyOnChange).toHaveBeenCalledTimes(1);
+        // Native form requestSubmit should be called
+        expect(spyNativeFormRequestSubmit).toHaveBeenCalledTimes(1);
+        expect(spyNativeFormSubmit).toHaveBeenCalledTimes(0);
+        expect(spyOnSubmit).toHaveBeenCalledTimes(0);
+
+        // Validation should fail and no submit event should have fired
+        expect(plugin._form.checkValidity()).toBe(false);
+        expect(submitEventFired).toBe(false);
+    });
+
+    it('should use validation and succeed on valid', () => {
+        const plugin = createPlugin({ useRequestSubmit: true, useAjax: false });
+
+        // Listen for submit to verify whether a submission actually happened
+        let submitEventFired = false;
+        plugin._form.addEventListener('submit', () => { submitEventFired = true; });
+
+        const emailField = document.querySelector('.form-email');
+        // valid email
+        emailField.value = 'foobar@test.test';
+        const changeEvent = new Event('change', { bubbles: true });
+
+        // Fire change events on input fields which bubble up to the form
+        emailField.dispatchEvent(changeEvent);
+
+        // General on change method should be executed for every change
+        expect(spyOnChange).toHaveBeenCalledTimes(1);
+        // Native form submit should only be performed when configured elements changed
+        expect(spyNativeFormRequestSubmit).toHaveBeenCalledTimes(1);
+        expect(spyNativeFormSubmit).toHaveBeenCalledTimes(0);
+        expect(spyOnSubmit).toHaveBeenCalledTimes(0);
+        // this should be true as this means, that submit has happened with validation
+        expect(plugin._form.checkValidity()).toBe(true);
+        expect(submitEventFired).toBe(true);
+    });
+
+    it('should by-pass validation, when configured', () => {
+        createPlugin({ useRequestSubmit: false });
+
+        const emailField = document.querySelector('.form-email');
+        // invalid email
+        emailField.value = 'foobar';
+        const changeEvent = new Event('change', { bubbles: true });
+
+        // Fire change events on input fields which bubble up to the form
+        emailField.dispatchEvent(changeEvent);
+
+        // General on change method should be executed for every change
+        expect(spyOnChange).toHaveBeenCalledTimes(1);
+        // Native form submit should only be performed when configured elements changed
+        expect(spyNativeFormRequestSubmit).toHaveBeenCalledTimes(0);
+        expect(spyNativeFormSubmit).toHaveBeenCalledTimes(1);
         expect(spyOnSubmit).toHaveBeenCalledTimes(0);
     });
 
     it('should throw error when change trigger selectors is not an array', () => {
-        const expectedError = '[FormAutoSubmitPlugin] The option "changeTriggerSelectors" must be an array of selector strings.'
+        const expectedError = '[FormAutoSubmitPlugin] The option "changeTriggerSelectors" must be an array of selector strings.';
 
         expect(() => createPlugin({ changeTriggerSelectors: '.some-selector' })).toThrow(expectedError);
     });
 
     it('should throw error when ajax mode is missing a replace selector', () => {
-        const expectedError = '[FormAutoSubmitPlugin] The option "ajaxContainerSelector" must be given when using ajax.'
+        const expectedError = '[FormAutoSubmitPlugin] The option "ajaxContainerSelector" must be given when using ajax.';
 
         expect(() => createPlugin({ useAjax: true })).toThrow(expectedError);
     });
@@ -143,11 +238,7 @@ describe('Form auto submit plugin', () => {
     it('should update redirect parameters on form change not existing in form', () => {
         createPlugin({ changeTriggerSelectors: ['.form-unsubscribe', '.form-name'] });
 
-        Object.defineProperty(window, 'location', {
-            value: {
-                search: '?important=0&test=1',
-            },
-        });
+        jest.spyOn(FormAutoSubmitPlugin.prototype, '_getLocationSearch').mockReturnValue('?important=0&test=1');
 
         const emailField = document.querySelector('.form-email');
 
@@ -172,5 +263,38 @@ describe('Form auto submit plugin', () => {
         input.innerHTML = '<input name="redirectParameters[name]" type="hidden" value="value" />';
 
         expect(formAutoSubmitPlugin._createInputForRedirectParameter('name', 'value')).toStrictEqual(input.firstChild);
+    });
+
+    test('form uses correct formAction & formMethod from submitter', async () => {
+        document.body.innerHTML = template;
+
+        const formElement = document.querySelector('form');
+
+        const formAutoSubmit = new FormAutoSubmitPlugin(formElement, { useAjax: true, ajaxContainerSelector: '#newsletterForm' });
+
+        global.fetch = jest.fn((url, options) => {
+            expect(url).toBe('/newsletter/configure/override');
+            expect(options).toStrictEqual({ headers: { 'X-Requested-With': 'XMLHttpRequest' }});
+
+            return Promise.resolve({
+                text: () => Promise.resolve('<div class="replace-me"><div class="alert">Success</div></div>'),
+            });
+        });
+
+        formAutoSubmit.$emitter.publish = jest.fn();
+
+        window.PluginManager.initializePlugins = jest.fn();
+
+        const emailField = document.querySelector('.form-email');
+        emailField.setAttribute('formaction', '/newsletter/configure/override');
+        emailField.setAttribute('formmethod', 'get');
+
+        const event = new Event('change', { bubbles: true });
+        event.submitter = emailField;
+        emailField.dispatchEvent(event);
+
+        await new Promise(process.nextTick);
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
     });
 });

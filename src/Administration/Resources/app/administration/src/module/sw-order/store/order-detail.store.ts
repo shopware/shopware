@@ -3,9 +3,19 @@
  */
 import type { ContextState } from '../../../app/composables/use-context';
 
+const { Criteria } = Shopware.Data;
+
+/**
+ * Kept outside of the store state on purpose: it only deduplicates concurrent requests and must not be reactive.
+ */
+let pendingCustomerRequest: {
+    customerId: EntityKey<'customer'>;
+    request: Promise<Entity<'customer'> | null>;
+} | null = null;
+
 interface OrderAddressId {
-    orderAddressId: string;
-    customerAddressId: string;
+    orderAddressId: EntityKey<'order_address'>;
+    customerAddressId: EntityKey<'customer_address'>;
     type: string;
     edited: boolean;
 }
@@ -15,9 +25,11 @@ const swOrderDetailStore = Shopware.Store.register({
 
     state() {
         return {
-            order: null as EntitySchema.order | null,
+            order: null as Entity<'order'> | null,
+            customer: null as Entity<'customer'> | null,
             loading: {
-                order: false,
+                order: false, // live version id
+                recalculation: false, // custom version id
                 states: false,
             },
             editing: false,
@@ -49,7 +61,47 @@ const swOrderDetailStore = Shopware.Store.register({
             this.loading[name] = data;
         },
 
-        setOrderAddressIds(value: OrderAddressId) {
+        /**
+         * Loading the customer once into the store keeps order detail components (i.e. order address selection
+         * components) in sync, so creations and edits in one component are immediately available in all others.
+         */
+        loadCustomer(customerId: EntityKey<'customer'>, reload = false): Promise<Entity<'customer'> | null> {
+            if (!reload && this.customer?.id === customerId) {
+                return Promise.resolve(this.customer);
+            }
+
+            if (!reload && pendingCustomerRequest?.customerId === customerId) {
+                return pendingCustomerRequest.request;
+            }
+
+            const criteria = new Criteria(1, 25);
+            criteria.addAssociation('addresses.country');
+
+            const request = Shopware.Service('repositoryFactory')
+                .create('customer')
+                .get(customerId, Shopware.Context.api, criteria)
+                .then((customer) => {
+                    this.customer = customer;
+
+                    return customer;
+                })
+                .finally(() => {
+                    if (pendingCustomerRequest?.request === request) {
+                        pendingCustomerRequest = null;
+                    }
+                });
+
+            pendingCustomerRequest = { customerId, request };
+
+            return request;
+        },
+
+        resetCustomer() {
+            this.customer = null;
+            pendingCustomerRequest = null;
+        },
+
+        setOrderAddressIds(value?: OrderAddressId | null) {
             if (!value) {
                 this.orderAddressIds = [];
                 return;
@@ -58,7 +110,7 @@ const swOrderDetailStore = Shopware.Store.register({
             const { orderAddressId, customerAddressId, type, edited } = value;
 
             // Handle deletion scenario where orderAddressId matches customerAddressId
-            if (orderAddressId === customerAddressId && !edited) {
+            if (String(orderAddressId) === String(customerAddressId) && !edited) {
                 this.orderAddressIds = this.orderAddressIds.filter(
                     (ids) => !(ids.orderAddressId === orderAddressId && ids.type === type),
                 );

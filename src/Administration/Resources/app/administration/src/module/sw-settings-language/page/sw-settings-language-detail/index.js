@@ -14,15 +14,13 @@ export default {
 
     inject: [
         'repositoryFactory',
+        'translationService',
         'acl',
         'customFieldDataProviderService',
         'feature',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -51,6 +49,12 @@ export default {
             isSaveSuccessful: false,
             customFieldSets: null,
             parentTranslationCodeId: null,
+            showAllSalesChannels: false,
+            justCreated: false,
+            snippetMetadata: null,
+            builtInLocales: [],
+            isUpdatingSnippets: false,
+            isSnippetMetadataLoading: false,
         };
     },
 
@@ -83,11 +87,7 @@ export default {
 
         usedLocaleCriteria() {
             return new Criteria(1, null)
-                .addFilter(
-                    Criteria.not('and', [
-                        Criteria.equals('id', this.languageId),
-                    ]),
-                )
+                .addFilter(Criteria.not('and', [Criteria.equals('id', this.languageId)]))
                 .addAggregation(Criteria.terms('usedTranslationIds', 'language.translationCode.id', null, null, null));
         },
 
@@ -98,7 +98,7 @@ export default {
         tooltipSave() {
             if (!this.allowSave) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
                     showOnDisabledElements: true,
                 };
@@ -131,20 +131,107 @@ export default {
 
         inheritanceTooltipText() {
             if (this.isSystemDefaultLanguageId) {
-                return this.$tc('sw-settings-language.detail.tooltipInheritanceNotPossible');
+                return this.$t('sw-settings-language.detail.tooltipInheritanceNotPossible');
             }
 
-            return this.$tc('sw-settings-language.detail.tooltipLanguageNotChoosable');
+            return this.$t('sw-settings-language.detail.tooltipLanguageNotChoosable');
         },
 
         showCustomFields() {
             return this.customFieldSets && this.customFieldSets.length > 0;
         },
 
-        ...mapPropertyErrors('language', [
-            'localeId',
-            'name',
-        ]),
+        assignedSalesChannels() {
+            return this.language?.salesChannels ?? [];
+        },
+
+        visibleSalesChannels() {
+            if (this.showAllSalesChannels) {
+                return this.assignedSalesChannels;
+            }
+
+            return Array.from(this.assignedSalesChannels).slice(0, 3);
+        },
+
+        snippetUpdateState() {
+            if (!this.language) {
+                return null;
+            }
+
+            const localeCode = this.language.locale?.code;
+
+            if (this.builtInLocales.includes(localeCode)) {
+                return 'builtIn';
+            }
+
+            if (!this.snippetMetadata) {
+                return 'notAvailable';
+            }
+
+            const isLinked = this.snippetMetadata.lastUpdate !== null;
+
+            if (this.isUpdatingSnippets) {
+                return isLinked ? 'updating' : 'linking';
+            }
+
+            if (!isLinked) {
+                return 'notLinked';
+            }
+
+            return this.snippetMetadata.updateAvailable ? 'updateAvailable' : 'upToDate';
+        },
+
+        snippetUpdatesLabel() {
+            return (
+                {
+                    builtIn: 'sw-settings-language.detail.snippetUpdates.builtIn',
+                    notAvailable: 'sw-settings-language.detail.snippetUpdates.notAvailable',
+                    notLinked: 'sw-settings-language.detail.snippetUpdates.notLinked',
+                    linking: 'sw-settings-language.detail.snippetUpdates.linking',
+                    updating: 'sw-settings-language.detail.snippetUpdates.updating',
+                    updateAvailable: 'sw-settings-language.detail.snippetUpdates.updateAvailable',
+                    upToDate: 'sw-settings-language.detail.snippetUpdates.upToDate',
+                }[this.snippetUpdateState] ?? 'sw-settings-language.detail.snippetUpdates.upToDate'
+            );
+        },
+
+        showSnippetUpdateButton() {
+            return [
+                'notLinked',
+                'linking',
+                'updateAvailable',
+                'updating',
+            ].includes(this.snippetUpdateState);
+        },
+
+        snippetUpdateButtonLabel() {
+            return (
+                {
+                    notLinked: 'sw-settings-language.detail.snippetUpdates.linkButton',
+                    linking: 'sw-settings-language.detail.snippetUpdates.linkingButton',
+                    updateAvailable: 'sw-settings-language.detail.snippetUpdates.updateButton',
+                    updating: 'sw-settings-language.detail.snippetUpdates.updatingButton',
+                }[this.snippetUpdateState] ?? 'sw-settings-language.detail.snippetUpdates.updateButton'
+            );
+        },
+
+        showSnippetAutoUpdate() {
+            return ['upToDate', 'updateAvailable', 'updating'].includes(this.snippetUpdateState);
+        },
+
+        salesChannelsEmptyHint() {
+            return this.language?.active
+                ? 'sw-settings-language.detail.salesChannels.assignHint'
+                : 'sw-settings-language.detail.salesChannels.activateHint';
+        },
+
+        salesChannelsCardTitle() {
+            const title = this.$t('sw-settings-language.detail.salesChannels.title');
+
+            return this.assignedSalesChannels.length ? `${title} (${this.assignedSalesChannels.length})` : title;
+        },
+
+        ...mapPropertyErrors('language', ['localeId', 'name']),
     },
 
     watch: {
@@ -160,11 +247,25 @@ export default {
         this.createdComponent();
     },
 
+    updated() {
+        this.createdComponent();
+    },
+
     methods: {
         createdComponent() {
+            if (this.$route?.query?.languageCreated) {
+                this.justCreated = true;
+                this.$router.replace({
+                    name: 'sw.settings.language.detail',
+                    params: { id: this.languageId },
+                    query: {},
+                });
+            }
+
             if (!this.languageId) {
                 Shopware.Store.get('context').resetLanguageToDefault();
                 this.language = this.languageRepository.create();
+                this.language.active = true;
 
                 return;
             }
@@ -182,8 +283,16 @@ export default {
 
         loadEntityData() {
             this.isLoading = true;
+
+            const criteria = new Criteria(1, 1);
+            criteria.addAssociation('locale');
+
+            const salesChannelCriteria = criteria.getAssociation('salesChannels');
+            salesChannelCriteria.addAssociation('type');
+            salesChannelCriteria.addSorting(Criteria.sort('name', 'ASC'));
+
             return this.languageRepository
-                .get(this.languageId)
+                .get(this.languageId, Shopware.Context.api, criteria)
                 .then((language) => {
                     this.isLoading = false;
                     this.language = language;
@@ -191,9 +300,63 @@ export default {
                     if (language.parentId) {
                         this.setParentTranslationCodeId(language.parentId);
                     }
+
+                    this.loadSnippetMetadata();
                 })
                 .catch(() => {
                     this.isLoading = false;
+                    this.createNotificationError({
+                        message: this.$t('sw-settings-language.detail.messageLoadError'),
+                    });
+                });
+        },
+
+        loadSnippetMetadata() {
+            const localeCode = this.language?.locale?.code;
+
+            if (!localeCode) {
+                this.snippetMetadata = null;
+
+                return Promise.resolve();
+            }
+
+            this.isSnippetMetadataLoading = true;
+
+            return Promise.all([this.translationService.getList(), this.translationService.getMeta()])
+                .then(([listResponse, metaResponse]) => {
+                    this.builtInLocales = metaResponse?.builtInLocales ?? this.builtInLocales;
+                    this.snippetMetadata = (listResponse?.items ?? []).find((item) => item.locale === localeCode) ?? null;
+                })
+                .catch(() => {
+                    this.snippetMetadata = null;
+                    this.createNotificationError({
+                        message: this.$t('sw-settings-language.detail.snippetUpdates.statusLoadError'),
+                    });
+                })
+                .finally(() => {
+                    this.isSnippetMetadataLoading = false;
+                });
+        },
+
+        onUpdateSnippets() {
+            const localeCode = this.language?.locale?.code;
+
+            if (!localeCode) {
+                return;
+            }
+
+            this.isUpdatingSnippets = true;
+
+            this.translationService
+                .install({ locales: [localeCode], activate: true })
+                .then(() => this.loadSnippetMetadata())
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-settings-language.detail.snippetUpdates.updateError'),
+                    });
+                })
+                .finally(() => {
+                    this.isUpdatingSnippets = false;
                 });
         },
 
@@ -238,22 +401,38 @@ export default {
             this.languageRepository
                 .save(this.language)
                 .then(() => {
+                    this.invalidateLanguageCaches();
                     this.isLoading = false;
                     this.isSaveSuccessful = true;
+
                     if (!this.languageId) {
                         this.$router.push({
                             name: 'sw.settings.language.detail',
                             params: { id: this.language.id },
+                            query: { languageCreated: 'true' },
                         });
                     }
                 })
                 .catch(() => {
                     this.isLoading = false;
+                    this.createNotificationError({
+                        message: this.$t('sw-settings-language.detail.messageSaveError'),
+                    });
                 });
         },
 
         onCancel() {
             this.$router.push({ name: 'sw.settings.language.index' });
+        },
+
+        onOpenSalesChannelSettings() {
+            this.$router.push({ name: 'sw.sales.channel.list' });
+        },
+
+        invalidateLanguageCaches() {
+            Shopware.Service('cacheService').invalidateCaches({
+                cacheKey: ['shared-data', 'active-languages'],
+            });
         },
     },
 };

@@ -6,7 +6,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Captcha\BasicCaptcha\BasicCaptchaImage;
 use Shopware\Storefront\Pagelet\Pagelet;
 
-#[Package('framework')]
+#[Package('discovery')]
 class BasicCaptchaPagelet extends Pagelet
 {
     protected BasicCaptchaImage $captcha;

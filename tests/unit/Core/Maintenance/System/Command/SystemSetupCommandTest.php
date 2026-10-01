@@ -4,7 +4,9 @@ namespace Shopware\Tests\Unit\Core\Maintenance\System\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Maintenance\System\Command\SystemSetupCommand;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Tester\ApplicationTester;
@@ -14,6 +16,7 @@ use Symfony\Component\Dotenv\Dotenv;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemSetupCommand::class)]
 class SystemSetupCommandTest extends TestCase
 {
@@ -40,7 +43,6 @@ class SystemSetupCommandTest extends TestCase
             '--admin-es-enabled' => '1',
             '--admin-es-refresh-indices' => '1',
             '--http-cache-enabled' => '1',
-            '--http-cache-ttl' => '7200',
             '--cdn-strategy' => 'id',
             '--blue-green' => '1',
             '--mailer-url' => 'smtp://localhost:25',
@@ -76,12 +78,38 @@ class SystemSetupCommandTest extends TestCase
             'SHOPWARE_ADMIN_ES_ENABLED' => '1',
             'SHOPWARE_ADMIN_ES_REFRESH_INDICES' => '1',
             'SHOPWARE_HTTP_CACHE_ENABLED' => '1',
-            'SHOPWARE_HTTP_DEFAULT_TTL' => '7200',
             'SHOPWARE_CDN_STRATEGY_DEFAULT' => 'id',
             'BLUE_GREEN_DEPLOYMENT' => '1',
             'MAILER_DSN' => 'smtp://localhost:25',
             'COMPOSER_HOME' => __DIR__,
         ], $env);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testEnvFileGenerationWithHttpDefaultTtl(): void
+    {
+        $args = [
+            'command' => 'system:setup',
+            '--http-cache-ttl' => '7201',
+        ];
+
+        $tester = $this->getApplicationTester();
+
+        $tester->run($args, ['interactive' => false]);
+
+        $tester->assertCommandIsSuccessful();
+
+        static::assertFileExists(__DIR__ . '/.env');
+
+        $envContent = file_get_contents(__DIR__ . '/.env');
+        static::assertIsString($envContent);
+        $env = (new Dotenv())->parse($envContent);
+
+        static::assertArrayHasKey('SHOPWARE_HTTP_DEFAULT_TTL', $env);
+        static::assertSame('7201', $env['SHOPWARE_HTTP_DEFAULT_TTL']);
     }
 
     public function testEnvFileGenerationWithDumpEnv(): void
@@ -100,7 +128,6 @@ class SystemSetupCommandTest extends TestCase
             '--admin-es-enabled' => '1',
             '--admin-es-refresh-indices' => '1',
             '--http-cache-enabled' => '1',
-            '--http-cache-ttl' => '7200',
             '--cdn-strategy' => 'id',
             '--blue-green' => '1',
             '--mailer-url' => 'smtp://localhost:25',
@@ -121,6 +148,7 @@ class SystemSetupCommandTest extends TestCase
         static::assertIsString($envContent);
         $env = (new Dotenv())->parse($envContent);
 
+        /** @phpstan-ignore require.fileNotFound (Although the existence of the file is checked above, PHPStan will only consider files, that always exist. See https://github.com/phpstan/phpstan/issues/12417) */
         $envLocal = require __DIR__ . '/.env.local.php';
         static::assertSame($env, $envLocal);
     }
@@ -138,7 +166,6 @@ class SystemSetupCommandTest extends TestCase
             '--es-indexing-enabled' => '1',
             '--es-index-prefix' => 'shopware',
             '--http-cache-enabled' => '1',
-            '--http-cache-ttl' => '7200',
             '--cdn-strategy' => 'id',
             '--blue-green' => '1',
             '--mailer-url' => 'smtp://localhost:25',
@@ -162,9 +189,9 @@ class SystemSetupCommandTest extends TestCase
 
         $application = new Application();
         $application->setAutoExit(false);
-        $application->add(new SystemSetupCommand(__DIR__, $dumpCommand));
+        $application->addCommand(new SystemSetupCommand(__DIR__, $dumpCommand));
 
-        $application->add($dumpCommand);
+        $application->addCommand($dumpCommand);
 
         return new ApplicationTester($application);
     }

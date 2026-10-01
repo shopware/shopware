@@ -7,6 +7,7 @@ use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileAvailableThemeProvider;
@@ -19,19 +20,20 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StaticFileConfigDumper::class)]
 class StaticFileConfigDumperTest extends TestCase
 {
     public function testDumping(): void
     {
         $salesChannelToTheme = new StorefrontPluginConfiguration('Test');
-        $loader = $this->createMock(DatabaseConfigLoader::class);
+        $loader = static::createStub(DatabaseConfigLoader::class);
         $loader->method('load')->willReturn($salesChannelToTheme);
 
         $privateFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
         $temporaryFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
 
-        $themeProvider = $this->createMock(DatabaseAvailableThemeProvider::class);
+        $themeProvider = static::createStub(DatabaseAvailableThemeProvider::class);
         $themeProvider->method('load')->willReturn(['test' => 'test']);
 
         $dumper = new StaticFileConfigDumper(
@@ -44,10 +46,10 @@ class StaticFileConfigDumperTest extends TestCase
         $location = StaticFileAvailableThemeProvider::THEME_INDEX;
 
         $dumper->dumpConfig(Context::createDefaultContext());
-        static::assertEquals('{"test":"test"}', $privateFileSystem->read($location));
+        static::assertSame('{"test":"test"}', $privateFileSystem->read($location));
 
         $dumper->dumpConfigFromEvent();
-        static::assertEquals('{"test":"test"}', $privateFileSystem->read($location));
+        static::assertSame('{"test":"test"}', $privateFileSystem->read($location));
     }
 
     public function testDumpConfigInVar(): void
@@ -55,8 +57,8 @@ class StaticFileConfigDumperTest extends TestCase
         $privateFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
         $temporaryFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
         $dumper = new StaticFileConfigDumper(
-            $this->createMock(DatabaseConfigLoader::class),
-            $this->createMock(DatabaseAvailableThemeProvider::class),
+            static::createStub(DatabaseConfigLoader::class),
+            static::createStub(DatabaseAvailableThemeProvider::class),
             $privateFileSystem,
             $temporaryFileSystem
         );
@@ -70,7 +72,7 @@ class StaticFileConfigDumperTest extends TestCase
 
     public function testgetSubscribedEvents(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [
                 ThemeConfigChangedEvent::class => 'dumpConfigFromEvent',
                 ThemeAssignedEvent::class => 'dumpConfigFromEvent',
@@ -78,5 +80,37 @@ class StaticFileConfigDumperTest extends TestCase
             ],
             StaticFileConfigDumper::getSubscribedEvents()
         );
+    }
+
+    public function testDumpConfigCreatesDirectoryIfNotExists(): void
+    {
+        $salesChannelToTheme = new StorefrontPluginConfiguration('Test');
+        $loader = static::createStub(DatabaseConfigLoader::class);
+        $loader->method('load')->willReturn($salesChannelToTheme);
+
+        $privateFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $temporaryFileSystem = new Filesystem(new InMemoryFilesystemAdapter());
+
+        $themeProvider = static::createStub(DatabaseAvailableThemeProvider::class);
+        $themeProvider->method('load')->willReturn(['test' => 'test']);
+
+        // Verify directory doesn't exist initially
+        static::assertFalse($privateFileSystem->directoryExists('theme-config'));
+
+        $dumper = new StaticFileConfigDumper(
+            $loader,
+            $themeProvider,
+            $privateFileSystem,
+            $temporaryFileSystem
+        );
+
+        $dumper->dumpConfig(Context::createDefaultContext());
+
+        // Verify directory was created
+        static::assertTrue($privateFileSystem->directoryExists('theme-config'));
+        // Verify index file was created
+        static::assertTrue($privateFileSystem->fileExists(StaticFileAvailableThemeProvider::THEME_INDEX));
+        // Verify theme config file was created
+        static::assertTrue($privateFileSystem->fileExists('theme-config/test.json'));
     }
 }

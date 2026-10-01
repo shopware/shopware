@@ -13,11 +13,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Composer\Factory;
 use Shopware\Core\Framework\Plugin\PluginCollection;
 use Shopware\Core\Framework\Plugin\PluginEntity;
+use Shopware\Core\Framework\Plugin\PluginLifecycleService;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\ComposerNameMissingException;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\ConflictingPackageException;
 use Shopware\Core\Framework\Plugin\Requirement\Exception\MissingRequirementException;
@@ -34,6 +35,8 @@ class RequirementsValidator
 
     /**
      * @internal
+     *
+     * @param EntityRepository<PluginCollection> $pluginRepo
      */
     public function __construct(
         private readonly EntityRepository $pluginRepo,
@@ -46,7 +49,7 @@ class RequirementsValidator
      */
     public function validateRequirements(PluginEntity $plugin, Context $context, string $method): void
     {
-        if ($plugin->getManagedByComposer()) {
+        if ($plugin->getManagedByComposer() && $method !== PluginLifecycleService::PLUGIN_LIFECYCLE_METHOD_ACTIVATE) {
             // Composer does the requirements checking if the plugin is managed by composer
             // no need to do it manually
 
@@ -98,15 +101,11 @@ class RequirementsValidator
             return false;
         }
 
-        if (\array_key_exists($composerName, $this->getPluginDependencies($plugin)['require'])) {
-            return true;
-        }
-
-        return false;
+        return \array_key_exists($composerName, $this->getPluginDependencies($plugin)['require']);
     }
 
     /**
-     * @return array{'require': Link[], 'conflict': Link[]}
+     * @return array{require: array<string, Link>, conflict: array<string, Link>}
      */
     private function getPluginDependencies(PluginEntity $plugin): array
     {
@@ -120,9 +119,9 @@ class RequirementsValidator
     }
 
     /**
-     * @param array{'require': Link[], 'conflict': Link[]} $pluginDependencies
+     * @param array{require: array<string, Link>, conflict: array<string, Link>} $pluginDependencies
      *
-     * @return array{'require': Link[], 'conflict': Link[]}
+     * @return array{require: array<string, Link>, conflict: array<string, Link>}
      */
     private function validateComposerPackages(
         array $pluginDependencies,
@@ -141,9 +140,9 @@ class RequirementsValidator
     }
 
     /**
-     * @param array{'require': Link[], 'conflict': Link[]} $pluginDependencies
+     * @param array{require: array<string, Link>, conflict: array<string, Link>} $pluginDependencies
      *
-     * @return array{'require': Link[], 'conflict': Link[]}
+     * @return array{require: array<string, Link>, conflict: array<string, Link>}
      */
     private function checkComposerDependencies(
         array $pluginDependencies,
@@ -189,9 +188,9 @@ class RequirementsValidator
     }
 
     /**
-     * @param array{'require': Link[], 'conflict': Link[]} $pluginDependencies
+     * @param array{require: array<string, Link>, conflict: array<string, Link>} $pluginDependencies
      *
-     * @return array{'require': Link[], 'conflict': Link[]}
+     * @return array{require: array<string, Link>, conflict: array<string, Link>}
      */
     private function validateInstalledPlugins(
         Context $context,
@@ -210,7 +209,7 @@ class RequirementsValidator
                 continue;
             }
 
-            $pluginPath = \sprintf('%s/%s', $this->projectDir, $pluginEntity->getPath());
+            $pluginPath = \sprintf('%s/%s', $this->projectDir, (string) $pluginEntity->getPath());
 
             $installedPluginComposerPackage = $pluginPackages[$pluginComposerName] ?? $this->getComposer($pluginPath)->getPackage();
 
@@ -247,16 +246,14 @@ class RequirementsValidator
     private function getInstalledPlugins(Context $context): PluginCollection
     {
         $criteria = new Criteria();
-        $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('installedAt', null)]));
+        $criteria->addFilter(new NotEqualsFilter('installedAt', null));
         $criteria->addFilter(new EqualsFilter('active', true));
-        /** @var PluginCollection $plugins */
-        $plugins = $this->pluginRepo->search($criteria, $context)->getEntities();
 
-        return $plugins;
+        return $this->pluginRepo->search($criteria, $context)->getEntities();
     }
 
     /**
-     * @return PackageInterface[]
+     * @return array<string, PackageInterface>
      */
     private function getComposerPackagesFromPlugins(): array
     {
@@ -272,9 +269,9 @@ class RequirementsValidator
     }
 
     /**
-     * @param array{'require': Link[], 'conflict': Link[]} $pluginDependencies
+     * @param array{require: array<string, Link>, conflict: array<string, Link>} $pluginDependencies
      *
-     * @return array{'require': Link[], 'conflict': Link[]}
+     * @return array{require: array<string, Link>, conflict: array<string, Link>}
      */
     private function validateReplaces(
         PackageInterface $package,
@@ -308,9 +305,9 @@ class RequirementsValidator
     }
 
     /**
-     * @param Link[] $pluginRequirements
+     * @param array<string, Link> $pluginRequirements
      *
-     * @return Link[]
+     * @return array<string, Link>
      */
     private function checkRequirement(
         array $pluginRequirements,
@@ -336,9 +333,9 @@ class RequirementsValidator
     }
 
     /**
-     * @param Link[] $pluginConflicts
+     * @param array<string, Link> $pluginConflicts
      *
-     * @return Link[]
+     * @return array<string, Link>
      */
     private function checkConflict(
         array $pluginConflicts,
@@ -365,7 +362,7 @@ class RequirementsValidator
     }
 
     /**
-     * @param Link[] $pluginRequirements
+     * @param array<string, Link> $pluginRequirements
      */
     private function addRemainingRequirementsAsException(
         array $pluginRequirements,
@@ -379,9 +376,9 @@ class RequirementsValidator
     }
 
     /**
-     * @param array{'require': Link[], 'conflict': Link[]} $pluginDependencies
+     * @param array{require: array<string, Link>, conflict: array<string, Link>} $pluginDependencies
      *
-     * @return array{'require': Link[], 'conflict': Link[]}
+     * @return array{require: array<string, Link>, conflict: array<string, Link>}
      */
     private function validateShippedDependencies(
         PluginEntity $plugin,
@@ -396,12 +393,11 @@ class RequirementsValidator
         if (!is_dir($vendorDir)) {
             return $pluginDependencies;
         }
-        $pluginDependencies = $this->checkComposerDependencies(
+
+        return $this->checkComposerDependencies(
             $pluginDependencies,
             $exceptionStack,
             $this->pluginComposer
         );
-
-        return $pluginDependencies;
     }
 }

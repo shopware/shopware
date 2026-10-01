@@ -35,6 +35,6 @@ class Migration1691662140MigrateAvailableStock extends MigrationStep
                 ['ids' => $ids],
                 ['ids' => ArrayParameterType::BINARY]
             );
-        } while (!empty($ids));
+        } while ($ids !== []);
     }
 }

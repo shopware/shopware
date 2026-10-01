@@ -8,6 +8,7 @@ export default class HtmlOffCanvas extends OffCanvas {
     /**
      * Open an offcanvas with HTML content from any given selector
      * @param {string} selector
+     * @param {function|null} callback
      * @param {'left'|'right'} position
      * @param {boolean} closable
      * @param {number} delay
@@ -15,8 +16,8 @@ export default class HtmlOffCanvas extends OffCanvas {
      * @param {array|string} cssClass
      */
 
-    static open(selector, position = 'left', closable = true, delay = OffCanvas.REMOVE_OFF_CANVAS_DELAY, fullwidth = false, cssClass = '') {
-        super.open(HtmlOffCanvas._getContent(selector), position, closable, delay, fullwidth, cssClass);
+    static open(selector, callback = null, position = 'left', closable = true, delay = OffCanvas.REMOVE_OFF_CANVAS_DELAY, fullwidth = false, cssClass = '') {
+        super.open(HtmlOffCanvas._getContent(selector), callback, position, closable, delay, fullwidth, cssClass);
     }
 
     /**

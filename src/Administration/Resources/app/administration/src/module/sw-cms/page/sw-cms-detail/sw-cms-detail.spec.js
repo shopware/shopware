@@ -1,13 +1,17 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package discovery
  */
 import { mount } from '@vue/test-utils';
+import { reactive } from 'vue';
 
-import CMS from 'src/module/sw-cms/constant/sw-cms.constant';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import 'src/module/sw-cms/mixin/sw-cms-state.mixin';
 import CmsPageTypeService from '../../../sw-cms/service/cms-page-type.service';
+
+const { CMS } = Shopware.Constants;
 
 const categoryID = 'TEST-CATEGORY-ID';
 const productID = 'TEST-PRODUCT-ID';
@@ -181,7 +185,7 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                     },
                 },
                 mocks: {
-                    $route: { params: { id: '1a' } },
+                    $route: reactive({ params: { id: '1a' } }),
                     $device: {
                         getSystemKey: () => 'Strg',
                     },
@@ -206,10 +210,12 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                         isBlockAllowedInPageType: () => {
                             return true;
                         },
+                        getCmsBlockConfigByName(name) {
+                            return this.getCmsBlockRegistry()[name] ?? null;
+                        },
                     },
                     appCmsService: {},
                     cmsDataResolverService: {
-                        // eslint-disable-next-line prefer-promise-reject-errors
                         resolve: () => Promise.reject('foo'),
                     },
                     systemConfigApiService: {
@@ -246,10 +252,7 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
                                     };
                                 case 'product':
                                     return {
-                                        search: () =>
-                                            Promise.resolve([
-                                                { id: productID },
-                                            ]),
+                                        search: () => Promise.resolve([{ id: productID }]),
                                     };
                                 default:
                                     return repositoryFactoryDefaultMock;
@@ -262,8 +265,11 @@ async function createWrapper(versionId = '0fa91ce3e96a4bc2be4bd9ce752c3425') {
     );
 }
 
+const shopwareStoreGetter = Shopware.Store.get;
+
 describe('module/sw-cms/page/sw-cms-detail', () => {
     beforeEach(async () => {
+        Shopware.Store.get = shopwareStoreGetter;
         Shopware.Store.get('cmsPage').$reset();
 
         jest.spyOn(global.console, 'warn').mockImplementation(() => {});
@@ -273,11 +279,30 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         global.activeAclRoles = [];
     });
 
-    it('should be a Vue.js component', async () => {
+    afterEach(() => {
+        Shopware.Store.get('shopwareApps').selectedIds = [];
+    });
+
+    it('should select the displayed layout for app action buttons', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        expect(wrapper.vm).toBeTruthy();
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual(['1a']);
+
+        wrapper.vm.$options.beforeRouteLeave.call(wrapper.vm);
+
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([]);
+    });
+
+    it('should select the new layout for app action buttons when navigating to another layout', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.$route.params.id = '2b';
+        await flushPromises();
+
+        expect(wrapper.vm.pageId).toBe('2b');
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual(['2b']);
     });
 
     it('should disable all fields when ACL rights are missing', async () => {
@@ -307,9 +332,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should enable all fields when ACL rights are missing', async () => {
-        global.activeAclRoles = [
-            'cms.editor',
-        ];
+        global.activeAclRoles = ['cms.editor'];
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -336,6 +359,34 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(cmsSidebar.attributes().disabled).toBeUndefined();
     });
 
+    it.each([
+        ['missing ACL rights', [], false],
+        ['a locked page', ['cms.editor'], false],
+        ['a loading page', ['cms.editor'], false],
+    ])('should not save when %s', async (reason, aclRoles, expectedCanSave) => {
+        global.activeAclRoles = aclRoles;
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+        await wrapper.setData({
+            isLoading: reason === 'a loading page',
+            page: {
+                locked: reason === 'a locked page',
+            },
+        });
+
+        const saveSpy = jest.spyOn(wrapper.vm.pageRepository, 'save');
+
+        expect(wrapper.vm.canSave).toBe(expectedCanSave);
+        expect(wrapper.find('.sw-cms-detail__save-action').attributes().disabled).toBe('true');
+        expect(wrapper.vm.$options.shortcuts['SYSTEMKEY+S'].active.call(wrapper.vm)).toBe(false);
+
+        await wrapper.vm.onSave();
+        await wrapper.vm.onSaveEntity();
+
+        expect(saveSpy).not.toHaveBeenCalled();
+    });
+
     it('should have warning message if there are more than 1 product page element in product page layout', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -350,15 +401,10 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
                     {
                         blocks: [
                             {
-                                slots: [
-                                    { type: 'buy-box' },
-                                    { type: 'buy-box' },
-                                ],
+                                slots: [{ type: 'buy-box' }, { type: 'buy-box' }],
                             },
                         ],
-                        visibility: [
-                            { mobile: true, tablet: true, desktop: true },
-                        ],
+                        visibility: [{ mobile: true, tablet: true, desktop: true }],
                     },
                 ],
             },
@@ -373,9 +419,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
     });
 
     it('should not show layout assignment when saving', async () => {
-        global.activeAclRoles = [
-            'cms.editor',
-        ];
+        global.activeAclRoles = ['cms.editor'];
 
         const wrapper = await createWrapper();
         await flushPromises();
@@ -400,9 +444,7 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
                                 slots: [],
                             },
                         ],
-                        visibility: [
-                            { mobile: true, tablet: true, desktop: true },
-                        ],
+                        visibility: [{ mobile: true, tablet: true, desktop: true }],
                     },
                 ],
             },
@@ -773,5 +815,127 @@ describe('module/sw-cms/page/sw-cms-detail', () => {
         expect(sections).toHaveLength(2);
         expect(sections[1].id).toBe('cloned-section-id');
         expect(sections[1].position).toBe(1);
+    });
+
+    it('should reset all related stores', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const mockCmsPageStore = {
+            $reset: jest.fn(),
+        };
+        const mockCategoryStore = {
+            $reset: jest.fn(),
+        };
+        const mockProductStore = {
+            $reset: jest.fn(),
+        };
+
+        Shopware.Store.get = jest.fn().mockImplementation((storeName) => {
+            switch (storeName) {
+                case 'cmsPage':
+                    return mockCmsPageStore;
+                case 'swCategoryDetail':
+                    return mockCategoryStore;
+                case 'swProductDetail':
+                    return mockProductStore;
+                default:
+                    return shopwareStoreGetter(storeName);
+            }
+        });
+
+        wrapper.vm.resetRelatedStores();
+
+        expect(mockCmsPageStore.$reset).toHaveBeenCalledTimes(1);
+        expect(mockCategoryStore.$reset).toHaveBeenCalledTimes(1);
+        expect(mockProductStore.$reset).toHaveBeenCalledTimes(1);
+    });
+
+    it('detects removed CMS sections as unsaved changes', async () => {
+        const wrapper = await createWrapper();
+        const pageOriginSections = new EntityCollection(null, 'cms_section', Shopware.Context.api, null, [
+            {
+                id: 'section-id',
+                blocks: new EntityCollection(null, 'cms_block', Shopware.Context.api, null, []),
+            },
+        ]);
+
+        const page = {
+            _isDirty: false,
+            sections: new EntityCollection(null, 'cms_section', Shopware.Context.api, null, []),
+        };
+
+        expect(
+            wrapper.vm.$options.methods.hasUnsavedChanges.call({ page, pageOrigin: { sections: pageOriginSections } }),
+        ).toBeTruthy();
+    });
+
+    it('detects removed CMS blocks as unsaved changes', async () => {
+        const wrapper = await createWrapper();
+        const pageOriginSections = new EntityCollection(null, 'cms_section', Shopware.Context.api, null, [
+            {
+                id: 'section-id',
+                blocks: new EntityCollection(null, 'cms_block', Shopware.Context.api, null, [{ id: 'block-id', slots: [] }]),
+            },
+        ]);
+
+        const page = {
+            _isDirty: false,
+            sections: new EntityCollection(null, 'cms_section', Shopware.Context.api, null, [
+                {
+                    id: 'section-id',
+                    blocks: new EntityCollection(null, 'cms_block', Shopware.Context.api, null, []),
+                },
+            ]),
+        };
+
+        expect(
+            wrapper.vm.$options.methods.hasUnsavedChanges.call({ page, pageOrigin: { sections: pageOriginSections } }),
+        ).toBeTruthy();
+    });
+
+    it('should handle stores that are not registered', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        Shopware.Store.get = jest.fn().mockImplementation((storeName) => {
+            if (storeName === 'swProductDetail') {
+                throw new Error('Store not registered');
+            }
+            return shopwareStoreGetter(storeName);
+        });
+
+        expect(() => wrapper.vm.resetRelatedStores()).not.toThrow();
+    });
+
+    it('should call resetRelatedStores in createdComponent', async () => {
+        const wrapper = await createWrapper();
+        const resetSpy = jest.spyOn(wrapper.vm, 'resetRelatedStores');
+
+        await wrapper.vm.createdComponent();
+
+        expect(resetSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should call resetRelatedStores in beforeDestroyedComponent', async () => {
+        const wrapper = await createWrapper();
+        const resetSpy = jest.spyOn(wrapper.vm, 'resetRelatedStores');
+
+        wrapper.vm.beforeDestroyedComponent();
+
+        expect(resetSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set api language id on language change', async () => {
+        const wrapper = await createWrapper();
+        const defaultLanguageSpy = jest.spyOn(wrapper.vm.cmsPageState, 'setIsSystemDefaultLanguage');
+        const setApiLanguageSpy = jest.spyOn(Shopware.Store.get('context'), 'setApiLanguageId');
+        const loadPageSpy = jest.spyOn(wrapper.vm, 'loadPage');
+
+        wrapper.vm.onChangeLanguage('new-language');
+
+        expect(defaultLanguageSpy).toHaveBeenCalledWith(true);
+        expect(setApiLanguageSpy).toHaveBeenCalledWith('new-language');
+        expect(loadPageSpy).toHaveBeenCalledWith('1a');
     });
 });

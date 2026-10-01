@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\Traits\MailUpdate;
 use Shopware\Core\Migration\Traits\UpdateMailTrait;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * @internal
@@ -39,6 +40,8 @@ class Migration1688106315AddMissingTransactionMailTemplates extends MigrationSte
      */
     public function update(Connection $connection): void
     {
+        $filesystem = new Filesystem();
+
         $mails = [
             self::AUTHORIZED_TYPE => [
                 'type' => [
@@ -46,10 +49,10 @@ class Migration1688106315AddMissingTransactionMailTemplates extends MigrationSte
                     'availableEntities' => '{"order":"order","previousState":"state_machine_state","newState":"state_machine_state","salesChannel":"sales_channel","editOrderUrl":null}',
                 ],
                 'template' => [
-                    'htmlDe' => file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.authorized/de-html.html.twig'),
-                    'plainDe' => file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.authorized/de-plain.html.twig'),
-                    'htmlEn' => file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.authorized/en-html.html.twig'),
-                    'plainEn' => file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.authorized/en-plain.html.twig'),
+                    'htmlDe' => $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.authorized/de-html.html.twig'),
+                    'plainDe' => $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.authorized/de-plain.html.twig'),
+                    'htmlEn' => $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.authorized/en-html.html.twig'),
+                    'plainEn' => $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.authorized/en-plain.html.twig'),
                 ],
                 'translations' => [
                     'en' => [
@@ -70,10 +73,10 @@ class Migration1688106315AddMissingTransactionMailTemplates extends MigrationSte
                     'availableEntities' => '{"order":"order","previousState":"state_machine_state","newState":"state_machine_state","salesChannel":"sales_channel","editOrderUrl":null}',
                 ],
                 'template' => [
-                    'htmlDe' => file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.chargeback/de-html.html.twig'),
-                    'plainDe' => file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.chargeback/de-plain.html.twig'),
-                    'htmlEn' => file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.chargeback/en-html.html.twig'),
-                    'plainEn' => file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.chargeback/en-plain.html.twig'),
+                    'htmlDe' => $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.chargeback/de-html.html.twig'),
+                    'plainDe' => $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.chargeback/de-plain.html.twig'),
+                    'htmlEn' => $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.chargeback/en-html.html.twig'),
+                    'plainEn' => $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.chargeback/en-plain.html.twig'),
                 ],
                 'translations' => [
                     'en' => [
@@ -94,10 +97,10 @@ class Migration1688106315AddMissingTransactionMailTemplates extends MigrationSte
                     'availableEntities' => '{"order":"order","previousState":"state_machine_state","newState":"state_machine_state","salesChannel":"sales_channel","editOrderUrl":null}',
                 ],
                 'template' => [
-                    'htmlDe' => file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.unconfirmed/de-html.html.twig'),
-                    'plainDe' => file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.unconfirmed/de-plain.html.twig'),
-                    'htmlEn' => file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.unconfirmed/en-html.html.twig'),
-                    'plainEn' => file_get_contents(__DIR__ . '/../Fixtures/mails/order_transaction.state.unconfirmed/en-plain.html.twig'),
+                    'htmlDe' => $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.unconfirmed/de-html.html.twig'),
+                    'plainDe' => $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.unconfirmed/de-plain.html.twig'),
+                    'htmlEn' => $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.unconfirmed/en-html.html.twig'),
+                    'plainEn' => $filesystem->readFile(__DIR__ . '/../Fixtures/mails/order_transaction.state.unconfirmed/en-plain.html.twig'),
                 ],
                 'translations' => [
                     'en' => [

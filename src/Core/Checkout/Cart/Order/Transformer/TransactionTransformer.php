@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Struct\Struct;
 class TransactionTransformer
 {
     /**
-     * @return array<int, array<string, string|CalculatedPrice|array<array-key, mixed>|null>>
+     * @return list<array<string, string|CalculatedPrice|array<array-key, mixed>|null>>
      */
     public static function transformCollection(
         TransactionCollection $transactions,

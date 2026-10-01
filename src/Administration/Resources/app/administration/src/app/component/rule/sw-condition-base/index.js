@@ -1,8 +1,7 @@
 import template from './sw-condition-base.html.twig';
 import './sw-condition-base.scss';
 
-const { Component } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const ShopwareError = Shopware.Classes.ShopwareError;
 
 /**
  * @private
@@ -13,7 +12,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
  * @component-example
  * <sw-condition-base :condition="condition"></sw-condition-base>
  */
-Component.register('sw-condition-base', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -25,11 +24,13 @@ Component.register('sw-condition-base', {
         'availableGroups',
     ],
 
-    emits: [
-        'create-before',
-        'create-after',
-        'condition-delete',
-    ],
+    provide() {
+        return {
+            conditionType: this.conditionTypeIdentifier,
+        };
+    },
+
+    emits: ['create-before', 'create-after', 'condition-delete'],
 
     props: {
         condition: {
@@ -46,21 +47,67 @@ Component.register('sw-condition-base', {
     },
 
     computed: {
+        conditionTypeIdentifier() {
+            return this.condition?.type ?? null;
+        },
+
         conditionClasses() {
             return {
                 'has--error': this.hasError,
-                'is--disabled': this.hasNoComponent || this.disabled,
+                'is--disabled': this.isDisabled,
             };
         },
 
-        ...mapPropertyErrors('condition', ['type']),
+        errorTree() {
+            if (!this.condition?.id) {
+                return null;
+            }
+
+            return Shopware.Store.get('error').getErrorsForEntity('rule_condition', this.condition.id);
+        },
+
+        fieldErrors() {
+            const valueErrors = this.errorTree?.value;
+
+            if (!valueErrors) {
+                return {};
+            }
+
+            return Object.entries(valueErrors).reduce((acc, [key, node]) => {
+                if (node instanceof ShopwareError) {
+                    acc[key] = node;
+                }
+                return acc;
+            }, {});
+        },
+
+        typeError() {
+            const node = this.errorTree?.type;
+
+            return node instanceof ShopwareError ? node : null;
+        },
+
+        errorCount() {
+            return Object.keys(this.fieldErrors).length + (this.typeError ? 1 : 0);
+        },
+
+        listedErrors() {
+            if (!this.typeError) {
+                return this.fieldErrors;
+            }
+
+            return {
+                type: this.typeError,
+                ...this.fieldErrors,
+            };
+        },
 
         currentError() {
-            return this.conditionTypeError;
+            return this.typeError ?? Object.values(this.fieldErrors)[0] ?? null;
         },
 
         hasError() {
-            return this.currentError !== null;
+            return this.errorCount > 0;
         },
 
         valueErrorPath() {
@@ -69,6 +116,10 @@ Component.register('sw-condition-base', {
 
         value() {
             return this.condition.value;
+        },
+
+        isDisabled() {
+            return this.disabled || this.hasNoComponent;
         },
 
         hasNoComponent() {
@@ -91,8 +142,8 @@ Component.register('sw-condition-base', {
             if (this.hasError) {
                 Shopware.Store.get('error').removeApiError(this.valueErrorPath);
             }
+
             if (this.isEmpty && !!this.inputKey) {
-                // eslint-disable-next-line vue/no-mutating-props
                 delete this.condition.value[this.inputKey];
             }
         },
@@ -113,9 +164,8 @@ Component.register('sw-condition-base', {
 
         ensureValueExist() {
             if (typeof this.condition.value === 'undefined' || this.condition.value === null) {
-                // eslint-disable-next-line vue/no-mutating-props
                 this.condition.value = {};
             }
         },
     },
-});
+};

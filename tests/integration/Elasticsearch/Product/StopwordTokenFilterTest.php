@@ -6,12 +6,14 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Elasticsearch\Product\StopwordTokenFilter;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 class StopwordTokenFilterTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -38,7 +40,7 @@ class StopwordTokenFilterTest extends TestCase
 
         sort($expected);
         sort($keywords);
-        static::assertEquals($expected, $keywords);
+        static::assertSame($expected, $keywords);
     }
 
     /**

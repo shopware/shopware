@@ -2,13 +2,14 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer\SalesChannel;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundException;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -22,7 +23,6 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -128,7 +128,7 @@ class LoginRouteTest extends TestCase
                 ],
             );
 
-        static::assertEquals(
+        static::assertSame(
             $this->getDeDeLanguageId(),
             $this->customerRepository->search(
                 new Criteria([$customerId]),
@@ -140,10 +140,8 @@ class LoginRouteTest extends TestCase
     public function testValidLoginWithOneInactive(): void
     {
         $email = Uuid::randomHex() . '@example.com';
-        // Inactive user with different password
-        $this->createCustomer($email, null, false);
-        // Active user with correct password
-        $this->createCustomer($email);
+        $customerId = $this->createCustomer($email);
+        $this->cloneCustomerWithDuplicateEmail($customerId, Uuid::randomHex(), false);
 
         $this->browser
             ->request(
@@ -163,8 +161,6 @@ class LoginRouteTest extends TestCase
 
     public function testLoginWithInvalidBoundSalesChannelId(): void
     {
-        static::expectException(CustomerNotFoundException::class);
-
         $email = Uuid::randomHex() . '@example.com';
         $salesChannel = $this->createSalesChannel([
             'id' => Uuid::randomHex(),
@@ -180,9 +176,7 @@ class LoginRouteTest extends TestCase
 
         $requestDataBag = new RequestDataBag(['email' => $email, 'password' => 'shopware']);
 
-        $success = $loginRoute->login($requestDataBag, $salesChannelContext);
-        static::assertInstanceOf(ContextTokenResponse::class, $success);
-
+        static::expectExceptionObject(CustomerException::badCredentials());
         $loginRoute->login($requestDataBag, $salesChannelContext);
     }
 
@@ -202,21 +196,21 @@ class LoginRouteTest extends TestCase
         $response = $loginRoute->login($request, $salesChannelContext);
 
         // Token is replace as there're no customer token in the database
-        static::assertNotEquals($contextToken, $oldToken = $response->getToken());
+        static::assertNotSame($contextToken, $oldToken = $response->getToken());
 
         $salesChannelContext = $this->createSalesChannelContext('123456789', [], $customerId);
 
         $response = $loginRoute->login($request, $salesChannelContext);
 
         // Previous token is restored
-        static::assertEquals($oldToken, $response->getToken());
+        static::assertSame($oldToken, $response->getToken());
 
         // Previous Cart is restored
         $salesChannelContext = $this->createSalesChannelContext($oldToken, [], $customerId);
         $oldCartExists = static::getContainer()->get(CartService::class)->getCart($oldToken, $salesChannelContext);
 
         static::assertInstanceOf(Cart::class, $oldCartExists);
-        static::assertEquals($oldToken, $oldCartExists->getToken());
+        static::assertSame($oldToken, $oldCartExists->getToken());
     }
 
     public function testCustomerHaveDifferentCartsOnEachSalesChannel(): void
@@ -264,14 +258,14 @@ class LoginRouteTest extends TestCase
 
         $responseSalesChannel2 = $loginRoute->login($request, $salesChannelContext2);
 
-        static::assertNotEquals($responseSalesChannel1->getToken(), $responseSalesChannel2->getToken());
+        static::assertNotSame($responseSalesChannel1->getToken(), $responseSalesChannel2->getToken());
 
         $cartService = static::getContainer()->get(CartService::class);
 
         $cartFromSalesChannel1 = $cartService->getCart($responseSalesChannel1->getToken(), $salesChannelContext1, false);
         $cartFromSalesChannel2 = $cartService->getCart($responseSalesChannel2->getToken(), $salesChannelContext2, false);
 
-        static::assertNotEquals($cartFromSalesChannel1->getToken(), $cartFromSalesChannel2->getToken());
+        static::assertNotSame($cartFromSalesChannel1->getToken(), $cartFromSalesChannel2->getToken());
     }
 
     private function createCart(string $contextToken, SalesChannelContext $context): void
@@ -322,7 +316,7 @@ class LoginRouteTest extends TestCase
             'firstName' => 'Max',
             'lastName' => 'Mustermann',
             'salutationId' => $this->getValidSalutationId(),
-            'customerNumber' => '12345',
+            'customerNumber' => $customerId,
             'boundSalesChannelId' => $boundSalesChannelId,
             'active' => $active,
         ];
@@ -334,5 +328,47 @@ class LoginRouteTest extends TestCase
         $this->customerRepository->create([$customer], Context::createDefaultContext());
 
         return $customerId;
+    }
+
+    private function cloneCustomerWithDuplicateEmail(string $sourceCustomerId, string $customerId, bool $active): void
+    {
+        $connection = static::getContainer()->get(Connection::class);
+        /** @var list<array{Field: string, Extra: string}> $columns */
+        $columns = $connection->fetchAllAssociative('SHOW COLUMNS FROM `customer`');
+
+        $insertColumns = [];
+        $selectExpressions = [];
+
+        foreach ($columns as $column) {
+            if (str_contains($column['Extra'], 'auto_increment')) {
+                continue;
+            }
+
+            $field = $column['Field'];
+            $insertColumns[] = '`' . $field . '`';
+            $selectExpressions[] = match ($field) {
+                'id' => ':customerId',
+                'active' => ':active',
+                'customer_number' => ':customerNumber',
+                'created_at' => ':createdAt',
+                'updated_at' => 'NULL',
+                default => '`' . $field . '`',
+            };
+        }
+
+        // This test covers login behavior with legacy duplicate customer rows that normal writes now reject.
+        $connection->executeStatement(
+            'INSERT INTO `customer` (' . implode(', ', $insertColumns) . ')
+             SELECT ' . implode(', ', $selectExpressions) . '
+             FROM `customer`
+             WHERE `id` = :sourceCustomerId',
+            [
+                'active' => (int) $active,
+                'createdAt' => '2022-10-22 10:00:00',
+                'customerId' => Uuid::fromHexToBytes($customerId),
+                'customerNumber' => $customerId,
+                'sourceCustomerId' => Uuid::fromHexToBytes($sourceCustomerId),
+            ],
+        );
     }
 }

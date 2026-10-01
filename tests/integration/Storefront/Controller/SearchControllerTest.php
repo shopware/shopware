@@ -52,9 +52,9 @@ class SearchControllerTest extends TestCase
     public function testSearchPageLoadedHookScriptsAreExecuted(): void
     {
         $response = $this->request('GET', '/search', ['search' => 'test']);
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(SearchPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -62,9 +62,9 @@ class SearchControllerTest extends TestCase
     public function testSuggestPageLoadedHookScriptsAreExecuted(): void
     {
         $response = $this->request('GET', '/suggest', ['search' => 'test']);
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(SuggestPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -72,9 +72,9 @@ class SearchControllerTest extends TestCase
     public function testSearchWidgetLoadedHookScriptsAreExecuted(): void
     {
         $response = $this->request('GET', '/widgets/search', ['search' => 'test']);
-        static::assertEquals(200, $response->getStatusCode());
+        static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(SearchWidgetLoadedHook::HOOK_NAME, $traces);
     }

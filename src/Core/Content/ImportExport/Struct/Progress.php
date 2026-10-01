@@ -14,8 +14,6 @@ class Progress extends Struct
     final public const STATE_FAILED = 'failed';
     final public const STATE_ABORTED = 'aborted';
 
-    protected string $logId;
-
     protected ?string $invalidRecordsLogId = null;
 
     protected int $offset = 0;
@@ -24,16 +22,12 @@ class Progress extends Struct
 
     protected int $processedRecords = 0;
 
-    protected string $state;
-
     public function __construct(
-        string $logId,
-        string $state,
+        protected string $logId,
+        protected string $state,
         int $offset = 0,
         ?int $total = null
     ) {
-        $this->logId = $logId;
-        $this->state = $state;
         $this->offset = $offset;
         $this->total = $total;
     }

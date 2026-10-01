@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Administration;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -16,7 +15,6 @@ use Symfony\Component\Yaml\Yaml;
  * @internal
  */
 #[Package('framework')]
-#[Group('slow')]
 class AdditionalPermissionValidationTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -59,7 +57,7 @@ class AdditionalPermissionValidationTest extends TestCase
     {
         $additionalPermission = $this->getAdditionalPermissions();
 
-        if (empty($additionalPermission)) {
+        if ($additionalPermission === []) {
             return;
         }
 
@@ -93,7 +91,7 @@ class AdditionalPermissionValidationTest extends TestCase
             }
         }
 
-        if (!empty($regexParts)) {
+        if ($regexParts !== []) {
             static::fail(\sprintf(
                 'Found additional permission privileges not validated: %s',
                 implode(', ', array_keys($regexParts))

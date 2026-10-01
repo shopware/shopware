@@ -7,21 +7,25 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\DataAbstractionLayer\UpdatedStates;
 use Shopware\Core\Content\Product\Events\ProductStatesChangedEvent;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductStatesChangedEvent::class)]
 class ProductStatesChangedEventTest extends TestCase
 {
-    public function testProductStatesChangedEvent(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testExposesTheUpdatedStatesAndContext(): void
     {
-        $updatedStates = [new UpdatedStates('foobar', ['foo'], ['bar'])];
         $context = Context::createDefaultContext();
+        $states = [new UpdatedStates('product-id', ['physical'], ['digital'])];
 
-        $event = new ProductStatesChangedEvent($updatedStates, $context);
+        $event = new ProductStatesChangedEvent($states, $context);
 
-        static::assertEquals($updatedStates, $event->getUpdatedStates());
-        static::assertEquals($context, $event->getContext());
+        static::assertSame($states, $event->getUpdatedStates());
+        static::assertSame($context, $event->getContext());
     }
 }

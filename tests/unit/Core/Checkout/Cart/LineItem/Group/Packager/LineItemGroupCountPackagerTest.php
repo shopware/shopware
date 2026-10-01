@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Packager;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupPackagerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackager;
@@ -24,7 +24,7 @@ class LineItemGroupCountPackagerTest extends TestCase
 
     private LineItemGroupPackagerInterface $packager;
 
-    private MockObject&SalesChannelContext $context;
+    private Stub&SalesChannelContext $context;
 
     protected function setUp(): void
     {
@@ -32,7 +32,7 @@ class LineItemGroupCountPackagerTest extends TestCase
 
         $this->packager = new LineItemGroupCountPackager();
 
-        $this->context = $this->getMockBuilder(SalesChannelContext::class)->disableOriginalConstructor()->getMock();
+        $this->context = static::createStub(SalesChannelContext::class);
     }
 
     /**
@@ -44,7 +44,7 @@ class LineItemGroupCountPackagerTest extends TestCase
     #[Group('lineitemgroup')]
     public function testKey(): void
     {
-        static::assertEquals('COUNT', $this->packager->getKey());
+        static::assertSame('COUNT', $this->packager->getKey());
     }
 
     /**
@@ -69,8 +69,8 @@ class LineItemGroupCountPackagerTest extends TestCase
         static::assertCount(2, $packageItems->getItems());
 
         // test that we have the first 2 from our list
-        static::assertEquals($p1->getId(), $packageItems->getItems()[0]->getLineItemId());
-        static::assertEquals($p2->getId(), $packageItems->getItems()[1]->getLineItemId());
+        static::assertSame($p1->getId(), $packageItems->getItems()[0]->getLineItemId());
+        static::assertSame($p2->getId(), $packageItems->getItems()[1]->getLineItemId());
     }
 
     /**

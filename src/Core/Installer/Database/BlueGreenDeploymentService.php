@@ -31,7 +31,7 @@ class BlueGreenDeploymentService
         } catch (Exception) {
             return false;
         } finally {
-            $connection->executeQuery('DROP TABLE IF EXISTS example');
+            $connection->executeStatement('DROP TABLE IF EXISTS example');
         }
 
         return true;

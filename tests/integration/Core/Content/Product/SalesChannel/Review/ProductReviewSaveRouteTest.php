@@ -6,11 +6,13 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewSaveRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -22,10 +24,12 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[Group('store-api')]
 class ProductReviewSaveRouteTest extends TestCase
 {
@@ -56,11 +60,11 @@ class ProductReviewSaveRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        static::assertEquals(403, $response->getStatusCode());
+        static::assertSame(403, $response->getStatusCode());
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals($response['errors'][0]['code'], RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE);
+        static::assertSame($response['errors'][0]['code'], RoutingException::CUSTOMER_NOT_LOGGED_IN_CODE);
     }
 
     #[DataProvider('provideContentData')]
@@ -77,11 +81,34 @@ class ProductReviewSaveRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        static::assertEquals(204, $response->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
+        static::assertSame(204, $response->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
 
         $this->assertReviewCount(1);
 
         $this->assertReviewContent($expectedContent);
+    }
+
+    public function testCreateRejectsContentThatIsEmptyAfterSanitizing(): void
+    {
+        $this->login($this->browser);
+
+        $this->assertReviewCount(0);
+
+        $this->browser->request('POST', $this->getUrl(), [
+            'title' => 'Lorem ipsum dolor sit amet',
+            'content' => '<script>alert("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")</script>',
+        ]);
+
+        $response = $this->browser->getResponse();
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), print_r($response->getContent(), true));
+
+        $errors = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR)['errors'];
+
+        static::assertSame(NotBlank::IS_BLANK_ERROR, $errors[0]['code']);
+        static::assertStringEndsWith('/content', $errors[0]['source']['pointer']);
+
+        $this->assertReviewCount(0);
     }
 
     public function testUpdate(): void
@@ -99,7 +126,7 @@ class ProductReviewSaveRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        static::assertEquals(204, $response->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
+        static::assertSame(204, $response->getStatusCode(), print_r($this->browser->getResponse()->getContent(), true));
 
         $this->assertReviewCount(1);
 
@@ -119,12 +146,12 @@ class ProductReviewSaveRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        static::assertEquals(400, $response->getStatusCode());
+        static::assertSame(400, $response->getStatusCode());
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertEquals($response['errors'][0]['source']['pointer'], '/title');
-        static::assertEquals($response['errors'][1]['source']['pointer'], '/content');
+        static::assertSame($response['errors'][0]['source']['pointer'], '/title');
+        static::assertSame($response['errors'][1]['source']['pointer'], '/content');
     }
 
     public function testCustomerValidation(): void
@@ -188,6 +215,7 @@ class ProductReviewSaveRouteTest extends TestCase
             $data,
             $salesChannelContext
         );
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         $this->resetEventDispatcher();
 
@@ -209,31 +237,27 @@ class ProductReviewSaveRouteTest extends TestCase
             '<a href="https://localhost">Lorem ipsum dolor sit amet, consetetur sadipscing elitr</a>',
             'Lorem ipsum dolor sit amet, consetetur sadipscing elitr',
         ];
-        yield 'script' => [
-            '<script>alert("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")</script>',
-            'alert("Lorem ipsum dolor sit amet, consetetur sadipscing elitr")',
-        ];
         yield 'javascript' => [
             '<script>alert("foo")</script><p>foo</p><script>alert("foo")</script>',
-            'alert("foo")fooalert("foo")',
+            'foo',
         ];
         yield 'javascript with attributes' => [
             '<script type="text/javascript">alert("foo")</script><p>foo</p><script>alert("foo")</script>',
-            'alert("foo")fooalert("foo")',
+            'foo',
         ];
         yield 'javascript with attributes and spaces' => [
             '<script type = "text/javascript">alert("foo")</script><p>foo</p><script>alert("foo")</script>',
-            'alert("foo")fooalert("foo")',
+            'foo',
         ];
     }
 
     private function assertReviewCount(int $expected): void
     {
-        $count = static::getContainer()
+        $count = (int) static::getContainer()
             ->get(Connection::class)
             ->fetchOne('SELECT COUNT(*) FROM product_review WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('product'))]);
 
-        static::assertEquals($expected, $count);
+        static::assertSame($expected, $count);
     }
 
     private function createData(): void
@@ -280,6 +304,6 @@ class ProductReviewSaveRouteTest extends TestCase
             ->get(Connection::class)
             ->fetchOne('SELECT content FROM product_review WHERE product_id = :id', ['id' => Uuid::fromHexToBytes($this->ids->get('product'))]);
 
-        static::assertEquals($expectedContent, $content);
+        static::assertSame($expectedContent, $content);
     }
 }

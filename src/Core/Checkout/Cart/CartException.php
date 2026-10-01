@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Customer\Exception\AddressNotFoundException;
 use Shopware\Core\Checkout\Order\Exception\EmptyCartException;
 use Shopware\Core\Content\Flow\Exception\CustomerDeletedException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -19,9 +20,6 @@ use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class CartException extends HttpException
 {
@@ -34,6 +32,7 @@ class CartException extends HttpException
     public const CART_INVALID_CODE = 'CHECKOUT__CART_INVALID';
     public const CART_INVALID_LINE_ITEM_PAYLOAD_CODE = 'CHECKOUT__CART_INVALID_LINE_ITEM_PAYLOAD';
     public const CART_INVALID_LINE_ITEM_QUANTITY_CODE = 'CHECKOUT__CART_INVALID_LINE_ITEM_QUANTITY';
+    public const CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE = 'CHECKOUT__CART_INVALID_CHILD_LINE_ITEM_QUANTITY';
     public const CART_PAYMENT_INVALID_ORDER_STORED_CODE = 'CHECKOUT__CART_INVALID_PAYMENT_ORDER_STORED';
     public const CART_PAYMENT_INVALID_ORDER_CODE = 'CHECKOUT__CART_INVALID_PAYMENT_ORDER_NOT_STORED';
     public const CART_ORDER_CONVERT_NOT_FOUND_CODE = 'CHECKOUT__CART_ORDER_CONVERT_NOT_FOUND';
@@ -77,6 +76,8 @@ class CartException extends HttpException
     public const INVALID_REQUEST_PARAMETER_CODE = 'FRAMEWORK__INVALID_REQUEST_PARAMETER';
     public const INVALID_PRICE_FIELD_TYPE = 'FRAMEWORK__INVALID_PRICE_FIELD_TYPE';
     public const RULE_OPERATOR_NOT_SUPPORTED = 'CHECKOUT__RULE_OPERATOR_NOT_SUPPORTED';
+    public const CART_LOCKED = 'CHECKOUT__CART_LOCKED';
+    public const CART_SERIALIZATION_TOO_LARGE = 'CHECKOUT__CART_SERIALIZATION_TOO_LARGE';
 
     public static function shippingMethodNotFound(string $id, ?\Throwable $e = null): self
     {
@@ -192,7 +193,7 @@ class CartException extends HttpException
     {
         return new self(
             Response::HTTP_BAD_REQUEST,
-            self::CART_INVALID_LINE_ITEM_QUANTITY_CODE,
+            self::CART_INVALID_CHILD_LINE_ITEM_QUANTITY_CODE,
             'The quantity of a child "{{ childQuantity }}" must be a multiple of the parent quantity "{{ parentQuantity }}"',
             ['childQuantity' => $childQuantity, 'parentQuantity' => $parentQuantity]
         );
@@ -452,9 +453,7 @@ class CartException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unsupportedOperator(string $operator, string $class): self|UnsupportedOperatorException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -607,9 +606,7 @@ class CartException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function invalidPriceFieldTypeException(string $type): self|InvalidPriceFieldTypeException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -621,6 +618,25 @@ class CartException extends HttpException
             self::INVALID_PRICE_FIELD_TYPE,
             'The price field does not contain a valid "type" value. Received {{ type }}',
             ['type' => $type]
+        );
+    }
+
+    public static function cartLocked(string $token): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::CART_LOCKED,
+            'Cart with token {{ token }} is locked due to concurrent write operation. Please try again later.',
+            ['token' => $token]
+        );
+    }
+
+    public static function serializedCartTooLarge(): self
+    {
+        return new self(
+            Response::HTTP_UNPROCESSABLE_ENTITY,
+            self::CART_SERIALIZATION_TOO_LARGE,
+            'The serialized cart data exceeds the allowed payload size limit'
         );
     }
 }

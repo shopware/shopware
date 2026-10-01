@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package discovery
  */
@@ -124,12 +126,13 @@ async function createWrapper({ salesChannel, products } = {}) {
                     'sw-entity-listing': {
                         props: [
                             'items',
+                            'dataSource',
                             'allowEdit',
                             'allowDelete',
                         ],
                         template: `
                         <div class="sw-entity-listing">
-                            <template v-for="item in items">
+                            <template v-for="item in (dataSource || items)">
                                 <slot name="actions" v-bind="{ item }"></slot>
                             </template>
                         </div>
@@ -218,7 +221,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         });
         await flushPromises();
 
-        expect(wrapper.getComponent('.sw-entity-listing').props('items')).toEqual(productsMock);
+        expect(wrapper.getComponent('.sw-entity-listing').props('dataSource')).toEqual(productsMock);
     });
 
     it('should delete product successful', async () => {
@@ -306,9 +309,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
         expect(wrapper.vm.page).toBe(2);
         expect(wrapper.vm.limit).toBe(25);
-        expect(wrapper.vm.productCriteria.sortings).toEqual([
-            { field: 'name', naturalSorting: false, order: 'ASC' },
-        ]);
+        expect(wrapper.vm.productCriteria.sortings).toEqual([{ field: 'name', naturalSorting: false, order: 'ASC' }]);
         expect(wrapper.vm.getProducts).toHaveBeenCalledTimes(1);
         wrapper.vm.getProducts.mockRestore();
     });
@@ -413,14 +414,10 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         wrapper.vm.saveProductVisibilities = jest.fn(() => Promise.resolve());
 
         await wrapper.setData({ products: productsMock });
-        await wrapper.vm.onAddProducts([
-            { id: '103', active: true, productNumber: '003' },
-        ]);
+        await wrapper.vm.onAddProducts([{ id: '103', active: true, productNumber: '003' }]);
 
         expect(wrapper.vm.saveProductVisibilities).toHaveBeenCalledWith(
-            expect.arrayContaining([
-                expect.objectContaining({ productId: '103' }),
-            ]),
+            expect.arrayContaining([expect.objectContaining({ productId: '103' })]),
         );
 
         wrapper.vm.saveProductVisibilities.mockRestore();
@@ -483,10 +480,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
 
     it('should not be able to delete variants which have inherit visibility', async () => {
         const { wrapper } = await createWrapper({
-            products: [
-                ...productsMock,
-                ...variantProductMocks,
-            ],
+            products: [...productsMock, ...variantProductMocks],
         });
         await flushPromises();
 
@@ -506,7 +500,7 @@ describe('src/module/sw-sales-channel/view/sw-sales-channel-detail-products', ()
         await flushPromises();
 
         expect(wrapper.getComponent('.mt-card').attributes('is-loading')).toBeUndefined();
-        expect(wrapper.find('.sw-empty-state').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
     });
 
     it('should return filters from filter registry', async () => {

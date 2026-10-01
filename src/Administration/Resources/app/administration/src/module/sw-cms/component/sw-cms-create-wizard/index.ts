@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-create-wizard.html.twig';
 import './sw-cms-create-wizard.scss';
 
@@ -11,16 +10,9 @@ const { Filter } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'feature',
-        'cmsPageTypeService',
-        'customEntityDefinitionService',
-    ],
+    inject: ['feature', 'cmsPageTypeService', 'customEntityDefinitionService'],
 
-    emits: [
-        'on-section-select',
-        'wizard-complete',
-    ],
+    emits: ['on-section-select', 'wizard-complete'],
 
     props: {
         page: {
@@ -53,6 +45,25 @@ export default Shopware.Component.wrapComponentConfig({
             return this.cmsPageTypeService.getVisibleTypes();
         },
 
+        pageTypeSelectionStyle() {
+            const count = this.visiblePageTypes.length;
+
+            if (count === 0) {
+                return {};
+            }
+
+            const maxPerRow = 5;
+            const tileWidth = 140;
+            const gap = 20;
+
+            const rows = Math.ceil(count / maxPerRow);
+            const columns = Math.ceil(count / rows);
+
+            return {
+                'max-width': `${columns * (tileWidth + gap) - gap}px`,
+            };
+        },
+
         currentPageType() {
             return this.cmsPageTypeService.getType(this.page.type);
         },
@@ -62,10 +73,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         isCompletable() {
-            return [
-                this.page.name,
-                !this.isCustomEntityType || this.page.entity,
-            ].every((condition) => condition);
+            return [this.page.name, !this.isCustomEntityType || this.page.entity].every((condition) => condition);
         },
 
         customEntities() {
@@ -75,7 +83,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 return {
                     value,
-                    label: this.$te(snippetKey) ? this.$tc(snippetKey) : value,
+                    label: this.$te(snippetKey) ? this.$t(snippetKey) : value,
                 };
             });
         },
@@ -88,7 +96,7 @@ export default Shopware.Component.wrapComponentConfig({
 
             const imgPath = 'administration/administration/static/img/cms';
 
-            return `url(${this.assetFilter(`${imgPath}/preview_${this.page.type}_${sections[0].type}.png`)})`;
+            return `url(${this.assetFilter(`${imgPath}/preview_${this.page.type}_${sections[0].type}.webp`)})`;
         },
 
         pagePreviewStyle() {

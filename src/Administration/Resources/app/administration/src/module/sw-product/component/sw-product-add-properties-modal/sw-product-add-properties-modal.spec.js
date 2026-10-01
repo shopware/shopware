@@ -73,10 +73,6 @@ describe('src/module/sw-product/component/sw-product-add-properties-modal', () =
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should emit an event when pressing on cancel button', async () => {
         wrapper.vm.onCancel();
 

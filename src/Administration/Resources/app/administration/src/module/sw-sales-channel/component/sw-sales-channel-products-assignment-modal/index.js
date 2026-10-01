@@ -21,10 +21,9 @@ const updateElementVisibility = (element, binding) => {
 export default {
     template,
 
-    emits: [
-        'modal-close',
-        'products-add',
-    ],
+    inject: ['feature'],
+
+    emits: ['modal-close', 'products-add'],
 
     directives: {
         hide: {
@@ -47,6 +46,7 @@ export default {
 
     data() {
         return {
+            activeTab: 'singleProducts',
             singleProducts: [],
             categoryProducts: [],
             groupProducts: [],
@@ -73,14 +73,24 @@ export default {
         },
 
         products() {
-            return uniqBy(
-                [
-                    ...this.singleProducts,
-                    ...this.categoryProducts,
-                    ...this.groupProducts,
-                ],
-                'id',
-            );
+            return uniqBy([...this.singleProducts, ...this.categoryProducts, ...this.groupProducts], 'id');
+        },
+
+        productAssignmentTabs() {
+            return [
+                {
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.singleProducts'),
+                    name: 'singleProducts',
+                },
+                {
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.categories.title'),
+                    name: 'categories',
+                },
+                {
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.title'),
+                    name: 'dynamicProductGroups',
+                },
+            ];
         },
     },
 
@@ -96,7 +106,6 @@ export default {
         },
 
         getProductContainerStyle() {
-            // eslint-disable-next-line max-len
             const cardSectionSecondaryHeight = `${this.$refs?.product?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
             this.productContainerStyle['grid-template-rows'] =
@@ -106,10 +115,9 @@ export default {
         getCategoryContainerStyle() {
             const tabContentGutter = '20px';
             const alertHeight = `${this.$refs?.category?.$refs?.alert?.$el?.offsetHeight ?? 0}px`;
-            // eslint-disable-next-line max-len
             const cardSectionSecondaryHeight = `${this.$refs?.category?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
-            this.productContainerStyle['grid-template-rows'] =
+            this.categoryContainerStyle['grid-template-rows'] =
                 `auto calc(${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${
                     cardSectionSecondaryHeight
                 }))`;
@@ -118,10 +126,9 @@ export default {
         getProductGroupContainerStyle() {
             const tabContentGutter = '20px';
             const alertHeight = `${this.$refs?.productGroup?.$refs?.alert?.$el?.offsetHeight ?? 0}px`;
-            // eslint-disable-next-line max-len
             const cardSectionSecondaryHeight = `${this.$refs?.productGroup?.$refs?.cardSectionSecondary?.$el?.offsetHeight ?? 0}px`;
 
-            this.productContainerStyle['grid-template-rows'] =
+            this.productGroupContainerStyle['grid-template-rows'] =
                 `auto calc(${this.tabContentHeight} - (${tabContentGutter} + ${alertHeight} + ${
                     cardSectionSecondaryHeight
                 }))`;

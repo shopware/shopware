@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\System\Tag\TagDefinition;
-use Symfony\Component\Validator\Constraint;
 
 /**
  * @final
@@ -35,7 +34,7 @@ class LineItemTagRule extends Rule
     public function match(RuleScope $scope): bool
     {
         if ($scope instanceof LineItemScope) {
-            return RuleComparison::uuids($this->extractTagIds($scope->getLineItem()), $this->identifiers, $this->operator);
+            return $this->matchTags($scope->getLineItem());
         }
 
         if (!$scope instanceof CartRuleScope) {
@@ -43,7 +42,11 @@ class LineItemTagRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
-            if (RuleComparison::uuids($this->extractTagIds($lineItem), $this->identifiers, $this->operator)) {
+            if (!\array_key_exists('tagIds', $lineItem->getPayload())) {
+                continue;
+            }
+
+            if ($this->matchTags($lineItem)) {
                 return true;
             }
         }
@@ -51,9 +54,6 @@ class LineItemTagRule extends Rule
         return false;
     }
 
-    /**
-     * @return array|Constraint[][]
-     */
     public function getConstraints(): array
     {
         $constraints = [
@@ -74,6 +74,11 @@ class LineItemTagRule extends Rule
         return (new RuleConfig())
             ->operatorSet(RuleConfig::OPERATOR_SET_STRING, true, true)
             ->entitySelectField('identifiers', TagDefinition::ENTITY_NAME, true);
+    }
+
+    private function matchTags(LineItem $lineItem): bool
+    {
+        return RuleComparison::uuids($this->extractTagIds($lineItem), $this->identifiers, $this->operator);
     }
 
     /**

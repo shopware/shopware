@@ -45,9 +45,10 @@ class TransportConfigProviderTest extends TestCase
             ->method('all')
             ->willReturn($configs);
 
-        $provider = new TransportConfigProvider($metricConfigProvider);
+        $provider = new TransportConfigProvider($metricConfigProvider, 'test.namespace');
         $config = $provider->getTransportConfig();
         static::assertCount(2, $config->metricsConfig);
+        static::assertSame('test.namespace', $config->namespace);
 
         $metric1 = $config->metricsConfig[0];
         static::assertInstanceOf(MetricConfig::class, $metric1);

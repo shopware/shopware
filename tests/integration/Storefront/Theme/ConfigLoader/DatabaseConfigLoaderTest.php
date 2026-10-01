@@ -9,6 +9,7 @@ use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
@@ -20,6 +21,7 @@ use Shopware\Storefront\Theme\ThemeCollection;
 /**
  * @internal
  */
+#[Package('discovery')]
 class DatabaseConfigLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -89,7 +91,7 @@ class DatabaseConfigLoaderTest extends TestCase
             new StorefrontPluginConfiguration('base'),
         ]);
 
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')
             ->willReturn($collection);
 
@@ -113,7 +115,7 @@ class DatabaseConfigLoaderTest extends TestCase
             strrpos($themeConfig['fields']['media-field']['value'], '?') ?: null
         );
 
-        static::assertEquals($mediaURL, $entityUrlWithoutQueryString);
+        static::assertSame($mediaURL, $entityUrlWithoutQueryString);
     }
 
     public function testEmptyMediaConfigurationLoading(): void
@@ -137,7 +139,7 @@ class DatabaseConfigLoaderTest extends TestCase
             new StorefrontPluginConfiguration('base'),
         ]);
 
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')
             ->willReturn($collection);
 
@@ -155,7 +157,7 @@ class DatabaseConfigLoaderTest extends TestCase
 
         $mediaURL = null;
 
-        static::assertEquals($mediaURL, $themeConfig['fields']['media-field']['value']);
+        static::assertSame($mediaURL, $themeConfig['fields']['media-field']['value']);
     }
 
     public function testNonExistentMediaConfigurationLoading(): void
@@ -179,7 +181,7 @@ class DatabaseConfigLoaderTest extends TestCase
             new StorefrontPluginConfiguration('base'),
         ]);
 
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')
             ->willReturn($collection);
 
@@ -197,7 +199,7 @@ class DatabaseConfigLoaderTest extends TestCase
 
         $mediaURL = self::MEDIA_ID;
 
-        static::assertEquals($mediaURL, $themeConfig['fields']['media-field']['value']);
+        static::assertSame($mediaURL, $themeConfig['fields']['media-field']['value']);
     }
 
     /**
@@ -250,7 +252,7 @@ class DatabaseConfigLoaderTest extends TestCase
             new StorefrontPluginConfiguration('child'),
         ]);
 
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
 
         $registry->method('getConfigurations')
             ->willReturn($collection);
@@ -270,7 +272,7 @@ class DatabaseConfigLoaderTest extends TestCase
 
         foreach ($expected as $field => $value) {
             static::assertArrayHasKey($field, $fields);
-            static::assertEquals($value, $fields[$field]['value']);
+            static::assertSame($value, $fields[$field]['value']);
         }
     }
 
@@ -300,7 +302,7 @@ class DatabaseConfigLoaderTest extends TestCase
             ],
         ];
 
-        yield 'Test overwrite' => [
+        yield 'Test override' => [
             'child',
             [
                 'base' => [
@@ -337,6 +339,30 @@ class DatabaseConfigLoaderTest extends TestCase
             ],
             [
                 'base-field-1' => '#000',
+            ],
+        ];
+
+        yield 'Test multiple inheritance' => [
+            'child',
+            [
+                'base' => [
+                    'base-field-1' => self::field('#000'),
+                ],
+                'parent' => [
+                    'base-field-1' => self::field('#fff'),
+                    'parent-field-1' => self::field('#000'),
+                    'parent-field-2' => self::fieldUntyped(900),
+                ],
+                'child' => [
+                    'parent-field-2' => self::fieldUntyped(500),
+                    'child-field-1' => self::field('#000'),
+                ],
+            ],
+            [
+                'base-field-1' => '#fff',
+                'parent-field-1' => '#000',
+                'parent-field-2' => 500,
+                'child-field-1' => '#000',
             ],
         ];
     }

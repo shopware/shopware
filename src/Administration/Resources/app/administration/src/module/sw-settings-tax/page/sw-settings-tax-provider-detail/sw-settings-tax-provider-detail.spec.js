@@ -84,13 +84,6 @@ async function createWrapper(privileges = [], additionalOptions = {}) {
 }
 
 describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to save the tax provider', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -113,9 +106,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
     });
 
     it('should be able to save the tax provider', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ]);
+        const wrapper = await createWrapper(['tax.editor']);
         await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-tax-tax-provider-detail__save-action');
@@ -136,9 +127,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
     });
 
     it('should not render sw-extension-component-section when tax provider has no identifier', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ]);
+        const wrapper = await createWrapper(['tax.editor']);
         await wrapper.vm.$nextTick();
 
         const extensionComponent = wrapper.find('sw-extension-component-section-stub');
@@ -159,12 +148,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
                 },
             },
         };
-        const wrapper = await createWrapper(
-            [
-                'tax.editor',
-            ],
-            optionalTaxProvider,
-        );
+        const wrapper = await createWrapper(['tax.editor'], optionalTaxProvider);
         await wrapper.vm.$nextTick();
 
         const extensionComponent = wrapper.find('sw-extension-component-section-stub');
@@ -177,9 +161,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
     });
 
     it('should handle onSave and call loadTaxProvider', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ]);
+        const wrapper = await createWrapper(['tax.editor']);
         await wrapper.vm.$nextTick();
 
         const loadTaxProviderSpy = jest.spyOn(wrapper.vm, 'loadTaxProvider');
@@ -191,9 +173,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
     });
 
     it('should handle onCancel and change route', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ]);
+        const wrapper = await createWrapper(['tax.editor']);
 
         wrapper.vm.onCancel();
 
@@ -203,9 +183,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
     });
 
     it('should handle onSaveRule and set availabilityRuleId', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ]);
+        const wrapper = await createWrapper(['tax.editor']);
         await wrapper.vm.$nextTick();
 
         const ruleId = 'availabilityRuleId';
@@ -215,9 +193,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-provider-detail', () => {
     });
 
     it('should handle onDismissRule and set availabilityRuleId to null', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ]);
+        const wrapper = await createWrapper(['tax.editor']);
         await wrapper.vm.$nextTick();
 
         wrapper.vm.taxProvider.availabilityRuleId = 'availabilityRuleId';

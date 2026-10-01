@@ -17,6 +17,11 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Checkout\Customer\Subscriber\CustomerBeforeDeleteSubscriberTest
+ */
 #[Package('checkout')]
 class CustomerDeletedEvent extends Event implements ShopwareSalesChannelEvent, CustomerAware, MailAware, ScalarValuesAware, FlowEventAware
 {

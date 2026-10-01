@@ -2,21 +2,15 @@
  * @sw-package fundamentals@after-sales
  */
 import ImportExportUpdateByMappingService from 'src/module/sw-import-export/service/importExportUpdateByMapping.service';
-// eslint-disable-next-line import/no-unresolved
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
 
 describe('module/sw-import-export/service/importExportProfileMapping.service.spec.js', () => {
     let importExportUpdateByMappingService;
 
     beforeAll(() => {
-        Object.entries(entitySchemaMock).forEach(
-            ([
-                entityName,
-                entityDefinition,
-            ]) => {
-                Shopware.EntityDefinition.add(entityName, entityDefinition);
-            },
-        );
+        Object.entries(entitySchemaMock).forEach(([entityName, entityDefinition]) => {
+            Shopware.EntityDefinition.add(entityName, entityDefinition);
+        });
 
         importExportUpdateByMappingService = new ImportExportUpdateByMappingService(Shopware.EntityDefinition);
     });

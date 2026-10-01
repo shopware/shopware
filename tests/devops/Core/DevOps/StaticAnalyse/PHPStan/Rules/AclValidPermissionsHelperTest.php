@@ -2,15 +2,15 @@
 
 namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\AclValidPermissionsHelper;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
-#[CoversClass(AclValidPermissionsHelper::class)]
+#[Package('framework')]
 class AclValidPermissionsHelperTest extends TestCase
 {
     public function testAclKeyValid(): void

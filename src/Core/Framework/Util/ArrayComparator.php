@@ -26,7 +26,7 @@ class ArrayComparator
      */
     public static function equals(array $a, array $b): bool
     {
-        return \count(array_intersect($a, $b)) > 0;
+        return array_intersect($a, $b) !== [];
     }
 
     /**
@@ -35,6 +35,6 @@ class ArrayComparator
      */
     public static function notEquals(array $a, array $b): bool
     {
-        return \count(array_intersect($a, $b)) === 0;
+        return array_intersect($a, $b) === [];
     }
 }

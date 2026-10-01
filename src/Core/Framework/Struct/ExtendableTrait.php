@@ -81,15 +81,12 @@ trait ExtendableTrait
         return isset($this->extensions[$name]);
     }
 
+    /**
+     * @param class-string<Struct> $type
+     */
     public function hasExtensionOfType(string $name, string $type): bool
     {
-        $extension = $this->getExtension($name);
-
-        if ($extension === null) {
-            return false;
-        }
-
-        return $extension::class === $type;
+        return $this->getExtension($name) instanceof $type;
     }
 
     /**

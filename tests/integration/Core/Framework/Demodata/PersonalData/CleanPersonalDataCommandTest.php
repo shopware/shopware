@@ -8,15 +8,19 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Demodata\PersonalData\CleanPersonalDataCommand;
-use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
+use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -26,12 +30,17 @@ use Symfony\Component\Console\Output\BufferedOutput;
 /**
  * @internal
  */
+#[Package('framework')]
 class CleanPersonalDataCommandTest extends TestCase
 {
-    use IntegrationTestBehaviour;
+    use DatabaseTransactionBehaviour;
+    use KernelTestBehaviour;
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<CustomerCollection>
+     */
     private EntityRepository $customerRepository;
 
     protected function setUp(): void
@@ -40,20 +49,6 @@ class CleanPersonalDataCommandTest extends TestCase
         $this->customerRepository = static::getContainer()->get('customer.repository');
         $this->clearTable('cart');
         $this->clearTable('customer');
-    }
-
-    public function testCommandWithoutArguments(): void
-    {
-        $this->expectException(\InvalidArgumentException::class);
-        $this->getCommand()->run($this->getArrayInput(), new BufferedOutput());
-    }
-
-    public function testCommandWithInvalidArguments(): void
-    {
-        $input = new ArrayInput(['type' => 'foo'], $this->createInputDefinition());
-
-        $this->expectException(\InvalidArgumentException::class);
-        $this->getCommand()->run($input, new BufferedOutput());
     }
 
     public function testCommandRemovesGuest(): void
@@ -65,7 +60,7 @@ class CleanPersonalDataCommandTest extends TestCase
         $input = new ArrayInput(['type' => 'guests'], $this->createInputDefinition());
         $this->getCommand()->run($input, new BufferedOutput());
 
-        static::assertEmpty($this->fetchAllCustomers());
+        static::assertCount(0, $this->fetchAllCustomers());
     }
 
     public function testCommandIsNoGuest(): void
@@ -135,7 +130,7 @@ class CleanPersonalDataCommandTest extends TestCase
         $input = new ArrayInput(['type' => 'guests'], $this->createInputDefinition());
         $this->getCommand()->run($input, new BufferedOutput());
 
-        static::assertEmpty($this->fetchAllCustomers());
+        static::assertCount(0, $this->fetchAllCustomers());
     }
 
     public function testCommandRemovesNoGuestBecauseOfDays(): void
@@ -161,8 +156,8 @@ class CleanPersonalDataCommandTest extends TestCase
         $input = new ArrayInput(['--all' => true], $this->createInputDefinition());
         $this->getCommand()->run($input, new BufferedOutput());
 
-        static::assertEmpty($this->fetchAllCustomers());
-        static::assertEmpty($this->fetchAllCarts());
+        static::assertCount(0, $this->fetchAllCustomers());
+        static::assertCount(0, $this->fetchAllCarts());
     }
 
     public function testCommandRemovesCart(): void
@@ -347,15 +342,6 @@ class CleanPersonalDataCommandTest extends TestCase
 
     private function getCommand(): CleanPersonalDataCommand
     {
-        return new CleanPersonalDataCommand($this->connection, $this->customerRepository);
-    }
-
-    private function getArrayInput(): ArrayInput
-    {
-        $inputArgument = new InputArgument('types', InputArgument::IS_ARRAY);
-        $inputOption = new InputOption('days', null, InputOption::VALUE_REQUIRED);
-        $inputDefinition = new InputDefinition([$inputArgument, $inputOption]);
-
-        return new ArrayInput([], $inputDefinition);
+        return new CleanPersonalDataCommand($this->connection, $this->customerRepository, new NativeClock());
     }
 }

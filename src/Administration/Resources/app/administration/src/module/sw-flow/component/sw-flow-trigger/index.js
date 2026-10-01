@@ -14,10 +14,7 @@ const { isEmpty } = utils.types;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'businessEventService',
-    ],
+    inject: ['repositoryFactory', 'businessEventService'],
 
     emits: ['option-select'],
 
@@ -25,7 +22,6 @@ export default {
         overlay: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         disabled: {
@@ -86,20 +82,13 @@ export default {
 
         triggerNamePlaceholder() {
             if (!this.isUnknownTrigger) {
-                return this.$tc('sw-flow.detail.trigger.placeholder');
+                return this.$t('sw-flow.detail.trigger.placeholder');
             }
 
-            return this.$tc('sw-flow.detail.trigger.unknownTriggerPlaceholder');
+            return this.$t('sw-flow.detail.trigger.unknownTriggerPlaceholder');
         },
 
-        ...mapState(
-            () => Store.get('swFlow'),
-            [
-                'flow',
-                'triggerEvents',
-                'isSequenceEmpty',
-            ],
-        ),
+        ...mapState(() => Store.get('swFlow'), ['flow', 'triggerEvents', 'isSequenceEmpty']),
         ...mapPropertyErrors('flow', ['eventName']),
     },
 
@@ -537,7 +526,6 @@ export default {
             // recursion to find vnode
             for (let i = 0; i < children.length; i += 1) {
                 if (!children[i]) {
-                    // eslint-disable-next-line no-continue
                     continue;
                 }
 
@@ -683,7 +671,7 @@ export default {
                         disabled: isEmpty(node.children) && this.hasOnlyStopFlow(node.id),
                         disabledToolTipText:
                             isEmpty(node.children) && this.hasOnlyStopFlow(node.id)
-                                ? this.$tc('sw-flow.detail.trigger.textHint')
+                                ? this.$t('sw-flow.detail.trigger.textHint')
                                 : null,
                     });
 
@@ -756,7 +744,7 @@ export default {
                 `sw-flow.triggers.${eventNameCamelCase}`,
             ].find((key) => this.$te(key));
 
-            return translatedEventName ? this.$tc(translatedEventName) : eventName.replace(/_|-/g, ' ');
+            return translatedEventName ? this.$t(translatedEventName) : eventName.replace(/_|-/g, ' ');
         },
     },
 };

@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractImitateCustomerRoute;
@@ -10,19 +9,28 @@ use Shopware\Core\Checkout\Customer\SalesChannel\AbstractLogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AbstractSendPasswordRecoveryMailRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
+use Shopware\Core\Checkout\Customer\SalesChannel\ConvertGuestRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ResetPasswordRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
+use Shopware\Core\Checkout\Customer\Service\GuestAuthenticator;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderRoute;
 use Shopware\Core\Content\ContactForm\SalesChannel\AbstractContactFormRoute;
+use Shopware\Core\Content\ContactForm\SalesChannel\ContactFormRoute;
+use Shopware\Core\Content\Newsletter\SalesChannel\AbstractNewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
+use Shopware\Core\Content\RevocationRequest\SalesChannel\AbstractRevocationRequestRoute;
+use Shopware\Core\Content\RevocationRequest\SalesChannel\RevocationRequestRoute;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
+use Shopware\Core\Framework\Adapter\Translation\ConstraintViolationTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Test\RateLimiter\DisableRateLimiterCompilerPass;
@@ -34,6 +42,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -47,6 +56,8 @@ use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageL
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -57,9 +68,10 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('discovery')]
 class ControllerRateLimiterTest extends TestCase
 {
+    use ClockSensitiveTrait;
     use CustomerTestTrait;
     use OrderFixture;
     use RateLimiterTestTrait;
@@ -75,20 +87,33 @@ class ControllerRateLimiterTest extends TestCase
 
     private TranslatorInterface $translator;
 
+    private static bool $rateLimitedKernelBooted = false;
+
     public static function setUpBeforeClass(): void
     {
         DisableRateLimiterCompilerPass::disableNoLimit();
-        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
     }
 
     public static function tearDownAfterClass(): void
     {
         DisableRateLimiterCompilerPass::enableNoLimit();
-        KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+        // shut down only: the next class boots its kernel lazily inside a test context, which
+        // recompiles with the rate limiter restored
+        KernelLifecycleManager::ensureKernelShutdown();
+        self::$rateLimitedKernelBooted = false;
     }
 
     protected function setUp(): void
     {
+        // the rate-limiter pass applies at container compile time, so this class needs a freshly
+        // compiled kernel. It is booted here rather than in setUpBeforeClass(): a deprecation
+        // triggered during a static-context kernel boot has no TestCase object on the call stack
+        // and crashes PHPUnit's event system instead of being recorded
+        if (!self::$rateLimitedKernelBooted) {
+            KernelLifecycleManager::bootKernel(true, Uuid::randomHex());
+            self::$rateLimitedKernelBooted = true;
+        }
+
         $this->context = Context::createDefaultContext();
         $this->ids = new IdsCollection();
 
@@ -111,8 +136,11 @@ class ControllerRateLimiterTest extends TestCase
 
     public function testGenerateAccountRecoveryRateLimit(): void
     {
-        $passwordRecoveryMailRoute = $this->createMock(SendPasswordRecoveryMailRoute::class);
-        $passwordRecoveryMailRoute->method('sendRecoveryMail')->willThrowException(new RateLimitExceededException(time() + 10));
+        $now = new \DateTimeImmutable('2026-01-01 00:00:00');
+        static::mockTime($now);
+
+        $passwordRecoveryMailRoute = static::createStub(SendPasswordRecoveryMailRoute::class);
+        $passwordRecoveryMailRoute->method('sendRecoveryMail')->willThrowException(new RateLimitExceededException($now->getTimestamp() + 10));
 
         $controller = new AuthController(
             static::getContainer()->get(AccountLoginPageLoader::class),
@@ -122,7 +150,9 @@ class ControllerRateLimiterTest extends TestCase
             static::getContainer()->get(LogoutRoute::class),
             static::getContainer()->get(ImitateCustomerRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
-            static::getContainer()->get(AccountRecoverPasswordPageLoader::class)
+            static::getContainer()->get(AccountRecoverPasswordPageLoader::class),
+            static::getContainer()->get(ConvertGuestRoute::class),
+            static::getContainer()->get(SystemConfigService::class),
         );
         $controller->setContainer(static::getContainer());
 
@@ -148,13 +178,15 @@ class ControllerRateLimiterTest extends TestCase
     {
         $controller = new AuthController(
             static::getContainer()->get(AccountLoginPageLoader::class),
-            $this->createMock(AbstractSendPasswordRecoveryMailRoute::class),
-            $this->createMock(AbstractResetPasswordRoute::class),
-            $this->createMock(LoginRoute::class),
-            $this->createMock(AbstractLogoutRoute::class),
-            $this->createMock(AbstractImitateCustomerRoute::class),
+            static::createStub(AbstractSendPasswordRecoveryMailRoute::class),
+            static::createStub(AbstractResetPasswordRoute::class),
+            static::createStub(LoginRoute::class),
+            static::createStub(AbstractLogoutRoute::class),
+            static::createStub(AbstractImitateCustomerRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
-            static::getContainer()->get(AccountRecoverPasswordPageLoader::class)
+            static::getContainer()->get(AccountRecoverPasswordPageLoader::class),
+            static::getContainer()->get(ConvertGuestRoute::class),
+            static::getContainer()->get(SystemConfigService::class)
         );
         $controller->setContainer(static::getContainer());
 
@@ -175,23 +207,25 @@ class ControllerRateLimiterTest extends TestCase
 
         $errorContent = $crawler->filterXPath('//div[@class="flashbags container"]//div[@class="alert-content-container"]')->text();
 
-        static::assertStringContainsString($this->translator->trans('account.loginThrottled', ['%seconds%' => 5]), $errorContent);
+        static::assertStringContainsString($this->translator->trans('account.loginThrottled', ['%seconds%' => 5], 'messages', 'en-GB'), $errorContent);
     }
 
     public function testAuthControllerLoginShowsRateLimit(): void
     {
-        $loginRoute = $this->createMock(LoginRoute::class);
+        $loginRoute = static::createStub(LoginRoute::class);
         $loginRoute->method('login')->willThrowException(CustomerException::customerAuthThrottledException(5));
 
         $controller = new AuthController(
             static::getContainer()->get(AccountLoginPageLoader::class),
-            $this->createMock(AbstractSendPasswordRecoveryMailRoute::class),
-            $this->createMock(AbstractResetPasswordRoute::class),
+            static::createStub(AbstractSendPasswordRecoveryMailRoute::class),
+            static::createStub(AbstractResetPasswordRoute::class),
             $loginRoute,
-            $this->createMock(AbstractLogoutRoute::class),
-            $this->createMock(AbstractImitateCustomerRoute::class),
+            static::createStub(AbstractLogoutRoute::class),
+            static::createStub(AbstractImitateCustomerRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
-            static::getContainer()->get(AccountRecoverPasswordPageLoader::class)
+            static::getContainer()->get(AccountRecoverPasswordPageLoader::class),
+            static::getContainer()->get(ConvertGuestRoute::class),
+            static::getContainer()->get(SystemConfigService::class)
         );
         $controller->setContainer(static::getContainer());
 
@@ -215,17 +249,125 @@ class ControllerRateLimiterTest extends TestCase
 
     public function testFormControllerRateLimit(): void
     {
-        $contactFormRoute = $this->createMock(AbstractContactFormRoute::class);
-        $contactFormRoute->method('load')->willThrowException(new RateLimitExceededException(time() + 5));
+        $now = new \DateTimeImmutable('2026-01-01 00:00:00');
+        static::mockTime($now);
+
+        $contactFormRoute = static::createStub(AbstractContactFormRoute::class);
+        $contactFormRoute->method('load')->willThrowException(new RateLimitExceededException($now->getTimestamp() + 5));
 
         $controller = new FormController(
             $contactFormRoute,
             static::getContainer()->get(NewsletterSubscribeRoute::class),
             static::getContainer()->get(NewsletterUnsubscribeRoute::class),
+            static::getContainer()->get(RevocationRequestRoute::class),
+            static::getContainer()->get(ConstraintViolationTranslator::class),
         );
         $controller->setContainer(static::getContainer());
 
         $response = $controller->sendContactForm(new RequestDataBag([
+        ]), $this->salesChannelContext);
+
+        $content = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $content);
+        static::assertArrayHasKey('type', $content[0]);
+        static::assertSame('info', $content[0]['type']);
+
+        $contentReturn = $content[0]['alert'];
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($contentReturn);
+
+        $errorContent = $crawler->filterXPath('//div[@class="alert-content-container"]')->text();
+
+        static::assertStringContainsString($this->translator->trans('error.rateLimitExceeded', ['%seconds%' => 5]), $errorContent);
+    }
+
+    public function testNewsletterSubscribeFormControllerRateLimit(): void
+    {
+        $now = new \DateTimeImmutable('2026-01-01 00:00:00');
+        static::mockTime($now);
+
+        $newsletterRequestRoute = static::createStub(AbstractNewsletterSubscribeRoute::class);
+        $newsletterRequestRoute->method('subscribeWithResponse')->willThrowException(new RateLimitExceededException($now->getTimestamp() + 5));
+
+        $controller = new FormController(
+            static::getContainer()->get(ContactFormRoute::class),
+            $newsletterRequestRoute,
+            static::getContainer()->get(NewsletterUnsubscribeRoute::class),
+            static::getContainer()->get(RevocationRequestRoute::class),
+            static::getContainer()->get(ConstraintViolationTranslator::class),
+        );
+        $controller->setContainer(static::getContainer());
+
+        $response = $controller->handleNewsletter(new Request(), new RequestDataBag(['option' => FormController::SUBSCRIBE]), $this->salesChannelContext);
+
+        $content = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $content);
+        static::assertArrayHasKey('type', $content[0]);
+        static::assertSame('info', $content[0]['type']);
+
+        $contentReturn = $content[0]['alert'];
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($contentReturn);
+
+        $errorContent = $crawler->filterXPath('//div[@class="alert-content-container"]')->text();
+
+        static::assertStringContainsString($this->translator->trans('error.rateLimitExceeded', ['%seconds%' => 5]), $errorContent);
+    }
+
+    public function testNewsletterUnsubscribeFormControllerRateLimit(): void
+    {
+        $now = new \DateTimeImmutable('2026-01-01 00:00:00');
+        static::mockTime($now);
+
+        $newsletterRequestRoute = static::createStub(NewsletterUnsubscribeRoute::class);
+        $newsletterRequestRoute->method('unsubscribeWithResponse')->willThrowException(new RateLimitExceededException($now->getTimestamp() + 5));
+
+        $controller = new FormController(
+            static::getContainer()->get(ContactFormRoute::class),
+            static::getContainer()->get(NewsletterSubscribeRoute::class),
+            $newsletterRequestRoute,
+            static::getContainer()->get(RevocationRequestRoute::class),
+            static::getContainer()->get(ConstraintViolationTranslator::class),
+        );
+        $controller->setContainer(static::getContainer());
+
+        $response = $controller->handleNewsletter(new Request(), new RequestDataBag([]), $this->salesChannelContext);
+
+        $content = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $content);
+        static::assertArrayHasKey('type', $content[0]);
+        static::assertSame('info', $content[0]['type']);
+
+        $contentReturn = $content[0]['alert'];
+        $crawler = new Crawler();
+        $crawler->addHtmlContent($contentReturn);
+
+        $errorContent = $crawler->filterXPath('//div[@class="alert-content-container"]')->text();
+
+        static::assertStringContainsString($this->translator->trans('error.rateLimitExceeded', ['%seconds%' => 5]), $errorContent);
+    }
+
+    public function testRevocationRequestFormControllerRateLimit(): void
+    {
+        $now = new \DateTimeImmutable('2026-01-01 00:00:00');
+        static::mockTime($now);
+
+        $abstractRevocationRequestRoute = static::createStub(AbstractRevocationRequestRoute::class);
+        $abstractRevocationRequestRoute->method('request')->willThrowException(new RateLimitExceededException($now->getTimestamp() + 5));
+
+        $controller = new FormController(
+            static::getContainer()->get(ContactFormRoute::class),
+            static::getContainer()->get(NewsletterSubscribeRoute::class),
+            static::getContainer()->get(NewsletterUnsubscribeRoute::class),
+            $abstractRevocationRequestRoute,
+            static::getContainer()->get(ConstraintViolationTranslator::class),
+        );
+        $controller->setContainer(static::getContainer());
+
+        $response = $controller->sendRevocationRequest(new RequestDataBag([
         ]), $this->salesChannelContext);
 
         $content = \json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
@@ -252,22 +394,26 @@ class ControllerRateLimiterTest extends TestCase
                 RateLimiter::GUEST_LOGIN => 1,
             ]),
             static::getContainer()->get('event_dispatcher'),
+            static::getContainer()->get(AccountService::class),
+            new GuestAuthenticator(),
+            new NativeClock(),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $order = $this->createCustomerWithOrder();
 
         $controller = new AccountOrderPageLoader(
-            $this->createMock(GenericPageLoader::class),
-            $this->createMock(EventDispatcher::class),
+            static::createStub(GenericPageLoader::class),
+            static::createStub(EventDispatcher::class),
             $orderRoute,
-            $this->createMock(AccountService::class),
-            $this->createMock(AbstractTranslator::class)
+            static::createStub(AbstractTranslator::class)
         );
 
         $controller->load(new Request([
-            'deepLinkCode' => $order->getDeepLinkCode(),
             'email' => 'orderTest@example.com',
             'zipcode' => '12345',
+        ], [], [
+            'deepLinkCode' => $order->getDeepLinkCode(),
         ]), $this->salesChannelContext);
     }
 
@@ -351,7 +497,7 @@ class ControllerRateLimiterTest extends TestCase
         $orderRepository = static::getContainer()->get('order.repository');
         $orderRepository->create($orderData, $this->context);
 
-        $order = $orderRepository->search(new Criteria([$orderId]), $this->context)->first();
+        $order = $orderRepository->search(new Criteria([$orderId]), $this->context)->getEntities()->first();
 
         static::assertNotNull($order);
         static::assertInstanceOf(OrderEntity::class, $order);

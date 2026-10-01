@@ -19,6 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductSearchConfigDefinition extends EntityDefinition
 {
@@ -61,11 +64,11 @@ class ProductSearchConfigDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required()),
-            (new BoolField('and_logic', 'andLogic'))->addFlags(new Required()),
-            (new IntField('min_search_length', 'minSearchLength'))->addFlags(new Required()),
-            new ListField('excluded_terms', 'excludedTerms', StringField::class),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of Product Search Configuration.'),
+            (new FkField('language_id', 'languageId', LanguageDefinition::class))->addFlags(new Required())->setDescription('Unique identity of language.'),
+            (new BoolField('and_logic', 'andLogic'))->addFlags(new Required())->setDescription('Product search configuration with add logic.'),
+            (new IntField('min_search_length', 'minSearchLength'))->addFlags(new Required())->setDescription('Minimum number of characters used for product search.'),
+            (new ListField('excluded_terms', 'excludedTerms', StringField::class))->setDescription('Excluded terms in product search.'),
             new OneToOneAssociationField('language', 'language_id', 'id', LanguageDefinition::class, false),
             (new OneToManyAssociationField('configFields', ProductSearchConfigFieldDefinition::class, 'product_search_config_id', 'id'))->addFlags(new CascadeDelete()),
         ]);

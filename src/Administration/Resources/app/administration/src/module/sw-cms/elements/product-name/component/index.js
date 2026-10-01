@@ -7,9 +7,7 @@ const { Mixin } = Shopware;
  * @sw-package discovery
  */
 export default {
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     computed: {
         isProductPage() {
@@ -25,6 +23,7 @@ export default {
                 this.element.config.content.source = 'mapped';
                 this.element.config.content.value = 'product.name';
             }
+            this.updateDemoValue();
         },
 
         updateDemoValue() {
@@ -34,7 +33,7 @@ export default {
 
                 if (this.element.config.content.value === 'product.name') {
                     className = 'sw-cms-el-product-name__placeholder';
-                    label = this.$tc('sw-cms.elements.productName.label');
+                    label = this.$t('sw-cms.elements.productName.label');
                 }
 
                 this.demoValue = `<h1 class="${className}">${label}</h1>`;

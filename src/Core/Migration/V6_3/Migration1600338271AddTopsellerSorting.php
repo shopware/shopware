@@ -13,8 +13,6 @@ use Shopware\Core\Migration\Traits\Translations;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1600338271AddTopsellerSorting extends MigrationStep
@@ -55,7 +53,7 @@ class Migration1600338271AddTopsellerSorting extends MigrationStep
     }
 
     /**
-     * @return array{id: string, priority: int, active: int, locked: int, fields: string, created_at: string, translations: array{de-DE: string, en-GB: string}}
+     * @return array{id: string, url_key: string, priority: int, active: int, locked: int, fields: string, created_at: string, translations: array{de-DE: string, en-GB: string}}
      */
     private function getTopsellerSorting(): array
     {

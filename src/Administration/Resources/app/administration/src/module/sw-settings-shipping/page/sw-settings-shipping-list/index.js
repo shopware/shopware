@@ -13,15 +13,9 @@ const {
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     data() {
         return {
@@ -100,15 +94,15 @@ export default {
         shippingCostTaxOptions() {
             return [
                 {
-                    label: this.$tc('sw-settings-shipping.shippingCostOptions.auto'),
+                    label: this.$t('sw-settings-shipping.shippingCostOptions.auto'),
                     value: 'auto',
                 },
                 {
-                    label: this.$tc('sw-settings-shipping.shippingCostOptions.highest'),
+                    label: this.$t('sw-settings-shipping.shippingCostOptions.highest'),
                     value: 'highest',
                 },
                 {
-                    label: this.$tc('sw-settings-shipping.shippingCostOptions.fixed'),
+                    label: this.$t('sw-settings-shipping.shippingCostOptions.fixed'),
                     value: 'fixed',
                 },
             ];
@@ -152,12 +146,12 @@ export default {
                 .save(item)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-shipping.list.messageSaveSuccess', { name }, 0),
+                        message: this.$t('sw-settings-shipping.list.messageSaveSuccess', { name }, 0),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-shipping.list.messageSaveError', { name }, 0),
+                        message: this.$t('sw-settings-shipping.list.messageSaveError', { name }, 0),
                     });
                 })
                 .finally(() => {
@@ -177,12 +171,12 @@ export default {
                 .delete(id)
                 .then(() => {
                     this.createNotificationSuccess({
-                        message: this.$tc('sw-settings-shipping.list.messageDeleteSuccess', { name }, 0),
+                        message: this.$t('sw-settings-shipping.list.messageDeleteSuccess', { name }, 0),
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-shipping.list.messageDeleteError', { name }, 0),
+                        message: this.$t('sw-settings-shipping.list.messageDeleteError', { name }, 0),
                     });
                 })
                 .finally(() => {

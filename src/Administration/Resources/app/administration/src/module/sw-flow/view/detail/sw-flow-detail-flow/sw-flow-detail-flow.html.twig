@@ -11,12 +11,13 @@
             variant="attention"
             class="sw-flow-detail-flow__warning-unknow-trigger"
         >
-            <p>{{ $tc('sw-flow.flowNotification.messageUnknownTriggerWarning') }}</p>
-            <p>{{ $tc('sw-flow.flowNotification.textIntroduce') }}</p>
-            <ul>
-                <li>{{ $tc('sw-flow.flowNotification.textGuide1') }}</li>
-                <li>{{ $tc('sw-flow.flowNotification.textGuide2') }}</li>
-                <li>{{ $tc('sw-flow.flowNotification.textGuide3') }}</li>
+            <p>{{ $t('sw-flow.flowNotification.messageUnknownTriggerWarning') }}</p>
+            <p>{{ $t('sw-flow.flowNotification.textIntroduce') }}</p>
+
+            <ul class="sw-flow-detail-flow__warning-unknow-trigger-list">
+                <li>{{ $t('sw-flow.flowNotification.textGuide1') }}</li>
+                <li>{{ $t('sw-flow.flowNotification.textGuide2') }}</li>
+                <li>{{ $t('sw-flow.flowNotification.textGuide3') }}</li>
             </ul>
         </mt-banner>
 
@@ -25,8 +26,9 @@
             variant="attention"
             class="sw-flow-detail-flow__warning-box"
         >
-            {{ $tc('sw-flow.detail.warningText') }}
+            {{ $t('sw-flow.detail.warningText') }}
         </mt-banner>
+
         {% block sw_flow_detail_trigger_card %}
         <div class="sw-flow-detail-flow__trigger-card">
             {% block sw_flow_detail_flow_trigger_select %}
@@ -48,11 +50,11 @@
                 class="sw-flow-detail-flow__trigger-explain"
             >
                 {% block sw_flow_detail_flow_trigger_explains_title %}
-                <h4>{{ $tc('sw-flow.detail.trigger.title') }}</h4>
+                <h4>{{ $t('sw-flow.detail.trigger.title') }}</h4>
                 {% endblock %}
 
                 {% block sw_flow_detail_flow_trigger_explains_help_text %}
-                <p v-html="$tc('sw-flow.detail.trigger.helpText')"></p>
+                <p v-html="$t('sw-flow.detail.trigger.helpText')"></p>
                 {% endblock %}
             </div>
             {% endblock %}
@@ -79,28 +81,28 @@
                     :key="getSequenceId(sequence)"
                     class="sw-flow-detail-flow__position list-item"
                 >
-
                     {% block sw_flow_sequence_icon_plus %}
-                    <div
+                    <mt-button
                         class="sw-flow-detail-flow__position-plus"
                         :disabled="!acl.can('flow.editor')"
-                        role="button"
+                        variant="secondary"
+                        size="x-small"
                         tabindex="0"
+                        square
                         @click="onAddRootSequence"
-                        @keydown.enter="onAddRootSequence"
                     >
                         <mt-icon
-                            size="16px"
+                            size="12px"
                             name="regular-plus-xs"
                         />
-                    </div>
+                    </mt-button>
                     {% endblock %}
 
                     {% block sw_flow_sequence_icon_connection %}
                     <div class="sw-flow-detail-flow__position-connection">
                         <mt-icon
-                            size="16px"
-                            name="regular-chevron-right-s"
+                            size="12px"
+                            name="regular-chevron-right-xs"
                         />
                     </div>
                     {% endblock %}

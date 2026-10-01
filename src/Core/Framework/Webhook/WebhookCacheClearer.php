@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Webhook;
 
+use Shopware\Core\Framework\App\AppEvents;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -23,7 +24,7 @@ class WebhookCacheClearer implements EventSubscriberInterface, ResetInterface
     public static function getSubscribedEvents(): array
     {
         return [
-            'acl_role.written' => 'clearPrivilegesCache',
+            AppEvents::APP_WRITTEN_EVENT => 'clearWebhookCache',
         ];
     }
 
@@ -34,16 +35,10 @@ class WebhookCacheClearer implements EventSubscriberInterface, ResetInterface
     public function reset(): void
     {
         $this->clearWebhookCache();
-        $this->clearPrivilegesCache();
     }
 
     public function clearWebhookCache(): void
     {
         $this->manager->clearInternalWebhookCache();
-    }
-
-    public function clearPrivilegesCache(): void
-    {
-        $this->manager->clearInternalPrivilegesCache();
     }
 }

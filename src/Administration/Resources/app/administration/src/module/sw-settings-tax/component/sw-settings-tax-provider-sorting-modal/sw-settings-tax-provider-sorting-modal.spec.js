@@ -44,13 +44,6 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-tax/component/sw-settings-tax-provider-sorting-modal', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it("should be handle onClose and emit 'modal-close'", async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
@@ -81,11 +74,7 @@ describe('module/sw-settings-tax/component/sw-settings-tax-provider-sorting-moda
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
-        const sortedItems = [
-            'item-1',
-            'item-2',
-            'item-3',
-        ];
+        const sortedItems = ['item-1', 'item-2', 'item-3'];
         wrapper.vm.onSort(sortedItems);
 
         expect(wrapper.vm.sortedTaxProviders).toEqual(sortedItems);

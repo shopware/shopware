@@ -20,8 +20,8 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\RulesTe
 /**
  * @internal
  */
-#[CoversClass(AnyRuleLineItemMatcher::class)]
 #[Package('checkout')]
+#[CoversClass(AnyRuleLineItemMatcher::class)]
 class AnyRuleLineItemMatcherTest extends TestCase
 {
     use LineItemTestFixtureBehaviour;
@@ -55,7 +55,7 @@ class AnyRuleLineItemMatcherTest extends TestCase
 
         $group = new LineItemGroupDefinition('test', 'COUNT', 1, 'PRICE_ASC', $ruleCollection);
 
-        static::assertEquals($expected, $this->matcher->isMatching($group, $lineItem, $this->context));
+        static::assertSame($expected, $this->matcher->isMatching($group, $lineItem, $this->context));
     }
 
     /**

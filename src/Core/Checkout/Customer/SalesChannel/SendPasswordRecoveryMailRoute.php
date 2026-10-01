@@ -9,15 +9,18 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Checkout\Customer\Event\PasswordRecoveryUrlEvent;
+use Shopware\Core\Checkout\Customer\Extension\SendPasswordRecoveryMailRouteExtension;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Validation\BuildValidationEvent;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
@@ -25,6 +28,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SuccessResponse;
@@ -39,8 +43,8 @@ use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRoute
 {
     /**
@@ -56,7 +60,8 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
         private readonly DataValidator $validator,
         private readonly SystemConfigService $systemConfigService,
         private readonly RequestStack $requestStack,
-        private readonly RateLimiter $rateLimiter
+        private readonly RateLimiter $rateLimiter,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -68,15 +73,30 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
     #[Route(path: '/store-api/account/recovery-password', name: 'store-api.account.recovery.send.mail', methods: ['POST'])]
     public function sendRecoveryMail(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl = true): SuccessResponse
     {
+        return $this->extensions->publish(
+            name: SendPasswordRecoveryMailRouteExtension::NAME,
+            extension: new SendPasswordRecoveryMailRouteExtension($data, $context, $validateStorefrontUrl),
+            function: $this->_sendRecoveryMail(...),
+        );
+    }
+
+    private function _sendRecoveryMail(RequestDataBag $data, SalesChannelContext $context, bool $validateStorefrontUrl): SuccessResponse
+    {
         EmailIdnConverter::encodeDataBag($data);
 
         $this->validateRecoverEmail($data, $context, $validateStorefrontUrl);
 
         if (($request = $this->requestStack->getMainRequest()) !== null) {
-            $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD, strtolower($data->get('email') . '-' . $request->getClientIp()));
+            $key = strtolower(\sprintf('%s-%s', $data->get('email'), $request->getClientIp()));
+            $this->rateLimiter->ensureAccepted(RateLimiter::RESET_PASSWORD, $key);
         }
 
-        $customer = $this->getCustomerByEmail($data->get('email'), $context);
+        try {
+            $customer = $this->getCustomerByEmail($data->get('email'), $context);
+        } catch (CustomerException) {
+            return new SuccessResponse();
+        }
+
         $customerId = $customer->getId();
 
         $customerIdCriteria = new Criteria();
@@ -125,7 +145,7 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 
         if ($validateStorefrontUrl) {
             $validation
-                ->add('storefrontUrl', new NotBlank(), new Choice(array_values($this->getDomainUrls($context))));
+                ->add('storefrontUrl', new NotBlank(), new Choice(choices: array_values($this->getDomainUrls($context))));
         }
 
         $this->dispatchValidationEvent($validation, $data, $context->getContext());
@@ -169,7 +189,6 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
 
         $fieldValidations = $validations[$field];
 
-        /** @var EqualTo|null $equalityValidation */
         $equalityValidation = null;
 
         foreach ($fieldValidations as $emailValidation) {
@@ -184,12 +203,12 @@ class SendPasswordRecoveryMailRoute extends AbstractSendPasswordRecoveryMailRout
             return;
         }
 
-        $compareValue = $data[$equalityValidation->propertyPath] ?? null;
+        $compareValue = $data[$equalityValidation->propertyPath ?? ''] ?? null;
         if ($data[$field] === $compareValue) {
             return;
         }
 
-        $message = str_replace('{{ compared_value }}', $compareValue ?? '', (string) $equalityValidation->message);
+        $message = str_replace('{{ compared_value }}', $compareValue ?? '', $equalityValidation->message);
 
         $violations = new ConstraintViolationList();
         $violations->add(new ConstraintViolation($message, $equalityValidation->message, [], '', $field, $data[$field]));

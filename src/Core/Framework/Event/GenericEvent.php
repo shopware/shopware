@@ -4,7 +4,7 @@ namespace Shopware\Core\Framework\Event;
 
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('fundamentals@after-sales')]
+#[Package('framework')]
 interface GenericEvent
 {
     public function getName(): string;

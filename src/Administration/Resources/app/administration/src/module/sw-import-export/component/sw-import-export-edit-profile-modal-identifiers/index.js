@@ -12,10 +12,7 @@ const Criteria = Shopware.Data.Criteria;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'importExportUpdateByMapping',
-    ],
+    inject: ['repositoryFactory', 'importExportUpdateByMapping'],
 
     props: {
         profile: {

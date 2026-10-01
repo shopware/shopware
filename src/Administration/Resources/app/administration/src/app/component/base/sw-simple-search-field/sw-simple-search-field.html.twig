@@ -1,13 +1,13 @@
 {% block sw_simple_search_field %}
 <div class="sw-simple-search-field">
     {% block sw_simple_search_field_input %}
-
     <mt-text-field
         class="sw-simple-search-field__input"
         :class="fieldClasses"
         :placeholder="placeholder"
         v-bind="$attrs"
         :model-value="value"
+        :size="size"
         @update:model-value="onInput"
     />
     {% endblock %}
@@ -19,7 +19,7 @@
             v-if="icon"
             class="sw-simple-search-field__search-icon"
             :name="icon"
-            size="16px"
+            size="var(--scale-size-16)"
         />
         {% endblock %}
     </slot>

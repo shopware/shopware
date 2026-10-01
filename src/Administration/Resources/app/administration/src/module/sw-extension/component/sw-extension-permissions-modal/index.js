@@ -8,10 +8,7 @@ import './sw-extension-permissions-modal.scss';
 export default {
     template,
 
-    emits: [
-        'modal-close',
-        'close-with-action',
-    ],
+    emits: ['modal-close', 'close-with-action'],
 
     props: {
         permissions: {
@@ -63,7 +60,7 @@ export default {
                 return this.title;
             }
 
-            return this.$tc(
+            return this.$t(
                 'sw-extension-store.component.sw-extension-permissions-modal.title',
                 {
                     extensionLabel: this.extensionLabel,
@@ -74,30 +71,22 @@ export default {
 
         permissionsWithGroupedOperations() {
             return Object.fromEntries(
-                Object.entries(this.permissions).map(
-                    ([
-                        category,
-                        permissions,
-                    ]) => {
-                        permissions = permissions.reduce((acc, permission) => {
-                            const entity = permission.entity;
+                Object.entries(this.permissions).map(([category, permissions]) => {
+                    permissions = permissions.reduce((acc, permission) => {
+                        const entity = permission.entity;
 
-                            if (entity === 'additional_privileges') {
-                                acc[permission.operation] = [];
-
-                                return acc;
-                            }
-
-                            acc[entity] = (acc[entity] || []).concat(permission.operation);
+                        if (entity === 'additional_privileges') {
+                            acc[permission.operation] = [];
 
                             return acc;
-                        }, {});
-                        return [
-                            category,
-                            permissions,
-                        ];
-                    },
-                ),
+                        }
+
+                        acc[entity] = (acc[entity] || []).concat(permission.operation);
+
+                        return acc;
+                    }, {});
+                    return [category, permissions];
+                }),
             );
         },
 
@@ -114,7 +103,7 @@ export default {
                 return this.closeLabel;
             }
 
-            return this.$tc('global.sw-modal.labelClose');
+            return this.$t('global.default.close');
         },
 
         descriptionText() {
@@ -122,7 +111,7 @@ export default {
                 return this.description;
             }
 
-            return this.$tc(
+            return this.$t(
                 'sw-extension-store.component.sw-extension-permissions-modal.description',
                 {
                     extensionLabel: this.extensionLabel,
@@ -146,7 +135,7 @@ export default {
         },
 
         categoryLabel(category) {
-            return this.$tc(`entityCategories.${category}.title`);
+            return this.$t(`entityCategories.${category}.title`);
         },
 
         openDetailsModal(category) {

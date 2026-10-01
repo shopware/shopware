@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Scaffolding;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Stub::class)]
 class PluginScaffoldConfigurationTest extends TestCase
 {
@@ -23,8 +25,8 @@ class PluginScaffoldConfigurationTest extends TestCase
         static::assertTrue($config->hasOption('option1'));
         static::assertTrue($config->hasOption('option2'));
         static::assertFalse($config->hasOption('option3'));
-        static::assertEquals('value1', $config->getOption('option1'));
-        static::assertEquals('value2', $config->getOption('option2'));
+        static::assertSame('value1', $config->getOption('option1'));
+        static::assertSame('value2', $config->getOption('option2'));
         static::assertNull($config->getOption('option3'));
     }
 
@@ -44,7 +46,7 @@ class PluginScaffoldConfigurationTest extends TestCase
 
         $config->addOption('option1', 'value1');
 
-        static::assertEquals('value1', $config->getOption('option1'));
+        static::assertSame('value1', $config->getOption('option1'));
         static::assertNull($config->getOption('option2'));
     }
 }

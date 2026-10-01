@@ -1,0 +1,29 @@
+.sw-settings-measurement-default-units {
+    &__description {
+        margin-bottom: var(--scale-size-32);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-regular);
+        line-height: var(--font-line-height-s);
+    }
+
+    &__description a.sw-internal-link {
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-regular);
+        line-height: var(--font-line-height-s);
+    }
+}
+
+.mt-select-result-list-popover-wrapper {
+    .mt-select-result__result-item-text {
+        flex-direction: row;
+        gap: var(--scale-size-8);
+    }
+
+    &__popover-short-name {
+        color: var(--color-text-secondary-default);
+    }
+
+    .mt-select-result > .mt-icon {
+        color: var(--color-icon-secondary-default);
+    }
+}

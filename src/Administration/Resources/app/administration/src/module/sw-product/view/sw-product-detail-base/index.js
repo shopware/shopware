@@ -13,14 +13,9 @@ const { isEmpty } = Utils.types;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         productId: {
@@ -62,8 +57,19 @@ export default {
             return Shopware.Store.get('swProductDetail').showModeSetting;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, use `productType` instead.
+         */
         productStates() {
             return Shopware.Store.get('swProductDetail').productStates;
+        },
+
+        productType() {
+            return Shopware.Store.get('swProductDetail').productType;
+        },
+
+        isDownloadCardVisible() {
+            return this.productType === 'digital' || this.productStates.includes('is-download');
         },
 
         mediaFormVisible() {
@@ -111,7 +117,9 @@ export default {
 
         getMediaDefaultFolderId() {
             return this.mediaDefaultFolderRepository
-                .search(this.mediaDefaultFolderCriteria, Context.api)
+                .search(this.mediaDefaultFolderCriteria, {
+                    cacheKey: ['media-default-folder', 'product'],
+                })
                 .then((mediaDefaultFolder) => {
                     const defaultFolder = mediaDefaultFolder.first();
 
@@ -178,7 +186,7 @@ export default {
             media.forEach((item) => {
                 this.addMedia(item).catch(({ fileName }) => {
                     this.createNotificationError({
-                        message: this.$tc('sw-product.mediaForm.errorMediaItemDuplicated', { fileName }, 0),
+                        message: this.$t('sw-product.mediaForm.errorMediaItemDuplicated', { fileName }, 0),
                     });
                 });
             });

@@ -11,10 +11,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         customer: {
@@ -45,8 +42,8 @@ export default {
 
         emptyTitle() {
             return this.term
-                ? this.$tc('sw-customer.detailOrder.emptySearchTitle')
-                : this.$tc('sw-customer.detailOrder.emptyTitle');
+                ? this.$t('sw-customer.detailOrder.emptySearchTitle')
+                : this.$t('sw-customer.detailOrder.emptyTitle');
         },
 
         currencyFilter() {
@@ -92,12 +89,10 @@ export default {
                 {
                     property: 'orderNumber',
                     label: 'sw-customer.detailOrder.columnNumber',
-                    align: 'center',
                 },
                 {
                     property: 'amountTotal',
                     label: 'sw-customer.detailOrder.columnAmount',
-                    align: 'right',
                 },
                 {
                     property: 'stateMachineState.name',
@@ -106,7 +101,6 @@ export default {
                 {
                     property: 'orderDateTime',
                     label: 'sw-customer.detailOrder.columnOrderDate',
-                    align: 'center',
                 },
             ];
         },

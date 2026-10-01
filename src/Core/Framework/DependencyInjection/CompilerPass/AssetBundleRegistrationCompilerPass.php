@@ -15,6 +15,7 @@ class AssetBundleRegistrationCompilerPass implements CompilerPassInterface
     public function process(ContainerBuilder $container): void
     {
         /** @var array<class-string<Bundle>> $bundles */
+        // @phpstan-ignore varTag.type (ReflectionClass requires a class-string, but the bundles are already validated strings)
         $bundles = $container->getParameter('kernel.bundles');
 
         $assetService = $container->getDefinition('assets.packages');
@@ -32,7 +33,7 @@ class AssetBundleRegistrationCompilerPass implements CompilerPassInterface
         }
 
         $arguments = $assetService->getArguments();
-        array_unshift($arguments, new Reference('shopware.asset.asset.version_strategy'));
+        array_unshift($arguments, new Reference('shopware.asset.public.version_strategy'));
         array_unshift($arguments, new Reference('shopware.asset.asset_without_versioning'));
         array_unshift($arguments, $bundleMap);
 

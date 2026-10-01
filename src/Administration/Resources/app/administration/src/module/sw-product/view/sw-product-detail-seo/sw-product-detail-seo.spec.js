@@ -1,7 +1,7 @@
 /**
  * @sw-package inventory
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import uuid from 'test/_helper_/uuid';
 
 const classes = {
@@ -77,6 +77,14 @@ const seoUrlRepositoryMock = {
     },
 };
 
+const productRepositoryMock = {
+    search: () => Promise.resolve(createEntityCollection([])),
+};
+
+const mainCategoryRepositoryMock = {
+    create: () => ({}),
+};
+
 const repositoryMockFactory = (entity) => {
     if (entity === 'sales_channel') {
         return salesChannelRepositoryMock;
@@ -84,6 +92,14 @@ const repositoryMockFactory = (entity) => {
 
     if (entity === 'seo_url') {
         return seoUrlRepositoryMock;
+    }
+
+    if (entity === 'product') {
+        return productRepositoryMock;
+    }
+
+    if (entity === 'main_category') {
+        return mainCategoryRepositoryMock;
     }
 
     return false;
@@ -147,6 +163,9 @@ async function createWrapper(privileges = []) {
                 'sw-product-variant-info': true,
                 'sw-text-field-deprecated': true,
                 'sw-ai-copilot-badge': true,
+                'sw-media-modal-v2': true,
+                'sw-upload-listener': true,
+                'sw-media-upload-v2': true,
             },
         },
     });
@@ -159,12 +178,6 @@ function createEntityCollection(entities = []) {
 describe('src/module/sw-product/view/sw-product-detail-seo', () => {
     beforeEach(() => {
         Shopware.Store.get('swProductDetail').$reset();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should update product main categories correctly', async () => {
@@ -210,7 +223,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         await wrapper.vm.$nextTick();
         await flushPromises();
 
-        const selectStoreFront = salesChannelSwitch.find('.sw-select-option--1');
+        const selectStoreFront = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(selectStoreFront.text()).toBe('Storefront');
         await selectStoreFront.trigger('click');
         await flushPromises();
@@ -284,7 +297,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         await wrapper.vm.$nextTick();
         await flushPromises();
 
-        const selectStoreFront = salesChannelSwitch.find('.sw-select-option--1');
+        const selectStoreFront = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(selectStoreFront.text()).toBe('Storefront');
         await selectStoreFront.trigger('click');
         await wrapper.vm.$nextTick();
@@ -335,7 +348,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         await wrapper.vm.$nextTick();
         await flushPromises();
 
-        const selectHeadless = salesChannelSwitch.find('.sw-select-option--2');
+        const selectHeadless = new DOMWrapper(document.body).get('.sw-select-option--2');
         expect(selectHeadless.text()).toBe('Headless');
         await selectHeadless.trigger('click');
         await wrapper.vm.$nextTick();
@@ -415,7 +428,7 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         await wrapper.vm.$nextTick();
         await flushPromises();
 
-        const selectStoreFront = salesChannelSwitch.find('.sw-select-option--1');
+        const selectStoreFront = new DOMWrapper(document.body).get('.sw-select-option--1');
         expect(selectStoreFront.text()).toBe('Storefront');
         await selectStoreFront.trigger('click');
         await wrapper.vm.$nextTick();
@@ -429,5 +442,44 @@ describe('src/module/sw-product/view/sw-product-detail-seo', () => {
         expect(inheritanceSwitch).toBeTruthy();
 
         expect(inheritanceSwitch.classes()).toContain(classes.notInherited);
+    });
+
+    it('should create new main category when changing the value', async () => {
+        const wrapper = await createWrapper(['product.editor']);
+
+        const productDetailStore = Shopware.Store.get('swProductDetail');
+        productDetailStore.product = {
+            id: 'productId1',
+            mainCategories: createEntityCollection([
+                {
+                    salesChannelId: 'salesChannelId1',
+                    categoryId: 'categoryId1',
+                },
+            ]),
+        };
+
+        productDetailStore.parentProduct = {
+            id: 'productId2',
+            mainCategories: createEntityCollection([
+                {
+                    salesChannelId: 'salesChannelId1',
+                    categoryId: 'categoryId1',
+                },
+            ]),
+        };
+
+        await wrapper.vm.$nextTick();
+        wrapper.vm.currentSalesChannelId = 'salesChannelId1';
+
+        expect(productDetailStore.product.mainCategories).toHaveLength(1);
+
+        wrapper.vm.productMainCategory = {
+            salesChannelId: 'salesChannelId1',
+            categoryId: 'categoryId2',
+        };
+        await wrapper.vm.$nextTick();
+
+        expect(productDetailStore.product.mainCategories).toHaveLength(1);
+        expect(productDetailStore.product.mainCategories[0].categoryId).toBe('categoryId2');
     });
 });

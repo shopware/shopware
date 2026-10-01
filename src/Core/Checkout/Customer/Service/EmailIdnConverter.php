@@ -16,7 +16,12 @@ class EmailIdnConverter
             return $email;
         }
 
-        return \sprintf('%s@%s', $parts[0], idn_to_utf8($parts[1]));
+        $convertedDomainPart = idn_to_utf8($parts[1]);
+        if (!\is_string($convertedDomainPart)) {
+            return $email;
+        }
+
+        return \sprintf('%s@%s', $parts[0], $convertedDomainPart);
     }
 
     public static function encode(string $email): string
@@ -27,7 +32,12 @@ class EmailIdnConverter
             return $email;
         }
 
-        return \sprintf('%s@%s', $parts[0], idn_to_ascii($parts[1]));
+        $convertedDomainPart = idn_to_ascii($parts[1]);
+        if (!\is_string($convertedDomainPart)) {
+            return $email;
+        }
+
+        return \sprintf('%s@%s', $parts[0], $convertedDomainPart);
     }
 
     public static function encodeDataBag(DataBag $data, string $name = 'email'): void

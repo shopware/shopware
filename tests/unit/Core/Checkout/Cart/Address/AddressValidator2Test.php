@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Address;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Address\AddressValidator;
 use Shopware\Core\Checkout\Cart\Address\Error\ShippingAddressBlockedError;
@@ -12,6 +12,8 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Delivery\Struct\ShippingLocation;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
@@ -77,15 +79,20 @@ class AddressValidator2Test extends TestCase
     private function getSearchResultStub(?bool $assigned = true, ?string $id = null): IdSearchResult
     {
         if ($assigned) {
-            return new IdSearchResult(1, [['primaryKey' => $id ?? Uuid::randomHex(), 'data' => []]], new Criteria(), Context::createDefaultContext());
+            $id = $id ?? Uuid::randomHex();
+
+            return new IdSearchResult(1, [$id => ['primaryKey' => $id, 'data' => []]], new Criteria(), Context::createDefaultContext());
         }
 
         return new IdSearchResult(0, [], new Criteria(), Context::createDefaultContext());
     }
 
-    private function getRepositoryMock(?IdSearchResult $result): EntityRepository&MockObject
+    /**
+     * @return EntityRepository<EntityCollection<Entity>>&Stub
+     */
+    private function getRepositoryMock(?IdSearchResult $result): EntityRepository&Stub
     {
-        $repository = $this->createMock(EntityRepository::class);
+        $repository = static::createStub(EntityRepository::class);
 
         $repository->method('searchIds')
             ->willReturn($result);
@@ -105,9 +112,9 @@ class AddressValidator2Test extends TestCase
         return $country;
     }
 
-    private function getContextMock(?ShippingLocation $shippingLocation = null): MockObject&SalesChannelContext
+    private function getContextMock(?ShippingLocation $shippingLocation = null): Stub&SalesChannelContext
     {
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context->method('getShippingLocation')
             ->willReturn($shippingLocation);

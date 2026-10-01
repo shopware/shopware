@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 import { mount } from '@vue/test-utils';
 import 'src/app/component/data-grid/sw-data-grid';
 import 'src/app/component/base/sw-button';
@@ -161,7 +163,6 @@ async function createWrapper() {
                     },
                 },
                 stubs: {
-                    'sw-container': await wrapTestComponent('sw-container'),
                     'sw-button-group': {
                         template: '<div class="sw-button-group"><slot></slot></div>',
                     },
@@ -175,7 +176,6 @@ async function createWrapper() {
                     'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
                     'sw-checkbox-field-deprecated': await wrapTestComponent('sw-checkbox-field-deprecated', { sync: true }),
                     'mt-number-field': {
-                        // eslint-disable-next-line max-len
                         template:
                             '<input class="mt-number-field" type="number" :value="value" @input="$emit(\'change\', Number($event.target.value))" />',
                         props: {
@@ -183,7 +183,9 @@ async function createWrapper() {
                             size: 'default',
                         },
                     },
-                    'sw-card-filter': true,
+                    'sw-card-filter': {
+                        template: '<div class="sw-card-filter"><slot name="filter"></slot></div>',
+                    },
                     'sw-data-grid': await wrapTestComponent('sw-data-grid', {
                         sync: true,
                     }),
@@ -203,7 +205,6 @@ async function createWrapper() {
                         template: '<a class="router-link" href="#"><slot></slot></a>',
                         props: ['to'],
                     },
-                    'sw-empty-state': true,
                     'sw-loader': true,
                     'sw-data-grid-settings': true,
                     'sw-data-grid-inline-edit': true,
@@ -215,7 +216,7 @@ async function createWrapper() {
                     'sw-provide': { template: '<slot/>', inheritAttrs: false },
                 },
                 mocks: {
-                    $tc: (t, value) => {
+                    $t: (t, value) => {
                         if (t === 'sw-order.createBase.taxDetail') {
                             return `${value.taxRate}%: ${value.tax}`;
                         }
@@ -232,12 +233,17 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
     it('should show empty state when there is not item', async () => {
         const wrapper = await createWrapper({});
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-        expect(emptyState.exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
     });
 
     it('only product item should have redirect link', async () => {
         const wrapper = await createWrapper({});
+        const deletedProductItem = {
+            ...mockItems[0],
+            id: null,
+            identifier: null,
+            referencedId: null,
+        };
 
         await wrapper.setProps({
             cart: {
@@ -266,6 +272,15 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         expect(creditLabel.findComponent('.router-link').exists()).toBeFalsy();
         expect(showProductButton3.attributes().disabled).toBeTruthy();
+
+        expect(wrapper.vm.getProductRoute(mockItems[0])).toEqual({
+            name: 'sw.product.detail',
+            params: {
+                id: '1',
+            },
+        });
+        expect(wrapper.vm.getProductRoute(deletedProductItem)).toBeNull();
+        expect(wrapper.vm.getProductRoute(mockItems[1])).toBeNull();
     });
 
     it('should not show tooltip if only items which have single tax', async () => {
@@ -431,15 +446,19 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         const buttonAddItem = wrapper.find('.sw-order-line-items-grid-sales-channel__add-product');
         await buttonAddItem.trigger('click');
+        await flushPromises();
 
         itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
         expect(itemRows).toHaveLength(1);
 
         const firstRow = itemRows.at(0);
-        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toBe('1');
+        expect(firstRow.classes()).toContain('is--inline-edit');
+        expect(firstRow.find('.sw-order-product-select').exists()).toBe(true);
+        expect(firstRow.find('.sw-data-grid__inline-edit-save').exists()).toBe(true);
         expect(firstRow.find('.sw-data-grid__cell--unitPrice').text()).toBe('...');
-        expect(firstRow.find('.sw-data-grid__cell--tax').text()).toBe('0 %');
         expect(firstRow.find('.sw-data-grid__cell--totalPrice').text()).toBe('...');
+        expect(wrapper.vm.cartLineItems[0].quantity).toBe(1);
+        expect(wrapper.vm.cartLineItems[0].priceDefinition.taxRules[0].taxRate).toBe(0);
     });
 
     it('should able to create new product line item', async () => {
@@ -545,15 +564,22 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
         await wrapper.setProps({
             cart: {
                 token: 'token',
-                lineItems: [...mockItems],
+                // A local copy, because the inline edit mutates the item it is given
+                lineItems: [
+                    {
+                        ...structuredClone(mockItems[0]),
+                        priceDefinition: {
+                            isCalculated: true,
+                            taxRules: [{ taxRate: 20, percentage: 100 }],
+                            price: 200,
+                        },
+                    },
+                ],
             },
             isCustomerActive: true,
         });
-        const buttonAddCreditItem = wrapper.find('.sw-order-line-items-grid-sales-channel__add-product');
-        await buttonAddCreditItem.trigger('click');
 
-        const itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');
-        const firstRow = itemRows.at(0);
+        const firstRow = wrapper.find('.sw-data-grid__row--0');
 
         await firstRow.find('.sw-data-grid__cell--quantity').trigger('dblclick');
 
@@ -563,8 +589,32 @@ describe('src/module/sw-order/component/sw-order-line-items-grid-sales-channel',
 
         const buttonInlineCancel = wrapper.find('.sw-data-grid__inline-edit-cancel');
         await buttonInlineCancel.trigger('click');
+        await flushPromises();
 
-        expect(firstRow.find('.sw-data-grid__cell--quantity').text()).toBe('1');
+        expect(wrapper.findAll('.sw-data-grid__body .sw-data-grid__row')).toHaveLength(1);
+        expect(wrapper.find('.sw-data-grid__row--0 .sw-data-grid__cell--quantity').text()).toBe('1');
+    });
+
+    it('should discard a newly added item when its inline editing is cancelled', async () => {
+        const wrapper = await createWrapper({});
+        Shopware.Store.get('swOrder').setCartToken('token');
+        await wrapper.setProps({
+            cart: {
+                token: 'token',
+                lineItems: [],
+            },
+            isCustomerActive: true,
+        });
+
+        await wrapper.find('.sw-order-line-items-grid-sales-channel__add-product').trigger('click');
+        await flushPromises();
+
+        expect(Shopware.Store.get('swOrder').cart.lineItems).toHaveLength(1);
+
+        await wrapper.find('.sw-data-grid__row--0 .sw-data-grid__inline-edit-cancel').trigger('click');
+        await flushPromises();
+
+        expect(Shopware.Store.get('swOrder').cart.lineItems).toHaveLength(0);
     });
 
     it('should able to delete items', async () => {

@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Framework\Migration;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MigrationStep::class)]
 class InstallEnvironmentTest extends TestCase
 {

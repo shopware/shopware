@@ -3,10 +3,10 @@ import findByText from '../../../../../test/_helper_/find-by-text';
 
 const uploadSpy = jest.fn(() => Promise.resolve({}));
 const updateExtensionDataSpy = jest.fn(() => Promise.resolve({}));
-const userConfigSaveSpy = jest.fn(() => Promise.resolve({}));
+let wrapper = null;
 
-async function createWrapper(userConfig = {}) {
-    const wrapper = mount(await wrapTestComponent('sw-extension-file-upload', { sync: true }), {
+async function createWrapper() {
+    wrapper = mount(await wrapTestComponent('sw-extension-file-upload', { sync: true }), {
         global: {
             stubs: {
                 'sw-checkbox-field': await wrapTestComponent('sw-checkbox-field', { sync: true }),
@@ -17,7 +17,6 @@ async function createWrapper(userConfig = {}) {
                 'sw-field-error': true,
                 'sw-modal': {
                     props: ['title'],
-                    // eslint-disable-next-line max-len
                     template:
                         '<div><div class="sw-modal__title">{{ title }}</div><div class="sw-modal__body"><slot/></div><slot name="modal-footer"></slot></div>',
                 },
@@ -31,23 +30,7 @@ async function createWrapper(userConfig = {}) {
                 extensionStoreActionService: {
                     upload: uploadSpy,
                 },
-                repositoryFactory: {
-                    create: () => {
-                        return {};
-                    },
-                },
             },
-        },
-        computed: {
-            userConfigRepository: () => ({
-                search() {
-                    return Promise.resolve(userConfig);
-                },
-                create() {
-                    return Promise.resolve({});
-                },
-                save: userConfigSaveSpy,
-            }),
         },
         attachTo: document.body,
     });
@@ -76,8 +59,19 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
     });
 
     beforeEach(async () => {
+        jest.clearAllMocks();
         Shopware.Store.get('notification').notifications = {};
         Shopware.Store.get('notification').growlNotifications = {};
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({ data: {} });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+    });
+
+    afterEach(() => {
+        if (wrapper) {
+            wrapper.unmount();
+            wrapper = null;
+        }
+        jest.restoreAllMocks();
     });
 
     it('should show warning modal and then call the file input form', async () => {
@@ -163,11 +157,8 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
 
         await wrapper.vm.handleUpload([createFile()]);
 
-        expect(userConfigSaveSpy).toHaveBeenCalled();
-        expect(userConfigSaveSpy.mock.calls[0][0]).toEqual({
-            key: 'extension.plugin_upload',
-            userId: 'abc',
-            value: {
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
+            'extension.plugin_upload': {
                 hide_upload_warning: true,
             },
         });
@@ -205,13 +196,10 @@ describe('src/module/sw-extension/component/sw-extension-file-upload', () => {
 
         // return an error from the upload
         uploadSpy.mockImplementationOnce(() =>
-            // eslint-disable-next-line prefer-promise-reject-errors
             Promise.reject({
                 response: {
                     data: {
-                        errors: [
-                            'Wrong file format',
-                        ],
+                        errors: ['Wrong file format'],
                     },
                 },
             }),

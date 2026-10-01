@@ -4,13 +4,14 @@ namespace Shopware\Tests\Integration\Core\Content\Product\DataAbstractionLayer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\DataAbstractionLayer\ProductCategoryDenormalizer;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexerRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -21,7 +22,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
  * @internal
  */
 #[Package('inventory')]
-#[CoversClass(ProductCategoryDenormalizer::class)]
 class ProductCategoryDenormalizerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -30,6 +30,9 @@ class ProductCategoryDenormalizerTest extends TestCase
 
     private Connection $connection;
 
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
     private EntityRepository $productRepository;
 
     protected function setUp(): void
@@ -46,21 +49,51 @@ class ProductCategoryDenormalizerTest extends TestCase
         $this->productRepository->update([
             [
                 'id' => $productFixture['testable-product'],
-                'categories' => \array_map(fn (string $categoryId) => ['id' => $categoryId], $categoryIds),
+                'categories' => \array_map(static fn (string $categoryId) => ['id' => $categoryId], $categoryIds),
             ],
         ], $this->context);
 
         static::assertSame($categoryIds, $this->getProductCategoryList($productFixture['testable-product']));
-        static::assertEquals(
+        static::assertSame(
             \count($categoryIds),
             $this->getCountRowsInProductCategoryTree($productFixture['testable-product'], $categoryIds)
         );
 
         static::assertSame($categoryIds, $this->getProductCategoryList($productFixture['variant-testable-product']));
-        static::assertEquals(
+        static::assertSame(
             \count($categoryIds),
             $this->getCountRowsInProductCategoryTree($productFixture['variant-testable-product'], $categoryIds)
         );
+    }
+
+    public function testFullIndexIncludesParentCategoriesInTheProductCategoryTree(): void
+    {
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+
+        $rootCategoryId = Uuid::randomHex();
+        $childCategoryId = Uuid::randomHex();
+        static::getContainer()->get('category.repository')->create([
+            ['id' => $rootCategoryId, 'name' => 'Root'],
+            ['id' => $childCategoryId, 'parentId' => $rootCategoryId, 'name' => 'Child'],
+        ], $context);
+
+        $productId = Uuid::randomHex();
+        $this->productRepository->create([
+            [
+                'id' => $productId,
+                'productNumber' => $productId,
+                'stock' => 1,
+                'name' => 'Product',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 10, 'linked' => false]],
+                'tax' => ['name' => 'Tax', 'taxRate' => 19],
+                'categories' => [['id' => $childCategoryId]],
+            ],
+        ], $context);
+
+        static::getContainer()->get(EntityIndexerRegistry::class)->index(false);
+
+        static::assertSame(1, $this->getCountRowsInProductCategoryTree($productId, [$rootCategoryId]));
     }
 
     /**
@@ -70,7 +103,7 @@ class ProductCategoryDenormalizerTest extends TestCase
     {
         $productRepository = static::getContainer()->get('product.repository');
         /** @var ProductEntity $testableProduct */
-        $testableProduct = $productRepository->search(new Criteria([$productId]), $this->context)->first();
+        $testableProduct = $productRepository->search(new Criteria([$productId]), $this->context)->getEntities()->first();
 
         $productCategoryIds = $testableProduct->getCategoryTree();
         if ($productCategoryIds !== null) {
@@ -112,7 +145,6 @@ class ProductCategoryDenormalizerTest extends TestCase
         /** @var array{id: string, children: array<int, array{id: string}>, categories: array<int, array{id: string, name:string}>} $product */
         $product = $builder->build();
         $products[$name] = $product['id'];
-        /** @var list<string> $categories */
         $categories = \array_column($product['categories'], 'id');
         \sort($categories);
 
@@ -129,7 +161,7 @@ class ProductCategoryDenormalizerTest extends TestCase
         $products[$name] = $product['id'];
         $products['variant-testable-product'] = $product['children'][0]['id'];
 
-        static::assertEquals(
+        static::assertSame(
             0,
             $this->getCountRowsInProductCategoryTree($products['variant-testable-product'], $categories)
         );

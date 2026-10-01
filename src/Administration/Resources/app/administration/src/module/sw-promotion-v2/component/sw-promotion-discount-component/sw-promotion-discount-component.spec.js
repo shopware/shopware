@@ -5,7 +5,19 @@ import { mount } from '@vue/test-utils';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 
-async function createWrapper() {
+const currencySearch = jest.fn((criteria) =>
+    Promise.resolve(
+        new EntityCollection('', 'currency', Shopware.Context.api, criteria, [
+            {
+                id: 'currencyId',
+                isSystemDefault: true,
+                factor: 3,
+            },
+        ]),
+    ),
+);
+
+async function createWrapper(propOverrides = {}) {
     return mount(
         await wrapTestComponent('sw-promotion-discount-component', {
             sync: true,
@@ -19,19 +31,16 @@ async function createWrapper() {
                     'sw-select-field': {
                         template:
                             '<select class="sw-field sw-select-field" :value="value" @change="$emit(\'update:value\', $event.target.value)"><slot></slot></select>',
-                        props: [
-                            'value',
-                            'disabled',
-                        ],
+                        props: ['value', 'disabled'],
                     },
-                    'sw-promotion-v2-rule-select': {
-                        template: '<div class="sw-promotion-v2-rule-select"></div>',
+                    'sw-select-rule-create': {
+                        template: '<div class="sw-select-rule-create"></div>',
                     },
                     'sw-loader': {
                         template: '<div class="sw-loader"></div>',
                     },
                     'mt-card': {
-                        template: '<div class="mt-card"><slot></slot></div>',
+                        template: '<div class="mt-card"><slot name="headerRight"></slot><slot></slot></div>',
                     },
                     'sw-context-button': {
                         template: '<div class="sw-context-button"><slot></slot></div>',
@@ -52,17 +61,13 @@ async function createWrapper() {
                         create: (entity) => {
                             if (entity === 'currency') {
                                 return {
-                                    search: () =>
-                                        Promise.resolve([
-                                            {
-                                                id: 'promotionId1',
-                                                isSystemDefault: true,
-                                            },
-                                        ]),
+                                    search: currencySearch,
                                 };
                             }
+
                             return {
                                 search: () => Promise.resolve([{ id: 'promotionId1' }]),
+                                create: () => ({}),
                             };
                         },
                     },
@@ -131,8 +136,14 @@ async function createWrapper() {
                     apiAlias: null,
                     id: 'discountId',
                     discountRules: new EntityCollection('', 'rule', Shopware.Context.api, new Criteria(1, 25)),
-                    promotionDiscountPrices: [],
+                    promotionDiscountPrices: new EntityCollection(
+                        '',
+                        'promotion_discount_prices',
+                        Shopware.Context.api,
+                        new Criteria(1, 25),
+                    ),
                 },
+                ...propOverrides,
             },
         },
     );
@@ -152,6 +163,19 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
                 },
             };
         });
+    });
+
+    beforeEach(() => {
+        currencySearch.mockClear();
+    });
+
+    it('should load all currencies for the advanced prices', async () => {
+        global.activeAclRoles = [];
+
+        await createWrapper();
+
+        expect(currencySearch).toHaveBeenCalledTimes(1);
+        expect(currencySearch.mock.calls[0][0].getLimit()).toBe(500);
     });
 
     it('should have disabled form fields', async () => {
@@ -199,5 +223,81 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
         await wrapper.vm.$nextTick();
 
         expect(wrapper.find('.sw-promotion-discount-component__select-discount-rules').exists()).toBeTruthy();
+    });
+
+    it('should create advanced prices and recalculate advanced prices when value changes', async () => {
+        const wrapper = await createWrapper();
+
+        wrapper.vm.discount.value = 2;
+        wrapper.vm.onClickAdvancedPrices();
+
+        expect(wrapper.vm.discount.promotionDiscountPrices).toHaveLength(1);
+        expect(wrapper.vm.discount.promotionDiscountPrices[0].currencyId).toBe('currencyId');
+        expect(wrapper.vm.discount.promotionDiscountPrices[0].price).toBe(6);
+
+        wrapper.vm.discount.value = 3;
+        wrapper.vm.recalculatePrices();
+
+        expect(wrapper.vm.discount.promotionDiscountPrices).toHaveLength(1);
+        expect(wrapper.vm.discount.promotionDiscountPrices[0].currencyId).toBe('currencyId');
+        expect(wrapper.vm.discount.promotionDiscountPrices[0].price).toBe(9);
+    });
+
+    it('should not offer fixed item price for shipping costs discounts', async () => {
+        const wrapper = await createWrapper({
+            discount: {
+                isNew: () => false,
+                promotionId: 'promotionId',
+                scope: 'delivery',
+                type: 'absolute',
+                value: 100,
+                considerAdvancedRules: false,
+                maxValue: null,
+                sorterKey: 'PRICE_ASC',
+                applierKey: 'ALL',
+                usageKey: 'ALL',
+                apiAlias: null,
+                id: 'discountId',
+                discountRules: new EntityCollection('', 'rule', Shopware.Context.api, new Criteria(1, 25)),
+                promotionDiscountPrices: new EntityCollection(
+                    '',
+                    'promotion_discount_prices',
+                    Shopware.Context.api,
+                    new Criteria(1, 25),
+                ),
+            },
+        });
+
+        expect(wrapper.vm.discountTypeOptions.map(({ value }) => value)).toEqual(['absolute', 'percentage', 'fixed']);
+    });
+
+    it('should normalize fixed item price to fixed price for shipping costs discounts', async () => {
+        const wrapper = await createWrapper({
+            discount: {
+                isNew: () => false,
+                promotionId: 'promotionId',
+                scope: 'delivery',
+                type: 'fixed_unit',
+                value: 100,
+                considerAdvancedRules: false,
+                maxValue: null,
+                sorterKey: 'PRICE_ASC',
+                applierKey: 'ALL',
+                usageKey: 'ALL',
+                apiAlias: null,
+                id: 'discountId',
+                discountRules: new EntityCollection('', 'rule', Shopware.Context.api, new Criteria(1, 25)),
+                promotionDiscountPrices: new EntityCollection(
+                    '',
+                    'promotion_discount_prices',
+                    Shopware.Context.api,
+                    new Criteria(1, 25),
+                ),
+            },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.discount.type).toBe('fixed');
     });
 });

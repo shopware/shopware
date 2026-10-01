@@ -22,9 +22,6 @@ class RuleCollection extends Collection
      */
     protected array $classes = [];
 
-    /**
-     * @param Rule $rule
-     */
     public function add($rule): void
     {
         parent::add($rule);
@@ -52,7 +49,7 @@ class RuleCollection extends Collection
         return new static(
             array_filter(
                 $this->flat,
-                fn (Rule $rule) => $rule instanceof $class
+                static fn (Rule $rule) => $rule instanceof $class
             )
         );
     }

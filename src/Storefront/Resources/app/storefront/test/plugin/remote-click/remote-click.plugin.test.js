@@ -62,6 +62,6 @@ describe('RemoteClickPlugin tests', () => {
 
         expect(() => {
             new RemoteClickPlugin(element);
-        }).toThrowError('The option "selector" must be given!');
+        }).toThrow('The option "selector" must be given!');
     });
 });

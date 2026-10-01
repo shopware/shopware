@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Flow\Dispatching\Action;
 
+use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Content\Flow\Dispatching\DelayableAction;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Framework\Context;
@@ -17,6 +18,8 @@ class ChangeCustomerGroupAction extends FlowAction implements DelayableAction
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<CustomerCollection> $customerRepository
      */
     public function __construct(private readonly EntityRepository $customerRepository)
     {
@@ -28,7 +31,7 @@ class ChangeCustomerGroupAction extends FlowAction implements DelayableAction
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     public function requirements(): array
     {
@@ -54,7 +57,7 @@ class ChangeCustomerGroupAction extends FlowAction implements DelayableAction
         }
 
         $customerGroupId = $config['customerGroupId'];
-        if (empty($customerGroupId)) {
+        if ($customerGroupId === null || $customerGroupId === '') {
             return;
         }
 
@@ -62,6 +65,7 @@ class ChangeCustomerGroupAction extends FlowAction implements DelayableAction
             [
                 'id' => $customerId,
                 'groupId' => $customerGroupId,
+                'requestedGroupId' => null,
             ],
         ], $context);
     }

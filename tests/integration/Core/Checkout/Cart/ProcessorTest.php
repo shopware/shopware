@@ -23,6 +23,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Transaction\TransactionProcessor;
 use Shopware\Core\Checkout\Cart\Validator;
 use Shopware\Core\Checkout\Promotion\Cart\Error\AutoPromotionNotFoundError;
+use Shopware\Core\Checkout\Shipping\Cart\Error\ShippingMethodBlockedError;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -119,8 +120,8 @@ class ProcessorTest extends TestCase
 
         $processor = new Processor(
             new Validator([]),
-            $this->createMock(AmountCalculator::class),
-            $this->createMock(TransactionProcessor::class),
+            static::createStub(AmountCalculator::class),
+            static::createStub(TransactionProcessor::class),
             [
                 new class implements CartProcessorInterface {
                     public function process(CartDataCollection $data, Cart $original, Cart $toCalculate, SalesChannelContext $context, CartBehavior $behavior): void
@@ -132,7 +133,7 @@ class ProcessorTest extends TestCase
                 },
             ],
             [],
-            $this->createMock(ScriptExecutor::class)
+            static::createStub(ScriptExecutor::class)
         );
 
         $newCart = $processor->process($cart, $this->context, new CartBehavior());
@@ -195,12 +196,12 @@ class ProcessorTest extends TestCase
         static::assertInstanceOf(CalculatedPrice::class, $creditLineItem->getPrice());
         static::assertCount(2, $creditCalculatedTaxes = $creditLineItem->getPrice()->getCalculatedTaxes()->getElements());
 
-        $calculatedTaxForCustomItem = array_filter($creditCalculatedTaxes, fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForCustomItem);
+        $calculatedTaxForCustomItem = array_filter($creditCalculatedTaxes, static fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForCustomItem);
 
         static::assertNotEmpty($calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
-        $calculatedTaxForProductItem = array_filter($creditCalculatedTaxes, fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForProductItem);
+        $calculatedTaxForProductItem = array_filter($creditCalculatedTaxes, static fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForProductItem);
 
         static::assertNotEmpty($calculatedTaxForProductItem);
         static::assertCount(1, $calculatedTaxForProductItem);
@@ -288,12 +289,12 @@ class ProcessorTest extends TestCase
         static::assertInstanceOf(Delivery::class, $delivery);
         static::assertCount(2, $shippingCalculatedTaxes = $delivery->getShippingCosts()->getCalculatedTaxes()->getElements());
 
-        $calculatedTaxForCustomItem = array_filter($shippingCalculatedTaxes, fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForCustomItem);
+        $calculatedTaxForCustomItem = array_filter($shippingCalculatedTaxes, static fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForCustomItem);
 
         static::assertNotEmpty($calculatedTaxForCustomItem);
         static::assertCount(1, $calculatedTaxForCustomItem);
 
-        $calculatedTaxForProductItem = array_filter($shippingCalculatedTaxes, fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForProductItem);
+        $calculatedTaxForProductItem = array_filter($shippingCalculatedTaxes, static fn (CalculatedTax $tax) => (int) $tax->getTaxRate() === $taxForProductItem);
 
         static::assertNotEmpty($calculatedTaxForProductItem);
         static::assertCount(1, $calculatedTaxForProductItem);
@@ -312,8 +313,8 @@ class ProcessorTest extends TestCase
         static::assertInstanceOf(PersistentError::class, $cart->getErrors()->first());
 
         $error = $cart->getErrors()->first();
-        static::assertEquals('persistent', $error->getId());
-        static::assertEquals('persistent', $error->getMessageKey());
+        static::assertSame('persistent', $error->getId());
+        static::assertSame('persistent', $error->getMessageKey());
     }
 
     public function testCartHasErrorDataAddedFromPromotionProcessor(): void
@@ -344,10 +345,28 @@ class ProcessorTest extends TestCase
                 ->setLabel('Discount 10%')
         );
 
-        $this->processor->process($originalCart, $this->context, new CartBehavior());
-        foreach ($originalCart->getErrors() as $error) {
+        $cart = $this->processor->process($originalCart, $this->context, new CartBehavior());
+        static::assertCount(3, $cart->getErrors());
+
+        foreach ($cart->getErrors() as $error) {
+            if ($error instanceof ShippingMethodBlockedError) {
+                continue;
+            }
             static::assertInstanceOf(AutoPromotionNotFoundError::class, $error);
         }
+    }
+
+    public function testProcessKeepsPersistedStateOfOriginalCart(): void
+    {
+        $cart = new Cart('test');
+
+        $calculated = $this->processor->process($cart, $this->context, new CartBehavior());
+        static::assertFalse($calculated->isPersisted());
+
+        $cart->setPersisted(true);
+
+        $calculated = $this->processor->process($cart, $this->context, new CartBehavior());
+        static::assertTrue($calculated->isPersisted());
     }
 
     public function testProcessorsAndCollectorsAreSkippedIfCartIsEmpty(): void

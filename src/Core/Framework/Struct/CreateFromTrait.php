@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Struct;
 
+use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('framework')]
@@ -13,10 +14,11 @@ trait CreateFromTrait
             $self = (new \ReflectionClass(static::class))
                 ->newInstanceWithoutConstructor();
         } catch (\ReflectionException $exception) {
-            throw new \InvalidArgumentException($exception->getMessage());
+            throw FrameworkException::createFromError($exception->getMessage());
         }
 
         foreach (get_object_vars($object) as $property => $value) {
+            // @phpstan-ignore property.dynamicName (We have to allow dynamic properties here to copy all variables)
             $self->$property = $value;
         }
 

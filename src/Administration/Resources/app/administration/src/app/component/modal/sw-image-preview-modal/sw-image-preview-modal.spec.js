@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package framework
  */
@@ -19,11 +21,11 @@ const mediaItems = [
     },
     {
         id: '3',
-        media: { url: '/administration/static/img/plugin-manager--login.png' },
+        media: { url: '/administration/static/img/plugin-manager--login.webp' },
     },
     {
         id: '4',
-        media: { url: '/administration/static/img/sw-login-background.png' },
+        media: { url: '/administration/static/img/sw-login-background.webp' },
     },
 ];
 

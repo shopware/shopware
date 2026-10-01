@@ -10,7 +10,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-#[Package('framework')]
+#[Package('discovery')]
 class GenericPageLoader implements GenericPageLoaderInterface
 {
     /**
@@ -29,7 +29,7 @@ class GenericPageLoader implements GenericPageLoaderInterface
 
             $page->setMetaInformation((new MetaInformation())->assign([
                 'revisit' => '15 days',
-                'robots' => 'index,follow',
+                'robots' => $this->systemConfigService->getString('core.basicInformation.metaRobots', $context->getSalesChannel()->getId()) ?: 'index,follow',
                 'xmlLang' => $request->attributes->get(SalesChannelRequest::ATTRIBUTE_DOMAIN_LOCALE) ?? '',
                 'metaTitle' => $this->systemConfigService->getString('core.basicInformation.shopName', $context->getSalesChannelId()),
             ]));

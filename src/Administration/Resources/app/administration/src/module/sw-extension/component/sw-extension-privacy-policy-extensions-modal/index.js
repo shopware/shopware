@@ -24,7 +24,7 @@ export default {
 
     computed: {
         title() {
-            return this.$tc(
+            return this.$t(
                 'sw-extension-store.component.sw-extension-privacy-policy-extensions-modal.title',
                 {
                     extensionLabel: this.extensionName,

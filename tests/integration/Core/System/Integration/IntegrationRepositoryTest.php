@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Integration\IntegrationCollection;
@@ -14,6 +15,7 @@ use Shopware\Core\System\Integration\IntegrationCollection;
 /**
  * @internal
  */
+#[Package('fundamentals@framework')]
 class IntegrationRepositoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -45,14 +47,12 @@ class IntegrationRepositoryTest extends TestCase
 
         $this->repository->create($records, $context);
 
-        $entities = $this->repository->search(new Criteria([$id]), $context);
-        $entity = $entities
-            ->getEntities()
-            ->first();
+        $entities = $this->repository->search(new Criteria([$id]), $context)->getEntities();
+        $entity = $entities->first();
 
         static::assertNotNull($entity);
-        static::assertEquals(1, $entities->count());
-        static::assertEquals('My app', $entity->getLabel());
+        static::assertCount(1, $entities);
+        static::assertSame('My app', $entity->getLabel());
     }
 
     public function testCreationAdminDefaultsToFalse(): void
@@ -72,14 +72,12 @@ class IntegrationRepositoryTest extends TestCase
 
         $this->repository->create($records, $context);
 
-        $entities = $this->repository->search(new Criteria([$id]), $context);
-        $entity = $entities
-            ->getEntities()
-            ->first();
+        $entities = $this->repository->search(new Criteria([$id]), $context)->getEntities();
+        $entity = $entities->first();
 
         static::assertNotNull($entity);
-        static::assertEquals(1, $entities->count());
-        static::assertEquals('My app', $entity->getLabel());
+        static::assertCount(1, $entities);
+        static::assertSame('My app', $entity->getLabel());
         static::assertFalse($entity->getAdmin());
     }
 
@@ -101,14 +99,12 @@ class IntegrationRepositoryTest extends TestCase
 
         $this->repository->create($records, $context);
 
-        $entities = $this->repository->search(new Criteria([$id]), $context);
-        $entity = $entities
-            ->getEntities()
-            ->first();
+        $entities = $this->repository->search(new Criteria([$id]), $context)->getEntities();
+        $entity = $entities->first();
 
         static::assertNotNull($entity);
-        static::assertEquals(1, $entities->count());
-        static::assertEquals('My app', $entity->getLabel());
+        static::assertCount(1, $entities);
+        static::assertSame('My app', $entity->getLabel());
         static::assertTrue($entity->getAdmin());
     }
 }

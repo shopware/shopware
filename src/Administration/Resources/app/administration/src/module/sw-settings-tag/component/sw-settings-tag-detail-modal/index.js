@@ -15,16 +15,12 @@ export default {
         'repositoryFactory',
         'syncService',
         'acl',
+        'feature',
     ],
 
-    emits: [
-        'close',
-        'finish',
-    ],
+    emits: ['close', 'finish'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     shortcuts: {
         'SYSTEMKEY+S': {
@@ -84,8 +80,8 @@ export default {
 
         title() {
             return this.tag.isNew()
-                ? this.$tc('sw-settings-tag.list.buttonAddTag')
-                : this.$tc(
+                ? this.$t('sw-settings-tag.list.buttonAddTag')
+                : this.$t(
                       'sw-settings-tag.detail.editTitle',
                       {
                           name: this.tag.name,
@@ -98,10 +94,23 @@ export default {
             return this.tag.isNew() ? this.acl.can('tag.creator') : this.acl.can('tag.editor');
         },
 
+        tagDetailModalTabs() {
+            return [
+                {
+                    label: this.$t('sw-settings-tag.detail.generalTab'),
+                    name: 'general',
+                },
+                {
+                    label: this.$t('sw-settings-tag.detail.assignmentsTab'),
+                    name: 'assignments',
+                },
+            ];
+        },
+
         tooltipSave() {
             if (!this.allowSave) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
                     showOnDisabledElements: true,
                 };
@@ -153,60 +162,50 @@ export default {
                 this.tag = this.tagRepository.create();
             }
 
-            Object.entries(this.tagDefinition.properties).forEach(
-                ([
-                    propertyName,
-                    property,
-                ]) => {
-                    if (property.relation === 'many_to_many') {
-                        this.assignmentsToBeAdded[propertyName] = {};
-                        this.assignmentsToBeDeleted[propertyName] = {};
-                    }
-                },
-            );
+            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
+                if (property.relation === 'many_to_many') {
+                    this.assignmentsToBeAdded[propertyName] = {};
+                    this.assignmentsToBeDeleted[propertyName] = {};
+                }
+            });
         },
 
         async onSave() {
             this.isLoading = true;
             const deletePayload = [];
 
-            Object.entries(this.tagDefinition.properties).forEach(
-                ([
-                    propertyName,
-                    property,
-                ]) => {
-                    if (property.relation !== 'many_to_many') {
-                        return;
-                    }
+            Object.entries(this.tagDefinition.properties).forEach(([propertyName, property]) => {
+                if (property.relation !== 'many_to_many') {
+                    return;
+                }
 
-                    const toBeAdded = Object.keys(this.assignmentsToBeAdded[propertyName]);
+                const toBeAdded = Object.keys(this.assignmentsToBeAdded[propertyName]);
 
-                    if (toBeAdded.length !== 0) {
-                        toBeAdded.forEach((id) => {
-                            this.tag[propertyName].add(this.assignmentsToBeAdded[propertyName][id]);
-                        });
-                    }
-
-                    const toBeDeleted = Object.keys(this.assignmentsToBeDeleted[propertyName]);
-
-                    if (toBeDeleted.length === 0) {
-                        return;
-                    }
-
-                    const ids = toBeDeleted.map((id) => {
-                        return {
-                            [property.reference]: id,
-                            [property.local]: this.tag.id,
-                        };
+                if (toBeAdded.length !== 0) {
+                    toBeAdded.forEach((id) => {
+                        this.tag[propertyName].add(this.assignmentsToBeAdded[propertyName][id]);
                     });
+                }
 
-                    deletePayload.push({
-                        action: 'delete',
-                        entity: property.mapping,
-                        payload: ids,
-                    });
-                },
-            );
+                const toBeDeleted = Object.keys(this.assignmentsToBeDeleted[propertyName]);
+
+                if (toBeDeleted.length === 0) {
+                    return;
+                }
+
+                const ids = toBeDeleted.map((id) => {
+                    return {
+                        [property.reference]: id,
+                        [property.local]: this.tag.id,
+                    };
+                });
+
+                deletePayload.push({
+                    action: 'delete',
+                    entity: property.mapping,
+                    payload: ids,
+                });
+            });
 
             if (deletePayload.length) {
                 await this.syncService.sync(deletePayload, {}, { 'single-operation': 1 });
@@ -219,7 +218,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                     });
                     this.isLoading = false;
                 });

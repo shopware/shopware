@@ -3,65 +3,94 @@
 namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 use Twig\Environment;
-use Twig\Error\RuntimeError;
 use Twig\Extension\CoreExtension;
-use Twig\Markup;
-use Twig\Runtime\EscaperRuntime;
 use Twig\Source;
 use Twig\Template;
 
-#[Package('framework')]
 /**
  * @internal
  */
+#[Package('framework')]
 class SwTwigFunction
 {
-    public static mixed $macroResult = null;
+    /**
+     * @var array<int, array{returned: bool, value: mixed}>
+     */
+    private static array $macroReturnStack = [];
 
     /**
-     * Returns the attribute value for a given array/object.
+     * Resolved getter names by class and accessed item, empty string when the
+     * struct has no getter and the default Twig attribute handling applies.
      *
-     * @param mixed $object The object or array from where to get the item
-     * @param mixed $item The item to get from the array or object
-     * @param array<int|mixed> $arguments An array of arguments to pass if the item is an object method
-     * @param string $type The type of attribute (@see \Twig\Template constants)
-     * @param bool $isDefinedTest Whether this is only a defined check
-     * @param bool $ignoreStrictCheck Whether to ignore the strict attribute check or not
-     * @param int $lineno The template line where the attribute was called
-     *
-     * @throws RuntimeError if the attribute does not exist and Twig is running in strict mode and $isDefinedTest is false
-     *
-     * @return mixed The attribute value, or a Boolean when $isDefinedTest is true, or null when the attribute is not set and $ignoreStrictCheck is true
-     *
-     * @internal
+     * @var array<class-string, array<string, string>>
      */
-    public static function getAttribute(Environment $env, Source $source, mixed $object, mixed $item, array $arguments = [], $type = /* Template::ANY_CALL */ 'any', $isDefinedTest = false, $ignoreStrictCheck = false, bool $sandboxed = false, int $lineno = -1)
+    private static array $getterCache = [];
+
+    /**
+     * @param \Closure(): mixed $macro
+     */
+    public static function callMacro(\Closure $macro): mixed
     {
+        $stackIndex = \count(self::$macroReturnStack);
+        self::$macroReturnStack[$stackIndex] = ['returned' => false, 'value' => null];
+
+        try {
+            $result = $macro();
+            $return = self::$macroReturnStack[$stackIndex];
+        } finally {
+            unset(self::$macroReturnStack[$stackIndex]);
+        }
+
+        return $return['returned'] ? $return['value'] : $result;
+    }
+
+    public static function returnFromMacro(mixed $value): void
+    {
+        $stackIndex = array_key_last(self::$macroReturnStack);
+        if ($stackIndex === null) {
+            return;
+        }
+
+        self::$macroReturnStack[$stackIndex] = ['returned' => true, 'value' => $value];
+    }
+
+    /**
+     * Wrapper around {@see CoreExtension::getAttribute()}
+     * Implements a shortcut for receiving property values from the Shopware specific `Struct` class.
+     * The method is set into the compiled Twig templates in the Twig Environment override in {@see TwigEnvironment::compile()}.
+     *
+     * @param list<mixed> $arguments
+     */
+    public static function getAttribute(
+        Environment $env,
+        Source $source,
+        mixed $object,
+        mixed $item,
+        array $arguments = [],
+        string $type = Template::ANY_CALL,
+        bool $isDefinedTest = false,
+        bool $ignoreStrictCheck = false,
+        bool $sandboxed = false,
+        int $lineno = -1
+    ): mixed {
         try {
             if ($object instanceof Struct) {
                 FieldVisibility::$isInTwigRenderingContext = true;
                 if ($type === Template::METHOD_CALL) {
-                    // @phpstan-ignore-next-line
+                    /** @phpstan-ignore method.dynamicName */
                     return $object->$item(...$arguments);
                 }
 
-                $getter = 'get' . (string) $item;
-                $isGetter = 'is' . (string) $item;
+                $item = (string) $item;
 
-                if (method_exists($object, $getter)) { // @phpstan-ignore-next-line
-                    return $object->$getter();
-                }
+                $getterMethod = self::$getterCache[$object::class][$item] ??= self::resolveGetter($object, $item);
 
-                if (method_exists($object, $isGetter)) { // @phpstan-ignore-next-line
-                    return $object->$isGetter();
-                }
-
-                if (method_exists($object, $item)) { // @phpstan-ignore-next-line
-                    return $object->$item();    // property()
+                if ($getterMethod !== '') {
+                    /** @phpstan-ignore method.dynamicName */
+                    return $object->$getterMethod();
                 }
             }
 
@@ -73,41 +102,24 @@ class SwTwigFunction
         }
     }
 
-    /**
-     * Escapes a string.
-     *
-     * @param mixed $string The value to be escaped
-     * @param string $strategy The escaping strategy
-     * @param ?string $charset The charset
-     * @param bool $autoescape Whether the function is called by the auto-escaping feature (true) or by the developer (false)
-     *
-     * @return string|Markup
-     */
-    public static function escapeFilter(Environment $env, mixed $string, string $strategy = 'html', $charset = null, $autoescape = false)
+    private static function resolveGetter(Struct $object, string $item): string
     {
-        if ($string === null) {
-            $string = '';
+        // Structs best only have getter with get/is/has prefixes, or public properties. These are the prefixes
+        // {@see CoreExtension::getAttribute()} supports as well, with the same precedence: get > is > has.
+        // Probing them is only done once per class and item, the result is cached in self::$getterCache.
+        $getterMethods = [
+            'get' . $item,
+            'is' . $item,
+            $item, // property()
+            'has' . $item,
+        ];
+
+        foreach ($getterMethods as $getterMethod) {
+            if (method_exists($object, $getterMethod)) {
+                return $getterMethod;
+            }
         }
 
-        if (\is_int($string)) {
-            $string = (string) $string;
-        }
-        static $strings = [];
-
-        $isString = \is_string($string);
-
-        if ($isString && isset($strings[$string][$strategy])) {
-            return $strings[$string][$strategy];
-        }
-
-        $result = $env->getRuntime(EscaperRuntime::class)->escape($string, $strategy, $charset, $autoescape);
-
-        if (!$isString) {
-            return $result;
-        }
-
-        $strings[$string][$strategy] = $result;
-
-        return $result;
+        return '';
     }
 }

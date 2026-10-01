@@ -59,7 +59,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'PATCH',
             '/api/customer/' . $customerId,
             ['password' => $newPassword]
@@ -73,7 +73,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
         $criteria->addFilter(new EqualsFilter('id', $customerId));
 
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search($criteria, $context)->first();
+        $customer = $this->customerRepository->search($criteria, $context)->getEntities()->first();
 
         static::assertNotNull($customer->getPassword());
         static::assertNull($customer->getLegacyPassword());
@@ -90,7 +90,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
         $customerId = $this->createCustomerWithLegacyPassword($email, $password);
         $context = Context::createDefaultContext();
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'PATCH',
             '/api/customer/' . $customerId,
             ['firstName' => 'Test']
@@ -104,7 +104,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
         $criteria->addFilter(new EqualsFilter('id', $customerId));
 
         /** @var CustomerEntity $customer */
-        $customer = $this->customerRepository->search($criteria, $context)->first();
+        $customer = $this->customerRepository->search($criteria, $context)->getEntities()->first();
 
         static::assertNull($customer->getPassword());
         static::assertNotNull($customer->getLegacyPassword());
@@ -116,7 +116,7 @@ class CustomerChangePasswordSubscriberTest extends TestCase
     private function loginUser(string $email, string $password): void
     {
         $this->browser
-            ->request(
+            ->jsonRequest(
                 'POST',
                 '/store-api/account/login',
                 [

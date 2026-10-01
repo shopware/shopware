@@ -4,12 +4,10 @@
     <mt-datepicker
         v-model="fromTime"
         name="sw-field--fromTime"
-        size="medium"
         date-type="time"
-        required
         :config="datepickerConfig"
         :disabled="disabled || undefined"
-        :placeholder="$tc('sw-datepicker.time.placeholder')"
+        :placeholder="$t('sw-datepicker.time.placeholder')"
     />
     {% endblock %}
 
@@ -17,12 +15,20 @@
     <mt-datepicker
         v-model="toTime"
         name="sw-field--toTime"
-        size="medium"
         date-type="time"
-        required
         :config="datepickerConfig"
         :disabled="disabled || undefined"
-        :placeholder="$tc('sw-datepicker.time.placeholder')"
+        :placeholder="$t('sw-datepicker.time.placeholder')"
+    />
+    {% endblock %}
+
+    {% block sw_condition_time_range_field_timezone %}
+    <sw-single-select
+        v-model:value="timezone"
+        name="sw-field--timezone"
+        :options="timezoneOptions"
+        :disabled="disabled || undefined"
+        show-clearable-button
     />
     {% endblock %}
 </div>

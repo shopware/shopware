@@ -1,0 +1,192 @@
+import Feature from 'src/helper/feature.helper';
+
+/**
+ * Helper for extracting product data from DOM on product pages (detail, listing, wishlist)
+ * For cart/checkout data, use LineItemHelper instead.
+ */
+export default class ProductPageHelper {
+    /**
+     * Gets product data from available sources (detail page or product card)
+     * @param {string} productId
+     * @param {HTMLElement|null} fallbackElement - Optional element to search for product card (e.g., form)
+     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, currency: string|undefined, value: string|undefined}}
+     */
+    static getProductData(productId, fallbackElement = null) {
+        const detailData = ProductPageHelper.getProductDetailData();
+
+        if (detailData.name) {
+            return detailData;
+        }
+
+        const cardData = ProductPageHelper.getProductCardData(productId, fallbackElement);
+        return {
+            id: cardData.id,
+            name: cardData.name,
+            brand: cardData.brand,
+            currency: detailData.currency,
+            value: cardData.value,
+        };
+    }
+
+    /**
+     * Gets product data from product detail page
+     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, currency: string|undefined, value: string|undefined}}
+     */
+    static getProductDetailData() {
+        if (Feature.isActive('JSON_LD_DATA')) {
+            const productData = ProductPageHelper.getJsonLdProductData();
+
+            return {
+                id: productData.sku,
+                name: productData.name,
+                brand: productData.brand,
+                currency: productData.currency || window.currencyIsoCode,
+                value: productData.value,
+            };
+        }
+
+        return {
+            id: ProductPageHelper.getSku(),
+            name: document.querySelector('.product-detail-name')?.textContent.trim(),
+            brand: ProductPageHelper.getBrand(),
+            currency: ProductPageHelper.getCurrency(),
+            value: ProductPageHelper.getValue(),
+        };
+    }
+
+    /**
+     * Gets product data from product card (listing page)
+     * @param {string} productId
+     * @param {HTMLElement|null} fallbackElement - Optional element to search for product card
+     * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, value: string|undefined}}
+     */
+    static getProductCardData(productId, fallbackElement = null) {
+        let productCard = document.querySelector(`.product-wishlist-${productId}`)?.closest('.product-box');
+
+        // Fallback: find product card from provided element (e.g., form on wishlist page)
+        if (!productCard && fallbackElement) {
+            productCard = fallbackElement.closest('.product-box');
+        }
+
+        if (!productCard?.dataset.productInformation) {
+            return {};
+        }
+
+        try {
+            const info = JSON.parse(productCard.dataset.productInformation);
+            return {
+                id: info.sku ?? productId,
+                name: info.name,
+                brand: info.brand,
+                value: info.price,
+            };
+        } catch {
+            return {};
+        }
+    }
+
+    /**
+     * Gets SKU from product detail page
+     * @returns {string|undefined}
+     */
+    static getSku() {
+        if (Feature.isActive('JSON_LD_DATA')) {
+            return ProductPageHelper.getJsonLdProductData().sku;
+        }
+
+        return document.querySelector('[itemprop="sku"]')?.textContent.trim();
+    }
+
+    /**
+     * Gets brand from product detail page
+     * @returns {string|undefined}
+     */
+    static getBrand() {
+        if (Feature.isActive('JSON_LD_DATA')) {
+            return ProductPageHelper.getJsonLdProductData().brand;
+        }
+
+        return document.querySelector('[itemprop="brand"] [itemprop="name"]')?.content;
+    }
+
+    /**
+     * Gets currency from meta tag or global variable
+     * @returns {string|undefined}
+     */
+    static getCurrency() {
+        if (Feature.isActive('JSON_LD_DATA')) {
+            return ProductPageHelper.getJsonLdProductData().currency || window.currencyIsoCode;
+        }
+
+        return document.querySelector('meta[property="product:price:currency"]')?.content || window.currencyIsoCode;
+    }
+
+    /**
+     * Gets product value/price from meta tag
+     * @returns {string|undefined}
+     */
+    static getValue() {
+        if (Feature.isActive('JSON_LD_DATA')) {
+            return ProductPageHelper.getJsonLdProductData().value;
+        }
+
+        return document.querySelector('meta[property="product:price:amount"]')?.content;
+    }
+
+    /**
+     * Gets product data from the JSON-LD product script
+     * @returns {{name: string|undefined, sku: string|undefined, brand: string|undefined, currency: string|undefined, value: string|number|undefined}}
+     */
+    static getJsonLdProductData() {
+        const productScripts = document.querySelectorAll('script[type="application/ld+json"]');
+
+        for (const productScript of productScripts) {
+            try {
+                const structuredData = JSON.parse(productScript.textContent);
+                const productData = [structuredData, ...(structuredData['@graph'] ?? [])].find((data) => {
+                    const types = Array.isArray(data['@type']) ? data['@type'] : [data['@type']];
+
+                    return types.includes('Product') || types.includes('ProductGroup');
+                });
+
+                if (!productData) {
+                    continue;
+                }
+
+                const variant = productData.hasVariant?.[0];
+                const product = variant ? { ...productData, ...variant } : productData;
+                const offers = Array.isArray(product.offers) ? product.offers[0] : product.offers;
+
+                return {
+                    name: product.name,
+                    sku: product.sku,
+                    brand: product.brand?.name,
+                    currency: offers?.priceCurrency,
+                    value: offers?.price ?? offers?.lowPrice,
+                };
+            } catch {
+                continue;
+            }
+        }
+
+        return {};
+    }
+
+    /**
+     * Gets category hierarchy from breadcrumbs (GA4 supports up to 5 levels)
+     * @returns {Object}
+     */
+    static getCategories() {
+        const breadcrumbNodes = document.querySelectorAll('[aria-label="breadcrumb"] .breadcrumb-title');
+        const categories = {};
+
+        breadcrumbNodes.forEach((node, index) => {
+            if (index < 5) {
+                const key = index === 0 ? 'item_category' : `item_category${index + 1}`;
+                categories[key] = node.textContent.trim();
+            }
+        });
+
+        return categories;
+    }
+}

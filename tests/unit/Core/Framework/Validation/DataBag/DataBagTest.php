@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Validation\DataBag;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(DataBag::class)]
 class DataBagTest extends TestCase
 {
@@ -22,27 +24,27 @@ class DataBagTest extends TestCase
             '4' => new DataBag(['a' => 'b']),
         ]);
 
-        static::assertEquals([
+        static::assertSame([
             '1' => 'a',
             '2' => 1,
             '3' => true,
             '4' => ['a' => 'b'],
         ], $bag->all());
 
-        static::assertEquals([
+        static::assertSame([
             '1' => 'a',
             '2' => 1,
             '3' => true,
             '4' => ['a' => 'b'],
         ], $bag->toRequestDataBag()->all());
 
-        static::assertEquals([
+        static::assertSame([
             '1' => 'a',
             '2' => 1,
             '3' => true,
         ], $bag->only('1', '2', '3'));
 
-        static::assertEquals(['a' => 'b'], $bag->all('4'));
+        static::assertSame(['a' => 'b'], $bag->all('4'));
     }
 
     public function testAddSetConvertsToDataBag(): void
@@ -110,7 +112,7 @@ class DataBagTest extends TestCase
             '2' => new DataBag(['a' => 'b']),
         ]);
 
-        static::assertEquals(['a' => 'b'], $bag->all('2'));
+        static::assertSame(['a' => 'b'], $bag->all('2'));
 
         $this->expectException(BadRequestException::class);
         $bag->all('1');

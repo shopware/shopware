@@ -7,9 +7,14 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\Struct\AccessTokenStruct;
+use Shopware\Core\System\User\UserCollection;
 
 /**
  * @internal
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Store\Services\StoreServiceTest
  */
 #[Package('checkout')]
 class StoreService
@@ -17,6 +22,9 @@ class StoreService
     final public const CONFIG_KEY_STORE_LICENSE_DOMAIN = 'core.store.licenseHost';
     final public const CONFIG_KEY_STORE_LICENSE_EDITION = 'core.store.licenseEdition';
 
+    /**
+     * @param EntityRepository<UserCollection> $userRepository
+     */
     final public function __construct(private readonly EntityRepository $userRepository)
     {
     }
@@ -31,6 +39,17 @@ class StoreService
 
         $context->scope(Context::SYSTEM_SCOPE, function ($context) use ($userId, $storeToken): void {
             $this->userRepository->update([['id' => $userId, 'storeToken' => $storeToken]], $context);
+        });
+    }
+
+    public function removeStoreToken(Context $context): void
+    {
+        $contextSource = $context->getSource();
+        \assert($contextSource instanceof AdminApiSource);
+        $userId = $contextSource->getUserId();
+
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($userId): void {
+            $this->userRepository->update([['id' => $userId, 'storeToken' => null]], $context);
         });
     }
 }

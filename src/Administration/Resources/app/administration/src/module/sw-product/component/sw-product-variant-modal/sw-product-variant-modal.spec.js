@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package inventory
  */
@@ -287,7 +289,6 @@ async function createWrapper() {
                 },
                 'sw-label': true,
                 'sw-simple-search-field': true,
-                'sw-empty-state': true,
                 'sw-container': {
                     template: '<div><slot></slot></div>',
                 },
@@ -303,11 +304,7 @@ async function createWrapper() {
                     `,
                 },
                 'sw-tree-item': {
-                    props: [
-                        'item',
-                        'activeItemIds',
-                        'activeParentIds',
-                    ],
+                    props: ['item', 'activeItemIds', 'activeParentIds'],
                     data() {
                         return {
                             checked: false,
@@ -359,6 +356,15 @@ async function createWrapper() {
                 'sw-pagination': true,
                 'sw-button-process': true,
             },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'regular-content',
+                        },
+                    },
+                },
+            },
         },
     });
 }
@@ -369,11 +375,6 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', async () => {
-        global.activeAclRoles = [];
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should sort options by their position', async () => {
@@ -531,5 +532,20 @@ describe('module/sw-product/component/sw-product-variant-modal', () => {
         await flushPromises();
 
         expect(wrapper.vm.$props.productEntity.media).toEqual(getMedias());
+    });
+
+    it('productVariantCriteria ignores empty terms from leading whitespace', async () => {
+        global.activeAclRoles = [];
+        await wrapper.setData({ searchTerm: ' red' });
+
+        const criteria = wrapper.vm.productVariantCriteria;
+
+        // Regression test for issue #16838: a leading space produced an empty
+        // term, which built a `contains` filter with an empty value and made the
+        // API reject the whole query with FRAMEWORK__INVALID_FILTER_QUERY.
+        expect(criteria.queries).toHaveLength(2);
+        criteria.queries.forEach((query) => {
+            expect(query.query.value).not.toBe('');
+        });
     });
 });

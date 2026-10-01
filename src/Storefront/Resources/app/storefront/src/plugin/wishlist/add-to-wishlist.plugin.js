@@ -1,4 +1,5 @@
 import Plugin from 'src/plugin-system/plugin.class';
+import CookieStorageHelper from 'src/helper/storage/cookie-storage.helper';
 
 /**
  * @package checkout
@@ -73,7 +74,17 @@ export default class AddToWishlistPlugin extends Plugin {
             return;
         }
 
-        this.el.classList.add(this.classList.isLoading);
+        if (
+            !window.customerLoggedInState &&
+            window.useDefaultCookieConsent &&
+            !CookieStorageHelper?.getItem('wishlist-enabled')
+        ) {
+            document.$emitter.publish('CookieConfiguration/requestConsent', {
+                route: `${window.router['frontend.cookie.consent.offcanvas']}?featureName=wishlist&cookieName=wishlist-enabled`,
+                cookieName: 'wishlist-enabled',
+            });
+            return;
+        }
 
         if (this._wishlistStorage.has(this.options.productId)) {
             this._wishlistStorage.remove(this.options.productId, this.options.router.remove);

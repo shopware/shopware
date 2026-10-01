@@ -1,39 +1,26 @@
-@import "~scss/variables";
-
 .sw-settings-product-feature-sets-values-card {
     &.is--empty {
         .mt-card__content {
-            min-height: 390px;
+            min-height: calc(var(--scale-size-224) + var(--scale-size-160) + var(--scale-size-6));
         }
     }
 
-    .sw-settings-product-feature-set-card__empty-state {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 400px;
-    }
-
-    .sw-settings-product-feature-set-card__empty-state--label {
-        margin-top: 25px;
-        margin-bottom: 25px;
-        max-width: 270px;
-        text-align: center;
-        font-size: $font-size-xs;
-        color: rgb(148, 167, 183);
-    }
-
     .sw-product-feature-set__toolbar {
-        padding: 25px 35px;
-        background-color: $color-gray-100;
-        border-bottom: 1px solid $color-gray-300;
+        display: flex;
+        gap: var(--scale-size-8);
+        padding: var(--scale-size-24) var(--scale-size-32);
+        background-color: var(--color-elevation-surface-sunken);
+        border-bottom: var(--scale-size-1) solid var(--color-border-secondary-default);
+
+        .sw-simple-search-field {
+            flex: 1;
+        }
 
         .sw-product-feature-set__delete-button {
-            border-color: $color-crimson-500;
+            border-color: var(--color-border-critical-default);
 
             .mt-icon {
-                color: $color-crimson-500;
+                color: var(--color-icon-critical-default);
             }
 
             &.mt-button--disabled {

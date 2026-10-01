@@ -14,10 +14,12 @@ use Shopware\Core\Framework\Event\EventData\ScalarValueType;
 use Shopware\Core\Framework\Event\FlowEventAware;
 use Shopware\Core\Framework\Log\LogAware;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Webhook\NotHookable;
 use Symfony\Component\Mime\Email;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('after-sales')]
+#[NotHookable]
 class MailBeforeSentEvent extends Event implements LogAware, MessageAware, ScalarValuesAware, FlowEventAware
 {
     final public const EVENT_NAME = 'mail.after.create.message';
@@ -44,8 +46,8 @@ class MailBeforeSentEvent extends Event implements LogAware, MessageAware, Scala
     public static function getAvailableData(): EventDataCollection
     {
         return (new EventDataCollection())
-            ->add('data', new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)))
-            ->add('message', new ObjectType());
+            ->add(FlowMailVariables::DATA, new ArrayType(new ScalarValueType(ScalarValueType::TYPE_STRING)))
+            ->add(MessageAware::MESSAGE, new ObjectType());
     }
 
     public function getName(): string

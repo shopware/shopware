@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<NumberRangeTranslationEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class NumberRangeTranslationCollection extends EntityCollection
@@ -16,12 +18,12 @@ class NumberRangeTranslationCollection extends EntityCollection
      */
     public function getNumberRangeIds(): array
     {
-        return $this->fmap(fn (NumberRangeTranslationEntity $numberRangeTranslation) => $numberRangeTranslation->getNumberRangeId());
+        return $this->fmap(static fn (NumberRangeTranslationEntity $numberRangeTranslation) => $numberRangeTranslation->getNumberRangeId());
     }
 
     public function filterByNumberRangeId(string $id): self
     {
-        return $this->filter(fn (NumberRangeTranslationEntity $numberRangeTranslation) => $numberRangeTranslation->getNumberRangeId() === $id);
+        return $this->filter(static fn (NumberRangeTranslationEntity $numberRangeTranslation) => $numberRangeTranslation->getNumberRangeId() === $id);
     }
 
     /**
@@ -29,12 +31,12 @@ class NumberRangeTranslationCollection extends EntityCollection
      */
     public function getLanguageIds(): array
     {
-        return $this->fmap(fn (NumberRangeTranslationEntity $numberRangeTranslation) => $numberRangeTranslation->getLanguageId());
+        return $this->fmap(static fn (NumberRangeTranslationEntity $numberRangeTranslation) => $numberRangeTranslation->getLanguageId());
     }
 
     public function filterByLanguageId(string $id): self
     {
-        return $this->filter(fn (NumberRangeTranslationEntity $numberRangeTranslation) => $numberRangeTranslation->getLanguageId() === $id);
+        return $this->filter(static fn (NumberRangeTranslationEntity $numberRangeTranslation) => $numberRangeTranslation->getLanguageId() === $id);
     }
 
     public function getApiAlias(): string

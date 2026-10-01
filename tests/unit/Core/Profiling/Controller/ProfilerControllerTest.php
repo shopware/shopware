@@ -7,6 +7,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Profiling\Controller\ProfilerController;
 use Shopware\Core\Profiling\Doctrine\BacktraceDebugDataHolder;
 use Shopware\Core\Profiling\Doctrine\ConnectionProfiler;
@@ -22,14 +23,15 @@ use Twig\Environment;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ProfilerController::class)]
 class ProfilerControllerTest extends TestCase
 {
     public function testErrorIsReturnedIfProfileDoesNotExist(): void
     {
-        $twig = $this->createMock(Environment::class);
+        $twig = static::createStub(Environment::class);
         $profiler = $this->createMock(Profiler::class);
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $controller = new ProfilerController($twig, $profiler, $connection);
 
         $profiler->expects($this->once())
@@ -38,14 +40,14 @@ class ProfilerControllerTest extends TestCase
             ->willReturn(null);
 
         $response = $controller->explainAction('some-token', 'some-panel', 'default', 5);
-        static::assertEquals('This profile does not exist.', $response->getContent());
+        static::assertSame('This profile does not exist.', $response->getContent());
     }
 
     public function testErrorIsReturnedIfPanelDoesNotExist(): void
     {
-        $twig = $this->createMock(Environment::class);
+        $twig = static::createStub(Environment::class);
         $profiler = $this->createMock(Profiler::class);
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $controller = new ProfilerController($twig, $profiler, $connection);
 
         $profile = new Profile('some-token');
@@ -55,14 +57,14 @@ class ProfilerControllerTest extends TestCase
             ->willReturn($profile);
 
         $response = $controller->explainAction('some-token', 'some-panel', 'default', 5);
-        static::assertEquals('This collector does not exist.', $response->getContent());
+        static::assertSame('This collector does not exist.', $response->getContent());
     }
 
     public function testErrorIsReturnedIfPanelIsIncorrect(): void
     {
-        $twig = $this->createMock(Environment::class);
+        $twig = static::createStub(Environment::class);
         $profiler = $this->createMock(Profiler::class);
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $controller = new ProfilerController($twig, $profiler, $connection);
 
         $profile = new Profile('some-token');
@@ -89,7 +91,7 @@ class ProfilerControllerTest extends TestCase
         });
 
         $response = $controller->explainAction('some-token', 'some-panel', 'default', 5);
-        static::assertEquals('This collector does not exist.', $response->getContent());
+        static::assertSame('This collector does not exist.', $response->getContent());
     }
 
     public function testErrorIsReturnedIfQueryDoesNotExist(): void
@@ -97,12 +99,11 @@ class ProfilerControllerTest extends TestCase
         $config = (new Configuration())
             ->setMiddlewares([new ProfilingMiddleware()]);
 
-        $twig = $this->createMock(Environment::class);
+        $twig = static::createStub(Environment::class);
         $profiler = $this->createMock(Profiler::class);
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
-        $connection->expects($this->any())
-            ->method('getConfiguration')
+        $connection->method('getConfiguration')
             ->willReturn($config);
 
         $controller = new ProfilerController($twig, $profiler, $connection);
@@ -125,7 +126,7 @@ class ProfilerControllerTest extends TestCase
             5
         );
 
-        static::assertEquals('This query does not exist.', $response->getContent());
+        static::assertSame('This query does not exist.', $response->getContent());
     }
 
     public function testErrorIsReturnedIfQueryIsNotExplainable(): void
@@ -134,9 +135,9 @@ class ProfilerControllerTest extends TestCase
         $config = (new Configuration())
             ->setMiddlewares([new ProfilingMiddleware($debugDataHolder)]);
 
-        $twig = $this->createMock(Environment::class);
+        $twig = static::createStub(Environment::class);
         $profiler = $this->createMock(Profiler::class);
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
         $connection
             ->method('getConfiguration')
@@ -153,7 +154,7 @@ class ProfilerControllerTest extends TestCase
         $query = new Query('select * from table where key = ?');
         $query->setValue(
             1,
-            new class {
+            new class implements \Stringable {
                 public function __toString(): string
                 {
                     return 'value';
@@ -175,7 +176,7 @@ class ProfilerControllerTest extends TestCase
             0
         );
 
-        static::assertEquals('This query cannot be explained.', $response->getContent());
+        static::assertSame('This query cannot be explained.', $response->getContent());
     }
 
     public function testExplainQuery(): void
@@ -184,7 +185,7 @@ class ProfilerControllerTest extends TestCase
         $config = (new Configuration())
             ->setMiddlewares([new ProfilingMiddleware($debugDataHolder)]);
 
-        $twig = $this->createMock(Environment::class);
+        $twig = static::createStub(Environment::class);
         $profiler = $this->createMock(Profiler::class);
         $connection = $this->createMock(Connection::class);
 
@@ -219,6 +220,6 @@ class ProfilerControllerTest extends TestCase
             0
         );
 
-        static::assertEquals('', $response->getContent());
+        static::assertSame('', $response->getContent());
     }
 }

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Migration\V6_6\Migration1730059142AddNewSitemapConfigForExcludingHiddenProducts;
 use Shopware\Tests\Migration\MigrationTestTrait;
@@ -12,6 +13,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1730059142AddNewSitemapConfigForExcludingHiddenProducts::class)]
 class Migration1730059142AddNewSitemapConfigForExcludingHiddenProductsTest extends TestCase
 {
@@ -23,6 +25,11 @@ class Migration1730059142AddNewSitemapConfigForExcludingHiddenProductsTest exten
     {
         $this->connection = KernelLifecycleManager::getConnection();
         $this->connection->delete('system_config', ['configuration_key' => 'core.sitemap.excludeLinkedProducts']);
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1730059142, (new Migration1730059142AddNewSitemapConfigForExcludingHiddenProducts())->getCreationTimestamp());
     }
 
     public function testMigration(): void

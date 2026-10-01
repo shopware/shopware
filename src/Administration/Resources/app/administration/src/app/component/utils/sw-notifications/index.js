@@ -5,8 +5,6 @@
 import template from './sw-notifications.html.twig';
 import './sw-notifications.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  * @description
@@ -14,8 +12,10 @@ const { Component } = Shopware;
  * @status ready
  * @example-type code-only
  */
-Component.register('sw-notifications', {
+export default {
     template,
+
+    mixins: [Shopware.Mixin.getByName('notification-translation')],
 
     inject: ['feature'],
 
@@ -28,10 +28,7 @@ Component.register('sw-notifications', {
                 if (!value.length) {
                     return true;
                 }
-                return [
-                    'topRight',
-                    'bottomRight',
-                ].includes(value);
+                return ['topRight', 'bottomRight'].includes(value);
             },
         },
         notificationsGap: {
@@ -130,4 +127,4 @@ Component.register('sw-notifications', {
             return 'neutral';
         },
     },
-});
+};

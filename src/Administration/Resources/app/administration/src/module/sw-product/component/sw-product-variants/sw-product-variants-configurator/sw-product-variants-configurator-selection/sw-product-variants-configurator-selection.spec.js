@@ -72,10 +72,6 @@ describe('components/base/sw-product-variants-configurator-selection', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should keep the text content when search list opens', async () => {
         const inputField = wrapper.find('.mt-text-field input');
 

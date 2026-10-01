@@ -20,14 +20,9 @@ export default {
         'swOrderDetailAskAndSaveEdits',
     ],
 
-    emits: [
-        'show-status-history',
-        'save-edits',
-    ],
+    emits: ['show-status-history', 'save-edits'],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     props: {
         order: {
@@ -102,6 +97,7 @@ export default {
             criteria.addFilter(Criteria.equals('referencedId', this.entity.id));
             criteria.addFilter(Criteria.equals('entityName', this.entityName));
             criteria.addAssociation('user');
+            criteria.addAssociation('integration');
             criteria.addSorting({ field: 'createdAt', order: 'DESC' });
 
             return criteria;
@@ -115,6 +111,9 @@ export default {
             return this.entity.stateMachineState.translated.name;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement, `sw-order-state-select-v2` derives the state color from `stateName`
+         */
         stateSelectBackgroundStyle() {
             const technicalName = this.entity.stateMachineState.technicalName;
 
@@ -141,6 +140,21 @@ export default {
             }
 
             return `sw-order-details-state-${this.position}`;
+        },
+
+        lastChangeAuthorLabel() {
+            if (this.lastStateChange?.user) {
+                return `${this.lastStateChange.user.firstName} ${this.lastStateChange.user.lastName}`;
+            }
+            if (this.lastStateChange?.integration) {
+                const integrationLabel = this.lastStateChange.integration.label;
+                return `${integrationLabel} (${this.$t('sw-order.stateCard.labelIntegration')})`;
+            }
+            if (this.lastStateChange?.sourceType === 'sales-channel') {
+                return this.$t('sw-order.stateCard.labelCustomer');
+            }
+
+            return this.$t('sw-order.stateCard.labelSystemUser');
         },
     },
 
@@ -198,7 +212,7 @@ export default {
 
         async onStateSelected(stateType, actionName) {
             if (!stateType || !actionName) {
-                this.createStateChangeErrorNotification(this.$tc('sw-order.stateCard.labelErrorNoAction'));
+                this.createStateChangeErrorNotification(this.$t('sw-order.stateCard.labelErrorNoAction'));
                 return;
             }
 
@@ -223,12 +237,13 @@ export default {
             this.showStateChangeModal = false;
         },
 
-        onLeaveModalConfirm(docIds, sendMail = true) {
+        onLeaveModalConfirm(docIds, sendMail = true, internalComment = null) {
             this.showStateChangeModal = false;
 
             this.stateTransitionMethod(this.entity.id, this.currentActionName, {
                 documentIds: docIds,
                 sendMail,
+                internalComment,
             })
                 .then(() => {
                     this.getLastChange();
@@ -249,7 +264,7 @@ export default {
 
         createStateChangeErrorNotification(errorMessage) {
             this.createNotificationError({
-                message: this.$tc('sw-order.stateCard.labelErrorStateChange') + errorMessage,
+                message: this.$t('sw-order.stateCard.labelErrorStateChange') + errorMessage,
             });
         },
 

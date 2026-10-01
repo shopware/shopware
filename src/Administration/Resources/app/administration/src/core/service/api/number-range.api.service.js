@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-const ApiService = Shopware.Classes.ApiService;
+import ApiService from '../api.service';
 
 /**
  * Gateway for the API end point "number-range"
@@ -46,6 +46,8 @@ class NumberRangeApiService extends ApiService {
     /**
      * get preview of next number range value
      *
+     * @deprecated tag:v6.8.0 - use previewPatternByNumberRangeId for persisted number range previews
+     *
      * @param {string} typeName
      * @param {string} pattern
      * @param {int} start
@@ -61,6 +63,32 @@ class NumberRangeApiService extends ApiService {
 
         return this.httpClient
             .get(`_action/number-range/preview-pattern/${typeName}`, {
+                params,
+                headers,
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
+
+    /**
+     * get preview of next persisted number range value
+     *
+     * @param {string} numberRangeId
+     * @param {string} pattern
+     * @param {int} start
+     * @param {Object} [additionalHeaders = {}]
+     * @returns {Promise<T>}
+     */
+    previewPatternByNumberRangeId(numberRangeId, pattern, start, additionalHeaders = {}) {
+        const headers = this.getBasicHeaders(additionalHeaders);
+        const params = {
+            pattern: pattern,
+            start: start,
+        };
+
+        return this.httpClient
+            .get(`_action/number-range/${numberRangeId}/preview-pattern`, {
                 params,
                 headers,
             })

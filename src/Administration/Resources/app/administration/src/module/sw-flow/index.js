@@ -1,10 +1,11 @@
 import './service';
 import './acl';
 import './store/flow.store';
+import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-flow-index', () => import('./page/sw-flow-index'));
 Shopware.Component.register('sw-flow-detail', () => import('./page/sw-flow-detail'));
 Shopware.Component.register('sw-flow-detail-flow', () => import('./view/detail/sw-flow-detail-flow'));
@@ -59,7 +60,7 @@ Shopware.Component.register(
 );
 Shopware.Component.register('sw-flow-app-action-modal', () => import('./component/modals/sw-flow-app-action-modal'));
 Shopware.Component.register('sw-flow-leave-page-modal', () => import('./component/modals/sw-flow-leave-page-modal'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 /**
  * @private
@@ -72,17 +73,17 @@ Module.register('sw-flow', {
     description: 'sw-flow.general.descriptionTextModule',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    color: 'var(--sw-color-module-red-default)',
+    icon: 'regular-flow',
+    favicon: 'icon-module-settings.svg',
     entity: 'flow',
+    defaultSearchConfiguration,
 
     routes: {
         index: {
             component: 'sw-flow-index',
             path: 'index',
             meta: {
-                parentPath: 'sw.settings.index',
                 privilege: 'flow.viewer',
             },
             redirect: {
@@ -93,7 +94,6 @@ Module.register('sw-flow', {
                     component: 'sw-flow-list',
                     path: 'flows',
                     meta: {
-                        parentPath: 'sw.settings.index',
                         privilege: 'flow.viewer',
                     },
                 },
@@ -101,7 +101,6 @@ Module.register('sw-flow', {
                     component: 'sw-flow-list-flow-templates',
                     path: 'templates',
                     meta: {
-                        parentPath: 'sw.settings.index',
                         privilege: 'flow.viewer',
                     },
                 },
@@ -117,7 +116,7 @@ Module.register('sw-flow', {
             props: {
                 default(route) {
                     return {
-                        flowId: route.params.id,
+                        flowId: route.params.id.toLowerCase(),
                     };
                 },
             },
@@ -173,6 +172,19 @@ Module.register('sw-flow', {
             },
         },
     },
+
+    navigation: [
+        {
+            id: 'sw-flow',
+            label: 'sw-flow.general.mainMenuItemGeneral',
+            path: 'sw.flow.index',
+            icon: 'regular-flow',
+            color: 'var(--sw-color-module-red-default)',
+            parent: 'sw-automation',
+            privilege: 'flow.viewer',
+            position: 20,
+        },
+    ],
 
     settingsItem: {
         group: 'automation',

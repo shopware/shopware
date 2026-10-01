@@ -6,10 +6,10 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -17,6 +17,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 class WebhookLoaderTest extends TestCase
 {
     use ExtensionBehaviour;
@@ -178,7 +179,6 @@ class WebhookLoaderTest extends TestCase
 
         static::assertCount(1, $permissions);
         static::assertArrayHasKey($aclRoleId, $permissions);
-        static::assertInstanceOf(AclPrivilegeCollection::class, $permissions[$aclRoleId]);
 
         static::assertTrue($permissions[$aclRoleId]->isAllowed('customer', 'read'));
         static::assertTrue($permissions[$aclRoleId]->isAllowed('customer', 'create'));

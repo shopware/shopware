@@ -23,10 +23,6 @@ describe('src/app/component/base/sw-error-summary/index.js', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not show alert box without errors', () => {
         const alert = wrapper.find('[role="banner"]');
 

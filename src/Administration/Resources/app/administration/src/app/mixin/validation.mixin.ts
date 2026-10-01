@@ -6,6 +6,8 @@ import { defineComponent } from 'vue';
  * @sw-package framework
  *
  * @module app/mixin/validation
+ *
+ * Duplicated in `src/app/composables/use-validation`; change both together.
  */
 export default Shopware.Mixin.register(
     'validation',
@@ -44,7 +46,6 @@ export default Shopware.Mixin.register(
         methods: {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             validate(value: any) {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 let validation = this.validation;
                 let valid = true;
 
@@ -58,8 +59,7 @@ export default Shopware.Mixin.register(
                     if (validationList.length > 1) {
                         validation = validationList;
                     } else {
-                        // eslint-disable-next-line max-len
-                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-argument
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                         valid = this.validateRule(value, this.validation as string);
                     }
                 }
@@ -88,7 +88,6 @@ export default Shopware.Mixin.register(
                     return false;
                 }
 
-                // eslint-disable-next-line max-len
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return
                 return this.validationService[rule](value);
             },

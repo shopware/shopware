@@ -7,10 +7,8 @@ use OpenSearch\Client;
 use PHPUnit\Framework\Attributes\AfterClass;
 use PHPUnit\Framework\Attributes\BeforeClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
-use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
@@ -18,6 +16,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\State;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Storage\AbstractKeyValueStorage;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -60,6 +59,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\SuffixFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Grouping\FieldGrouping;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedProductDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ProductExtension;
@@ -71,10 +72,8 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\SalesChannelLanguageLoader;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -87,14 +86,17 @@ use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntityAgg
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\ElasticsearchEntitySearcher;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
+use Shopware\Elasticsearch\Product\ElasticsearchOptimizeSwitch;
 use Shopware\Elasticsearch\Product\ElasticsearchProductDefinition;
 use Shopware\Elasticsearch\Test\ElasticsearchTestTestBehaviour;
+use Shopware\Tests\Integration\Elasticsearch\Product\Fixture\ProductsFixture;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 class ElasticsearchProductTest extends TestCase
 {
     use CacheTestBehaviour;
@@ -118,6 +120,14 @@ class ElasticsearchProductTest extends TestCase
     private ElasticsearchHelper $helper;
 
     private IdsCollection $ids;
+
+    /**
+     * Built once for the whole class by the first run of setUp(). The first-test-indexes pattern was
+     * replaced by guarded setUp because data-provided tests (testMultiFilterWithOneToManyRelation,
+     * testDateHistogram) can no longer also receive the ids via #[Depends] - see
+     * NoDependsWithDataProviderRule.
+     */
+    private static IdsCollection $indexedIds;
 
     private Connection $connection;
 
@@ -148,6 +158,8 @@ class ElasticsearchProductTest extends TestCase
         $this->productDefinition = static::getContainer()->get(ProductDefinition::class);
         $this->languageRepository = static::getContainer()->get('language.repository');
 
+        static::getContainer()->get(AbstractKeyValueStorage::class)->set(ElasticsearchOptimizeSwitch::FLAG, true);
+
         static::getContainer()->get(SalesChannelLanguageLoader::class)->reset();
         $this->connection = static::getContainer()->get(Connection::class);
 
@@ -167,6 +179,10 @@ class ElasticsearchProductTest extends TestCase
         $this->context = Context::createDefaultContext();
 
         parent::setUp();
+
+        if (!isset(self::$indexedIds)) {
+            self::$indexedIds = $this->buildIndex();
+        }
     }
 
     #[BeforeClass]
@@ -206,71 +222,10 @@ class ElasticsearchProductTest extends TestCase
         $connection->executeStatement('DROP TABLE `extended_product`');
     }
 
-    public function testIndexing(): IdsCollection
+    public function testUpdate(): void
     {
-        try {
-            $this->connection->executeStatement('DELETE FROM product');
+        $ids = self::$indexedIds;
 
-            $this->clearElasticsearch();
-
-            $this->resetStopWords();
-
-            $this->ids->set('currency', $this->currencyId);
-            $this->ids->set('anotherCurrency', $this->anotherCurrencyId);
-            $currencies = [
-                [
-                    'id' => $this->currencyId,
-                    'name' => 'test',
-                    'factor' => 1,
-                    'symbol' => 'A',
-                    'decimalPrecision' => 2,
-                    'shortName' => 'A',
-                    'isoCode' => 'A',
-                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                ],
-                [
-                    'id' => $this->anotherCurrencyId,
-                    'name' => 'test',
-                    'factor' => 0.001,
-                    'symbol' => 'B',
-                    'decimalPrecision' => 2,
-                    'shortName' => 'B',
-                    'isoCode' => 'B',
-                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
-                ],
-            ];
-
-            static::getContainer()
-                ->get('currency.repository')
-                ->upsert($currencies, $this->context);
-
-            $this->createData();
-
-            $this->indexElasticSearch();
-
-            $criteria = new Criteria();
-            $criteria->addFilter(
-                new NandFilter([new EqualsFilter('salesChannelDomains.id', null)])
-            );
-
-            $index = $this->helper->getIndexName($this->productDefinition);
-
-            $exists = $this->client->indices()->exists(['index' => $index]);
-            static::assertTrue($exists, 'Expected elasticsearch indices present');
-
-            return $this->ids;
-        } catch (\Exception $e) {
-            $this->tearDown();
-
-            throw $e;
-        }
-    }
-
-    #[Depends('testIndexing')]
-    public function testUpdate(IdsCollection $ids): void
-    {
         try {
             $this->ids = $ids;
             $context = $this->context;
@@ -278,10 +233,9 @@ class ElasticsearchProductTest extends TestCase
             $this->productRepository->upsert([
                 (new ProductBuilder($this->ids, 'u7', 300))
                     ->price(100)
+                    ->visibility()
                     ->build(),
             ], $context);
-
-            $this->refreshIndex();
 
             $criteria = new Criteria();
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
@@ -294,7 +248,6 @@ class ElasticsearchProductTest extends TestCase
 
             $this->productRepository->delete([['id' => $ids->get('u7')]], $context);
 
-            $this->refreshIndex();
             $result = $searcher->search($this->productDefinition, $criteria, $context);
             static::assertCount(0, $result->getIds());
         } catch (\Exception $e) {
@@ -304,9 +257,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testEmptySearch(IdsCollection $data): void
+    public function testEmptySearch(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -322,9 +276,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testPagination(IdsCollection $data): void
+    public function testPagination(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -344,9 +299,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testEqualsFilter(IdsCollection $data): void
+    public function testEqualsFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
@@ -364,9 +320,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testEqualsFilterWithNumericEncodedBoolFields(IdsCollection $data): void
+    public function testEqualsFilterWithNumericEncodedBoolFields(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
@@ -384,9 +341,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testRangeFilter(IdsCollection $data): void
+    public function testRangeFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check simple range filter
@@ -404,9 +362,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testEqualsAnyFilter(IdsCollection $data): void
+    public function testEqualsAnyFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check filter for categories
@@ -425,9 +384,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testMultiNotFilterFilter(IdsCollection $data): void
+    public function testMultiNotFilterFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check filter for categories
@@ -463,10 +423,11 @@ class ElasticsearchProductTest extends TestCase
      * @param array<string> $expectedProducts
      * @param Filter $filter
      */
-    #[Depends('testIndexing')]
     #[DataProvider('multiFilterWithOneToManyRelationProvider')]
-    public function testMultiFilterWithOneToManyRelation($filter, $expectedProducts, IdsCollection $data): void
+    public function testMultiFilterWithOneToManyRelation($filter, $expectedProducts): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -476,7 +437,7 @@ class ElasticsearchProductTest extends TestCase
             $products = $searcher->search($this->productDefinition, $criteria, $this->context);
 
             static::assertCount(\count($expectedProducts), $products->getIds());
-            static::assertSame(\array_map(fn ($item) => $data->get($item), $expectedProducts), $products->getIds());
+            static::assertSame(\array_map(static fn ($item) => $data->get($item), $expectedProducts), $products->getIds());
         } catch (\Exception $e) {
             $this->tearDown();
 
@@ -485,99 +446,19 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<int, array<MultiFilter|string[]>>
+     * @return iterable<string, array<MultiFilter|string[]>>
      */
-    public static function multiFilterWithOneToManyRelationProvider(): array
+    public static function multiFilterWithOneToManyRelationProvider(): iterable
     {
-        return [
-            [
-                new MultiFilter(
-                    MultiFilter::CONNECTION_AND,
-                    [
-                        new EqualsFilter('visibilities.salesChannelId', TestDefaults::SALES_CHANNEL),
-                    ]
-                ),
-                ['s-1', 's-2', 's-3'],
-            ],
-            [
-                new MultiFilter(
-                    MultiFilter::CONNECTION_AND,
-                    [
-                        new EqualsFilter('visibilities.visibility', ProductVisibilityDefinition::VISIBILITY_ALL),
-                    ]
-                ),
-                ['s-1', 's-4'],
-            ],
-            [
-                new MultiFilter(
-                    MultiFilter::CONNECTION_AND,
-                    [
-                        new EqualsFilter('visibilities.salesChannelId', TestDefaults::SALES_CHANNEL),
-                        new EqualsFilter('visibilities.visibility', ProductVisibilityDefinition::VISIBILITY_LINK),
-                    ]
-                ),
-                ['s-2'],
-            ],
-            [
-                new MultiFilter(
-                    MultiFilter::CONNECTION_AND,
-                    [
-                        new EqualsFilter('visibilities.salesChannelId', TestDefaults::SALES_CHANNEL),
-                        new EqualsFilter('visibilities.visibility', ProductVisibilityDefinition::VISIBILITY_SEARCH),
-                    ]
-                ),
-                ['s-3'],
-            ],
-            [
-                new MultiFilter(
-                    MultiFilter::CONNECTION_OR,
-                    [
-                        new MultiFilter(
-                            MultiFilter::CONNECTION_AND,
-                            [
-                                new EqualsFilter('visibilities.salesChannelId', TestDefaults::SALES_CHANNEL),
-                                new EqualsFilter('visibilities.visibility', ProductVisibilityDefinition::VISIBILITY_ALL),
-                            ]
-                        ),
-                        new MultiFilter(
-                            MultiFilter::CONNECTION_AND,
-                            [
-                                new EqualsFilter('visibilities.salesChannelId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
-                                new EqualsFilter('visibilities.visibility', ProductVisibilityDefinition::VISIBILITY_LINK),
-                            ]
-                        ),
-                    ]
-                ),
-                ['s-1', 's-3'],
-            ],
-            [
-                new MultiFilter(
-                    MultiFilter::CONNECTION_XOR,
-                    [
-                        new MultiFilter(
-                            MultiFilter::CONNECTION_AND,
-                            [
-                                new EqualsFilter('visibilities.salesChannelId', TestDefaults::SALES_CHANNEL),
-                                new EqualsFilter('visibilities.visibility', ProductVisibilityDefinition::VISIBILITY_SEARCH),
-                            ]
-                        ),
-                        new MultiFilter(
-                            MultiFilter::CONNECTION_AND,
-                            [
-                                new EqualsFilter('visibilities.salesChannelId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
-                                new EqualsFilter('visibilities.visibility', ProductVisibilityDefinition::VISIBILITY_SEARCH),
-                            ]
-                        ),
-                    ]
-                ),
-                ['s-2', 's-3'],
-            ],
-        ];
+        foreach (require __DIR__ . '/Fixture/MultiFilterWithOneToManyRelation.php' as $name => $data) {
+            yield $name => $data;
+        }
     }
 
-    #[Depends('testIndexing')]
-    public function testContainsFilter(IdsCollection $data): void
+    public function testContainsFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             $criteria = new Criteria();
@@ -621,9 +502,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testPrefixFilter(IdsCollection $data): void
+    public function testPrefixFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             $criteria = new Criteria();
@@ -668,9 +550,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSuffixFilter(IdsCollection $data): void
+    public function testSuffixFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             $criteria = new Criteria();
@@ -714,9 +597,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSingleGroupBy(IdsCollection $data): void
+    public function testSingleGroupBy(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
@@ -742,9 +626,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testMultiGroupBy(IdsCollection $data): void
+    public function testMultiGroupBy(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
@@ -766,9 +651,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testAvgAggregation(IdsCollection $data): void
+    public function testAvgAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -794,9 +680,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testTermsAggregation(IdsCollection $data): void
+    public function testTermsAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -838,9 +725,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testTermsAggregationWithAvg(IdsCollection $data): void
+    public function testTermsAggregationWithAvg(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -895,9 +783,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testTermsAggregationWithAssociation(IdsCollection $data): void
+    public function testTermsAggregationWithAssociation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -939,9 +828,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSumAggregation(IdsCollection $data): void
+    public function testSumAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -967,9 +857,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSumAggregationWithTermsAggregation(IdsCollection $data): void
+    public function testSumAggregationWithTermsAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1022,9 +913,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testMaxAggregation(IdsCollection $data): void
+    public function testMaxAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1050,9 +942,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testMaxAggregationWithTermsAggregation(IdsCollection $data): void
+    public function testMaxAggregationWithTermsAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1105,9 +998,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testMinAggregation(IdsCollection $data): void
+    public function testMinAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1133,9 +1027,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testMinAggregationWithTermsAggregation(IdsCollection $data): void
+    public function testMinAggregationWithTermsAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1188,9 +1083,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testCountAggregation(IdsCollection $data): void
+    public function testCountAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1216,9 +1112,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testCountAggregationWithTermsAggregation(IdsCollection $data): void
+    public function testCountAggregationWithTermsAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1271,9 +1168,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testStatsAggregation(IdsCollection $data): void
+    public function testStatsAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1303,9 +1201,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testStatsAggregationWithTermsAggregation(IdsCollection $data): void
+    public function testStatsAggregationWithTermsAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1367,9 +1266,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testEntityAggregation(IdsCollection $data): void
+    public function testEntityAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1399,9 +1299,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testEntityAggregationWithTermQuery(IdsCollection $data): void
+    public function testEntityAggregationWithTermQuery(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1430,15 +1331,17 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testTermAlgorithm(IdsCollection $data): void
+    public function testTermAlgorithm(): void
     {
+        $data = self::$indexedIds;
+
         try {
-            $terms = ['Spachtelmasse', 'Spachtel', 'Masse', 'Achtel', 'Some', 'some spachtel', 'Some Achtel', 'Sachtel'];
+            $terms = ['Spachtelmasse', 'Spachtel', 'Masse', 'Some', 'some spachtel', 'Some Achtel', 'Sachtelmasse'];
 
             $searcher = $this->createEntitySearcher();
 
             foreach ($terms as $term) {
+                $term = strtolower($term);
                 $criteria = new Criteria();
                 $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
                 $criteria->setTerm($term);
@@ -1465,9 +1368,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testFilterAggregation(IdsCollection $data): void
+    public function testFilterAggregation(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1499,9 +1403,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testFilterAggregationWithNestedFilterAndAggregation(IdsCollection $data): void
+    public function testFilterAggregationWithNestedFilterAndAggregation(): void
     {
+        $data = self::$indexedIds;
+
         $aggregator = $this->createEntityAggregator();
 
         try {
@@ -1570,9 +1475,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testFilterForProperties(IdsCollection $data): void
+    public function testFilterForProperties(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check filter for categories
@@ -1592,9 +1498,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testNestedFilterAggregationWithRootQuery(IdsCollection $data): void
+    public function testNestedFilterAggregationWithRootQuery(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1632,9 +1539,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testFilterAggregationWithRootFilter(IdsCollection $data): void
+    public function testFilterAggregationWithRootFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1670,10 +1578,11 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
     #[DataProvider('dateHistogramProvider')]
-    public function testDateHistogram(DateHistogramCase $case, IdsCollection $data): void
+    public function testDateHistogram(DateHistogramCase $case): void
     {
+        $data = self::$indexedIds;
+
         try {
             $context = $this->context;
 
@@ -1718,117 +1627,19 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<int, array<int, DateHistogramCase>>
+     * @return iterable<string, array<int, DateHistogramCase>>
      */
-    public static function dateHistogramProvider(): array
+    public static function dateHistogramProvider(): iterable
     {
-        return [
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_MINUTE, [
-                    '2019-01-01 10:11:00' => 1,
-                    '2019-01-01 10:13:00' => 1,
-                    '2019-06-15 13:00:00' => 1,
-                    '2020-09-30 15:00:00' => 1,
-                    '2021-12-10 11:59:00' => 2,
-                    '2024-12-11 23:59:00' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_HOUR, [
-                    '2019-01-01 10:00:00' => 2,
-                    '2019-06-15 13:00:00' => 1,
-                    '2020-09-30 15:00:00' => 1,
-                    '2021-12-10 11:00:00' => 2,
-                    '2024-12-11 23:00:00' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
-                    '2019-01-01 00:00:00' => 2,
-                    '2019-06-15 00:00:00' => 1,
-                    '2020-09-30 00:00:00' => 1,
-                    '2021-12-10 00:00:00' => 2,
-                    '2024-12-11 00:00:00' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_WEEK, [
-                    '2018 01' => 2,
-                    '2019 24' => 1,
-                    '2020 40' => 1,
-                    '2021 49' => 2,
-                    '2024 50' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
-                    '2019-01-01 00:00:00' => 2,
-                    '2019-06-01 00:00:00' => 1,
-                    '2020-09-01 00:00:00' => 1,
-                    '2021-12-01 00:00:00' => 2,
-                    '2024-12-01 00:00:00' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_QUARTER, [
-                    '2019 1' => 2,
-                    '2019 2' => 1,
-                    '2020 3' => 1,
-                    '2021 4' => 2,
-                    '2024 4' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_YEAR, [
-                    '2019-01-01 00:00:00' => 3,
-                    '2020-01-01 00:00:00' => 1,
-                    '2021-01-01 00:00:00' => 2,
-                    '2024-01-01 00:00:00' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
-                    '2019 January' => 2,
-                    '2019 June' => 1,
-                    '2020 September' => 1,
-                    '2021 December' => 2,
-                    '2024 December' => 1,
-                ], 'Y F'),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
-                    'Tuesday 01st Jan, 2019' => 2,
-                    'Saturday 15th Jun, 2019' => 1,
-                    'Wednesday 30th Sep, 2020' => 1,
-                    'Friday 10th Dec, 2021' => 2,
-                    'Wednesday 11th Dec, 2024' => 1,
-                ], 'l dS M, Y'),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
-                    '2019-01-01 00:00:00' => 2,
-                    '2019-06-15 00:00:00' => 1,
-                    '2020-09-30 00:00:00' => 1,
-                    '2021-12-10 00:00:00' => 2,
-                    '2024-12-12 00:00:00' => 1,
-                ], null, 'Europe/Berlin'),
-            ],
-            // case with time zone alias
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
-                    '2019-01-01 00:00:00' => 2,
-                    '2019-06-15 00:00:00' => 1,
-                    '2020-09-30 00:00:00' => 1,
-                    '2021-12-10 00:00:00' => 2,
-                    '2024-12-12 00:00:00' => 1,
-                ], null, 'Asia/Ho_Chi_Minh'),
-            ],
-        ];
+        foreach (require __DIR__ . '/Fixture/DateHistogram.php' as $name => $data) {
+            yield $name => $data;
+        }
     }
 
-    #[Depends('testIndexing')]
-    public function testDateHistogramWithNestedAvg(IdsCollection $data): void
+    public function testDateHistogramWithNestedAvg(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $aggregator = $this->createEntityAggregator();
 
@@ -1885,9 +1696,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testFilterCustomTextField(IdsCollection $data): void
+    public function testFilterCustomTextField(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $criteria = new Criteria($data->prefixed('product-'));
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
@@ -1904,9 +1716,30 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testXorQuery(IdsCollection $data): void
+    public function testFilterCustomTextFieldEqualNull(): void
     {
+        $data = self::$indexedIds;
+
+        try {
+            $criteria = new Criteria($data->prefixed('product-'));
+            $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
+            $criteria->addFilter(new EqualsFilter('customFields.testField', null));
+
+            $result = $this->createEntitySearcher()->search($this->productDefinition, $criteria, Context::createDefaultContext());
+
+            static::assertSame(1, $result->getTotal());
+            static::assertTrue($result->has($data->get('product-7')));
+        } catch (\Exception $e) {
+            $this->tearDown();
+
+            throw $e;
+        }
+    }
+
+    public function testXorQuery(): void
+    {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -1931,9 +1764,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testNegativXorQuery(IdsCollection $data): void
+    public function testNegativXorQuery(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -1958,9 +1792,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testTotalWithGroupFieldAndPostFilter(IdsCollection $data): void
+    public function testTotalWithGroupFieldAndPostFilter(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
             // check simple equals filter
@@ -1983,9 +1818,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testIdsSorting(IdsCollection $data): void
+    public function testIdsSorting(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -2015,9 +1851,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSorting(IdsCollection $data): void
+    public function testSorting(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -2046,9 +1883,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testMaxLimit(IdsCollection $data): void
+    public function testMaxLimit(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $searcher = $this->createEntitySearcher();
 
@@ -2066,7 +1904,6 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
     public function testStorefrontListing(): void
     {
         try {
@@ -2108,9 +1945,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSortingIsCaseInsensitive(IdsCollection $data): void
+    public function testSortingIsCaseInsensitive(): void
     {
+        $data = self::$indexedIds;
+
         try {
             $criteria = new Criteria();
             $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
@@ -2140,9 +1978,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testCheapestPriceFilter(IdsCollection $ids): void
+    public function testCheapestPriceFilter(): void
     {
+        $ids = self::$indexedIds;
+
         try {
             $cases = $this->providerCheapestPriceFilter();
 
@@ -2190,7 +2029,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<string, array{from: int, to: int, expected: string[], rules?: string[]}>
+     * @return iterable<string, array{from: int, to: int, expected: list<string>, rules?: list<string>}>
      */
     public function providerCheapestPriceFilter(): iterable
     {
@@ -2232,9 +2071,10 @@ class ElasticsearchProductTest extends TestCase
         yield 'Test 190€ filter with rule b+a' => ['rules' => ['rule-b', 'rule-a'], 'from' => 190, 'to' => 191, 'expected' => ['v.11.1', 'v.11.2', 'v.12.2']];
     }
 
-    #[Depends('testIndexing')]
-    public function testCheapestPriceSorting(IdsCollection $ids): void
+    public function testCheapestPriceSorting(): void
     {
+        $ids = self::$indexedIds;
+
         try {
             $context = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(
@@ -2245,9 +2085,7 @@ class ElasticsearchProductTest extends TestCase
                     ]
                 );
 
-            $cases = $this->providerCheapestPriceSorting();
-
-            foreach ($cases as $message => $case) {
+            foreach ($this->cheapestPriceSortingProvider() as $message => $case) {
                 $context->setRuleIds($ids->getList($case['rules']));
 
                 $this->assertSorting($message, $ids, $context, $case, FieldSorting::ASCENDING);
@@ -2262,164 +2100,19 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<string, array{ids: string[], rules: string[]}>
+     * @return iterable<string, array{ids: list<string>, rules: list<string>}>
      */
-    public function providerCheapestPriceSorting(): iterable
+    public function cheapestPriceSortingProvider(): iterable
     {
-        yield 'Test sorting without rules' => [
-            'ids' => [
-                'v.4.1',
-                'p.1',
-                'v.4.2',
-                'v.2.2',
-                'v.2.1',
-                'v.3.1',
-                'v.3.2',
-                'p.5',
-                'v.6.1',
-                'v.6.2',
-                'v.7.1',
-                'v.7.2',
-                'v.8.1',
-                'v.8.2',
-                'v.10.2',
-                'v.9.1',
-                'v.10.1',
-                'v.9.2',
-                'v.11.1',
-                'v.11.2',
-                'v.12.1',
-                'v.12.2',
-                'v.13.1',
-                'v.13.2',
-            ],
-            'rules' => [],
-        ];
-
-        yield 'Test sorting with rule a' => [
-            'ids' => [
-                'v.4.1',
-                'p.1',
-                'v.4.2',
-                'v.2.2',
-                'v.2.1',
-                'v.3.1',
-                'v.3.2',
-                'p.5',
-                'v.6.1',
-                'v.6.2',
-                'v.7.2',
-                'v.10.2',
-                'v.7.1',
-                'v.10.1',
-                'v.8.1',
-                'v.9.1',
-                'v.9.2',
-                'v.8.2',
-                'v.11.1',
-                'v.11.2',
-                'v.12.2',
-                'v.12.1',
-                'v.13.2',
-                'v.13.1',
-            ],
-            'rules' => ['rule-a'],
-        ];
-
-        yield 'Test sorting with rule b' => [
-            'ids' => [
-                'v.4.1',
-                'p.1',
-                'v.4.2',
-                'v.2.2',
-                'v.2.1',
-                'v.3.1',
-                'v.3.2',
-                'p.5',
-                'v.6.1',
-                'v.6.2',
-                'v.7.1',
-                'v.7.2',
-                'v.8.1',
-                'v.8.2',
-                'v.10.2',
-                'v.9.1',
-                'v.10.1',
-                'v.9.2',
-                'v.12.1',
-                'v.11.1',
-                'v.11.2',
-                'v.12.2',
-                'v.13.1',
-                'v.13.2',
-            ],
-            'rules' => ['rule-b'],
-        ];
-
-        yield 'Test sorting with rule a+b' => [
-            'ids' => [
-                'v.4.1',
-                'p.1',
-                'v.4.2',
-                'v.2.2',
-                'v.2.1',
-                'v.3.1',
-                'v.3.2',
-                'p.5',
-                'v.6.1',
-                'v.6.2',
-                'v.7.2',
-                'v.10.2',
-                'v.7.1',
-                'v.10.1',
-                'v.8.1',
-                'v.9.1',
-                'v.9.2',
-                'v.8.2',
-                'v.11.1',
-                'v.11.2',
-                'v.12.2',
-                'v.12.1',
-                'v.13.2',
-                'v.13.1',
-            ],
-            'rules' => ['rule-a', 'rule-b'],
-        ];
-
-        yield 'Test sorting with rule b+a' => [
-            'ids' => [
-                'v.4.1',
-                'p.1',
-                'v.4.2',
-                'v.2.2',
-                'v.2.1',
-                'v.3.1',
-                'v.3.2',
-                'p.5',
-                'v.6.1',
-                'v.6.2',
-                'v.7.2',
-                'v.10.2',
-                'v.7.1',
-                'v.10.1',
-                'v.8.1',
-                'v.9.1',
-                'v.9.2',
-                'v.8.2',
-                'v.11.1',
-                'v.11.2',
-                'v.12.2',
-                'v.13.2',
-                'v.12.1',
-                'v.13.1',
-            ],
-            'rules' => ['rule-b', 'rule-a'],
-        ];
+        foreach (require __DIR__ . '/Fixture/CheapestPriceSorting.php' as $name => $data) {
+            yield $name => $data;
+        }
     }
 
-    #[Depends('testIndexing')]
-    public function testCheapestPriceAggregation(IdsCollection $ids): void
+    public function testCheapestPriceAggregation(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -2455,9 +2148,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testCheapestPricePercentageFilterAndSorting(IdsCollection $ids): void
+    public function testCheapestPricePercentageFilterAndSorting(): void
     {
+        $ids = self::$indexedIds;
+
         try {
             $context = static::getContainer()->get(SalesChannelContextFactory::class)
                 ->create(
@@ -2481,7 +2175,7 @@ class ElasticsearchProductTest extends TestCase
 
                 if ($case['operator']) {
                     $operator = (string) $case['operator'];
-                    $percentage = (int) $case['percentage'];
+                    $percentage = (float) $case['percentage'];
 
                     $criteria->addFilter(
                         new RangeFilter('product.cheapestPrice.percentage', [
@@ -2496,7 +2190,7 @@ class ElasticsearchProductTest extends TestCase
                 $result = $searcher->search($this->productDefinition, $criteria, $context->getContext());
 
                 static::assertCount(is_countable($case['ids']) ? \count($case['ids']) : 0, $result->getIds(), \sprintf('Case `%s` failed', $message));
-                static::assertSame(array_map(fn (string $id) => $ids->get($id), $case['ids']), $result->getIds(), \sprintf('Case `%s` failed', $message));
+                static::assertSame(array_map(static fn (string $id) => $ids->get($id), $case['ids']), $result->getIds(), \sprintf('Case `%s` failed', $message));
             }
         } catch (\Exception $e) {
             $this->tearDown();
@@ -2506,56 +2200,57 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return \Generator<array{ids: array<string>, operator: RangeFilter::*|null, percentage: int|null, direction: FieldSorting::*}>
+     * @return \Generator<array{ids: array<string>, operator: RangeFilter::*|null, percentage: float|null, direction: FieldSorting::*}>
      */
     public function providerCheapestPricePercentageFilterAndSorting(): \Generator
     {
-        yield 'Test filter with greater than 50 percent price to list ratio sorted descending' => [
-            'ids' => ['product-1', 'product-4'],
-            'operator' => RangeFilter::GT,
-            'percentage' => 50,
-            'direction' => FieldSorting::DESCENDING,
-        ];
-
-        yield 'Test filter with greater than 50 percent price to list ratio sorted ascending' => [
-            'ids' => ['product-4', 'product-1'],
-            'operator' => RangeFilter::GT,
-            'percentage' => 50,
-            'direction' => FieldSorting::ASCENDING,
-        ];
-
-        yield 'Test filter with less than 50 percent price to list ratio sorted descending' => [
-            'ids' => ['product-2', 'product-5', 'product-3'],
-            'operator' => RangeFilter::LT,
-            'percentage' => 50,
-            'direction' => FieldSorting::DESCENDING,
-        ];
-
-        yield 'Test filter with less than 50 percent price to list ratio sorted ascending' => [
+        yield 'Test filter with greater than 50 percent ratio sorted descending' => [
             'ids' => ['product-3', 'product-5', 'product-2'],
+            'operator' => RangeFilter::GT,
+            'percentage' => 50,
+            'direction' => FieldSorting::DESCENDING,
+        ];
+
+        yield 'Test filter with greater than 50 percent ratio sorted ascending' => [
+            'ids' => ['product-2', 'product-5', 'product-3'],
+            'operator' => RangeFilter::GT,
+            'percentage' => 50,
+            'direction' => FieldSorting::ASCENDING,
+        ];
+
+        yield 'Test filter with less than 50 percent ratio sorted descending' => [
+            'ids' => ['product-4', 'product-1'],
+            'operator' => RangeFilter::LT,
+            'percentage' => 50,
+            'direction' => FieldSorting::DESCENDING,
+        ];
+
+        yield 'Test filter with less than 50 percent ratio sorted ascending' => [
+            'ids' => ['product-1', 'product-4'],
             'operator' => RangeFilter::LT,
             'percentage' => 50,
             'direction' => FieldSorting::ASCENDING,
         ];
 
-        yield 'Test percent price to list ratio sorted descending' => [
-            'ids' => ['product-1', 'product-4', 'product-2', 'product-5', 'product-7', 'product-6', 'product-3'],
+        yield 'Test percent ratio sorted descending' => [
+            'ids' => ['product-3', 'product-5', 'product-2', 'product-4', 'product-1', 'product-7', 'product-6'],
             'operator' => null,
             'percentage' => null,
             'direction' => FieldSorting::DESCENDING,
         ];
 
-        yield 'Test percent price to list ratio sorted ascending' => [
-            'ids' => ['product-3', 'product-6', 'product-7', 'product-5', 'product-2', 'product-4', 'product-1'],
+        yield 'Test percent ratio sorted ascending' => [
+            'ids' => ['product-6', 'product-7', 'product-1', 'product-4', 'product-2', 'product-5', 'product-3'],
             'operator' => null,
             'percentage' => null,
             'direction' => FieldSorting::ASCENDING,
         ];
     }
 
-    #[Depends('testIndexing')]
-    public function testNestedSorting(IdsCollection $ids): void
+    public function testNestedSorting(): void
     {
+        $ids = self::$indexedIds;
+
         $criteria = new Criteria($ids->prefixed('sort.'));
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria->addSorting(new FieldSorting('tags.name'));
@@ -2577,9 +2272,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame($ids->get('sort.bisasam'), $result->getIds()[2]);
     }
 
-    #[Depends('testIndexing')]
-    public function testCheapestPricePercentageAggregation(IdsCollection $ids): void
+    public function testCheapestPricePercentageAggregation(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -2596,7 +2292,7 @@ class ElasticsearchProductTest extends TestCase
 
             static::assertInstanceOf(StatsResult::class, $aggregation);
             static::assertSame(0.0, $aggregation->getMin());
-            static::assertSame(66.67, $aggregation->getMax());
+            static::assertSame(100.0, $aggregation->getMax());
         } catch (\Exception $e) {
             $this->tearDown();
 
@@ -2604,9 +2300,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testLanguageFieldsWorkSimilarToDAL(IdsCollection $ids): void
+    public function testLanguageFieldsWorkSimilarToDAL(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->createIndexingContext();
 
         $dal1 = $ids->getBytes('dal-1');
@@ -2617,7 +2314,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-1')];
 
         $criteria = new Criteria([$ids->get('dal-1')]);
-        $dalProduct = $this->productRepository->search($criteria, $context)->first();
+        $dalProduct = $this->productRepository->search($criteria, $context)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][Defaults::LANGUAGE_SYSTEM]);
@@ -2632,7 +2329,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-1')];
 
         $criteria = new Criteria([$ids->get('dal-1')]);
-        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-1')]);
@@ -2647,7 +2344,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-1')];
 
         $criteria = new Criteria([$ids->get('dal-1')]);
-        $dalProduct = $this->productRepository->search($criteria, $languageContext)
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->getEntities()
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
@@ -2667,7 +2364,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-2.1')];
 
         $criteria = new Criteria([$ids->get('dal-2.1')]);
-        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
@@ -2686,7 +2383,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-2.2')];
 
         $criteria = new Criteria([$ids->get('dal-2.2')]);
-        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-2')]);
@@ -2705,7 +2402,7 @@ class ElasticsearchProductTest extends TestCase
         $esProduct = $esProducts[$ids->get('dal-2.2')];
 
         $criteria = new Criteria([$ids->get('dal-2.2')]);
-        $dalProduct = $this->productRepository->search($criteria, $languageContext)->first();
+        $dalProduct = $this->productRepository->search($criteria, $languageContext)->getEntities()->first();
 
         static::assertInstanceOf(ProductEntity::class, $dalProduct);
         static::assertSame((string) $dalProduct->getTranslation('name'), (string) $esProduct['name'][$ids->get('language-1')]);
@@ -2713,9 +2410,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame($dalProduct->getTranslation('customFields'), $esProduct['customFields'][Defaults::LANGUAGE_SYSTEM]);
     }
 
-    #[Depends('testIndexing')]
-    public function testReleaseDate(IdsCollection $ids): void
+    public function testReleaseDate(): void
     {
+        $ids = self::$indexedIds;
+
         $dal1 = $ids->getBytes('dal-1');
 
         $products = $this->definition->fetch([$dal1], $this->createIndexingContext());
@@ -2725,9 +2423,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame('2019-01-01T10:11:00+00:00', $product['releaseDate']);
     }
 
-    #[Depends('testIndexing')]
-    public function testProductSizeWidthHeightStockSales(IdsCollection $ids): void
+    public function testProductSizeWidthHeightStockSales(): void
     {
+        $ids = self::$indexedIds;
+
         $dal1 = $ids->getBytes('dal-1');
 
         $products = $this->definition->fetch([$dal1], $this->createIndexingContext());
@@ -2741,15 +2440,21 @@ class ElasticsearchProductTest extends TestCase
         static::assertSame(0, $product['sales']);
     }
 
-    #[Depends('testIndexing')]
-    public function testCategoriesProperties(IdsCollection $ids): void
+    public function testCategoriesProperties(): void
     {
+        $ids = self::$indexedIds;
+
         $dal1 = $ids->getBytes('dal-1');
 
         $products = $this->definition->fetch([$dal1], $this->createIndexingContext());
 
         $product = $products[$ids->get('dal-1')];
-        $categoryIds = \array_column($product['categoriesRo'], 'id');
+        if (Feature::isActive('v6.8.0.0')) {
+            // categoriesRo is removed from the documents with v6.8.0.0, categoryTree holds the ids
+            $categoryIds = $product['categoryTree'];
+        } else {
+            $categoryIds = \array_column($product['categoriesRo'], 'id');
+        }
 
         static::assertContains($ids->get('c1'), $categoryIds);
         static::assertContains($ids->get('c2'), $categoryIds);
@@ -2758,9 +2463,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertContains($ids->get('xl'), $product['propertyIds']);
     }
 
-    #[Depends('testIndexing')]
-    public function testCustomFieldsGetMapped(IdsCollection $ids): void
+    public function testCustomFieldsGetMapped(): void
     {
+        $ids = self::$indexedIds;
+
         $mapping = $this->definition->getMapping($this->context);
 
         $languages = $this->languageRepository->searchIds(new Criteria(), $this->context)->getIds();
@@ -2780,7 +2486,7 @@ class ElasticsearchProductTest extends TestCase
                     ],
                     'test_date' => [
                         'type' => 'date',
-                        'format' => 'yyyy-MM-dd HH:mm:ss.000||strict_date_optional_time||epoch_millis',
+                        'format' => 'yyyy-MM-dd HH:mm:ss.SSS||strict_date_optional_time||epoch_millis',
                         'ignore_malformed' => true,
                     ],
                     'test_float' => [
@@ -2811,9 +2517,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertEquals($expected, $mapping['properties']['customFields']);
     }
 
-    #[Depends('testIndexing')]
-    public function testSortByCustomFieldIntAsc(IdsCollection $ids): void
+    public function testSortByCustomFieldIntAsc(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -2836,9 +2543,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSortByCustomFieldIntDesc(IdsCollection $ids): void
+    public function testSortByCustomFieldIntDesc(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -2865,9 +2573,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testCustomFieldsAreMerged(IdsCollection $ids): void
+    public function testCustomFieldsAreMerged(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -2890,9 +2599,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testCustomFieldDateType(IdsCollection $ids): void
+    public function testCustomFieldDateType(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         $searcher = $this->createEntitySearcher();
@@ -2931,9 +2641,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testSortByPropertiesCount(IdsCollection $ids): void
+    public function testSortByPropertiesCount(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -2979,9 +2690,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testFetchFloatedCustomFieldIds(IdsCollection $ids): void
+    public function testFetchFloatedCustomFieldIds(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -3003,9 +2715,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testFilterByCustomFieldDate(IdsCollection $ids): void
+    public function testFilterByCustomFieldDate(): void
     {
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -3025,9 +2738,12 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testFilterByStates(IdsCollection $ids): void
+    public function testFilterByStates(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
+        $ids = self::$indexedIds;
+
         $context = $this->context;
 
         try {
@@ -3048,9 +2764,10 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
-    public function testEmptyEntityAggregation(IdsCollection $ids): void
+    public function testEmptyEntityAggregation(): void
     {
+        $ids = self::$indexedIds;
+
         $criteria = new Criteria();
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
         $criteria->addAggregation(new EntityAggregation('manufacturer', 'manufacturerId', 'product_manufacturer'));
@@ -3075,9 +2792,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertEmpty($agg->getEntities());
     }
 
-    #[Depends('testIndexing')]
-    public function testVariantListingConfigShouldIndexMainProductWhenDisplayParentIsTrue(IdsCollection $ids): void
+    public function testVariantListingConfigShouldIndexMainProductWhenDisplayParentIsTrue(): void
     {
+        $ids = self::$indexedIds;
+
         $criteria = new Criteria($ids->prefixed('variant-1'));
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
@@ -3087,9 +2805,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertCount(3, $result);
     }
 
-    #[Depends('testIndexing')]
-    public function testVariantListingConfigShouldNotIndexMainProductWhenDisplayParentIsFalse(IdsCollection $ids): void
+    public function testVariantListingConfigShouldNotIndexMainProductWhenDisplayParentIsFalse(): void
     {
+        $ids = self::$indexedIds;
+
         $criteria = new Criteria($ids->prefixed('variant-2'));
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
@@ -3099,9 +2818,10 @@ class ElasticsearchProductTest extends TestCase
         static::assertCount(2, $result);
     }
 
-    #[Depends('testIndexing')]
-    public function testRangeAggregation(IdsCollection $data): void
+    public function testRangeAggregation(): void
     {
+        $data = self::$indexedIds;
+
         $rangesDefinition = [
             [],
             ['key' => 'all'],
@@ -3141,7 +2861,6 @@ class ElasticsearchProductTest extends TestCase
         }
     }
 
-    #[Depends('testIndexing')]
     public function testFilterCoreDateFields(): void
     {
         $criteria = new EsAwareCriteria();
@@ -3191,8 +2910,70 @@ class ElasticsearchProductTest extends TestCase
         return static::getContainer();
     }
 
+    private function buildIndex(): IdsCollection
+    {
+        try {
+            $this->connection->executeStatement('DELETE FROM product');
+
+            $this->clearElasticsearch();
+
+            $this->resetStopWords();
+
+            $this->ids->set('currency', $this->currencyId);
+            $this->ids->set('anotherCurrency', $this->anotherCurrencyId);
+            $currencies = [
+                [
+                    'id' => $this->currencyId,
+                    'name' => 'test',
+                    'factor' => 1,
+                    'symbol' => 'A',
+                    'decimalPrecision' => 2,
+                    'shortName' => 'A',
+                    'isoCode' => 'A',
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                ],
+                [
+                    'id' => $this->anotherCurrencyId,
+                    'name' => 'test',
+                    'factor' => 0.001,
+                    'symbol' => 'B',
+                    'decimalPrecision' => 2,
+                    'shortName' => 'B',
+                    'isoCode' => 'B',
+                    'itemRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                    'totalRounding' => json_decode(json_encode(new CashRoundingConfig(2, 0.05, true), \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR),
+                ],
+            ];
+
+            static::getContainer()
+                ->get('currency.repository')
+                ->upsert($currencies, $this->context);
+
+            $this->createData();
+
+            $this->indexElasticSearch();
+
+            $criteria = new Criteria();
+            $criteria->addFilter(
+                new NandFilter([new EqualsFilter('salesChannelDomains.id', null)])
+            );
+
+            $index = $this->helper->getIndexName($this->productDefinition);
+
+            $exists = $this->client->indices()->exists(['index' => $index]);
+            static::assertTrue($exists, 'Expected elasticsearch indices present');
+
+            return $this->ids;
+        } catch (\Exception $e) {
+            $this->tearDown();
+
+            throw $e;
+        }
+    }
+
     /**
-     * @param array{ids: string[]} $case
+     * @param array{ids: list<string>, rules: list<string>} $case
      */
     private function assertSorting(string $message, IdsCollection $ids, SalesChannelContext $context, array $case, string $direction): void
     {
@@ -3202,7 +2983,10 @@ class ElasticsearchProductTest extends TestCase
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $criteria->addSorting(new FieldSorting('product.cheapestPrice', $direction));
-        $criteria->addSorting(new FieldSorting('product.productNumber', $direction));
+        // autoIncrement is the tie-breaker for equal prices: productNumber cannot break ties between
+        // sibling variants, as it is indexed multi-valued ([own, parent]) and an ascending sort uses
+        // the minimum, which is the shared parent product number
+        $criteria->addSorting(new FieldSorting('product.autoIncrement', $direction));
 
         $criteria->addFilter(
             new OrFilter([
@@ -3228,7 +3012,7 @@ class ElasticsearchProductTest extends TestCase
     }
 
     /**
-     * @return array<string, array{min: float, max: float, rules: string[]}>
+     * @return iterable<string, array{min: float, max: float, rules: list<string>}>
      */
     private function providerCheapestPriceAggregation(): iterable
     {
@@ -3253,64 +3037,7 @@ class ElasticsearchProductTest extends TestCase
 
         $customFieldRepository = static::getContainer()->get('custom_field_set.repository');
 
-        $customFields = [
-            [
-                'name' => 'a',
-                'type' => CustomFieldTypes::TEXT,
-            ],
-            [
-                'name' => 'b',
-                'type' => CustomFieldTypes::TEXT,
-            ],
-            [
-                'name' => 'c',
-                'type' => CustomFieldTypes::TEXT,
-            ],
-            [
-                'name' => 'test_int',
-                'type' => CustomFieldTypes::INT,
-            ],
-            [
-                'name' => 'testFloatingField',
-                'type' => CustomFieldTypes::FLOAT,
-            ],
-            [
-                'name' => 'testField',
-                'type' => CustomFieldTypes::TEXT,
-            ],
-            [
-                'name' => 'test_select',
-                'type' => CustomFieldTypes::SELECT,
-            ],
-            [
-                'name' => 'test_text',
-                'type' => CustomFieldTypes::TEXT,
-            ],
-            [
-                'name' => 'test_html',
-                'type' => CustomFieldTypes::HTML,
-            ],
-            [
-                'name' => 'test_date',
-                'type' => CustomFieldTypes::DATETIME,
-            ],
-            [
-                'name' => 'test_object',
-                'type' => CustomFieldTypes::JSON,
-            ],
-            [
-                'name' => 'test_float',
-                'type' => CustomFieldTypes::FLOAT,
-            ],
-            [
-                'name' => 'test_bool',
-                'type' => CustomFieldTypes::BOOL,
-            ],
-            [
-                'name' => 'test_unmapped',
-                'type' => 'unknown_type',
-            ],
-        ];
+        $customFields = require __DIR__ . '/Fixture/CustomFields.php';
 
         $customFieldRepository->create([
             [
@@ -3332,649 +3059,12 @@ class ElasticsearchProductTest extends TestCase
 
         $customMapping = \array_combine(\array_column($customFields, 'name'), \array_column($customFields, 'type'));
 
-        ReflectionHelper::getProperty(ElasticsearchIndexingUtils::class, 'customFieldsTypes')->setValue(
+        (new \ReflectionProperty(ElasticsearchIndexingUtils::class, 'customFieldsTypes'))->setValue(
             $this->utils,
             ['product' => $customMapping],
         );
 
-        $products = [
-            (new ProductBuilder($this->ids, 'product-1'))
-                ->name('Silk')
-                ->category('navi')
-                ->customField('testField', 'Silk')
-                ->visibility()
-                ->tax('t1')
-                ->manufacturer('m1')
-                ->price(50, 50, 'default', 150, 150)
-                ->releaseDate('2019-01-01 10:11:00')
-                ->purchasePrice(0)
-                ->stock(2)
-                ->createdAt('2019-01-01 10:11:00')
-                ->category('c1')
-                ->category('c2')
-                ->property('red', 'color')
-                ->property('xl', 'size')
-                ->customField('test_int', 19999)
-                ->customField('test_date', (new \DateTime())->format('Y-m-d H:i:s'))
-                ->customField('testFloatingField', 1.5)
-                ->customField('test_bool', true)
-                ->build(),
-            (new ProductBuilder($this->ids, 'product-2'))
-                ->name('Rubber')
-                ->category('navi')
-                ->customField('testField', 'Rubber')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t1')
-                ->manufacturer('m2')
-                ->price(100, 100, 'default', 150, 150)
-                ->price(300, null, 'anotherCurrency')
-                ->releaseDate('2019-01-01 10:13:00')
-                ->createdAt('2019-01-02 10:11:00')
-                ->purchasePrice(0)
-                ->stock(10)
-                ->category('c1')
-                ->property('green', 'color')
-                ->property('l', 'size')
-                ->customField('test_int', 200)
-                ->customField('test_date', (new \DateTime('2000-01-01'))->format('Y-m-d H:i:s'))
-                ->customField('testFloatingField', 1) // Without the casting in formatCustomFields this fails
-                ->build(),
-            (new ProductBuilder($this->ids, 'product-3'))
-                ->name('Stilk')
-                ->category('navi')
-                ->customField('testField', 'Stilk')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t2')
-                ->manufacturer('m2')
-                ->price(150, 150, 'default', 150, 150)
-                ->price(800, null, 'anotherCurrency')
-                ->releaseDate('2019-06-15 13:00:00')
-                ->purchasePrice(100)
-                ->stock(100)
-                ->category('c1')
-                ->category('c3')
-                ->property('red', 'color')
-                ->build(),
-            (new ProductBuilder($this->ids, 'zanother-product-3b'))
-                ->name('Bar Sti')
-                ->manufacturer('m2')
-                ->price(100, 100, 'default', 100, 100)
-                ->purchasePrice(100)
-                ->stock(100)
-                ->property('silver', 'color')
-                ->build(),
-            (new ProductBuilder($this->ids, 'product-4'))
-                ->name('Grouped 1')
-                ->category('navi')
-                ->customField('testField', 'Grouped 1')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t2')
-                ->manufacturer('m2')
-                ->price(200, 200, 'default', 500, 500)
-                ->price(500, null, 'anotherCurrency')
-                ->releaseDate('2020-09-30 15:00:00')
-                ->purchasePrice(100)
-                ->stock(300)
-                ->property('green', 'color')
-                ->build(),
-            (new ProductBuilder($this->ids, 'product-5'))
-                ->name('Grouped 2')
-                ->category('navi')
-                ->customField('testField', 'Grouped 2')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t3')
-                ->manufacturer('m3')
-                ->price(250, 250, 'default', 300, 300)
-                ->price(600, null, 'anotherCurrency')
-                ->releaseDate('2021-12-10 11:59:00')
-                ->purchasePrice(100)
-                ->stock(300)
-                ->build(),
-            (new ProductBuilder($this->ids, 'product-6'))
-                ->name('Spachtelmasse of some awesome company')
-                ->category('navi')
-                ->customField('testField', 'Spachtelmasse')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t3')
-                ->manufacturer('m3')
-                ->price(300)
-                ->price(200, null, 'anotherCurrency')
-                ->releaseDate('2021-12-10 11:59:00')
-                ->purchasePrice(200)
-                ->stock(300)
-                ->build(),
-            (new ProductBuilder($this->ids, 'product-7'))
-                ->name('Test Product for Timezone ReleaseDate')
-                ->category('navi')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t3')
-                ->price(300)
-                ->releaseDate('2024-12-11 23:59:00')
-                ->stock(350)
-                ->build(),
-            (new ProductBuilder($this->ids, 'n7'))
-                ->name('Other product')
-                ->category('navi')
-                ->customField('testField', 'Other product')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t3')
-                ->manufacturer('m3')
-                ->price(300)
-                ->releaseDate('2021-12-10 11:59:00')
-                ->purchasePrice(200)
-                ->stock(300)
-                ->build(),
-            (new ProductBuilder($this->ids, 'n8'))
-                ->name('Other product')
-                ->category('navi')
-                ->customField('testField', 'Other product')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t3')
-                ->manufacturer('m3')
-                ->price(300)
-                ->releaseDate('2021-12-10 11:59:00')
-                ->purchasePrice(200)
-                ->stock(300)
-                ->build(),
-            (new ProductBuilder($this->ids, 'n9'))
-                ->name('Other product')
-                ->category('navi')
-                ->customField('testField', 'Other product')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t3')
-                ->manufacturer('m3')
-                ->price(300)
-                ->releaseDate('2021-12-10 11:59:00')
-                ->purchasePrice(200)
-                ->stock(300)
-                ->build(),
-            (new ProductBuilder($this->ids, 'n10'))
-                ->name('Other product')
-                ->category('navi')
-                ->customField('testField', 'Other product')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t3')
-                ->manufacturer('m3')
-                ->price(300)
-                ->releaseDate('2021-12-10 11:59:00')
-                ->purchasePrice(200)
-                ->stock(300)
-                ->build(),
-            (new ProductBuilder($this->ids, 'n11'))
-                ->name('Other product')
-                ->category('navi')
-                ->customField('testField', 'Other product')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t3')
-                ->manufacturer('m3')
-                ->price(300)
-                ->releaseDate('2021-12-10 11:59:00')
-                ->purchasePrice(200)
-                ->stock(300)
-                ->build(),
-            (new ProductBuilder($this->ids, 's1'))
-                ->name('aa')
-                ->category('navi')
-                ->customField('testField', 'aa')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t1')
-                ->manufacturer('m2')
-                ->price(100)
-                ->releaseDate('2019-01-01 10:13:00')
-                ->purchasePrice(0)
-                ->stock(10)
-                ->category('cs1')
-                ->build(),
-            (new ProductBuilder($this->ids, 's2'))
-                ->name('Aa')
-                ->category('navi')
-                ->customField('testField', 'Aa')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t1')
-                ->manufacturer('m2')
-                ->price(100)
-                ->releaseDate('2019-01-01 10:13:00')
-                ->purchasePrice(0)
-                ->stock(10)
-                ->category('cs1')
-                ->build(),
-            (new ProductBuilder($this->ids, 's3'))
-                ->name('AA')
-                ->category('navi')
-                ->customField('testField', 'AA')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t1')
-                ->manufacturer('m2')
-                ->price(100)
-                ->releaseDate('2019-01-01 10:13:00')
-                ->purchasePrice(0)
-                ->stock(10)
-                ->category('cs1')
-                ->build(),
-            (new ProductBuilder($this->ids, 's4'))
-                ->name('Ba')
-                ->category('navi')
-                ->customField('testField', 'Ba')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t1')
-                ->manufacturer('m2')
-                ->price(100)
-                ->releaseDate('2019-01-01 10:13:00')
-                ->purchasePrice(0)
-                ->stock(10)
-                ->category('cs1')
-                ->build(),
-            (new ProductBuilder($this->ids, 's5'))
-                ->name('BA')
-                ->category('navi')
-                ->customField('testField', 'BA')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t1')
-                ->manufacturer('m2')
-                ->price(100)
-                ->releaseDate('2019-01-01 10:13:00')
-                ->purchasePrice(0)
-                ->stock(10)
-                ->category('cs1')
-                ->build(),
-            (new ProductBuilder($this->ids, 's6'))
-                ->name('BB')
-                ->category('navi')
-                ->customField('testField', 'BB')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t1')
-                ->manufacturer('m2')
-                ->price(100)
-                ->releaseDate('2019-01-01 10:13:00')
-                ->purchasePrice(0)
-                ->stock(10)
-                ->category('cs1')
-                ->build(),
-            (new ProductBuilder($this->ids, 'cf1'))
-                ->name('CF')
-                ->category('navi')
-                ->customField(
-                    'test_text',
-                    'Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia. Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent adipiscing. Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui. Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id, imperdiet feugiat, pede. Sed lectus. Donec mollis hendrerit risus. Phasellus nec sem in justo pellentesque facilisis. Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat dolor lectus quis orci. Phasellus consectetuer vestibulum elit. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Vestibulum fringilla pede sit amet augue. In turpis. Pellentesque posuere. Praesent turpis. Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In dui magna, posuere eget, vestibulum et, tempor auctor, justo. In ac felis quis tortor malesuada pretium. Pellentesque auctor neque nec urna. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Aenean viverra rhoncus pede. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut non enim eleifend felis pretium feugiat. Vivamus quis mi. Phasellus a est. Phasellus magna. In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Morbi mattis ullamcorper velit. Phasellus gravida semper nisi. Nullam vel sem. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Sed hendrerit. Morbi ac felis. Nunc egestas, augue at pellentesque laoreet, felis eros vehicula leo, at malesuada velit leo quis pede. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Nunc nulla. Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Donec venenatis vulputate lorem. Morbi nec metus. Phasellus blandit leo ut odio. Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed magna purus, fermentum eu, tincidunt eu, varius ut, felis. In auctor lobortis lacus. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna. Vestibulum ullamcorper mauris at ligula. Fusce fermentum. Nullam cursus lacinia erat. Praesent blandit laoreet nibh. Fusce convallis metus id felis luctus adipiscing. Pellentesque egestas, neque sit amet convallis pulvinar, justo nulla eleifend augue, ac auctor orci leo non est. Quisque id mi. Ut tincidunt tincidunt erat. Etiam feugiat lorem non metus. Vestibulum dapibus nunc ac augue. Curabitur vestibulum aliquam leo. Praesent egestas neque eu enim. In hac habitasse platea dictumst. Fusce a quam. Etiam ut purus mattis mauris sodales aliquam. Curabitur nisi. Quisque malesuada placerat nisl. Nam ipsum risus, rutrum vitae, vestibulum eu, molestie vel, lacus. Sed augue ipsum, egestas nec, vestibulum et, malesuada adipiscing, dui. Vestibulum facilisis, purus nec pulvinar iaculis, ligula mi congue nunc, vitae euismod ligula urna in dolor. Mauris sollicitudin fermentum libero. Praesent nonummy mi in odio. Nunc interdum lacus sit amet orci. Vestibulum rutrum, mi nec elementum vehicula, eros quam gravida nisl, id fringilla neque ante vel mi. Morbi mollis tellus ac sapien. Phasellus volutpat, metus eget egestas mollis, lacus lacus blandit dui, id egestas quam mauris ut lacus. Fusce vel dui. Sed in libero ut nibh placerat accumsan. Proin faucibus arcu quis ante. In consectetuer turpis ut velit. Nulla sit amet est. Praesent metus tellus, elementum eu, semper a, adipiscing nec, purus. Cras risus ipsum, faucibus ut, ullamcorper id, varius ac, leo. Suspendisse feugiat. Suspendisse enim turpis, dictum sed, iaculis a, condimentum nec, nisi. Praesent nec nisl a purus blandit viverra. Praesent ac massa at ligula laoreet iaculis. Nulla neque dolor, sagittis eget, iaculis quis, molestie non, velit. Mauris turpis nunc, blandit et, volutpat molestie, porta ut, ligula. Fusce pharetra convallis urna. Quisque ut nisi. Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Suspendisse non nisl sit amet velit hendrerit rutrum. Ut leo. Ut a nisl id ante tempus hendrerit. Proin pretium, leo ac pellentesque mollis, felis nunc ultrices eros, sed gravida augue augue mollis justo. Suspendisse eu ligula. Nulla facilisi. Donec id justo. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a pretium mi sem ut ipsum. Curabitur suscipit suscipit tellus. Praesent vestibulum dapibus nibh. Etiam iaculis nunc ac metus. Ut id nisl quis enim dignissim sagittis. Etiam sollicitudin, ipsum eu pulvinar rutrum, tellus ipsum laoreet sapien, quis venenatis ante odio sit amet eros. Proin magna. Duis vel nibh at velit scelerisque suscipit. Curabitur turpis. Vestibulum suscipit nulla quis orci. Fusce ac felis sit amet ligula pharetra condimentum. Maecenas egestas arcu quis ligula mattis placerat. Duis lobortis massa imperdiet quam. Suspendisse potenti. Pellentesque commodo eros a enim. Vestibulum turpis sem, aliquet eget, lobortis pellentesque, rutrum eu, nisl. Sed libero. Aliquam erat volutpat. Etiam vitae tortor. Morbi vestibulum volutpat enim. Aliquam eu nunc. Nunc sed turpis. Sed mollis, eros et ultrices tempus, mauris ipsum aliquam libero, non adipiscing dolor urna a orci. Nulla porta dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Pellentesque. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia. Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent adipiscing. Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui. Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id, imperdiet feugiat, pede. Sed lectus. Donec mollis hendrerit risus. Phasellus nec sem in justo pellentesque facilisis. Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat dolor lectus quis orci. Phasellus consectetuer vestibulum elit. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Vestibulum fringilla pede sit amet augue. In turpis. Pellentesque posuere. Praesent turpis. Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In dui magna, posuere eget, vestibulum et, tempor auctor, justo. In ac felis quis tortor malesuada pretium. Pellentesque auctor neque nec urna. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Aenean viverra rhoncus pede. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut non enim eleifend felis pretium feugiat. Vivamus quis mi. Phasellus a est. Phasellus magna. In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Morbi mattis ullamcorper velit. Phasellus gravida semper nisi. Nullam vel sem. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Sed hendrerit. Morbi ac felis. Nunc egestas, augue at pellentesque laoreet, felis eros vehicula leo, at malesuada velit leo quis pede. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Nunc nulla. Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Donec venenatis vulputate lorem. Morbi nec metus. Phasellus blandit leo ut odio. Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed magna purus, fermentum eu, tincidunt eu, varius ut, felis. In auctor lobortis lacus. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna. Vestibulum ullamcorper mauris at ligula. Fusce fermentum. Nullam cursus lacinia erat. Praesent blandit laoreet nibh. Fusce convallis metus id felis luctus adipiscing. Pellentesque egestas, neque sit amet convallis pulvinar, justo nulla eleifend augue, ac auctor orci leo non est. Quisque id mi. Ut tincidunt tincidunt erat. Etiam feugiat lorem non metus. Vestibulum dapibus nunc ac augue. Curabitur vestibulum aliquam leo. Praesent egestas neque eu enim. In hac habitasse platea dictumst. Fusce a quam. Etiam ut purus mattis mauris sodales aliquam. Curabitur nisi. Quisque malesuada placerat nisl. Nam ipsum risus, rutrum vitae, vestibulum eu, molestie vel, lacus. Sed augue ipsum, egestas nec, vestibulum et, malesuada adipiscing, dui. Vestibulum facilisis, purus nec pulvinar iaculis, ligula mi congue nunc, vitae euismod ligula urna in dolor. Mauris sollicitudin fermentum libero. Praesent nonummy mi in odio. Nunc interdum lacus sit amet orci. Vestibulum rutrum, mi nec elementum vehicula, eros quam gravida nisl, id fringilla neque ante vel mi. Morbi mollis tellus ac sapien. Phasellus volutpat, metus eget egestas mollis, lacus lacus blandit dui, id egestas quam mauris ut lacus. Fusce vel dui. Sed in libero ut nibh placerat accumsan. Proin faucibus arcu quis ante. In consectetuer turpis ut velit. Nulla sit amet est. Praesent metus tellus, elementum eu, semper a, adipiscing nec, purus. Cras risus ipsum, faucibus ut, ullamcorper id, varius ac, leo. Suspendisse feugiat. Suspendisse enim turpis, dictum sed, iaculis a, condimentum nec, nisi. Praesent nec nisl a purus blandit viverra. Praesent ac massa at ligula laoreet iaculis. Nulla neque dolor, sagittis eget, iaculis quis, molestie non, velit. Mauris turpis nunc, blandit et, volutpat molestie, porta ut, ligula. Fusce pharetra convallis urna. Quisque ut nisi. Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Suspendisse non nisl sit amet velit hendrerit rutrum. Ut leo. Ut a nisl id ante tempus hendrerit. Proin pretium, leo ac pellentesque mollis, felis nunc ultrices eros, sed gravida augue augue mollis justo. Suspendisse eu ligula. Nulla facilisi. Donec id justo. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a pretium mi sem ut ipsum. Curabitur suscipit suscipit tellus. Praesent vestibulum dapibus nibh. Etiam iaculis nunc ac metus. Ut id nisl quis enim dignissim sagittis. Etiam sollicitudin, ipsum eu pulvinar rutrum, tellus ipsum laoreet sapien, quis venenatis ante odio sit amet eros. Proin magna. Duis vel nibh at velit scelerisque suscipit. Curabitur turpis. Vestibulum suscipit nulla quis orci. Fusce ac felis sit amet ligula pharetra condimentum. Maecenas egestas arcu quis ligula mattis placerat. Duis lobortis massa imperdiet quam. Suspendisse potenti. Pellentesque commodo eros a enim. Vestibulum turpis sem, aliquet eget, lobortis pellentesque, rutrum eu, nisl. Sed libero. Aliquam erat volutpat. Etiam vitae tortor. Morbi vestibulum volutpat enim. Aliquam eu nunc. Nunc sed turpis. Sed mollis, eros et ultrices tempus, mauris ipsum aliquam libero, non adipiscing dolor urna a orci. Nulla porta dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. PellentesqueLorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia. Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent adipiscing. Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui. Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id, imperdiet feugiat, pede. Sed lectus. Donec mollis hendrerit risus. Phasellus nec sem in justo pellentesque facilisis. Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat dolor lectus quis orci. Phasellus consectetuer vestibulum elit. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Vestibulum fringilla pede sit amet augue. In turpis. Pellentesque posuere. Praesent turpis. Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In dui magna, posuere eget, vestibulum et, tempor auctor, justo. In ac felis quis tortor malesuada pretium. Pellentesque auctor neque nec urna. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Aenean viverra rhoncus pede. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut non enim eleifend felis pretium feugiat. Vivamus quis mi. Phasellus a est. Phasellus magna. In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Morbi mattis ullamcorper velit. Phasellus gravida semper nisi. Nullam vel sem. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Sed hendrerit. Morbi ac felis. Nunc egestas, augue at pellentesque laoreet, felis eros vehicula leo, at malesuada velit leo quis pede. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Nunc nulla. Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Donec venenatis vulputate lorem. Morbi nec metus. Phasellus blandit leo ut odio. Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed magna purus, fermentum eu, tincidunt eu, varius ut, felis. In auctor lobortis lacus. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna. Vestibulum ullamcorper mauris at ligula. Fusce fermentum. Nullam cursus lacinia erat. Praesent blandit laoreet nibh. Fusce convallis metus id felis luctus adipiscing. Pellentesque egestas, neque sit amet convallis pulvinar, justo nulla eleifend augue, ac auctor orci leo non est. Quisque id mi. Ut tincidunt tincidunt erat. Etiam feugiat lorem non metus. Vestibulum dapibus nunc ac augue. Curabitur vestibulum aliquam leo. Praesent egestas neque eu enim. In hac habitasse platea dictumst. Fusce a quam. Etiam ut purus mattis mauris sodales aliquam. Curabitur nisi. Quisque malesuada placerat nisl. Nam ipsum risus, rutrum vitae, vestibulum eu, molestie vel, lacus. Sed augue ipsum, egestas nec, vestibulum et, malesuada adipiscing, dui. Vestibulum facilisis, purus nec pulvinar iaculis, ligula mi congue nunc, vitae euismod ligula urna in dolor. Mauris sollicitudin fermentum libero. Praesent nonummy mi in odio. Nunc interdum lacus sit amet orci. Vestibulum rutrum, mi nec elementum vehicula, eros quam gravida nisl, id fringilla neque ante vel mi. Morbi mollis tellus ac sapien. Phasellus volutpat, metus eget egestas mollis, lacus lacus blandit dui, id egestas quam mauris ut lacus. Fusce vel dui. Sed in libero ut nibh placerat accumsan. Proin faucibus arcu quis ante. In consectetuer turpis ut velit. Nulla sit amet est. Praesent metus tellus, elementum eu, semper a, adipiscing nec, purus. Cras risus ipsum, faucibus ut, ullamcorper id, varius ac, leo. Suspendisse feugiat. Suspendisse enim turpis, dictum sed, iaculis a, condimentum nec, nisi. Praesent nec nisl a purus blandit viverra. Praesent ac massa at ligula laoreet iaculis. Nulla neque dolor, sagittis eget, iaculis quis, molestie non, velit. Mauris turpis nunc, blandit et, volutpat molestie, porta ut, ligula. Fusce pharetra convallis urna. Quisque ut nisi. Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Suspendisse non nisl sit amet velit hendrerit rutrum. Ut leo. Ut a nisl id ante tempus hendrerit. Proin pretium, leo ac pellentesque mollis, felis nunc ultrices eros, sed gravida augue augue mollis justo. Suspendisse eu ligula. Nulla facilisi. Donec id justo. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a pretium mi sem ut ipsum. Curabitur suscipit suscipit tellus. Praesent vestibulum dapibus nibh. Etiam iaculis nunc ac metus. Ut id nisl quis enim dignissim sagittis. Etiam sollicitudin, ipsum eu pulvinar rutrum, tellus ipsum laoreet sapien, quis venenatis ante odio sit amet eros. Proin magna. Duis vel nibh at velit scelerisque suscipit. Curabitur turpis. Vestibulum suscipit nulla quis orci. Fusce ac felis sit amet ligula pharetra condimentum. Maecenas egestas arcu quis ligula mattis placerat. Duis lobortis massa imperdiet quam. Suspendisse potenti. Pellentesque commodo eros a enim. Vestibulum turpis sem, aliquet eget, lobortis pellentesque, rutrum eu, nisl. Sed libero. Aliquam erat volutpat. Etiam vitae tortor. Morbi vestibulum volutpat enim. Aliquam eu nunc. Nunc sed turpis. Sed mollis, eros et ultrices tempus, mauris ipsum aliquam libero, non adipiscing dolor urna a orci. Nulla porta dolor. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos hymenaeos. Pellentesque. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia. Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent adipiscing. Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui. Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id, imperdiet feugiat, pede. Sed lectus. Donec mollis hendrerit risus. Phasellus nec sem in justo pellentesque facilisis. Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi. Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat dolor lectus quis orci. Phasellus consectetuer vestibulum elit. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Vestibulum fringilla pede sit amet augue. In turpis. Pellentesque posuere. Praesent turpis. Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. In dui magna, posuere eget, vestibulum et, tempor auctor, justo. In ac felis quis tortor malesuada pretium. Pellentesque auctor neque nec urna. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Aenean viverra rhoncus pede. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut non enim eleifend felis pretium feugiat. Vivamus quis mi. Phasellus a est. Phasellus magna. In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Morbi mattis ullamcorper velit. Phasellus gravida semper nisi. Nullam vel sem. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Sed hendrerit. Morbi ac felis. Nunc egestas, augue at pellentesque laoreet, felis eros vehicula leo, at malesuada velit leo quis pede. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Nunc nulla. Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Donec venenatis vulputate lorem. Morbi nec metus. Phasellus blandit leo ut odio. Maecenas ullamcorper, dui et placerat feugiat, eros pede varius nisi, condimentum viverra felis nunc et lorem. Sed magna purus, fermentum eu, tincidunt eu, varius ut, felis. In auctor lobortis lacus. Quisque libero metus, condimentum nec, tempor a, commodo mollis, magna. Vestibulum ullamcorper mauris at ligula. Fusce fermentum. Nullam cursus lacinia erat. Praesent blandit laoreet nibh. Fusce convallis metus id felis luctus adipiscing. Pellentesque egestas, neque sit amet convallis pulvinar, justo nulla eleifend augue, ac auctor orci leo non est. Quisque id mi. Ut tincidunt tincidunt erat. Etiam feugiat lorem non metus. Vestibulum dapibus nunc ac augue. Curabitur vestibulum aliquam leo. Praesent egestas neque eu enim. In hac habitasse platea dictumst. Fusce a quam. Etiam ut purus mattis mauris sodales aliquam. Curabitur nisi. Quisque malesuada placerat nisl. Nam ipsum risus, rutrum vitae, vestibulum eu, molestie vel, lacus. Sed augue ipsum, egestas nec, vestibulum et, malesuada adipiscing, dui. Vestibulum facilisis, purus nec pulvinar iaculis, ligula mi congue nunc, vitae euismod ligula urna in dolor. Mauris sollicitudin fermentum libero. Praesent nonummy mi in odio. Nunc interdum lacus sit amet orci. Vestibulum rutrum, mi nec elementum vehicula, eros quam gravida nisl, id fringilla neque ante vel mi. Morbi mollis tellus ac sapien. Phasellus volutpat, metus eget egestas mollis, lacus lacus blandit dui, id egestas quam mauris ut lacus. Fusce vel dui. Sed in libero ut nibh placerat accumsan. Proin faucibus arcu quis ante. In consectetuer turpis ut velit. Nulla sit amet est. Praesent metus tellus, elementum eu, semper a, adipiscing nec, purus. Cras risus ipsum, faucibus ut, ullamcorper id, varius ac, leo. Suspendisse feugiat. Suspendisse enim turpis, dictum sed, iaculis a, condimentum nec, nisi. Praesent nec nisl a purus blandit viverra. Praesent ac massa at ligula laoreet iaculis. Nulla neque dolor, sagittis eget, iaculis quis, molestie non, velit. Mauris turpis nunc, blandit et, volutpat molestie, porta ut, ligula. Fusce pharetra convallis urna. Quisque ut nisi. Donec mi odio, faucibus at, scelerisque quis, convallis in, nisi. Suspendisse non nisl sit amet velit hendrerit rutrum. Ut leo. Ut a nisl id ante tempus hendrerit. Proin pretium, leo ac pellentesque mollis, felis nunc ultrices eros, sed gravida augue augue mollis justo. Suspendisse eu ligula. Nulla facilisi. Donec id justo. Praesent porttitor, nulla vitae posuere iaculis, arcu nisl dignissim dolor, a pretium mi sem ut ipsum. Curabitur suscipit suscipit tellus. Praesent vestibulum dapibus nibh. Etiam iaculis nunc ac metus. Ut id nisl quis enim dignissim sagittis. Etiam sollicitudin, ipsum eu pulvinar rutrum, tellus ipsum laoreet sapien, quis venenatis ante odio sit amet eros. Proin magna. Duis vel nibh at velit scelerisque suscipit. Curabitur turpis. Vestibulum suscipit nulla quis orci. Fusce ac felis sit amet ligula pharetra condimentum. Maecenas egestas arcu quis ligula mattis placerat. Duis lobortis massa imperdiet quam. Suspendisse potenti. Pellentesque commodo eros a enim. Vestibulum turpis sem, aliquet eget, lobortis pellentesque, rutrum eu, nisl. Sed libero. Aliquam erat volutpat. Etiam vitae tortor. Morbi vestibulum volutpat enim. Aliquam eu nunc. Nunc sed turpis. Sed mollis, eros et ultrices tempus, mauris ipsum aliquam libero'
-                )
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t1')
-                ->manufacturer('m2')
-                ->price(100)
-                ->releaseDate('2019-01-01 10:13:00')
-                ->purchasePrice(0)
-                ->stock(10)
-                ->category('cs1')
-                ->build(),
-
-            // no rule = 70€
-            (new ProductBuilder($this->ids, 'p.1'))
-                ->price(70)
-                ->price(99, null, 'currency')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->build(),
-
-            // no rule = 79€
-            (new ProductBuilder($this->ids, 'p.2'))
-                ->price(80)
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.2.1'))
-                        ->build()
-                )
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.2.2'))
-                        ->price(79)
-                        ->price(88, null, 'currency')
-                        ->build()
-                )
-                ->build(),
-
-            // no rule = 90€
-            (new ProductBuilder($this->ids, 'p.3'))
-                ->price(90)
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.3.1'))
-                        ->build()
-                )
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.3.2'))
-                        ->price(100)
-                        ->build()
-                )
-                ->build(),
-
-            // no rule = 60€
-            (new ProductBuilder($this->ids, 'p.4'))
-                ->price(100)
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.4.1'))
-                        ->price(60)
-                        ->build()
-                )
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.4.2'))
-                        ->price(70)
-                        ->price(101, null, 'currency')
-                        ->build()
-                )
-                ->build(),
-
-            // no rule = 110€  ||  rule-a = 130€
-            (new ProductBuilder($this->ids, 'p.5'))
-                ->price(110)
-                ->prices('rule-a', 130)
-                ->prices('rule-a', 120, 'default', null, 3)
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->build(),
-
-            // no rule = 120€  ||  rule-a = 130€
-            (new ProductBuilder($this->ids, 'p.6'))
-                ->price(120)
-                ->prices('rule-a', 150)
-                ->prices('rule-a', 140, 'default', null, 3)
-                ->prices('rule-a', 199, 'currency')
-                ->prices('rule-a', 188, 'currency', null, 3)
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.6.1'))
-                        ->prices('rule-a', 140)
-                        ->prices('rule-a', 130, 'default', null, 3)
-                        ->prices('rule-a', 188, 'currency')
-                        ->prices('rule-a', 177, 'currency', null, 3)
-                        ->build()
-                )
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.6.2'))
-                        ->build()
-                )
-                ->build(),
-
-            // no rule = 130€  ||   rule-a = 150€
-            (new ProductBuilder($this->ids, 'p.7'))
-                ->price(130)
-                ->prices('rule-a', 150)
-                ->prices('rule-a', 140, 'default', null, 3)
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.7.1'))
-                        ->prices('rule-a', 160)
-                        ->prices('rule-a', 150, 'default', null, 3)
-                        ->build()
-                )
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.7.2'))
-                        ->build()
-                )
-                ->build(),
-
-            // no rule = 140€  ||  rule-a = 170€
-            (new ProductBuilder($this->ids, 'p.8'))
-                ->price(140)
-                ->prices('rule-a', 160)
-                ->prices('rule-a', 150, 'default', null, 3)
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.8.1'))
-                        ->prices('rule-a', 170)
-                        ->prices('rule-a', 160, 'default', null, 3)
-                        ->build()
-                )
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.8.2'))
-                        ->prices('rule-a', 180)
-                        ->prices('rule-a', 170, 'default', null, 3)
-                        ->build()
-                )
-                ->build(),
-
-            // no-rule = 150€   ||   rule-a  = 160€
-            (new ProductBuilder($this->ids, 'p.9'))
-                ->price(150)
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.9.1'))
-                        ->prices('rule-a', 170)
-                        ->prices('rule-a', 160, 'default', null, 3)
-                        ->build()
-                )
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.9.2'))
-                        ->price(160)
-                        ->build()
-                )
-                ->build(),
-
-            // no rule = 150€  ||  rule-a = 150€
-            (new ProductBuilder($this->ids, 'p.10'))
-                ->price(160)
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.10.1'))
-                        ->prices('rule-a', 170)
-                        ->prices('rule-a', 160, 'default', null, 3)
-                        ->build()
-                )
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.10.2'))
-                        ->price(150)
-                        ->build()
-                )
-                ->build(),
-
-            // no-rule = 170  || rule-a = 190  || rule-b = 200
-            (new ProductBuilder($this->ids, 'p.11'))
-                ->price(170)
-                ->prices('rule-a', 190)
-                ->prices('rule-a', 180, 'default', null, 3)
-                ->prices('rule-b', 200)
-                ->prices('rule-b', 190, 'default', null, 3)
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.11.1'))
-                        ->build()
-                )
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.11.2'))
-                        ->build()
-                )
-                ->build(),
-
-            // no rule = 180 ||  rule-a = 210  || rule-b = 180 || a+b = 210 || b+a = 210/190
-            (new ProductBuilder($this->ids, 'p.12'))
-                ->price(180)
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.12.1'))
-                        ->prices('rule-a', 220)
-                        ->prices('rule-a', 210, 'default', null, 3)
-                        ->build()
-                )
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.12.2'))
-                        ->prices('rule-a', 210)
-                        ->prices('rule-a', 200, 'default', null, 3)
-                        ->prices('rule-b', 200)
-                        ->prices('rule-b', 190, 'default', null, 3)
-                        ->build()
-                )
-                ->build(),
-
-            // no rule = 190 ||  rule-a = 220  || rule-b = 190 || a+b = 220 || b+a = 220/200
-            (new ProductBuilder($this->ids, 'p.13'))
-                ->price(190)
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->prices('rule-a', 230)
-                ->prices('rule-a', 220, 'default', null, 3)
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.13.1'))
-                        ->build()
-                )
-                ->variant(
-                    (new ProductBuilder($this->ids, 'v.13.2'))
-                        ->prices('rule-a', 220)
-                        ->prices('rule-a', 210, 'default', null, 3)
-                        ->prices('rule-b', 210)
-                        ->prices('rule-b', 200, 'default', null, 3)
-                        ->build()
-                )
-                ->build(),
-
-            (new ProductBuilder($this->ids, 'dal-1'))
-                ->name('Default')
-                ->category('navi')
-                ->customField('testField', 'Silk')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t1')
-                ->manufacturer('m1')
-                ->price(50)
-                ->releaseDate('2019-01-01 10:11:00')
-                ->purchasePrice(0)
-                ->stock(2)
-                ->category('c1')
-                ->category('c2')
-                ->property('red', 'color')
-                ->property('xl', 'size')
-                ->add('weight', 12.3)
-                ->add('height', 9.3)
-                ->add('width', 1.3)
-                ->translation($secondLanguage, 'name', 'Second')
-                ->translation($thirdLanguage, 'name', 'Third')
-                ->build(),
-
-            (new ProductBuilder($this->ids, 'dal-2'))
-                ->name('Default')
-                ->category('pants')
-                ->customField('testField', 'Silk')
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->tax('t1')
-                ->manufacturer('m1')
-                ->price(60)
-                ->releaseDate('2019-01-01 10:11:00')
-                ->purchasePrice(0)
-                ->stock(2)
-                ->category('c1')
-                ->category('c2')
-                ->property('red', 'color')
-                ->property('xl', 'size')
-                ->add('weight', 12.3)
-                ->add('height', 9.3)
-                ->add('width', 1.3)
-                ->translation($secondLanguage, 'name', 'Second')
-                ->translation($thirdLanguage, 'name', 'Third')
-                ->variant(
-                    (new ProductBuilder($this->ids, 'dal-2.1'))
-                        ->translation($secondLanguage, 'name', 'Variant 1 Second')
-                        ->translation($secondLanguage, 'description', 'Variant 1 Second Desc')
-                        ->build()
-                )
-                ->variant(
-                    (new ProductBuilder($this->ids, 'dal-2.2'))
-                        ->translation($secondLanguage, 'name', null)
-                        ->translation($secondLanguage, 'description', 'Variant 2 Second Desc')
-                        ->translation($thirdLanguage, 'name', 'Variant 2 Third')
-                        ->translation($thirdLanguage, 'description', 'Variant 2 Third Desc')
-                        ->build()
-                )
-                ->build(),
-            (new ProductBuilder($this->ids, 'dal-3'))
-                ->price(50)
-                ->customField('a', '1')
-                ->translation($secondLanguage, 'customFields', ['a' => '2', 'b' => '1'])
-                ->translation($thirdLanguage, 'customFields', ['a' => '3', 'b' => '2', 'c' => '1'])
-                ->build(),
-
-            (new ProductBuilder($this->ids, 's-1'))
-                ->name('Default-1')
-                ->price(1)
-                ->visibility(TestDefaults::SALES_CHANNEL, ProductVisibilityDefinition::VISIBILITY_ALL)
-                ->build(),
-            (new ProductBuilder($this->ids, 's-2'))
-                ->name('Default-2')
-                ->price(1)
-                ->visibility(TestDefaults::SALES_CHANNEL, ProductVisibilityDefinition::VISIBILITY_LINK)
-                ->visibility(Defaults::SALES_CHANNEL_TYPE_STOREFRONT, ProductVisibilityDefinition::VISIBILITY_SEARCH)
-                ->build(),
-            (new ProductBuilder($this->ids, 's-3'))
-                ->name('Default-3')
-                ->price(1)
-                ->visibility(TestDefaults::SALES_CHANNEL, ProductVisibilityDefinition::VISIBILITY_SEARCH)
-                ->visibility(Defaults::SALES_CHANNEL_TYPE_STOREFRONT, ProductVisibilityDefinition::VISIBILITY_LINK)
-                ->build(),
-            (new ProductBuilder($this->ids, 's-4'))
-                ->name('Default-4')
-                ->price(1)
-                ->visibility(Defaults::SALES_CHANNEL_TYPE_STOREFRONT, ProductVisibilityDefinition::VISIBILITY_ALL)
-                ->add('downloads', [
-                    [
-                        'media' => [
-                            'fileName' => 'foo',
-                            'fileExtension' => 'bar',
-                            'private' => true,
-                        ],
-                    ],
-                ])
-                ->build(),
-            (new ProductBuilder($this->ids, 'variant-1'))
-                ->name('Main-Product-1')
-                ->price(1)
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->variant(
-                    (new ProductBuilder($this->ids, 'variant-1.1'))
-                        ->build()
-                )
-                ->variant(
-                    (new ProductBuilder($this->ids, 'variant-1.2'))
-                        ->build()
-                )
-                ->build(),
-            (new ProductBuilder($this->ids, 'variant-2'))
-                ->name('Main-Product-2')
-                ->price(1)
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->variant(
-                    (new ProductBuilder($this->ids, 'variant-2.1'))
-                        ->build()
-                )
-                ->variant(
-                    (new ProductBuilder($this->ids, 'variant-2.2'))
-                        ->build()
-                )
-                ->build(),
-            (new ProductBuilder($this->ids, 'variant-3'))
-                ->name('Main-Product-2')
-                ->price(1)
-                ->visibility(TestDefaults::SALES_CHANNEL)
-                ->customField('test_int', 8000000000)
-                ->variant(
-                    (new ProductBuilder($this->ids, 'variant-3.1'))
-                        ->customField('random', 1)
-                        ->build()
-                )
-                ->variant(
-                    (new ProductBuilder($this->ids, 'variant-3.2'))
-                        ->customField('random', 1)
-                        ->build()
-                )
-                ->build(),
-            (new ProductBuilder($this->ids, 'sort.glumanda'))
-                ->tag('shopware')
-                ->price(1)
-                ->visibility()
-                ->build(),
-            (new ProductBuilder($this->ids, 'sort.bisasam'))
-                ->tag('amazon')
-                ->price(1)
-                ->visibility()
-                ->build(),
-            (new ProductBuilder($this->ids, 'sort.pikachu'))
-                ->tag('zalando')
-                ->price(1)
-                ->visibility()
-                ->build(),
-        ];
+        $products = ProductsFixture::get($this->ids, $secondLanguage, $thirdLanguage);
 
         $this->productRepository->create($products, $this->context);
 
@@ -4011,8 +3101,9 @@ class ElasticsearchProductTest extends TestCase
                     'name' => \sprintf('name-%s', $id),
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                     'parentId' => $parentId,
+                    'active' => true,
                     'translationCode' => [
-                        'code' => Uuid::randomHex(),
+                        'code' => 'de-DE-' . Uuid::randomHex(),
                         'name' => 'Test locale',
                         'territory' => 'test',
                     ],

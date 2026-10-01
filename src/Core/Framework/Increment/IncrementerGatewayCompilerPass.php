@@ -17,12 +17,11 @@ class IncrementerGatewayCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
-        /** @var array{type?: string, config?: array<string, mixed>}[] $services */
         $services = $container->getParameter('shopware.increment');
         $tag = 'shopware.increment.gateway';
 
         foreach ($services as $pool => $service) {
-            $type = $service['type'] ?? null;
+            $type = $service['type'];
 
             if (!\is_string($type)) {
                 throw IncrementException::wrongGatewayType($pool);
@@ -34,7 +33,7 @@ class IncrementerGatewayCompilerPass implements CompilerPassInterface
             // If service is not registered directly in the container, try to resolve them using fallback gateway
             if (!$container->hasDefinition($active)) {
                 if (\array_key_exists('config', $service)) {
-                    $config = (array) $service['config'];
+                    $config = $service['config'];
                 }
 
                 $active = $this->resolveTypeDefinition($container, $pool, $type, $config);

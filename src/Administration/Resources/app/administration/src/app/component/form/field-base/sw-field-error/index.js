@@ -5,12 +5,10 @@
 import template from './sw-field-error.html.twig';
 import './sw-field-error.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-field-error', {
+export default {
     template,
 
     props: {
@@ -28,7 +26,7 @@ Component.register('sw-field-error', {
             }
 
             const translationKey = `global.error-codes.${this.error.code}`;
-            const translation = this.$tc(translationKey, 1, this.formatParameters(this.error.parameters) || {});
+            const translation = this.$t(translationKey, 1, this.formatParameters(this.error.parameters) || {});
 
             if (translation === translationKey) {
                 return this.error.detail;
@@ -54,4 +52,4 @@ Component.register('sw-field-error', {
             return formattedParameters;
         },
     },
-});
+};

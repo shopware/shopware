@@ -1,5 +1,5 @@
 name: Technical TODO
-description: For Improvements and Tasks related to refactoring, testing, perf, docs, spikes, config changes, etc.
+description: For Improvements and Tasks related to refactoring, testing, design, perf, docs, spikes, config changes, etc.
 labels: [Technical TODO]
 body:
     - type: markdown

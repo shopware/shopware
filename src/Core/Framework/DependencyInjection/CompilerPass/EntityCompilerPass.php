@@ -2,6 +2,9 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeMappingDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -9,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
 use Shopware\Core\Framework\Log\Package;
@@ -51,6 +55,11 @@ class EntityCompilerPass implements CompilerPassInterface
             if (!\is_subclass_of($class, EntityDefinition::class)) {
                 throw DependencyInjectionException::taggedServiceHasWrongType($serviceId, 'shopware.entity.definition', EntityDefinition::class);
             }
+
+            if (\in_array($class, [AttributeEntityDefinition::class, AttributeTranslationDefinition::class, AttributeMappingDefinition::class], true)) {
+                continue;
+            }
+
             $instance = new $class();
 
             $entityNameMap[$instance->getEntityName()] = $serviceId;
@@ -71,6 +80,7 @@ class EntityCompilerPass implements CompilerPassInterface
                         new Reference(EntityAggregatorInterface::class),
                         new Reference('event_dispatcher'),
                         new Reference(EntityLoadedEventFactory::class),
+                        new Reference(DalSearchInstrumentor::class),
                     ]
                 );
                 $container->setDefinition($repositoryId, $repository);

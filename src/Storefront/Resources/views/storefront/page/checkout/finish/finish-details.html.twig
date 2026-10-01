@@ -1,6 +1,7 @@
 {% block page_checkout_finish_details_inner %}
     {% block page_checkout_finish_data %}
-        <div class="card checkout-card">
+        <div class="card checkout-card"
+             data-checkout-customer-storage-reset="true">
             <div class="card-body">
                 {% block page_checkout_finish_header %}
                     <h1 class="finish-header">
@@ -18,6 +19,23 @@
                     <p class="finish-ordernumber" data-order-number="{{ page.order.orderNumber }}">
                         {{ 'checkout.finishInfoOrdernumber'|trans|sw_sanitize }}{{ page.order.orderNumber }}
                     </p>
+                {% endblock %}
+
+                {% block page_checkout_finish_enhanced_conversions %}
+                    {% if storefrontAnalytics and storefrontAnalytics.isActive() and storefrontAnalytics.isTrackOrders() and storefrontAnalytics.isEnhancedConversions() %}
+                        {# Google Enhanced Conversions requires email normalization before hashing:
+                           https://support.google.com/google-ads/answer/13258081 #}
+                        {% set email = page.order.orderCustomer.email|lower|trim %}
+                        {% set emailParts = email|split('@') %}
+                        {% if emailParts[1] == 'gmail.com' or emailParts[1] == 'googlemail.com' %}
+                            {% set email = emailParts[0]|replace({'.': ''}) ~ '@' ~ emailParts[1] %}
+                        {% endif %}
+                        <script>
+                            gtag('set', 'user_data', {
+                                'sha256_email_address': '{{ email|sha256 }}'
+                            });
+                        </script>
+                    {% endif %}
                 {% endblock %}
 
                 {% block page_checkout_finish_hidden_information_line_items %}
@@ -41,6 +59,15 @@
                             {% if page.changedPayment != true %}
                                 <p class="finish-teaser">{{ 'checkout.finishInfoConfirmationMail'|trans|sw_sanitize }}</p>
                             {% endif %}
+                        {% endblock %}
+
+                        {% block page_checkout_finish_create_account %}
+                        {% if context.customer.guest %}
+                            <div class="finish-create-account-container">
+                                <h5>{{ 'checkout.createAccountHeading'|trans|sw_sanitize }}</h5>
+                                <a class="btn btn-light" href="{{ url('frontend.account.convert.page') }}">{{ 'checkout.createAccountButton'|trans|sw_sanitize }}</a>
+                            </div>
+                        {% endif %}
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -67,18 +94,34 @@
                             {% endblock %}
 
                             {% block page_checkout_finish_order_payment_method %}
-                                <p>
-                                    <strong>{{ 'checkout.finishInfoPayment'|trans|sw_sanitize }}</strong>
-                                    {{ page.order.transactions.last.paymentMethod.translated.name }}
-                                </p>
+                                {% if feature('v6.8.0.0') %}
+                                    <p>
+                                        <strong>{{ 'checkout.finishInfoPayment'|trans|sw_sanitize }}</strong>
+                                        {{ page.order.primaryOrderTransaction.paymentMethod.translated.name }}
+                                    </p>
+                                {% else %}
+                                    <p>
+                                        <strong>{{ 'checkout.finishInfoPayment'|trans|sw_sanitize }}</strong>
+                                        {{ page.order.transactions.last.paymentMethod.translated.name }}
+                                    </p>
+                                {% endif %}
                             {% endblock %}
 
                             {% block page_checkout_finish_order_dispatch_method %}
-                                {% if page.order.deliveries.first.shippingMethod is defined %}
-                                    <p>
-                                        <strong>{{ 'checkout.finishInfoShipping'|trans|sw_sanitize }}</strong>
-                                        {{ page.order.deliveries.first.shippingMethod.translated.name }}
-                                    </p>
+                                {% if feature('v6.8.0.0') %}
+                                    {% if page.order.primaryOrderDelivery is defined %}
+                                        <p>
+                                            <strong>{{ 'checkout.finishInfoShipping'|trans|sw_sanitize }}</strong>
+                                            {{ page.order.primaryOrderDelivery.shippingMethod.translated.name }}
+                                        </p>
+                                    {% endif %}
+                                {% else %}
+                                    {% if page.order.deliveries.first.shippingMethod is defined %}
+                                        <p>
+                                            <strong>{{ 'checkout.finishInfoShipping'|trans|sw_sanitize }}</strong>
+                                            {{ page.order.deliveries.first.shippingMethod.translated.name }}
+                                        </p>
+                                    {% endif %}
                                 {% endif %}
                             {% endblock %}
                         </div>

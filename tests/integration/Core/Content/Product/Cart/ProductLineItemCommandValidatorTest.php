@@ -10,6 +10,8 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Exception\ProductLineItemDifferentIdException;
+use Shopware\Core\Content\Product\Exception\ProductLineItemInconsistentException;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -17,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\TaxAddToSalesChannelTestBehaviour;
@@ -31,6 +34,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductLineItemCommandValidatorTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
@@ -82,17 +86,17 @@ class ProductLineItemCommandValidatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $lineItems = $this->lineItemRepository->search($criteria, $context);
+        $lineItems = $this->lineItemRepository->search($criteria, $context)->getEntities();
 
         static::assertCount(1, $lineItems);
         /** @var OrderLineItemEntity $first */
         $first = $lineItems->first();
 
-        static::assertEquals($id, $first->getReferencedId());
-        static::assertEquals($id, $first->getProductId());
+        static::assertSame($id, $first->getReferencedId());
+        static::assertSame($id, $first->getProductId());
         static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
-        static::assertEquals(LineItem::PRODUCT_LINE_ITEM_TYPE, $first->getType());
+        static::assertSame(LineItem::PRODUCT_LINE_ITEM_TYPE, $first->getType());
     }
 
     public function testUpdateLineItemQuantity(): void
@@ -106,14 +110,14 @@ class ProductLineItemCommandValidatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $lineItems = $this->lineItemRepository->search($criteria, $context);
+        $lineItems = $this->lineItemRepository->search($criteria, $context)->getEntities();
 
         static::assertCount(1, $lineItems);
         /** @var OrderLineItemEntity $first */
         $first = $lineItems->first();
 
-        static::assertEquals($id, $first->getReferencedId());
-        static::assertEquals($id, $first->getProductId());
+        static::assertSame($id, $first->getReferencedId());
+        static::assertSame($id, $first->getProductId());
         static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
 
@@ -121,14 +125,14 @@ class ProductLineItemCommandValidatorTest extends TestCase
             ['id' => $first->getId(), 'quantity' => 10],
         ], $context);
 
-        $lineItems = $this->lineItemRepository->search($criteria, $context);
-        $first = $lineItems->getEntities()->first();
+        $lineItems = $this->lineItemRepository->search($criteria, $context)->getEntities();
+        $first = $lineItems->first();
         static::assertNotNull($first);
-        static::assertEquals($id, $first->getReferencedId());
-        static::assertEquals($id, $first->getProductId());
+        static::assertSame($id, $first->getReferencedId());
+        static::assertSame($id, $first->getProductId());
         static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
-        static::assertEquals(10, $first->getQuantity());
+        static::assertSame(10, $first->getQuantity());
     }
 
     public function testUpdateFailsIfProductNumberIsMissing(): void
@@ -143,19 +147,22 @@ class ProductLineItemCommandValidatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $lineItems = $this->lineItemRepository->search($criteria, $context);
+        $lineItems = $this->lineItemRepository->search($criteria, $context)->getEntities();
 
         static::assertCount(1, $lineItems);
 
-        $first = $lineItems->getEntities()->first();
+        $first = $lineItems->first();
         static::assertNotNull($first);
-        static::assertEquals($id, $first->getReferencedId());
-        static::assertEquals($id, $first->getProductId());
+        static::assertSame($id, $first->getReferencedId());
+        static::assertSame($id, $first->getProductId());
         static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
 
-        static::expectException(WriteException::class);
-        static::expectExceptionMessage('To change the product of line item (' . $first->getId() . '), the following properties must also be updated: `productId`, `referenceId`, `payload.productNumber`.');
+        $this->expectExceptionObject(
+            (new WriteException())
+                ->add(new ProductLineItemDifferentIdException($first->getId()))
+                ->add(new ProductLineItemInconsistentException($first->getId()))
+        );
 
         $this->lineItemRepository->update([
             ['id' => $first->getId(), 'productId' => $secondId],
@@ -174,13 +181,13 @@ class ProductLineItemCommandValidatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
 
-        $lineItems = $this->lineItemRepository->search($criteria, $context);
+        $lineItems = $this->lineItemRepository->search($criteria, $context)->getEntities();
 
         static::assertCount(1, $lineItems);
-        $first = $lineItems->getEntities()->first();
+        $first = $lineItems->first();
         static::assertNotNull($first);
-        static::assertEquals($id, $first->getReferencedId());
-        static::assertEquals($id, $first->getProductId());
+        static::assertSame($id, $first->getReferencedId());
+        static::assertSame($id, $first->getProductId());
         static::assertIsArray($first->getPayload());
         static::assertArrayHasKey('productNumber', $first->getPayload());
 

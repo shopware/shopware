@@ -33,19 +33,22 @@ class ConfigValidator extends AbstractManifestValidator
         $config = $this->getConfiguration($manifest->getPath());
 
         $invalids = [];
-        foreach ($config as $card) {
-            foreach ($card['elements'] as $element) {
-                // Rendering of custom admin components via <component> element is not allowed for apps
-                // as it may lead to code execution by apps in the administration
-                if (\array_key_exists('componentName', $element)
-                    && !\in_array($element['componentName'], self::ALLOWED_APP_CONFIGURATION_COMPONENTS, true)
-                ) {
-                    $invalids[] = $element['componentName'];
+
+        foreach ($config as $tab) {
+            foreach ($tab['cards'] as $card) {
+                foreach ($card['elements'] as $element) {
+                    // Rendering of custom admin components via <component> element is not allowed for apps
+                    // as it may lead to code execution by apps in the administration
+                    if (\array_key_exists('componentName', $element)
+                        && !\in_array($element['componentName'], self::ALLOWED_APP_CONFIGURATION_COMPONENTS, true)
+                    ) {
+                        $invalids[] = $element['componentName'];
+                    }
                 }
             }
         }
 
-        if (!empty($invalids)) {
+        if ($invalids !== []) {
             $errors->add(new ConfigurationError($invalids));
         }
 
@@ -59,7 +62,7 @@ class ConfigValidator extends AbstractManifestValidator
     {
         $configPath = \sprintf('%s/Resources/config/config.xml', $appFolder);
 
-        if (!file_exists($configPath)) {
+        if (!\is_file($configPath)) {
             return [];
         }
 

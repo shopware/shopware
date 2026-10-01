@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle;
 
+use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppUpdateParameters;
 use Shopware\Core\Framework\App\Manifest\Manifest;
@@ -14,11 +15,14 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal only for use by the app-system
  *
- * @phpstan-type RegisteredApps = array<string, array{id: string, version: string, roleId: string}>
+ * @phpstan-type RegisteredApps = array<string, array{id: string, version: string, roleId: string, hasUnconfirmedSecrets: bool}>
  */
 #[Package('framework')]
 class AppLifecycleIterator
 {
+    /**
+     * @param EntityRepository<AppCollection> $appRepository
+     */
     public function __construct(
         private readonly EntityRepository $appRepository,
         private readonly AppLoader $appLoader
@@ -59,7 +63,7 @@ class AppLifecycleIterator
                     $appLifecycle->update(
                         $manifest,
                         new AppUpdateParameters(acceptPermissions: $parameters->acceptPermissions),
-                        $app,
+                        ['id' => $app['id']],
                         $context
                     );
                 }
@@ -72,7 +76,7 @@ class AppLifecycleIterator
             }
         }
 
-        if (empty($installAppNames)) {
+        if ($installAppNames === []) {
             $this->deleteNotFoundAndFailedInstallApps($this->getRegisteredApps($context), $successfulUpdates, $appLifecycle, $context);
         }
 
@@ -85,7 +89,7 @@ class AppLifecycleIterator
     private function getRegisteredApps(Context $context): array
     {
         $criteria = (new Criteria())->addFilter(new EqualsFilter('selfManaged', false));
-        $criteria->addFields(['id', 'name', 'aclRoleId', 'version']);
+        $criteria->addFields(['id', 'name', 'aclRoleId', 'version', 'unconfirmedAppSecrets']);
         $apps = $this->appRepository->search($criteria, $context)->getEntities();
 
         $appData = [];
@@ -104,6 +108,7 @@ class AppLifecycleIterator
                 'id' => $id,
                 'version' => $version,
                 'roleId' => $roleId,
+                'hasUnconfirmedSecrets' => $app->get('unconfirmedAppSecrets') !== null,
             ];
         }
 
@@ -125,7 +130,13 @@ class AppLifecycleIterator
             unset($appsFromDb[$app]);
         }
         foreach ($appsFromDb as $appName => $app) {
-            $appLifecycle->delete($appName, $app, $context);
+            // Pending secret from an interrupted install — a later app:install recovers it; this refresh
+            // path would otherwise uninstall and destroy the app, so skip.
+            if ($app['hasUnconfirmedSecrets']) {
+                continue;
+            }
+
+            $appLifecycle->uninstall($appName, ['id' => $app['id']], $context);
         }
     }
 }

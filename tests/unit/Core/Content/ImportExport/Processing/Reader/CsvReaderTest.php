@@ -18,6 +18,33 @@ class CsvReaderTest extends TestCase
 {
     private const BOM_UTF8 = "\xEF\xBB\xBF";
 
+    /**
+     * @var list<array{process: resource, stdout: resource, stderr: resource}>
+     */
+    private array $openProcesses = [];
+
+    protected function tearDown(): void
+    {
+        foreach ($this->openProcesses as ['process' => $process, 'stdout' => $stdout, 'stderr' => $stderr]) {
+            if (\is_resource($stdout)) {
+                fclose($stdout);
+            }
+
+            if (\is_resource($stderr)) {
+                stream_get_contents($stderr);
+                fclose($stderr);
+            }
+
+            if (\is_resource($process)) {
+                proc_close($process);
+            }
+        }
+
+        $this->openProcesses = [];
+
+        parent::tearDown();
+    }
+
     public function testSimpleCsv(): void
     {
         $content = implode(\PHP_EOL, [
@@ -62,6 +89,22 @@ class CsvReaderTest extends TestCase
         static::assertIsResource($resource);
         $record = $this->getFirst($reader->read(new Config([], [], []), $resource, $offset));
         static::assertNull($record);
+    }
+
+    public function testHeaderOnlyFileAdvancesOffsetToEof(): void
+    {
+        $content = 'url http://127.0.0.1:8000/media/%C3%9Fhopware-log%C3%B6.png';
+
+        $reader = new CsvReader();
+        $resource = fopen('php://temp', 'r+');
+        static::assertIsResource($resource);
+        fwrite($resource, $content);
+        rewind($resource);
+
+        $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
+
+        static::assertSame([], $result);
+        static::assertSame(\strlen($content), $reader->getOffset());
     }
 
     public function testHeader(): void
@@ -153,6 +196,71 @@ class CsvReaderTest extends TestCase
         static::assertSame(['foo' => self::BOM_UTF8 . 'asdf', 'bar' => 'zxcv'], $result[1]);
     }
 
+    public function testReadsNonSeekableStream(): void
+    {
+        $content = self::BOM_UTF8 . 'foo;bar' . \PHP_EOL;
+        $content .= '1;2' . \PHP_EOL;
+        $content .= '"asdf";"zxcv"' . \PHP_EOL;
+
+        $reader = new CsvReader();
+        $resource = $this->openNonSeekableStream($content);
+        $result = $this->getAll($reader->read(new Config([], [], []), $resource, 0));
+
+        static::assertCount(2, $result);
+        static::assertSame(['foo' => '1', 'bar' => '2'], $result[0]);
+        static::assertSame(['foo' => 'asdf', 'bar' => 'zxcv'], $result[1]);
+    }
+
+    public function testIncrementalReadOnNonSeekableStream(): void
+    {
+        $content = 'foo;bar' . \PHP_EOL;
+        $content .= '"value one foo";"value one bar"' . \PHP_EOL;
+        $content .= '"value two foo";"value two bar"' . \PHP_EOL;
+        $content .= '100;200' . \PHP_EOL;
+
+        $reader = new CsvReader();
+        $resource = $this->openNonSeekableStream($content);
+        $record = $this->getFirst($reader->read(new Config([], [], []), $resource, 0));
+        static::assertSame(['foo' => 'value one foo', 'bar' => 'value one bar'], $record);
+
+        $offset = $reader->getOffset();
+
+        $reader = new CsvReader();
+        $resource = $this->openNonSeekableStream($content);
+        $record = $this->getFirst($reader->read(new Config([], [], []), $resource, $offset));
+        static::assertSame(['foo' => 'value two foo', 'bar' => 'value two bar'], $record);
+
+        $offset = $reader->getOffset();
+
+        $reader = new CsvReader();
+        $resource = $this->openNonSeekableStream($content);
+        $record = $this->getFirst($reader->read(new Config([], [], []), $resource, $offset));
+        static::assertSame(['foo' => '100', 'bar' => '200'], $record);
+    }
+
+    public function testIncrementalReadOnNonSeekableStreamWithOffsetLargerThanSeekChunkSize(): void
+    {
+        $largeValue = str_repeat('thisIsATest', 1000);
+        $content = 'foo;bar' . \PHP_EOL;
+        $content .= $largeValue . ';value one bar' . \PHP_EOL;
+        $content .= 'value two foo;value two bar' . \PHP_EOL;
+
+        $reader = new CsvReader();
+        $resource = $this->openNonSeekableStream($content);
+        $record = $this->getFirst($reader->read(new Config([], [], []), $resource, 0));
+
+        static::assertSame(['foo' => $largeValue, 'bar' => 'value one bar'], $record);
+
+        $offset = $reader->getOffset();
+        static::assertGreaterThan(1024, $offset);
+
+        $reader = new CsvReader();
+        $resource = $this->openNonSeekableStream($content);
+        $record = $this->getFirst($reader->read(new Config([], [], []), $resource, $offset));
+
+        static::assertSame(['foo' => 'value two foo', 'bar' => 'value two bar'], $record);
+    }
+
     /**
      * @param iterable<array<string>> $iterable
      *
@@ -181,5 +289,41 @@ class CsvReaderTest extends TestCase
         }
 
         return null;
+    }
+
+    /**
+     * @return resource
+     */
+    private function openNonSeekableStream(string $content)
+    {
+        $command = \sprintf(
+            'fwrite(STDOUT, base64_decode(%s));',
+            var_export(base64_encode($content), true)
+        );
+        $process = proc_open(
+            [\PHP_BINARY, '-r', $command],
+            [
+                1 => ['pipe', 'w'],
+                2 => ['pipe', 'w'],
+            ],
+            $pipes
+        );
+
+        static::assertIsResource($process);
+        static::assertIsArray($pipes);
+
+        $resource = $pipes[1] ?? null;
+        static::assertIsResource($resource);
+        static::assertArrayHasKey(2, $pipes);
+        static::assertIsResource($pipes[2]);
+        static::assertFalse(stream_get_meta_data($resource)['seekable']);
+
+        $this->openProcesses[] = [
+            'process' => $process,
+            'stdout' => $resource,
+            'stderr' => $pipes[2],
+        ];
+
+        return $resource;
     }
 }

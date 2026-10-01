@@ -25,12 +25,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\UpdatedAtField;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\ArrayEntity;
 
 #[Package('framework')]
 abstract class EntityDefinition
 {
+    final public const TRANSLATED_FIELD = 'translated';
+
     protected ?CompiledFieldCollection $fields = null;
 
     /**
@@ -56,13 +59,26 @@ abstract class EntityDefinition
 
     private EntityDefinition|false|null $parentDefinition = false;
 
-    private string $className;
-
     private ?FieldVisibility $fieldVisibility = null;
 
+    /**
+     * @deprecated tag:v6.8.0 - Method will be removed as it does nothing
+     */
     public function __construct()
     {
-        $this->className = static::class;
+        // When a child calls parent::__construct(), the next stack frame is that child's constructor.
+        // An inherited constructor has its instantiation site as the caller instead, so it remains compatible with the removal.
+        $caller = \debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1] ?? [];
+        $callerClass = $caller['class'] ?? null;
+
+        if (($caller['function'] ?? null) !== '__construct' || !\is_string($callerClass) || !\is_subclass_of($callerClass, self::class)) {
+            return;
+        }
+
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
     }
 
     /**
@@ -121,6 +137,9 @@ abstract class EntityDefinition
         }
     }
 
+    /**
+     * @return non-empty-string
+     */
     abstract public function getEntityName(): string;
 
     final public function getFields(): CompiledFieldCollection
@@ -129,10 +148,25 @@ abstract class EntityDefinition
             return $this->fields;
         }
 
-        $fields = $this->defineFields();
+        // @deprecated tag:v6.8.0 - remove feature flag check, keep only the new behavior
+        if (Feature::isActive('v6.8.0.0')) {
+            // New behavior: defaultFields first, then defineFields (allows override)
+            $fields = new FieldCollection();
 
-        foreach ($this->defaultFields() as $field) {
-            $fields->add($field);
+            foreach ($this->defaultFields() as $field) {
+                $fields->add($field);
+            }
+
+            foreach ($this->defineFields() as $field) {
+                $fields->add($field);
+            }
+        } else {
+            // Old behavior: defineFields first, then defaultFields (default fields override)
+            $fields = $this->defineFields();
+
+            foreach ($this->defaultFields() as $field) {
+                $fields->add($field);
+            }
         }
 
         foreach ($this->extensions as $extension) {
@@ -162,11 +196,11 @@ abstract class EntityDefinition
                 }
 
                 if (!$field instanceof FkField) {
-                    throw new \Exception('Only AssociationFields, FkFields/ReferenceVersionFields for a ManyToOneAssociationField or fields flagged as Runtime can be added as Extension.');
+                    throw DataAbstractionLayerException::wrongFieldTypeForExtension();
                 }
 
                 if (!$this->hasAssociationWithStorageName($field->getStorageName(), $new)) {
-                    throw new \Exception(\sprintf('FkField %s has no configured OneToOneAssociationField or ManyToOneAssociationField in entity %s', $field->getPropertyName(), $this->className));
+                    throw DataAbstractionLayerException::foreignKeyHasNoAssociationField($field->getPropertyName(), $this->getClass());
                 }
 
                 $fields->add($field);
@@ -181,11 +215,21 @@ abstract class EntityDefinition
             if ($field instanceof TranslationsAssociationField) {
                 $this->translationField = $field;
                 $fields->add(
-                    (new JsonField('translated', 'translated'))->addFlags(new ApiAware(), new Computed(), new Runtime())
+                    (new JsonField(self::TRANSLATED_FIELD, self::TRANSLATED_FIELD))->addFlags(new ApiAware(), new Computed(), new Runtime())
                 );
 
                 break;
             }
+        }
+
+        foreach ($this->extensions as $extension) {
+            // To prevent adding or removing fields we use a new FieldCollection which just contains the references to the fields.
+            // Key by property name so extensions can look fields up via FieldCollection::get().
+            $modifiable = new FieldCollection();
+            foreach ($fields as $field) {
+                $modifiable->set($field->getPropertyName(), $field);
+            }
+            $extension->modifyFields($modifiable);
         }
 
         $this->fields = $fields->compile($this->registry);
@@ -221,7 +265,7 @@ abstract class EntityDefinition
 
         /** @var array<string> $internalProperties */
         $internalProperties = $this->getFields()
-            ->fmap(function (Field $field): ?string {
+            ->fmap(static function (Field $field): ?string {
                 if ($field->is(ApiAware::class)) {
                     return null;
                 }
@@ -304,7 +348,7 @@ abstract class EntityDefinition
             return $this->primaryKeys;
         }
 
-        $fields = $this->getFields()->filter(function (Field $field): bool {
+        $fields = $this->getFields()->filter(static function (Field $field): bool {
             return $field->is(PrimaryKey::class);
         });
 
@@ -386,7 +430,7 @@ abstract class EntityDefinition
         $field = $this->getField($property);
 
         if ($field === null) {
-            throw new \RuntimeException(\sprintf('Field %s not found', $property));
+            throw DataAbstractionLayerException::fieldNotFound($property);
         }
 
         return $field->getSerializer()->decode($field, $value);
@@ -406,6 +450,11 @@ abstract class EntityDefinition
     public function getExtensionFields(): array
     {
         return $this->getFields()->getExtensionFields();
+    }
+
+    public function getRestrictDeleteMetaFields(): FieldCollection
+    {
+        return new FieldCollection([]);
     }
 
     protected function getParentDefinitionClass(): ?string

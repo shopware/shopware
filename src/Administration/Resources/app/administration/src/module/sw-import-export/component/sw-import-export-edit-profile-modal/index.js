@@ -21,10 +21,7 @@ export default {
         'importExportUpdateByMapping',
     ],
 
-    emits: [
-        'profile-close',
-        'profile-save',
-    ],
+    emits: ['profile-close', 'profile-save'],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -39,7 +36,6 @@ export default {
         show: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default() {
                 return true;
             },
@@ -48,8 +44,10 @@ export default {
 
     data() {
         return {
-            missingRequiredFields: [],
+            duplicateMappings: [],
             systemRequiredFields: {},
+            missingRequiredFields: [],
+            activeTab: 'general',
         };
     },
 
@@ -72,22 +70,44 @@ export default {
 
         modalTitle() {
             return this.isNew
-                ? this.$tc('sw-import-export.profile.newProfileLabel')
-                : this.$tc('sw-import-export.profile.editProfileLabel');
+                ? this.$t('sw-import-export.profile.newProfileLabel')
+                : this.$t('sw-import-export.profile.editProfileLabel');
         },
 
         saveLabelSnippet() {
             return this.isNew
-                ? this.$tc('sw-import-export.profile.addProfileLabel')
-                : this.$tc('sw-import-export.profile.saveProfileLabel');
+                ? this.$t('sw-import-export.profile.addProfileLabel')
+                : this.$t('sw-import-export.profile.saveProfileLabel');
         },
 
         showValidationError() {
-            return this.missingRequiredFields.length > 0;
+            return this.missingRequiredFields.length > 0 || this.duplicateMappings.length > 0;
         },
 
         profileRepository() {
             return this.repositoryFactory.create('import_export_profile');
+        },
+
+        profileTabs() {
+            const tabs = [
+                {
+                    label: this.$t('sw-import-export.profile.generalTab'),
+                    name: 'general',
+                },
+                {
+                    label: this.$t('sw-import-export.profile.mappingsTab'),
+                    name: 'mappings',
+                },
+            ];
+
+            if (this.profile.type !== 'export' && this.profile.config.updateEntities !== false) {
+                tabs.push({
+                    label: this.$t('sw-import-export.profile.advancedTab'),
+                    name: 'advanced',
+                });
+            }
+
+            return tabs;
         },
     },
 
@@ -111,7 +131,7 @@ export default {
             this.getParentProfileSelected().then((parentProfile) => {
                 this.checkValidation(parentProfile);
 
-                if (this.missingRequiredFields.length === 0) {
+                if (!this.showValidationError) {
                     this.$emit('profile-save');
                 }
             });
@@ -137,7 +157,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-import-export.profile.messageSearchParentProfileError'),
+                        message: this.$t('sw-import-export.profile.messageSearchParentProfileError'),
                     });
                 });
         },
@@ -149,8 +169,10 @@ export default {
             }
 
             const parentMapping = parentProfile ? parentProfile.mapping : [];
+
             const isOnlyUpdateProfile =
                 this.profile.config.createEntities === false && this.profile.config.updateEntities === true;
+
             const validationErrors = this.importExportProfileMapping.validate(
                 this.profile.sourceEntity,
                 this.profile.mapping,
@@ -158,13 +180,13 @@ export default {
                 isOnlyUpdateProfile,
             );
 
-            if (validationErrors.missingRequiredFields.length > 0) {
-                this.missingRequiredFields = validationErrors.missingRequiredFields;
-            }
+            this.missingRequiredFields = validationErrors.missingRequiredFields;
+            this.duplicateMappings = validationErrors.duplicateMappings;
         },
 
         resetViolations() {
             this.missingRequiredFields = [];
+            this.duplicateMappings = [];
         },
 
         loadSystemRequiredFieldsForEntity(entityName) {

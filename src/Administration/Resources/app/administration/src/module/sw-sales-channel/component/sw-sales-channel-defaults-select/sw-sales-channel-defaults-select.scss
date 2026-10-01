@@ -4,3 +4,14 @@
         display: block;
     }
 }
+
+.sw-sales-channel-detail__assign {
+    .sw-select__selection {
+        height: auto;
+    }
+
+    .sw-block-field__block {
+        height: auto;
+        min-height: var(--scale-size-48);
+    }
+}

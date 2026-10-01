@@ -27,7 +27,7 @@ class StorableFlowTest extends TestCase
 
     public function testGetName(): void
     {
-        static::assertEquals('checkout.order.place', $this->storableFlow->getName());
+        static::assertSame('checkout.order.place', $this->storableFlow->getName());
     }
 
     public function testGetContext(): void
@@ -37,62 +37,72 @@ class StorableFlowTest extends TestCase
 
     public function testGetConfig(): void
     {
-        static::assertEquals(['config' => 'value'], $this->storableFlow->getConfig());
+        static::assertSame(['config' => 'value'], $this->storableFlow->getConfig());
     }
 
-    public function testGetFlowState(): void
+    public function testGetFlowStateWithoutStateThrows(): void
     {
-        static::expectException(FlowException::class);
+        static::expectExceptionObject(FlowException::methodNotCompatible('getFlowState()', StorableFlow::class));
         $this->storableFlow->getFlowState();
-
-        $this->storableFlow->setFlowState(new FlowState());
-
-        static::assertEquals(new FlowState(), $this->storableFlow->getFlowState());
     }
 
-    public function testStop(): void
+    public function testGetFlowStateReturnsSetState(): void
     {
-        static::expectException(FlowException::class);
+        $state = new FlowState();
+
+        $this->storableFlow->setFlowState($state);
+
+        static::assertSame($state, $this->storableFlow->getFlowState());
+    }
+
+    public function testStopWithoutStateThrows(): void
+    {
+        static::expectExceptionObject(FlowException::methodNotCompatible('stop()', StorableFlow::class));
+        $this->storableFlow->stop();
+    }
+
+    public function testStopMarksStateStopped(): void
+    {
+        $this->storableFlow->setFlowState(new FlowState());
+
         $this->storableFlow->stop();
 
-        $this->storableFlow->setFlowState(new FlowState());
-        $this->storableFlow->stop();
         static::assertTrue($this->storableFlow->getFlowState()->stop);
     }
 
     public function testStored(): void
     {
-        static::assertEquals([], $this->storableFlow->stored());
+        static::assertSame([], $this->storableFlow->stored());
         static::assertNull($this->storableFlow->getStore('id'));
 
         $this->storableFlow->setStore('id', '123345');
 
-        static::assertEquals(['id' => '123345'], $this->storableFlow->stored());
-        static::assertEquals('123345', $this->storableFlow->getStore('id'));
+        static::assertSame(['id' => '123345'], $this->storableFlow->stored());
+        static::assertSame('123345', $this->storableFlow->getStore('id'));
     }
 
     public function testData(): void
     {
-        static::assertEquals([], $this->storableFlow->data());
+        static::assertSame([], $this->storableFlow->data());
         static::assertNull($this->storableFlow->getData('id'));
 
         $this->storableFlow->setData('id', '123345');
 
-        static::assertEquals(['id' => '123345'], $this->storableFlow->data());
-        static::assertEquals('123345', $this->storableFlow->getData('id'));
+        static::assertSame(['id' => '123345'], $this->storableFlow->data());
+        static::assertSame('123345', $this->storableFlow->getData('id'));
 
-        $callback = fn () => 'Data';
+        $callback = static fn () => 'Data';
 
         $this->storableFlow->setData('data', $callback);
-        static::assertEquals('Data', $this->storableFlow->getData('data'));
+        static::assertSame('Data', $this->storableFlow->getData('data'));
     }
 
     public function testLazy(): void
     {
-        $callback = fn () => 'Order Data';
+        $callback = static fn () => 'Order Data';
 
         $this->storableFlow->lazy('order', $callback);
 
-        static::assertEquals('Order Data', $this->storableFlow->getData('order'));
+        static::assertSame('Order Data', $this->storableFlow->getData('order'));
     }
 }

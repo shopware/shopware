@@ -12,9 +12,7 @@ async function createWrapper() {
                     <slot></slot>
                 </div>
             `,
-            mixins: [
-                Shopware.Mixin.getByName('sw-form-field'),
-            ],
+            mixins: [Shopware.Mixin.getByName('sw-form-field')],
         },
         {
             attachTo: document.body,
@@ -41,10 +39,6 @@ describe('src/app/mixin/form-field.mixin.ts', () => {
         }
 
         await flushPromises();
-    });
-
-    it('should be a Vue.js component', () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the correct formFieldName when this.name exists', () => {

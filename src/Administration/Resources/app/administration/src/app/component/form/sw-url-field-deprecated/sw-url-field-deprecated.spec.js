@@ -37,11 +37,6 @@ async function createWrapper({ provide, ...additionalOptions } = {}) {
 }
 
 describe('components/form/sw-url-field', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should validate the url correctly', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -261,10 +256,7 @@ describe('components/form/sw-url-field', () => {
         await input.setValue('');
         await input.trigger('blur');
         expect(wrapper.vm.currentUrlValue).toBe('');
-        expect(wrapper.emitted('update:value')).toStrictEqual([
-            ['https://shopware.com'],
-            [''],
-        ]);
+        expect(wrapper.emitted('update:value')).toStrictEqual([['https://shopware.com'], ['']]);
     });
 
     it('injects ariaLabel prop from global injection', async () => {
@@ -294,8 +286,6 @@ describe('components/form/sw-url-field', () => {
         await input.trigger('blur');
         await nextTick();
         expect(wrapper.vm.currentUrlValue).toBe('shopware.com/');
-        expect(wrapper.emitted('update:value')).toStrictEqual([
-            ['https://shopware.com/'],
-        ]);
+        expect(wrapper.emitted('update:value')).toStrictEqual([['https://shopware.com/']]);
     });
 });

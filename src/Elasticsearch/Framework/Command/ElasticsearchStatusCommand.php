@@ -17,11 +17,11 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'es:status',
     description: 'Show the status of the elasticsearch index',
 )]
-#[Package('framework')]
 class ElasticsearchStatusCommand extends Command
 {
     use ConsoleProgressTrait;

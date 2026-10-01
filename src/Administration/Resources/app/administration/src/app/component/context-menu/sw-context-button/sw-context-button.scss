@@ -1,18 +1,26 @@
-@import "~scss/variables";
-
-$sw-context-button-color-text: $color-darkgray-200;
-$sw-context-button-border-radius: $border-radius-default;
-$sw-context-button-color-border: $color-gray-300;
-$sw-context-button-color-disabled: $color-gray-100;
+$sw-context-button-color-text: var(--color-icon-primary-default);
+$sw-context-button-border-radius: var(--border-radius-xs);
+$sw-context-button-color-border: var(--color-border-primary-default);
+$sw-context-button-color-disabled: var(--color-icon-primary-disabled);
 
 .sw-context-button {
     display: inline-block;
     position: relative;
     color: $sw-context-button-color-text;
 
+    &:focus-visible {
+        outline: var(--scale-size-2) solid var(--color-border-brand-default);
+        outline-offset: var(--scale-size-2);
+        border-radius: var(--border-radius-xs);
+
+        .sw-context-button__button {
+            border-color: $sw-context-button-color-border;
+        }
+    }
+
     &.is--disabled {
         .sw-context-button__button {
-            color: lighten($sw-context-button-color-text, 20%);
+            color: var(--color-icon-primary-disabled);
             cursor: initial;
 
             &:hover,
@@ -23,24 +31,18 @@ $sw-context-button-color-disabled: $color-gray-100;
     }
 
     .sw-context-button__button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         color: $sw-context-button-color-text;
         background: 0 none;
         border: 1px solid transparent;
         border-radius: $sw-context-button-border-radius;
         cursor: pointer;
-        height: 24px;
-        line-height: $line-height-sm;
-        padding: 0 8px;
+        height: var(--scale-size-24);
+        line-height: var(--font-line-height-xs);
+        padding: 0 var(--scale-size-8);
         outline: none;
-
-        .mt-icon {
-            width: 16px;
-            height: 16px;
-            padding-top: 5px;
-            padding-right: 1px;
-            padding-bottom: 5px;
-            padding-left: 2px;
-        }
 
         &:hover,
         &.is--active {

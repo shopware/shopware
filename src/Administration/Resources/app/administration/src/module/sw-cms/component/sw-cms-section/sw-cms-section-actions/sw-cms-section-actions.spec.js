@@ -29,12 +29,6 @@ describe('module/sw-cms/component/sw-cms-section-actions', () => {
         });
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain disabled styling', async () => {
         const wrapper = await createWrapper();
         await wrapper.setProps({

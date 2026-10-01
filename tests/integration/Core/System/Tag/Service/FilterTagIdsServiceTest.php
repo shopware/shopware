@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\CountSorting;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -25,6 +26,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('fundamentals@framework')]
 class FilterTagIdsServiceTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -57,8 +59,8 @@ class FilterTagIdsServiceTest extends TestCase
             Context::createDefaultContext()
         );
 
-        static::assertEquals(5, $filteredTagIdsStruct->getTotal());
-        static::assertEquals(
+        static::assertSame(5, $filteredTagIdsStruct->getTotal());
+        static::assertSame(
             [
                 $this->ids->get('a'),
                 $this->ids->get('b'),
@@ -86,8 +88,8 @@ class FilterTagIdsServiceTest extends TestCase
             Context::createDefaultContext()
         );
 
-        static::assertEquals(2, $filteredTagIdsStruct->getTotal());
-        static::assertEquals(
+        static::assertSame(2, $filteredTagIdsStruct->getTotal());
+        static::assertSame(
             [
                 $this->ids->get('unassigned'),
                 $this->ids->get('unique'),
@@ -112,8 +114,8 @@ class FilterTagIdsServiceTest extends TestCase
             Context::createDefaultContext()
         );
 
-        static::assertEquals(5, $filteredTagIdsStruct->getTotal());
-        static::assertEquals(
+        static::assertSame(5, $filteredTagIdsStruct->getTotal());
+        static::assertSame(
             [
                 $this->ids->get('e'),
                 $this->ids->get('d'),
@@ -139,8 +141,8 @@ class FilterTagIdsServiceTest extends TestCase
                 $context
             );
 
-            static::assertEquals(2, $filteredTagIdsStruct->getTotal());
-            static::assertEquals(
+            static::assertSame(2, $filteredTagIdsStruct->getTotal());
+            static::assertSame(
                 [
                     $this->ids->get('g'),
                     $this->ids->get('f'),
@@ -158,8 +160,8 @@ class FilterTagIdsServiceTest extends TestCase
             $versionContext
         );
 
-        static::assertEquals(2, $filteredTagIdsStruct->getTotal());
-        static::assertEquals(
+        static::assertSame(2, $filteredTagIdsStruct->getTotal());
+        static::assertSame(
             [
                 $this->ids->get('f'),
                 $this->ids->get('g'),
@@ -180,22 +182,22 @@ class FilterTagIdsServiceTest extends TestCase
         $request->request->set('assignmentFilter', ['categories']);
         $filteredTagIdsStruct = $this->filterTagIdsService->filterIds($request, $criteria, $context);
 
-        static::assertEquals(5, $filteredTagIdsStruct->getTotal());
+        static::assertSame(5, $filteredTagIdsStruct->getTotal());
 
         $request->request->set('assignmentFilter', ['categories', 'orders']);
         $filteredTagIdsStruct = $this->filterTagIdsService->filterIds($request, $criteria, $context);
 
-        static::assertEquals(6, $filteredTagIdsStruct->getTotal());
+        static::assertSame(6, $filteredTagIdsStruct->getTotal());
 
         $request->request->set('assignmentFilter', ['categories', 'products']);
         $filteredTagIdsStruct = $this->filterTagIdsService->filterIds($request, $criteria, $context);
 
-        static::assertEquals(7, $filteredTagIdsStruct->getTotal());
+        static::assertSame(7, $filteredTagIdsStruct->getTotal());
 
         $request->request->set('assignmentFilter', ['invalid']);
         $filteredTagIdsStruct = $this->filterTagIdsService->filterIds($request, $criteria, $context);
 
-        static::assertEquals(9, $filteredTagIdsStruct->getTotal());
+        static::assertSame(9, $filteredTagIdsStruct->getTotal());
     }
 
     private function prepareTestData(): void
@@ -236,8 +238,9 @@ class FilterTagIdsServiceTest extends TestCase
             ],
         ];
 
-        Context::createDefaultContext()->addState(EntityIndexerRegistry::DISABLE_INDEXING);
-        static::getContainer()->get('tag.repository')->create($tags, Context::createDefaultContext());
+        $context = Context::createDefaultContext();
+        $context->addState(EntityIndexerRegistry::DISABLE_INDEXING);
+        static::getContainer()->get('tag.repository')->create($tags, $context);
     }
 
     /**

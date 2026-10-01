@@ -5,11 +5,14 @@ namespace Shopware\Tests\Unit\Administration\Framework\Routing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Administration\Framework\Routing\AdministrationRouteScope;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(AdministrationRouteScope::class)]
 class AdministrationRouteScopeTest extends TestCase
 {
@@ -32,6 +35,6 @@ class AdministrationRouteScopeTest extends TestCase
 
     public function testAllowedPaths(): void
     {
-        static::assertSame(['admin', 'api'], $this->routeScope->getRoutePrefixes());
+        static::assertSame([AdministrationRouteScope::ALLOWED_PATH, ApiRouteScope::ID], $this->routeScope->getRoutePrefixes());
     }
 }

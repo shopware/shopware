@@ -1,6 +1,10 @@
 {% sw_extends '@Storefront/storefront/layout/meta.html.twig' %}
 
 {% block layout_head_meta_tags_opengraph %}
+    {% set ogTitle = page.product.translated.ogTitle|default(metaTitle) %}
+    {% set ogDescription = page.product.translated.ogDescription|default(metaDescription) %}
+    {% set ogMedia = page.product.openGraphMedia ?? (page.product.cover.media ?? null) %}
+
     <meta property="og:type"
           content="product">
     <meta property="og:site_name"
@@ -8,12 +12,20 @@
     <meta property="og:url"
           content="{{ seoUrl('frontend.detail.page', { productId: page.product.id }) }}">
     <meta property="og:title"
-          content="{{ metaTitle }}">
+          content="{{ ogTitle }}">
 
     <meta property="og:description"
-          content="{{ metaDescription }}">
-    <meta property="og:{{ page.product.cover.media.getMediaType().getName() === 'VIDEO' ? 'video' : 'image' }}"
-          content="{{ page.product.cover.media.url }}">
+          content="{{ ogDescription }}">
+
+    {% if page.product.cover.media.getMediaType().getName() === 'VIDEO' %}
+        <meta property="og:video"
+              content="{{ page.product.cover.media.url }}">
+    {% endif %}
+
+    {% if ogMedia.url is defined %}
+        <meta property="og:image"
+              content="{{ ogMedia.url }}">
+    {% endif %}
 
     {% if page.product.manufacturer %}
         <meta property="product:brand"
@@ -36,11 +48,13 @@
     <meta name="twitter:site"
           content="{{ config('core.basicInformation.shopName') }}">
     <meta name="twitter:title"
-          content="{{ metaTitle }}">
+          content="{{ ogTitle }}">
     <meta name="twitter:description"
-          content="{{ metaDescription }}">
-    <meta name="twitter:image"
-          content="{{ page.product.cover.media.url }}">
+          content="{{ ogDescription }}">
+    {% if ogMedia %}
+        <meta name="twitter:image"
+              content="{{ ogMedia.url }}">
+    {% endif %}
 {% endblock %}
 
 {% block layout_head_title_inner %}
@@ -55,4 +69,31 @@
     {% endif %}
 
     <link rel="canonical" href="{{ seoUrl('frontend.detail.page', { productId: canonicalUrl }) }}">
+{% endblock %}
+
+{% block layout_head_meta_tags_image_meta %}{% if page.product.cover and page.product.cover.media %}{{ page.product.cover.media.url }}{% else %}{{ parent() }}{% endif %}{% endblock %}
+
+{% block layout_head_meta_tags_schema_webpage %}
+    {{ parent() }}
+    {% if not feature('JSON_LD_DATA') and page.product.cover and page.product.cover.media and page.product.cover.media.url %}
+        <meta itemprop="primaryImageOfPage"
+              content="{{ page.product.cover.media.url }}">
+    {% endif %}
+{% endblock %}
+
+{% block layout_head_json_ld %}
+    {% if feature('JSON_LD_DATA') %}
+        {% set jsonLdWebPageType = 'ItemPage' %}
+        {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-webpage.html.twig' %}
+        {% if feature('v6.8.0.0') or feature('BREADCRUMB_REWORK') %}
+            {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {
+                breadcrumbItems: page.breadcrumb
+            } only %}
+        {% else %}
+            {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-breadcrumb.html.twig' with {
+                category: page.product.seoCategory
+            } only %}
+        {% endif %}
+        {% sw_include '@Storefront/storefront/layout/structured-data/json-ld-product.html.twig' %}
+    {% endif %}
 {% endblock %}

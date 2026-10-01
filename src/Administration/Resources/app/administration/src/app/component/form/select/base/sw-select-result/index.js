@@ -1,8 +1,6 @@
 import './sw-select-result.scss';
 import template from './sw-select-result.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -11,13 +9,10 @@ const { Component } = Shopware;
  * @description Base component for select results.
  * @example-type code-only
  */
-Component.register('sw-select-result', {
+export default {
     template,
 
-    inject: [
-        'setActiveItemIndex',
-        'feature',
-    ],
+    inject: ['setActiveItemIndex', 'feature'],
 
     props: {
         index: {
@@ -42,17 +37,9 @@ Component.register('sw-select-result', {
             type: String,
             required: false,
             default: 'right',
-            validValues: [
-                'bottom',
-                'right',
-                'left',
-            ],
+            validValues: ['bottom', 'right', 'left'],
             validator(value) {
-                return [
-                    'bottom',
-                    'right',
-                    'left',
-                ].includes(value);
+                return ['bottom', 'right', 'left'].includes(value);
             },
         },
         ariaLabel: {
@@ -129,4 +116,4 @@ Component.register('sw-select-result', {
             this.setActiveItemIndex(this.index);
         },
     },
-});
+};

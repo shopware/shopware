@@ -11,16 +11,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'extensionStoreActionService',
-        'repositoryFactory',
-    ],
+    inject: ['extensionStoreActionService', 'repositoryFactory'],
 
-    emits: [
-        'buttons-update',
-        'frw-set-title',
-        'extension-activated',
-    ],
+    emits: ['buttons-update', 'frw-set-title', 'extension-activated'],
 
     data() {
         return {
@@ -56,7 +49,7 @@ export default {
             return [
                 {
                     key: 'skip',
-                    label: this.$tc('sw-first-run-wizard.general.buttonNext'),
+                    label: this.$t('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
                     variant: 'primary',
                     action: 'sw.first.run.wizard.index.defaults',
@@ -92,7 +85,7 @@ export default {
         },
 
         setTitle() {
-            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.dataImport.modalTitle'));
+            this.$emit('frw-set-title', this.$t('sw-first-run-wizard.dataImport.modalTitle'));
         },
 
         notInstalled(pluginKey) {
@@ -155,18 +148,13 @@ export default {
         },
 
         findPluginKeyByName(name) {
-            const [pluginKey] = Object.entries(this.plugins).find(
-                ([
-                    key,
-                    state,
-                ]) => {
-                    if (state.name === name) {
-                        return key;
-                    }
+            const [pluginKey] = Object.entries(this.plugins).find(([key, state]) => {
+                if (state.name === name) {
+                    return key;
+                }
 
-                    return '';
-                },
-            );
+                return '';
+            });
 
             return pluginKey;
         },

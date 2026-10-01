@@ -3,38 +3,28 @@
  */
 import { mount } from '@vue/test-utils';
 
-class MockRepositoryFactory {
-    constructor() {
-        this.data = [
-            {
-                email: 'test@example.com',
-                title: null,
-                firstName: 'Max',
-                lastName: 'Mustermann',
-                zipCode: '48624',
-                city: 'Schöppingen',
-                street: null,
-                status: 'direct',
-                hash: 'c225f2cc023946679c4e0d9189375402',
-                confirmedAt: null,
-                salutationId: 'fd04f0ca555143ab9f28294699f7384b',
-                languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-                salesChannelId: '7b872c384b254613b5a4bd5c8b965bab',
-                createdAt: '2020-09-23T11:42:12.104+00:00',
-                updatedAt: '2020-09-23T13:27:01.436+00:00',
-                apiAlias: null,
-                id: '92618290af63445b973cc1021d60e3f5',
-                salesChannel: {},
-            },
-        ];
-    }
-
-    search() {
-        return new Promise((resolve) => {
-            resolve({ first: () => this.data[0] });
-        });
-    }
-}
+const recipientMock = [
+    {
+        email: 'test@example.com',
+        title: null,
+        firstName: 'Max',
+        lastName: 'Mustermann',
+        zipCode: '48624',
+        city: 'Schöppingen',
+        street: null,
+        status: 'direct',
+        hash: 'c225f2cc023946679c4e0d9189375402',
+        confirmedAt: null,
+        salutationId: 'fd04f0ca555143ab9f28294699f7384b',
+        languageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
+        salesChannelId: '7b872c384b254613b5a4bd5c8b965bab',
+        createdAt: '2020-09-23T11:42:12.104+00:00',
+        updatedAt: '2020-09-23T13:27:01.436+00:00',
+        apiAlias: null,
+        id: '92618290af63445b973cc1021d60e3f5',
+        salesChannel: {},
+    },
+];
 
 async function createWrapper() {
     return mount(
@@ -76,11 +66,15 @@ async function createWrapper() {
                     'sw-skeleton': true,
                     'sw-error-summary': true,
                     'sw-custom-field-set-renderer': true,
+                    'sw-button-process': true,
                 },
                 provide: {
                     stateStyleDataProviderService: {},
                     repositoryFactory: {
-                        create: (type) => new MockRepositoryFactory(type),
+                        create: () => ({
+                            search: () => Promise.resolve({ first: () => recipientMock[0] }),
+                            save: () => Promise.resolve(),
+                        }),
                     },
                     customFieldDataProviderService: {
                         getCustomFieldSets: () => Promise.resolve([]),
@@ -105,16 +99,12 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail
         const wrapper = await createWrapper();
         await flushPromises();
 
-        // check if the save-action-btn is disabled
-        expect(
-            wrapper.findByText('button', 'sw-newsletter-recipient.general.buttonSave').attributes('disabled'),
-        ).toBeDefined();
+        expect(wrapper.find('sw-button-process-stub').attributes('disabled')).toBe('true');
 
         const mtFields = wrapper.findAllComponents('.mt-field');
         const swFields = wrapper.findAllComponents('.sw-field');
         expect(mtFields.length + swFields.length).toBe(11);
 
-        // check that they are all disabled
         expect(mtFields.every((field) => field.props('disabled'))).toBe(true);
         expect(swFields.every((field) => field.props('disabled'))).toBe(true);
     });
@@ -124,22 +114,27 @@ describe('src/module/sw-newsletter-recipient/page/sw-newsletter-recipient-detail
         const wrapper = await createWrapper();
         await flushPromises();
 
-        // check if the save-action-btn is enabled
-        expect(
-            wrapper.findByText('button', 'sw-newsletter-recipient.general.buttonSave').attributes('disabled'),
-        ).toBeUndefined();
+        expect(wrapper.find('sw-button-process-stub').attributes('disabled')).toBe('false');
 
         const mtFields = wrapper.findAllComponents('.mt-field');
         const swFields = wrapper.findAllComponents('.sw-field');
         expect(mtFields.length + swFields.length).toBe(11);
 
-        /* eslint-disable jest/prefer-to-have-length */
-        // check that they are all enabled minus the saleschannel select which is always disabled
-        expect(mtFields.filter((field) => !field.props('disabled')).length).toBe(7);
-        expect(swFields.filter((field) => !field.props('disabled')).length).toBe(3);
-        /* eslint-enable jest/prefer-to-have-length */
+        expect(mtFields.filter((field) => !field.props('disabled'))).toHaveLength(7);
+        expect(swFields.filter((field) => !field.props('disabled'))).toHaveLength(3);
 
-        // now check that the salechannel is disabled
         expect(wrapper.getComponent('[label="sw-newsletter-recipient.general.salesChannel"]').props('disabled')).toBe(true);
+    });
+
+    it('should render loading indicator on save', async () => {
+        global.activeAclRoles = ['newsletter_recipient.editor'];
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const saveButton = wrapper.find('sw-button-process-stub');
+        expect(saveButton.attributes('disabled')).toBe('false');
+
+        await saveButton.trigger('click');
+        expect(saveButton.attributes('is-loading')).toBe('true');
     });
 });

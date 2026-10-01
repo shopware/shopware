@@ -4,6 +4,7 @@
 {% set ORDER_TRANSACTION_STATE_CANCELLED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_CANCELLED') %}
 {% set ORDER_TRANSACTION_STATE_UNCONFIRMED = constant('Shopware\\Core\\Checkout\\Order\\Aggregate\\OrderTransaction\\OrderTransactionStates::STATE_UNCONFIRMED') %}
 {% set ALLOWED_TRANSACTION_STATES = constant('Shopware\\Core\\Checkout\\Order\\SalesChannel\\OrderService::ALLOWED_TRANSACTION_STATES') %}
+{% set ORDER_STATE_OPEN = constant('Shopware\\Core\\Checkout\\Order\\OrderStates::STATE_OPEN') %}
 {% set ORDER_STATE_CANCELLED = constant('Shopware\\Core\\Checkout\\Order\\OrderStates::STATE_CANCELLED') %}
 {% set PRODUCT_LINE_ITEM_TYPE = constant('Shopware\\Core\\Checkout\\Cart\\LineItem\\LineItem::PRODUCT_LINE_ITEM_TYPE') %}
 
@@ -18,8 +19,12 @@
             ] %}
 
             {% set orderState = order.stateMachineState.technicalName %}
-            {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
-
+            {% set allowOrderCancellation = orderState == ORDER_STATE_OPEN and config('core.cart.enableOrderRefunds') %}
+            {% if feature('v6.8.0.0') %}
+                {% set orderPaymentState = order.primaryOrderTransaction.stateMachineState.technicalName %}
+            {% else %}
+                {% set orderPaymentState = order.transactions.last.stateMachineState.technicalName %}
+            {% endif %}
             {% set isPaymentNeeded = orderPaymentState in states and orderState != ORDER_STATE_CANCELLED %}
 
             <div class="row flex-wrap">
@@ -66,7 +71,6 @@
                                         type="button"
                                         id="accountOrderDropdown-{{ order.id }}"
                                         data-bs-toggle="dropdown"
-                                        aria-haspopup="true"
                                         aria-expanded="false"
                                         aria-label="{{ 'account.orderActions'|trans|sw_sanitize }}">
                                     {% sw_icon 'more-horizontal' %}
@@ -74,8 +78,7 @@
                             {% endblock %}
 
                             {% block page_account_order_item_context_menu_content %}
-                                <div class="dropdown-menu dropdown-menu-end order-table-header-context-menu-content"
-                                     aria-labelledby="accountOrderDropdown-{{ order.id }}">
+                                <div class="dropdown-menu dropdown-menu-end order-table-header-context-menu-content">
                                     {% if orderState != ORDER_STATE_CANCELLED and orderPaymentState in ALLOWED_TRANSACTION_STATES %}
                                         {% block page_account_order_item_context_menu_content_change_payment_button %}
                                             {% if isPaymentNeeded %}
@@ -144,7 +147,7 @@
                                     {% endblock %}
 
                                     {% block page_account_order_item_context_menu_cancel_order %}
-                                        {% if orderState != ORDER_STATE_CANCELLED and config('core.cart.enableOrderRefunds') %}
+                                        {% if allowOrderCancellation %}
 
                                             {% set modalId = 'cancelOrderModal-' ~ order.id %}
 
@@ -160,7 +163,7 @@
                             {% endblock %}
                         {% endblock %}
 
-                        {% if orderState != ORDER_STATE_CANCELLED %}
+                        {% if allowOrderCancellation %}
                             {% sw_include '@Storefront/storefront/page/account/order/cancel-order-modal.html.twig' %}
                         {% endif %}
                     </div>
@@ -180,7 +183,8 @@
                 {% block page_account_order_item_order_table_header %}
                     <div class="col-12 row order-table-header-order-table-header" aria-hidden="true">
                         {% block page_account_order_item_order_table_header_cell_shipping_status %}
-                            {% if order.deliveries|length > 0 %}
+                            {# @deprecated tag:v6.8.0 - If condition `order.deliveries|length > 0` will be removed. If condition `order.primaryOrderDelivery` will remain in use. #}
+                            {% if order.deliveries|length > 0 or order.primaryOrderDelivery %}
                                 <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ 'account.orderShippingStatus'|trans|sw_sanitize }}</div>
                             {% endif %}
                         {% endblock %}
@@ -194,13 +198,14 @@
                         {% endblock %}
 
                         {% block page_account_order_item_order_table_header_cell_shipping_method %}
-                            {% if order.deliveries|length > 0 %}
+                            {# @deprecated tag:v6.8.0 - If condition `order.deliveries|length > 0` will be removed. If condition `order.primaryOrderDelivery` will remain in use. #}
+                            {% if order.deliveries|length > 0 or order.primaryOrderDelivery %}
                                 <div class="col-12 col-sm order-table-header-order-table-header-cell">{{ 'account.orderShippingMethod'|trans|sw_sanitize }}</div>
                             {% endif %}
                         {% endblock %}
 
                         {% block page_account_order_item_order_table_header_cell_placeholder %}
-                            <div class="col-2 order-table-header-order-table-header-cell"></div>
+                            <div class="col-2 col-sm order-table-header-order-table-header-cell"></div>
                         {% endblock %}
                     </div>
                 {% endblock %}
@@ -210,12 +215,17 @@
                 {% block page_account_order_item_order_table_body %}
                     <div class="col-12 row order-table-header-order-table-body">
                         {% block page_account_order_item_order_table_body_cell_shipping_status %}
-                            {% if order.deliveries|length > 0 %}
+                            {# @deprecated tag:v6.8.0 - If condition `order.deliveries|length > 0` will be removed. If condition `order.primaryOrderDelivery` will remain in use. #}
+                            {% if order.deliveries|length > 0 or order.primaryOrderDelivery %}
                                 <div class="col-12 col-sm order-table-header-order-table-body-cell">
                                     <strong class="order-table-header-label">
                                         {{ 'account.orderShippingStatus'|trans|sw_sanitize }}{{ 'account.colonCharacter'|trans|sw_sanitize }}
                                     </strong>
-                                    <span class="order-table-body-value">{{ order.deliveries|first.stateMachineState.translated.name }}</span>
+                                    {% if feature('v6.8.0.0') %}
+                                        <span class="order-table-body-value">{{ order.primaryOrderDelivery.stateMachineState.translated.name }}</span>
+                                    {% else %}
+                                        <span class="order-table-body-value">{{ order.deliveries|first.stateMachineState.translated.name }}</span>
+                                    {% endif %}
                                 </div>
                             {% endif %}
                         {% endblock %}
@@ -225,7 +235,11 @@
                                 <strong class="order-table-header-label">
                                     {{ 'account.orderPaymentStatus'|trans|sw_sanitize }}{{ 'account.colonCharacter'|trans|sw_sanitize }}
                                 </strong>
-                                <span class="order-table-body-value">{{ order.transactions|last.stateMachineState.translated.name }}</span>
+                                {% if feature('v6.8.0.0') %}
+                                    <span class="order-table-body-value">{{ order.primaryOrderTransaction.stateMachineState.translated.name }}</span>
+                                {% else %}
+                                    <span class="order-table-body-value">{{ order.transactions|last.stateMachineState.translated.name }}</span>
+                                {% endif %}
                             </div>
                         {% endblock %}
 
@@ -234,29 +248,38 @@
                                 <strong class="order-table-header-label">
                                     {{ 'account.orderPaymentMethod'|trans|sw_sanitize }}{{ 'account.colonCharacter'|trans|sw_sanitize }}
                                 </strong>
-                                <span class="order-table-body-value">{{ order.transactions|last.paymentMethod.translated.name }}</span>
+                                {% if feature('v6.8.0.0') %}
+                                    <span class="order-table-body-value">{{ order.primaryOrderTransaction.paymentMethod.translated.name }}</span>
+                                {% else %}
+                                    <span class="order-table-body-value">{{ order.transactions|last.paymentMethod.translated.name }}</span>
+                                {% endif %}
                             </div>
                         {% endblock %}
 
                         {% block page_account_order_item_order_table_body_cell_shipping_method %}
-                            {% if order.deliveries|length > 0 %}
+                            {# @deprecated tag:v6.8.0 - If condition `order.deliveries|length > 0` will be removed. If condition `order.primaryOrderDelivery` will remain in use. #}
+                            {% if order.deliveries|length > 0 or order.primaryOrderDelivery %}
                                 <div class="col-12 col-sm order-table-header-order-table-body-cell">
                                     <strong class="order-table-header-label">
                                         {{ 'account.orderShippingMethod'|trans|sw_sanitize }}{{ 'account.colonCharacter'|trans|sw_sanitize }}
                                     </strong>
-                                    <span class="order-table-body-value">{{ order.deliveries|first.shippingMethod.translated.name }}</span>
+                                    {% if feature('v6.8.0.0') %}
+                                        <span class="order-table-body-value">{{ order.primaryOrderDelivery.shippingMethod.translated.name }}</span>
+                                    {% else %}
+                                        <span class="order-table-body-value">{{ order.deliveries|first.shippingMethod.translated.name }}</span>
+                                    {% endif %}
                                 </div>
                             {% endif %}
                         {% endblock %}
 
                         {% block page_account_order_item_order_table_body_cell_toggle_order_details %}
-                            <div class="col-12 col-sm-2 order-item order-item-actions order-table-header-order-table-body-cell">
+                            <div class="col-12 col-sm order-item order-item-actions order-table-header-order-table-body-cell">
                                 {% block page_account_order_item_order_table_body_cell_toggle_order_details_button %}
                                     <button class="btn btn-light btn-sm order-hide-btn collapsed"
                                             data-bs-toggle="collapse"
                                             data-bs-target="#order{{ order.orderNumber }}"
                                             aria-expanded="false"
-                                            aria-controls="collapseExample">
+                                            aria-controls="order{{ order.orderNumber }}">
                                         {% block page_account_order_item_order_table_body_cell_toggle_order_details_button_text %}
                                             <span class="order-hide-btn-text">{{ 'account.orderActionHide'|trans|sw_sanitize }}</span>
                                             <span class="order-view-btn-text">{{ 'account.orderActionView'|trans|sw_sanitize }}</span>

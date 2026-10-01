@@ -1,7 +1,7 @@
 {% block sw_flow_grant_download_access_modal %}
 <sw-modal
     class="sw-flow-grant-download-access-modal"
-    :title="$tc('sw-flow.modals.downloadAccess.titleSetDownloadAccess')"
+    :title="$t('sw-flow.modals.downloadAccess.titleSetDownloadAccess')"
     :closable="false"
     @modal-close="onClose"
 >
@@ -11,8 +11,8 @@
             name="sw-field--value"
             class="sw-flow-grant-download-access-modal__value-field"
             required
-            :label="$tc('sw-flow.modals.downloadAccess.labelValueField')"
-            :placeholder="$tc('sw-flow.modals.downloadAccess.placeholderValueField')"
+            :label="$t('sw-flow.modals.downloadAccess.labelValueField')"
+            :placeholder="$t('sw-flow.modals.downloadAccess.placeholderValueField')"
             :error="valueError"
             :options="valueOptions"
         />
@@ -25,7 +25,7 @@
             variant="secondary"
             @click="onClose"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
 
         <mt-button
@@ -34,7 +34,7 @@
             size="small"
             @click="onSave"
         >
-            {{ $tc('sw-flow.modals.buttonSaveAction') }}
+            {{ $t('sw-flow.modals.buttonSaveAction') }}
         </mt-button>
     </template>
 </sw-modal>

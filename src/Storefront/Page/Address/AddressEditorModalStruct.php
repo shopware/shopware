@@ -10,7 +10,7 @@ use Shopware\Storefront\Page\Page;
 /**
  * @codeCoverageIgnore
  */
-#[Package('framework')]
+#[Package('checkout')]
 class AddressEditorModalStruct extends Struct
 {
     protected bool $changeBilling = false;
@@ -21,6 +21,9 @@ class AddressEditorModalStruct extends Struct
 
     protected ?string $addressId = null;
 
+    /**
+     * @var array<string, mixed>
+     */
     protected array $messages = [];
 
     protected ?CustomerAddressEntity $address = null;
@@ -67,11 +70,17 @@ class AddressEditorModalStruct extends Struct
         $this->addressId = $addressId;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getMessages(): array
     {
         return $this->messages;
     }
 
+    /**
+     * @param array<string, mixed> $messages
+     */
     public function setMessages(array $messages): void
     {
         $this->messages = $messages;

@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition;
 use Shopware\Core\System\Snippet\SnippetDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class SnippetSetDefinition extends EntityDefinition
 {
@@ -45,11 +48,11 @@ class SnippetSetDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of snippet set.'),
+            (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required())->setDescription('Name of snippet set.'),
             (new StringField('base_file', 'baseFile'))->addFlags(new Required()),
-            (new StringField('iso', 'iso'))->addFlags(new ApiAware(), new Required()),
-            (new CustomFields())->addFlags(new ApiAware()),
+            (new StringField('iso', 'iso'))->addFlags(new ApiAware(), new Required())->setDescription('ISO nomenclature used to classify languages.'),
+            (new CustomFields())->addFlags(new ApiAware())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             (new OneToManyAssociationField('snippets', SnippetDefinition::class, 'snippet_set_id'))->addFlags(new ApiAware(), new CascadeDelete()),
             (new OneToManyAssociationField('salesChannelDomains', SalesChannelDomainDefinition::class, 'snippet_set_id'))->addFlags(new RestrictDelete()),
         ]);

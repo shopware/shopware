@@ -1,4 +1,6 @@
+{% block mt_text_editor_original %}
 <mt-text-editor-original
+    ref="mtTextEditorOriginal"
     v-bind="$attrs"
     v-model="compatValue"
     :custom-buttons="mergedCustomButtons"
@@ -24,3 +26,4 @@
         ></slot>
     </template>
 </mt-text-editor-original>
+{% endblock %}

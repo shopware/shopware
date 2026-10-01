@@ -9,8 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\System\StateMachine\StateMachineEntity;
+use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class OrderTransactionCaptureEntity extends Entity
 {
@@ -29,7 +32,7 @@ class OrderTransactionCaptureEntity extends Entity
 
     protected ?OrderTransactionEntity $transaction = null;
 
-    protected ?StateMachineEntity $stateMachineState = null;
+    protected ?StateMachineStateEntity $stateMachineState = null;
 
     protected ?OrderTransactionCaptureRefundCollection $refunds = null;
 
@@ -83,12 +86,12 @@ class OrderTransactionCaptureEntity extends Entity
         $this->transaction = $transaction;
     }
 
-    public function getStateMachineState(): ?StateMachineEntity
+    public function getStateMachineState(): ?StateMachineStateEntity
     {
         return $this->stateMachineState;
     }
 
-    public function setStateMachineState(?StateMachineEntity $stateMachineState): void
+    public function setStateMachineState(?StateMachineStateEntity $stateMachineState): void
     {
         $this->stateMachineState = $stateMachineState;
     }

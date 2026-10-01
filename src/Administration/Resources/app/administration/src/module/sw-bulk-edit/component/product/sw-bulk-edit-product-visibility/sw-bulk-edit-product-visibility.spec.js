@@ -59,10 +59,6 @@ describe('sw-bulk-edit-product-visibility', () => {
         wrapper = await createWrapper();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be disabled correctly', async () => {
         await wrapper.setProps({ disabled: true });
         expect(wrapper.find('sw-product-visibility-select-stub').attributes().disabled).toBeTruthy();

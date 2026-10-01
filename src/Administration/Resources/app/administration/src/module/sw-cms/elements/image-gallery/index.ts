@@ -17,7 +17,7 @@ Shopware.Component.register('sw-cms-el-image-gallery', () => import('./component
 type ImageGalleryItemConfig = {
     newTab: boolean;
     url: string;
-    mediaId: string;
+    mediaId: EntityKey<'media'>;
 };
 
 type ImageGalleryItem = {
@@ -84,6 +84,10 @@ Shopware.Service('cmsService').registerCmsElement({
             value: true,
         },
         magnifierOverGallery: {
+            source: 'static',
+            value: false,
+        },
+        useFetchPriorityOnFirstItem: {
             source: 'static',
             value: false,
         },

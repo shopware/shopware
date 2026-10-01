@@ -10,7 +10,6 @@
 // Requirements
 //------------------------------------------------------------------------------
 
-var requireIndex = require("requireindex");
 var twigVueProcessor = require('./processors/twig-vue-processor');
 
 //------------------------------------------------------------------------------

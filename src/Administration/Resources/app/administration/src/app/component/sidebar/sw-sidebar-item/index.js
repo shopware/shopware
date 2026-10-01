@@ -1,8 +1,6 @@
 import template from './sw-sidebar-item.html.twig';
 import './sw-sidebar-item.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -19,7 +17,7 @@ const { Component } = Shopware;
  * </sw-sidebar-item>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sidebar-item', {
+export default {
     template,
 
     inject: {
@@ -29,11 +27,7 @@ Component.register('sw-sidebar-item', {
         },
     },
 
-    emits: [
-        'toggle-active',
-        'close-content',
-        'click',
-    ],
+    emits: ['toggle-active', 'close-content', 'click'],
 
     props: {
         title: {
@@ -57,10 +51,7 @@ Component.register('sw-sidebar-item', {
             required: false,
             default: 'top',
             validator(value) {
-                return [
-                    'top',
-                    'bottom',
-                ].includes(value);
+                return ['top', 'bottom'].includes(value);
             },
         },
 
@@ -88,6 +79,12 @@ Component.register('sw-sidebar-item', {
                     'success',
                 ].includes(value);
             },
+        },
+
+        tooltipShortcut: {
+            type: Array,
+            required: false,
+            default: () => [],
         },
     },
 
@@ -177,4 +174,4 @@ Component.register('sw-sidebar-item', {
             }
         },
     },
-});
+};

@@ -12,8 +12,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(PromotionIndividualCodeEntity::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionIndividualCodeEntity::class)]
 class PromotionIndividualCodeEntityTest extends TestCase
 {
     /**
@@ -35,7 +35,7 @@ class PromotionIndividualCodeEntityTest extends TestCase
             'customerName' => 'John Doe',
         ];
 
-        static::assertEquals($expected, $entity->getPayload());
+        static::assertSame($expected, $entity->getPayload());
     }
 
     /**
@@ -75,6 +75,6 @@ class PromotionIndividualCodeEntityTest extends TestCase
             'customerName' => 'John Doe',
         ];
 
-        static::assertEquals($expected, $entity->getPayload());
+        static::assertSame($expected, $entity->getPayload());
     }
 }

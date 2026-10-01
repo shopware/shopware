@@ -1,0 +1,64 @@
+{
+  "sw-login": {
+    "general": {
+      "mainMenuItemIndex": "Anmeldung",
+      "description": "Shopware-Login",
+      "logoAlt": "Shopware-Logo",
+      "linkBackToLogin": "Zurück zur Anmeldung",
+      "loadingLabel": "Wird geladen ..."
+    },
+    "index": {
+      "headlineForm": "Melde Dich bei Shopware an",
+      "labelUsername": "Benutzername",
+      "labelPassword": "Passwort",
+      "labelKeepLoggedIn": "Angemeldet bleiben",
+      "buttonLogin": "Anmelden",
+      "buttonSsoLogin": "Mit Shopware Account",
+      "messageUnsupportedGrantType": "\"Grant-Type\" wird nicht unterstützt.",
+      "messageInvalidRequest": "Ungültige Anfrage.",
+      "messageInvalidClient": "Die Client-Authentifizierung ist fehlgeschlagen.",
+      "messageInvalidScope": "Der angegebene Scope ist ungültig.",
+      "messageInvalidCredentials": "Benutzername oder Passwort ist falsch.",
+      "messageServerError": "Ein allgemeiner Fehler beim Authentifizierungsserver ist aufgetreten.",
+      "messageInvalidRefreshToken": "Der angegebene Refresh-Token ist ungültig.",
+      "messageAccessDenied": "Der Zugriff wurde verweigert.",
+      "messageGeneralRequestError": "Die Anfrage an \"{url}\" ist fehlgeschlagen.",
+      "messageGeneralError": "Bei der Anmeldung ist ein Fehler aufgetreten. Bitte versuche es erneut.",
+      "messageAuthThrottled": "Zu viele Anmeldeversuche. Bitte warte {seconds} Sekunden, bevor Du erneut versuchst, Dich anzumelden.",
+      "forgottenPasswordLink": "Passwort vergessen?",
+      "orContinueWith": "oder weiter mit"
+    },
+    "recovery": {
+      "info": {
+        "headline": "E-Mail gesendet",
+        "info": "Wenn {email} mit einem Konto verknüpft ist, erhältst Du in Kürze eine E-Mail zum Zurücksetzen des Passworts.",
+        "emailFallback": "Deine E-Mail-Adresse"
+      },
+      "recovery": {
+        "headline": "Neues Passwort festlegen",
+        "text": "Wähle ein neues Passwort für Dein Konto.",
+        "newPasswordField": {
+          "label": "Neues Passwort eingeben"
+        },
+        "passwordConfirmField": {
+          "label": "Neues Passwort wiederholen"
+        },
+        "submit": {
+          "label": "Neues Passwort festlegen"
+        }
+      },
+      "headline": "Passwort vergessen?",
+      "text": "Gib die mit Deinem Konto verknüpfte E-Mail-Adresse ein, um einen Link zum Zurücksetzen des Passworts zu erhalten.",
+      "email": {
+        "label": "E-Mail-Adresse"
+      },
+      "submit": "Link zum Zurücksetzen senden",
+      "messageLinkExpired": "Dieser Link zum Zurücksetzen des Passworts ist abgelaufen oder ungültig. Bitte fordere einen neuen Link an."
+    }
+  },
+  "global": {
+    "sw-admin-menu": {
+      "textShopwareAdmin": "Shopware Administration"
+    }
+  }
+}

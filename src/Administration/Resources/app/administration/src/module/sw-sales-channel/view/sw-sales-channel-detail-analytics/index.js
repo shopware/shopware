@@ -14,10 +14,7 @@ const { Context } = Shopware;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     props: {
         isLoading: {
@@ -25,7 +22,6 @@ export default {
             default: false,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         salesChannel: {
             required: true,
         },
@@ -34,6 +30,12 @@ export default {
     watch: {
         salesChannel() {
             this.createAnalyticsData();
+        },
+
+        'salesChannel.analytics.trackOrders'(newValue) {
+            if (!newValue && this.salesChannel?.analytics) {
+                this.salesChannel.analytics.enhancedConversions = false;
+            }
         },
     },
 

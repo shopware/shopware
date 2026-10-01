@@ -58,10 +58,7 @@ async function createWrapper() {
                 stubs: {
                     'mt-card': {
                         template: '<div class="mt-card"><slot /></div>',
-                        props: [
-                            'title',
-                            'position-identifier',
-                        ],
+                        props: ['title', 'position-identifier'],
                     },
                     'sw-entity-single-select': {
                         template: '<div class="sw-entity-single-select"></div>',
@@ -93,13 +90,6 @@ async function createWrapper() {
                             event: 'change',
                         },
                     },
-                    'sw-empty-state': {
-                        template: '<div class="sw-empty-state"></div>',
-                        props: [
-                            'title',
-                            'absolute',
-                        ],
-                    },
                 },
                 provide: {
                     repositoryFactory: {
@@ -110,6 +100,15 @@ async function createWrapper() {
                                 default:
                                     throw new Error(`No Mock for ${repositoryName} Repository not found`);
                             }
+                        },
+                    },
+                },
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'regular-content',
+                            },
                         },
                     },
                 },

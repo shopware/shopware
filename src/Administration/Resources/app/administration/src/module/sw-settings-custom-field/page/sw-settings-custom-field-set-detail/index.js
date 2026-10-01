@@ -10,10 +10,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -80,7 +77,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('custom_field.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('custom_field.editor'),
                     showOnDisabledElements: true,
                 };
@@ -109,7 +106,7 @@ export default {
     methods: {
         createdComponent() {
             if (this.$route.params.id) {
-                this.setId = this.$route.params.id;
+                this.setId = this.$route.params.id.toLowerCase();
                 this.loadEntityData();
             }
         },
@@ -128,8 +125,8 @@ export default {
 
         onSave() {
             const setLabel = this.identifier;
-            const titleSaveSuccess = this.$tc('global.default.success');
-            const messageSaveSuccess = this.$tc(
+            const titleSaveSuccess = this.$t('global.default.success');
+            const messageSaveSuccess = this.$t(
                 'sw-settings-custom-field.set.detail.messageSaveSuccess',
                 {
                     name: setLabel,
@@ -155,6 +152,10 @@ export default {
             this.customFieldSetRepository
                 .save(this.set)
                 .then(() => {
+                    Shopware.Service('cacheService').invalidateCaches({
+                        cacheKey: ['custom-field-sets'],
+                    });
+
                     this.isSaveSuccessful = true;
 
                     this.createNotificationSuccess({

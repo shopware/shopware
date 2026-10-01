@@ -5,12 +5,15 @@ namespace Shopware\Tests\Migration\Core\V6_6;
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_6\Migration1701677136RemovePluginChangelogField;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1701677136RemovePluginChangelogField::class)]
 class Migration1701677136RemovePluginChangelogFieldTest extends TestCase
 {
@@ -21,6 +24,11 @@ class Migration1701677136RemovePluginChangelogFieldTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1701677136, (new Migration1701677136RemovePluginChangelogField())->getCreationTimestamp());
+    }
+
     public function testUpdateDestructiveRemovesColumn(): void
     {
         $this->addColumn();
@@ -29,7 +37,7 @@ class Migration1701677136RemovePluginChangelogFieldTest extends TestCase
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
 
-        static::assertFalse($this->columnExists());
+        static::assertFalse(TableHelper::columnExists($this->connection, 'plugin_translation', 'changelog'));
     }
 
     private function addColumn(): void
@@ -37,14 +45,5 @@ class Migration1701677136RemovePluginChangelogFieldTest extends TestCase
         $this->connection->executeStatement(
             'ALTER TABLE `plugin_translation` ADD COLUMN `changelog` JSON NOT NULL'
         );
-    }
-
-    private function columnExists(): bool
-    {
-        $exists = $this->connection->fetchOne(
-            'SHOW COLUMNS FROM `plugin_translation` WHERE `Field` LIKE "changelog"',
-        );
-
-        return !empty($exists);
     }
 }

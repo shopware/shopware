@@ -1,4 +1,5 @@
 import { required } from 'src/core/service/validation.service';
+import EntityValidationService from 'src/app/service/entity-validation.service';
 import template from './sw-order-address-selection.html.twig';
 import './sw-order-address-selection.scss';
 
@@ -6,6 +7,7 @@ import './sw-order-address-selection.scss';
  * @sw-package checkout
  */
 
+const { ShopwareError } = Shopware.Classes;
 const { EntityDefinition, Mixin, Store } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
@@ -14,13 +16,11 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: ['repositoryFactory'],
+    inject: ['customSnippetApiService', 'repositoryFactory'],
 
     emits: ['change-address'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         address: {
@@ -56,10 +56,10 @@ export default {
 
     data() {
         return {
-            customer: {},
             currentAddress: null,
             customerAddressCustomFieldSets: null,
             orderAddressId: cloneDeep(this.address?.id),
+            selectedAddressFormatting: '',
         };
     },
 
@@ -70,6 +70,19 @@ export default {
 
         orderCustomer() {
             return this.order.orderCustomer;
+        },
+
+        /**
+         * Shared with the other address selections of the order through the store, so that an address created or
+         * edited here is immediately selectable in all of them.
+         */
+        customer: {
+            get() {
+                return Store.get('swOrderDetail').customer;
+            },
+            set(customer) {
+                Store.get('swOrderDetail').customer = customer;
+            },
         },
 
         orderRepository() {
@@ -84,6 +97,9 @@ export default {
             return this.repositoryFactory.create('customer');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - will be removed, the customer is loaded by the `swOrderDetail` store
+         */
         customerCriteria() {
             const criteria = new Criteria(1, 25);
             criteria.addAssociation('addresses.country');
@@ -103,16 +119,21 @@ export default {
         },
 
         addressOptions() {
-            const addresses = (this.customer?.addresses || []).map((item) => {
-                const option = {
-                    label: this.addressLabel(item),
-                    ...item,
-                };
-                option.id = item.id;
-                return option;
-            });
+            const addresses = (this.customer?.addresses || [])
+                .map((item) => {
+                    if (this.address && this.address.hash === item.hash) {
+                        return null;
+                    }
 
-            // eslint-disable-next-line no-unused-expressions
+                    // Entity proxies may omit `id` when spread, so set it explicitly.
+                    return {
+                        ...item,
+                        id: item.id,
+                        label: this.addressLabel(item),
+                    };
+                })
+                .filter((item) => item !== null);
+
             this.address &&
                 addresses.unshift({
                     label: this.addressLabel(this.address),
@@ -123,7 +144,7 @@ export default {
         },
 
         modalTitle() {
-            return this.$tc(
+            return this.$t(
                 `sw-order.addressSelection.${
                     this.currentAddress?._isNew ? 'modalTitleEditAddress' : 'modalTitleSelectAddress'
                 }`,
@@ -133,10 +154,35 @@ export default {
         selectedAddressId() {
             return this.address?.customerAddressId ?? this.addressId;
         },
+
+        selectedAddress() {
+            return this.addressOptions.find((item) => item.id === this.selectedAddressId) ?? this.address;
+        },
+    },
+
+    watch: {
+        selectedAddress: {
+            handler() {
+                return this.renderSelectedAddress();
+            },
+            immediate: true,
+        },
+
+        currentAddress(newValue, oldValue) {
+            if (newValue || !oldValue) {
+                return;
+            }
+
+            this.clearAddressErrors(oldValue);
+        },
     },
 
     created() {
         this.createdComponent();
+    },
+
+    beforeUnmount() {
+        this.clearAddressErrors(this.currentAddress);
     },
 
     methods: {
@@ -172,6 +218,14 @@ export default {
                 return Promise.resolve();
             }
 
+            if (!this.isValidAddress(this.currentAddress)) {
+                this.createNotificationError({
+                    message: this.$t('sw-customer.notification.requiredFields'),
+                });
+
+                return Promise.reject();
+            }
+
             // edit order address
             if (this.currentAddress.id === this.address.id) {
                 return this.orderRepository
@@ -183,17 +237,9 @@ export default {
                     })
                     .catch(() => {
                         this.createNotificationError({
-                            message: this.$tc('sw-order.detail.messageSaveError'),
+                            message: this.$t('sw-order.detail.messageSaveError'),
                         });
                     });
-            }
-
-            if (!this.isValidAddress(this.currentAddress)) {
-                this.createNotificationError({
-                    message: this.$tc('sw-customer.notification.requiredFields'),
-                });
-
-                return Promise.reject();
             }
 
             const address =
@@ -208,25 +254,87 @@ export default {
 
             this.customer.addresses.push(address);
 
-            return this.customerRepository.save(this.customer).then(() => {
-                this.currentAddress = null;
-            });
+            const customerId = this.customer.id;
+
+            return this.customerRepository
+                .save(this.customer)
+                .then(() => Store.get('swOrderDetail').loadCustomer(customerId, true))
+                .then(() => {
+                    this.currentAddress = null;
+
+                    this.onAddressChange(address.id);
+                });
         },
 
         isValidAddress(address) {
             const ignoreFields = ['createdAt'];
-            const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields('customer_address'));
+            const entityName = address.getEntityName();
+            const requiredAddressFields = Object.keys(EntityDefinition.getRequiredFields(entityName));
+            const errorStore = Shopware.Store.get('error');
+            let isValid = true;
 
-            return requiredAddressFields.every((field) => ignoreFields.indexOf(field) !== -1 || required(address[field]));
+            requiredAddressFields.forEach((field) => {
+                if (ignoreFields.includes(field)) {
+                    return;
+                }
+
+                if (required(address[field])) {
+                    this.removeRequiredFieldError(address, field);
+                    return;
+                }
+
+                isValid = false;
+
+                errorStore.addApiError({
+                    expression: `${entityName}.${address.id}.${field}`,
+                    error: new ShopwareError({
+                        code: EntityValidationService.ERROR_CODE_REQUIRED,
+                    }),
+                });
+            });
+
+            return isValid;
+        },
+
+        clearAddressErrors(address) {
+            if (!address) {
+                return;
+            }
+
+            const entityName = address.getEntityName();
+            const errorStore = Shopware.Store.get('error');
+            const addressErrors = errorStore.getErrorsForEntity(entityName, address.id);
+
+            if (!addressErrors) {
+                return;
+            }
+
+            Object.keys(addressErrors).forEach((field) => this.removeRequiredFieldError(address, field));
+
+            if (Object.keys(addressErrors).length === 0) {
+                errorStore.removeApiError(`${entityName}.${address.id}`);
+            }
+        },
+
+        removeRequiredFieldError(address, field) {
+            const entityName = address.getEntityName();
+            const errorStore = Shopware.Store.get('error');
+            const error = errorStore.getApiErrorFromPath(entityName, address.id, [field]);
+
+            if (error?.code !== EntityValidationService.ERROR_CODE_REQUIRED) {
+                return;
+            }
+
+            errorStore.removeApiError(`${entityName}.${address.id}.${field}`);
         },
 
         onChangeDefaultAddress(data) {
             if (!data.value) {
-                if (this.hasOwnProperty('defaultShippingAddressId')) {
+                if (this.defaultShippingAddressId) {
                     this.customer.defaultShippingAddressId = this.defaultShippingAddressId;
                 }
 
-                if (this.hasOwnProperty('defaultBillingAddressId')) {
+                if (this.defaultBillingAddressId) {
                     this.customer.defaultBillingAddressId = this.defaultBillingAddressId;
                 }
                 return;
@@ -259,11 +367,7 @@ export default {
                 return Promise.reject();
             }
 
-            return this.customerRepository
-                .get(this.orderCustomer.customerId, Shopware.Context.api, this.customerCriteria)
-                .then((customer) => {
-                    this.customer = customer;
-                });
+            return Store.get('swOrderDetail').loadCustomer(this.orderCustomer.customerId);
         },
 
         getCustomFieldSet() {
@@ -272,14 +376,32 @@ export default {
             });
         },
 
+        renderSelectedAddress() {
+            if (!this.selectedAddress || !this.customSnippetApiService) {
+                this.selectedAddressFormatting = '';
+
+                return Promise.resolve();
+            }
+
+            const selectedAddressId = this.selectedAddress.id;
+
+            return this.customSnippetApiService
+                .render(this.selectedAddress, this.selectedAddress.country?.addressFormat)
+                .then((response) => {
+                    if (this.selectedAddress?.id !== selectedAddressId) {
+                        return;
+                    }
+
+                    this.selectedAddressFormatting = response.rendered;
+                })
+                .catch(() => {
+                    this.selectedAddressFormatting = '';
+                });
+        },
+
         addressLabel(address) {
             const label = [
-                [
-                    address.company,
-                    address.department,
-                ]
-                    .filter((v) => v)
-                    .join(' - '),
+                [address.company, address.department].filter((v) => v).join(' - '),
                 address.street,
                 `${address.zipcode ?? ''} ${address.city}`.trim(),
                 address?.countryState?.translated?.name,

@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-section-config.html.twig';
 import './sw-cms-section-config.scss';
 import type MediaUploadResult from '../../../shared/MediaUploadResult';
@@ -12,18 +11,11 @@ const { Mixin } = Shopware;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    emits: [
-        'section-delete',
-        'section-duplicate',
-    ],
+    emits: ['section-delete', 'section-duplicate'],
 
-    mixins: [
-        Mixin.getByName('cms-state'),
-    ],
+    mixins: [Mixin.getByName('cms-state')],
 
     props: {
         section: {
@@ -59,11 +51,11 @@ export default Shopware.Component.wrapComponentConfig({
             return [
                 {
                     value: 'boxed',
-                    label: this.$tc('sw-cms.detail.label.sizingOptionBoxed'),
+                    label: this.$t('sw-cms.detail.label.sizingOptionBoxed'),
                 },
                 {
                     value: 'full_width',
-                    label: this.$tc('sw-cms.detail.label.sizingOptionFull'),
+                    label: this.$t('sw-cms.detail.label.sizingOptionFull'),
                 },
             ];
         },
@@ -72,11 +64,11 @@ export default Shopware.Component.wrapComponentConfig({
             return [
                 {
                     value: 'hidden',
-                    label: this.$tc('sw-cms.detail.sidebar.mobileOptionHidden'),
+                    label: this.$t('sw-cms.detail.sidebar.mobileOptionHidden'),
                 },
                 {
                     value: 'wrap',
-                    label: this.$tc('sw-cms.detail.sidebar.mobileOptionWrap'),
+                    label: this.$t('sw-cms.detail.sidebar.mobileOptionWrap'),
                 },
             ];
         },
@@ -85,15 +77,15 @@ export default Shopware.Component.wrapComponentConfig({
             return [
                 {
                     value: 'auto',
-                    label: this.$tc('sw-cms.detail.label.backgroundMediaModeAuto'),
+                    label: this.$t('sw-cms.detail.label.backgroundMediaModeAuto'),
                 },
                 {
                     value: 'contain',
-                    label: this.$tc('sw-cms.detail.label.backgroundMediaModeContain'),
+                    label: this.$t('sw-cms.detail.label.backgroundMediaModeContain'),
                 },
                 {
                     value: 'cover',
-                    label: this.$tc('sw-cms.detail.label.backgroundMediaModeCover'),
+                    label: this.$t('sw-cms.detail.label.backgroundMediaModeCover'),
                 },
             ];
         },
@@ -116,7 +108,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.section.backgroundMedia = undefined;
         },
 
-        onSectionDelete(sectionId: string) {
+        onSectionDelete(sectionId: EntityKey<'cms_section'>) {
             if (this.quickactionsDisabled) {
                 return;
             }

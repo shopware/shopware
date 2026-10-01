@@ -34,8 +34,7 @@ class InAppPurchasesControllerTest extends TestCase
 
     public function testActiveInAppPurchasesWithIncorrectContext(): void
     {
-        static::expectException(StoreException::class);
-        static::expectExceptionMessage('Expected context source to be "Shopware\Core\Framework\Api\Context\AdminApiSource" but got "Shopware\Core\Framework\Api\Context\ShopApiSource".');
+        $this->expectExceptionObject(StoreException::invalidContextSource(AdminApiSource::class, ShopApiSource::class));
 
         $this->createController()->activeExtensionInAppPurchases(
             Context::createDefaultContext(new ShopApiSource('test-channel'))
@@ -44,8 +43,7 @@ class InAppPurchasesControllerTest extends TestCase
 
     public function testActiveInAppPurchasesWithNoIntegrationId(): void
     {
-        static::expectException(StoreException::class);
-        static::expectExceptionMessage('No integration available in context source "Shopware\Core\Framework\Api\Context\AdminApiSource"');
+        $this->expectExceptionObject(StoreException::missingIntegrationInContextSource(AdminApiSource::class));
 
         $this->createController()->activeExtensionInAppPurchases(
             $this->context = Context::createDefaultContext(new AdminApiSource('test-user'))
@@ -60,7 +58,10 @@ class InAppPurchasesControllerTest extends TestCase
         $content = $response->getContent();
         static::assertIsString($content);
         static::assertSame(
-            ['inAppPurchases' => []],
+            [
+                'inAppPurchases' => [],
+                'encodedInAppPurchases' => [],
+            ],
             json_decode($content, true, 512, \JSON_THROW_ON_ERROR)
         );
     }
@@ -75,7 +76,10 @@ class InAppPurchasesControllerTest extends TestCase
         $content = $response->getContent();
         static::assertIsString($content);
         static::assertSame(
-            ['inAppPurchases' => ['purchase1', 'purchase2']],
+            [
+                'inAppPurchases' => ['purchase1', 'purchase2'],
+                'encodedInAppPurchases' => 'e7a7224d2f86ddc19057b9851032ceb0',
+            ],
             json_decode($content, true, 512, \JSON_THROW_ON_ERROR)
         );
 
@@ -87,15 +91,17 @@ class InAppPurchasesControllerTest extends TestCase
         $content = $response->getContent();
         static::assertIsString($content);
         static::assertSame(
-            ['inAppPurchases' => ['purchase1']],
+            [
+                'inAppPurchases' => ['purchase1'],
+                'encodedInAppPurchases' => '63589da1885d77a78fec9363d16d72da',
+            ],
             json_decode($content, true, 512, \JSON_THROW_ON_ERROR)
         );
     }
 
     public function testCheckInAppPurchaseActiveWithoutRequiredParameterThrowsError(): void
     {
-        static::expectException(StoreException::class);
-        static::expectExceptionMessage('Parameter "identifier" is missing.');
+        $this->expectExceptionObject(StoreException::missingRequestParameter('identifier'));
 
         $request = new RequestDataBag();
 
@@ -146,7 +152,6 @@ class InAppPurchasesControllerTest extends TestCase
         $app = new AppEntity();
         $app->setId(Uuid::randomHex());
         $app->setName('test-extension');
-        /** @var StaticEntityRepository<AppCollection> $repository */
         $repository = new StaticEntityRepository([new AppCollection([$app]), new AppCollection([$app])]);
 
         return new InAppPurchasesController(

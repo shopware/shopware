@@ -32,6 +32,7 @@ class MessageStorer extends FlowStorer
             return;
         }
 
+        /** @phpstan-ignore shopware.unserializeUsage */
         $mail = \unserialize($storable->getStore(MessageAware::MESSAGE));
 
         $storable->setData(MessageAware::MESSAGE, $mail);

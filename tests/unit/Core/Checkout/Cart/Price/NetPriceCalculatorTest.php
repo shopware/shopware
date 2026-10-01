@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\NetPriceCalculator;
+use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
@@ -20,8 +21,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[CoversClass(NetPriceCalculator::class)]
 #[Package('checkout')]
+#[CoversClass(NetPriceCalculator::class)]
 class NetPriceCalculatorTest extends TestCase
 {
     #[DataProvider('referencePriceCalculationProvider')]
@@ -86,6 +87,71 @@ class NetPriceCalculatorTest extends TestCase
         ];
     }
 
+    #[DataProvider('listPriceCalculationProvider')]
+    public function testListPriceCalculation(?float $listPriceValue, ?ListPrice $expected): void
+    {
+        $definition = new QuantityPriceDefinition(100, new TaxRuleCollection(), 1);
+        $definition->setListPrice($listPriceValue);
+
+        $calculator = new NetPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+
+        static::assertEquals($expected, $price->getListPrice());
+    }
+
+    public static function listPriceCalculationProvider(): \Generator
+    {
+        yield 'test calculation without list price' => [
+            null,
+            null,
+        ];
+
+        yield 'test calculation with zero list price' => [
+            0.0,
+            null,
+        ];
+
+        yield 'test calculation with valid list price' => [
+            200.0,
+            ListPrice::createFromUnitPrice(100, 200),
+        ];
+    }
+
+    public function testListPriceIsRoundedBeforePercentageIsCalculated(): void
+    {
+        // Regression for issue #16687: list and unit price differ only below the currency
+        // precision (50.004 vs 50.00), so no discount may be shown. isCalculated is set
+        // explicitly because that is the branch the old rounding guard skipped.
+        $definition = new QuantityPriceDefinition(50.00, new TaxRuleCollection(), 1);
+        $definition->setIsCalculated(true);
+        $definition->setListPrice(50.004);
+
+        $calculator = new NetPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+
+        $listPrice = $price->getListPrice();
+        static::assertNotNull($listPrice);
+        static::assertSame(50.0, $listPrice->getPrice());
+        static::assertSame(0.0, $listPrice->getDiscount());
+        static::assertSame(0.0, $listPrice->getPercentage());
+    }
+
+    public function testRegulationPriceIsRounded(): void
+    {
+        // Regression for issue #16687: the regulation price must be rounded to the
+        // currency precision as well, also when the definition is already calculated.
+        $definition = new QuantityPriceDefinition(50.00, new TaxRuleCollection(), 1);
+        $definition->setIsCalculated(true);
+        $definition->setRegulationPrice(50.004);
+
+        $calculator = new NetPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+
+        $regulationPrice = $price->getRegulationPrice();
+        static::assertNotNull($regulationPrice);
+        static::assertSame(50.0, $regulationPrice->getPrice());
+    }
+
     public function testTaxesAreRoundedProperly(): void
     {
         $definition = new QuantityPriceDefinition(100, new TaxRuleCollection([new TaxRule(19, 48.12345)]), 1);
@@ -96,8 +162,9 @@ class NetPriceCalculatorTest extends TestCase
         static::assertCount(1, $price->getCalculatedTaxes());
 
         $tax = $price->getCalculatedTaxes()->first();
+        static::assertNotNull($tax);
 
-        static::assertEquals(19, $tax?->getTaxRate());
-        static::assertEquals(48.12, $tax?->getPrice());
+        static::assertSame(19.0, $tax->getTaxRate());
+        static::assertSame(48.12, $tax->getPrice());
     }
 }

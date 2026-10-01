@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Search;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -13,6 +12,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidAggregationQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\BucketAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\DateHistogramAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\FilterAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
@@ -39,6 +39,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Search\Util\DateHistogramCase;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -48,7 +50,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class EntityAggregatorTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -168,22 +170,22 @@ class EntityAggregatorTest extends TestCase
 
         $bucket = $categoryAgg->get('');
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(1, $bucket->getCount());
+        static::assertSame(1, $bucket->getCount());
         static::assertNull($bucket->getResult());
 
         $bucket = $categoryAgg->get($this->ids->get('c-1'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(3, $bucket->getCount());
+        static::assertSame(3, $bucket->getCount());
         static::assertNull($bucket->getResult());
 
         $bucket = $categoryAgg->get($this->ids->get('c-2'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(1, $bucket->getCount());
+        static::assertSame(1, $bucket->getCount());
         static::assertNull($bucket->getResult());
 
         $bucket = $categoryAgg->get($this->ids->get('c-3'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(2, $bucket->getCount());
+        static::assertSame(2, $bucket->getCount());
         static::assertNull($bucket->getResult());
     }
 
@@ -221,7 +223,7 @@ class EntityAggregatorTest extends TestCase
         // validation of not assigned category
         $bucket = $categoryAgg->get('');
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(1, $bucket->getCount());
+        static::assertSame(1, $bucket->getCount());
 
         $manufacturerAgg = $bucket->getResult();
         static::assertInstanceOf(TermsResult::class, $manufacturerAgg);
@@ -230,12 +232,12 @@ class EntityAggregatorTest extends TestCase
         static::assertTrue($manufacturerAgg->has($this->ids->get('m-3')));
         $bucket = $manufacturerAgg->get($this->ids->get('m-3'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(1, $bucket->getCount());
+        static::assertSame(1, $bucket->getCount());
 
         // validation of category 1
         $bucket = $categoryAgg->get($this->ids->get('c-1'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(3, $bucket->getCount());
+        static::assertSame(3, $bucket->getCount());
 
         $manufacturerAgg = $bucket->getResult();
         static::assertInstanceOf(TermsResult::class, $manufacturerAgg);
@@ -245,15 +247,15 @@ class EntityAggregatorTest extends TestCase
 
         $bucket = $manufacturerAgg->get($this->ids->get('m-1'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(1, $bucket->getCount());
+        static::assertSame(1, $bucket->getCount());
         $bucket = $manufacturerAgg->get($this->ids->get('m-2'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(2, $bucket->getCount());
+        static::assertSame(2, $bucket->getCount());
 
         // validation of category 2
         $bucket = $categoryAgg->get($this->ids->get('c-2'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(1, $bucket->getCount());
+        static::assertSame(1, $bucket->getCount());
 
         $manufacturerAgg = $bucket->getResult();
         static::assertInstanceOf(TermsResult::class, $manufacturerAgg);
@@ -262,12 +264,12 @@ class EntityAggregatorTest extends TestCase
 
         $bucket = $manufacturerAgg->get($this->ids->get('m-1'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(1, $bucket->getCount());
+        static::assertSame(1, $bucket->getCount());
 
         // validation of category 3
         $bucket = $categoryAgg->get($this->ids->get('c-3'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(2, $bucket->getCount());
+        static::assertSame(2, $bucket->getCount());
 
         $manufacturerAgg = $bucket->getResult();
         static::assertInstanceOf(TermsResult::class, $manufacturerAgg);
@@ -276,7 +278,7 @@ class EntityAggregatorTest extends TestCase
 
         $bucket = $manufacturerAgg->get($this->ids->get('m-2'));
         static::assertInstanceOf(Bucket::class, $bucket);
-        static::assertEquals(2, $bucket->getCount());
+        static::assertSame(2, $bucket->getCount());
     }
 
     public function testTermsAggregationWithSorting(): void
@@ -573,7 +575,7 @@ class EntityAggregatorTest extends TestCase
         $max = $result->get('max-price');
         static::assertInstanceOf(MaxResult::class, $max);
 
-        static::assertEquals(250, $max->getMax());
+        static::assertSame('250.0000', $max->getMax());
     }
 
     public function testMaxAggregationWithTermsAggregation(): void
@@ -610,21 +612,21 @@ class EntityAggregatorTest extends TestCase
         static::assertInstanceOf(MaxResult::class, $bucket->getResult());
         static::assertSame(1, $bucket->getCount());
         $max = $bucket->getResult();
-        static::assertEquals(50, $max->getMax());
+        static::assertSame('50.0000', $max->getMax());
 
         $bucket = $manufacturers->get($this->ids->get('m-2'));
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(MaxResult::class, $bucket->getResult());
         static::assertSame(3, $bucket->getCount());
         $max = $bucket->getResult();
-        static::assertEquals(200, $max->getMax());
+        static::assertSame('200.0000', $max->getMax());
 
         $bucket = $manufacturers->get($this->ids->get('m-3'));
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(MaxResult::class, $bucket->getResult());
         static::assertSame(1, $bucket->getCount());
         $max = $bucket->getResult();
-        static::assertEquals(250, $max->getMax());
+        static::assertSame('250.0000', $max->getMax());
     }
 
     public function testMinAggregation(): void
@@ -646,7 +648,7 @@ class EntityAggregatorTest extends TestCase
         $min = $result->get('min-price');
         static::assertInstanceOf(MinResult::class, $min);
 
-        static::assertEquals(50, $min->getMin());
+        static::assertSame('50.0000', $min->getMin());
     }
 
     public function testMinAggregationWithTermsAggregation(): void
@@ -683,21 +685,21 @@ class EntityAggregatorTest extends TestCase
         static::assertInstanceOf(MinResult::class, $bucket->getResult());
         static::assertSame(1, $bucket->getCount());
         $min = $bucket->getResult();
-        static::assertEquals(50, $min->getMin());
+        static::assertSame('50.0000', $min->getMin());
 
         $bucket = $manufacturers->get($this->ids->get('m-2'));
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(MinResult::class, $bucket->getResult());
         static::assertSame(3, $bucket->getCount());
         $min = $bucket->getResult();
-        static::assertEquals(100, $min->getMin());
+        static::assertSame('100.0000', $min->getMin());
 
         $bucket = $manufacturers->get($this->ids->get('m-3'));
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(MinResult::class, $bucket->getResult());
         static::assertSame(1, $bucket->getCount());
         $min = $bucket->getResult();
-        static::assertEquals(250, $min->getMin());
+        static::assertSame('250.0000', $min->getMin());
     }
 
     public function testCountAggregation(): void
@@ -719,7 +721,7 @@ class EntityAggregatorTest extends TestCase
         $count = $result->get('count-manufacturer');
         static::assertInstanceOf(CountResult::class, $count);
 
-        static::assertEquals(3, $count->getCount());
+        static::assertSame(3, $count->getCount());
     }
 
     public function testCountAggregationWithTermsAggregation(): void
@@ -757,21 +759,21 @@ class EntityAggregatorTest extends TestCase
         static::assertInstanceOf(CountResult::class, $bucket->getResult());
         static::assertSame(3, $bucket->getCount());
         $count = $bucket->getResult();
-        static::assertEquals(2, $count->getCount());
+        static::assertSame(2, $count->getCount());
 
         $bucket = $categories->get($this->ids->get('c-2'));
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(CountResult::class, $bucket->getResult());
         static::assertSame(1, $bucket->getCount());
         $count = $bucket->getResult();
-        static::assertEquals(1, $count->getCount());
+        static::assertSame(1, $count->getCount());
 
         $bucket = $categories->get($this->ids->get('c-3'));
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(CountResult::class, $bucket->getResult());
         static::assertSame(2, $bucket->getCount());
         $count = $bucket->getResult();
-        static::assertEquals(1, $count->getCount());
+        static::assertSame(1, $count->getCount());
     }
 
     public function testCountAggregationWithScoreQuery(): void
@@ -794,7 +796,7 @@ class EntityAggregatorTest extends TestCase
         $count = $result->get('count-manufacturer');
         static::assertInstanceOf(CountResult::class, $count);
 
-        static::assertEquals(1, $count->getCount());
+        static::assertSame(1, $count->getCount());
     }
 
     public function testCountAggregationWithScoreQueryAndAssociation(): void
@@ -818,7 +820,7 @@ class EntityAggregatorTest extends TestCase
         $count = $result->get('count-manufacturer');
         static::assertInstanceOf(CountResult::class, $count);
 
-        static::assertEquals(1, $count->getCount());
+        static::assertSame(1, $count->getCount());
     }
 
     public function testCountAggregationWithScoreCombinedWithFilter(): void
@@ -847,12 +849,12 @@ class EntityAggregatorTest extends TestCase
         $count = $result->get('count-manufacturer');
         static::assertInstanceOf(CountResult::class, $count);
 
-        static::assertEquals(1, $count->getCount());
+        static::assertSame(1, $count->getCount());
 
         $count = $result->get('count-manufacturer2');
         static::assertInstanceOf(CountResult::class, $count);
 
-        static::assertEquals(1, $count->getCount());
+        static::assertSame(1, $count->getCount());
     }
 
     public function testStatsAggregation(): void
@@ -874,10 +876,10 @@ class EntityAggregatorTest extends TestCase
         $stats = $result->get('stats-price');
         static::assertInstanceOf(StatsResult::class, $stats);
 
-        static::assertEquals(50, $stats->getMin());
-        static::assertEquals(250, $stats->getMax());
-        static::assertEquals(150, $stats->getAvg());
-        static::assertEquals(750, $stats->getSum());
+        static::assertSame('50.0000', $stats->getMin());
+        static::assertSame('250.0000', $stats->getMax());
+        static::assertSame(150.0, $stats->getAvg());
+        static::assertSame(750.0, $stats->getSum());
     }
 
     public function testStatsAggregationWithScoreQuery(): void
@@ -900,10 +902,10 @@ class EntityAggregatorTest extends TestCase
         $stats = $result->get('stats-price');
         static::assertInstanceOf(StatsResult::class, $stats);
 
-        static::assertEquals(50, $stats->getMin());
-        static::assertEquals(50, $stats->getMax());
-        static::assertEquals(50, $stats->getAvg());
-        static::assertEquals(50, $stats->getSum());
+        static::assertSame('50.0000', $stats->getMin());
+        static::assertSame('50.0000', $stats->getMax());
+        static::assertSame(50.0, $stats->getAvg());
+        static::assertSame(50.0, $stats->getSum());
     }
 
     public function testStatsAggregationWithTermsAggregation(): void
@@ -940,30 +942,30 @@ class EntityAggregatorTest extends TestCase
         static::assertInstanceOf(StatsResult::class, $bucket->getResult());
         static::assertSame(1, $bucket->getCount());
         $stats = $bucket->getResult();
-        static::assertEquals(50, $stats->getMin());
-        static::assertEquals(50, $stats->getMax());
-        static::assertEquals(50, $stats->getAvg());
-        static::assertEquals(50, $stats->getSum());
+        static::assertSame('50.0000', $stats->getMin());
+        static::assertSame('50.0000', $stats->getMax());
+        static::assertSame(50.0, $stats->getAvg());
+        static::assertSame(50.0, $stats->getSum());
 
         $bucket = $manufacturers->get($this->ids->get('m-2'));
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(StatsResult::class, $bucket->getResult());
         static::assertSame(3, $bucket->getCount());
         $stats = $bucket->getResult();
-        static::assertEquals(100, $stats->getMin());
-        static::assertEquals(200, $stats->getMax());
-        static::assertEquals(150, $stats->getAvg());
-        static::assertEquals(450, $stats->getSum());
+        static::assertSame('100.0000', $stats->getMin());
+        static::assertSame('200.0000', $stats->getMax());
+        static::assertSame(150.0, $stats->getAvg());
+        static::assertSame(450.0, $stats->getSum());
 
         $bucket = $manufacturers->get($this->ids->get('m-3'));
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(StatsResult::class, $bucket->getResult());
         static::assertSame(1, $bucket->getCount());
         $stats = $bucket->getResult();
-        static::assertEquals(250, $stats->getMin());
-        static::assertEquals(250, $stats->getMax());
-        static::assertEquals(250, $stats->getAvg());
-        static::assertEquals(250, $stats->getSum());
+        static::assertSame('250.0000', $stats->getMin());
+        static::assertSame('250.0000', $stats->getMax());
+        static::assertSame(250.0, $stats->getAvg());
+        static::assertSame(250.0, $stats->getSum());
     }
 
     public function testEntityAggregation(): void
@@ -1105,11 +1107,10 @@ class EntityAggregatorTest extends TestCase
         $price = $result->get('avg-price');
         static::assertInstanceOf(AvgResult::class, $price);
 
-        static::assertEquals(75, $price->getAvg());
+        static::assertSame(75.0, $price->getAvg());
     }
 
     #[DataProvider('dateHistogramProvider')]
-    #[Group('slow')]
     public function testDateHistogram(DateHistogramCase $case): void
     {
         $context = Context::createDefaultContext();
@@ -1148,113 +1149,114 @@ class EntityAggregatorTest extends TestCase
     }
 
     /**
-     * @return array<list<DateHistogramCase>>
+     * @return iterable<string, list<DateHistogramCase>>
      */
-    public static function dateHistogramProvider(): array
+    public static function dateHistogramProvider(): iterable
     {
-        return array_filter([
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_MINUTE, [
-                    '2019-01-01 10:11:00' => 1,
-                    '2019-01-01 10:13:00' => 1,
-                    '2019-06-15 13:00:00' => 1,
-                    '2020-09-30 15:00:00' => 1,
-                    '2021-12-10 11:59:00' => 1,
-                    '2024-12-11 23:59:00' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_HOUR, [
-                    '2019-01-01 10:00:00' => 2,
-                    '2019-06-15 13:00:00' => 1,
-                    '2020-09-30 15:00:00' => 1,
-                    '2021-12-10 11:00:00' => 1,
-                    '2024-12-11 23:00:00' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
-                    '2019-01-01 00:00:00' => 2,
-                    '2019-06-15 00:00:00' => 1,
-                    '2020-09-30 00:00:00' => 1,
-                    '2021-12-10 00:00:00' => 1,
-                    '2024-12-11 00:00:00' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_WEEK, [
-                    '2019 01' => 2,
-                    '2019 24' => 1,
-                    '2020 40' => 1,
-                    '2021 49' => 1,
-                    '2024 50' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
-                    '2019-01-01 00:00:00' => 2,
-                    '2019-06-01 00:00:00' => 1,
-                    '2020-09-01 00:00:00' => 1,
-                    '2021-12-01 00:00:00' => 1,
-                    '2024-12-01 00:00:00' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_QUARTER, [
-                    '2019 1' => 2,
-                    '2019 2' => 1,
-                    '2020 3' => 1,
-                    '2021 4' => 1,
-                    '2024 4' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_YEAR, [
-                    '2019-01-01 00:00:00' => 3,
-                    '2020-01-01 00:00:00' => 1,
-                    '2021-01-01 00:00:00' => 1,
-                    '2024-01-01 00:00:00' => 1,
-                ]),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
-                    '2019 January' => 2,
-                    '2019 June' => 1,
-                    '2020 September' => 1,
-                    '2021 December' => 1,
-                    '2024 December' => 1,
-                ], 'Y F'),
-            ],
-            [
-                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
-                    'Tuesday 01st Jan, 2019' => 2,
-                    'Saturday 15th Jun, 2019' => 1,
-                    'Wednesday 30th Sep, 2020' => 1,
-                    'Friday 10th Dec, 2021' => 1,
-                    'Wednesday 11th Dec, 2024' => 1,
-                ], 'l dS M, Y'),
-            ],
-            // This case works only when timezone support is enabled
-            EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', 0) ? [
-                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
-                    '2019-01-01 00:00:00' => 2,
-                    '2019-06-15 00:00:00' => 1,
-                    '2020-09-30 00:00:00' => 1,
-                    '2021-12-10 00:00:00' => 1,
-                    '2024-12-12 00:00:00' => 1,
-                ], null, 'Europe/Berlin'),
-            ] : [],
-            // This case works only when timezone support is enabled, test time zone aliases can be used
-            EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', 0) ? [
-                new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
-                    '2019-01-01 00:00:00' => 2,
-                    '2019-06-15 00:00:00' => 1,
-                    '2020-09-30 00:00:00' => 1,
-                    '2021-12-10 00:00:00' => 1,
-                    '2024-12-12 00:00:00' => 1,
-                ], null, 'Asia/Ho_Chi_Minh'),
-            ] : [],
-        ]);
+        yield 'per minute buckets' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_MINUTE, [
+                '2019-01-01 10:11:00' => 1,
+                '2019-01-01 10:13:00' => 1,
+                '2019-06-15 13:00:00' => 1,
+                '2020-09-30 15:00:00' => 1,
+                '2021-12-10 11:59:00' => 1,
+                '2024-12-11 23:59:00' => 1,
+            ]),
+        ];
+        yield 'per hour buckets' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_HOUR, [
+                '2019-01-01 10:00:00' => 2,
+                '2019-06-15 13:00:00' => 1,
+                '2020-09-30 15:00:00' => 1,
+                '2021-12-10 11:00:00' => 1,
+                '2024-12-11 23:00:00' => 1,
+            ]),
+        ];
+        yield 'per day buckets' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                '2019-01-01 00:00:00' => 2,
+                '2019-06-15 00:00:00' => 1,
+                '2020-09-30 00:00:00' => 1,
+                '2021-12-10 00:00:00' => 1,
+                '2024-12-11 00:00:00' => 1,
+            ]),
+        ];
+        yield 'per week buckets' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_WEEK, [
+                '2019 01' => 2,
+                '2019 24' => 1,
+                '2020 40' => 1,
+                '2021 49' => 1,
+                '2024 50' => 1,
+            ]),
+        ];
+        yield 'per month buckets' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
+                '2019-01-01 00:00:00' => 2,
+                '2019-06-01 00:00:00' => 1,
+                '2020-09-01 00:00:00' => 1,
+                '2021-12-01 00:00:00' => 1,
+                '2024-12-01 00:00:00' => 1,
+            ]),
+        ];
+        yield 'per quarter buckets' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_QUARTER, [
+                '2019 1' => 2,
+                '2019 2' => 1,
+                '2020 3' => 1,
+                '2021 4' => 1,
+                '2024 4' => 1,
+            ]),
+        ];
+        yield 'per year buckets' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_YEAR, [
+                '2019-01-01 00:00:00' => 3,
+                '2020-01-01 00:00:00' => 1,
+                '2021-01-01 00:00:00' => 1,
+                '2024-01-01 00:00:00' => 1,
+            ]),
+        ];
+        yield 'per month buckets with custom month format' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_MONTH, [
+                '2019 January' => 2,
+                '2019 June' => 1,
+                '2020 September' => 1,
+                '2021 December' => 1,
+                '2024 December' => 1,
+            ], 'Y F'),
+        ];
+        yield 'per day buckets with custom day format' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                'Tuesday 01st Jan, 2019' => 2,
+                'Saturday 15th Jun, 2019' => 1,
+                'Wednesday 30th Sep, 2020' => 1,
+                'Friday 10th Dec, 2021' => 1,
+                'Wednesday 11th Dec, 2024' => 1,
+            ], 'l dS M, Y'),
+        ];
+
+        if (!EnvironmentHelper::getVariable('SHOPWARE_DBAL_TIMEZONE_SUPPORT_ENABLED', 0)) {
+            return;
+        }
+
+        yield 'per day buckets with Europe Berlin timezone' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                '2019-01-01 00:00:00' => 2,
+                '2019-06-15 00:00:00' => 1,
+                '2020-09-30 00:00:00' => 1,
+                '2021-12-10 00:00:00' => 1,
+                '2024-12-12 00:00:00' => 1,
+            ], null, 'Europe/Berlin'),
+        ];
+        yield 'per day buckets with timezone alias' => [
+            new DateHistogramCase(DateHistogramAggregation::PER_DAY, [
+                '2019-01-01 00:00:00' => 2,
+                '2019-06-15 00:00:00' => 1,
+                '2020-09-30 00:00:00' => 1,
+                '2021-12-10 00:00:00' => 1,
+                '2024-12-12 00:00:00' => 1,
+            ], null, 'Asia/Ho_Chi_Minh'),
+        ];
     }
 
     public function testDateHistogramWithNestedAvg(): void
@@ -1293,25 +1295,25 @@ class EntityAggregatorTest extends TestCase
         static::assertInstanceOf(AvgResult::class, $bucket->getResult());
 
         $avg = $bucket->getResult();
-        static::assertEquals(75, $avg->getAvg());
+        static::assertSame(75.0, $avg->getAvg());
 
         $bucket = $histogram->get('2019-06-01 00:00:00');
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(AvgResult::class, $bucket->getResult());
         $avg = $bucket->getResult();
-        static::assertEquals(150, $avg->getAvg());
+        static::assertSame(150.0, $avg->getAvg());
 
         $bucket = $histogram->get('2020-09-01 00:00:00');
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(AvgResult::class, $bucket->getResult());
         $avg = $bucket->getResult();
-        static::assertEquals(200, $avg->getAvg());
+        static::assertSame(200.0, $avg->getAvg());
 
         $bucket = $histogram->get('2021-12-01 00:00:00');
         static::assertInstanceOf(Bucket::class, $bucket);
         static::assertInstanceOf(AvgResult::class, $bucket->getResult());
         $avg = $bucket->getResult();
-        static::assertEquals(250, $avg->getAvg());
+        static::assertSame(250.0, $avg->getAvg());
     }
 
     public function testAggregateNonExistingShouldFail(): void
@@ -1321,8 +1323,7 @@ class EntityAggregatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAggregation(new TestAggregation('taxRate', 'foo'));
 
-        $this->expectException(InvalidAggregationQueryException::class);
-        $this->expectExceptionMessage('Aggregation of type Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation not supported');
+        $this->expectExceptionObject(new InvalidAggregationQueryException('Aggregation of type Shopware\Core\Framework\Test\DataAbstractionLayer\Search\TestAggregation not supported'));
 
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
@@ -1334,19 +1335,46 @@ class EntityAggregatorTest extends TestCase
         $criteria = new Criteria();
         $criteria->addAggregation(new SumAggregation('`taxRate`', 'taxRate'));
 
-        static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage('Backtick not allowed in identifier');
+        if (Feature::isActive('v6.8.0.0')) {
+            static::expectExceptionObject(DataAbstractionLayerException::invalidIdentifier('`taxRate`'));
+        } else {
+            static::expectExceptionObject(new \InvalidArgumentException('Backtick, question mark, colon, or control character not allowed in identifier'));
+        }
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
 
-    public function testAggregationNameWithDisallowedName(): void
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function provideDisallowedAggregationNames(): \Generator
+    {
+        yield 'question mark' => ['foo?foo'];
+        yield 'control character' => ["foo\nfoo"];
+    }
+
+    #[DataProvider('provideDisallowedAggregationNames')]
+    public function testAggregationNameWithDisallowedName(string $name): void
     {
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
-        $criteria->addAggregation(new SumAggregation('foo?foo', 'taxRate'));
+        $criteria->addAggregation(new SumAggregation($name, 'taxRate'));
 
-        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName('foo?foo'));
+        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName($name));
+
+        $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
+    }
+
+    #[DataProvider('provideDisallowedAggregationNames')]
+    public function testAggregationNameWithDisallowedNameNested(string $name): void
+    {
+        $context = Context::createDefaultContext();
+
+        $criteria = new Criteria();
+
+        $criteria->addAggregation(new BucketAggregation('bla', 'test', new SumAggregation($name, 'taxRate')));
+
+        static::expectExceptionObject(DataAbstractionLayerException::invalidAggregationName($name));
 
         $this->aggregator->aggregate(static::getContainer()->get(TaxDefinition::class), $criteria, $context);
     }
@@ -1389,7 +1417,7 @@ class EntityAggregatorTest extends TestCase
             'releaseDate' => $releaseDate,
         ];
 
-        if (!empty($categories)) {
+        if ($categories !== []) {
             $data['categories'] = $categories;
         }
 

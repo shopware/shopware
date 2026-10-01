@@ -184,6 +184,25 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
         expect(wrapper.vm.stockColorVariantFilter).toEqual(expect.any(Function));
     });
 
+    it('should forward displayAsGroup to the preview service', async () => {
+        const wrapper = await createWrapper();
+
+        const previewMock = jest.fn().mockResolvedValue({ elements: [], total: 0 });
+        wrapper.vm.productStreamPreviewService.preview = previewMock;
+        wrapper.vm.selectedSalesChannel = 'sales-channel-id';
+
+        await wrapper.setProps({ displayAsGroup: true });
+        await wrapper.vm.loadEntityData();
+
+        expect(previewMock).toHaveBeenCalledWith(
+            'sales-channel-id',
+            expect.anything(),
+            expect.anything(),
+            expect.anything(),
+            true,
+        );
+    });
+
     it('should load sales channel successfully', async () => {
         const wrapper = await createWrapper();
         const salesChannelData = {
@@ -353,5 +372,50 @@ describe('src/module/sw-product-stream/component/sw-product-stream-modal-preview
         const mappedFilters = wrapper.vm.mapFiltersForSearch(wrapper.vm.filters);
 
         expect(mappedFilters).toEqual(expected);
+    });
+
+    it('should compute previewCriteria with random sorting applied', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({ sorting: 'random' });
+        const criteria = wrapper.vm.previewCriteria;
+        const sortings = criteria.sortings;
+        expect(sortings).toHaveLength(2);
+
+        const allowedFields = [
+            'name',
+            'createdAt',
+            'cheapestPrice',
+            'releaseDate',
+        ];
+        const validDirections = ['ASC', 'DESC'];
+
+        sortings.forEach((sorting) => {
+            expect(allowedFields).toContain(sorting.field);
+            expect(validDirections).toContain(sorting.order);
+        });
+    });
+
+    it('should add two random sortings when sorting is "random"', async () => {
+        const wrapper = await createWrapper();
+        const criteria = new Shopware.Data.Criteria(1, 10);
+
+        wrapper.vm.addRandomSort(criteria);
+
+        const sortings = criteria.sortings;
+        expect(sortings).toHaveLength(2);
+
+        const allowedFields = [
+            'name',
+            'createdAt',
+            'cheapestPrice',
+            'releaseDate',
+        ];
+        const validDirections = ['ASC', 'DESC'];
+
+        sortings.forEach((sorting) => {
+            expect(allowedFields).toContain(sorting.field);
+            expect(validDirections).toContain(sorting.order);
+        });
     });
 });

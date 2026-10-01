@@ -23,6 +23,11 @@ class Migration1739355802FixVatHandlingTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1739355802, (new Migration1739355802FixVatHandling())->getCreationTimestamp());
+    }
+
     public function testUpdateAddsVatPatterns(): void
     {
         $this->removeVatPatterns();

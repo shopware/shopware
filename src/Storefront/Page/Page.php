@@ -5,7 +5,7 @@ namespace Shopware\Storefront\Page;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
-#[Package('framework')]
+#[Package('discovery')]
 class Page extends Struct
 {
     protected ?MetaInformation $metaInformation = null;

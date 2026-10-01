@@ -75,17 +75,17 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
     function addGlobalNavigationGuard(router) {
         const assetPath = getAssetPath();
 
-        router.beforeEach((to) => {
+        router.beforeEach(async (to) => {
             Shopware.Service('userActivityService').updateLastUserActivity();
 
             setModuleFavicon(to, assetPath);
             const loggedIn = LoginService.isLoggedIn();
-            const tokenHandler = new Shopware.Helper.RefreshTokenHelper();
             const loginAllowlist = [
                 '/login/',
                 '/login',
                 '/login/info',
                 '/login/recovery',
+                '/sso/error',
             ];
 
             if (to.meta && to.meta.forceRoute === true) {
@@ -122,17 +122,15 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
                     }),
                 );
 
-                if (!tokenHandler.isRefreshing) {
-                    return tokenHandler
-                        .fireRefreshTokenRequest()
-                        .then(() => {
-                            return addModuleInfoToTarget(to);
-                        })
-                        .catch(() => {
-                            return {
-                                name: 'sw.login.index',
-                            };
-                        });
+                if (!(await LoginService.isRefreshing())) {
+                    try {
+                        await LoginService.refreshToken();
+                        return addModuleInfoToTarget(to);
+                    } catch {
+                        return {
+                            name: 'sw.login.index',
+                        };
+                    }
                 }
             }
 
@@ -258,10 +256,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         });
 
         // Merge the module core routes with the routes from the routes file
-        core = [
-            ...core,
-            ...moduleRootRoutes,
-        ];
+        core = [...core, ...moduleRootRoutes];
         return core;
     }
 
@@ -375,24 +370,45 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
     }
 
     function setModuleFavicon(routeDestination, assetsPath) {
-        const moduleInfo = getModuleInfo(routeDestination);
-        if (!moduleInfo) {
-            return false;
-        }
-        const favicon = moduleInfo.manifest.favicon || null;
         const favRef = document.getElementById('dynamic-favicon');
+        const moduleInfo = getModuleInfo(routeDestination);
 
-        favRef.rel = 'shortcut icon';
-
-        const faviconSrc = moduleInfo.manifest.faviconSrc || 'administration';
-        if (assetsPath.length !== 0) {
-            assetsPath = `${assetsPath}${faviconSrc}/`;
+        // A plugin may override the `administration_favicons` block without the link element.
+        if (!favRef) {
+            return !!moduleInfo;
         }
 
-        favRef.href = favicon
-            ? `${assetsPath}static/img/favicon/modules/${favicon}`
-            : `${assetsPath}static/img/favicon/favicon-32x32.png`;
+        const favicon = moduleInfo?.manifest.favicon;
+        // The logo always ships with the Administration, only module icons may live in a plugin bundle.
+        const bundle = (favicon && moduleInfo.manifest.faviconSrc) || 'administration';
+        const file = favicon ? `modules/${favicon}` : 'favicon.svg';
+        // Plugin modules may still ship PNG favicons.
+        const isSvg = file.toLowerCase().endsWith('.svg');
 
-        return true;
+        const attributes = {
+            rel: 'icon',
+            type: isSvg ? 'image/svg+xml' : 'image/png',
+            // Only our own SVG's size is known; a plugin PNG can be any size, so claim nothing.
+            sizes: isSvg ? 'any' : null,
+            // `administration` twice is intended: <assetsPath><bundle>/ is the bundle's public mount,
+            // `administration/static/…` its build output directory inside that bundle.
+            href: `${assetsPath}${bundle}/administration/static/img/favicon/${file}`,
+        };
+
+        // Writing an unchanged attribute makes the browser drop the icon and flash the default one.
+        Object.entries(attributes).forEach(([name, value]) => {
+            if (value === null) {
+                if (favRef.hasAttribute(name)) {
+                    favRef.removeAttribute(name);
+                }
+                return;
+            }
+
+            if (favRef.getAttribute(name) !== value) {
+                favRef.setAttribute(name, value);
+            }
+        });
+
+        return !!moduleInfo;
     }
 }

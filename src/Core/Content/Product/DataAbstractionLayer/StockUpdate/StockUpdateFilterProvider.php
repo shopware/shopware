@@ -9,14 +9,14 @@ use Shopware\Core\Framework\Log\Package;
  * @internal In order to manipulate the filter process, provide your own tagged AbstractStockUpdateFilter
  */
 #[Package('framework')]
-final class StockUpdateFilterProvider
+final readonly class StockUpdateFilterProvider
 {
     /**
      * @internal
      *
      * @param AbstractStockUpdateFilter[] $filters
      */
-    public function __construct(private readonly iterable $filters)
+    public function __construct(private iterable $filters)
     {
     }
 

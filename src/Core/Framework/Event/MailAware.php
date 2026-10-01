@@ -5,13 +5,15 @@ namespace Shopware\Core\Framework\Event;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Log\Package;
 
-#[Package('fundamentals@after-sales')]
+#[Package('framework')]
 #[IsFlowEventAware]
 interface MailAware
 {
     public const MAIL_STRUCT = 'mailStruct';
 
     public const SALES_CHANNEL_ID = 'salesChannelId';
+
+    public const TIMEZONE = 'timezone';
 
     public function getMailStruct(): MailRecipientStruct;
 

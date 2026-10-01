@@ -18,8 +18,8 @@ use Symfony\Component\Mime\Email;
 /**
  * @internal
  */
-#[CoversClass(MailBeforeSentEvent::class)]
 #[Package('after-sales')]
+#[CoversClass(MailBeforeSentEvent::class)]
 class MailBeforeSentEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void
@@ -39,7 +39,7 @@ class MailBeforeSentEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('data', $flow->data());
-        static::assertEquals(['foo' => 'bar'], $flow->data()['data']);
+        static::assertSame(['foo' => 'bar'], $flow->data()['data']);
     }
 
     public function testInstantiate(): void
@@ -74,5 +74,11 @@ class MailBeforeSentEventTest extends TestCase
             'eventName' => CheckoutOrderPlacedEvent::EVENT_NAME,
             'message' => $email,
         ], $event->getLogData());
+        static::assertSame($email, $event->getMessage());
+    }
+
+    public function testAvailableDataDescribesTheFlowPayload(): void
+    {
+        static::assertSame(['data', 'message'], array_keys(MailBeforeSentEvent::getAvailableData()->toArray()));
     }
 }

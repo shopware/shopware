@@ -1,4 +1,5 @@
-import type { AxiosInstance, AxiosResponse } from 'axios';
+import type { AxiosResponse } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import type { LoginService } from 'src/core/service/login.service';
 import type { ContextStore } from 'src/app/store/context.store';
 import type { BasicHeaders } from 'src/core/service/api.service';
@@ -6,8 +7,10 @@ import type { BasicHeaders } from 'src/core/service/api.service';
 import ApiService from 'src/core/service/api.service';
 
 type ExtensionVariantType = 'rent' | 'buy' | 'free';
+type LicenseVariantType = ExtensionVariantType | 'test';
 type ExtensionType = 'app' | 'plugin';
 type ExtensionSource = 'local' | 'store';
+type ExtensionRentDuration = 1 | 12;
 
 type ExtensionStoreActionHeaders = BasicHeaders & {
     'sw-language-id'?: string;
@@ -19,6 +22,7 @@ interface DiscountCampaign {
     endDate: string | null;
     discount: number;
     discountedPrice: number | null;
+    discountedPricePerMonth: number | null;
     discountAppliesForMonths: number | null;
 }
 
@@ -26,6 +30,8 @@ interface ExtensionVariant {
     id: number;
     type: ExtensionVariantType;
     netPrice: number;
+    netPricePerMonth: number;
+    duration: ExtensionRentDuration;
     trialPhaseIncluded: boolean;
     discountCampaign: DiscountCampaign | null;
 }
@@ -37,14 +43,26 @@ interface StoreCategory {
     details: { [key: string]: string };
 }
 
+interface DiscountInformation {
+    discountedPrice: number;
+    firstDateOfFullCharging: string;
+}
+
+interface LicenseSubscription {
+    expirationDate: string;
+}
+
 interface License {
     id: number;
     creationDate: string;
-    variant: ExtensionVariantType;
+    expirationDate: string | null;
+    variant: LicenseVariantType;
     paymentText: string;
     netPrice: number;
     nextBookingDate: string | null;
-    // eslint-disable-next-line no-use-before-define
+    subscription: LicenseSubscription | null;
+    trialPhaseIncluded: boolean;
+    discountInformation: DiscountInformation | null;
     licensedExtension: Extension;
 }
 
@@ -75,7 +93,7 @@ interface Extension {
     icon: string | null;
     iconRaw: string | null;
     categories: StoreCategory[] | null;
-    permissions: Array<{ entity: string; operation: string }> | null;
+    permissions: { [key: string]: Array<{ entity: string; operation: string }> } | null;
     active: boolean;
     type: ExtensionType;
     isTheme: boolean;
@@ -94,7 +112,7 @@ interface Extension {
  * @private
  */
 export default class ExtensionStoreActionService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService) {
+    constructor(httpClient: HttpClient, loginService: LoginService) {
         super(httpClient, loginService, 'extension', 'application/json');
         this.name = 'extensionStoreActionService';
     }

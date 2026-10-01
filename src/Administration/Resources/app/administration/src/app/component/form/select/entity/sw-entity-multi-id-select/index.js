@@ -4,13 +4,14 @@
 
 import template from './sw-entity-multi-id-select.html.twig';
 
-const { Component, Context, Mixin } = Shopware;
+const { Context, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
+const { get } = Shopware.Utils;
 
 /**
  * @private
  */
-Component.register('sw-entity-multi-id-select', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -19,17 +20,13 @@ Component.register('sw-entity-multi-id-select', {
 
     emits: ['update:value'],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error')],
 
     props: {
         value: {
-            type: Array,
+            type: [Array, null],
             required: false,
-            default() {
-                return [];
-            },
+            default: null,
         },
 
         repository: {
@@ -67,13 +64,13 @@ Component.register('sw-entity-multi-id-select', {
     },
 
     watch: {
-        value() {
+        normalizedValue(value) {
             if (this.collection === null) {
                 this.createdComponent();
                 return;
             }
 
-            if (this.collection.getIds() === this.value) {
+            if (Shopware.Utils.types.isEqual(this.collection.getIds(), value)) {
                 return;
             }
 
@@ -85,7 +82,28 @@ Component.register('sw-entity-multi-id-select', {
         this.createdComponent();
     },
 
+    computed: {
+        normalizedValue() {
+            return this.value ?? [];
+        },
+
+        displayVariants() {
+            return this.repository.entityName === 'product';
+        },
+
+        selectCriteria() {
+            const criteria = Criteria.fromCriteria(this.criteria);
+
+            if (this.displayVariants) {
+                criteria.addAssociation('options.group');
+            }
+
+            return criteria;
+        },
+    },
+
     methods: {
+        // note: this method also gets called when `value` updates
         createdComponent() {
             const collection = new EntityCollection(this.repository.route, this.repository.entityName, this.context);
 
@@ -93,20 +111,20 @@ Component.register('sw-entity-multi-id-select', {
                 this.collection = collection;
             }
 
-            if (this.value.length <= 0) {
+            if (this.normalizedValue.length === 0) {
                 this.collection = collection;
                 return Promise.resolve(this.collection);
             }
 
-            const criteria = Criteria.fromCriteria(this.criteria);
-            criteria.setIds(this.value);
+            const criteria = Criteria.fromCriteria(this.selectCriteria);
+            criteria.setIds(this.normalizedValue);
             criteria.setTerm('');
             criteria.queries = [];
 
             return this.repository.search(criteria, { ...this.context, inheritance: true }).then((entities) => {
                 this.collection = entities;
 
-                if (!this.collection.length && this.value.length) {
+                if (!this.collection.length && this.normalizedValue.length) {
                     this.updateIds(this.collection);
                 }
 
@@ -119,5 +137,13 @@ Component.register('sw-entity-multi-id-select', {
 
             this.$emit('update:value', collection.getIds());
         },
+
+        displayLabelProperty(item, labelProperty, getKey = get) {
+            const labelProperties = Array.isArray(labelProperty) ? labelProperty : [labelProperty];
+
+            return labelProperties
+                .map((property) => getKey(item, property) || getKey(item, `translated.${property}`))
+                .join(' ');
+        },
     },
-});
+};

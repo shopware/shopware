@@ -5,37 +5,61 @@
 import template from './sw-sales-channel-menu.html.twig';
 import './sw-sales-channel-menu.scss';
 
-const { Component } = Shopware;
 const { Criteria } = Shopware.Data;
 const FlatTree = Shopware.Helper.FlatTreeHelper;
 
 /**
  * @private
  */
-Component.register('sw-sales-channel-menu', {
+export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'domainLinkService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'domainLinkService'],
 
     data() {
         return {
             salesChannels: [],
+            salesChannelsLoaded: false,
             showModal: false,
             isLoading: true,
+            isMobileViewport: false,
+            contextMenuOpen: false,
         };
     },
 
     computed: {
+        adminMenuStore() {
+            return Shopware.Store.get('adminMenu');
+        },
+
+        isSidebarExpanded() {
+            // The off-canvas panel always shows the expanded layout
+            return this.adminMenuStore.isExpanded || this.isMobileViewport;
+        },
+
         salesChannelRepository() {
             return this.repositoryFactory.create('sales_channel');
         },
 
+        salesChannelModuleColor() {
+            // The rows are built here instead of from the module navigation, so they pick up the
+            // module color themselves and follow the module icon color preference like the module rows
+            return Shopware.Module.getModuleByEntityName('sales_channel')?.manifest?.color;
+        },
+
         canCreateSalesChannels() {
             return this.acl.can('sales_channel.creator');
+        },
+
+        // Gated on the finished request, so the row never flashes while loading.
+        // Stale favourites of deleted channels return zero rows although channels exist.
+        showAddChannelMenuItem() {
+            return (
+                this.salesChannelsLoaded &&
+                this.salesChannels.length === 0 &&
+                this.salesChannelFavorites.length === 0 &&
+                this.canCreateSalesChannels
+            );
         },
 
         salesChannelCriteria() {
@@ -50,10 +74,7 @@ Component.register('sw-sales-channel-menu', {
                     'domains',
                 ],
                 sales_channel_type: ['iconName'],
-                sales_channel_domain: [
-                    'url',
-                    'languageId',
-                ],
+                sales_channel_domain: ['url', 'languageId'],
             });
 
             criteria.addSorting(Criteria.sort('sales_channel.name', 'ASC'));
@@ -80,12 +101,12 @@ Component.register('sw-sales-channel-menu', {
                     id: salesChannel.id,
                     path: 'sw.sales.channel.detail',
                     params: { id: salesChannel.id },
-                    color: '#D8DDE6',
                     label: {
                         label: salesChannel.translated.name,
                         translated: true,
                     },
                     icon: salesChannel.type.iconName,
+                    color: this.salesChannelModuleColor,
                     children: [],
                     domainLink: this.getDomainLink(salesChannel),
                     active: salesChannel.active,
@@ -97,13 +118,11 @@ Component.register('sw-sales-channel-menu', {
 
         moreItemsEntry() {
             return {
-                active: true,
                 children: [],
-                color: '#D8DDE6',
-                icon: 'regular-ellipsis-v',
-                label: this.$tc('sw-sales-channel.general.titleMenuMoreItems'),
+                icon: 'regular-eye',
+                color: this.salesChannelModuleColor,
+                label: this.$t('sw-sales-channel.general.titleMenuMoreItems'),
                 path: 'sw.sales.channel.list',
-                position: -1, // use last position
             };
         },
 
@@ -128,6 +147,18 @@ Component.register('sw-sales-channel-menu', {
 
             this.loadEntityData();
         },
+
+        // The teleported action menu would keep floating over the next page otherwise
+        '$route.path'() {
+            this.contextMenuOpen = false;
+        },
+
+        // The teleported action menu would float detached over the hidden off-canvas rail otherwise
+        isMobileViewport(isMobile) {
+            if (isMobile) {
+                this.contextMenuOpen = false;
+            }
+        },
     },
 
     created() {
@@ -140,6 +171,10 @@ Component.register('sw-sales-channel-menu', {
 
     methods: {
         createdComponent() {
+            this.mobileViewportQuery = this.$device.getMediaQuery('(max-width: 1280px)');
+            this.mobileViewportQuery.addEventListener('change', this.syncMobileViewport);
+            this.syncMobileViewport();
+
             this.registerListener();
 
             this.salesChannelFavoritesService.initService().finally(() => {
@@ -147,16 +182,23 @@ Component.register('sw-sales-channel-menu', {
             });
         },
 
+        syncMobileViewport() {
+            this.isMobileViewport = this.mobileViewportQuery.matches;
+        },
+
         registerListener() {
             Shopware.Utils.EventBus.on('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
             Shopware.Utils.EventBus.on('sw-language-switch-change-application-language', this.loadEntityData);
-            Shopware.Utils.EventBus.on('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
+            Shopware.Utils.EventBus.on('sw-sales-channel-detail-base-sales-channel-change', this.loadEntityData);
+            Shopware.Utils.EventBus.on('sw-sales-channel-list-add-new-channel', this.openSalesChannelModal);
         },
 
         destroyedComponent() {
+            this.mobileViewportQuery?.removeEventListener('change', this.syncMobileViewport);
             Shopware.Utils.EventBus.off('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
             Shopware.Utils.EventBus.off('sw-language-switch-change-application-language', this.loadEntityData);
-            Shopware.Utils.EventBus.off('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
+            Shopware.Utils.EventBus.off('sw-sales-channel-detail-base-sales-channel-change', this.loadEntityData);
+            Shopware.Utils.EventBus.off('sw-sales-channel-list-add-new-channel', this.openSalesChannelModal);
         },
 
         getDomainLink(salesChannel) {
@@ -164,8 +206,9 @@ Component.register('sw-sales-channel-menu', {
         },
 
         loadEntityData() {
-            this.salesChannelRepository.search(this.salesChannelCriteria).then((response) => {
+            return this.salesChannelRepository.search(this.salesChannelCriteria).then((response) => {
                 this.salesChannels = response;
+                this.salesChannelsLoaded = true;
             });
         },
 
@@ -177,4 +220,4 @@ Component.register('sw-sales-channel-menu', {
             window.open(storeFrontLink, '_blank');
         },
     },
-});
+};

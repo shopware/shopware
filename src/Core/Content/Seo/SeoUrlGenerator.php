@@ -3,25 +3,27 @@
 namespace Shopware\Core\Content\Seo;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Category\CategoryCollection;
-use Shopware\Core\Content\LandingPage\LandingPageCollection;
-use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Seo\SeoUrl\SeoUrlEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlMapping;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParser;
 use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\RepositoryIterator;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityDefinitionQueryHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Runtime;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Routing\RouterInterface;
@@ -35,6 +37,10 @@ use Twig\Loader\ChainLoader;
 class SeoUrlGenerator
 {
     final public const ESCAPE_SLUGIFY = 'slugifyurlencode';
+
+    private const ERROR_EMPTY_SEO_PATH_INFO = 'The SEO URL template rendered an empty path';
+
+    private const ERROR_TEMPLATE_NOT_RENDERABLE = 'The SEO URL template could not be rendered';
 
     private readonly TwigVariableParser $twigVariableParser;
 
@@ -53,12 +59,16 @@ class SeoUrlGenerator
     }
 
     /**
-     * @param array<string|array<string, string>> $ids
+     * @param list<string|array<string, string>> $ids
      *
      * @return iterable<SeoUrlEntity>
      */
     public function generate(array $ids, string $template, SeoUrlRouteInterface $route, Context $context, SalesChannelEntity $salesChannel): iterable
     {
+        if (trim($template) === '') {
+            return [];
+        }
+
         $criteria = new Criteria($ids);
         $route->prepareCriteria($criteria, $salesChannel);
 
@@ -66,13 +76,23 @@ class SeoUrlGenerator
 
         $repository = $this->definitionRegistry->getRepository($config->getDefinition()->getEntityName());
 
+        if ($salesChannel->getTypeId() === Defaults::SALES_CHANNEL_TYPE_API) {
+            $domain = $salesChannel->getDomains()
+                ?->firstWhere(static fn (SalesChannelDomainEntity $domain): bool => $domain->getIsExternalStorefront()
+                    && $domain->getLanguageId() === $context->getLanguageId());
+
+            if ($domain === null) {
+                return [];
+            }
+        }
+
         if ($this->loadTwigTemplate($config, $template)) {
             $associations = $this->getAssociations($template, $repository->getDefinition());
             $criteria->addAssociations($associations);
 
             $criteria->setLimit(50);
 
-            /** @var RepositoryIterator<LandingPageCollection|CategoryCollection|ProductCollection> $iterator */
+            /** @var RepositoryIterator<EntityCollection<covariant Entity>> $iterator */
             $iterator = $context->enableInheritance(static fn (Context $context): RepositoryIterator => new RepositoryIterator($repository, $context, $criteria));
 
             while ($searchResult = $iterator->fetch()) {
@@ -82,7 +102,7 @@ class SeoUrlGenerator
     }
 
     /**
-     * @param EntitySearchResult<LandingPageCollection|CategoryCollection|ProductCollection> $searchResult
+     * @param EntitySearchResult<EntityCollection<covariant Entity>> $searchResult
      *
      * @return iterable<SeoUrlEntity>
      */
@@ -91,13 +111,15 @@ class SeoUrlGenerator
         SeoUrlRouteConfig $config,
         SalesChannelEntity $salesChannel,
         EntitySearchResult $searchResult,
-        string $templateName
+        string $templateName,
     ): iterable {
         $request = $this->requestStack->getMainRequest();
 
         $basePath = $request ? $request->getBasePath() : '';
 
-        foreach ($searchResult->getEntities() as $entity) {
+        $entities = $searchResult->getEntities();
+
+        foreach ($entities as $entity) {
             $seoUrl = new SeoUrlEntity();
             $seoUrl->setForeignKey($entity->getUniqueIdentifier());
 
@@ -105,27 +127,31 @@ class SeoUrlGenerator
             $seoUrl->setIsModified(false);
             $seoUrl->setIsDeleted(false);
 
-            $copy = clone $seoUrl;
-
             $mapping = $seoUrlRoute->getMapping($entity, $salesChannel);
 
-            $copy->setError($mapping->getError());
+            $seoUrl->setError($mapping->getError());
 
             $pathInfo = $this->router->generate($config->getRouteName(), $mapping->getInfoPathContext());
             $pathInfo = $this->removePrefix($pathInfo, $basePath);
 
-            $copy->setPathInfo($pathInfo);
+            $seoUrl->setPathInfo($pathInfo);
 
             $seoPathInfo = $this->getSeoPathInfo($mapping, $config, $templateName);
 
             if ($seoPathInfo === null || $seoPathInfo === '') {
-                continue;
+                $error = $seoPathInfo === null ? self::ERROR_TEMPLATE_NOT_RENDERABLE : self::ERROR_EMPTY_SEO_PATH_INFO;
+
+                // Yielded with an error rather than skipped: skipping drops the entity from
+                // the persisted set, which makes SeoUrlPersister mark the existing SEO URL
+                // as deleted, so the storefront starts answering 404 for it.
+                $seoUrl->setError($mapping->getError() ?? $error);
+                $seoPathInfo = '';
             }
 
-            $copy->setSeoPathInfo($seoPathInfo);
-            $copy->setSalesChannelId($salesChannel->getId());
+            $seoUrl->setSeoPathInfo($seoPathInfo);
+            $seoUrl->setSalesChannelId($salesChannel->getId());
 
-            yield $copy;
+            yield $seoUrl;
         }
     }
 
@@ -136,7 +162,7 @@ class SeoUrlGenerator
         } catch (Error $error) {
             $this->logger->warning('Error received on rendering SEO URL template', [
                 'exception' => $error,
-                'mapping_entity_type' => \get_class($mapping->getEntity()),
+                'mapping_entity_type' => $mapping->getEntity()::class,
                 'mapping_error' => $mapping->getError(),
                 'mapping_info_path' => $mapping->getInfoPathContext(),
                 'mapping' => $mapping,
@@ -160,7 +186,7 @@ class SeoUrlGenerator
         ]));
 
         try {
-            $this->twig->loadTemplate($this->twig->getTemplateClass($templateName), $templateName);
+            $this->twig->load($templateName);
         } catch (SyntaxError $syntaxError) {
             $this->logger->warning('Error initializing SEO URL template', [
                 'exception' => $syntaxError,
@@ -207,11 +233,11 @@ class SeoUrlGenerator
         foreach ($variables as $variable) {
             $fields = EntityDefinitionQueryHelper::getFieldsOfAccessor($definition, $variable, true);
 
-            $lastField = end($fields);
+            $lastField = array_last($fields);
 
             $runtime = new Runtime();
 
-            if ($lastField && $lastField->getFlag(Runtime::class)) {
+            if ($lastField instanceof Field && $lastField->getFlag(Runtime::class)) {
                 $associations = array_merge($associations, $runtime->getDepends());
             }
 

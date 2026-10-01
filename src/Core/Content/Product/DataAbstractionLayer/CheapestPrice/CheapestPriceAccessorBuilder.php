@@ -45,20 +45,24 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
         }
 
         $parts = explode('.', $accessor);
+        $lastAccessorPart = array_last($parts);
 
         // is tax state explicitly requested? => overwrite selector
-        if (\in_array(end($parts), ['net', 'gross'], true)) {
-            $jsonAccessor = end($parts);
+        if (\in_array($lastAccessorPart, ['net', 'gross'], true)) {
+            $jsonAccessor = $lastAccessorPart;
             array_pop($parts);
+            $lastAccessorPart = array_last($parts);
         }
 
         // filter / search / sort for list prices? => extend selector
-        if (end($parts) === 'listPrice') {
+        if ($lastAccessorPart === 'listPrice') {
             $jsonAccessor = 'listPrice.' . $jsonAccessor;
             array_pop($parts);
+            $lastAccessorPart = array_last($parts);
         }
 
-        if (end($parts) === 'percentage') {
+        $isPercentageAccessor = $lastAccessorPart === 'percentage';
+        if ($isPercentageAccessor) {
             $jsonAccessor = 'percentage.' . $jsonAccessor;
             array_pop($parts);
         }
@@ -89,7 +93,7 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
                 '#field#' => 'cheapest_price_accessor',
                 '#rule_key#' => 'rule' . $ruleId,
                 '#currency_key#' => 'currency' . $context->getCurrencyId(),
-                '#property#' => (string) $jsonAccessor,
+                '#property#' => $jsonAccessor,
                 '#factor#' => '1',
                 '#multiplier#' => (string) $multiplier,
             ];
@@ -109,7 +113,7 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
                 '#field#' => 'cheapest_price_accessor',
                 '#rule_key#' => 'rule' . $ruleId,
                 '#currency_key#' => 'currency' . Defaults::CURRENCY,
-                '#property#' => (string) $jsonAccessor,
+                '#property#' => $jsonAccessor,
                 '#factor#' => (string) $context->getCurrencyFactor(),
                 '#multiplier#' => (string) $multiplier,
             ];
@@ -121,7 +125,16 @@ class CheapestPriceAccessorBuilder implements FieldAccessorBuilderInterface
             );
         }
 
-        return \sprintf('COALESCE(%s)', implode(',', $select));
+        $result = \sprintf('COALESCE(%s)', implode(',', $select));
+
+        // The DB stores the discount percentage (e.g. 25 for "25% off"), but the API
+        // exposes the price-to-list-price ratio (e.g. 75 for "pay 75% of list price").
+        // Invert here so filters/sorts operate on the intuitive ratio scale.
+        if ($isPercentageAccessor) {
+            return \sprintf('(100 - %s)', $result);
+        }
+
+        return $result;
     }
 
     private function useCashRounding(Context $context): bool

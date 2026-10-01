@@ -2,10 +2,11 @@
 
 namespace Shopware\Tests\Integration\Administration\Controller;
 
-use PHPUnit\Framework\Attributes\Group;
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -13,7 +14,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
-#[Group('slow')]
+#[Package('framework')]
 class AdminProductStreamControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
@@ -63,13 +64,10 @@ class AdminProductStreamControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_admin/product-stream-preview/' . TestDefaults::SALES_CHANNEL,
-            [],
-            [],
-            [],
-            json_encode($data) ?: ''
+            $data
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -123,13 +121,10 @@ class AdminProductStreamControllerTest extends TestCase
             ],
         ];
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_admin/product-stream-preview/' . TestDefaults::SALES_CHANNEL,
-            [],
-            [],
-            [],
-            json_encode($data) ?: ''
+            $data
         );
         $response = $this->getBrowser()->getResponse();
 
@@ -147,6 +142,8 @@ class AdminProductStreamControllerTest extends TestCase
 
     private function prepareTestData(): void
     {
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+
         $products = [
             (new ProductBuilder($this->ids, 'p.1'))
                 ->price(900)

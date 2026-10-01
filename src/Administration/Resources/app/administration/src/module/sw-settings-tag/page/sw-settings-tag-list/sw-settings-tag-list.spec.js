@@ -59,6 +59,11 @@ async function createWrapper(privileges = []) {
                             page: 1,
                             limit: 25,
                         },
+                        meta: {
+                            $module: {
+                                icon: 'regular-tag',
+                            },
+                        },
                     },
                 },
                 provide: {
@@ -82,7 +87,11 @@ async function createWrapper(privileges = []) {
                             return privileges.includes(identifier);
                         },
                     },
-                    searchRankingService: {},
+                    searchRankingService: {
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
+                    },
                     tagApiService: {
                         filterIds: jest.fn(() => Promise.resolve({ total: 1, ids: ['1'] })),
                     },
@@ -118,10 +127,10 @@ async function createWrapper(privileges = []) {
                 `,
                     },
                     'sw-entity-listing': {
-                        props: ['items'],
+                        props: ['items', 'dataSource'],
                         template: `
                     <div>
-                        <template v-for="item in items">
+                        <template v-for="item in (dataSource || items)">
                             <slot name="actions" v-bind="{ item }"></slot>
                         </template>
                     </div>
@@ -148,17 +157,8 @@ async function createWrapper(privileges = []) {
 }
 
 describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to create a new tag', async () => {
-        const wrapper = await createWrapper([
-            'tag.creator',
-        ]);
+        const wrapper = await createWrapper(['tag.creator']);
         await wrapper.vm.$nextTick();
 
         const addButton = wrapper.find('.sw-settings-tag-list__button-create');
@@ -184,9 +184,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
     });
 
     it('should be able to edit a tag', async () => {
-        const wrapper = await createWrapper([
-            'tag.editor',
-        ]);
+        const wrapper = await createWrapper(['tag.editor']);
         await wrapper.vm.$nextTick();
 
         const editMenuItem = wrapper.find('.sw-settings-tag-list__edit-action');
@@ -204,9 +202,7 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
     });
 
     it('should be able to delete a tag', async () => {
-        const wrapper = await createWrapper([
-            'tag.deleter',
-        ]);
+        const wrapper = await createWrapper(['tag.deleter']);
         await wrapper.vm.$nextTick();
 
         const deleteMenuItem = wrapper.find('.sw-settings-tag-list__delete-action');
@@ -228,18 +224,13 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
         await wrapper.vm.$nextTick();
 
         const expected = {};
-        Object.entries(connections).forEach(
-            ([
-                propertyName,
-                count,
-            ]) => {
-                if (!count) {
-                    return;
-                }
+        Object.entries(connections).forEach(([propertyName, count]) => {
+            if (!count) {
+                return;
+            }
 
-                expected[propertyName] = count;
-            },
-        );
+            expected[propertyName] = count;
+        });
         const counts = wrapper.vm.getCounts('1');
 
         expect(counts).toEqual(expected);
@@ -367,5 +358,58 @@ describe('module/sw-settings-tag/page/sw-settings-tag-list', () => {
         expect(wrapper.vm.showDetailModal).toBe('foo');
         expect(wrapper.vm.detailProperty).toBe('bar');
         expect(wrapper.vm.detailEntity).toBe('baz');
+    });
+
+    it('should offer the create action in the empty state when no tag exists', async () => {
+        const wrapper = await createWrapper([
+            'tag.creator',
+        ]);
+        await flushPromises();
+        await wrapper.setData({ isLoading: false, total: 0 });
+
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-settings-tag.list.titleEmptyStateList');
+
+        const createButton = wrapper.find('.mt-empty-state__button .mt-button');
+
+        expect(createButton.exists()).toBe(true);
+        expect(createButton.attributes('disabled')).toBeUndefined();
+    });
+
+    it('should not offer the create action when a search has no hits', async () => {
+        const wrapper = await createWrapper([
+            'tag.creator',
+        ]);
+        await flushPromises();
+        await wrapper.setData({ isLoading: false, total: 0, term: 'zzzqqqnothing' });
+
+        // a search without hits is not an empty tag list, so it offers no create action
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
+    });
+
+    it.each([
+        [
+            'assignmentFilter',
+            { assignmentFilter: ['products'] },
+        ],
+        [
+            'emptyFilter',
+            { emptyFilter: true },
+        ],
+        [
+            'duplicateFilter',
+            { duplicateFilter: true },
+        ],
+    ])('should not offer the create action when %s leaves no hits', async (_name, filter) => {
+        const wrapper = await createWrapper([
+            'tag.creator',
+        ]);
+        await flushPromises();
+        await wrapper.setData({ isLoading: false, total: 0, ...filter });
+
+        // the filter dropdown narrows an existing list, so this is a no-result state too
+        expect(wrapper.vm.filterCount).toBeGreaterThan(0);
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
     });
 });

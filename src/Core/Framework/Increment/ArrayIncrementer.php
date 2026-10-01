@@ -39,8 +39,8 @@ class ArrayIncrementer extends AbstractIncrementer
         }
 
         if ($key === null) {
-            foreach ($this->logs[$cluster] as $key => $count) {
-                $this->logs[$cluster][$key] = 0;
+            foreach ($this->logs[$cluster] as $clusterKey => $count) {
+                $this->logs[$cluster][$clusterKey] = 0;
             }
 
             return;
@@ -73,6 +73,23 @@ class ArrayIncrementer extends AbstractIncrementer
         }
 
         return $mapped;
+    }
+
+    public function delete(string $cluster, array $keys = []): void
+    {
+        if (!\array_key_exists($cluster, $this->logs)) {
+            return;
+        }
+
+        if ($keys === []) {
+            unset($this->logs[$cluster]);
+
+            return;
+        }
+
+        foreach ($keys as $key) {
+            unset($this->logs[$cluster][$key]);
+        }
     }
 
     public function resetAll(): void

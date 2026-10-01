@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\AbstractRouteScope;
+use Shopware\Core\Framework\Routing\ApiContextRouteScopeDependant;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -15,6 +16,7 @@ class RouteScopeCompilerPass implements CompilerPassInterface
         $routeScopeDefinitions = $container->findTaggedServiceIds('shopware.route_scope');
 
         $apiPrefixes = [];
+        $apiContextPrefixes = [];
         foreach (array_keys($routeScopeDefinitions) as $definition) {
             $routeScope = $container->get($definition);
 
@@ -23,8 +25,13 @@ class RouteScopeCompilerPass implements CompilerPassInterface
             }
 
             $apiPrefixes = array_merge($apiPrefixes, $routeScope->getRoutePrefixes());
+
+            if ($routeScope instanceof ApiContextRouteScopeDependant) {
+                $apiContextPrefixes = array_merge($apiContextPrefixes, $routeScope->getRoutePrefixes());
+            }
         }
 
         $container->setParameter('shopware.routing.registered_api_prefixes', $apiPrefixes);
+        $container->setParameter('shopware.routing.api_context_route_prefixes', array_values(array_unique($apiContextPrefixes)));
     }
 }

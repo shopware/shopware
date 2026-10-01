@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @internal
  */
+#[Package('discovery')]
 class CategoryBreadcrumbUpdaterTest extends TestCase
 {
     use BasicTestDataBehaviour;
@@ -274,6 +276,60 @@ class CategoryBreadcrumbUpdaterTest extends TestCase
         static::assertSame(['EN-A'], $c1->getBreadcrumb());
         static::assertSame(['EN-A', 'DE-B'], $c2->getBreadcrumb());
         static::assertSame(['EN-A', 'DE-B', 'EN-C'], $c3->getBreadcrumb());
+    }
+
+    public function testSiblingsSharingAParentAreAllResolved(): void
+    {
+        $parentId = Uuid::randomHex();
+        $siblingIds = [Uuid::randomHex(), Uuid::randomHex(), Uuid::randomHex()];
+
+        $context = new Context(
+            new SystemSource(),
+            [],
+            Defaults::CURRENCY,
+            [Defaults::LANGUAGE_SYSTEM]
+        );
+
+        $this->repository->create([
+            [
+                'id' => $parentId,
+                'translations' => [
+                    ['name' => 'EN-Root', 'languageId' => Defaults::LANGUAGE_SYSTEM],
+                    ['name' => 'DE-Root', 'languageId' => $this->deLanguageId],
+                ],
+                'children' => array_map(
+                    fn (string $id, int $i): array => [
+                        'id' => $id,
+                        'translations' => [
+                            ['name' => 'EN-Child-' . $i, 'languageId' => Defaults::LANGUAGE_SYSTEM],
+                            ['name' => 'DE-Child-' . $i, 'languageId' => $this->deLanguageId],
+                        ],
+                    ],
+                    $siblingIds,
+                    array_keys($siblingIds)
+                ),
+            ],
+        ], $context);
+
+        $allIds = [$parentId, ...$siblingIds];
+
+        $englishContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+        $englishCategories = $this->repository->search(new Criteria($allIds), $englishContext)->getEntities();
+
+        foreach ($siblingIds as $i => $siblingId) {
+            $sibling = $englishCategories->get($siblingId);
+            static::assertInstanceOf(CategoryEntity::class, $sibling);
+            static::assertSame(['EN-Root', 'EN-Child-' . $i], $sibling->getBreadcrumb());
+        }
+
+        $germanContext = new Context(new SystemSource(), [], Defaults::CURRENCY, [$this->deLanguageId]);
+        $germanCategories = $this->repository->search(new Criteria($allIds), $germanContext)->getEntities();
+
+        foreach ($siblingIds as $i => $siblingId) {
+            $sibling = $germanCategories->get($siblingId);
+            static::assertInstanceOf(CategoryEntity::class, $sibling);
+            static::assertSame(['DE-Root', 'DE-Child-' . $i], $sibling->getBreadcrumb());
+        }
     }
 
     private function getSetUpData(): SetUpData

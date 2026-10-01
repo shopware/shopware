@@ -49,12 +49,6 @@ async function createWrapper() {
 }
 
 describe('module/sw-cms/component/sw-cms-product-assignment', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have an enabled sw-select-base', async () => {
         const wrapper = await createWrapper();
 
@@ -97,5 +91,18 @@ describe('module/sw-cms/component/sw-cms-product-assignment', () => {
         const selectBase = wrapper.findComponent('.sw-context-menu-item');
 
         expect(selectBase.props('disabled')).toBe(true);
+    });
+
+    it('should search products with inheritance enabled', async () => {
+        const wrapper = await createWrapper();
+        const search = jest.fn().mockResolvedValue({
+            getIds: () => ['product-id'],
+        });
+        wrapper.vm.repositoryFactory.create = jest.fn(() => ({ search }));
+
+        const result = await wrapper.vm.searchItems();
+
+        expect(search).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ inheritance: true }));
+        expect(result.getIds()).toEqual(['product-id']);
     });
 });

@@ -8,11 +8,14 @@
             class="sw-cms-create-wizard__step-1"
         >
             <h2 class="sw-cms-create-wizard__title">
-                {{ $tc('sw-cms.createWizard.choosePageTypeTitle') }}
+                {{ $t('sw-cms.createWizard.choosePageTypeTitle') }}
             </h2>
 
             {% block sw_cms_create_wizard_page_type %}
-            <div class="sw-cms-create-wizard__page-type-selection">
+            <div
+                class="sw-cms-create-wizard__page-type-selection"
+                :style="pageTypeSelectionStyle"
+            >
                 {% block sw_cms_create_wizard_page_type_options %}
                 <div
                     v-for="pageType in visiblePageTypes"
@@ -28,7 +31,7 @@
                         :name="pageType.icon"
                         size="24"
                     />
-                    <p>{{ $tc(pageType.title) }}</p>
+                    <p>{{ $t(pageType.title) }}</p>
                 </div>
                 {% endblock %}
             </div>
@@ -42,13 +45,13 @@
                 <mt-icon
                     name="regular-times-s"
                     size="16px"
-                /> {{ $tc('global.default.cancel') }}
+                /> {{ $t('global.default.cancel') }}
             </router-link>
             {% endblock %}
 
             {% block sw_cms_create_wizard_first_step_helptext %}
             <p class="sw-cms-create-wizard__step1-helptext">
-                {{ $tc('sw-cms.createWizard.choosePageTypeHelpText') }}
+                {{ $t('sw-cms.createWizard.choosePageTypeHelpText') }}
             </p>
             {% endblock %}
 
@@ -61,7 +64,7 @@
             class="sw-cms-create-wizard__step-2"
         >
             <h2 class="sw-cms-create-wizard__title">
-                {{ $tc('sw-cms.createWizard.chooseSectionTitle') }}
+                {{ $t('sw-cms.createWizard.chooseSectionTitle') }}
             </h2>
 
             {% block sw_cms_create_wizard_section %}
@@ -81,13 +84,13 @@
                 <mt-icon
                     name="regular-long-arrow-left"
                     size="16px"
-                /> {{ $tc('sw-cms.createWizard.stepBack') }}
+                /> {{ $t('global.default.back') }}
             </div>
             {% endblock %}
 
             {% block sw_cms_create_wizard_second_step_helptext %}
             <p class="sw-cms-create-wizard__step2-helptext">
-                {{ $tc('sw-cms.createWizard.chooseSectionHelpText') }}
+                {{ $t('sw-cms.createWizard.chooseSectionHelpText') }}
             </p>
             {% endblock %}
         </div>
@@ -99,7 +102,7 @@
             class="sw-cms-create-wizard__step-3"
         >
             <h2 class="sw-cms-create-wizard__title">
-                {{ $tc('sw-cms.createWizard.chooseNameTitle') }}
+                {{ $t('sw-cms.createWizard.chooseNameTitle') }}
             </h2>
 
             <div class="sw-cms-create-wizard__name-select">
@@ -114,7 +117,7 @@
                             :name="currentPageType?.icon"
                             size="16"
                         />
-                        <p>{{ $tc((currentPageType?.title ?? "")) }}</p>
+                        <p>{{ $t((currentPageType?.title ?? "")) }}</p>
                     </div>
                 </div>
                 {% endblock %}
@@ -127,8 +130,8 @@
                     <mt-text-field
                         v-model="page.name"
                         class="sw-cms-create-wizard__page-completion-name"
-                        :label="$tc('sw-cms.detail.label.pageName')"
-                        :placeholder="$tc('sw-cms.detail.label.pageNamePlaceholder')"
+                        :label="$t('sw-cms.detail.label.pageName')"
+                        :placeholder="$t('sw-cms.detail.label.pageNamePlaceholder')"
                         @keypress.enter="onCompletePageCreation"
                     />
                     {% endblock %}
@@ -137,8 +140,8 @@
                         v-if="isCustomEntityType"
                         v-model:value="page.entity"
                         class="sw-cms-create-wizard__page-completion-custom-entity"
-                        :label="$tc('sw-cms.detail.label.pageEntity')"
-                        :placeholder="$tc('sw-cms.detail.label.pageEntityPlaceholder')"
+                        :label="$t('sw-cms.detail.label.pageEntity')"
+                        :placeholder="$t('sw-cms.detail.label.pageEntityPlaceholder')"
                         :options="customEntities"
                         require
                     />
@@ -151,7 +154,7 @@
                             :disabled="!isCompletable"
                             @click="onCompletePageCreation"
                         >
-                            {{ $tc('sw-cms.createWizard.createLayout') }}
+                            {{ $t('sw-cms.createWizard.createLayout') }}
                         </mt-button>
                         {% endblock %}
                     </div>
@@ -171,7 +174,7 @@
                 <mt-icon
                     name="regular-long-arrow-left"
                     size="16px"
-                /> {{ $tc('sw-cms.createWizard.stepBack') }}
+                /> {{ $t('global.default.back') }}
             </div>
             {% endblock %}
         </div>

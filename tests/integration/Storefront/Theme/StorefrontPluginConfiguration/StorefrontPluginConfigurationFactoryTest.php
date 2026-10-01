@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Storefront\Theme\StorefrontPluginConfigurat
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Bundle;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Storefront\Framework\ThemeInterface;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
@@ -13,6 +14,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 /**
  * @internal
  */
+#[Package('discovery')]
 class StorefrontPluginConfigurationFactoryTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -32,9 +34,9 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
         $theme = $this->getBundle('TestTheme', $basePath, true);
         $config = $this->configFactory->createFromBundle($theme);
 
-        static::assertEquals('TestTheme', $config->getTechnicalName());
+        static::assertSame('TestTheme', $config->getTechnicalName());
         static::assertTrue($config->getIsTheme());
-        static::assertEquals(
+        static::assertSame(
             'app/storefront/src/main.js',
             $config->getStorefrontEntryFilepath()
         );
@@ -49,14 +51,14 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
             '@Storefront' => [],
             'app/storefront/dist/js/main.js' => [],
         ], $config->getScriptFiles());
-        static::assertEquals([
+        static::assertSame([
             '@Storefront',
             '@Plugins',
             '@SwagTheme',
         ], $config->getViewInheritance());
-        static::assertEquals(['app/storefront/dist/assets'], $config->getAssetPaths());
-        static::assertEquals('app/storefront/dist/assets/preview.jpg', $config->getPreviewMedia());
-        static::assertEquals([
+        static::assertSame(['app/storefront/dist/assets'], $config->getAssetPaths());
+        static::assertSame('app/storefront/dist/assets/preview.jpg', $config->getPreviewMedia());
+        static::assertSame([
             'fields' => [
                 'sw-image' => [
                     'type' => 'media',
@@ -64,7 +66,7 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
                 ],
             ],
         ], $config->getThemeConfig());
-        static::assertEquals([
+        static::assertSame([
             'custom-icons' => 'app/storefront/src/assets/icon-pack/custom-icons',
         ], $config->getIconSets());
     }
@@ -139,6 +141,6 @@ class StorefrontPluginConfigurationFactoryTest extends TestCase
             $flatFiles[$file->getFilepath()] = $file->getResolveMapping();
         }
 
-        static::assertEquals($expected, $flatFiles);
+        static::assertSame($expected, $flatFiles);
     }
 }

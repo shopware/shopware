@@ -56,7 +56,7 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
         $codeRepository = $this->createMock(EntityRepository::class);
         $codeRepository->expects($this->never())->method('search');
         $codeRepository->expects($this->never())->method('searchIds');
-        $redeemer = new PromotionIndividualCodeRedeemer($codeRepository, $this->createMock(EntityRepository::class));
+        $redeemer = new PromotionIndividualCodeRedeemer($codeRepository, static::createStub(EntityRepository::class));
 
         $customer = new OrderCustomerEntity();
         $customer->setId(Uuid::randomHex());
@@ -92,14 +92,13 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
     {
         $code = new PromotionIndividualCodeEntity();
         $code->setId(Uuid::randomHex());
-        $code->setCode('existing');
+        $code->setCode('ÄXISTING');
 
-        /** @var StaticEntityRepository<PromotionIndividualCodeCollection> $codeRepository */
         $codeRepository = new StaticEntityRepository([
             static function (Criteria $criteria) use ($code) {
                 $filter = $criteria->getFilters()[0];
                 static::assertInstanceOf(EqualsAnyFilter::class, $filter);
-                static::assertSame(['existing'], $filter->getValue());
+                static::assertSame(['äxisting'], $filter->getValue());
 
                 return new PromotionIndividualCodeCollection([$code]);
             },
@@ -126,7 +125,7 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
         $lineItem2->setId(Uuid::randomHex());
         $lineItem2->setOrderId($order->getId());
         $lineItem2->setType(PromotionProcessor::LINE_ITEM_TYPE);
-        $lineItem2->setPayload(['code' => 'existing']);
+        $lineItem2->setPayload(['code' => 'äxisting']);
 
         $context = Context::createDefaultContext();
 
@@ -160,12 +159,11 @@ class PromotionIndividualCodeRedeemerTest extends TestCase
 
     public function testPayloadWithoutTypeIsSkipped(): void
     {
-        /** @var StaticEntityRepository<PromotionIndividualCodeCollection> $codeRepository */
         $codeRepository = new StaticEntityRepository([]);
 
         $redeemer = new PromotionIndividualCodeRedeemer(
             $codeRepository,
-            $this->createMock(EntityRepository::class)
+            static::createStub(EntityRepository::class)
         );
 
         $customer = new OrderCustomerEntity();

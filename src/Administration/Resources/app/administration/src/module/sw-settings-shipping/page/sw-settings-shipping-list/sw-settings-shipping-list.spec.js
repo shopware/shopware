@@ -21,6 +21,11 @@ async function createWrapper(privileges = []) {
                 mocks: {
                     $route: {
                         query: '',
+                        meta: {
+                            $module: {
+                                icon: 'regular-content',
+                            },
+                        },
                     },
                 },
                 provide: {
@@ -49,6 +54,9 @@ async function createWrapper(privileges = []) {
                         buildSearchQueriesForEntity: (searchFields, term, criteria) => {
                             return criteria;
                         },
+                        isValidTerm: (term) => {
+                            return term && term.trim().length >= 1;
+                        },
                     },
                 },
                 stubs: {
@@ -56,7 +64,6 @@ async function createWrapper(privileges = []) {
                         template: '<div><slot name="content"></slot><slot name="smart-bar-actions"></slot></div>',
                     },
                     'sw-entity-listing': true,
-                    'sw-empty-state': true,
                     'router-link': true,
                     'sw-search-bar': true,
                     'sw-language-switch': true,
@@ -80,6 +87,7 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
 
     it('should have all fields disabled', async () => {
         const wrapper = await createWrapper();
+        await wrapper.setData({ total: 2 });
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
         const button = wrapper.findByText('button', 'sw-settings-shipping.list.buttonAddShippingMethod');
@@ -91,9 +99,8 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     });
 
     it('should have edit fields enabled', async () => {
-        const wrapper = await createWrapper([
-            'shipping.editor',
-        ]);
+        const wrapper = await createWrapper(['shipping.editor']);
+        await wrapper.setData({ total: 2 });
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
         const button = wrapper.findByText('button', 'sw-settings-shipping.list.buttonAddShippingMethod');
@@ -106,10 +113,8 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     });
 
     it('should have delete fields enabled', async () => {
-        const wrapper = await createWrapper([
-            'shipping.editor',
-            'shipping.deleter',
-        ]);
+        const wrapper = await createWrapper(['shipping.editor', 'shipping.deleter']);
+        await wrapper.setData({ total: 2 });
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
         const button = wrapper.findByText('button', 'sw-settings-shipping.list.buttonAddShippingMethod');
@@ -121,11 +126,8 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
     });
 
     it('should have creator fields enabled', async () => {
-        const wrapper = await createWrapper([
-            'shipping.editor',
-            'shipping.deleter',
-            'shipping.creator',
-        ]);
+        const wrapper = await createWrapper(['shipping.editor', 'shipping.deleter', 'shipping.creator']);
+        await wrapper.setData({ total: 2 });
 
         const entityListing = wrapper.find('sw-entity-listing-stub');
         const button = wrapper.findByText('button', 'sw-settings-shipping.list.buttonAddShippingMethod');
@@ -214,11 +216,9 @@ describe('module/sw-settings-shipping/page/sw-settings-shipping-list', () => {
         });
         await wrapper.vm.getList();
 
-        const emptyState = wrapper.find('sw-empty-state-stub');
-
         expect(wrapper.vm.searchRankingService.getSearchFieldsByEntity).toHaveBeenCalledTimes(1);
-        expect(emptyState.exists()).toBeTruthy();
-        expect(emptyState.attributes().title).toBe('sw-empty-state.messageNoResultTitle');
+        expect(wrapper.find('.mt-empty-state').exists()).toBeTruthy();
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-empty-state.messageNoResultTitle');
         expect(wrapper.find('sw-entity-listing-stub').exists()).toBeFalsy();
         expect(wrapper.vm.entitySearchable).toBe(false);
 

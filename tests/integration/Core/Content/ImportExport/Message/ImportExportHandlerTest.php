@@ -28,18 +28,16 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
         static::assertInstanceOf(TraceableMessageBus::class, $messageBus);
 
         $importExportMessageCount = \count(
-            \array_filter($messageBus->getDispatchedMessages(), function ($message): bool {
+            \array_filter($messageBus->getDispatchedMessages(), static function ($message): bool {
                 return $message['message'] instanceof ImportExportMessage;
             })
         );
 
         $factory = static::getContainer()->get(ImportExportFactory::class);
 
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-
         $context = Context::createDefaultContext();
 
-        $importExportHandler = new ImportExportHandler($messageBus, $factory, $eventDispatcher);
+        $importExportHandler = new ImportExportHandler($messageBus, $factory, $this->listener);
 
         $importExportService = static::getContainer()->get(ImportExportService::class);
 
@@ -59,7 +57,7 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
 
         $importExportHandler->__invoke($importExportMessage);
 
-        $messages = \array_filter($messageBus->getDispatchedMessages(), function ($message): bool {
+        $messages = \array_filter($messageBus->getDispatchedMessages(), static function ($message): bool {
             return $message['message'] instanceof ImportExportMessage;
         });
 
@@ -86,23 +84,22 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
 
         $importExportMessageCount
             = \count(
-                \array_filter($messageBus->getDispatchedMessages(), function ($message): bool {
+                \array_filter($messageBus->getDispatchedMessages(), static function ($message): bool {
                     return $message['message'] instanceof ImportExportMessage;
                 })
             );
 
         $factory = static::getContainer()->get(ImportExportFactory::class);
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
         $context = Context::createDefaultContext();
 
-        $importExportHandler = new ImportExportHandler($messageBus, $factory, $eventDispatcher);
+        $importExportHandler = new ImportExportHandler($messageBus, $factory, $this->listener);
         $importExportService = static::getContainer()->get(ImportExportService::class);
         $profileId = $this->getDefaultProfileId(PropertyGroupOptionDefinition::ENTITY_NAME);
 
         $expireDate = new \DateTimeImmutable('2099-01-01');
         $file = new UploadedFile(__DIR__ . '/../fixtures/properties.csv', 'properties.csv', 'text/csv');
 
-        $logEntity = $importExportService->prepareImport(
+        $importExportService->prepareImport(
             $context,
             $profileId,
             $expireDate,
@@ -113,10 +110,10 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
 
         $importExportExceptionImportExportHandlerEventCount = 0;
 
-        $eventDispatcher
+        $this->listener
             ->addListener(
                 ImportExportExceptionImportExportHandlerEvent::class,
-                function (ImportExportExceptionImportExportHandlerEvent $event) use (&$importExportExceptionImportExportHandlerEventCount, $importExportMessage): void {
+                static function (ImportExportExceptionImportExportHandlerEvent $event) use (&$importExportExceptionImportExportHandlerEventCount, $importExportMessage): void {
                     static::assertInstanceOf(InvalidUuidException::class, $event->getException());
                     static::assertSame(
                         0,
@@ -129,7 +126,7 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
 
         $importExportHandler->__invoke($importExportMessage);
 
-        $messages = \array_filter($messageBus->getDispatchedMessages(), function ($message): bool {
+        $messages = \array_filter($messageBus->getDispatchedMessages(), static function ($message): bool {
             return $message['message'] instanceof ImportExportMessage;
         });
 

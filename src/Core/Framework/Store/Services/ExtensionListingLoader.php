@@ -79,7 +79,7 @@ readonly class ExtensionListingLoader
 
     private function sortCollection(ExtensionCollection $collection): ExtensionCollection
     {
-        $collection->sort(fn (ExtensionStruct $a, ExtensionStruct $b) => strcmp($a->getLabel(), $b->getLabel()));
+        $collection->sort(static fn (ExtensionStruct $a, ExtensionStruct $b) => strcmp($a->getLabel(), $b->getLabel()));
 
         $sortedCollection = new ExtensionCollection();
 

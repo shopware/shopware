@@ -1,7 +1,6 @@
 /**
  * @sw-package inventory
  */
-// eslint-disable-next-line max-len
 import FeatureGridTranslationService from 'src/module/sw-settings-product-feature-sets/service/feature-grid-translation.service';
 import template from './sw-settings-product-feature-sets-values-card.html.twig';
 import './sw-settings-product-feature-sets-values-card.scss';
@@ -31,7 +30,6 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -82,7 +80,6 @@ export default {
 
         featureGridTranslationService() {
             if (this.translationService === null) {
-                // eslint-disable-next-line vue/no-side-effects-in-computed-properties
                 this.translationService = new FeatureGridTranslationService(
                     this,
                     this.propertyGroupRepository,
@@ -93,6 +90,7 @@ export default {
             return this.translationService;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },

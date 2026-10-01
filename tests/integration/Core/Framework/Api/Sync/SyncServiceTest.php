@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -23,6 +24,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('framework')]
 class SyncServiceTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -87,11 +89,11 @@ class SyncServiceTest extends TestCase
 
         $result = $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
 
-        static::assertEquals([], $result->getDeleted());
+        static::assertSame([], $result->getDeleted());
 
         $expected = ['product_price' => [$ids->get('not-existing-price')]];
 
-        static::assertEquals($expected, $result->getNotFound());
+        static::assertSame($expected, $result->getNotFound());
     }
 
     public function testDeleteProductMediaAndUpdateProduct(): void
@@ -113,6 +115,12 @@ class SyncServiceTest extends TestCase
         ];
 
         $this->service->sync($operations, Context::createDefaultContext(), new SyncBehavior());
+        $exists = $this->connection->fetchAllAssociative(
+            'SELECT id FROM product_media WHERE id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids->getList(['media-2']))],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+        static::assertEmpty($exists);
     }
 
     public function testSingleOperationWithDeletesAndWrites(): void
@@ -169,16 +177,12 @@ class SyncServiceTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $createListener = $this
-            ->getMockBuilder(CallableClass::class)
-            ->getMock();
+        $createListener = $this->createMock(CallableClass::class);
 
         $createListener->expects($this->once())
             ->method('__invoke');
 
-        $deleteListener = $this
-            ->getMockBuilder(CallableClass::class)
-            ->getMock();
+        $deleteListener = $this->createMock(CallableClass::class);
 
         $deleteListener->expects($this->exactly(3))
             ->method('__invoke');
@@ -233,9 +237,7 @@ class SyncServiceTest extends TestCase
 
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
-        $listener = $this
-            ->getMockBuilder(CallableClass::class)
-            ->getMock();
+        $listener = $this->createMock(CallableClass::class);
 
         $listener->expects($this->once())
             ->method('__invoke');
@@ -444,6 +446,6 @@ class SyncServiceTest extends TestCase
         static::assertIsString($productPrice);
         $productPrice = json_decode($productPrice, true);
         $productPrice = array_shift($productPrice);
-        static::assertEquals(300, $productPrice['gross']);
+        static::assertSame(300.0, $productPrice['gross']);
     }
 }

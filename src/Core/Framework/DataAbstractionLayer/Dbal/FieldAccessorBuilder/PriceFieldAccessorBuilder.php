@@ -41,29 +41,30 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
         $parts = explode('.', $accessor);
 
         // is tax state explicitly requested? => overwrite selector
-        if (\in_array(end($parts), ['net', 'gross'], true)) {
-            $jsonAccessor = end($parts);
+        if (\in_array(array_last($parts), ['net', 'gross'], true)) {
+            $jsonAccessor = array_last($parts);
             array_pop($parts);
         }
 
         // filter / search / sort for list prices? => extend selector
-        if (end($parts) === 'listPrice') {
+        if (array_last($parts) === 'listPrice') {
             $jsonAccessor = 'listPrice.' . $jsonAccessor;
             array_pop($parts);
         }
 
-        if (end($parts) === 'percentage') {
+        $isPercentageAccessor = array_last($parts) === 'percentage';
+        if ($isPercentageAccessor) {
             $jsonAccessor = 'percentage.' . $jsonAccessor;
             array_pop($parts);
         }
 
         // is specific currency id provided? => overwrite currency id and currency factor
-        $lastPart = (string) end($parts);
+        $lastPart = (string) array_last($parts);
         if (Uuid::isValid($lastPart)) {
             $currencyId = $lastPart;
             $currencyFactor = \sprintf(
                 '* (SELECT `factor` FROM `currency` WHERE `id` = %s)',
-                (string) $this->connection->quote($currencyId)
+                $this->connection->quote($currencyId)
             );
         }
 
@@ -81,8 +82,8 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
         $variables = [
             '#root#' => EntityDefinitionQueryHelper::escape($root),
             '#field#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
-            '#currencyId#' => (string) $currencyId,
-            '#property#' => (string) $jsonAccessor,
+            '#currencyId#' => $currencyId,
+            '#property#' => $jsonAccessor,
             '#factor#' => '+ 0.0',
         ];
 
@@ -93,7 +94,7 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
                 '#root#' => EntityDefinitionQueryHelper::escape($root),
                 '#field#' => EntityDefinitionQueryHelper::escape($field->getStorageName()),
                 '#currencyId#' => Defaults::CURRENCY,
-                '#property#' => (string) $jsonAccessor,
+                '#property#' => $jsonAccessor,
                 '#factor#' => $currencyFactor,
             ];
 
@@ -124,7 +125,16 @@ class PriceFieldAccessorBuilder implements FieldAccessorBuilderInterface
             $template = str_replace(array_keys($variables), array_values($variables), '(ROUND(#accessor# * #multiplier#, 0) / #multiplier#)');
         }
 
-        return \sprintf($template, implode(',', $select));
+        $result = \sprintf($template, implode(',', $select));
+
+        // The DB stores the discount percentage (e.g. 25 for "25% off"), but the API
+        // exposes the price-to-list-price ratio (e.g. 75 for "pay 75% of list price").
+        // Invert here so filters/sorts operate on the intuitive ratio scale.
+        if ($isPercentageAccessor) {
+            return \sprintf('(100 - %s)', $result);
+        }
+
+        return $result;
     }
 
     private function useCashRounding(Context $context): bool

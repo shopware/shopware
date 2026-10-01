@@ -3,40 +3,35 @@
 namespace Shopware\Core\Content\Sitemap\ScheduledTask;
 
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Sitemap\Event\SitemapSalesChannelCriteriaEvent;
 use Shopware\Core\Content\Sitemap\Service\SitemapExporterInterface;
-use Shopware\Core\Defaults;
+use Shopware\Core\Content\Sitemap\Service\SitemapSalesChannelLoader;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
-use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Symfony\Component\Messenger\MessageBusInterface;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
  */
-#[AsMessageHandler(handles: SitemapGenerateTask::class)]
 #[Package('discovery')]
+#[AsMessageHandler(handles: SitemapGenerateTask::class)]
 final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
 {
     /**
      * @internal
+     *
+     * @param EntityRepository<ScheduledTaskCollection> $scheduledTaskRepository
      */
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
-        private readonly EntityRepository $salesChannelRepository,
+        private readonly SitemapSalesChannelLoader $salesChannelLoader,
         private readonly SystemConfigService $systemConfigService,
-        private readonly MessageBusInterface $messageBus,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly MessageBusInterface $messageBus
     ) {
         parent::__construct($scheduledTaskRepository, $logger);
     }
@@ -48,35 +43,10 @@ final class SitemapGenerateTaskHandler extends ScheduledTaskHandler
             return;
         }
 
-        $criteria = new Criteria();
-        $criteria->addAssociation('domains');
-        $criteria->addFilter(new NotFilter(
-            NotFilter::CONNECTION_AND,
-            [new EqualsFilter('domains.id', null)]
-        ));
+        $salesChannels = $this->salesChannelLoader->loadSalesChannels(Context::createCLIContext());
 
-        $criteria->addAssociation('type');
-        $criteria->addFilter(new EqualsFilter('type.id', Defaults::SALES_CHANNEL_TYPE_STOREFRONT));
-
-        $context = Context::createCLIContext();
-
-        $this->eventDispatcher->dispatch(
-            new SitemapSalesChannelCriteriaEvent($criteria, $context)
-        );
-
-        $salesChannels = $this->salesChannelRepository->search($criteria, $context)->getEntities();
-
-        /** @var SalesChannelEntity $salesChannel */
         foreach ($salesChannels as $salesChannel) {
-            if ($salesChannel->getDomains() === null) {
-                continue;
-            }
-
-            $languageIds = $salesChannel->getDomains()->map(fn (SalesChannelDomainEntity $salesChannelDomain) => $salesChannelDomain->getLanguageId());
-
-            $languageIds = array_unique($languageIds);
-
-            foreach ($languageIds as $languageId) {
+            foreach ($this->salesChannelLoader->getLanguageIds($salesChannel) as $languageId) {
                 $this->messageBus->dispatch(new SitemapMessage($salesChannel->getId(), $languageId, null, null, false));
             }
         }

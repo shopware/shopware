@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class OrderDeliveryEntity extends Entity
 {
@@ -51,6 +54,8 @@ class OrderDeliveryEntity extends Entity
     protected ?OrderEntity $order = null;
 
     protected ?OrderDeliveryPositionCollection $positions = null;
+
+    protected ?OrderEntity $primaryOrder = null;
 
     public function getOrderId(): string
     {
@@ -206,5 +211,15 @@ class OrderDeliveryEntity extends Entity
     public function setShippingOrderAddressVersionId(string $shippingOrderAddressVersionId): void
     {
         $this->shippingOrderAddressVersionId = $shippingOrderAddressVersionId;
+    }
+
+    public function getPrimaryOrder(): ?OrderEntity
+    {
+        return $this->primaryOrder;
+    }
+
+    public function setPrimaryOrder(?OrderEntity $primaryOrder): void
+    {
+        $this->primaryOrder = $primaryOrder;
     }
 }

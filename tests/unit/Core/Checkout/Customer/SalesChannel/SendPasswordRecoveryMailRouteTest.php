@@ -3,28 +3,29 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Customer\CustomerException;
-use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
+use Shopware\Core\Checkout\Customer\Extension\SendPasswordRecoveryMailRouteExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Contracts\EventDispatcher\Event;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -34,31 +35,37 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(SendPasswordRecoveryMailRoute::class)]
 class SendPasswordRecoveryMailRouteTest extends TestCase
 {
-    protected EntityRepository&MockObject $customerRepository;
+    /**
+     * @var EntityRepository<CustomerCollection>&Stub
+     */
+    protected EntityRepository&Stub $customerRepository;
 
-    protected EntityRepository&MockObject $customerRecoveryRepository;
+    /**
+     * @var EntityRepository<CustomerRecoveryCollection>&Stub
+     */
+    protected EntityRepository&Stub $customerRecoveryRepository;
 
-    protected EventDispatcherInterface&MockObject $eventDispatcher;
+    protected EventDispatcherInterface&Stub $eventDispatcher;
 
-    protected DataValidator&MockObject $validator;
+    protected DataValidator&Stub $validator;
 
-    protected SystemConfigService&MockObject $systemConfigService;
+    protected SystemConfigService&Stub $systemConfigService;
 
-    protected RequestStack&MockObject $requestStack;
+    protected RequestStack&Stub $requestStack;
 
-    protected RateLimiter&MockObject $rateLimiter;
+    protected RateLimiter&Stub $rateLimiter;
 
     protected SalesChannelContext $context;
 
     protected function setUp(): void
     {
-        $this->customerRepository = $this->createMock(EntityRepository::class);
-        $this->customerRecoveryRepository = $this->createMock(EntityRepository::class);
-        $this->eventDispatcher = $this->createMock(EventDispatcherInterface::class);
-        $this->validator = $this->createMock(DataValidator::class);
-        $this->systemConfigService = $this->createMock(SystemConfigService::class);
-        $this->requestStack = $this->createMock(RequestStack::class);
-        $this->rateLimiter = $this->createMock(RateLimiter::class);
+        $this->customerRepository = static::createStub(EntityRepository::class);
+        $this->customerRecoveryRepository = static::createStub(EntityRepository::class);
+        $this->eventDispatcher = static::createStub(EventDispatcherInterface::class);
+        $this->validator = static::createStub(DataValidator::class);
+        $this->systemConfigService = static::createStub(SystemConfigService::class);
+        $this->requestStack = static::createStub(RequestStack::class);
+        $this->rateLimiter = static::createStub(RateLimiter::class);
         $this->context = Generator::generateSalesChannelContext();
     }
 
@@ -69,7 +76,8 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
         $customerCollection = new CustomerCollection([$customer]);
 
-        $this->customerRepository
+        $customerRepository = $this->createMock(EntityRepository::class);
+        $customerRepository
             ->expects($this->once())
             ->method('search')
             ->willReturn(
@@ -83,11 +91,12 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
                 )
             );
 
-        $this->customerRecoveryRepository
+        $customerRecoveryRepository = $this->createMock(EntityRepository::class);
+        $customerRecoveryRepository
             ->expects($this->once())
             ->method('create')
             ->with(
-                static::callback(function (array $recoveryData): bool {
+                static::callback(static function (array $recoveryData): bool {
                     static::assertCount(1, $recoveryData);
 
                     $updateData = $recoveryData[0];
@@ -112,7 +121,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
         $customerRecoveryCollection = new CustomerRecoveryCollection([$customerRecovery]);
 
-        $this->customerRecoveryRepository
+        $customerRecoveryRepository
             ->expects($this->exactly(2))
             ->method('search')
             ->willReturn(
@@ -127,27 +136,21 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
             );
 
         $MailRoute = new SendPasswordRecoveryMailRoute(
-            $this->customerRepository,
-            $this->customerRecoveryRepository,
+            $customerRepository,
+            $customerRecoveryRepository,
             $this->eventDispatcher,
             $this->validator,
             $this->systemConfigService,
             $this->requestStack,
-            $this->rateLimiter
+            $this->rateLimiter,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $this->context->getSalesChannel()->setTranslated(['name' => 'FooBar']);
-        $event = new CustomerAccountRecoverRequestEvent($this->context, $customerRecovery, 'https://test.example.dev/account/recover/password?hash=super-secret-hash');
 
         $this->eventDispatcher
             ->method('dispatch')
-            ->with(static::callback(function (Event $dispatched) use ($event): bool {
-                if ($dispatched instanceof CustomerAccountRecoverRequestEvent) {
-                    static::assertEquals($event, $dispatched);
-                }
-
-                return true;
-            }), static::anything());
+            ->willReturnArgument(0);
 
         $data = new RequestDataBag();
         $data->set('email', 'test@test.dev');
@@ -158,22 +161,50 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
 
     public function testNoCustomerFound(): void
     {
-        $MailRoute = new SendPasswordRecoveryMailRoute(
+        $mailRoute = new SendPasswordRecoveryMailRoute(
             $this->customerRepository,
             $this->customerRecoveryRepository,
             $this->eventDispatcher,
             $this->validator,
             $this->systemConfigService,
             $this->requestStack,
-            $this->rateLimiter
+            $this->rateLimiter,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $data = new RequestDataBag();
         $data->set('email', 'foo@foo');
 
-        static::expectException(CustomerException::class);
-        static::expectExceptionMessage('No matching customer for the email "foo@foo" was found.');
+        $response = $mailRoute->sendRecoveryMail($data, $this->context)->getObject()->getVars();
 
-        $MailRoute->sendRecoveryMail($data, $this->context);
+        static::assertArrayHasKey('success', $response);
+        static::assertTrue($response['success']);
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $data = new RequestDataBag();
+        $response = new SuccessResponse();
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('send-password-recovery-mail-route.send-recovery-mail.pre', function (SendPasswordRecoveryMailRouteExtension $extension) use ($data, $response): void {
+            static::assertSame(['data' => $data, 'context' => $this->context, 'validateStorefrontUrl' => true], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new SendPasswordRecoveryMailRoute(
+            $this->customerRepository,
+            $this->customerRecoveryRepository,
+            $this->eventDispatcher,
+            $this->validator,
+            $this->systemConfigService,
+            $this->requestStack,
+            $this->rateLimiter,
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->sendRecoveryMail($data, $this->context, true));
     }
 }

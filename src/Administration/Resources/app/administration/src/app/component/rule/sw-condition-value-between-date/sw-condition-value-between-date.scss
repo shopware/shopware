@@ -1,0 +1,13 @@
+.sw-condition-value-between-date {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--scale-size-8);
+
+    .mt-field-label {
+        display: none;
+    }
+
+    .mt-field__error {
+        display: none;
+    }
+}

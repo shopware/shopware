@@ -7,10 +7,7 @@ import template from './sw-bulk-edit-save-modal-error.html.twig';
 export default {
     template,
 
-    emits: [
-        'title-set',
-        'buttons-update',
-    ],
+    emits: ['title-set', 'buttons-update'],
 
     created() {
         this.createdComponent();
@@ -23,14 +20,14 @@ export default {
         },
 
         setTitle() {
-            this.$emit('title-set', this.$tc('sw-bulk-edit.modal.error.title'));
+            this.$emit('title-set', this.$t('sw-bulk-edit.modal.error.title'));
         },
 
         updateButtons() {
             const buttonConfig = [
                 {
                     key: 'close',
-                    label: this.$tc('global.sw-modal.labelClose'),
+                    label: this.$t('global.default.close'),
                     position: 'right',
                     variant: 'primary',
                     action: '',

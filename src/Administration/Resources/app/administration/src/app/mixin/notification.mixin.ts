@@ -8,6 +8,8 @@ const { Mixin } = Shopware;
 
 /**
  * @private
+ *
+ * Duplicated in `src/app/composables/use-notification`; change both together.
  */
 export default Mixin.register(
     'notification',
@@ -20,7 +22,7 @@ export default Mixin.register(
             createNotificationSuccess(config: NotificationType): void {
                 const notification = {
                     variant: 'success' as NotificationVariant,
-                    title: this.$tc('global.default.success'),
+                    title: 'global.default.success',
                     ...config,
                 };
 
@@ -30,7 +32,7 @@ export default Mixin.register(
             createNotificationInfo(config: NotificationType): void {
                 const notification = {
                     variant: 'info' as NotificationVariant,
-                    title: this.$tc('global.default.info'),
+                    title: 'global.default.info',
                     ...config,
                 };
 
@@ -40,7 +42,7 @@ export default Mixin.register(
             createNotificationWarning(config: NotificationType): void {
                 const notification = {
                     variant: 'warning' as NotificationVariant,
-                    title: this.$tc('global.default.warning'),
+                    title: 'global.default.warning',
                     ...config,
                 };
 
@@ -50,7 +52,7 @@ export default Mixin.register(
             createNotificationError(config: NotificationType): void {
                 const notification = {
                     variant: 'error' as NotificationVariant,
-                    title: this.$tc('global.default.error'),
+                    title: 'global.default.error',
                     ...config,
                 };
 

@@ -47,11 +47,19 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
                     'sw-context-menu-item': true,
                     'sw-internal-link': true,
                     'sw-payment-card': true,
-                    'sw-empty-state': true,
                     'sw-extension-component-section': true,
                     'router-link': true,
                     'sw-language-switch': true,
                     'sw-settings-payment-sorting-modal': true,
+                },
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'regular-content',
+                            },
+                        },
+                    },
                 },
             },
         },
@@ -59,13 +67,6 @@ async function createWrapper(methods = [], cards = [], privileges = []) {
 }
 
 describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should not be able to create a new payment method', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
@@ -76,13 +77,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
     });
 
     it('should be able to create a new payment method', async () => {
-        const wrapper = await createWrapper(
-            [],
-            [],
-            [
-                'payment.creator',
-            ],
-        );
+        const wrapper = await createWrapper([], [], ['payment.creator']);
         await wrapper.vm.$nextTick();
 
         const createButton = wrapper.find('.sw-settings-payment-overview__button-create');
@@ -120,10 +115,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
             [
                 {
                     positionId: 'positionId',
-                    paymentMethodHandlers: [
-                        'handler',
-                        'handler2',
-                    ],
+                    paymentMethodHandlers: ['handler', 'handler2'],
                 },
             ],
         );
@@ -155,10 +147,7 @@ describe('module/sw-settings-payment/page/sw-settings-payment-overview', () => {
                 {
                     positionId: 'positionId',
                     component: 'mt-card',
-                    paymentMethodHandlers: [
-                        'handler',
-                        'handler2',
-                    ],
+                    paymentMethodHandlers: ['handler', 'handler2'],
                 },
             ],
         );

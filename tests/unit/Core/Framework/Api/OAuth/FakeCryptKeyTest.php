@@ -8,10 +8,12 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\OAuth\FakeCryptKey;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(FakeCryptKey::class)]
 class FakeCryptKeyTest extends TestCase
 {
@@ -19,9 +21,9 @@ class FakeCryptKeyTest extends TestCase
     {
         $configuration = Configuration::forSymmetricSigner(new Sha256(), InMemory::plainText('test'));
         $fakeCryptKey = new FakeCryptKey($configuration);
-        static::assertEquals('', $fakeCryptKey->getKeyContents());
-        static::assertEquals('', $fakeCryptKey->getKeyPath());
-        static::assertEquals('', $fakeCryptKey->getPassPhrase());
+        static::assertSame('', $fakeCryptKey->getKeyContents());
+        static::assertSame('', $fakeCryptKey->getKeyPath());
+        static::assertSame('', $fakeCryptKey->getPassPhrase());
         static::assertSame($configuration, $fakeCryptKey->configuration);
     }
 }

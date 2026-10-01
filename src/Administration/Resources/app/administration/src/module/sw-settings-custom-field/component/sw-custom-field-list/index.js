@@ -6,16 +6,14 @@ import './sw-custom-field-list.scss';
 
 const { Criteria } = Shopware.Data;
 const { Mixin } = Shopware;
+const { ShopwareError } = Shopware.Classes;
 const types = Shopware.Utils.types;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     provide() {
         return {
@@ -25,10 +23,7 @@ export default {
 
     emits: ['loading-changed'],
 
-    mixins: [
-        Mixin.getByName('sw-inline-snippet'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('sw-inline-snippet'), Mixin.getByName('notification')],
 
     props: {
         set: {
@@ -87,7 +82,7 @@ export default {
             const criteria = new Criteria(this.page, this.limit);
 
             criteria.addFilter(Criteria.equals('customFieldSetId', this.set.id));
-            criteria.addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+            criteria.addSorting(Criteria.sort('config.customFieldPosition', 'ASC'));
 
             if (this.term) {
                 criteria.setTerm(this.term);
@@ -121,6 +116,7 @@ export default {
         onAddCustomField() {
             const customField = this.customFieldRepository.create();
             customField.storeApiAware = true;
+
             this.onCustomFieldEdit(customField);
         },
 
@@ -138,20 +134,19 @@ export default {
 
             return this.customFieldRepository
                 .save(field)
-                .catch((error) => {
-                    const errorMessage = error?.response?.data?.errors?.[0]?.detail ?? 'Error';
-
-                    this.createNotificationError({
-                        message: errorMessage,
-                    });
-                })
-                .finally(() => {
+                .then(() => {
                     this.currentCustomField = null;
+                    this.loadCustomFields();
+                })
+                .catch((error) => {
+                    const [{ detail: message = 'Error', code = 'UNKNOWN_ERROR' } = {}] = error?.response?.data?.errors ?? [];
 
-                    // Wait for modal to be closed
-                    this.$nextTick(() => {
-                        this.loadCustomFields();
+                    Shopware.Store.get('error').addApiError({
+                        expression: `custom_field.${field.id}.name.error`,
+                        error: new ShopwareError({ code, detail: message }),
                     });
+
+                    this.createNotificationError({ message });
                 });
         },
 
@@ -165,12 +160,7 @@ export default {
 
         removeEmptyProperties(config) {
             Object.keys(config).forEach((property) => {
-                if (
-                    [
-                        'number',
-                        'boolean',
-                    ].includes(typeof config[property])
-                ) {
+                if (['number', 'boolean'].includes(typeof config[property])) {
                     return;
                 }
 
@@ -215,6 +205,10 @@ export default {
             }
 
             return this.globalCustomFieldRepository.syncDeleted(toBeDeletedCustomFields, Shopware.Context.api).then(() => {
+                Shopware.Service('cacheService').invalidateCaches({
+                    cacheKey: ['custom-field-sets'],
+                });
+
                 this.deleteButtonDisabled = true;
                 this.deleteCustomField = null;
 

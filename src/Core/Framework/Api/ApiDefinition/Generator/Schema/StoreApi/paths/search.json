@@ -1,22 +1,23 @@
 {
-    "openapi": "3.1.0",
+    "openapi": "3.2.0",
     "info": [],
     "paths": {
         "/search": {
             "post": {
-                "tags": ["Product"],
+                "tags": [
+                    "Product"
+                ],
                 "summary": "Search for products",
                 "description": "Performs a search for products which can be used to display a product listing.",
                 "operationId": "searchPage",
                 "parameters": [
                     {
-                        "name": "sw-language-id",
-                        "in": "header",
-                        "description": "Instructs Shopware to return the response in the given language.",
+                        "name": "p",
+                        "in": "query",
+                        "description": "The page number to fetch.",
                         "required": false,
                         "schema": {
-                            "type": "string",
-                            "pattern": "^[0-9a-f]{32}$"
+                            "type": "integer"
                         }
                     },
                     {
@@ -27,6 +28,23 @@
                         "schema": {
                             "type": "boolean"
                         }
+                    },
+                    {
+                        "name": "sw-include-search-info",
+                        "in": "header",
+                        "description": "Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "0",
+                                "1"
+                            ],
+                            "default": "1"
+                        }
+                    },
+                    {
+                        "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
                 "requestBody": {
@@ -35,7 +53,6 @@
                             "schema": {
                                 "allOf": [
                                     {
-                                        "required": ["search"],
                                         "properties": {
                                             "search": {
                                                 "description": "Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag.",
@@ -65,6 +82,73 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `search` parameter is missing, or the `Criteria` sent with the request is invalid."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ]
+            },
+            "get": {
+                "tags": [
+                    "Product"
+                ],
+                "summary": "Search for products",
+                "description": "Performs a search for products which can be used to display a product listing.",
+                "operationId": "searchPageGet",
+                "parameters": [
+                    {
+                        "description": "Instructs Shopware to try and resolve SEO URLs for the given navigation item",
+                        "in": "header",
+                        "name": "sw-include-seo-urls",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Using the search parameter, the server performs a text search on all records based on their data model and weighting as defined in the entity definition using the SearchRanking flag.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "x-parameter-group": "productListingCriteria"
+                    },
+                    {
+                        "x-parameter-group": "productListingFlags"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a product listing containing all products and additional fields to display a listing.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ProductListingResult"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `search` parameter is missing, or the `Criteria` sent with the request is invalid."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [

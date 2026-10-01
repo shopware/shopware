@@ -2,7 +2,7 @@
 <sw-modal
     v-if="properties"
     class="sw-product-add-properties-modal"
-    :title="$tc('sw-product.properties.addPropertiesModal.title')"
+    :title="$t('sw-product.properties.addPropertiesModal.title')"
     @modal-close="onCancel"
 >
     {% block sw_product_add_properties_modal_filled_state %}
@@ -32,7 +32,7 @@
                                     variant="form"
                                     class="sw-property-search__search-field sw-product-add-properties-modal__search-field"
                                     :value="searchTerm"
-                                    :placeholder="$tc('sw-property-search.placeholderSearch')"
+                                    :placeholder="$t('sw-property-search.placeholderSearch')"
                                     @focus="focus"
                                     @update:value="input"
                                     @option-select="onSelectOption"
@@ -54,36 +54,6 @@
     </div>
     {% endblock %}
 
-    {% block sw_product_add_properties_modal_empty_state %}
-    <sw-empty-state
-        v-if="!propertiesAvailable"
-        :absolute="false"
-        :title="$tc('sw-product.properties.addPropertiesModal.titleEmptyState')"
-        :subline="$tc('sw-product.properties.addPropertiesModal.descriptionEmptyState')"
-    >
-        <template #icon>
-            {% block sw_product_add_properties_modal_empty_state_image %}
-            <img
-                :src="assetFilter('/administration/administration/static/img/empty-states/products-empty-state.svg')"
-                :alt="$tc('sw-product.properties.addPropertiesModal.titleEmptyState')"
-            >
-            {% endblock %}
-        </template>
-
-        <template #actions>
-            {% block sw_product_properties_empty_state_button_property %}
-            <mt-button
-                ghost
-                variant="secondary"
-                @click="onOpenProperties"
-            >
-                {{ $tc('sw-product.properties.buttonAddProperties') }}
-            </mt-button>
-            {% endblock %}
-        </template>
-    </sw-empty-state>
-    {% endblock %}
-
     <template #modal-footer>
         {% block sw_product_add_properties_modal_button_cancel %}
         <mt-button
@@ -91,7 +61,7 @@
             variant="secondary"
             @click="onCancel"
         >
-            {{ $tc('global.default.cancel') }}
+            {{ $t('global.default.cancel') }}
         </mt-button>
         {% endblock %}
 
@@ -103,7 +73,7 @@
             size="small"
             @click="onSave"
         >
-            {{ $tc('global.default.save') }}
+            {{ $t('global.default.save') }}
         </mt-button>
         {% endblock %}
     </template>

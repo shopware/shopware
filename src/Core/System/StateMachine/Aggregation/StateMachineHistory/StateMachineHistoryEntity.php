@@ -5,10 +5,14 @@ namespace Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Integration\IntegrationEntity;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 use Shopware\Core\System\StateMachine\StateMachineEntity;
 use Shopware\Core\System\User\UserEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class StateMachineHistoryEntity extends Entity
 {
@@ -32,11 +36,19 @@ class StateMachineHistoryEntity extends Entity
 
     protected ?StateMachineStateEntity $toStateMachineState = null;
 
-    protected string $userId;
+    protected ?string $userId = null;
 
     protected ?UserEntity $user = null;
 
+    protected ?string $integrationId = null;
+
+    protected ?IntegrationEntity $integration = null;
+
     protected string $transitionActionName;
+
+    protected ?string $internalComment = null;
+
+    protected ?string $sourceType = null;
 
     public function getTransitionActionName(): string
     {
@@ -133,12 +145,12 @@ class StateMachineHistoryEntity extends Entity
         $this->toStateMachineState = $toStateMachineState;
     }
 
-    public function getUserId(): string
+    public function getUserId(): ?string
     {
         return $this->userId;
     }
 
-    public function setUserId(string $userId): void
+    public function setUserId(?string $userId): void
     {
         $this->userId = $userId;
     }
@@ -156,5 +168,45 @@ class StateMachineHistoryEntity extends Entity
     public function setFromStateMachineState(StateMachineStateEntity $fromStateMachineState): void
     {
         $this->fromStateMachineState = $fromStateMachineState;
+    }
+
+    public function getIntegrationId(): ?string
+    {
+        return $this->integrationId;
+    }
+
+    public function setIntegrationId(?string $integrationId): void
+    {
+        $this->integrationId = $integrationId;
+    }
+
+    public function getIntegration(): ?IntegrationEntity
+    {
+        return $this->integration;
+    }
+
+    public function setIntegration(?IntegrationEntity $integration): void
+    {
+        $this->integration = $integration;
+    }
+
+    public function getInternalComment(): ?string
+    {
+        return $this->internalComment;
+    }
+
+    public function setInternalComment(?string $internalComment): void
+    {
+        $this->internalComment = $internalComment;
+    }
+
+    public function getSourceType(): ?string
+    {
+        return $this->sourceType;
+    }
+
+    public function setSourceType(?string $sourceType): void
+    {
+        $this->sourceType = $sourceType;
     }
 }

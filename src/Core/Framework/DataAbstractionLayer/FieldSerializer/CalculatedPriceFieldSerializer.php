@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ListPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -29,9 +30,17 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
     ): \Generator {
         $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
-        unset($value['extensions']);
-        if (isset($value['listPrice'])) {
-            unset($value['listPrice']['extensions']);
+        // a non-array value must survive untouched, `parent::encode()` turns it into a write constraint violation
+        if (\is_array($value)) {
+            unset($value['extensions']);
+
+            if (\is_array($value['listPrice'] ?? null)) {
+                unset($value['listPrice']['extensions']);
+            }
+
+            if (\is_array($value['regulationPrice'] ?? null)) {
+                unset($value['regulationPrice']['extensions']);
+            }
         }
 
         $data->setValue($value);
@@ -51,7 +60,7 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         }
 
         $taxRules = array_map(
-            fn (array $tax) => new TaxRule(
+            static fn (array $tax) => new TaxRule(
                 (float) $tax['taxRate'],
                 (float) $tax['percentage']
             ),
@@ -59,7 +68,7 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         );
 
         $calculatedTaxes = array_map(
-            fn (array $tax) => new CalculatedTax(
+            static fn (array $tax) => new CalculatedTax(
                 (float) $tax['tax'],
                 (float) $tax['taxRate'],
                 (float) $tax['price'],
@@ -81,10 +90,17 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
         }
 
         $listPrice = null;
-        if (isset($decoded['listPrice'])) {
+        if (isset($decoded['listPrice']) && ((float) ($decoded['listPrice']['price'] ?? 0)) > 0) {
             $listPrice = ListPrice::createFromUnitPrice(
                 (float) $decoded['unitPrice'],
                 (float) $decoded['listPrice']['price']
+            );
+        }
+
+        $regulationPrice = null;
+        if (isset($decoded['regulationPrice'])) {
+            $regulationPrice = new RegulationPrice(
+                (float) $decoded['regulationPrice']['price']
             );
         }
 
@@ -95,7 +111,8 @@ class CalculatedPriceFieldSerializer extends JsonFieldSerializer
             new TaxRuleCollection($taxRules),
             (int) $decoded['quantity'],
             $referencePriceDefinition,
-            $listPrice
+            $listPrice,
+            $regulationPrice
         );
     }
 }

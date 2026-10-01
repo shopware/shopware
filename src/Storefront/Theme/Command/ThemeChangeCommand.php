@@ -7,14 +7,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
-use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\ThemeCollection;
 use Shopware\Storefront\Theme\ThemeService;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -22,11 +23,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'theme:change',
     description: 'Change the active theme for a sales channel',
 )]
-#[Package('framework')]
 class ThemeChangeCommand extends Command
 {
     private readonly Context $context;
@@ -56,6 +57,8 @@ class ThemeChangeCommand extends Command
         $this->addOption('all', null, InputOption::VALUE_NONE, 'Set theme for all sales channel Can not be used together with -s');
         $this->addOption('no-compile', null, InputOption::VALUE_NONE, 'Skip theme compiling');
         $this->addOption('sync', null, InputOption::VALUE_NONE, 'Compile the theme synchronously');
+        /** @deprecated tag:v6.8.0 - option will be removed, the cleanup runs via the theme.delete_files scheduled task */
+        $this->addOption('no-cleanup', null, InputOption::VALUE_NONE, '[DEPRECATED] Has no effect, unused theme directories are removed by the theme.delete_files scheduled task');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -65,6 +68,14 @@ class ThemeChangeCommand extends Command
 
         $this->io = new SymfonyStyle($input, $output);
         $helper = $this->getHelper('question');
+        \assert($helper instanceof QuestionHelper);
+
+        if ($input->getOption('no-cleanup')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--no-cleanup" option of the "theme:change" command is deprecated and will be removed in v6.8.0.0. The command no longer deletes unused theme directories, the "theme.delete_files" scheduled task does.'
+            );
+        }
 
         if ($input->getOption('sales-channel') && $input->getOption('all')) {
             $this->io->error('You can use either --sales-channel or --all, not both at the same time.');
@@ -116,12 +127,14 @@ class ThemeChangeCommand extends Command
 
         if ($input->getOption('sync')) {
             $this->context->addState(ThemeService::STATE_NO_QUEUE);
+        } elseif (!$input->getOption('no-compile')) {
+            // Defer the switch until compilation finished (no-op when async compilation is off).
+            $this->context->addState(ThemeService::STATE_DEFER_ASSIGNMENT);
         }
 
-        /** @var SalesChannelEntity $salesChannel */
         foreach ($selectedSalesChannel as $salesChannel) {
             $this->io->writeln(
-                \sprintf('Set and compiling theme "%s" (%s) as new theme for sales channel "%s"', $themeName, $theme->getId(), $salesChannel->getName())
+                \sprintf('Set and compiling theme "%s" (%s) as new theme for sales channel "%s"', $themeName, $theme->getId(), $salesChannel->getName() ?? $salesChannel->getId())
             );
 
             $this->themeService->assignTheme(

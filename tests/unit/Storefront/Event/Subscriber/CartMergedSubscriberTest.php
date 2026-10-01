@@ -22,13 +22,14 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('checkout')]
 #[CoversClass(CartMergedSubscriber::class)]
 class CartMergedSubscriberTest extends TestCase
 {
     public function testMergedHintIsAdded(): void
     {
         $session = new Session(new MockArraySessionStorage());
+        $session->start();
         $request = new Request();
         $request->setSession($session);
         $requestStack = new RequestStack();
@@ -47,12 +48,12 @@ class CartMergedSubscriberTest extends TestCase
         $subscriber->addCartMergedNoticeFlash($cartMergedEvent);
 
         static::assertNotEmpty($infoFlash = $session->getFlashBag()->get('info'));
-        static::assertEquals('checkout.cart-merged-hint', $infoFlash[0]);
+        static::assertSame('checkout.cart-merged-hint', $infoFlash[0]);
     }
 
     public function testGetSubscribedEventsReturnsAddCartMergedNoticeFlash(): void
     {
-        static::assertEquals(
+        static::assertSame(
             [CartMergedEvent::class => 'addCartMergedNoticeFlash'],
             CartMergedSubscriber::getSubscribedEvents()
         );
@@ -96,7 +97,7 @@ class CartMergedSubscriberTest extends TestCase
 
     public function testMergedSubscriberDoNothingWithIncompatibleSession(): void
     {
-        $session = $this->createMock(SessionInterface::class);
+        $session = static::createStub(SessionInterface::class);
         $request = new Request();
         $request->setSession($session);
         $requestStack = new RequestStack();

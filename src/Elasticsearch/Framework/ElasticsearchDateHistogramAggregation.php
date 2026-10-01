@@ -56,7 +56,7 @@ class ElasticsearchDateHistogramAggregation extends AbstractAggregation
     }
 
     /**
-     * {@inheritdoc}
+     * @return array{field: string|null, calendar_interval: string, format?: non-empty-string}
      */
     protected function getArray(): array
     {
@@ -65,7 +65,7 @@ class ElasticsearchDateHistogramAggregation extends AbstractAggregation
             'calendar_interval' => $this->getInterval(),
         ];
 
-        if (!empty($this->format)) {
+        if ($this->format !== null && $this->format !== '') {
             $out['format'] = $this->format;
         }
 

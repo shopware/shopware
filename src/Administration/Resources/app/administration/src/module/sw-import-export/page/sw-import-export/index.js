@@ -2,7 +2,6 @@
  * @sw-package fundamentals@after-sales
  */
 import template from './sw-import-export.html.twig';
-import './sw-import-export.scss';
 
 /**
  * @private
@@ -10,11 +9,7 @@ import './sw-import-export.scss';
 export default {
     template,
 
-    inject: ['repositoryFactory'],
-
-    data() {
-        return {};
-    },
+    inject: ['feature'],
 
     metaInfo() {
         return {
@@ -22,11 +17,23 @@ export default {
         };
     },
 
-    methods: {
-        onChangeLanguage() {
-            if (this.$refs.tabContent.reloadContent) {
-                this.$refs.tabContent.reloadContent();
-            }
+    computed: {
+        importExportTabs() {
+            const createRouteTab = (label, routeName) => {
+                return {
+                    label: this.$t(label),
+                    name: routeName,
+                    onClick: () => {
+                        void this.$router.push({ name: routeName });
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-import-export.page.importTab', 'sw.import.export.index.import'),
+                createRouteTab('sw-import-export.page.exportTab', 'sw.import.export.index.export'),
+                createRouteTab('sw-import-export.page.profileTab', 'sw.import.export.index.profiles'),
+            ];
         },
     },
 };

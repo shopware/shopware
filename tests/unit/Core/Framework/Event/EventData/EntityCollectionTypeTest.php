@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\Event\EventData\EntityCollectionType;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(EntityCollectionType::class)]
 class EntityCollectionTypeTest extends TestCase
 {
@@ -20,6 +22,6 @@ class EntityCollectionTypeTest extends TestCase
             'entityClass' => CustomerDefinition::class,
         ];
 
-        static::assertEquals($expected, (new EntityCollectionType(CustomerDefinition::class))->toArray());
+        static::assertSame($expected, (new EntityCollectionType(CustomerDefinition::class))->toArray());
     }
 }

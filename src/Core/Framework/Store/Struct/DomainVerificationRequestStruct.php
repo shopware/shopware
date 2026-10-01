@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterNameChange;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
 
@@ -11,15 +12,13 @@ use Shopware\Core\Framework\Struct\Struct;
 #[Package('checkout')]
 class DomainVerificationRequestStruct extends Struct
 {
-    protected string $content;
-
     protected string $fileName;
 
+    #[ParameterNameChange(version: 'v6.8.0', parameterName: 'filename', newName: 'fileName', description: 'Will also become a promoted property.')]
     public function __construct(
-        string $content,
-        string $filename
+        protected string $content,
+        string $filename,
     ) {
-        $this->content = $content;
         $this->fileName = $filename;
     }
 

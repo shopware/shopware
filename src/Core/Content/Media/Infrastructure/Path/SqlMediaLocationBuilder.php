@@ -38,7 +38,7 @@ class SqlMediaLocationBuilder implements MediaLocationBuilder
     public function media(array $ids): array
     {
         $ids = \array_unique($ids);
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 
@@ -78,7 +78,7 @@ class SqlMediaLocationBuilder implements MediaLocationBuilder
     public function thumbnails(array $ids): array
     {
         $ids = \array_unique($ids);
-        if (empty($ids)) {
+        if ($ids === []) {
             return [];
         }
 

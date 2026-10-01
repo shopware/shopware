@@ -10,10 +10,10 @@ use Shopware\Core\Framework\Adapter\Database\MySQLFactory;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\DbalKernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
+use Shopware\Core\Framework\Telemetry\Doctrine\QueryCountMiddleware;
 use Shopware\Core\Kernel;
 use Shopware\Core\Profiling\Doctrine\ProfilingMiddleware;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\HttpKernel\KernelInterface;
 
 /**
  * Shopware\Core\Framework\Adapter\Kernel\KernelFactory
@@ -53,13 +53,18 @@ class KernelFactory
             $middlewares = [new ProfilingMiddleware()];
         }
 
-        $connection = $connection ?? MySQLFactory::create($middlewares);
+        // Counts SQL statements per request for the `http.server.request.queries.count` metric. The
+        // middleware must wrap the driver at connection creation. The container is not built here yet,
+        // so the `shopware.telemetry.metrics.enabled` config flag is not accessible. For this reason
+        // we cannot gate on it.
+        $middlewares[] = new QueryCountMiddleware();
 
-        $pluginLoader = $pluginLoader ?? new DbalKernelPluginLoader($classLoader, null, $connection);
+        $connection ??= MySQLFactory::create($middlewares);
+
+        $pluginLoader ??= new DbalKernelPluginLoader($classLoader, null, $connection);
 
         $cacheId = (string) EnvironmentHelper::getVariable('SHOPWARE_CACHE_ID', '');
 
-        /** @var KernelInterface $kernel */
         $kernel = new static::$kernelClass(
             $environment,
             $debug,
@@ -81,11 +86,11 @@ class KernelFactory
 
         $r = new \ReflectionClass(self::class);
 
-        /** @var string $dir */
+        /** @var non-empty-string $dir */
         $dir = $r->getFileName();
 
         $dir = $rootDir = \dirname($dir);
-        while (!file_exists($dir . '/vendor')) {
+        while (!\is_dir($dir . '/vendor')) {
             if ($dir === \dirname($dir)) {
                 return $rootDir;
             }

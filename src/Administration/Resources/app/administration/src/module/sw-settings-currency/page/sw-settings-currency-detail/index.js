@@ -20,10 +20,7 @@ export default {
         'customFieldDataProviderService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     props: {
         currencyId: {
@@ -84,7 +81,7 @@ export default {
         tooltipSave() {
             if (!this.acl.can('currencies.editor')) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.acl.can('currencies.editor'),
                     showOnDisabledElements: true,
                 };
@@ -173,10 +170,10 @@ export default {
 
         emptyStateText() {
             if (this.currency.id && this.currency.isNew()) {
-                return this.$tc('sw-settings-currency.detail.emptyCountryRoundingsNewCurrency');
+                return this.$t('sw-settings-currency.detail.emptyCountryRoundingsNewCurrency');
             }
 
-            return this.$tc('sw-settings-currency.detail.emptyCountryRoundings');
+            return this.$t('sw-settings-currency.detail.emptyCountryRoundings');
         },
 
         showCustomFields() {
@@ -199,10 +196,7 @@ export default {
     methods: {
         createdComponent() {
             if (this.currencyId) {
-                return Promise.all([
-                    this.loadEntityData(),
-                    this.loadCustomFieldSets(),
-                ]);
+                return Promise.all([this.loadEntityData(), this.loadCustomFieldSets()]);
             }
 
             Shopware.Store.get('context').resetLanguageToDefault();
@@ -231,10 +225,7 @@ export default {
                 .then((currency) => {
                     this.currency = currency;
                     return this.loadCurrencyCountryRoundings().then((currencyCountryRoundings) => {
-                        return [
-                            currency,
-                            currencyCountryRoundings,
-                        ];
+                        return [currency, currencyCountryRoundings];
                     });
                 })
                 .finally(() => {
@@ -272,6 +263,7 @@ export default {
             return this.currencyRepository
                 .save(this.currency)
                 .then(() => {
+                    this.invalidateCurrencyCaches();
                     this.isSaveSuccessful = true;
                     if (!this.currencyId) {
                         this.$router.push({
@@ -285,9 +277,15 @@ export default {
                         this.isLoading = false;
                     });
                 })
-                .catch(() => {
+                .catch((error) => {
+                    const errorCode = error?.response?.data?.errors?.[0]?.code;
+                    const isoCode = error?.response?.data?.errors?.[0]?.meta?.parameters?.isoCode;
+
                     this.createNotificationError({
-                        message: this.$tc('sw-settings-currency.detail.notificationErrorMessage'),
+                        message:
+                            errorCode === 'SYSTEM__CURRENCY_ISO_CODE_NOT_UNIQUE'
+                                ? this.$t('sw-settings-currency.detail.notificationIsoCodeAlreadyExists', { isoCode })
+                                : this.$t('sw-settings-currency.detail.notificationErrorMessage'),
                     });
                     this.isLoading = false;
                 });
@@ -295,6 +293,17 @@ export default {
 
         onCancel() {
             this.$router.push({ name: 'sw.settings.currency.index' });
+        },
+
+        invalidateCurrencyCaches() {
+            const cacheService = Shopware.Service('cacheService');
+
+            cacheService.invalidateCaches({
+                cacheKey: ['shared-data', 'currencies'],
+            });
+            cacheService.invalidateCaches({
+                cacheKey: ['shared-data', 'system-currency'],
+            });
         },
 
         abortOnLanguageChange() {
@@ -335,16 +344,16 @@ export default {
                 .save(this.currentCurrencyCountry)
                 .then(() => {
                     this.createNotificationSuccess({
-                        title: this.$tc('global.default.success'),
-                        message: this.$tc('sw-settings-currency.detail.notificationCountrySuccessMessage'),
+                        title: this.$t('global.default.success'),
+                        message: this.$t('sw-settings-currency.detail.notificationCountrySuccessMessage'),
                     });
                     this.onCancelEditCountry();
                     this.loadCurrencyCountryRoundings();
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        title: this.$tc('global.default.error'),
-                        message: this.$tc('sw-settings-currency.detail.notificationCountryErrorMessage'),
+                        title: this.$t('global.default.error'),
+                        message: this.$t('sw-settings-currency.detail.notificationCountryErrorMessage'),
                     });
                 })
                 .finally(() => {

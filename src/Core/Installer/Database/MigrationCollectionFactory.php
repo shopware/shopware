@@ -48,15 +48,15 @@ class MigrationCollectionFactory
 
     private function createMigrationSource(string $version): MigrationSource
     {
-        if (file_exists($this->projectDir . '/platform/src/Core/schema.sql')) {
+        if (\is_file($this->projectDir . '/platform/src/Core/schema.sql')) {
             $coreBasePath = $this->projectDir . '/platform/src/Core';
             $storefrontBasePath = $this->projectDir . '/platform/src/Storefront';
             $adminBasePath = $this->projectDir . '/platform/src/Administration';
-        } elseif (file_exists($this->projectDir . '/src/Core/schema.sql')) {
+        } elseif (\is_file($this->projectDir . '/src/Core/schema.sql')) {
             $coreBasePath = $this->projectDir . '/src/Core';
             $storefrontBasePath = $this->projectDir . '/src/Storefront';
             $adminBasePath = $this->projectDir . '/src/Administration';
-        } elseif (file_exists($this->projectDir . '/vendor/shopware/platform/src/Core/schema.sql')) {
+        } elseif (\is_file($this->projectDir . '/vendor/shopware/platform/src/Core/schema.sql')) {
             $coreBasePath = $this->projectDir . '/vendor/shopware/platform/src/Core';
             $storefrontBasePath = $this->projectDir . '/vendor/shopware/platform/src/Storefront';
             $adminBasePath = $this->projectDir . '/vendor/shopware/platform/src/Administration';

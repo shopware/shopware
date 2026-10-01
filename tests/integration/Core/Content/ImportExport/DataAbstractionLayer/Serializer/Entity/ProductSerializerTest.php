@@ -12,7 +12,11 @@ use Shopware\Core\Content\ImportExport\Struct\Config;
 use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\File\MediaFile;
 use Shopware\Core\Content\Media\MediaService;
+use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductMedia\ProductMediaCollection;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Defaults;
@@ -24,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -35,12 +40,24 @@ class ProductSerializerTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
+    /**
+     * @var EntityRepository<ProductVisibilityCollection>
+     */
     private EntityRepository $visibilityRepository;
 
+    /**
+     * @var EntityRepository<SalesChannelCollection>
+     */
     private EntityRepository $salesChannelRepository;
 
+    /**
+     * @var EntityRepository<ProductMediaCollection>
+     */
     private EntityRepository $productMediaRepository;
 
+    /**
+     * @var EntityRepository<ProductConfiguratorSettingCollection>
+     */
     private EntityRepository $productConfiguratorSettingRepository;
 
     protected function setUp(): void
@@ -147,7 +164,7 @@ class ProductSerializerTest extends TestCase
     {
         $product = $this->getProduct();
 
-        $mediaService = $this->createMock(MediaService::class);
+        $mediaService = static::createStub(MediaService::class);
         $expectedMediaFile = new MediaFile(
             '/tmp/foo/bar/shopware-logo.png',
             'image/png',
@@ -155,10 +172,9 @@ class ProductSerializerTest extends TestCase
             1000,
             'bc0d90db4dd806bd671ae9f7fabc5796'
         );
-        $mediaService->expects($this->any())
-            ->method('fetchFile')
-            ->willReturnCallback(function (Request $request) use ($expectedMediaFile): MediaFile {
-                if ($request->get('url') === 'http://172.16.11.80/shopware-logo.png') {
+        $mediaService->method('fetchFile')
+            ->willReturnCallback(static function (Request $request) use ($expectedMediaFile): MediaFile {
+                if ($request->query->get('url') === 'http://172.16.11.80/shopware-logo.png') {
                     return $expectedMediaFile;
                 }
 
@@ -171,7 +187,7 @@ class ProductSerializerTest extends TestCase
                 );
             });
 
-        $fileSaver = $this->createMock(FileSaver::class);
+        $fileSaver = static::createStub(FileSaver::class);
         $mediaSerializer = new MediaSerializer(
             $mediaService,
             $fileSaver,
@@ -180,12 +196,10 @@ class ProductSerializerTest extends TestCase
         );
         $mediaSerializer->setRegistry(static::getContainer()->get(SerializerRegistry::class));
 
-        $serializerRegistry = $this->createMock(SerializerRegistry::class);
-        $serializerRegistry->expects($this->any())
-            ->method('getEntity')
+        $serializerRegistry = static::createStub(SerializerRegistry::class);
+        $serializerRegistry->method('getEntity')
             ->willReturn($mediaSerializer);
-        $serializerRegistry->expects($this->any())
-            ->method('getFieldSerializer')
+        $serializerRegistry->method('getFieldSerializer')
             ->willReturn(new FieldSerializer());
 
         $record = [
@@ -206,8 +220,8 @@ class ProductSerializerTest extends TestCase
         $result = $serializer->deserialize(new Config([], [], []), $productDefinition, $record);
         $result = \is_array($result) ? $result : iterator_to_array($result);
 
-        static::assertEquals($product->getMedia()?->first()?->getId(), $result['media'][0]['id']);
-        static::assertEquals($product->getMedia()?->first()?->getMedia()?->getId(), $result['media'][0]['media']['id']);
+        static::assertSame($product->getMedia()?->first()?->getId(), $result['media'][0]['id']);
+        static::assertSame($product->getMedia()?->first()?->getMedia()?->getId(), $result['media'][0]['media']['id']);
         static::assertArrayNotHasKey('url', $result['media'][0]['media']);
 
         static::assertArrayNotHasKey('id', $result['media'][1]);
@@ -320,7 +334,7 @@ class ProductSerializerTest extends TestCase
             ],
         ];
 
-        /** @var EntityRepository $productRepository */
+        /** @var EntityRepository<ProductCollection> $productRepository */
         $productRepository = static::getContainer()->get('product.repository');
         $productRepository->create([$product], Context::createDefaultContext());
 
@@ -333,7 +347,7 @@ class ProductSerializerTest extends TestCase
         $criteria->addAssociation('media.media');
         $criteria->getAssociation('media')->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
 
-        $product = $productRepository->search($criteria, Context::createDefaultContext())->first();
+        $product = $productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
         static::assertInstanceOf(ProductEntity::class, $product);
 
         return $product;

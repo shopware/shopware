@@ -23,9 +23,6 @@ class ProductManufacturerHydrator extends EntityHydrator
         if (isset($row[$root . '.mediaId'])) {
             $entity->mediaId = Uuid::fromBytesToHex($row[$root . '.mediaId']);
         }
-        if (isset($row[$root . '.link'])) {
-            $entity->link = $row[$root . '.link'];
-        }
         if (isset($row[$root . '.createdAt'])) {
             $entity->createdAt = new \DateTimeImmutable($row[$root . '.createdAt']);
         }

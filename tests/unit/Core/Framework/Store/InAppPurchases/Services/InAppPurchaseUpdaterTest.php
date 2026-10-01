@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater;
 use Shopware\Core\Framework\Store\InAppPurchase\Services\KeyFetcher;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -76,11 +77,13 @@ class InAppPurchaseUpdaterTest extends TestCase
                 $systemConfig,
                 new JWTDecoder(),
                 new KeyFetcher(
-                    $this->createMock(ClientInterface::class),
-                    $this->createMock(StoreRequestOptionsProvider::class),
+                    static::createStub(ClientInterface::class),
+                    static::createStub(StoreRequestOptionsProvider::class),
                     $systemConfig,
-                    $this->createMock(LoggerInterface::class)
-                )
+                    static::createStub(LoggerInterface::class)
+                ),
+                static::createStub(LoggerInterface::class),
+                new NativeClock()
             )
         );
 
@@ -92,7 +95,72 @@ class InAppPurchaseUpdaterTest extends TestCase
             $iap,
             $eventDispatcher,
             $connection,
-            $this->createMock(LoggerInterface::class)
+            static::createStub(LoggerInterface::class)
+        );
+        $service->update($context);
+
+        static::assertSame($jwt, $systemConfig->get('core.store.iapKey'));
+    }
+
+    public function testUpdateActiveInAppPurchasesWithoutAuthentication(): void
+    {
+        $jwt = file_get_contents(__DIR__ . '../../../_fixtures/jwt.json');
+        static::assertIsString($jwt);
+
+        $jwks = file_get_contents(__DIR__ . '/../../../JWT/_fixtures/valid-jwks.json');
+        static::assertIsString($jwks);
+
+        $client = $this->createMock(ClientInterface::class);
+
+        $client->expects($this->never())
+            ->method('request');
+
+        $systemConfig = new StaticSystemConfigService([
+            'core.store.licenseHost' => 'example.com',
+            InAppPurchaseProvider::CONFIG_STORE_IAP_KEY => $jwt,
+            KeyFetcher::CORE_STORE_JWKS => $jwks,
+        ]);
+
+        $optionsProvider = $this->createMock(AbstractStoreRequestOptionsProvider::class);
+        $optionsProvider->expects($this->never())
+            ->method('getDefaultQueryParameters');
+        $optionsProvider->expects($this->once())
+            ->method('getAuthenticationHeader')
+            ->willReturn([]);
+
+        $context = Context::createDefaultContext();
+        $appId = Uuid::randomHex();
+        $eventDispatcher = static::createStub(EventDispatcherInterface::class);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('fetchAllKeyValue')
+            ->willReturn(['TestApp' => $appId]);
+
+        $iap = new InAppPurchase(
+            new InAppPurchaseProvider(
+                $systemConfig,
+                new JWTDecoder(),
+                new KeyFetcher(
+                    static::createStub(ClientInterface::class),
+                    static::createStub(StoreRequestOptionsProvider::class),
+                    $systemConfig,
+                    static::createStub(LoggerInterface::class)
+                ),
+                static::createStub(LoggerInterface::class),
+                new NativeClock()
+            )
+        );
+
+        $service = new InAppPurchaseUpdater(
+            $client,
+            $systemConfig,
+            'https://test.com',
+            $optionsProvider,
+            $iap,
+            $eventDispatcher,
+            $connection,
+            static::createStub(LoggerInterface::class)
         );
         $service->update($context);
 

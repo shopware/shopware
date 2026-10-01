@@ -1,8 +1,6 @@
 import './sw-inherit-wrapper.scss';
 import template from './sw-inherit-wrapper.html.twig';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -36,24 +34,18 @@ const { Component } = Shopware;
  * </sw-inherit-wrapper>
  */
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-inherit-wrapper', {
+export default {
     template,
 
     inject: ['feature'],
 
-    emits: [
-        'update:value',
-        'inheritance-restore',
-        'inheritance-remove',
-    ],
+    emits: ['update:value', 'inheritance-restore', 'inheritance-remove'],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },
 
-        // eslint-disable-next-line vue/require-prop-types
         inheritedValue: {
             required: true,
         },
@@ -85,7 +77,6 @@ Component.register('sw-inherit-wrapper', {
         hasParent: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: undefined,
         },
 
@@ -141,6 +132,11 @@ Component.register('sw-inherit-wrapper', {
                 }
 
                 if (!this.isInherited && newValue !== this.inheritedValue) {
+                    if (newValue === null || newValue === undefined || (Array.isArray(newValue) && newValue.length <= 0)) {
+                        this.forceInheritanceRemove = true;
+                    } else {
+                        this.forceInheritanceRemove = false;
+                    }
                     this.updateValue(newValue, 'restore');
                     return;
                 }
@@ -170,8 +166,8 @@ Component.register('sw-inherit-wrapper', {
                 return this.customInheritationCheckFunction(this.value);
             }
 
-            // if association or array
-            if ((this.isAssociation || Array.isArray(this.value)) && this.value) {
+            // if association
+            if (this.isAssociation && this.value) {
                 return this.value.length <= 0;
             }
 
@@ -252,11 +248,13 @@ Component.register('sw-inherit-wrapper', {
                 return;
             }
 
-            if (!newValue || (Array.isArray(newValue) && newValue.length <= 0)) {
-                this.forceInheritanceRemove = true;
-            }
+            // The user explicitly detached this field from the inherited value.
+            // Persist that intent so the field does not silently re-inherit once it
+            // becomes empty later (e.g. when the last value of a multi-select is
+            // removed). Re-linking via restoreInheritance() resets the flag again.
+            this.forceInheritanceRemove = true;
 
             this.$emit('update:value', newValue);
         },
     },
-});
+};

@@ -2,16 +2,18 @@
 
 namespace Shopware\Core\Framework\Store\Struct;
 
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @codeCoverageIgnore
- *
  * @template-extends StoreCollection<VariantStruct>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class VariantCollection extends StoreCollection
 {
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]
     protected function getExpectedClass(): ?string
     {
         return VariantStruct::class;

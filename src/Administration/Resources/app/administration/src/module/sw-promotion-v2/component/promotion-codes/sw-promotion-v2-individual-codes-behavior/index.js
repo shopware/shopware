@@ -10,20 +10,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'acl',
-        'repositoryFactory',
-        'promotionCodeApiService',
-    ],
+    inject: ['acl', 'repositoryFactory', 'promotionCodeApiService'],
 
-    emits: [
-        'delete-finish',
-        'generate-finish',
-    ],
+    emits: ['delete-finish', 'generate-finish'],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     props: {
         promotion: {
@@ -60,36 +51,44 @@ export default {
                 return '';
             }
 
-            return this.$tc('sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm', this.currentSelection.length, {
-                code: this.currentSelection[0].code || '',
-            });
+            return this.$t(
+                'sw-promotion-v2.detail.base.codes.individual.textDeleteConfirm',
+                {
+                    code: this.currentSelection[0].code || '',
+                },
+                this.currentSelection.length,
+            );
         },
 
         codeColumns() {
             return [
                 {
                     property: 'code',
-                    label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCode'),
+                    label: this.$t('sw-promotion-v2.detail.base.codes.individual.columnCode'),
                 },
                 {
                     property: 'payload',
-                    label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnRedeemed'),
+                    label: this.$t('sw-promotion-v2.detail.base.codes.individual.columnRedeemed'),
                 },
                 {
                     property: 'payload.customerName',
-                    label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCustomer'),
+                    label: this.$t('sw-promotion-v2.detail.base.codes.individual.columnCustomer'),
                 },
                 {
                     property: 'createdAt',
-                    label: this.$tc('sw-promotion-v2.detail.base.codes.individual.columnCreatedAt'),
+                    label: this.$t('sw-promotion-v2.detail.base.codes.individual.columnCreatedAt'),
                 },
             ];
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -200,6 +199,9 @@ export default {
                             case 'PROMOTION__INDIVIDUAL_CODES_PATTERN_ALREADY_IN_USE':
                                 errorType = 'alreadyInUseException';
                                 break;
+                            case 'CHECKOUT__INVALID_CODE_PATTERN':
+                                errorType = 'invalidPatternException';
+                                break;
                             default:
                                 errorType = 'unknownErrorCode';
                                 break;
@@ -207,7 +209,7 @@ export default {
 
                         this.createNotificationError({
                             autoClose: false,
-                            message: this.$tc(`sw-promotion-v2.detail.base.codes.individual.generateModal.${errorType}`),
+                            message: this.$t(`sw-promotion-v2.detail.base.codes.individual.generateModal.${errorType}`),
                         });
                     });
                 });
@@ -238,7 +240,7 @@ export default {
 
         createRoutingErrorNotification(name) {
             this.createNotificationError({
-                message: this.$tc('sw-promotion-v2.detail.base.codes.individual.routingError', { name }, 0),
+                message: this.$t('sw-promotion-v2.detail.base.codes.individual.routingError', { name }, 0),
             });
         },
     },

@@ -37,10 +37,7 @@ class BundleSchemaPathCollection
             }
             $openApiDirs[] = $path;
             if ($bundle->getName() === $bundleName) {
-                unset($openApiDirs);
-                $openApiDirs[] = $path;
-
-                break;
+                return [$path];
             }
         }
 

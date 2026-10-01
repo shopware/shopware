@@ -8,10 +8,12 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IterableQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTranslation\SalesChannelTranslationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
@@ -51,6 +53,23 @@ final class SalesChannelAdminSearchIndexer extends AbstractAdminIndexer
         return $this->factory->createIterator($this->getEntity(), null, $this->indexingBatchSize);
     }
 
+    public function getUpdatedIds(EntityWrittenContainerEvent $event): array
+    {
+        $ids = [];
+
+        $translations = $event->getPrimaryKeysWithPropertyChange(SalesChannelTranslationDefinition::ENTITY_NAME, [
+            'name',
+        ]);
+
+        foreach ($translations as $pks) {
+            if (isset($pks['salesChannelId'])) {
+                $ids[] = $pks['salesChannelId'];
+            }
+        }
+
+        return array_values(array_unique(array_filter($ids, '\is_string')));
+    }
+
     public function globalData(array $result, Context $context): array
     {
         $ids = array_column($result['hits'], 'id');
@@ -85,7 +104,11 @@ final class SalesChannelAdminSearchIndexer extends AbstractAdminIndexer
         foreach ($data as $row) {
             $id = (string) $row['id'];
             $text = \implode(' ', array_filter($row));
-            $mapped[$id] = ['id' => $id, 'text' => \strtolower($text)];
+            $mapped[$id] = [
+                'id' => $id,
+                'text' => \strtolower($text),
+                'completion' => $this->buildCompletion([\is_string($row['name'] ?? null) ? $row['name'] : null]),
+            ];
         }
 
         return $mapped;

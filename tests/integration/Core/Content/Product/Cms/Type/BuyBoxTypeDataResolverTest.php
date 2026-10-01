@@ -25,6 +25,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -35,6 +36,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class BuyBoxTypeDataResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -45,12 +47,12 @@ class BuyBoxTypeDataResolverTest extends TestCase
     {
         $saleChannelProductEntity = new SalesChannelProductEntity();
         $saleChannelProductEntity->setId('product123');
-        $mockConfiguratorLoader = $this->createMock(ProductConfiguratorLoader::class);
+        $mockConfiguratorLoader = static::createStub(ProductConfiguratorLoader::class);
         $mockConfiguratorLoader->method('load')->willReturn(
             new PropertyGroupCollection()
         );
 
-        $repositoryMock = $this->createMock(EntityRepository::class);
+        $repositoryMock = static::createStub(EntityRepository::class);
 
         $this->buyBoxResolver = new BuyBoxCmsElementResolver($mockConfiguratorLoader, $repositoryMock);
     }
@@ -62,7 +64,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
 
     public function testCollectWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -77,7 +79,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
 
     public function testCollectWithStaticConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_STATIC, 'product123'));
@@ -99,16 +101,16 @@ class BuyBoxTypeDataResolverTest extends TestCase
         static::assertCount(2, $queries = $orFilter->getQueries());
 
         static::assertInstanceOf(EqualsFilter::class, $firstQuery = $queries[0]);
-        static::assertEquals('product.parentId', $firstQuery->getField());
-        static::assertEquals('product123', $firstQuery->getValue());
+        static::assertSame('product.parentId', $firstQuery->getField());
+        static::assertSame('product123', $firstQuery->getValue());
         static::assertInstanceOf(EqualsFilter::class, $secondQuery = $queries[1]);
-        static::assertEquals('id', $secondQuery->getField());
-        static::assertEquals('product123', $secondQuery->getValue());
+        static::assertSame('id', $secondQuery->getField());
+        static::assertSame('product123', $secondQuery->getValue());
     }
 
     public function testEnrichWithEmptyConfig(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();
@@ -129,7 +131,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId('product123');
 
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
         $result->add('product_id', new EntitySearchResult(
             'product',
@@ -157,7 +159,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
 
     public function testCollectWithEmptyProductId(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $fieldConfig = new FieldConfigCollection();
         $fieldConfig->add(new FieldConfig('product', FieldConfig::SOURCE_STATIC, null));
@@ -247,7 +249,7 @@ class BuyBoxTypeDataResolverTest extends TestCase
         $resolverContext = new EntityResolverContext(
             $salesChannelContext,
             new Request(),
-            $this->createMock(SalesChannelProductDefinition::class),
+            static::createStub(SalesChannelProductDefinition::class),
             $variantProduct
         );
 

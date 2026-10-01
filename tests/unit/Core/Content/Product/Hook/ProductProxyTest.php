@@ -15,11 +15,13 @@ use Shopware\Core\Content\Product\Hook\Pricing\PriceCollectionFacade;
 use Shopware\Core\Content\Product\Hook\Pricing\ProductProxy;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(ProductProxy::class)]
 class ProductProxyTest extends TestCase
 {
@@ -42,20 +44,16 @@ class ProductProxyTest extends TestCase
             new CalculatedPrice(9, 9, new CalculatedTaxCollection(), new TaxRuleCollection()),
         ]));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
-        $stubs = $this->createMock(ScriptPriceStubs::class);
+        $stubs = static::createStub(ScriptPriceStubs::class);
 
         $proxy = new ProductProxy($product, $context, $stubs);
 
-        // @phpstan-ignore-next-line > Access to an undefined property occurs here but the proxy by pass the access to the entity.get() function
         static::assertInstanceOf(PriceFacade::class, $proxy->calculatedPrice, 'Proxy should return a facade for the calculated price');
-        // @phpstan-ignore-next-line > Access to an undefined property occurs here but the proxy by pass the access to the entity.get() function
         static::assertInstanceOf(PriceCollectionFacade::class, $proxy->calculatedPrices, 'Proxy should return a facade for the calculated prices');
-        // @phpstan-ignore-next-line > Access to an undefined property occurs here but the proxy by pass the access to the entity.get() function
         static::assertInstanceOf(PriceFacade::class, $proxy->calculatedCheapestPrice, 'Proxy should return a facade for the calculated cheapest price');
-        // @phpstan-ignore-next-line > Access to an undefined property occurs here but the proxy by pass the access to the entity.get() function
-        static::assertEquals('foo', $proxy->name, 'Proxy should return the same value as the original object');
+        static::assertSame('foo', $proxy->name, 'Proxy should return the same value as the original object');
 
         static::assertArrayHasKey('stock', $proxy, 'Proxy should be able to check if a property exists');
     }
@@ -64,35 +62,29 @@ class ProductProxyTest extends TestCase
     {
         $proxy = new ProductProxy(
             (new SalesChannelProductEntity())->assign(['name' => 'foo']),
-            $this->createMock(SalesChannelContext::class),
-            $this->createMock(ScriptPriceStubs::class)
+            static::createStub(SalesChannelContext::class),
+            static::createStub(ScriptPriceStubs::class)
         );
 
-        // @phpstan-ignore-next-line > Access to an undefined property occurs here but the proxy by pass the access to the entity.get() function
-        static::assertEquals('foo', $proxy->name, 'Proxy should return the same value as the original object');
+        static::assertSame('foo', $proxy->name, 'Proxy should return the same value as the original object');
 
-        static::expectException(ProductException::class);
-        static::expectExceptionMessage('Manipulation of pricing proxy field name is not allowed');
+        $this->expectExceptionObject(ProductException::proxyManipulationNotAllowed('name'));
 
-        // @phpstan-ignore-next-line > Access to an undefined property occurs here but the proxy by pass the access
-        unset($proxy['name']);
+        $proxy->offsetUnset('name');
     }
 
     public function testSetNotAllowed(): void
     {
         $proxy = new ProductProxy(
             (new SalesChannelProductEntity())->assign(['name' => 'foo']),
-            $this->createMock(SalesChannelContext::class),
-            $this->createMock(ScriptPriceStubs::class)
+            static::createStub(SalesChannelContext::class),
+            static::createStub(ScriptPriceStubs::class)
         );
 
-        // @phpstan-ignore-next-line > Access to an undefined property occurs here but the proxy by pass the access to the entity.get() function
-        static::assertEquals('foo', $proxy->name, 'Proxy should return the same value as the original object');
+        static::assertSame('foo', $proxy->name, 'Proxy should return the same value as the original object');
 
-        static::expectException(ProductException::class);
-        static::expectExceptionMessage('Manipulation of pricing proxy field name is not allowed');
+        $this->expectExceptionObject(ProductException::proxyManipulationNotAllowed('name'));
 
-        // @phpstan-ignore-next-line > Access to an undefined property occurs here but the proxy by pass the access to the entity.get() function
         $proxy->name = 'bar';
     }
 }

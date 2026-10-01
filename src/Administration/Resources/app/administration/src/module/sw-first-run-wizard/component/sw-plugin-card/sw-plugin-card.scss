@@ -1,9 +1,7 @@
-@import "~scss/variables";
-
 .sw-plugin-card {
     display: grid;
-    grid-template-columns: 128px 1fr;
-    column-gap: 32px;
+    grid-template-columns: var(--scale-size-128) 1fr;
+    column-gap: var(--scale-size-32);
     align-items: start;
     justify-content: left;
 
@@ -14,25 +12,24 @@
     }
 
     &__label {
-        font-size: $font-size-s;
-        font-weight: $font-weight-semi-bold;
-        letter-spacing: 0.41px;
-        line-height: 25px;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary-default);
     }
 
     &__manufacturer {
-        color: $color-gray-500;
-        font-size: $font-size-xxs;
-        font-weight: normal;
-        letter-spacing: 0;
-        line-height: 19px;
+        font-size: var(--font-size-2xs);
+        line-height: var(--font-line-height-xs);
+        font-weight: var(--font-weight-regular);
+        color: var(--color-text-secondary-default);
     }
 
     &__short-description {
-        font-size: $font-size-xxs;
-        font-weight: normal;
-        letter-spacing: 0;
-        line-height: 19px;
+        font-size: var(--font-size-2xs);
+        line-height: var(--font-line-height-xs);
+        font-weight: var(--font-weight-regular);
+        color: var(--color-text-primary-default);
         flex-grow: 1;
     }
 
@@ -44,26 +41,18 @@
         width: 100%;
     }
 
-    .button-plugin-install {
-        height: 32px;
-        font-size: $font-size-xxs;
-        font-weight: $font-weight-semi-bold;
-        text-align: center;
-        letter-spacing: 0;
-        line-height: 19px !important;
-    }
-
     .plugin-installed {
-        height: 23px;
-        color: $color-emerald-500;
-        font-size: $font-size-xs;
-        font-weight: normal;
-        letter-spacing: 0.1px;
-        line-height: 22px;
-        margin-right: 24px;
+        height: var(--scale-size-24);
+        font-size: var(--font-size-2xs);
+        line-height: var(--font-line-height-xs);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary-default);
+        margin-right: var(--scale-size-24);
+        margin-bottom: var(--scale-size-4);
 
         .mt-icon {
-            margin-right: 5px;
+            margin-right: var(--scale-size-2);
+            color: var(--color-icon-positive-default);
         }
     }
 }

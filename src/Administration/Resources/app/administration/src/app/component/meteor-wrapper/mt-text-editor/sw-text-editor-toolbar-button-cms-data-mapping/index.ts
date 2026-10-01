@@ -1,5 +1,4 @@
-// eslint-disable-next-line max-len
-import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/components/form/mt-text-editor/_internal/mt-text-editor-toolbar';
+import type { CustomButton } from '@shopware-ag/meteor-component-library/dist/esm/MtTextEditorToolbar';
 
 /**
  * @sw-package framework
@@ -15,6 +14,7 @@ export default (getAvailableDataMappings: () => string[]): CustomButton => {
         position: 14000,
         // @ts-expect-error
         label: Shopware.Snippet.t('sw-text-editor-toolbar-button-cms-data-mapping.label') as string,
+        disabled: () => !dataMappings?.length,
         children: dataMappings.map((dataMapping) => ({
             name: dataMapping,
             label: dataMapping,

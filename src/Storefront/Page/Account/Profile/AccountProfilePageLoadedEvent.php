@@ -7,17 +7,17 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\PageLoadedEvent;
 use Symfony\Component\HttpFoundation\Request;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class AccountProfilePageLoadedEvent extends PageLoadedEvent
 {
-    protected AccountProfilePage $page;
-
     public function __construct(
-        AccountProfilePage $page,
+        protected AccountProfilePage $page,
         SalesChannelContext $salesChannelContext,
-        Request $request
+        Request $request,
     ) {
-        $this->page = $page;
         parent::__construct($salesChannelContext, $request);
     }
 

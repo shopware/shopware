@@ -12,14 +12,9 @@ export default Component.wrapComponentConfig({
 
     compatConfig: Shopware.compatConfig,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -98,13 +93,13 @@ export default Component.wrapComponentConfig({
                 this.loadStateMachines();
 
                 this.createNotificationSuccess({
-                    title: this.$tc('global.default.success'),
-                    message: this.$tc('sw-settings-state-machine.notification.successMessage'),
+                    title: this.$t('global.default.success'),
+                    message: this.$t('sw-settings-state-machine.notification.successMessage'),
                 });
             } catch {
                 this.createNotificationError({
-                    title: this.$tc('global.default.error'),
-                    message: this.$tc('sw-settings-state-machine.notification.errorMessage'),
+                    title: this.$t('global.default.error'),
+                    message: this.$t('sw-settings-state-machine.notification.errorMessage'),
                 });
             } finally {
                 this.isLoading = false;

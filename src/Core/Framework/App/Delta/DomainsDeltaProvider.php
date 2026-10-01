@@ -39,6 +39,6 @@ class DomainsDeltaProvider extends AbstractAppDeltaProvider
             return true;
         }
 
-        return \count(array_diff($hosts, $app->getAllowedHosts())) > 0;
+        return array_diff($hosts, $app->getAllowedHosts()) !== [];
     }
 }

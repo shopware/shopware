@@ -14,6 +14,25 @@ const salesChannels = [
     },
 ];
 
+const productSortings = [
+    {
+        key: 'score',
+        priority: 10,
+        label: 'Top results',
+        translated: {
+            label: 'Top results',
+        },
+    },
+    {
+        key: 'name-asc',
+        priority: 2,
+        label: 'Name A-Z',
+        translated: {
+            label: 'Name A-Z',
+        },
+    },
+];
+
 const mockResults = {
     nothing: {
         terms: 'nothing',
@@ -77,6 +96,15 @@ async function createWrapper() {
         {
             global: {
                 renderStubDefaultSlot: true,
+                mocks: {
+                    $route: {
+                        meta: {
+                            $module: {
+                                icon: 'regular-icon',
+                            },
+                        },
+                    },
+                },
                 stubs: {
                     'sw-container': true,
                     'sw-field-error': true,
@@ -122,15 +150,25 @@ async function createWrapper() {
 
                 provide: {
                     repositoryFactory: {
-                        create: () => ({
-                            search: () => {
-                                return Promise.resolve(salesChannels);
-                            },
-                        }),
+                        create: (entity) => {
+                            if (entity === 'product_sorting') {
+                                return {
+                                    search: () => {
+                                        return Promise.resolve(productSortings);
+                                    },
+                                };
+                            }
+
+                            return {
+                                search: () => {
+                                    return Promise.resolve(salesChannels);
+                                },
+                            };
+                        },
                     },
                     validationService: {},
                     liveSearchService: {
-                        search: jest.fn(({ terms }) => {
+                        search: jest.fn(({ search: terms }) => {
                             if (terms === mockResults.nothing.terms) {
                                 return Promise.resolve(mockResults.nothing.result);
                             }
@@ -164,10 +202,6 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
     beforeEach(async () => {
         wrapper = await createWrapper();
         await flushPromises();
-    });
-
-    it('should be a Vue.JS component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should render the sales channel select', async () => {
@@ -211,8 +245,8 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
             liveSearchResults: mockResults.nothing.result,
         });
         await flushPromises();
-        const resultText = wrapper.find('.sw-settings-search-live-search__no-result');
-        expect(resultText.text()).toBe('sw-settings-search.liveSearchTab.textNoResult');
+        const resultHeadline = wrapper.find('.sw-settings-search-live-search__no-result .mt-empty-state__headline');
+        expect(resultHeadline.text()).toBe('sw-settings-search.liveSearchTab.textNoResult');
         wrapper.vm.liveSearchService.search.mockReset();
     });
 
@@ -244,32 +278,6 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         // The score should be round up
         expect(scoreCell.text()).toBe(Math.round(parseFloat(scoreOrigin)).toString());
 
-        wrapper.vm.liveSearchService.search.mockReset();
-    });
-
-    it('should able to click on search glass to search', async () => {
-        const salesChannelSwitch = wrapper.find(
-            '.sw-settings-search-live-search__sales-channel-select .sw-select__selection',
-        );
-        await salesChannelSwitch.trigger('click');
-        await flushPromises();
-        await wrapper.find('.sw-select-option--0').trigger('click');
-        await flushPromises();
-        const searchBox = wrapper.find('.sw-settings-search-live-search__search_box input');
-        await searchBox.setValue(mockResults.oneResult.terms);
-        await flushPromises();
-
-        const searchIcon = wrapper.find('.sw-settings-search-live-search__search-icon');
-        await searchIcon.trigger('click');
-        await flushPromises();
-
-        await wrapper.setData({
-            liveSearchResults: mockResults.oneResult.result,
-        });
-        await flushPromises();
-
-        const firstRow = wrapper.find('.sw-data-grid__row--0');
-        expect(firstRow.find('.sw-product-variant-info').exists()).toBeTruthy();
         wrapper.vm.liveSearchService.search.mockReset();
     });
 
@@ -306,5 +314,64 @@ describe('src/module/sw-settings-search/component/sw-settings-search-live-search
         expect(thirdRow.find('.sw-product-variant-info').exists()).toBeTruthy();
 
         wrapper.vm.liveSearchService.search.mockReset();
+    });
+
+    it('should call search service with correct sorting parameter', async () => {
+        jest.useFakeTimers();
+        wrapper.vm.liveSearchService.search.mockClear();
+
+        const searchSpy = jest.spyOn(wrapper.vm.liveSearchService, 'search');
+
+        // Select sales channel
+        const salesChannelSwitch = wrapper.find(
+            '.sw-settings-search-live-search__sales-channel-select .sw-select__selection',
+        );
+        await salesChannelSwitch.trigger('click');
+        await flushPromises();
+
+        await wrapper.find('.sw-select-option--0').trigger('click');
+        await flushPromises();
+
+        // The component fetches sortings on created, and sets default to 'score'.
+        // Let's check if the default is passed first.
+        const searchBox = wrapper.find('.sw-simple-search-field input');
+        await searchBox.setValue(mockResults.multipleResults.terms);
+        await flushPromises();
+        jest.runAllTimers();
+        await flushPromises();
+
+        expect(searchSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                search: mockResults.multipleResults.terms,
+                order: 'score',
+            }),
+            {},
+            {},
+            expect.any(Object),
+        );
+
+        searchSpy.mockClear();
+
+        const sortingSelect = wrapper.find('.sw-settings-search-live-search__sorting-select');
+        await sortingSelect.find('.mt-select__selection').trigger('click');
+        await flushPromises();
+
+        // The component sorts by priority, so 'score' (10) is first, 'name-asc' (2) is second.
+        await sortingSelect.find('.mt-select-option--1').trigger('click');
+        await flushPromises();
+        jest.runAllTimers();
+        await flushPromises();
+
+        // The search should be triggered on value change of sorting select
+        expect(searchSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+                order: 'name-asc',
+                search: mockResults.multipleResults.terms,
+            }),
+            {},
+            {},
+            expect.any(Object),
+        );
+        jest.useRealTimers();
     });
 });

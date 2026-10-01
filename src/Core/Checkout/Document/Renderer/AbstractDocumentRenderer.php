@@ -5,13 +5,25 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer as DocumentV2Renderer;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    replacement: DocumentV2Renderer::class,
+    description: 'Document types are registered as type classes with data providers in DocumentV2, renderers only produce output formats.',
+)]
 abstract class AbstractDocumentRenderer
 {
     abstract public function supports(): string;
@@ -26,7 +38,7 @@ abstract class AbstractDocumentRenderer
     /**
      * @param array<int, string> $ids
      *
-     * @return array<int, array<string, mixed>>
+     * @return list<array<string, mixed>>
      */
     protected function getOrdersLanguageId(array $ids, string $versionId, Connection $connection): array
     {
@@ -48,7 +60,7 @@ abstract class AbstractDocumentRenderer
      */
     protected function isAllowIntraCommunityDelivery(array $config, OrderEntity $order): bool
     {
-        if (empty($config['displayAdditionalNoteDelivery'])) {
+        if (($config['displayAdditionalNoteDelivery'] ?? false) === false) {
             return false;
         }
 
@@ -57,7 +69,12 @@ abstract class AbstractDocumentRenderer
             return false;
         }
 
-        $orderDelivery = $order->getDeliveries()?->first();
+        $orderDelivery = $order->getPrimaryOrderDelivery();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $orderDelivery = $order->getDeliveries()?->first();
+        }
+
         if (!$orderDelivery) {
             return false;
         }
@@ -72,5 +89,43 @@ abstract class AbstractDocumentRenderer
         $isPartOfEu = $country->getIsEu();
 
         return $isCompanyTaxFree && $isPartOfEu;
+    }
+
+    protected function isValidVat(OrderEntity $order, ValidatorInterface $validator): bool
+    {
+        $customerType = $order->getOrderCustomer()?->getCustomer()?->getAccountType();
+        if ($customerType !== CustomerEntity::ACCOUNT_TYPE_BUSINESS) {
+            return false;
+        }
+
+        $orderDelivery = $order->getPrimaryOrderDelivery();
+        if (!Feature::isActive('v6.8.0.0')) {
+            $orderDelivery = $order->getDeliveries()?->first();
+        }
+
+        if (!$orderDelivery) {
+            return false;
+        }
+
+        $country = $orderDelivery->getShippingOrderAddress()?->getCountry();
+        if ($country === null) {
+            return false;
+        }
+
+        if ($country->getCheckVatIdPattern() === false) {
+            return true;
+        }
+
+        $vatIds = $order->getOrderCustomer()?->getVatIds();
+        if (!\is_array($vatIds)) {
+            return false;
+        }
+
+        $violations = $validator->validate($vatIds, [
+            new NotBlank(),
+            new CustomerVatIdentification(countryId: $country->getId()),
+        ]);
+
+        return $violations->count() === 0;
     }
 }

@@ -34,7 +34,7 @@ class LineItemDimensionLengthRule extends Rule
     public function match(RuleScope $scope): bool
     {
         if ($scope instanceof LineItemScope) {
-            return $this->matchWidthDimension($scope->getLineItem());
+            return $this->matchLengthDimension($scope->getLineItem());
         }
 
         if (!$scope instanceof CartRuleScope) {
@@ -42,7 +42,11 @@ class LineItemDimensionLengthRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
-            if ($this->matchWidthDimension($lineItem)) {
+            if ($lineItem->getDeliveryInformation() === null && !\array_key_exists(LineItem::PAYLOAD_PRODUCT_TYPE, $lineItem->getPayload())) {
+                continue;
+            }
+
+            if ($this->matchLengthDimension($lineItem)) {
                 return true;
             }
         }
@@ -68,7 +72,7 @@ class LineItemDimensionLengthRule extends Rule
     public function getConfig(): RuleConfig
     {
         return (new RuleConfig())
-            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true)
+            ->operatorSet(RuleConfig::OPERATOR_SET_NUMBER, true, true)
             ->numberField('amount', ['unit' => RuleConfig::UNIT_DIMENSION]);
     }
 
@@ -76,7 +80,7 @@ class LineItemDimensionLengthRule extends Rule
      * @throws CartException
      * @throws UnsupportedOperatorException
      */
-    private function matchWidthDimension(LineItem $lineItem): bool
+    private function matchLengthDimension(LineItem $lineItem): bool
     {
         $deliveryInformation = $lineItem->getDeliveryInformation();
 

@@ -4,6 +4,7 @@
 
 import Plugin from 'src/plugin-system/plugin.class';
 import FormSerializeUtil from 'src/utility/form/form-serialize.util';
+import ButtonLoadingIndicator from 'src/utility/loading-indicator/button-loading-indicator.util';
 
 /**
  * @package checkout
@@ -14,6 +15,18 @@ export default class AddToCartPlugin extends Plugin {
         redirectSelector: '[name="redirectTo"]',
         redirectParamSelector: '[data-redirect-parameters="true"]',
         redirectTo: 'frontend.cart.offcanvas',
+        alertTemplateSelector: '.js-add-to-cart-alert-template',
+        alertDismissDelay: 3000,
+        stockAlertTemplateSelector: '.js-quantity-stock-adjusted-template',
+        stockAlertClass: 'quantity-stock-adjusted-alert',
+        stockAdjustedText: null,
+        outOfStockText: null,
+        buyButtonSelector: 'button[type="submit"].btn-buy',
+
+        /**
+         * @type {'before' | 'after' | 'inner'} loadingIndicatorPosition
+         */
+        loadingIndicatorPosition: 'inner',
     };
 
     init() {
@@ -22,6 +35,8 @@ export default class AddToCartPlugin extends Plugin {
         if (!this._form) {
             throw new Error(`No form found for the plugin: ${this.constructor.name}`);
         }
+
+        this._buyButtonLoader = null;
 
         this._prepareFormRedirect();
 
@@ -63,12 +78,19 @@ export default class AddToCartPlugin extends Plugin {
 
     _registerEvents() {
         this.el.addEventListener('submit', this._formSubmit.bind(this));
+        this._form.addEventListener('removeLoader', this.removeLoadingIndicator.bind(this));
+        this._form.addEventListener('QuantitySelector/StockAdjusted', this._handleStockAdjusted.bind(this));
+        this._form.addEventListener('QuantitySelector/OutOfStock', this._handleOutOfStock.bind(this));
     }
 
     /**
      * On submitting the form the OffCanvas shall open, the product has to be posted
      * against the storefront api and after that the current cart template needs to
-     * be fetched and shown inside the OffCanvas
+     * be fetched and shown inside the OffCanvas.
+     *
+     * If the "Open offcanvas after add to cart" setting is disabled, the product is
+     * added silently and a success message is shown instead.
+     *
      * @param {Event} event
      * @private
      */
@@ -78,9 +100,87 @@ export default class AddToCartPlugin extends Plugin {
         const requestUrl = this._form.getAttribute('action');
         const formData = FormSerializeUtil.serialize(this._form);
 
+        this._createLoadingIndicator();
+
         this.$emitter.publish('beforeFormSubmit', formData);
 
-        this._openOffCanvasCarts(requestUrl, formData);
+        if (this._shouldOpenOffcanvas()) {
+            this._openOffCanvasCarts(requestUrl, formData);
+        } else {
+            this._addToCartWithoutOffcanvas(requestUrl, formData);
+        }
+    }
+
+    /**
+     * Check if offcanvas cart should open after adding to cart
+     *
+     * @returns {boolean}
+     * @private
+     */
+    _shouldOpenOffcanvas() {
+        return window.openOffcanvasAfterAddToCart !== '0';
+    }
+
+    /**
+     * Add product to cart without opening the offcanvas
+     * Used when "Open offcanvas after add to cart" setting is disabled
+     *
+     * @param {string} requestUrl
+     * @param {FormData} formData
+     * @private
+     */
+    _addToCartWithoutOffcanvas(requestUrl, formData) {
+        fetch(requestUrl, {
+            method: 'POST',
+            body: formData,
+        }).then((response) => {
+            this.removeLoadingIndicator();
+
+            if (!response.ok) {
+                throw new Error('Add to cart failed');
+            }
+
+            // Update the cart widget to show the new item count
+            window.PluginManager.getPluginInstances('CartWidget')?.forEach((instance) => {
+                instance.fetch();
+            });
+
+            // Show success message
+            this._showSuccessAlert();
+
+            this.$emitter.publish('addToCartWithoutOffcanvas');
+        }).catch(() => {
+            // Fall back to offcanvas behaviour on error to show any cart errors
+            this._openOffCanvasCarts(requestUrl, formData);
+        });
+    }
+
+    /**
+     * Show a success alert message near the add-to-cart button
+     *
+     * @private
+     */
+    _showSuccessAlert() {
+        const template = document.querySelector(this.options.alertTemplateSelector);
+
+        if (!template || !this._form) {
+            return;
+        }
+
+        const existingAlert = this._form.parentElement.querySelector('.add-to-cart-alert');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+
+        const alert = template.content.firstElementChild.cloneNode(true);
+        alert.classList.add('show', 'add-to-cart-alert');
+
+        this._form.insertAdjacentElement('afterend', alert);
+
+        setTimeout(() => {
+            alert.addEventListener('transitionend', () => alert.remove(), { once: true });
+            alert.classList.remove('show');
+        }, this.options.alertDismissDelay);
     }
 
     /**
@@ -91,7 +191,16 @@ export default class AddToCartPlugin extends Plugin {
      */
     _openOffCanvasCarts(requestUrl, formData) {
         const offCanvasCartInstances = window.PluginManager.getPluginInstances('OffCanvasCart');
-        offCanvasCartInstances.forEach(instance => this._openOffCanvasCart(instance, requestUrl, formData));
+
+        if (!offCanvasCartInstances.length) {
+            this.removeLoadingIndicator();
+
+            return;
+        }
+
+        offCanvasCartInstances.forEach((instance) => {
+            this._openOffCanvasCart(instance, requestUrl, formData);
+        });
     }
 
     /**
@@ -103,7 +212,95 @@ export default class AddToCartPlugin extends Plugin {
      */
     _openOffCanvasCart(instance, requestUrl, formData) {
         instance.openOffCanvas(requestUrl, formData, () => {
+            this.removeLoadingIndicator();
             this.$emitter.publish('openOffCanvasCart');
         });
+    }
+
+    /**
+     * Shows a loading indicator inside the buy button, which disables the button
+     * until the running request is through.
+     *
+     * @private
+     */
+    _createLoadingIndicator() {
+        const buyButton = this._form.querySelector(this.options.buyButtonSelector);
+
+        if (!buyButton) {
+            return;
+        }
+
+        this._buyButtonLoader = new ButtonLoadingIndicator(buyButton, this.options.loadingIndicatorPosition);
+        this._buyButtonLoader.create();
+    }
+
+    /**
+     * Removes the loading indicator from the buy button and enables it again.
+     * Can be called directly on this plugin instance or via event `removeLoader`.
+     */
+    removeLoadingIndicator() {
+        if (!this._buyButtonLoader) {
+            return;
+        }
+
+        this._buyButtonLoader.remove();
+        this._buyButtonLoader = null;
+    }
+
+    /**
+     * Handle stock-adjusted event from the quantity selector.
+     * Shows a warning alert informing the user their quantity was reduced.
+     *
+     * @param {CustomEvent} event
+     * @private
+     */
+    _handleStockAdjusted(event) {
+        let text = this.options.stockAdjustedText || '';
+        text = text.replace('%quantity%', event.detail.quantity);
+        this._showStockAlert(text);
+    }
+
+    /**
+     * Handle out-of-stock event from the quantity selector.
+     * Shows an alert and disables the buy button.
+     *
+     * @private
+     */
+    _handleOutOfStock() {
+        this._showStockAlert(this.options.outOfStockText || '');
+
+        const buyButton = this._form.querySelector(this.options.buyButtonSelector);
+        if (buyButton) {
+            buyButton.disabled = true;
+        }
+    }
+
+    /**
+     * Render a stock alert by cloning the template and filling in the text.
+     *
+     * @param {string} text
+     * @private
+     */
+    _showStockAlert(text) {
+        const template = this._form.querySelector(this.options.stockAlertTemplateSelector);
+
+        if (!template) {
+            return;
+        }
+
+        const existingAlert = template.parentElement.querySelector(`.${this.options.stockAlertClass}`);
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+
+        const alert = template.content.firstElementChild.cloneNode(true);
+        alert.classList.add(this.options.stockAlertClass);
+
+        const textEl = alert.querySelector('.alert-content-container');
+        if (textEl) {
+            textEl.textContent = text;
+        }
+
+        template.insertAdjacentElement('afterend', alert);
     }
 }

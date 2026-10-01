@@ -5,11 +5,13 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\FindVariant;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\FindVariant\FoundCombination;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(FoundCombination::class)]
 class FoundCombinationTest extends TestCase
 {
@@ -25,7 +27,7 @@ class FoundCombinationTest extends TestCase
 
         $foundCombo = new FoundCombination($ids->get('variantId'), $options);
 
-        static::assertEquals($ids->get('variantId'), $foundCombo->getVariantId());
-        static::assertEquals($options, $foundCombo->getOptions());
+        static::assertSame($ids->get('variantId'), $foundCombo->getVariantId());
+        static::assertSame($options, $foundCombo->getOptions());
     }
 }

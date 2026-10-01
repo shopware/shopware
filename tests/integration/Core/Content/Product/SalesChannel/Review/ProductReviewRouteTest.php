@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Util\FloatComparator;
@@ -16,6 +17,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[Group('store-api')]
 class ProductReviewRouteTest extends TestCase
 {
@@ -48,7 +50,7 @@ class ProductReviewRouteTest extends TestCase
         $response = json_decode($this->getResponseContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertArrayHasKey('total', $response);
-        static::assertEquals(5, $response['total']);
+        static::assertSame(5, $response['total']);
     }
 
     public function testIncludes(): void
@@ -72,7 +74,7 @@ class ProductReviewRouteTest extends TestCase
         sort($properties);
         sort($expected);
 
-        static::assertEquals($expected, $properties);
+        static::assertSame($expected, $properties);
     }
 
     public function testExtendCriteria(): void
@@ -99,7 +101,7 @@ class ProductReviewRouteTest extends TestCase
         static::assertArrayHasKey('average', $response['aggregations']);
 
         static::assertTrue(FloatComparator::equals(3.4, $response['aggregations']['average']['avg']));
-        static::assertEquals(5, $response['aggregations']['max']['max']);
+        static::assertSame('5', $response['aggregations']['max']['max']);
     }
 
     private function createData(): void

@@ -12,6 +12,7 @@ use Shopware\Core\Content\Product\Stock\LoadProductStockSubscriber;
 use Shopware\Core\Content\Product\Stock\StockData;
 use Shopware\Core\Content\Product\Stock\StockDataCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -19,6 +20,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(LoadProductStockSubscriber::class)]
 class LoadProductStockSubscriberTest extends TestCase
 {
@@ -42,20 +44,20 @@ class LoadProductStockSubscriberTest extends TestCase
 
         /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
         $event = new SalesChannelEntityLoadedEvent(
-            $this->createMock(SalesChannelProductDefinition::class),
+            static::createStub(SalesChannelProductDefinition::class),
             [$p1, $p2],
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $subscriber->salesChannelLoaded($event);
 
-        static::assertEquals(10, $p1->getStock());
+        static::assertSame(10, $p1->getStock());
         static::assertFalse($p1->getAvailable());
-        static::assertEquals(5, $p1->getMinPurchase());
+        static::assertSame(5, $p1->getMinPurchase());
         static::assertTrue($p1->hasExtension('stock_data'));
         static::assertSame($stock1, $p1->getExtension('stock_data'));
 
-        static::assertEquals(12, $p2->getStock());
+        static::assertSame(12, $p2->getStock());
         static::assertTrue($p2->getAvailable());
         static::assertNull($p2->getMinPurchase());
         static::assertTrue($p2->hasExtension('stock_data'));
@@ -82,20 +84,20 @@ class LoadProductStockSubscriberTest extends TestCase
 
         /** @var SalesChannelEntityLoadedEvent<ProductEntity|PartialEntity> $event */
         $event = new SalesChannelEntityLoadedEvent(
-            $this->createMock(SalesChannelProductDefinition::class),
+            static::createStub(SalesChannelProductDefinition::class),
             [$p1, $p2],
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $subscriber->salesChannelLoaded($event);
 
-        static::assertEquals(10, $p1->get('stock'));
+        static::assertSame(10, $p1->get('stock'));
         static::assertFalse($p1->get('available'));
-        static::assertEquals(5, $p1->get('minPurchase'));
+        static::assertSame(5, $p1->get('minPurchase'));
         static::assertTrue($p1->hasExtension('stock_data'));
         static::assertSame($stock1, $p1->getExtension('stock_data'));
 
-        static::assertEquals(12, $p2->get('stock'));
+        static::assertSame(12, $p2->get('stock'));
         static::assertTrue($p2->get('available'));
         static::assertNull($p2->get('minPurchase'));
         static::assertTrue($p2->hasExtension('stock_data'));

@@ -3,12 +3,17 @@
     v-if="showItem"
     class="sw-shortcut-overview-item"
 >
-    <kbd
-        v-for="key in keys"
-        :key="key"
-    >
-        <span>{{ key }}</span>
-    </kbd>
     <span class="sw-shortcut-overview-item__title">{{ title }}</span>
+
+    <span class="sw-shortcut-overview-item__keys">
+        <kbd
+            v-for="(key, index) in keys"
+            :key="key.label + '-' + index"
+            class="sw-shortcut-overview-item__key"
+            :aria-label="key.ariaLabel"
+        >
+            {{ key.label }}
+        </kbd>
+    </span>
 </div>
 {% endblock %}

@@ -72,14 +72,12 @@ describe('sw-app-wrong-app-url-modal', () => {
                 },
             }),
         });
-
-        removeNotificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'removeNotification');
     });
 
-    it('should be a Vue.js component', async () => {
-        wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
+    beforeEach(() => {
+        // Setup spy before each test since restoreMocks: true in jest.config.js
+        // automatically restores mocks after each test
+        removeNotificationSpy = jest.spyOn(Shopware.Store.get('notification'), 'removeNotification');
     });
 
     it('should show modal', async () => {

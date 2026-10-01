@@ -17,7 +17,7 @@ Shopware.Component.register('sw-cms-el-image-slider', () => import('./component'
 type ImageSliderItemConfig = {
     newTab: boolean;
     url: string;
-    mediaId: string;
+    mediaId: EntityKey<'media'>;
 };
 
 type ImageSliderItem = {
@@ -78,6 +78,10 @@ Shopware.Service('cmsService').registerCmsElement({
             source: 'static',
         },
         isDecorative: {
+            source: 'static',
+            value: false,
+        },
+        useFetchPriorityOnFirstItem: {
             source: 'static',
             value: false,
         },

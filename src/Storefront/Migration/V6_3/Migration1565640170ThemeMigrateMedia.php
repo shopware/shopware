@@ -9,10 +9,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
-#[Package('framework')]
+#[Package('discovery')]
 class Migration1565640170ThemeMigrateMedia extends MigrationStep
 {
     public function getCreationTimestamp(): int
@@ -70,10 +68,6 @@ class Migration1565640170ThemeMigrateMedia extends MigrationStep
                LEFT JOIN `media_default_folder` ON `media_folder`.`default_folder_id` = `media_default_folder`.`id`
                WHERE `media_default_folder`.`entity` = \'theme\';'
         );
-
-        if (empty($mediaIds)) {
-            return;
-        }
 
         foreach ($mediaIds as $mediaId) {
             $connection->insert('theme_media', [

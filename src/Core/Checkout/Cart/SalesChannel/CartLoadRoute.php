@@ -2,29 +2,31 @@
 
 namespace Shopware\Core\Checkout\Cart\SalesChannel;
 
-use Shopware\Core\Checkout\Cart\AbstractCartPersister;
+use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
-use Shopware\Core\Checkout\Cart\CartFactory;
-use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
+use Shopware\Core\Checkout\Cart\Extension\CartLoadRouteExtension;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
+use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CartLoadRoute extends AbstractCartLoadRoute
 {
     /**
      * @internal
      */
     public function __construct(
-        private readonly AbstractCartPersister $persister,
-        private readonly CartFactory $cartFactory,
         private readonly CartCalculator $cartCalculator,
-        private readonly TaxProviderProcessor $taxProviderProcessor
+        private readonly TaxProviderProcessor $taxProviderProcessor,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -33,19 +35,28 @@ class CartLoadRoute extends AbstractCartLoadRoute
         throw new DecorationPatternException(self::class);
     }
 
+    /**
+     * `$cart` is filled by the CartValueResolver when this route runs as a controller, and then holds the
+     * cart that resolving the sales channel context already loaded and calculated for the context token.
+     */
     #[Route(path: '/store-api/checkout/cart', name: 'store-api.checkout.cart.read', methods: ['GET', 'POST'])]
-    public function load(Request $request, SalesChannelContext $context): CartResponse
+    public function load(Request $request, SalesChannelContext $context, ?Cart $cart = null): CartResponse
     {
-        $token = $request->get('token', $context->getToken());
-        $taxed = $request->get('taxed', false);
+        return $this->extensions->publish(
+            name: CartLoadRouteExtension::NAME,
+            extension: new CartLoadRouteExtension($request, $context, $cart),
+            function: $this->_load(...),
+        );
+    }
 
-        try {
-            $cart = $this->persister->load($token, $context);
-        } catch (CartTokenNotFoundException) {
-            $cart = $this->cartFactory->createNew($token);
+    private function _load(Request $request, SalesChannelContext $context, ?Cart $cart): CartResponse
+    {
+        $token = RequestParamHelper::get($request, 'token', $context->getToken());
+        $taxed = RequestParamHelper::get($request, 'taxed', false);
+
+        if ($cart === null || $cart->getToken() !== $token) {
+            $cart = $this->cartCalculator->calculateByToken($token, $context);
         }
-
-        $cart = $this->cartCalculator->calculate($cart, $context);
 
         if ($taxed) {
             $this->taxProviderProcessor->process($cart, $context);

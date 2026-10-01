@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-section.html.twig';
 import './sw-cms-section.scss';
 import type CmsVisibility from '../../shared/CmsVisibility';
@@ -9,7 +8,7 @@ const { mapPropertyErrors } = Component.getComponentHelper();
 type SlotsErrorObject = {
     parameters?: {
         elements: Array<{
-            blockIds: string[];
+            blockIds: EntityKey<'cms_block'>[];
         }>;
     };
 };
@@ -17,7 +16,7 @@ type SlotsErrorObject = {
 type SlotConfigErrorObject = {
     parameters?: {
         elements: Array<{
-            blockId: string;
+            blockId: EntityKey<'cms_block'>;
         }>;
     };
 };
@@ -29,10 +28,7 @@ type SlotConfigErrorObject = {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'cmsService',
-        'repositoryFactory',
-    ],
+    inject: ['cmsService', 'repositoryFactory'],
 
     provide() {
         return {
@@ -40,14 +36,9 @@ export default Shopware.Component.wrapComponentConfig({
         };
     },
 
-    emits: [
-        'page-config-open',
-        'block-duplicate',
-    ],
+    emits: ['page-config-open', 'block-duplicate'],
 
-    mixins: [
-        Mixin.getByName('cms-state'),
-    ],
+    mixins: [Mixin.getByName('cms-state')],
 
     props: {
         page: {
@@ -76,6 +67,9 @@ export default Shopware.Component.wrapComponentConfig({
     data() {
         return {
             isCollapsed: true,
+            /**
+             * @deprecated tag:v6.8.0 - will be removed, is not used anymore
+             */
             pageSlotconfigError: null as SlotConfigErrorObject | null,
         };
     },
@@ -188,7 +182,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         toggleButtonText() {
-            return this.$tc('sw-cms.sidebar.contentMenu.visibilitySectionTextButton', this.isCollapsed ? 0 : 1);
+            return this.$t('sw-cms.sidebar.contentMenu.visibilitySectionTextButton', this.isCollapsed ? 0 : 1);
         },
 
         expandedClass() {
@@ -204,10 +198,7 @@ export default Shopware.Component.wrapComponentConfig({
             };
         },
 
-        ...mapPropertyErrors('page', [
-            'slots',
-            'slotConfig',
-        ]),
+        ...mapPropertyErrors('page', ['slots', 'slotConfig']),
     },
 
     created() {
@@ -245,7 +236,7 @@ export default Shopware.Component.wrapComponentConfig({
             this.$emit('block-duplicate', block, section);
         },
 
-        onBlockDelete(blockId: string) {
+        onBlockDelete(blockId: EntityKey<'cms_block'>) {
             this.section.blocks!.remove(blockId);
 
             if (this.selectedBlock && this.selectedBlock.id === blockId) {
@@ -270,10 +261,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         hasBlockErrors(block: Entity<'cms_block'>) {
-            return [
-                this.hasUniqueBlockErrors(block),
-                this.hasSlotConfigErrors(block),
-            ].some((error) => error);
+            return [this.hasUniqueBlockErrors(block), this.hasSlotConfigErrors(block)].some((error) => error);
         },
 
         hasUniqueBlockErrors(block: Entity<'cms_block'>) {
@@ -287,7 +275,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         hasSlotConfigErrors(block: Entity<'cms_block'>) {
-            const errorElements = (this.pageSlotconfigError as SlotConfigErrorObject)?.parameters?.elements;
+            const errorElements = (this.pageSlotConfigError as SlotConfigErrorObject)?.parameters?.elements;
 
             if (!errorElements) {
                 return false;
@@ -298,6 +286,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         toggleVisibility() {
             this.isCollapsed = !this.isCollapsed;
+        },
+
+        getBlockComponent(type: string) {
+            return this.cmsService.getCmsBlockConfigByName(type)?.component ?? `sw-cms-block-${type}`;
         },
     },
 });

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Validation;
 
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\FrameworkException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints\Collection;
@@ -19,18 +20,21 @@ class ValidatorFactory
      *
      * @return TClassToCreate
      */
-    public static function create(array $data, string $class): object
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'allowExtraFields', parameterType: 'bool', defaultValue: false)]
+    public static function create(array $data, string $class /* , bool $allowExtraFields = false */): object
     {
+        $allowExtraFields = \func_num_args() > 2 && \func_get_arg(2);
+
         $validator = Validation::createValidator();
         $constraints = self::getConstraints($class);
-        $violations = $validator->validate($data, new Collection($constraints));
+        $violations = $validator->validate($data, new Collection($constraints, allowExtraFields: $allowExtraFields));
 
         if ($violations->count() === 0) {
             return new $class($data);
         }
 
         $messages = array_map(
-            fn (ConstraintViolationInterface $violation) => $violation->getPropertyPath() . ': ' . $violation->getMessage(),
+            static fn (ConstraintViolationInterface $violation) => $violation->getPropertyPath() . ': ' . $violation->getMessage(),
             iterator_to_array($violations)
         );
 

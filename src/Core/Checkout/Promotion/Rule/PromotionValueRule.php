@@ -56,7 +56,7 @@ class PromotionValueRule extends FilterRule
             });
         }
 
-        $promotionAmount = $promotions->getPrices()->sum()->getTotalPrice() * -1;
+        $promotionAmount = $promotions->getPrices()->getTotalPriceAmount() * -1;
 
         return RuleComparison::numeric($promotionAmount, $this->amount, $this->operator);
     }

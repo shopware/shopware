@@ -9,7 +9,6 @@ const { Criteria } = Shopware.Data;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { ShopwareError } = Shopware.Classes;
 const types = Shopware.Utils.types;
-const domainPlaceholderId = '124c71d524604ccbad6042edce3ac799';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -19,6 +18,7 @@ export default {
         'repositoryFactory',
         'acl',
         'customFieldDataProviderService',
+        'feature',
     ],
 
     mixins: [
@@ -73,14 +73,53 @@ export default {
             return this.repositoryFactory.create('customer_group');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         seoUrlRepository() {
             return this.repositoryFactory.create('seo_url');
         },
 
+        customerGroupCriteria() {
+            const criteria = new Criteria(1, 1);
+
+            criteria
+                .addAssociation('registrationSalesChannels')
+                .getAssociation('registrationSalesChannels')
+                .addAssociation('domains')
+                .addAssociation('seoUrls');
+
+            criteria
+                .getAssociation('registrationSalesChannels')
+                .getAssociation('seoUrls')
+                .addFilter(Criteria.equals('pathInfo', `/customer-group-registration/${this.customerGroupId}`))
+                .addFilter(Criteria.equals('isCanonical', true))
+                .addAssociation('language');
+
+            return criteria;
+        },
+
+        registrationSalesChannelCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            criteria
+                .addAssociation('domains')
+                .addAssociation('seoUrls')
+                .getAssociation('seoUrls')
+                .addFilter(Criteria.equals('pathInfo', `/customer-group-registration/${this.customerGroupId}`))
+                .addFilter(Criteria.equals('isCanonical', true))
+                .addAssociation('language');
+
+            return criteria;
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         seoUrlCriteria() {
             const criteria = new Criteria(1, 25);
 
-            if (this.customerGroup?.registrationSalesChannels.length) {
+            if (this.customerGroup?.registrationSalesChannels?.length) {
                 const salesChannelIds = this.customerGroup.registrationSalesChannels?.getIds();
 
                 criteria.addFilter(Criteria.equalsAny('salesChannelId', salesChannelIds));
@@ -100,14 +139,14 @@ export default {
             return this.placeholder(
                 this.customerGroup,
                 'name',
-                this.$tc('sw-settings-customer-group.detail.placeholderNewCustomerGroup'),
+                this.$t('sw-settings-customer-group.detail.placeholderNewCustomerGroup'),
             );
         },
 
         tooltipSave() {
             if (!this.allowSave) {
                 return {
-                    message: this.$tc('sw-privileges.tooltip.warning'),
+                    message: this.$t('sw-privileges.tooltip.warning'),
                     disabled: this.allowSave,
                     showOnDisabledElements: true,
                 };
@@ -142,7 +181,7 @@ export default {
         },
 
         technicalUrl() {
-            return `${domainPlaceholderId}/customer-group-registration/${this.customerGroupId}#`;
+            return `<domain-url>/customer-group-registration/${this.customerGroupId}#`;
         },
 
         ...mapPropertyErrors('customerGroup', ['name']),
@@ -167,9 +206,6 @@ export default {
         'customerGroup.registrationTitle'() {
             this.registrationTitleError = null;
         },
-        'customerGroup.registrationSalesChannels'() {
-            this.loadSeoUrls();
-        },
     },
 
     created() {
@@ -181,24 +217,34 @@ export default {
             this.isLoading = true;
             if (!this.customerGroupId) {
                 this.createNotificationError({
-                    message: this.$tc('global.notification.notificationLoadingDataErrorMessage'),
+                    message: this.$t('global.notification.notificationLoadingDataErrorMessage'),
                 });
 
                 this.isLoading = true;
                 return;
             }
 
-            this.loadSeoUrls();
             this.loadCustomFieldSets();
-            const criteria = new Criteria(1, 25);
-            criteria.addAssociation('registrationSalesChannels');
-
-            this.customerGroupRepository.get(this.customerGroupId, Shopware.Context.api, criteria).then((customerGroup) => {
-                this.customerGroup = customerGroup;
-                this.isLoading = false;
-            });
+            this.loadCustomerGroup();
         },
 
+        async loadCustomerGroup() {
+            this.isLoading = true;
+
+            try {
+                this.customerGroup = await this.customerGroupRepository.get(
+                    this.customerGroupId,
+                    Shopware.Context.api,
+                    this.customerGroupCriteria,
+                );
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement.
+         */
         async loadSeoUrls() {
             if (!this.customerGroup?.registrationSalesChannels?.length) {
                 this.seoUrls = [];
@@ -221,6 +267,9 @@ export default {
             this.$router.push({ name: 'sw.settings.customer.group.index' });
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement. Seo URLs are now constructed in the template.
+         */
         getSeoUrl(seoUrl) {
             let shopUrl = '';
 
@@ -240,12 +289,12 @@ export default {
                 types.isEmpty(this.customerGroup.registrationTitle)
             ) {
                 this.createNotificationError({
-                    message: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                    message: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                 });
 
                 this.registrationTitleError = new ShopwareError({
                     code: 'CUSTOMER_GROUP_REGISTERATION_MISSING_TITLE',
-                    detail: this.$tc('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
+                    detail: this.$t('global.notification.notificationSaveErrorMessageRequiredFieldsInvalid'),
                 });
 
                 this.isLoading = false;
@@ -265,13 +314,14 @@ export default {
             }
 
             try {
-                await this.customerGroupRepository.save(this.customerGroup);
-                await this.loadSeoUrls();
+                await this.customerGroupRepository
+                    .save(this.customerGroup)
+                    .then((response) => (response !== undefined ? this.loadCustomerGroup() : Promise.resolve()));
 
                 this.isSaveSuccessful = true;
-            } catch (err) {
+            } catch (_err) {
                 this.createNotificationError({
-                    message: this.$tc('sw-settings-customer-group.detail.notificationErrorMessage'),
+                    message: this.$t('sw-settings-customer-group.detail.notificationErrorMessage'),
                 });
             } finally {
                 this.isLoading = false;

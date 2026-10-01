@@ -21,6 +21,16 @@ final class RuleConfig extends Struct
         Rule::OPERATOR_NEQ,
     ];
 
+    public const OPERATOR_SET_DATE = [
+        Rule::OPERATOR_EQ,
+        Rule::OPERATOR_GT,
+        Rule::OPERATOR_GTE,
+        Rule::OPERATOR_LT,
+        Rule::OPERATOR_LTE,
+        Rule::OPERATOR_NEQ,
+        Rule::OPERATOR_BETWEEN,
+    ];
+
     public const DEFAULT_DIGITS = 10;
 
     public const UNIT_DIMENSION = 'dimension';
@@ -100,7 +110,7 @@ final class RuleConfig extends Struct
      */
     public function numberField(string $name, array $config = []): self
     {
-        $config['digits'] = $config['digits'] ?? self::DEFAULT_DIGITS;
+        $config['digits'] ??= self::DEFAULT_DIGITS;
 
         return $this->field($name, 'float', $config);
     }

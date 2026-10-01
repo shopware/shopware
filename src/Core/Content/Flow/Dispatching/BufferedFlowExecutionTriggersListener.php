@@ -14,20 +14,20 @@ use Symfony\Contracts\Service\ServiceSubscriberInterface;
 /**
  * @internal not intended for decoration or replacement
  *
- * @experimental stableVersion:v6.8.0 feature:FLOW_EXECUTION_AFTER_BUSINESS_PROCESS
+ * @final
  */
 #[Package('after-sales')]
-class BufferedFlowExecutionTriggersListener implements EventSubscriberInterface, ServiceSubscriberInterface
+readonly class BufferedFlowExecutionTriggersListener implements EventSubscriberInterface, ServiceSubscriberInterface
 {
     public function __construct(
-        private readonly ContainerInterface $container,
-        private readonly BufferedFlowQueue $bufferedFlowQueue,
+        private ContainerInterface $container,
+        private BufferedFlowQueue $bufferedFlowQueue,
     ) {
     }
 
     public static function getSubscribedEvents(): array
     {
-        if (!Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS')) {
+        if (!(Feature::isActive('FLOW_EXECUTION_AFTER_BUSINESS_PROCESS') || Feature::isActive('v6.8.0.0'))) {
             return [];
         }
 

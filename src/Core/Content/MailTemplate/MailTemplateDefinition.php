@@ -18,9 +18,13 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\WasModifiedByUserField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('after-sales')]
 class MailTemplateDefinition extends EntityDefinition
 {
@@ -53,6 +57,7 @@ class MailTemplateDefinition extends EntityDefinition
 
             (new FkField('mail_template_type_id', 'mailTemplateTypeId', MailTemplateTypeDefinition::class))->addFlags(new Required()),
             (new BoolField('system_default', 'systemDefault'))->addFlags(new ApiAware()),
+            new WasModifiedByUserField(),
 
             // translatable fields
             (new TranslatedField('senderName'))->addFlags(new ApiAware()),

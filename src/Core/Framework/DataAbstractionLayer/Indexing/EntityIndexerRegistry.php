@@ -3,9 +3,11 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Indexing;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\FullEntityIndexerMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\IterateEntityIndexerMessage;
+use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Telemetry\IndexerMetricsInstrumentor;
 use Shopware\Core\Framework\Event\ProgressAdvancedEvent;
 use Shopware\Core\Framework\Event\ProgressFinishedEvent;
 use Shopware\Core\Framework\Event\ProgressStartedEvent;
@@ -18,11 +20,12 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @final
  */
-#[AsMessageHandler]
 #[Package('framework')]
+#[AsMessageHandler]
 class EntityIndexerRegistry
 {
     final public const EXTENSION_INDEXER_SKIP = 'indexer-skip';
+    final public const EXTENSION_INDEXER_ONLY = 'indexer-only';
 
     final public const USE_INDEXING_QUEUE = 'use-queue-indexing';
 
@@ -38,7 +41,8 @@ class EntityIndexerRegistry
     public function __construct(
         private readonly iterable $indexer,
         private readonly MessageBusInterface $messageBus,
-        private readonly EventDispatcherInterface $dispatcher
+        private readonly EventDispatcherInterface $dispatcher,
+        private readonly IndexerMetricsInstrumentor $indexerMetrics,
     ) {
     }
 
@@ -57,7 +61,7 @@ class EntityIndexerRegistry
             $indexer = $this->getIndexer($message->getIndexer());
 
             if ($indexer) {
-                $indexer->handle($message);
+                $this->indexerMetrics->measureRun($indexer, $message, fn () => $indexer->handle($message));
             }
 
             return;
@@ -87,7 +91,7 @@ class EntityIndexerRegistry
                 continue;
             }
 
-            if (\count($only) > 0 && !\in_array($indexer->getName(), $only, true)) {
+            if ($only !== [] && !\in_array($indexer->getName(), $only, true)) {
                 continue;
             }
 
@@ -124,33 +128,37 @@ class EntityIndexerRegistry
         }
         $this->working = true;
 
-        if ($this->disabled($context)) {
+        // the flag must be reset even when an indexer throws (e.g. synchronous handling),
+        // otherwise all indexing stays silently disabled for the rest of the process
+        try {
+            if ($this->disabled($context)) {
+                return;
+            }
+
+            $useQueue = $this->useQueue($context);
+
+            foreach ($this->indexer as $indexer) {
+                if ($indexer instanceof PostUpdateIndexer) {
+                    continue;
+                }
+
+                $message = $indexer->update($event);
+
+                if (!$message) {
+                    continue;
+                }
+
+                $message->setIndexer($indexer->getName());
+                $message->isFullIndexing = false;
+
+                self::addOnlyAllowedIndexers($message, $indexer->getOptions(), $context);
+                self::addSkips($message, $context);
+
+                $this->sendOrHandle($message, $useQueue);
+            }
+        } finally {
             $this->working = false;
-
-            return;
         }
-
-        $useQueue = $this->useQueue($context);
-
-        foreach ($this->indexer as $indexer) {
-            if ($indexer instanceof PostUpdateIndexer) {
-                continue;
-            }
-
-            $message = $indexer->update($event);
-
-            if (!$message) {
-                continue;
-            }
-
-            $message->setIndexer($indexer->getName());
-            $message->isFullIndexing = false;
-            self::addSkips($message, $context);
-
-            $this->sendOrHandle($message, $useQueue);
-        }
-
-        $this->working = false;
     }
 
     public static function addSkips(EntityIndexingMessage $message, Context $context): void
@@ -163,7 +171,29 @@ class EntityIndexerRegistry
             return;
         }
 
-        $message->addSkip(...$skip->get('skips'));
+        /** @var array<string> $skip */
+        $skip = $skip->get('skips');
+
+        $message->addSkip(...$skip);
+    }
+
+    /**
+     * @param array<string> $options
+     */
+    public static function addOnlyAllowedIndexers(EntityIndexingMessage $message, array $options, Context $context): void
+    {
+        if (!$context->hasExtension(self::EXTENSION_INDEXER_ONLY)) {
+            return;
+        }
+        $only = $context->getExtension(self::EXTENSION_INDEXER_ONLY);
+        if (!$only instanceof ArrayEntity) {
+            return;
+        }
+
+        /** @var array<string> $only */
+        $only = $only->get('onlies');
+
+        $message->setSkip(array_diff($options, $only));
     }
 
     /**
@@ -172,21 +202,21 @@ class EntityIndexerRegistry
      */
     public function sendIndexingMessage(array $indexer = [], array $skip = [], bool $postUpdate = false): void
     {
-        if (empty($indexer)) {
+        if ($indexer === []) {
             $indexer = [];
             foreach ($this->indexer as $loop) {
                 $indexer[] = $loop->getName();
             }
         }
 
-        if (empty($indexer)) {
+        if ($indexer === []) {
             return;
         }
 
         foreach ($indexer as $name) {
             $instance = $this->getIndexer($name);
 
-            // skip "one-time" indexer which should only be triggered after an update
+            // skip "one-time" indexers which should only be triggered after an update
             if (!$postUpdate && $instance instanceof PostUpdateIndexer) {
                 continue;
             }
@@ -210,6 +240,24 @@ class EntityIndexerRegistry
     public function has(string $name): bool
     {
         return $this->getIndexer($name) !== null;
+    }
+
+    /**
+     * @return array<string, list<string>>
+     */
+    public function getIndexers(): array
+    {
+        $indexers = [];
+
+        foreach ($this->indexer as $indexer) {
+            if ($indexer instanceof PostUpdateIndexer) {
+                continue;
+            }
+
+            $indexers[$indexer->getName()] = $indexer->getOptions();
+        }
+
+        return $indexers;
     }
 
     public function getIndexer(string $name): ?EntityIndexer
@@ -252,7 +300,7 @@ class EntityIndexerRegistry
         $indexer = $this->getIndexer($name);
 
         if (!$indexer instanceof EntityIndexer) {
-            throw new \RuntimeException(\sprintf('Entity indexer with name %s not found', $name));
+            throw DataAbstractionLayerException::entityIndexerNotFound($name);
         }
 
         $message = $indexer->iterate($offset);

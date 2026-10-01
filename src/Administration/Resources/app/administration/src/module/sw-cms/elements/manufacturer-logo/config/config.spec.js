@@ -23,6 +23,10 @@ const defaultProps = {
                 source: 'static',
                 value: null,
             },
+            ariaLabel: {
+                source: 'static',
+                value: null,
+            },
             newTab: {
                 source: 'static',
                 value: true,
@@ -40,6 +44,10 @@ const defaultProps = {
                 value: null,
             },
             isDecorative: {
+                source: 'static',
+                value: false,
+            },
+            fetchPriorityHigh: {
                 source: 'static',
                 value: false,
             },
@@ -65,10 +73,7 @@ async function createWrapper() {
                     'sw-select-field': {
                         template:
                             '<select class="sw-select-field" :value="value" @change="$emit(\'change\', $event.target.value)"><slot></slot></select>',
-                        props: [
-                            'value',
-                            'options',
-                        ],
+                        props: ['value', 'options'],
                     },
                     'sw-text-field': true,
                     'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),
@@ -80,6 +85,16 @@ async function createWrapper() {
                     'sw-context-button': true,
                     'sw-context-menu-item': true,
                     'mt-switch': true,
+                    'sw-cms-inherit-wrapper': {
+                        template: '<div><slot :isInherited="false"></slot></div>',
+                        props: [
+                            'field',
+                            'element',
+                            'contentEntity',
+                            'label',
+                        ],
+                    },
+                    'sw-container': true,
                 },
                 provide: {
                     repositoryFactory: {

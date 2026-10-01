@@ -102,11 +102,6 @@ function createEntityCollection(entities = []) {
 }
 
 describe('src/app/component/form/sw-snippet-field', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should show admin language translation of snippet field', async () => {
         Shopware.Store.get('session').currentLocale = 'de-DE';
 
@@ -167,11 +162,7 @@ describe('src/app/component/form/sw-snippet-field', () => {
             return accumulator;
         }, []);
 
-        const wrapper = await createWrapper('en-GB', [
-            enGB,
-            deDE,
-            ...mockLanguages,
-        ]);
+        const wrapper = await createWrapper('en-GB', [enGB, deDE, ...mockLanguages]);
 
         await flushPromises();
 

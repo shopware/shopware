@@ -18,6 +18,6 @@ class RemoteAddressFieldTest extends TestCase
     {
         $field = new RemoteAddressField('remote_address', 'remoteAddress');
 
-        static::assertEquals('remote_address', $field->getStorageName());
+        static::assertSame('remote_address', $field->getStorageName());
     }
 }

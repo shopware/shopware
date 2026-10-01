@@ -3,19 +3,16 @@ import { computed } from 'vue';
 import template from './sw-condition-tree.html.twig';
 import './sw-condition-tree.scss';
 
-const { Component } = Shopware;
 const { EntityCollection } = Shopware.Data;
 
 /**
  * @private
  * @sw-package fundamentals@after-sales
  */
-Component.register('sw-condition-tree', {
+export default {
     template,
 
-    inject: [
-        'feature',
-    ],
+    inject: ['feature'],
 
     provide() {
         return {
@@ -31,10 +28,7 @@ Component.register('sw-condition-tree', {
         };
     },
 
-    emits: [
-        'conditions-changed',
-        'initial-loading-done',
-    ],
+    emits: ['conditions-changed', 'initial-loading-done'],
 
     props: {
         conditionDataProviderService: {
@@ -120,7 +114,7 @@ Component.register('sw-condition-tree', {
             }
 
             conditions.forEach((condition) => {
-                condition.translatedLabel = this.$tc(condition.label);
+                condition.translatedLabel = this.$t(condition.label);
             });
 
             conditions.sort((a, b) => a.translatedLabel.localeCompare(b.translatedLabel));
@@ -154,7 +148,7 @@ Component.register('sw-condition-tree', {
             const groups = Object.values(this.conditionDataProviderService.getGroups());
 
             groups.forEach((group) => {
-                group.label = this.$tc(group.name);
+                group.label = this.$t(group.name);
             });
 
             groups.sort((a, b) => {
@@ -214,7 +208,6 @@ Component.register('sw-condition-tree', {
             if (this.needsRootOrContainer(rootConditions)) {
                 const newRoot = this.applyRoot(rootConditions);
 
-                // eslint-disable-next-line vue/no-mutating-props
                 this.initialConditions.push(newRoot);
                 rootConditions = [newRoot];
             }
@@ -241,10 +234,7 @@ Component.register('sw-condition-tree', {
                 condition[this.childAssociationField].entity,
                 condition[this.childAssociationField].context,
                 null,
-                [
-                    ...children,
-                    ...condition[this.childAssociationField],
-                ],
+                [...children, ...condition[this.childAssociationField]],
             );
             return condition;
         },
@@ -357,4 +347,4 @@ Component.register('sw-condition-tree', {
             });
         },
     },
-});
+};

@@ -13,11 +13,13 @@ class SalesChannelContextServiceParameters extends Struct
         protected string $salesChannelId,
         protected string $token,
         protected ?string $languageId = null,
+        // used as fallback if no currency is set in the existing context
         protected ?string $currencyId = null,
         protected ?string $domainId = null,
         protected ?Context $originalContext = null,
         protected ?string $customerId = null,
-        protected ?string $imitatingUserId = null
+        protected ?string $imitatingUserId = null,
+        protected ?string $overwriteCurrencyId = null,
     ) {
     }
 
@@ -39,6 +41,11 @@ class SalesChannelContextServiceParameters extends Struct
     public function getCurrencyId(): ?string
     {
         return $this->currencyId;
+    }
+
+    public function getOverwriteCurrencyId(): ?string
+    {
+        return $this->overwriteCurrencyId;
     }
 
     public function getDomainId(): ?string

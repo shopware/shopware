@@ -57,7 +57,7 @@ class DeliveryPositionCollection extends Collection
     {
         return new LineItemCollection(
             array_map(
-                fn (DeliveryPosition $position) => $position->getLineItem(),
+                static fn (DeliveryPosition $position) => $position->getLineItem(),
                 $this->elements
             )
         );
@@ -65,9 +65,9 @@ class DeliveryPositionCollection extends Collection
 
     public function getWeight(): float
     {
-        $weights = $this->getLineItems()->map(function (LineItem $deliverable) {
+        $weights = $this->getLineItems()->map(static function (LineItem $deliverable) {
             if ($deliverable->getDeliveryInformation()) {
-                return $deliverable->getDeliveryInformation()->getWeight() * $deliverable->getQuantity();
+                return (float) $deliverable->getDeliveryInformation()->getWeight() * $deliverable->getQuantity();
             }
 
             return 0;
@@ -78,14 +78,14 @@ class DeliveryPositionCollection extends Collection
 
     public function getQuantity(): float
     {
-        $quantities = $this->map(fn (DeliveryPosition $position) => $position->getQuantity());
+        $quantities = $this->map(static fn (DeliveryPosition $position) => $position->getQuantity());
 
         return array_sum($quantities);
     }
 
     public function getVolume(): float
     {
-        $volumes = $this->getLineItems()->map(function (LineItem $deliverable) {
+        $volumes = $this->getLineItems()->map(static function (LineItem $deliverable) {
             $information = $deliverable->getDeliveryInformation();
             if ($information === null) {
                 return 0;
@@ -115,12 +115,8 @@ class DeliveryPositionCollection extends Collection
 
     public function getWithoutDeliveryFree(): DeliveryPositionCollection
     {
-        return $this->filter(function (DeliveryPosition $position) {
-            if ($position->getLineItem()->getDeliveryInformation()?->getFreeDelivery() === false) {
-                return $position;
-            }
-
-            return null;
+        return $this->filter(static function (DeliveryPosition $position) {
+            return $position->getLineItem()->getDeliveryInformation()?->getFreeDelivery() === false;
         });
     }
 

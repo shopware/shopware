@@ -22,7 +22,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(PromotionLineItemRule::class)]
 class PromotionLineItemRuleTest extends TestCase
 {
@@ -39,7 +39,7 @@ class PromotionLineItemRuleTest extends TestCase
 
         static::assertEquals([
             'identifiers' => [new NotBlank(), new ArrayOfUuid()],
-            'operator' => [new NotBlank(), new Choice([
+            'operator' => [new NotBlank(), new Choice(choices: [
                 Rule::OPERATOR_EQ,
                 Rule::OPERATOR_NEQ,
             ])],
@@ -51,7 +51,7 @@ class PromotionLineItemRuleTest extends TestCase
         $rule = new PromotionLineItemRule(Rule::OPERATOR_EQ, ['foo', 'bar']);
         $config = $rule->getConfig();
 
-        static::assertEquals([
+        static::assertSame([
             'operatorSet' => [
                 'operators' => [
                     Rule::OPERATOR_EQ,
@@ -74,10 +74,10 @@ class PromotionLineItemRuleTest extends TestCase
     public function testMatchesInCheckoutRuleScope(): void
     {
         $equalsRule = new PromotionLineItemRule(Rule::OPERATOR_EQ, ['id']);
-        static::assertFalse($equalsRule->match(new CheckoutRuleScope($this->createMock(SalesChannelContext::class))));
+        static::assertFalse($equalsRule->match(new CheckoutRuleScope(static::createStub(SalesChannelContext::class))));
 
         $notEqualsRule = new PromotionLineItemRule(Rule::OPERATOR_NEQ, ['id']);
-        static::assertFalse($notEqualsRule->match(new CheckoutRuleScope($this->createMock(SalesChannelContext::class))));
+        static::assertFalse($notEqualsRule->match(new CheckoutRuleScope(static::createStub(SalesChannelContext::class))));
     }
 
     /**
@@ -86,7 +86,7 @@ class PromotionLineItemRuleTest extends TestCase
     #[DataProvider('lineItemScopeCases')]
     public function testMatchesInLineItemScope(?array $ids, LineItem $lineItem, bool $expected): void
     {
-        $scope = new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class));
+        $scope = new LineItemScope($lineItem, static::createStub(SalesChannelContext::class));
 
         $equalsRule = new PromotionLineItemRule(Rule::OPERATOR_EQ, $ids);
         static::assertSame($expected, $equalsRule->match($scope));
@@ -154,7 +154,7 @@ class PromotionLineItemRuleTest extends TestCase
             (new Cart('test'))->assign([
                 'lineItems' => new LineItemCollection($lineItems),
             ]),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         );
 
         $equalsRule = new PromotionLineItemRule(Rule::OPERATOR_EQ, $ids);
@@ -190,7 +190,7 @@ class PromotionLineItemRuleTest extends TestCase
             true,
         ];
 
-        yield 'one promotion does not matches' => [
+        yield 'one promotion does not match' => [
             ['matchedId', 'alsoMatchedId'],
             [
                 new LineItem('matchedId', LineItem::PRODUCT_LINE_ITEM_TYPE),

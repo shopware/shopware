@@ -1,86 +1,102 @@
-@import "~scss/variables";
-
-$sw-sidebar-navigation-item-icon-color: $color-darkgray-200;
-$sw-sidebar-navigation-item-icon-color-active: $color-shopware-brand-500;
-$sw-sidebar-navigation-item-hover-color-background: $color-shopware-brand-50;
-$sw-sidebar-navigation-item-active-color-background: $color-shopware-brand-50;
-$sw-sidebar-navigation-item-size: 64px;
-$sw-sidebar-navigation-item-badge-color-info: $color-shopware-brand-500;
-$sw-sidebar-navigation-item-badge-color-warning: $color-pumpkin-spice-500;
-$sw-sidebar-navigation-item-badge-color-error: $color-crimson-500;
-$sw-sidebar-navigation-item-badge-color-success: $color-emerald-500;
-
 .sw-sidebar-navigation-item {
     position: relative;
-    width: $sw-sidebar-navigation-item-size;
-    height: $sw-sidebar-navigation-item-size;
+    width: var(--scale-size-64);
+    height: var(--scale-size-64);
+    color: var(--color-icon-primary-default);
     border: none;
-    color: $sw-sidebar-navigation-item-icon-color;
     background: none;
     cursor: pointer;
     outline: none;
 
+    &:focus-visible {
+        outline: var(--scale-size-2) solid var(--color-border-brand-default);
+        outline-offset: calc(var(--scale-size-2) * -1);
+    }
+
     &:hover:not(.is--disabled) {
-        color: $sw-sidebar-navigation-item-icon-color-active;
+        color: var(--color-icon-brand-default);
     }
 
     &.is--active {
-        background: $sw-sidebar-navigation-item-active-color-background;
-        color: $sw-sidebar-navigation-item-icon-color-active;
-        width: 64px;
-        height: 64px;
+        background: var(--color-background-brand-default);
+        color: var(--color-icon-brand-default);
     }
 
     &.is--disabled {
         cursor: not-allowed;
         opacity: 0.3;
-        width: 64px;
-        height: 64px;
     }
 
     .mt-icon {
-        width: 20px;
-        height: 20px;
-        padding-top: 1px;
-        padding-right: 1px;
-        padding-bottom: 1px;
-        padding-left: 1px;
+        width: var(--scale-size-20);
+        height: var(--scale-size-20);
+        padding: var(--scale-size-1);
     }
 
     .sidebar-item-badge {
         position: absolute;
         transform: translate(-30%, 70%);
-        border-radius: 18px;
-        color: $color-white;
-        font-size: $font-size-xxs;
+        border-radius: var(--scale-size-18);
+        color: var(--color-static-white);
+        font-size: var(--font-size-2xs);
         font-style: normal;
 
         &.is--info {
-            background-color: $sw-sidebar-navigation-item-badge-color-info;
+            background-color: var(--color-icon-brand-default);
         }
 
         &.is--warning {
-            background-color: $sw-sidebar-navigation-item-badge-color-warning;
+            background-color: var(--color-icon-attention-default);
         }
 
         &.is--error {
-            background-color: $sw-sidebar-navigation-item-badge-color-error;
+            background-color: var(--color-icon-critical-default);
         }
 
         &.is--success {
-            background-color: $sw-sidebar-navigation-item-badge-color-success;
+            background-color: var(--color-icon-positive-default);
         }
     }
 
     .notification--badge {
         top: 0;
         right: 0;
-        padding: 2px 8px;
+        padding: var(--scale-size-2) var(--scale-size-8);
     }
 
     .dot--badge {
-        top: 8px;
-        right: 10px;
-        padding: 4px;
+        top: var(--scale-size-8);
+        right: var(--scale-size-10);
+        padding: var(--scale-size-4);
     }
+}
+
+.sw-sidebar-navigation-item__tooltip-title {
+    font-weight: var(--font-weight-regular);
+}
+
+.sw-sidebar-navigation-item__tooltip-shortcut-key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: var(--scale-size-16);
+    height: var(--scale-size-16);
+    padding: 0 var(--scale-size-4);
+    color: var(--color-text-primary-default);
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--font-line-height-2xs);
+    white-space: nowrap;
+    border: 1px solid var(--color-border-primary-default);
+    border-radius: var(--border-radius-2xs);
+    background-color: var(--color-background-primary-default);
+    box-shadow: inset 0 -1px 0 var(--color-border-primary-default);
+
+    + .sw-sidebar-navigation-item__tooltip-shortcut-key {
+        margin-left: var(--scale-size-2);
+    }
+}
+
+.sw-sidebar-navigation-item__tooltip-title + .sw-sidebar-navigation-item__tooltip-shortcut-key {
+    margin-left: var(--scale-size-8);
 }

@@ -8,10 +8,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SearchKeyword\KeywordLoader;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(KeywordLoader::class)]
 class KeywordLoaderTest extends TestCase
 {
@@ -28,7 +30,7 @@ class KeywordLoaderTest extends TestCase
         $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
         $connection->expects($this->once())
             ->method('executeQuery')
-            ->with(static::anything(), static::callback(function (array $params) use ($slops) {
+            ->with(static::anything(), static::callback(static function (array $params) use ($slops) {
                 foreach ($slops as $slop) {
                     static::assertContains($slop, $params);
                 }

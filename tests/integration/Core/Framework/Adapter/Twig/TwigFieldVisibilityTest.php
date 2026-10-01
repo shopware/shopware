@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Twig\Environment;
@@ -25,6 +26,7 @@ use Twig\Loader\ArrayLoader;
 /**
  * @internal
  */
+#[Package('framework')]
 class TwigFieldVisibilityTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -35,7 +37,7 @@ class TwigFieldVisibilityTest extends TestCase
 
         foreach ($definitionRegistry->getDefinitions() as $definition) {
             $internalFields = $definition->getFields()
-                ->filter(fn (Field $field): bool => !$field->is(ApiAware::class));
+                ->filter(static fn (Field $field): bool => !$field->is(ApiAware::class));
 
             foreach ($internalFields as $field) {
                 $this->testAccessibilityForField($definition, $field->getPropertyName(), $definition->getEntityClass());

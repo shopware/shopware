@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<FlowSequenceEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 class FlowSequenceCollection extends EntityCollection

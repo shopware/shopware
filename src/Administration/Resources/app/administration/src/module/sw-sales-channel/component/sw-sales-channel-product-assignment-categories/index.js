@@ -5,23 +5,18 @@
 import template from './sw-sales-channel-product-assignment-categories.html.twig';
 import './sw-sales-channel-product-assignment-categories.scss';
 
-const { Component, Context, Mixin } = Shopware;
+const { Context, Mixin } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sales-channel-product-assignment-categories', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'selection-change',
-        'product-loading',
-    ],
+    emits: ['selection-change', 'product-loading'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         salesChannel: {
@@ -66,10 +61,7 @@ Component.register('sw-sales-channel-product-assignment-categories', {
                 const pathIds = item.path ? item.path.split('|').filter((pathId) => pathId.length > 0) : '';
 
                 // add parent id to accumulator
-                return [
-                    ...acc,
-                    ...pathIds,
-                ];
+                return [...acc, ...pathIds];
             }, []);
         },
     },
@@ -136,10 +128,7 @@ Component.register('sw-sales-channel-product-assignment-categories', {
             categoryCriteria.addFilter(
                 Criteria.multi('AND', [
                     Criteria.equals('parentId', parentId),
-                    Criteria.multi('OR', [
-                        Criteria.equals('type', 'page'),
-                        Criteria.equals('type', 'folder'),
-                    ]),
+                    Criteria.multi('OR', [Criteria.equals('type', 'page'), Criteria.equals('type', 'folder')]),
                 ]),
             );
 
@@ -243,9 +232,7 @@ Component.register('sw-sales-channel-product-assignment-categories', {
                 Criteria.multi('AND', [
                     Criteria.equalsAny('categoryIds', categories),
                     Criteria.equals('parentId', null),
-                    Criteria.not('and', [
-                        Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
-                    ]),
+                    Criteria.not('and', [Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)]),
                 ]),
             );
 
@@ -256,4 +243,4 @@ Component.register('sw-sales-channel-product-assignment-categories', {
             return this.productRepository.search(this.productCriteria(categories), Shopware.Context.api);
         },
     },
-});
+};

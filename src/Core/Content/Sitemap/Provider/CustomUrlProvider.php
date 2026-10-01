@@ -9,6 +9,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @phpstan-import-type UrlsConfig from ConfigHandler
+ */
 #[Package('discovery')]
 class CustomUrlProvider extends AbstractUrlProvider
 {
@@ -29,9 +32,6 @@ class CustomUrlProvider extends AbstractUrlProvider
         return 'custom';
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getUrls(SalesChannelContext $context, int $limit, ?int $offset = null): UrlResult
     {
         $sitemapCustomUrls = $this->configHandler->get(ConfigHandler::CUSTOM_URLS_KEY);
@@ -56,6 +56,9 @@ class CustomUrlProvider extends AbstractUrlProvider
         return new UrlResult($urls, null);
     }
 
+    /**
+     * @param UrlsConfig $url
+     */
     private function isAvailableForSalesChannel(array $url, ?string $salesChannelId): bool
     {
         return \in_array($url['salesChannelId'], [$salesChannelId, null], true);

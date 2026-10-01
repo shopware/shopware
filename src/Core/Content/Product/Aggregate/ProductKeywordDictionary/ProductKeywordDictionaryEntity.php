@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductKeywordDictionaryEntity extends Entity
 {
@@ -19,16 +22,6 @@ class ProductKeywordDictionaryEntity extends Entity
     protected string $reversed;
 
     protected ?LanguageEntity $language = null;
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
 
     public function getLanguageId(): string
     {

@@ -9,19 +9,16 @@ use Shopware\Core\Framework\Event\ShopwareSalesChannelEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductListingPreviewCriteriaEvent extends NestedEvent implements ShopwareSalesChannelEvent
 {
-    protected Criteria $criteria;
-
-    protected SalesChannelContext $context;
-
     public function __construct(
-        Criteria $criteria,
-        SalesChannelContext $context
+        protected Criteria $criteria,
+        protected SalesChannelContext $context,
     ) {
-        $this->criteria = $criteria;
-        $this->context = $context;
     }
 
     public function getCriteria(): Criteria

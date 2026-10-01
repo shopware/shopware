@@ -7,12 +7,14 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules\Tests;
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\MockingSimpleObjectsNotAllowedRule;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  *
  * @extends  RuleTestCase<MockingSimpleObjectsNotAllowedRule>
  */
+#[Package('framework')]
 class MockingSimpleObjectsNotAllowedRuleTest extends RuleTestCase
 {
     public function testRule(): void

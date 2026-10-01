@@ -31,10 +31,6 @@ describe('modules/sw-users-permissions/page/sw-users-permissions', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the user list', async () => {
         const userListComponent = wrapper.find('sw-users-permissions-user-listing-stub');
 

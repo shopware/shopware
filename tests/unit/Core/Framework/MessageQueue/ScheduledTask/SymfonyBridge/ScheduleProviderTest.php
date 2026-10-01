@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\ScheduledTask\SymfonyB
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTask;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\SymfonyBridge\ScheduleProvider;
@@ -17,6 +18,7 @@ use Symfony\Component\Scheduler\Generator\MessageGenerator;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ScheduleProvider::class)]
 class ScheduleProviderTest extends TestCase
 {
@@ -29,7 +31,7 @@ class ScheduleProviderTest extends TestCase
 
         $scheduleProvider = new ScheduleProvider(
             $tasks,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             new ArrayAdapter(),
             new LockFactory(new InMemoryStore()),
         );
@@ -63,7 +65,7 @@ class ScheduleProviderTest extends TestCase
             new TestTask3(),
         ];
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('fetchAllAssociativeIndexed')->willReturn(
             [
                 'test_task_1' => [

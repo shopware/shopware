@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -28,6 +29,7 @@ class TaskRunner
     public function __construct(
         private readonly iterable $taskHandler,
         private readonly EntityRepository $scheduledTaskRepository,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -40,7 +42,7 @@ class TaskRunner
             [
                 'id' => $scheduledTask->getId(),
                 'status' => ScheduledTaskDefinition::STATUS_QUEUED,
-                'nextExecutionTime' => new \DateTime(),
+                'nextExecutionTime' => $this->clock->now(),
             ],
         ], $context);
 
@@ -82,7 +84,7 @@ class TaskRunner
         $criteria->addFilter(new EqualsFilter('name', $taskName));
 
         /** @var ScheduledTaskEntity|null $task */
-        $task = $this->scheduledTaskRepository->search($criteria, $context)->first();
+        $task = $this->scheduledTaskRepository->search($criteria, $context)->getEntities()->first();
 
         if ($task === null) {
             throw MessageQueueException::cannotFindTaskByName($taskName);

@@ -226,7 +226,7 @@ $infoItemRemoveMdSpace: 1;
     }
 }
 
-.line-item.is-order {
+.order-detail-content-list > .line-item.is-order {
     margin-left: 20px;
     margin-right: 20px;
 }
@@ -588,6 +588,15 @@ $infoItemRemoveMdSpace: 1;
     font-size: $font-size-sm;
 }
 
+.line-item-garan-label {
+    margin-top: $spacer-sm;
+
+    svg {
+        max-width: 200px;
+        height: auto;
+    }
+}
+
 .line-item-label {
     color: $body-color;
     font-weight: $font-weight-bold;
@@ -597,10 +606,6 @@ a.line-item-label {
     &:hover {
         color: $primary;
     }
-}
-
-.line-item-total-price-value {
-    text-align: right;
 }
 
 .line-item-tax-price-label {

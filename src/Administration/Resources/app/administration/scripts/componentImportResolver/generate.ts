@@ -5,6 +5,7 @@
 import { ArrowFunction, CallExpression, Project, SourceFile, ts} from "ts-morph";
 import * as path from "path";
 import * as fs from "fs";
+import cliProgress from 'cli-progress';
 
 const project = new Project({
     skipAddingFilesFromTsConfig: true,
@@ -194,7 +195,6 @@ const componentImportMap: { [key: string]: componentInfo } = {};
 const sourceFiles = project.getSourceFiles();
 
 // Create progress bar
-const cliProgress = require('cli-progress');
 const pb = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
 pb.start(sourceFiles.length, 0);
 

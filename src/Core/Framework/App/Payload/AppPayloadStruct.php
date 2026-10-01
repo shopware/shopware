@@ -10,8 +10,6 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 /**
  * @internal
  *
- * @codeCoverageIgnore
- *
  * @phpstan-type RequestOptions array{'app_request_context': Context, 'request_type': array{'app_secret': non-falsy-string, 'validated_response': true}, 'headers': array{Content-Type: string}, 'body': string, 'timeout'?: int}
  */
 #[Package('checkout')]
@@ -57,7 +55,7 @@ class AppPayloadStruct
         $vars = $this->traitJsonSerialize();
         $converter = new CamelCaseToSnakeCaseNameConverter();
 
-        $snakeCaseKeys = array_map(function (string $key) use ($converter) {
+        $snakeCaseKeys = array_map(static function (string $key) use ($converter) {
             return $converter->normalize($key);
         }, array_keys($vars));
 

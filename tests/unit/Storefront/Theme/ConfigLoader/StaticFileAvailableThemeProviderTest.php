@@ -8,19 +8,20 @@ use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileAvailableThemeProvider;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StaticFileAvailableThemeProvider::class)]
 class StaticFileAvailableThemeProviderTest extends TestCase
 {
     public function testFileNotExisting(): void
     {
-        static::expectException(\RuntimeException::class);
-        static::expectExceptionMessage('Cannot find theme configuration. Did you run bin/console theme:dump');
+        $this->expectExceptionObject(new \RuntimeException('Cannot find theme configuration. Did you run bin/console theme:dump'));
 
         $fs = new Filesystem(new InMemoryFilesystemAdapter());
         $s = new StaticFileAvailableThemeProvider($fs);

@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Scaffolding\Generato
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\StoreApiRouteGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
@@ -14,6 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(StoreApiRouteGenerator::class)]
 class StoreApiRouteGeneratorTest extends TestCase
 {
@@ -21,9 +23,11 @@ class StoreApiRouteGeneratorTest extends TestCase
     {
         $generator = new StoreApiRouteGenerator();
 
-        static::assertTrue($generator->hasCommandOption());
-        static::assertNotEmpty($generator->getCommandOptionName());
-        static::assertNotEmpty($generator->getCommandOptionDescription());
+        $option = $generator->getCommandOption();
+
+        static::assertNotSame('', $option->getName());
+        static::assertNotSame('', $option->getDescription());
+        static::assertFalse($option->acceptValue());
     }
 
     #[DataProvider('addScaffoldConfigProvider')]
@@ -34,16 +38,16 @@ class StoreApiRouteGeneratorTest extends TestCase
     ): void {
         $configuration = $this->getConfig();
 
-        $input = $this->createMock(InputInterface::class);
+        $input = static::createStub(InputInterface::class);
         $input->method('getOption')->willReturn($getOptionResponse);
 
-        $io = $this->createMock(SymfonyStyle::class);
+        $io = static::createStub(SymfonyStyle::class);
         $io->method('confirm')->willReturn($confirmResponse);
 
         (new StoreApiRouteGenerator())
             ->addScaffoldConfig($configuration, $input, $io);
 
-        static::assertEquals($expectedHasOption, $configuration->hasOption(StoreApiRouteGenerator::OPTION_NAME));
+        static::assertSame($expectedHasOption, $configuration->hasOption(StoreApiRouteGenerator::OPTION_NAME));
     }
 
     public static function addScaffoldConfigProvider(): \Generator
@@ -106,8 +110,8 @@ class StoreApiRouteGeneratorTest extends TestCase
         yield 'Option true, stubs' => [
             'config' => self::getConfig([StoreApiRouteGenerator::OPTION_NAME => true]),
             'expected' => [
-                'src/Resources/config/services.xml',
-                'src/Resources/config/routes.xml',
+                'src/Resources/config/services.php',
+                'src/Resources/config/routes.php',
                 'src/Core/Content/Example/SalesChannel/AbstractExampleRoute.php',
                 'src/Core/Content/Example/SalesChannel/ExampleRoute.php',
                 'src/Core/Content/Example/SalesChannel/ExampleRouteResponse.php',

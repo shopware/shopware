@@ -7,5 +7,8 @@ namespace Shopware\Core\Framework\Test\Webhook\_fixtures\BusinessEvents;
  */
 interface BusinessEventEncoderTestInterface
 {
+    /**
+     * @return array<string, mixed>
+     */
     public function getEncodeValues(string $shopwareVersion): array;
 }

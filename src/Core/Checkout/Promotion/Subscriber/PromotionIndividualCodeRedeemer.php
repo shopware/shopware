@@ -66,22 +66,22 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
     {
         $update = [];
         $codes = \array_values(\array_filter(\array_map(
-            fn ($item) => $item->getPayload()['code'] ?? '',
+            static fn ($item) => $item->getPayload()['code'] ?? '',
             \iterator_to_array($lineItems)
         )));
 
-        if (empty($codes)) {
+        if ($codes === []) {
             return;
         }
 
         $promotions = $this->getIndividualCodePromotions($codes, $context);
 
         foreach ($lineItems as $item) {
-            foreach ($promotions as $promotion) {
-                /** @var string $code */
-                $code = $item->getPayload()['code'] ?? '';
+            /** @var string $code */
+            $code = $item->getPayload()['code'] ?? '';
 
-                if ($code !== $promotion->getCode()) {
+            foreach ($promotions as $promotion) {
+                if (mb_strtolower($code) !== mb_strtolower($promotion->getCode())) {
                     continue;
                 }
 
@@ -99,7 +99,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
             }
         }
 
-        if (!empty($update)) {
+        if ($update !== []) {
             $this->codesRepository->update($update, $context);
         }
     }

@@ -5,9 +5,16 @@ namespace Shopware\Core\Checkout\Document\Renderer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('after-sales')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    description: 'Part of the legacy document generation pipeline. DocumentV2 handles this concern internally and exposes no counterpart.',
+)]
 final class OrderDocumentCriteriaFactory
 {
     /**
@@ -25,8 +32,12 @@ final class OrderDocumentCriteriaFactory
         $criteria = new Criteria($ids);
 
         $criteria->addAssociations([
+            'primaryOrderDelivery',
+            'primaryOrderDelivery.shippingOrderAddress.country',
+            'primaryOrderDelivery.shippingOrderAddress.countryState',
             'lineItems',
-            'transactions.paymentMethod',
+            'primaryOrderTransaction.paymentMethod',
+            'primaryOrderTransaction.stateMachineState',
             'currency',
             'language.locale',
             'addresses.country',
@@ -40,8 +51,13 @@ final class OrderDocumentCriteriaFactory
             'orderCustomer.salutation',
         ]);
 
+        if (!Feature::isActive('v6.8.0.0')) {
+            $criteria->getAssociation('transactions')
+                ->addAssociations(['paymentMethod', 'stateMachineState'])
+                ->addSorting(new FieldSorting('createdAt'));
+        }
+
         $criteria->getAssociation('lineItems')->addSorting(new FieldSorting('position'));
-        $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
         $criteria->getAssociation('deliveries')->addSorting(new FieldSorting('createdAt'));
 
         if ($documentType) {

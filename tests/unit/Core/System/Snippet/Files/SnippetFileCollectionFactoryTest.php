@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\Snippet\Files;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollectionFactory;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoaderInterface;
@@ -12,6 +13,7 @@ use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(SnippetFileCollectionFactory::class)]
 class SnippetFileCollectionFactoryTest extends TestCase
 {
@@ -20,7 +22,7 @@ class SnippetFileCollectionFactoryTest extends TestCase
         $snippetFileLoaderMock = $this->createMock(SnippetFileLoaderInterface::class);
         $snippetFileLoaderMock->expects($this->once())
             ->method('loadSnippetFilesIntoCollection')
-            ->willReturnCallback(function (SnippetFileCollection $fileCollection): void {
+            ->willReturnCallback(static function (SnippetFileCollection $fileCollection): void {
                 $fileCollection->add(new MockSnippetFile('storefront.de-DE', 'de-DE', '{}', true));
             });
 

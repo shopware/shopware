@@ -15,15 +15,15 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 /**
  * @internal
  */
-#[CoversClass(DoubleOptInGuestOrderEvent::class)]
 #[Package('checkout')]
+#[CoversClass(DoubleOptInGuestOrderEvent::class)]
 class DoubleOptInGuestOrderEventTest extends TestCase
 {
     public function testScalarValuesCorrectly(): void
     {
         $event = new DoubleOptInGuestOrderEvent(
             new CustomerEntity(),
-            $this->createMock(SalesChannelContext::class),
+            static::createStub(SalesChannelContext::class),
             'my-confirm-url'
         );
 
@@ -36,6 +36,6 @@ class DoubleOptInGuestOrderEventTest extends TestCase
         $storer->restore($flow);
 
         static::assertArrayHasKey('confirmUrl', $flow->data());
-        static::assertEquals('my-confirm-url', $flow->data()['confirmUrl']);
+        static::assertSame('my-confirm-url', $flow->data()['confirmUrl']);
     }
 }

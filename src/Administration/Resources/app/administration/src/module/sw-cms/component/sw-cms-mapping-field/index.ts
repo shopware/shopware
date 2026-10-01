@@ -1,4 +1,3 @@
-import { type PropType } from 'vue';
 import template from './sw-cms-mapping-field.html.twig';
 import './sw-cms-mapping-field.scss';
 
@@ -9,7 +8,7 @@ import './sw-cms-mapping-field.scss';
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: ['cmsService'],
+    inject: ['cmsService', 'repositoryFactory'],
 
     props: {
         config: {
@@ -28,16 +27,13 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         valueTypes: {
-            type: [
-                String,
-                Array,
-            ],
+            type: [String, Array],
             required: false,
             default: 'string',
         },
 
         entity: {
-            type: String,
+            type: String as PropType<Extract<keyof EntitySchema.EntityKeys, string> | null>,
             required: false,
             default: null,
         },
@@ -47,6 +43,12 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: '',
         },
+
+        disabled: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
     },
 
     data() {
@@ -54,6 +56,7 @@ export default Shopware.Component.wrapComponentConfig({
             mappingTypes: {} as unknown,
             allowedMappingTypes: [] as string[],
             demoValue: null as unknown,
+            demoValueFetchId: 0,
         };
     },
 
@@ -72,11 +75,21 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     watch: {
-        cmsPageState: {
-            deep: true,
+        'cmsPageState.currentMappingTypes': {
             handler() {
                 this.updateMappingTypes();
-                this.updateDemoValue();
+            },
+        },
+
+        'cmsPageState.currentMappingEntity': {
+            handler() {
+                this.updateMappingTypes();
+            },
+        },
+
+        'cmsPageState.currentDemoEntity': {
+            handler() {
+                void this.updateDemoValue();
             },
         },
     },
@@ -88,7 +101,7 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         createdComponent() {
             this.updateMappingTypes();
-            this.updateDemoValue();
+            void this.updateDemoValue();
         },
 
         updateMappingTypes() {
@@ -106,21 +119,49 @@ export default Shopware.Component.wrapComponentConfig({
             }
         },
 
-        updateDemoValue() {
+        async updateDemoValue() {
             if (this.config.source !== 'mapped') {
+                this.demoValueFetchId += 1;
+                this.demoValue = null;
+
                 return;
             }
 
-            this.demoValue = this.getDemoValue(this.config.value as string);
+            const fetchId = this.demoValueFetchId + 1;
+            this.demoValueFetchId = fetchId;
+
+            const demoValue = this.getDemoValue(this.config.value as string) as EntityKey<
+                Extract<keyof EntitySchema.EntityKeys, string>
+            > | null;
+            this.demoValue = demoValue;
+
+            if (this.valueTypes !== 'entity' || this.entity === null || typeof demoValue !== 'string') {
+                return;
+            }
+
+            try {
+                const entity = await this.repositoryFactory.create(this.entity).get(demoValue, Shopware.Context.api);
+
+                if (fetchId !== this.demoValueFetchId || !entity) {
+                    return;
+                }
+
+                this.demoValue = entity;
+            } catch {
+                if (fetchId === this.demoValueFetchId) {
+                    this.demoValue = demoValue;
+                }
+            }
         },
 
         onMappingSelect(property: string) {
             this.config.source = 'mapped';
             this.config.value = property;
-            this.demoValue = this.getDemoValue(property);
+            void this.updateDemoValue();
         },
 
         onMappingRemove() {
+            this.demoValueFetchId += 1;
             this.config.source = 'static';
             this.config.value = this.config.type === Array ? [] : null;
             this.demoValue = null;
@@ -146,10 +187,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 Object.keys(mappingTypes).forEach((type) => {
                     if (type === this.valueTypes || this.valueTypes.includes(type)) {
-                        types = [
-                            ...types,
-                            ...mappingTypes[type],
-                        ];
+                        types = [...types, ...mappingTypes[type]];
                         types.sort();
                     }
                 });

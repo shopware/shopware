@@ -6,8 +6,8 @@ use Shopware\Core\Framework\Adapter\Twig\TemplateFinderInterface;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Node\Expression\ConstantExpression;
 use Twig\Node\Expression\Variable\AssignContextVariable;
-use Twig\Node\Expression\Variable\AssignTemplateVariable;
-use Twig\Node\Expression\Variable\TemplateVariable;
+use Twig\Node\Expression\Variable\AssignMacroVariable;
+use Twig\Node\Expression\Variable\MacroVariable;
 use Twig\Node\ImportNode;
 use Twig\Node\Node;
 use Twig\Token;
@@ -27,7 +27,7 @@ final class FromTokenParser extends AbstractTokenParser
 
     public function parse(Token $token): Node
     {
-        $macro = $this->parser->getExpressionParser()->parseExpression();
+        $macro = $this->parser->parseExpression();
 
         // sw-fix-start
         if ($macro instanceof ConstantExpression) {
@@ -57,11 +57,11 @@ final class FromTokenParser extends AbstractTokenParser
 
         $stream->expect(Token::BLOCK_END_TYPE);
 
-        $internalRef = new AssignTemplateVariable(new TemplateVariable(null, $token->getLine()), $this->parser->isMainScope());
+        $internalRef = new AssignMacroVariable(new MacroVariable(null, $token->getLine()), $this->parser->isMainScope());
         $node = new ImportNode($macro, $internalRef, $token->getLine());
 
-        foreach ($targets as $name => $alias) {
-            $this->parser->addImportedSymbol('function', $alias->getAttribute('name'), 'macro_' . $name, $internalRef);
+        foreach ($targets as $targetName => $targetAlias) {
+            $this->parser->addImportedSymbol('function', $targetAlias->getAttribute('name'), 'macro_' . $targetName, $internalRef);
         }
 
         return $node;

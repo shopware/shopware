@@ -10,16 +10,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-        'importExportProfileMapping',
-    ],
+    inject: ['repositoryFactory', 'feature', 'importExportProfileMapping'],
 
-    emits: [
-        'close',
-        'profile-save',
-    ],
+    emits: ['close', 'profile-save'],
 
     props: {
         profile: {
@@ -85,7 +78,7 @@ export default {
         },
 
         pageTitleSnippet(snippet) {
-            return `${this.$tc('sw-import-export.profile.newProfileLabel')} - ${this.$tc(snippet)}`;
+            return `${this.$t('sw-import-export.profile.newProfileLabel')} - ${this.$t(snippet)}`;
         },
 
         onNextAllow() {
@@ -122,7 +115,7 @@ export default {
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('sw-import-export.profile.messageSearchParentProfileError'),
+                        message: this.$t('sw-import-export.profile.messageSearchParentProfileError'),
                     });
                 });
         },

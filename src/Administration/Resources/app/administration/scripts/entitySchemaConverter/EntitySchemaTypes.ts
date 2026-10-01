@@ -7,6 +7,7 @@ export namespace EntitySchemaTypes {
         required?: boolean,
         read_protected?: readonly readProtected[],
         write_protected?: readonly writeProtected[],
+        immutable?: boolean,
         cascade_delete?: boolean,
         translatable?: boolean,
         computed?: boolean,

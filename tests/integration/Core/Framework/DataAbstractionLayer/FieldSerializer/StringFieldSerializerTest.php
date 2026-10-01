@@ -2,98 +2,80 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Product\ProductCollection;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowEmptyString;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
-use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
-use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\StringFieldSerializer;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
-use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class StringFieldSerializerTest extends TestCase
 {
-    use CacheTestBehaviour;
-    use DataAbstractionLayerFieldTestBehaviour;
+    use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
-    public static function serializerProvider(): \Generator
+    /**
+     * @var EntityRepository<ProductCollection>
+     */
+    private EntityRepository $productRepository;
+
+    private Context $context;
+
+    protected function setUp(): void
     {
-        $update = new EntityExistence('product', [], true, false, false, []);
-        $create = new EntityExistence('product', [], false, false, false, []);
+        parent::setUp();
 
-        $required = (new StringField('name', 'name'))->addFlags(new Required());
-        $maxLength = new StringField('name', 'name', 5);
-        $optional = new StringField('name', 'name');
-        $allowEmpty = (new StringField('name', 'name'))->addFlags(new AllowEmptyString());
-        $allowEmptyAndRequired = (new StringField('name', 'name'))->addFlags(new Required(), new AllowEmptyString());
-
-        yield 'Create with null and required' => [$required, null, null, true, $create];
-        yield 'Create with null and optional' => [$optional, null, null, false, $create];
-        yield 'Update with null and required' => [$required, null, null, true, $update];
-        yield 'Update with null and optional' => [$optional, null, null, false, $update];
-
-        yield 'Create with empty and required' => [$required, '', null, true, $create];
-        yield 'Create with empty and optional' => [$optional, '', null, false, $create];
-        yield 'Update with empty and required' => [$required, '', null, true, $update];
-        yield 'Update with empty and optional' => [$optional, '', null, false, $update];
-
-        yield 'Create with space and required' => [$required, ' ', null, true, $create];
-        yield 'Create with space and optional' => [$optional, ' ', null, false, $create];
-        yield 'Create with space and allow empty' => [$allowEmpty, ' ', ' ', false, $create];
-        yield 'Update with space and required' => [$required, ' ', null, true, $update];
-        yield 'Update with space and optional' => [$optional, ' ', null, false, $update];
-        yield 'Update with space and allow empty' => [$allowEmpty, ' ', ' ', false, $update];
-
-        yield 'Test max length' => [$maxLength, '123456789', '12345', true, $update];
-
-        yield 'Create with null and allow empty and required' => [$allowEmptyAndRequired, null, null, true, $create];
-        yield 'Update with null and allow empty and required' => [$allowEmptyAndRequired, null, null, true, $update];
-        yield 'Create with empty and allow empty and required' => [$allowEmptyAndRequired, '', '', false, $create];
-        yield 'Update with empty and allow empty and required' => [$allowEmptyAndRequired, '', '', false, $update];
+        $this->productRepository = static::getContainer()->get('product.repository');
+        $this->context = Context::createDefaultContext();
     }
 
-    #[DataProvider('serializerProvider')]
-    public function testSerialize(StringField $field, ?string $value, ?string $expected, bool $expectError, EntityExistence $existence): void
+    public function testLessThanSignThatDoesNotStartATagSurvivesTheWrite(): void
     {
-        $field->compile(static::getContainer()->get(DefinitionInstanceRegistry::class));
+        $id = $this->createProduct('I <3 Kisses');
 
-        $actual = null;
-        $exception = null;
+        static::assertSame('I <3 Kisses', $this->readProductName($id));
+    }
 
-        try {
-            $kv = new KeyValuePair($field->getPropertyName(), $value, true);
+    public function testMarkupIsRemovedFromTheWrittenValue(): void
+    {
+        $id = $this->createProduct('<b>x</b>');
 
-            $params = new WriteParameterBag(static::getContainer()->get(ProductDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue());
+        static::assertSame('x', $this->readProductName($id));
+    }
 
-            $actual = static::getContainer()->get(StringFieldSerializer::class)
-                ->encode($field, $existence, $kv, $params)->current();
-        } catch (\Throwable $e) {
-            $exception = $e;
-        }
+    private function createProduct(string $name): string
+    {
+        $id = Uuid::randomHex();
 
-        // error cases
-        if ($expectError) {
-            static::assertInstanceOf(WriteConstraintViolationException::class, $exception, 'This value should not be blank.');
-            static::assertEquals('/' . $field->getPropertyName(), $exception->getViolations()->get(0)->getPropertyPath());
+        $this->productRepository->create([
+            [
+                'id' => $id,
+                'productNumber' => $id,
+                'name' => $name,
+                'stock' => 10,
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
+                'tax' => ['name' => 'test', 'taxRate' => 19],
+                'manufacturer' => ['name' => 'test'],
+            ],
+        ], $this->context);
 
-            return;
-        }
+        return $id;
+    }
 
-        static::assertNull($exception);
-        static::assertEquals($expected, $actual);
+    private function readProductName(string $id): ?string
+    {
+        $product = $this->productRepository->search(new Criteria([$id]), $this->context)->getEntities()->first();
+
+        static::assertNotNull($product);
+
+        return $product->getName();
     }
 }

@@ -49,8 +49,8 @@ class Action extends XmlElement
             'url' => $this->meta->getUrl(),
             'delayable' => $this->meta->getDelayable(),
             'parameters' => $this->normalizeParameters(),
-            'config' => array_map(fn (InputField $config) => $config->jsonSerialize(), $this->config->getConfig()),
-            'headers' => array_map(fn (Parameter $header) => $header->jsonSerialize(), $this->headers->getParameters()),
+            'config' => array_map(static fn (InputField $config) => $config->jsonSerialize(), $this->config->getConfig()),
+            'headers' => array_map(static fn (Parameter $header) => $header->jsonSerialize(), $this->headers->getParameters()),
             'requirements' => $this->meta->getRequirements(),
             'label' => $this->meta->getLabel(),
             'description' => $this->meta->getDescription(),
@@ -86,7 +86,7 @@ class Action extends XmlElement
      */
     private function normalizeParameters(): array
     {
-        $parameters = array_map(fn (Parameter $parameter) => $parameter->jsonSerialize(), $this->parameters->getParameters());
+        $parameters = array_map(static fn (Parameter $parameter) => $parameter->jsonSerialize(), $this->parameters->getParameters());
 
         $parameters = json_encode($parameters, \JSON_THROW_ON_ERROR);
 

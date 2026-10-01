@@ -5,9 +5,15 @@ namespace Shopware\Core\System\SystemConfig\Event;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class SystemConfigDomainLoadedEvent extends Event
 {
+    /**
+     * @param array<string, mixed> $config
+     */
     public function __construct(
         private readonly string $domain,
         private array $config,
@@ -16,11 +22,17 @@ class SystemConfigDomainLoadedEvent extends Event
     ) {
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getConfig(): array
     {
         return $this->config;
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function setConfig(array $config): void
     {
         $this->config = $config;

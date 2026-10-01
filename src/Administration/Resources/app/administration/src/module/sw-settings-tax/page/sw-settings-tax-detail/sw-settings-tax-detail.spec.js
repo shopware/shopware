@@ -87,17 +87,8 @@ async function createWrapper(privileges = [], isShopwareDefaultTax = true) {
 }
 
 describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        await wrapper.vm.$nextTick();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to save the tax', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ]);
+        const wrapper = await createWrapper(['tax.editor']);
         await wrapper.vm.$nextTick();
 
         const saveButton = wrapper.find('.sw-settings-tax-detail__save-action');
@@ -110,12 +101,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
     });
 
     it('the name should be editable for non default rates', async () => {
-        const wrapper = await createWrapper(
-            [
-                'tax.editor',
-            ],
-            false,
-        );
+        const wrapper = await createWrapper(['tax.editor'], false);
         await wrapper.vm.$nextTick();
 
         const taxNameField = wrapper.find('input[aria-label="sw-settings-tax.detail.labelName"]');
@@ -144,9 +130,7 @@ describe('module/sw-settings-tax/page/sw-settings-tax-detail', () => {
     });
 
     it('should change the default tax rate', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ]);
+        const wrapper = await createWrapper(['tax.editor']);
         await wrapper.setProps({
             taxId: '12345',
         });

@@ -6,34 +6,40 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemConfigValidator::class)]
 class SystemConfigValidatorTest extends TestCase
 {
     /**
      * @param array<string, mixed> $inputValues
-     * @param array<string, mixed> $formConfigs
+     * @param list<SystemConfigTab> $formConfigs
      */
     #[DataProvider('dataProviderTestValidateSuccess')]
     public function testValidateSuccess(array $inputValues, array $formConfigs): void
     {
         $exceptionThrown = false;
 
-        $configurationServiceMock = $this->createMock(ConfigurationService::class);
-        $configurationServiceMock->method('getConfiguration')
+        $configurationServiceMock = static::createStub(ConfigurationService::class);
+        $configurationServiceMock->method('getSystemConfigDefinition')
             ->willReturn($formConfigs);
 
-        $dataValidatorMock = $this->createMock(DataValidator::class);
+        $dataValidatorMock = static::createStub(DataValidator::class);
 
         $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
 
@@ -50,18 +56,18 @@ class SystemConfigValidatorTest extends TestCase
 
     /**
      * @param array<string, mixed> $inputValues
-     * @param array<string, mixed> $formConfigs
+     * @param list<SystemConfigTab> $formConfigs
      */
     #[DataProvider('dataProviderTestValidateFailure')]
     public function testValidateFailure(array $inputValues, array $formConfigs): void
     {
-        $configurationServiceMock = $this->createMock(ConfigurationService::class);
-        $configurationServiceMock->method('getConfiguration')
+        $configurationServiceMock = static::createStub(ConfigurationService::class);
+        $configurationServiceMock->method('getSystemConfigDefinition')
             ->willReturn($formConfigs);
 
-        $validateException = $this->createMock(ConstraintViolationException::class);
+        $validateException = static::createStub(ConstraintViolationException::class);
 
-        $dataValidatorMock = $this->createMock(DataValidator::class);
+        $dataValidatorMock = static::createStub(DataValidator::class);
         $dataValidatorMock->method('validate')
             ->willThrowException($validateException);
 
@@ -76,18 +82,18 @@ class SystemConfigValidatorTest extends TestCase
 
     /**
      * @param array<string, mixed> $inputValues
-     * @param array<string, mixed> $formConfigs
+     * @param list<SystemConfigTab> $formConfigs
      */
     #[DataProvider('dataProviderTestValidateSuccess')]
     public function testValidateWithEmptyConfig(array $inputValues, array $formConfigs): void
     {
         $exceptionThrown = false;
 
-        $configurationServiceMock = $this->createMock(ConfigurationService::class);
-        $configurationServiceMock->method('getConfiguration')
+        $configurationServiceMock = static::createStub(ConfigurationService::class);
+        $configurationServiceMock->method('getSystemConfigDefinition')
             ->willReturn([]);
 
-        $dataValidatorMock = $this->createMock(DataValidator::class);
+        $dataValidatorMock = static::createStub(DataValidator::class);
 
         $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
 
@@ -102,39 +108,80 @@ class SystemConfigValidatorTest extends TestCase
         static::assertFalse($exceptionThrown);
     }
 
-    public function testGetSystemConfigByDomainEmptyDomain(): void
+    public function testValidateUsesConfigurationDomainForNestedKeys(): void
     {
+        $context = Context::createDefaultContext();
+
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
+        $configurationServiceMock
+            ->expects($this->once())
+            ->method('getSystemConfigDefinition')
+            ->with('core.basicInformation', $context)
+            ->willReturn([
+                new SystemConfigTab([
+                    new SystemConfigCard(
+                        [
+                            new SystemConfigElement('core.basicInformation.foo', []),
+                        ],
+                        []
+                    ),
+                ]),
+            ]);
+
         $dataValidatorMock = $this->createMock(DataValidator::class);
+        $dataValidatorMock
+            ->expects($this->once())
+            ->method('validate');
 
         $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
 
-        $contextMock = Context::createDefaultContext();
-
-        $refMethod = ReflectionHelper::getMethod(SystemConfigValidator::class, 'getSystemConfigByDomain');
-
-        $result = $refMethod->invoke($systemConfigValidation, 'dummy domain', $contextMock);
-
-        static::assertEquals([], $result);
+        $systemConfigValidation->validate([
+            'null' => [
+                'core.basicInformation.foo.bar.baz' => 'test-value',
+            ],
+        ], $context);
     }
 
-    public function testGetSystemConfigByDomainWithException(): void
+    public function testValidateAddsNoConstraintsForDomainWithoutConfiguration(): void
     {
-        $configurationServiceMock = $this->createMock(ConfigurationService::class);
-        $configurationServiceMock->method('getConfiguration')
-            ->willThrowException($this->createMock(BundleConfigNotFoundException::class));
+        $configurationServiceMock = static::createStub(ConfigurationService::class);
+        $configurationServiceMock->method('getSystemConfigDefinition')
+            ->willReturn([]);
 
-        $dataValidatorMock = $this->createMock(DataValidator::class);
+        $definition = null;
+        $systemConfigValidation = new SystemConfigValidator(
+            $configurationServiceMock,
+            $this->createDefinitionCapturingValidator($definition)
+        );
 
-        $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
+        $systemConfigValidation->validate(
+            ['null' => ['dummy.domain.dummyKey' => 'Dummy Value']],
+            Context::createDefaultContext()
+        );
 
-        $contextMock = Context::createDefaultContext();
+        static::assertInstanceOf(DataValidationDefinition::class, $definition);
+        static::assertSame([], $definition->getSubDefinitions());
+    }
 
-        $refMethod = ReflectionHelper::getMethod(SystemConfigValidator::class, 'getSystemConfigByDomain');
+    public function testValidateIgnoresSystemConfigExceptionsWhileLoadingTheDomainConfiguration(): void
+    {
+        $configurationServiceMock = static::createStub(ConfigurationService::class);
+        $configurationServiceMock->method('getSystemConfigDefinition')
+            ->willThrowException(SystemConfigException::configurationNotFound('missing'));
 
-        $result = $refMethod->invoke($systemConfigValidation, 'dummy domain', $contextMock);
+        $definition = null;
+        $systemConfigValidation = new SystemConfigValidator(
+            $configurationServiceMock,
+            $this->createDefinitionCapturingValidator($definition)
+        );
 
-        static::assertEquals($result, []);
+        $systemConfigValidation->validate(
+            ['null' => ['dummy.domain.dummyKey' => 'Dummy Value']],
+            Context::createDefaultContext()
+        );
+
+        static::assertInstanceOf(DataValidationDefinition::class, $definition);
+        static::assertSame([], $definition->getSubDefinitions());
     }
 
     /**
@@ -142,18 +189,43 @@ class SystemConfigValidatorTest extends TestCase
      * @param array<int, mixed> $expected
      */
     #[DataProvider('dataProviderTestGetRuleByKey')]
-    public function testBuildConstraintsWithConfigs(array $elementConfig, array $expected, bool $allowNulls): void
+    public function testValidateBuildsConstraintsFromElementConfig(array $elementConfig, array $expected, bool $allowNulls): void
     {
-        $configurationServiceMock = $this->createMock(ConfigurationService::class);
-        $dataValidatorMock = $this->createMock(DataValidator::class);
+        // nulls are only valid values for sales channel specific configuration
+        $salesChannelId = $allowNulls ? Uuid::randomHex() : 'null';
+        $configKey = 'core.basicInformation.dummyKey';
 
-        $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
+        $configurationServiceMock = static::createStub(ConfigurationService::class);
+        $configurationServiceMock->method('getSystemConfigDefinition')
+            ->willReturn([
+                new SystemConfigTab(
+                    [
+                        new SystemConfigCard(
+                            [
+                                new SystemConfigElement($configKey, $elementConfig),
+                            ],
+                            []
+                        ),
+                    ]
+                ),
+            ]);
 
-        $refMethod = ReflectionHelper::getMethod(SystemConfigValidator::class, 'buildConstraintsWithConfigs');
+        $definition = null;
+        $systemConfigValidation = new SystemConfigValidator(
+            $configurationServiceMock,
+            $this->createDefinitionCapturingValidator($definition)
+        );
 
-        $result = $refMethod->invoke($systemConfigValidation, $elementConfig, $allowNulls);
+        $systemConfigValidation->validate(
+            [$salesChannelId => [$configKey => 'Dummy Value']],
+            Context::createDefaultContext()
+        );
 
-        static::assertEquals($expected, $result);
+        static::assertInstanceOf(DataValidationDefinition::class, $definition);
+        $subDefinition = $definition->getSubDefinitions()[$salesChannelId] ?? null;
+        static::assertInstanceOf(DataValidationDefinition::class, $subDefinition);
+        static::assertSame([$configKey], array_keys($subDefinition->getProperties()));
+        static::assertEquals($expected, $subDefinition->getProperty($configKey));
     }
 
     public static function dataProviderTestGetRuleByKey(): \Generator
@@ -172,8 +244,8 @@ class SystemConfigValidatorTest extends TestCase
                 'maxLength' => 255,
             ],
             'expected' => [
-                new Assert\Length(['min' => 1]),
-                new Assert\Length(['max' => 255]),
+                new Assert\Length(min: 1),
+                new Assert\Length(max: 255),
                 new Assert\Type('string'),
                 new Assert\NotBlank(),
             ],
@@ -188,8 +260,8 @@ class SystemConfigValidatorTest extends TestCase
                 'max' => 100,
             ],
             'expected' => [
-                new Assert\Range(['min' => 1]),
-                new Assert\Range(['max' => 100]),
+                new Assert\Range(min: 1),
+                new Assert\Range(max: 100),
                 new Assert\Type('int'),
                 new Assert\NotBlank(),
             ],
@@ -204,12 +276,28 @@ class SystemConfigValidatorTest extends TestCase
                 'maxLength' => 255,
             ],
             'expected' => [
-                new Assert\Length(['min' => 1]),
-                new Assert\Length(['max' => 255]),
+                new Assert\Length(min: 1),
+                new Assert\Length(max: 255),
                 new Assert\Type('string'),
                 new Assert\NotBlank(null, null, true),
             ],
             'allowNulls' => true,
+        ];
+
+        yield 'element config with string values for minLength and maxLength' => [
+            'elementConfig' => [
+                'required' => false,
+                'dataType' => 'string',
+                'minLength' => '5',
+                'maxLength' => '100',
+            ],
+            'expected' => [
+                new Assert\Length(min: 5),
+                new Assert\Length(max: 100),
+                new Assert\Type('string'),
+                new Assert\NotBlank(),
+            ],
+            'allowNulls' => false,
         ];
     }
 
@@ -222,17 +310,19 @@ class SystemConfigValidatorTest extends TestCase
                 ],
             ],
             'formConfigs' => [
-                [
-                    'elements' => [
-                        [
-                            'name' => 'Dummy Name',
-                            'config' => [
-                                'required' => true,
-                                'maxLength' => 255,
+                new SystemConfigTab(
+                    [
+                        new SystemConfigCard(
+                            [
+                                new SystemConfigElement('Dummy Name', [
+                                    'required' => true,
+                                    'maxLength' => 255,
+                                ]),
                             ],
-                        ],
-                    ],
-                ],
+                            []
+                        ),
+                    ]
+                ),
             ],
         ];
 
@@ -243,14 +333,16 @@ class SystemConfigValidatorTest extends TestCase
                 ],
             ],
             'formConfigs' => [
-                [
-                    'elements' => [
-                        [
-                            'name' => 'core.basicInformation.dummyKey',
-                            'config' => [],
-                        ],
-                    ],
-                ],
+                new SystemConfigTab(
+                    [
+                        new SystemConfigCard(
+                            [
+                                new SystemConfigElement('core.basicInformation.dummyKey', []),
+                            ],
+                            []
+                        ),
+                    ]
+                ),
             ],
         ];
 
@@ -261,24 +353,23 @@ class SystemConfigValidatorTest extends TestCase
                 ],
             ],
             'formConfigs' => [
-                [
-                    'elements' => [
-                        [
-                            'name' => 'core.basicInformation.dummyKey',
-                            'config' => [
-                                'required' => true,
-                                'maxLength' => 255,
+                new SystemConfigTab(
+                    [
+                        new SystemConfigCard(
+                            [
+                                new SystemConfigElement('core.basicInformation.dummyKey', [
+                                    'required' => true,
+                                    'maxLength' => 255,
+                                ]),
+                                new SystemConfigElement('core.basicInformation.fieldNotFound', [
+                                    'required' => true,
+                                    'maxLength' => 255,
+                                ]),
                             ],
-                        ],
-                        [
-                            'name' => 'core.basicInformation.fieldNotFound',
-                            'config' => [
-                                'required' => true,
-                                'maxLength' => 255,
-                            ],
-                        ],
-                    ],
-                ],
+                            []
+                        ),
+                    ]
+                ),
             ],
         ];
     }
@@ -292,18 +383,36 @@ class SystemConfigValidatorTest extends TestCase
                 ],
             ],
             'formConfigs' => [
-                [
-                    'elements' => [
-                        [
-                            'name' => 'core.basicInformation.dummyField',
-                            'config' => [
-                                'required' => true,
-                                'maxLength' => 255,
+                new SystemConfigTab(
+                    [
+                        new SystemConfigCard(
+                            [
+                                new SystemConfigElement('core.basicInformation.dummyField', [
+                                    'required' => true,
+                                    'maxLength' => 255,
+                                ]),
                             ],
-                        ],
-                    ],
-                ],
+                            []
+                        ),
+                    ]
+                ),
             ],
         ];
+    }
+
+    /**
+     * @param-out DataValidationDefinition|null $definition
+     */
+    private function createDefinitionCapturingValidator(?DataValidationDefinition &$definition): DataValidator
+    {
+        $dataValidatorMock = $this->createMock(DataValidator::class);
+        $dataValidatorMock
+            ->expects($this->once())
+            ->method('validate')
+            ->willReturnCallback(function (array $data, DataValidationDefinition $passedDefinition) use (&$definition): void {
+                $definition = $passedDefinition;
+            });
+
+        return $dataValidatorMock;
     }
 }

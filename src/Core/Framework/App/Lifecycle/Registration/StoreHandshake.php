@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\App\Lifecycle\Registration;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Uri;
+use Psr\Clock\ClockInterface;
 use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\Log\Package;
@@ -26,30 +27,40 @@ class StoreHandshake implements AppHandshakeInterface
         private readonly string $appName,
         private readonly string $shopId,
         private readonly StoreClient $storeClient,
-        private readonly string $shopwareVersion
+        private readonly string $shopwareVersion,
+        private readonly ClockInterface $clock,
+        #[\SensitiveParameter]
+        private readonly ?string $currentAppSecret = null
     ) {
     }
 
     public function assembleRequest(): RequestInterface
     {
-        $date = new \DateTime();
         $uri = new Uri($this->appEndpoint);
 
         $uri = Uri::withQueryValues($uri, [
             'shop-id' => $this->shopId,
             'shop-url' => $this->shopUrl,
-            'timestamp' => (string) $date->getTimestamp(),
+            'timestamp' => (string) $this->clock->now()->getTimestamp(),
         ]);
 
         $signature = $this->signPayload($uri->getQuery());
 
+        $headers = [
+            'shopware-app-signature' => $signature,
+            'sw-version' => $this->shopwareVersion,
+        ];
+
+        // Add shop signature for re-registration (secret rotation)
+        if ($this->currentAppSecret !== null) {
+            $shopSignature = hash_hmac('sha256', $uri->getQuery(), $this->currentAppSecret);
+            $headers['shopware-shop-signature'] = $shopSignature;
+        }
+
         return new Request(
             'GET',
             $uri,
-            [
-                'shopware-app-signature' => $signature,
-                'sw-version' => $this->shopwareVersion,
-            ]
+            $headers
         );
     }
 
@@ -66,7 +77,7 @@ class StoreHandshake implements AppHandshakeInterface
             return $this->storeClient->signPayloadWithAppSecret($payload, $this->appName);
         } catch (\Exception $e) {
             if ($e instanceof ClientException) {
-                $response = \json_decode($e->getResponse()->getBody()->getContents(), true, \JSON_THROW_ON_ERROR, \JSON_THROW_ON_ERROR);
+                $response = \json_decode($e->getResponse()->getBody()->getContents(), true, flags: \JSON_THROW_ON_ERROR);
 
                 if ($response['code'] === self::SBP_EXCEPTION_UNAUTHORIZED || $response['code'] === self::SBP_EXCEPTION_NO_LICENSE) {
                     throw AppException::licenseCouldNotBeVerified($this->appName, $e);

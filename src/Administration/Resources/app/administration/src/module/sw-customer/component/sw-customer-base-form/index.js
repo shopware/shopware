@@ -1,8 +1,5 @@
 import template from './sw-customer-base-form.html.twig';
-import './sw-customer-base-form.scss';
 import errorConfig from '../../error-config.json';
-
-import CUSTOMER from '../../constant/sw-customer.constant';
 
 /**
  * @sw-package checkout
@@ -11,6 +8,7 @@ import CUSTOMER from '../../constant/sw-customer.constant';
 const { Defaults } = Shopware;
 const { mapPropertyErrors } = Shopware.Component.getComponentHelper();
 const { Criteria } = Shopware.Data;
+const { CUSTOMER } = Shopware.Constants;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -33,11 +31,7 @@ export default {
         salutationCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(
-                Criteria.not('or', [
-                    Criteria.equals('id', Defaults.defaultSalutationId),
-                ]),
-            );
+            criteria.addFilter(Criteria.not('or', [Criteria.equals('id', Defaults.defaultSalutationId)]));
 
             return criteria;
         },
@@ -46,17 +40,27 @@ export default {
             return [
                 {
                     value: CUSTOMER.ACCOUNT_TYPE_PRIVATE,
-                    label: this.$tc('sw-customer.customerType.labelPrivate'),
+                    label: this.$t('sw-customer.customerType.labelPrivate'),
                 },
                 {
                     value: CUSTOMER.ACCOUNT_TYPE_BUSINESS,
-                    label: this.$tc('sw-customer.customerType.labelBusiness'),
+                    label: this.$t('sw-customer.customerType.labelBusiness'),
                 },
             ];
         },
 
         isBusinessAccountType() {
             return this.customer?.accountType === CUSTOMER.ACCOUNT_TYPE_BUSINESS;
+        },
+
+        languageCriteria() {
+            const criteria = new Criteria(1, 25);
+
+            if (this.customer?.salesChannelId) {
+                criteria.addFilter(Criteria.equals('salesChannels.id', this.customer.salesChannelId));
+            }
+
+            return criteria;
         },
     },
 

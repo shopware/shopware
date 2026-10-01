@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\Test;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
 use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 use Symfony\Component\HttpFoundation\Session\SessionBagInterface;
@@ -16,11 +17,14 @@ use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 #[Package('framework')]
 class TestSessionStorage implements SessionStorageInterface
 {
+    /**
+     * @var array<string, SessionBagInterface>
+     */
     private static array $data = [];
 
     private static string $id = 'test-id';
 
-    private static string $name = 'session-';
+    private static string $name = PlatformRequest::FALLBACK_SESSION_NAME;
 
     public function start(): bool
     {
@@ -69,7 +73,6 @@ class TestSessionStorage implements SessionStorageInterface
 
     public function clear(): void
     {
-        /** @var SessionBagInterface $bag */
         foreach (self::$data as $bag) {
             $bag->clear();
         }

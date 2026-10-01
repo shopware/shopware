@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Checkout\Shipping\SalesChannel;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Shipping\Hook\ShippingMethodRouteHook;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
@@ -18,8 +19,8 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 /**
  * @internal
  */
-#[Group('store-api')]
 #[Package('checkout')]
+#[Group('store-api')]
 class ShippingMethodRouteTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -38,37 +39,12 @@ class ShippingMethodRouteTest extends TestCase
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
             'shippingMethodId' => $this->ids->get('shipping'),
+            'shippingMethods' => [
+                ['id' => $this->ids->get('shipping')],
+                ['id' => $this->ids->get('shipping2')],
+                ['id' => $this->ids->get('shipping3')],
+            ],
         ]);
-
-        $updateData = [
-            [
-                'id' => $this->ids->get('shipping'),
-                'salesChannels' => [
-                    [
-                        'id' => $this->ids->get('sales-channel'),
-                    ],
-                ],
-            ],
-            [
-                'id' => $this->ids->get('shipping2'),
-                'salesChannels' => [
-                    [
-                        'id' => $this->ids->get('sales-channel'),
-                    ],
-                ],
-            ],
-            [
-                'id' => $this->ids->get('shipping3'),
-                'salesChannels' => [
-                    [
-                        'id' => $this->ids->get('sales-channel'),
-                    ],
-                ],
-            ],
-        ];
-
-        static::getContainer()->get('shipping_method.repository')
-            ->update($updateData, Context::createDefaultContext());
     }
 
     public function testLoad(): void
@@ -90,7 +66,7 @@ class ShippingMethodRouteTest extends TestCase
         static::assertContains($this->ids->get('shipping2'), $ids);
         static::assertEmpty($response['elements'][0]['availabilityRule']);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->browser->getContainer()->get(ScriptTraces::class)->getTraces();
         static::assertArrayHasKey(ShippingMethodRouteHook::HOOK_NAME, $traces);
     }
 
@@ -108,7 +84,7 @@ class ShippingMethodRouteTest extends TestCase
 
         $ids = array_column($response['elements'], 'id');
 
-        static::assertEquals(
+        static::assertSame(
             [
                 $this->ids->get('shipping'),    // position  1 (selected method & sales-channel default)
                 $this->ids->get('shipping3'),   // position -3
@@ -138,7 +114,7 @@ class ShippingMethodRouteTest extends TestCase
 
         $ids = array_column($response['elements'], 'id');
 
-        static::assertEquals(
+        static::assertSame(
             [
                 $this->ids->get('shipping'),    // position  1 (sales-channel default)
                 $this->ids->get('shipping3'),   // position -3
@@ -146,6 +122,63 @@ class ShippingMethodRouteTest extends TestCase
             ],
             $ids
         );
+    }
+
+    public function testOnlyAvailableExcludesShippingMethodsWithoutAnyPrice(): void
+    {
+        static::getContainer()->get('shipping_method.repository')->update([[
+            'id' => $this->ids->get('shipping'),
+            'prices' => [
+                [
+                    'id' => $this->ids->create('price'),
+                    'calculation' => 1,
+                    'quantityStart' => 1,
+                    'currencyPrice' => [
+                        [
+                            'currencyId' => Defaults::CURRENCY,
+                            'net' => 10,
+                            'gross' => 11,
+                            'linked' => false,
+                        ],
+                    ],
+                ],
+                // A nullable field on one row must not turn the existence check into an anti-join
+                [
+                    'id' => $this->ids->create('price-without-currency-price'),
+                    'calculation' => 1,
+                    'quantityStart' => 2,
+                ],
+            ],
+        ]], Context::createDefaultContext());
+
+        $this->browser->request('POST', '/store-api/shipping-method', ['onlyAvailable' => true]);
+
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
+
+        static::assertSame([$this->ids->get('shipping')], array_column($response['elements'], 'id'));
+
+        $this->browser->request('POST', '/store-api/shipping-method', []);
+
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
+
+        static::assertSame(3, $response['total']);
+    }
+
+    public function testOnlyAvailableExcludesShippingMethodsWhoseOnlyPricesHaveNoCurrencyValues(): void
+    {
+        static::getContainer()->get('shipping_method.repository')->update([[
+            'id' => $this->ids->get('shipping'),
+            'prices' => [
+                ['id' => $this->ids->create('empty1'), 'calculation' => 1, 'quantityStart' => 1],
+                ['id' => $this->ids->create('empty2'), 'calculation' => 1, 'quantityStart' => 2],
+            ],
+        ]], Context::createDefaultContext());
+
+        $this->browser->request('POST', '/store-api/shipping-method', ['onlyAvailable' => true]);
+
+        $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
+
+        static::assertSame([], array_column($response['elements'], 'id'));
     }
 
     public function testIncludes(): void
@@ -207,8 +240,8 @@ class ShippingMethodRouteTest extends TestCase
                         [
                             'type' => 'dateRange',
                             'value' => [
-                                'fromDate' => '2000-06-07T11:37:51+02:00',
-                                'toDate' => '2099-06-07T11:37:51+02:00',
+                                'fromDate' => '2000-06-07T11:37:51',
+                                'toDate' => '2099-06-07T11:37:51',
                                 'useTime' => false,
                             ],
                         ],
@@ -237,8 +270,8 @@ class ShippingMethodRouteTest extends TestCase
                         [
                             'type' => 'dateRange',
                             'value' => [
-                                'fromDate' => '2000-06-07T11:37:51+02:00',
-                                'toDate' => '2099-06-07T11:37:51+02:00',
+                                'fromDate' => '2000-06-07T11:37:51',
+                                'toDate' => '2099-06-07T11:37:51',
                                 'useTime' => false,
                             ],
                         ],
@@ -267,8 +300,8 @@ class ShippingMethodRouteTest extends TestCase
                         [
                             'type' => 'dateRange',
                             'value' => [
-                                'fromDate' => '2000-06-07T11:37:51+02:00',
-                                'toDate' => '2000-06-07T11:37:51+02:00',
+                                'fromDate' => '2000-06-07T11:37:51',
+                                'toDate' => '2000-06-07T11:37:51',
                                 'useTime' => false,
                             ],
                         ],

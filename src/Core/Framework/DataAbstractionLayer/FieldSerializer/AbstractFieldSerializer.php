@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer;
 
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
@@ -14,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
-use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -27,7 +27,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 abstract class AbstractFieldSerializer implements FieldSerializerInterface
 {
     /**
-     * @var array<Constraint[]>
+     * @var array<string, list<Constraint>>
      */
     private array $cachedConstraints = [];
 
@@ -42,6 +42,9 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         return $data;
     }
 
+    /**
+     * @param list<Constraint> $constraints
+     */
     protected function validate(
         array $constraints,
         KeyValuePair $data,
@@ -83,10 +86,13 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         }
 
         if (\count($violationList)) {
-            throw new WriteConstraintViolationException($violationList, $path);
+            throw DataAbstractionLayerException::invalidWriteConstraintViolation($violationList, $path);
         }
     }
 
+    /**
+     * @param mixed $value
+     */
     protected function requiresValidation(
         Field $field,
         EntityExistence $existence,
@@ -121,11 +127,9 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
             return false;
         }
 
-        $parent = $parameters->getDefinition()->getParentDefinition();
+        $parentField = $parameters->getDefinition()->getParentDefinition()->getFields()->get($field->getPropertyName());
 
-        $field = $parent->getFields()->get($field->getPropertyName());
-
-        return $field->is(Inherited::class);
+        return $parentField !== null && $parentField->is(Inherited::class);
     }
 
     protected function validateIfNeeded(Field $field, EntityExistence $existence, KeyValuePair $data, WriteParameterBag $parameters): void
@@ -140,7 +144,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
     }
 
     /**
-     * @return Constraint[]
+     * @return list<Constraint>
      */
     protected function getConstraints(Field $field): array
     {
@@ -148,7 +152,7 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
     }
 
     /**
-     * @return Constraint[]
+     * @return list<Constraint>
      */
     protected function getCachedConstraints(Field $field): array
     {
@@ -168,12 +172,10 @@ abstract class AbstractFieldSerializer implements FieldSerializerInterface
         }
 
         if (!$field->is(AllowHtml::class)) {
-            return strip_tags((string) $data->getValue());
+            return $sanitizer->stripTags((string) $data->getValue());
         }
 
-        $flag = $field->getFlag(AllowHtml::class);
-
-        if ($flag instanceof AllowHtml && $flag->isSanitized()) {
+        if ($field->getFlag(AllowHtml::class)->isSanitized()) {
             $fieldKey = \sprintf('%s.%s', (string) $existence->getEntityName(), $field->getPropertyName());
 
             return $sanitizer->sanitize((string) $data->getValue(), [], false, $fieldKey);

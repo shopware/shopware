@@ -6,10 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Event\EventData\ObjectType;
 use Shopware\Core\Framework\Event\EventData\ScalarValueType;
+use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(ObjectType::class)]
 class ObjectTypeTest extends TestCase
 {
@@ -27,7 +29,7 @@ class ObjectTypeTest extends TestCase
             ],
         ];
 
-        static::assertEquals(
+        static::assertSame(
             $expected,
             (new ObjectType())
                 ->add('myBool', new ScalarValueType(ScalarValueType::TYPE_BOOL))

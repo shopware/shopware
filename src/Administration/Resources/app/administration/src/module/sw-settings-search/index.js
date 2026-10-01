@@ -6,7 +6,7 @@ import './acl';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-search', () => import('./page/sw-settings-search'));
 Shopware.Component.register('sw-settings-search-view-general', () => import('./view/sw-settings-search-view-general'));
 Shopware.Component.register(
@@ -43,7 +43,7 @@ Shopware.Component.register(
     'sw-settings-search-live-search-keyword',
     () => import('./component/sw-settings-search-live-search-keyword'),
 );
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-settings-search', {
@@ -53,9 +53,9 @@ Module.register('sw-settings-search', {
     description: 'sw-settings-snippet.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    color: 'var(--sw-color-module-neutral-default)',
+    icon: 'regular-search',
+    favicon: 'icon-module-settings.svg',
     entity: 'product_search_config',
 
     routes: {

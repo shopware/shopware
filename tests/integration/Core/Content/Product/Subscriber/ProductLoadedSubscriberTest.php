@@ -27,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -36,6 +37,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('inventory')]
 class ProductLoadedSubscriberTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -67,6 +69,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $productEntity = static::getContainer()
             ->get('sales_channel.product.repository')
             ->search(new Criteria([$ids->get('p.1')]), $salesChannelContext)
+            ->getEntities()
             ->first();
 
         static::assertInstanceOf(SalesChannelProductEntity::class, $productEntity);
@@ -96,6 +99,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $productEntity = static::getContainer()
             ->get('sales_channel.product.repository')
             ->search($criteria, $salesChannelContext)
+            ->getEntities()
             ->first();
 
         static::assertNotNull($productEntity);
@@ -123,6 +127,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $productEntity = static::getContainer()
             ->get('sales_channel.product.repository')
             ->search($criteria, $salesChannelContext)
+            ->getEntities()
             ->first();
 
         static::assertInstanceOf(SalesChannelProductEntity::class, $productEntity);
@@ -139,13 +144,13 @@ class ProductLoadedSubscriberTest extends TestCase
             static::assertInstanceOf(PropertyGroupOptionCollection::class, $optionElementsCollection);
             $optionElements = $optionElementsCollection->getElements();
 
-            static::assertEquals($expectedGroup['name'], $sortedProperties[$expectedGroupKey]->getName());
-            static::assertEquals($expectedGroup['id'], $sortedProperties[$expectedGroupKey]->getId());
-            static::assertEquals(\array_keys($expectedGroup['options']), \array_keys($optionElements));
+            static::assertSame($expectedGroup['name'], $sortedProperties[$expectedGroupKey]->getName());
+            static::assertSame($expectedGroup['id'], $sortedProperties[$expectedGroupKey]->getId());
+            static::assertSame(\array_keys($expectedGroup['options']), \array_keys($optionElements));
 
             foreach ($expectedGroup['options'] as $optionId => $option) {
-                static::assertEquals($option['id'], $optionElements[$optionId]->getId());
-                static::assertEquals($option['name'], $optionElements[$optionId]->getName());
+                static::assertSame($option['id'], $optionElements[$optionId]->getId());
+                static::assertSame($option['name'], $optionElements[$optionId]->getName());
             }
         }
 
@@ -175,6 +180,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $productEntity = static::getContainer()
             ->get('sales_channel.product.repository')
             ->search($criteria, $salesChannelContext)
+            ->getEntities()
             ->first();
 
         static::assertNotNull($productEntity);
@@ -191,16 +197,16 @@ class ProductLoadedSubscriberTest extends TestCase
             static::assertInstanceOf(PropertyGroupOptionCollection::class, $optionElements);
             $optionElements = $optionElements->getElements();
 
-            static::assertEquals($expectedGroup['name'], $sortedProperty->get('name'));
-            static::assertEquals($expectedGroup['id'], $sortedProperty->getId());
-            static::assertEquals(\array_keys($expectedGroup['options']), \array_keys($optionElements));
+            static::assertSame($expectedGroup['name'], $sortedProperty->get('name'));
+            static::assertSame($expectedGroup['id'], $sortedProperty->getId());
+            static::assertSame(\array_keys($expectedGroup['options']), \array_keys($optionElements));
 
             foreach ($expectedGroup['options'] as $optionId => $option) {
                 $optionElement = $optionElements[$optionId];
                 static::assertInstanceOf(PropertyGroupOptionEntity::class, $optionElement);
 
-                static::assertEquals($option['id'], $optionElement->getId());
-                static::assertEquals($option['name'], $optionElement->get('name'));
+                static::assertSame($option['id'], $optionElement->getId());
+                static::assertSame($option['name'], $optionElement->get('name'));
             }
         }
 
@@ -374,6 +380,7 @@ class ProductLoadedSubscriberTest extends TestCase
                     'id' => $languageId,
                     'name' => 'sub_en',
                     'parentId' => Defaults::LANGUAGE_SYSTEM,
+                    'active' => true,
                     'localeId' => $this->getLocaleIdOfSystemLanguage(),
                 ],
             ], Context::createDefaultContext());
@@ -402,6 +409,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $productEntity = static::getContainer()
             ->get('product.repository')
             ->search($criteria, $context)
+            ->getEntities()
             ->first();
 
         static::assertInstanceOf(ProductEntity::class, $productEntity);
@@ -413,7 +421,7 @@ class ProductLoadedSubscriberTest extends TestCase
             sort($expected);
         }
 
-        static::assertEquals($expected, $variation);
+        static::assertSame($expected, $variation);
     }
 
     /**
@@ -1089,8 +1097,8 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @param array<mixed> $product
-     * @param array<string, string> $expected
+     * @param array<string, mixed> $product
+     * @param list<array<string, string>> $expected
      */
     #[DataProvider('optionCases')]
     public function testOptionSorting(array $product, array $expected, Criteria $criteria): void
@@ -1114,6 +1122,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $productEntity = static::getContainer()
             ->get('product.repository')
             ->search($criteria, $context)
+            ->getEntities()
             ->first();
 
         /** @var PropertyGroupOptionCollection $options */
@@ -1121,15 +1130,15 @@ class ProductLoadedSubscriberTest extends TestCase
 
         static::assertInstanceOf(PropertyGroupOptionCollection::class, $options);
 
-        $names = $options->map(fn (PropertyGroupOptionEntity $option) => [
+        $names = $options->map(static fn (PropertyGroupOptionEntity $option) => [
             'name' => $option->getName(),
         ]);
 
-        static::assertEquals($expected, \array_values($names));
+        static::assertSame($expected, \array_values($names));
     }
 
     /**
-     * @return array<mixed>
+     * @return list<array{array<string, mixed>, list<array<string, string>>, Criteria}>
      */
     public static function optionCases(): array
     {
@@ -1153,7 +1162,7 @@ class ProductLoadedSubscriberTest extends TestCase
         $optionsDescCriteria->getAssociation('options')->addSorting(new FieldSorting('name', 'DESC'));
 
         return [
-            1 => [
+            [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -1180,7 +1189,7 @@ class ProductLoadedSubscriberTest extends TestCase
                 ],
                 $optionsAscCriteria,
             ],
-            2 => [
+            [
                 array_merge($defaults, [
                     'options' => [
                         [
@@ -1308,6 +1317,7 @@ class ProductLoadedSubscriberTest extends TestCase
 
             $product = static::getContainer()->get('sales_channel.product.repository')
                 ->search(new Criteria([$id]), $context)
+                ->getEntities()
                 ->get($id);
 
             static::assertInstanceOf(SalesChannelProductEntity::class, $product);
@@ -1316,16 +1326,17 @@ class ProductLoadedSubscriberTest extends TestCase
 
             static::assertInstanceOf(ListPrice::class, $price->getListPrice());
 
-            static::assertEquals($case->expectedPrice, $price->getUnitPrice());
-            static::assertEquals($case->expectedWas, $price->getListPrice()->getPrice());
+            static::assertSame($case->expectedPrice, $price->getUnitPrice());
+            static::assertSame($case->expectedWas, $price->getListPrice()->getPrice());
 
-            static::assertEquals($case->percentage, $price->getListPrice()->getPercentage());
-            static::assertEquals($case->discount, $price->getListPrice()->getDiscount());
+            static::assertSame($case->percentage, $price->getListPrice()->getPercentage());
+            static::assertSame($case->discount, $price->getListPrice()->getDiscount());
 
             $partialCriteria = new Criteria([$id]);
             $partialCriteria->addFields(['price', 'taxId']);
             $product = static::getContainer()->get('sales_channel.product.repository')
                 ->search($partialCriteria, $context)
+                ->getEntities()
                 ->get($id);
 
             static::assertInstanceOf(PartialEntity::class, $product);
@@ -1335,11 +1346,11 @@ class ProductLoadedSubscriberTest extends TestCase
             static::assertInstanceOf(CalculatedPrice::class, $price);
             static::assertInstanceOf(ListPrice::class, $price->getListPrice());
 
-            static::assertEquals($case->expectedPrice, $price->getUnitPrice());
-            static::assertEquals($case->expectedWas, $price->getListPrice()->getPrice());
+            static::assertSame($case->expectedPrice, $price->getUnitPrice());
+            static::assertSame($case->expectedWas, $price->getListPrice()->getPrice());
 
-            static::assertEquals($case->percentage, $price->getListPrice()->getPercentage());
-            static::assertEquals($case->discount, $price->getListPrice()->getDiscount());
+            static::assertSame($case->percentage, $price->getListPrice()->getPercentage());
+            static::assertSame($case->discount, $price->getListPrice()->getDiscount());
         }
     }
 

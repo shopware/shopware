@@ -7,13 +7,15 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<CustomFieldEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class CustomFieldCollection extends EntityCollection
 {
     public function filterByType(string $type): self
     {
-        return $this->filter(fn (CustomFieldEntity $attribute) => $attribute->getType() === $type);
+        return $this->filter(static fn (CustomFieldEntity $attribute) => $attribute->getType() === $type);
     }
 
     public function getApiAlias(): string

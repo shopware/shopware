@@ -3,17 +3,22 @@
 namespace Shopware\Core\Checkout\Customer\SalesChannel;
 
 use Shopware\Core\Checkout\Customer\CustomerCollection;
+use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Extension\CustomerRouteExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
+use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route(defaults: ['_routeScope' => ['store-api']])]
 #[Package('checkout')]
+#[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CustomerRoute extends AbstractCustomerRoute
 {
     /**
@@ -21,7 +26,7 @@ class CustomerRoute extends AbstractCustomerRoute
      *
      * @param EntityRepository<CustomerCollection> $customerRepository
      */
-    public function __construct(private readonly EntityRepository $customerRepository)
+    public function __construct(private readonly EntityRepository $customerRepository, private readonly ExtensionDispatcher $extensions)
     {
     }
 
@@ -30,12 +35,30 @@ class CustomerRoute extends AbstractCustomerRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[Route(path: '/store-api/account/customer', name: 'store-api.account.customer', methods: ['GET', 'POST'], defaults: ['_loginRequired' => true, '_loginRequiredAllowGuest' => true, '_entity' => 'customer'])]
+    #[Route(
+        path: '/store-api/account/customer',
+        name: 'store-api.account.customer',
+        defaults: [
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED => true,
+            PlatformRequest::ATTRIBUTE_LOGIN_REQUIRED_ALLOW_GUEST => true,
+            PlatformRequest::ATTRIBUTE_ENTITY => CustomerDefinition::ENTITY_NAME,
+        ],
+        methods: [Request::METHOD_GET, Request::METHOD_POST],
+    )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): CustomerResponse
+    {
+        return $this->extensions->publish(
+            name: CustomerRouteExtension::NAME,
+            extension: new CustomerRouteExtension($request, $context, $criteria, $customer),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): CustomerResponse
     {
         $criteria->setIds([$customer->getId()]);
 
-        $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->first();
+        $customerEntity = $this->customerRepository->search($criteria, $context->getContext())->getEntities()->first();
         \assert($customerEntity !== null);
 
         return new CustomerResponse($customerEntity);

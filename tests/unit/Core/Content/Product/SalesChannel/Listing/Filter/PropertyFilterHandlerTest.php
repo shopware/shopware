@@ -13,6 +13,7 @@ use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionEntity;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Content\Property\PropertyGroupDefinition;
 use Shopware\Core\Content\Property\PropertyGroupEntity;
 use Shopware\Core\Framework\Context;
@@ -28,17 +29,18 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\SalesChannel\Context\LanguageInfo;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
  */
+#[Package('inventory')]
 #[CoversClass(PropertyListingFilterHandler::class)]
 class PropertyFilterHandlerTest extends TestCase
 {
@@ -46,16 +48,13 @@ class PropertyFilterHandlerTest extends TestCase
     {
         $request = new Request([], ['property-filter' => false]);
         $request->setMethod(Request::METHOD_POST);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
         $connection->expects($this->never())
             ->method('fetchAllAssociative');
 
-        $handler = new PropertyListingFilterHandler(
-            new StaticEntityRepository([]),
-            $connection
-        );
+        $handler = $this->getHandlerWithConnection($connection);
 
         $result = $handler->create($request, $context);
 
@@ -66,16 +65,13 @@ class PropertyFilterHandlerTest extends TestCase
     {
         $request = new Request([], ['properties' => '']);
         $request->setMethod(Request::METHOD_POST);
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
         $connection->expects($this->never())
             ->method('fetchAllAssociative');
 
-        $handler = new PropertyListingFilterHandler(
-            new StaticEntityRepository([]),
-            $connection
-        );
+        $handler = $this->getHandlerWithConnection($connection);
 
         $result = $handler->create($request, $context);
 
@@ -106,7 +102,7 @@ class PropertyFilterHandlerTest extends TestCase
 
         $request->setMethod(Request::METHOD_POST);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $connection = $this->createMock(Connection::class);
 
@@ -114,10 +110,7 @@ class PropertyFilterHandlerTest extends TestCase
             ->method('fetchAllAssociative')
             ->willReturn($mapping);
 
-        $handler = new PropertyListingFilterHandler(
-            new StaticEntityRepository([]),
-            $connection
-        );
+        $handler = $this->getHandlerWithConnection($connection);
 
         $result = $handler->create($request, $context);
 
@@ -142,14 +135,11 @@ class PropertyFilterHandlerTest extends TestCase
 
         $request->setMethod(Request::METHOD_POST);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
 
-        $handler = new PropertyListingFilterHandler(
-            new StaticEntityRepository([]),
-            $connection
-        );
+        $handler = $this->getHandlerWithConnection($connection);
 
         $result = $handler->create($request, $context);
 
@@ -173,16 +163,13 @@ class PropertyFilterHandlerTest extends TestCase
         $request = new Request([], [PropertyListingFilterHandler::PROPERTY_GROUP_IDS_REQUEST_PARAM => ['color', 'size']]);
         $request->setMethod(Request::METHOD_POST);
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
         $connection = $this->createMock(Connection::class);
 
         $connection->expects($this->never())
             ->method('fetchAllAssociative');
 
-        $handler = new PropertyListingFilterHandler(
-            new StaticEntityRepository([]),
-            $connection
-        );
+        $handler = $this->getHandlerWithConnection($connection);
 
         $result = $handler->create($request, $context);
 
@@ -214,17 +201,32 @@ class PropertyFilterHandlerTest extends TestCase
         $request = new Request();
         $request->setMethod(Request::METHOD_POST);
 
-        $context = $this->createMock(SalesChannelContext::class);
-        $context->method('getContext')->willReturn(Context::createDefaultContext());
+        $languageInfo = new LanguageInfo(Generator::LANGUAGE_INFO_NAME, Generator::LANGUAGE_INFO_LOCALE_CODE);
+        $context = Generator::generateSalesChannelContext(languageInfo: $languageInfo);
 
-        new StaticDefinitionInstanceRegistry(
-            [$definition = new PropertyGroupOptionDefinition()],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
-        );
+        $groupRepository = new StaticEntityRepository([
+            static function (Criteria $criteria) {
+                static::assertContains('color', $criteria->getIds());
+                static::assertContains('size', $criteria->getIds());
+
+                return new PropertyGroupCollection([
+                    (new PropertyGroupEntity())->assign([
+                        'id' => 'color',
+                        'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
+                        'position' => 1,
+                    ]),
+                    (new PropertyGroupEntity())->assign([
+                        'id' => 'size',
+                        'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
+                        'position' => 2,
+                    ]),
+                ]);
+            },
+            new PropertyGroupCollection(),
+        ], new PropertyGroupDefinition());
 
         $repository = new StaticEntityRepository([
-            function (Criteria $criteria) {
+            static function (Criteria $criteria) {
                 static::assertContains('red', $criteria->getIds());
                 static::assertContains('green', $criteria->getIds());
                 static::assertContains('xl', $criteria->getIds());
@@ -235,48 +237,32 @@ class PropertyFilterHandlerTest extends TestCase
                         'id' => 'red',
                         'groupId' => 'color',
                         'position' => 1,
-                        'group' => (new PropertyGroupEntity())->assign([
-                            'id' => 'color',
-                            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
-                            'position' => 1,
-                        ]),
                     ]),
                     (new PropertyGroupOptionEntity())->assign([
                         'id' => 'green',
                         'groupId' => 'color',
                         'position' => 2,
-                        'group' => (new PropertyGroupEntity())->assign([
-                            'id' => 'color',
-                            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
-                            'position' => 2,
-                        ]),
                     ]),
                     (new PropertyGroupOptionEntity())->assign([
                         'id' => 'xl',
                         'groupId' => 'size',
                         'position' => 2,
-                        'group' => (new PropertyGroupEntity())->assign([
-                            'id' => 'size',
-                            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
-                            'position' => 1,
-                        ]),
                     ]),
                     (new PropertyGroupOptionEntity())->assign([
                         'id' => 'l',
                         'groupId' => 'size',
                         'position' => 1,
-                        'group' => (new PropertyGroupEntity())->assign([
-                            'id' => 'size',
-                            'sortingType' => PropertyGroupDefinition::SORTING_TYPE_POSITION,
-                            'position' => 1,
-                        ]),
                     ]),
                 ]);
             },
             new PropertyGroupOptionCollection(),
-        ], $definition);
+        ], new PropertyGroupOptionDefinition());
 
-        $handler = new PropertyListingFilterHandler($repository, $this->createMock(Connection::class));
+        $handler = new PropertyListingFilterHandler(
+            $groupRepository,
+            $repository,
+            static::createStub(Connection::class)
+        );
 
         $result = new ProductListingResult(
             'test',
@@ -308,28 +294,28 @@ class PropertyFilterHandlerTest extends TestCase
 
         $color = $properties->getEntities()->first();
         static::assertInstanceOf(Entity::class, $color);
-        static::assertEquals('color', $color->get('id'));
+        static::assertSame('color', $color->get('id'));
 
         $options = $color->get('options');
         static::assertInstanceOf(EntityCollection::class, $options);
         static::assertCount(2, $options);
 
         static::assertInstanceOf(Entity::class, $options->first());
-        static::assertEquals('red', $options->first()->get('id'));
+        static::assertSame('red', $options->first()->get('id'));
         static::assertInstanceOf(Entity::class, $options->last());
-        static::assertEquals('green', $options->last()->get('id'));
+        static::assertSame('green', $options->last()->get('id'));
 
         $size = $properties->getEntities()->last();
         static::assertInstanceOf(Entity::class, $size);
-        static::assertEquals('size', $size->get('id'));
+        static::assertSame('size', $size->get('id'));
 
         $options = $size->get('options');
         static::assertInstanceOf(EntityCollection::class, $options);
         static::assertCount(2, $options);
         static::assertInstanceOf(Entity::class, $options->first());
-        static::assertEquals('l', $options->first()->get('id'));
+        static::assertSame('l', $options->first()->get('id'));
         static::assertInstanceOf(Entity::class, $options->last());
-        static::assertEquals('xl', $options->last()->get('id'));
+        static::assertSame('xl', $options->last()->get('id'));
     }
 
     public static function createProvider(): \Generator
@@ -447,5 +433,17 @@ class PropertyFilterHandlerTest extends TestCase
                 ['property_group_id' => $ids->get('color'), 'id' => $ids->get('green')],
             ],
         ];
+    }
+
+    private function getHandlerWithConnection(Connection $connection): PropertyListingFilterHandler
+    {
+        $groupRepository = new StaticEntityRepository([], new PropertyGroupDefinition());
+        $optionRepository = new StaticEntityRepository([], new PropertyGroupOptionDefinition());
+
+        return new PropertyListingFilterHandler(
+            $groupRepository,
+            $optionRepository,
+            $connection
+        );
     }
 }

@@ -41,6 +41,9 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($this->requiresValidation($field, $existence, $value, $parameters)) {
+            // everything below expects a list of price structs, a scalar would fatal
+            $this->validate([new Type('array')], new KeyValuePair($data->getKey(), $value, false), $parameters->getPath());
+
             if ($value !== null) {
                 foreach ($value as &$row) {
                     if (isset($row['extensions'])) {
@@ -173,42 +176,42 @@ class PriceFieldSerializer extends AbstractFieldSerializer
     protected function getConstraints(Field $field): array
     {
         $constraints = [
-            new Collection([
-                'allowExtraFields' => true,
-                'allowMissingFields' => false,
-                'fields' => [
+            new Collection(
+                fields: [
                     'currencyId' => [new NotBlank(), new Uuid()],
-                    'gross' => [new NotBlank(), new Type(['numeric'])],
-                    'net' => [new NotBlank(), new Type(['numeric'])],
-                    'linked' => [new Type('boolean')],
+                    'gross' => [new NotBlank(), new Type(type: 'numeric')],
+                    'net' => [new NotBlank(), new Type(type: 'numeric')],
+                    'linked' => [new Type(type: 'boolean')],
                     'listPrice' => [
                         new Optional(
-                            new Collection([
-                                'allowExtraFields' => true,
-                                'allowMissingFields' => false,
-                                'fields' => [
-                                    'gross' => [new NotBlank(), new Type(['numeric'])],
+                            new Collection(
+                                fields: [
+                                    'gross' => [new NotBlank(), new Type(type: 'numeric')],
                                     'net' => [new NotBlank(), new Type('numeric')],
-                                    'linked' => [new Type('boolean')],
+                                    'linked' => [new Type(type: 'boolean')],
                                 ],
-                            ])
+                                allowExtraFields: true,
+                                allowMissingFields: false
+                            )
                         ),
                     ],
                     'regulationPrice' => [
                         new Optional(
-                            new Collection([
-                                'allowExtraFields' => true,
-                                'allowMissingFields' => false,
-                                'fields' => [
-                                    'gross' => [new NotBlank(), new Type(['numeric'])],
+                            new Collection(
+                                fields: [
+                                    'gross' => [new NotBlank(), new Type(type: 'numeric')],
                                     'net' => [new NotBlank(), new Type('numeric')],
-                                    'linked' => [new Type('boolean')],
+                                    'linked' => [new Type(type: 'boolean')],
                                 ],
-                            ])
+                                allowExtraFields: true,
+                                allowMissingFields: false
+                            )
                         ),
                     ],
                 ],
-            ]),
+                allowExtraFields: true,
+                allowMissingFields: false
+            ),
         ];
 
         return $constraints;

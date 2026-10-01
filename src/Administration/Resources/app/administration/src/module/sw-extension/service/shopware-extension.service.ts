@@ -95,13 +95,14 @@ export default class ShopwareExtensionService {
         await this.updateModules();
     }
 
-    public async updateExtensionData(): Promise<void> {
+    public async updateExtensionData(refreshExtensions: boolean = true): Promise<void> {
         Shopware.Store.get('shopwareExtensions').loadMyExtensions();
 
         try {
-            await this.extensionStoreActionService.refresh();
+            if (!Shopware.Store.get('context').app.config?.settings?.disableExtensionManagement && refreshExtensions) {
+                await this.extensionStoreActionService.refresh();
+            }
 
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             const myExtensions = await this.extensionStoreActionService.getMyExtensions();
 
             Shopware.Store.get('shopwareExtensions').setMyExtensions(myExtensions);
@@ -125,10 +126,7 @@ export default class ShopwareExtensionService {
         const discounted = variants.filter((variant) => this.isVariantDiscounted(variant));
         const notDiscounted = variants.filter((variant) => !this.isVariantDiscounted(variant));
 
-        return [
-            ...this.orderByType(discounted),
-            ...this.orderByType(notDiscounted),
-        ];
+        return [...this.orderByType(discounted), ...this.orderByType(notDiscounted)];
     }
 
     public isVariantDiscounted(variant: ExtensionVariant): boolean {
@@ -147,7 +145,6 @@ export default class ShopwareExtensionService {
     public getPriceFromVariant(variant: ExtensionVariant) {
         if (this.isVariantDiscounted(variant)) {
             // null assertion is fine here because we do all checks in isVariantDiscounted
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             return variant.discountCampaign!.discountedPrice!;
         }
 
@@ -181,7 +178,6 @@ export default class ShopwareExtensionService {
             return null;
         }
 
-        /* eslint-disable @typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-assignment */
         const entryRoutes = Shopware.Store.get('extensionEntryRoutes').routes;
 
         if (entryRoutes[extension.name] !== undefined) {
@@ -190,7 +186,6 @@ export default class ShopwareExtensionService {
                 label: entryRoutes[extension.name].label ?? null,
             } as LabeledLocation;
         }
-        /* eslint-enable */
 
         return null;
     }
@@ -199,6 +194,7 @@ export default class ShopwareExtensionService {
         const modules = await this.appModulesService.fetchAppModules();
 
         Shopware.Store.get('shopwareApps').apps = modules;
+        Shopware.Store.get('shopwareApps').appsLoaded = true;
     }
 
     private async getLinkToTheme(extension: Extension) {

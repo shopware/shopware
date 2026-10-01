@@ -1,0 +1,33 @@
+/* Custom CSS to hide specific columns in Storybook controls table */
+
+/* Hide the Default column (typically the 3rd column) */
+.docblock-argstable th:nth-child(3),
+.docblock-argstable td:nth-child(3) {
+  display: none !important;
+  user-select: none !important;
+  pointer-events: none !important;
+}
+
+/* Alternative selectors for different Storybook versions */
+.controls-table th:nth-child(3),
+.controls-table td:nth-child(3) {
+  display: none !important;
+  user-select: none !important;
+  pointer-events: none !important;
+}
+
+/* More specific selector for the Default column */
+[data-testid="controls-table"] th:nth-child(3),
+[data-testid="controls-table"] td:nth-child(3) {
+  display: none !important;
+  user-select: none !important;
+  pointer-events: none !important;
+}
+
+/* Hide the tab buttons in the addon panel */
+button#tabbutton-storybook-actions-panel,
+button#tabbutton-storybook-interactions-panel {
+  display: none !important;
+  user-select: none !important;
+  pointer-events: none !important;
+}

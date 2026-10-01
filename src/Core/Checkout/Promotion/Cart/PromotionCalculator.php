@@ -8,16 +8,17 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupBuilder;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemQuantitySplitter;
 use Shopware\Core\Checkout\Cart\Price\AbsolutePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\AmountCalculator;
 use Shopware\Core\Checkout\Cart\Price\PercentagePriceCalculator;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\FilterableInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
+use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
@@ -33,12 +34,18 @@ use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackager;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\AdvancedPackagePicker;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\PackageFilter;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\Filter\SetGroupScopeFilter;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionDiscountUnknownConditionError;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionDiscountZeroValueError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionExcludedError;
 use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError;
 use Shopware\Core\Checkout\Promotion\Exception\DiscountCalculatorNotFoundException;
 use Shopware\Core\Checkout\Promotion\Exception\InvalidScopeDefinitionException;
 use Shopware\Core\Checkout\Promotion\PromotionException;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Container\Container;
+use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\UnknownConditionRule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -48,11 +55,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class PromotionCalculator
 {
     use PromotionCartInformationTrait;
-
-    /**
-     * @var array<string, LineItem>
-     */
-    private array $splitted = [];
 
     /**
      * @internal
@@ -85,7 +87,7 @@ class PromotionCalculator
     public function calculate(LineItemCollection $discountLineItems, Cart $original, Cart $calculated, SalesChannelContext $context, CartBehavior $behaviour): void
     {
         // sort discount line items by priority before building exclusions and calculating discounts
-        $discountLineItems->sort(function (LineItem $a, LineItem $b) {
+        $discountLineItems->sort(static function (LineItem $a, LineItem $b) {
             return $b->getPayloadValue('priority') <=> $a->getPayloadValue('priority');
         });
 
@@ -105,6 +107,11 @@ class PromotionCalculator
                 continue;
             }
 
+            // Pinned set promotions restored from an order have already been copied with their historical price.
+            if ($calculated->has($discountItem->getId())) {
+                continue;
+            }
+
             $isAutomaticDiscount = $this->isAutomaticDiscount($discountItem);
 
             // we have to verify if the line item is still valid
@@ -112,7 +119,15 @@ class PromotionCalculator
             if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
                 // hide the notEligibleErrors on automatic discounts
                 if (!$isAutomaticDiscount) {
-                    $this->addPromotionNotEligibleError($discountItem->getLabel() ?? $discountItem->getId(), $calculated);
+                    $name = $discountItem->getLabel() ?? $discountItem->getId();
+                    if ($context->getCustomer() === null && $discountItem->getPayloadValue('hasPersonaRestriction')) {
+                        $calculated->addErrors(new PromotionNotEligibleError($name, 'not-logged-in'));
+                    } else {
+                        $ruleIds = \is_array($discountItem->getPayloadValue('conditionRuleIds'))
+                            ? array_values($discountItem->getPayloadValue('conditionRuleIds'))
+                            : [];
+                        $calculated->addErrors(new PromotionNotEligibleError($name, null, $ruleIds));
+                    }
                 }
 
                 continue;
@@ -139,6 +154,17 @@ class PromotionCalculator
             // this can be if the price-definition filter is none,
             // or if a fixed price is set to the price of the product itself.
             if (abs($result->getPrice()->getTotalPrice()) === 0.0) {
+                // if the zero result is caused by a filter condition that is no longer registered
+                // (e.g. the extension providing it was uninstalled), the discount would vanish
+                // silently - add a warning so the removal is visible to the user
+                $unknownCondition = $this->getUnknownCondition($discountItem->getPriceDefinition());
+                if ($unknownCondition !== null) {
+                    $calculated->addErrors(new PromotionDiscountUnknownConditionError($discountItem, $unknownCondition->getOriginalName()));
+                } elseif (!$isAutomaticDiscount && $result->getCompositionItems() !== []) {
+                    // the discount matched line items but grants nothing for this cart
+                    $calculated->addErrors(new PromotionDiscountZeroValueError($discountItem));
+                }
+
                 continue;
             }
 
@@ -260,6 +286,10 @@ class PromotionCalculator
         // check if no result is found,
         // then this would mean -> no discount
         if ($packages->count() <= 0) {
+            if (!$this->isAutomaticDiscount($item) && $this->isRestrictedToMissingProducts($discount, $calculatedCart, $context)) {
+                $calculatedCart->addErrors(new PromotionNotEligibleError($discount->getLabel(), 'specific-products'));
+            }
+
             return new DiscountCalculatorResult(
                 new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
                 []
@@ -269,12 +299,20 @@ class PromotionCalculator
         // remember our initial package count
         $originalPackageCount = $packages->count();
 
-        foreach ($calculatedCart->getLineItems() as $item) {
-            $item->setStackable(true);
-            $this->splitted[$item->getId()] = $this->lineItemQuantitySplitter->split($item, 1, $context);
+        $shouldSplit = $discount->getScope() !== PromotionDiscountEntity::SCOPE_CART || $discount->isProductRestricted();
+        if (!Feature::isActive('PERFORMANCE_TWEAKS')) {
+            $shouldSplit = true;
         }
 
-        $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
+        $splitItems = [];
+        foreach ($calculatedCart->getLineItems() as $split) {
+            $isStackable = $split->isStackable();
+            $split->setStackable(true);
+            $splitItems[$split->getId()] = $this->lineItemQuantitySplitter->split($split, $shouldSplit ? 1 : $split->getQuantity(), $context);
+            $split->setStackable($isStackable);
+        }
+
+        $packages = $this->enrichPackagesWithCartData($packages, $splitItems);
 
         // every scope packager can have an additional
         // list of rules that can be used to filter out items.
@@ -282,18 +320,27 @@ class PromotionCalculator
         // and run it through the advanced rules if existing
         if ($discount->getScope() !== PromotionDiscountEntity::SCOPE_SETGROUP) {
             $packages = $this->advancedRules->filter($discount, $packages, $context);
+
+            if ($packages->count() === 0 && !$this->isAutomaticDiscount($item) && $this->isRestrictedToMissingProducts($discount, $calculatedCart, $context)) {
+                $calculatedCart->addErrors(new PromotionNotEligibleError($discount->getLabel(), 'specific-products'));
+
+                return new DiscountCalculatorResult(
+                    new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection(), 1),
+                    []
+                );
+            }
         }
 
         // depending on the selected picker of our
-        // discount, the packages might be restructure
+        // discount, the packages might be restructured
         // also make sure we have correct cart items in our restructured packages from the picker
         $packages = $this->advancedPicker->pickItems($discount, $packages);
-        $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
+        $packages = $this->enrichPackagesWithCartData($packages, $splitItems);
 
         // if we have any graduation settings, make sure to reduce the items
         // that are eligible for our discount by executing our graduation resolver.
         $packages = $this->advancedFilter->filterPackages($discount, $packages, $originalPackageCount);
-        $packages = $this->enrichPackagesWithCartData($packages, $calculatedCart, $context);
+        $packages = $this->enrichPackagesWithCartData($packages, $splitItems);
 
         $calculator = match ($discount->getType()) {
             PromotionDiscountEntity::TYPE_ABSOLUTE => new DiscountAbsoluteCalculator($this->absolutePriceCalculator),
@@ -366,7 +413,7 @@ class PromotionCalculator
      */
     private function isRequirementValid(LineItem $lineItem, Cart $calculated, SalesChannelContext $context): bool
     {
-        // if we dont have any requirement, then it's obviously valid
+        // if we don't have any requirement, then it's obviously valid
         if (!$lineItem->getRequirement()) {
             return true;
         }
@@ -396,28 +443,103 @@ class PromotionCalculator
     }
 
     /**
+     * @param array<string, LineItem> $splitItems
+     *
      * @throws CartException
      */
-    private function enrichPackagesWithCartData(DiscountPackageCollection $result, Cart $cart, SalesChannelContext $context): DiscountPackageCollection
+    private function enrichPackagesWithCartData(DiscountPackageCollection $result, array $splitItems): DiscountPackageCollection
     {
-        // set the line item from the cart for each unit
-        foreach ($result as $package) {
-            $cartItemsForUnit = new LineItemFlatCollection();
+        $validPackages = [];
 
-            foreach ($package->getMetaData() as $item) {
+        foreach ($result as $package) {
+            $cartItems = $package->getCartItems()->getElements();
+
+            foreach ($package->getMetaData() as $key => $item) {
+                if (\array_key_exists($key, $cartItems)) {
+                    continue;
+                }
+
                 $lineItemId = $item->getLineItemId();
 
-                $cartItemsForUnit->add($this->splitted[$lineItemId]);
+                if (!\array_key_exists($lineItemId, $splitItems)) {
+                    continue 2;
+                }
+
+                $cartItems[$key] = $splitItems[$lineItemId];
             }
 
-            $package->setCartItems($cartItemsForUnit);
+            // assign instead of add for performance reasons
+            $package->getCartItems()->assign(['elements' => $cartItems]);
+            $validPackages[] = $package;
         }
 
-        return $result;
+        return new DiscountPackageCollection($validPackages);
+    }
+
+    private function isRestrictedToMissingProducts(DiscountLineItem $discount, Cart $cart, SalesChannelContext $context): bool
+    {
+        if (!$discount->isConsiderAdvancedRules()) {
+            return false;
+        }
+
+        $priceDefinition = $discount->getPriceDefinition();
+        $filter = $priceDefinition instanceof FilterableInterface ? $priceDefinition->getFilter() : null;
+
+        if ($filter === null) {
+            return false;
+        }
+
+        $products = $cart->getLineItems()->filterType(LineItem::PRODUCT_LINE_ITEM_TYPE);
+
+        if ($products->count() === 0) {
+            return false;
+        }
+
+        foreach ($products as $product) {
+            if ($filter->match(new LineItemScope($product, $context))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function isAutomaticDiscount(LineItem $discountItem): bool
     {
-        return empty($discountItem->getPayloadValue('code'));
+        $code = $discountItem->getPayloadValue('code');
+
+        return $code === null || $code === '';
+    }
+
+    /**
+     * Returns the first unknown (no longer registered) condition inside the price definition's
+     * filter, or null if every condition is resolvable. Containers are searched recursively,
+     * because unknown conditions are substituted at leaf level on decode.
+     */
+    private function getUnknownCondition(?PriceDefinitionInterface $priceDefinition): ?UnknownConditionRule
+    {
+        if (!$priceDefinition instanceof FilterableInterface) {
+            return null;
+        }
+
+        return $this->findUnknownCondition($priceDefinition->getFilter());
+    }
+
+    private function findUnknownCondition(?Rule $rule): ?UnknownConditionRule
+    {
+        if ($rule instanceof UnknownConditionRule) {
+            return $rule;
+        }
+
+        if ($rule instanceof Container) {
+            foreach ($rule->getRules() as $nested) {
+                $unknownCondition = $this->findUnknownCondition($nested);
+                if ($unknownCondition !== null) {
+                    return $unknownCondition;
+                }
+            }
+        }
+
+        return null;
     }
 }

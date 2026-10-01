@@ -1,0 +1,27 @@
+.sw-sales-channel-detail-agentic-commerce-integration {
+    &__introduction {
+        &-title {
+            font-weight: bold;
+        }
+
+        &-description {
+            margin-bottom: 30px;
+        }
+    }
+
+    &__step-by-step {
+        margin-bottom: 30px;
+
+        &-title {
+            font-weight: bold;
+        }
+
+        &-list {
+            padding: 0 0 0 40px;
+
+            & > li {
+                padding-left: 20px;
+            }
+        }
+    }
+}

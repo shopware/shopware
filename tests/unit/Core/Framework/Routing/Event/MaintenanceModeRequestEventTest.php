@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Core\Framework\Routing\Event;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\Event\MaintenanceModeRequestEvent;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(MaintenanceModeRequestEvent::class)]
 class MaintenanceModeRequestEventTest extends TestCase
 {
@@ -40,7 +42,7 @@ class MaintenanceModeRequestEventTest extends TestCase
             true
         );
 
-        static::assertEquals(['192.168.0.1'], $event->getAllowedIps());
+        static::assertSame(['192.168.0.1'], $event->getAllowedIps());
     }
 
     public function testGetRequest(): void

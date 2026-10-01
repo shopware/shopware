@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
+use Shopware\Core\Framework\Util\Database\TableHelper;
 use Shopware\Core\Migration\V6_7\Migration1737430168RemoveFileTypeOfDocumentTable;
 
 /**
@@ -23,9 +24,34 @@ class Migration1737430168RemoveFileTypeOfDocumentTableTest extends TestCase
         $this->connection = KernelLifecycleManager::getConnection();
     }
 
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1737430168, (new Migration1737430168RemoveFileTypeOfDocumentTable())->getCreationTimestamp());
+    }
+
+    public function testUpdateSetsColumnToNullable(): void
+    {
+        $exists = TableHelper::columnExists($this->connection, 'document', 'file_type');
+
+        if (!$exists) {
+            $this->addColumn();
+        }
+
+        $migration = new Migration1737430168RemoveFileTypeOfDocumentTable();
+        $migration->update($this->connection);
+        $migration->update($this->connection);
+
+        $fileTypeColumn = TableHelper::getColumnOfTable($this->connection, 'document', 'file_type');
+        static::assertFalse($fileTypeColumn->isNotNull);
+
+        if (!$exists) {
+            $migration->updateDestructive($this->connection);
+        }
+    }
+
     public function testUpdateDestructiveRemovesColumn(): void
     {
-        $exists = $this->columnExists();
+        $exists = TableHelper::columnExists($this->connection, 'document', 'file_type');
 
         if (!$exists) {
             $this->addColumn();
@@ -35,7 +61,7 @@ class Migration1737430168RemoveFileTypeOfDocumentTableTest extends TestCase
         $migration->updateDestructive($this->connection);
         $migration->updateDestructive($this->connection);
 
-        static::assertFalse($this->columnExists());
+        static::assertFalse(TableHelper::columnExists($this->connection, 'document', 'file_type'));
 
         if ($exists) {
             $this->addColumn();
@@ -45,16 +71,7 @@ class Migration1737430168RemoveFileTypeOfDocumentTableTest extends TestCase
     private function addColumn(): void
     {
         $this->connection->executeStatement(
-            'ALTER TABLE `document` ADD COLUMN `file_type` VARCHAR(255) DEFAULT NULL'
+            'ALTER TABLE `document` ADD COLUMN `file_type` VARCHAR(255) NOT NULL'
         );
-    }
-
-    private function columnExists(): bool
-    {
-        $exists = $this->connection->fetchOne(
-            'SHOW COLUMNS FROM `document` WHERE `Field` LIKE "file_type"',
-        );
-
-        return !empty($exists);
     }
 }

@@ -14,30 +14,18 @@ const { format } = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'importExport',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'importExport', 'feature'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         type: {
             type: String,
             required: false,
             default: 'import',
-            validValues: [
-                'import',
-                'export',
-            ],
+            validValues: ['import', 'export'],
             validator(value) {
-                return [
-                    'import',
-                    'export',
-                ].includes(value);
+                return ['import', 'export'].includes(value);
             },
         },
     },
@@ -84,10 +72,7 @@ export default {
 
             if (this.type === 'import') {
                 criteria.addFilter(
-                    Criteria.multi('OR', [
-                        Criteria.equals('activity', 'import'),
-                        Criteria.equals('activity', 'dryrun'),
-                    ]),
+                    Criteria.multi('OR', [Criteria.equals('activity', 'import'), Criteria.equals('activity', 'dryrun')]),
                 );
             } else if (this.type === 'export') {
                 criteria.addFilter(Criteria.equals('activity', 'export'));
@@ -115,7 +100,7 @@ export default {
                 },
                 {
                     property: 'profileName',
-                    dataIndex: 'profile.label',
+                    dataIndex: 'profile.technicalName',
                     label: 'sw-import-export.activity.columns.profile',
                     allowResize: true,
                     primary: false,
@@ -149,13 +134,6 @@ export default {
                     property: 'file.size',
                     dataIndex: 'file.size',
                     label: 'sw-import-export.activity.columns.size',
-                    allowResize: true,
-                    primary: false,
-                },
-                {
-                    property: 'user.lastName',
-                    dataIndex: 'user.lastName',
-                    label: 'sw-import-export.activity.columns.user',
                     allowResize: true,
                     primary: false,
                 },
@@ -199,6 +177,9 @@ export default {
                 : this.$t('sw-import-export.activity.emptyState.titleImport');
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed, because the filter is unused
+         */
         dateFilter() {
             return Shopware.Filter.getByName('date');
         },
@@ -304,7 +285,7 @@ export default {
                 }
 
                 const config = {
-                    message: this.$tc(
+                    message: this.$t(
                         this.stateText?.[log.activity]?.[log.state] ?? '',
                         {
                             profile: log.profileName,

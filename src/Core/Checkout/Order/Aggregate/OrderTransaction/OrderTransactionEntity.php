@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineState\StateMachineStateEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class OrderTransactionEntity extends Entity
 {
@@ -35,6 +38,8 @@ class OrderTransactionEntity extends Entity
     protected string $stateId;
 
     protected ?OrderTransactionCaptureCollection $captures = null;
+
+    protected ?OrderEntity $primaryOrder = null;
 
     /**
      * @var array<string, mixed>
@@ -145,5 +150,15 @@ class OrderTransactionEntity extends Entity
     public function setValidationData(array $validationData): void
     {
         $this->validationData = $validationData;
+    }
+
+    public function getPrimaryOrder(): ?OrderEntity
+    {
+        return $this->primaryOrder;
+    }
+
+    public function setPrimaryOrder(?OrderEntity $primaryOrder): void
+    {
+        $this->primaryOrder = $primaryOrder;
     }
 }

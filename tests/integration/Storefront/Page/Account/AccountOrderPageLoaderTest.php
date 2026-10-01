@@ -5,9 +5,11 @@ namespace Shopware\Tests\Integration\Storefront\Page\Account;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Order\OrderCollection;
+use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -20,6 +22,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class AccountOrderPageLoaderTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -85,10 +88,13 @@ class AccountOrderPageLoaderTest extends TestCase
         $page = $this->getPageLoader()->load(
             new Request(
                 [
-                    'deepLinkCode' => $deepLinkCode,
                     'email' => $expectedCustomer->getEmail(),
                     'zipcode' => '12345',
                 ],
+                [],
+                [
+                    'deepLinkCode' => $deepLinkCode,
+                ]
             ),
             $this->salesChannel
         );
@@ -97,6 +103,41 @@ class AccountOrderPageLoaderTest extends TestCase
             $expectedCustomer->getId(),
             $page->getOrders()->getEntities()->first()?->getOrderCustomer()?->getCustomerId(),
         );
+    }
+
+    public function testLoad(): void
+    {
+        $salesChannel = $this->createSalesChannelContextWithLoggedInCustomerAndWithNavigation();
+
+        $orderId = $this->placeRandomOrder($salesChannel);
+        $order = $this->orderRepository->search(new Criteria([$orderId]), $salesChannel->getContext())->getEntities()->first();
+        static::assertInstanceOf(OrderEntity::class, $order);
+        $deepLinkCode = $order->getDeepLinkCode();
+
+        $page = $this->getPageLoader()->load(
+            new Request(
+                [
+                    'email' => $salesChannel->getCustomer()?->getEmail(),
+                    'zipcode' => '12345',
+                ],
+                [],
+                [
+                    'deepLinkCode' => $deepLinkCode,
+                ]
+            ),
+            $salesChannel
+        );
+
+        $order = $page->getOrders()->getEntities()->first();
+
+        static::assertInstanceOf(OrderEntity::class, $order);
+        static::assertNotNull($order->getPrimaryOrderDelivery());
+        static::assertNotNull($order->getPrimaryOrderTransaction());
+        static::assertNotNull($order->getPrimaryOrderTransactionId());
+        static::assertNotNull($order->getPrimaryOrderDeliveryId());
+
+        static::assertNotNull($page->getDeepLinkCode());
+        static::assertSame($deepLinkCode, $order->getDeepLinkCode());
     }
 
     protected function getPageLoader(): AccountOrderPageLoader

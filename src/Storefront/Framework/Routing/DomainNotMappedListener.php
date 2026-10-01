@@ -12,7 +12,7 @@ use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 readonly class DomainNotMappedListener
 {
     public function __construct(private ContainerInterface $container)
@@ -46,7 +46,7 @@ readonly class DomainNotMappedListener
         ];
 
         $event->setResponse(
-            new Response($this->container->get('twig')->render('@Storefront/storefront/page/error/error-domain-mapping.html.twig', $vars))
+            new Response($this->container->get('twig')->render('@Storefront/storefront/page/error/error-domain-mapping.html.twig', $vars), Response::HTTP_BAD_REQUEST)
         );
     }
 }

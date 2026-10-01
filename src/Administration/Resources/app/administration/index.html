@@ -3,16 +3,27 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Shopware administration</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon/favicon-32x32.png" id="dynamic-favicon">
+    <title>Shopware Administration</title>
+    <!-- Raster fallback for Safari < 26; must stay before the SVG link. -->
+    <link rel="icon" href="/static/img/favicon/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/svg+xml" sizes="any" href="/static/img/favicon/favicon.svg" id="dynamic-favicon">
 
     <script type="text/javascript">
         window._features_ = <%- featureFlags %>;
+
+        <%- pageLoadingScreen.script %>
     </script>
 
+    <style>
+        <%- pageLoadingScreen.style %>
+    </style>
 </head>
 <body>
     <div id="app"></div>
+
+    <!-- loading indicator when network is very slow and vue hasn't already loaded. The component has been copied from mt-loader -->
+    <%- pageLoadingScreen.markup %>
+
     <script type="text/javascript">
         window.startApplication = () => Shopware.Application.start({
             appContext: {
@@ -22,11 +33,15 @@
                 systemCurrencyISOCode: 'EUR',
                 adminEsEnable: false,
                 storefrontEsEnable: false,
+                productStreamIndexingEnabled: true,
+                analyticsGatewayUrl: '<%- analyticsGatewayUrl %>',
+                hideUpdateModule: <%- hideUpdateModule %>,
             },
             apiContext: {
                 host: 'localhost',
                 basePath: '',
-                pathInfo: '/'
+                pathInfo: '/',
+                serviceRegistryUrl: '<%- serviceRegistryUrl %>',
             }
         });
     </script>

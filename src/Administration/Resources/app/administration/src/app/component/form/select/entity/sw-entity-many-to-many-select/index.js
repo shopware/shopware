@@ -11,16 +11,15 @@ const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
+ *
+ * @deprecated tag:v6.8.0 - will be removed, use `sw-entity-multi-select` instead
  */
-Component.register('sw-entity-many-to-many-select', {
+export default {
     template,
 
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: [
         'search',
@@ -62,7 +61,6 @@ Component.register('sw-entity-many-to-many-select', {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         placeholder: {
@@ -206,7 +204,6 @@ Component.register('sw-entity-many-to-many-select', {
 
             collection.forEach((item) => {
                 if (!this.entityCollection.has(item.id)) {
-                    // eslint-disable-next-line vue/no-mutating-props
                     this.entityCollection.push(item);
                 }
             });
@@ -336,10 +333,7 @@ Component.register('sw-entity-many-to-many-select', {
 
             this.$emit('item-add', item);
 
-            this.selectedIds = [
-                ...this.selectedIds,
-                item.id,
-            ];
+            this.selectedIds = [...this.selectedIds, item.id];
 
             this.$refs.selectionList.select();
             this.$refs.selectionList.focus();
@@ -453,10 +447,7 @@ Component.register('sw-entity-many-to-many-select', {
             const addPromises = added.map((item) => {
                 this.$emit('item-add', item);
 
-                this.selectedIds = [
-                    ...this.selectedIds,
-                    item.id,
-                ];
+                this.selectedIds = [...this.selectedIds, item.id];
 
                 if (this.localMode) {
                     this.totalAssigned += 1;
@@ -484,14 +475,11 @@ Component.register('sw-entity-many-to-many-select', {
                 });
             });
 
-            Promise.all([
-                ...addPromises,
-                ...removePromises,
-            ]).then(() => {
+            Promise.all([...addPromises, ...removePromises]).then(() => {
                 this.$refs.selectionList.select();
                 this.$refs.selectionList.focus();
                 this.isLoading = false;
             });
         },
     },
-});
+};

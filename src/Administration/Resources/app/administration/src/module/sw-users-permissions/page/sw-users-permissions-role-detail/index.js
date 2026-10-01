@@ -11,17 +11,17 @@ export default {
     template,
 
     inject: [
+        'feature',
         'repositoryFactory',
         'privileges',
         'userService',
         'loginService',
         'acl',
         'appAclService',
+        'ssoSettingsService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -70,7 +70,32 @@ export default {
         },
 
         roleId() {
-            return this.$route.params.id;
+            return this.$route.params.id?.toLowerCase();
+        },
+
+        roleDetailTabs() {
+            const createRouteTab = (label, routeName) => {
+                const route = {
+                    name: routeName,
+                    params: { id: this.$route.params.id },
+                };
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    onClick: () => {
+                        void this.$router.push(route);
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-users-permissions.roles.tabs.general', 'sw.users.permissions.role.detail.general'),
+                createRouteTab(
+                    'sw-users-permissions.roles.tabs.detailed',
+                    'sw.users.permissions.role.detail.detailed-privileges',
+                ),
+            ];
         },
     },
 
@@ -101,7 +126,10 @@ export default {
                 return;
             }
 
-            this.getRole();
+            this.isLoading = true;
+            this.getRole().finally(() => {
+                this.isLoading = false;
+            });
         },
 
         createNewRole() {
@@ -112,89 +140,91 @@ export default {
             this.role.name = '';
             this.role.description = '';
             this.role.privileges = [];
+            this.detailedPrivileges = [...this.privileges.getDefaultUserPrivileges()];
 
             this.isLoading = false;
         },
 
-        getRole() {
-            this.isLoading = true;
+        async getRole() {
+            await this.appAclService.addAppPermissions();
 
-            this.appAclService.addAppPermissions().then(() => {
-                this.roleRepository
-                    .get(this.roleId)
-                    .then((role) => {
-                        this.role = role;
+            this.role = await this.roleRepository.get(this.roleId);
 
-                        const filteredPrivileges = this.privileges.filterPrivilegesRoles(this.role.privileges);
-                        const allGeneralPrivileges = this.privileges.getPrivilegesForAdminPrivilegeKeys(filteredPrivileges);
+            const filteredPrivileges = this.privileges.filterPrivilegesRoles(this.role.privileges);
+            const allGeneralPrivileges = this.privileges.getPrivilegesForAdminPrivilegeKeys(filteredPrivileges);
 
-                        this.detailedPrivileges = this.role.privileges.filter((privilege) => {
-                            return !allGeneralPrivileges.includes(privilege);
-                        });
-                        this.role.privileges = filteredPrivileges;
-                    })
-                    .finally(() => {
-                        this.isLoading = false;
-                    });
+            this.detailedPrivileges = this.role.privileges.filter((privilege) => {
+                return !allGeneralPrivileges.includes(privilege);
             });
+            this.role.privileges = filteredPrivileges;
         },
 
-        onSave() {
+        async onSave() {
+            let isSso = false;
+
+            try {
+                this.isLoading = true;
+                const response = await this.ssoSettingsService.isSso();
+
+                isSso = response.isSso;
+            } finally {
+                this.isLoading = false;
+            }
+
+            if (isSso) {
+                await this.saveRole({ ...Shopware.Context.api });
+                return;
+            }
+
             this.confirmPasswordModal = true;
         },
 
-        saveRole(context) {
+        async saveRole(context) {
             this.isSaveSuccessful = false;
             this.isLoading = true;
+            this.confirmPasswordModal = false;
 
             this.role.privileges = [
                 ...this.privileges.getPrivilegesForAdminPrivilegeKeys(this.role.privileges),
                 ...this.detailedPrivileges,
             ].sort();
 
-            this.confirmPasswordModal = false;
+            try {
+                await this.roleRepository.save(this.role, context);
+                await this.updateCurrentUser();
 
-            return this.roleRepository
-                .save(this.role, context)
-                .then(() => {
-                    return this.updateCurrentUser();
-                })
-                .then(() => {
-                    if (this.role.isNew()) {
-                        this.$router.push({
-                            name: 'sw.users.permissions.role.detail',
-                            params: { id: this.role.id },
-                        });
-                    }
-
-                    this.getRole();
-                    this.isSaveSuccessful = true;
-                })
-                .catch(() => {
-                    this.createNotificationError({
-                        message: this.$tc(
-                            'global.notification.notificationSaveErrorMessage',
-                            {
-                                entityName: this.role.name,
-                            },
-                            0,
-                        ),
+                if (this.role.isNew()) {
+                    this.$router.push({
+                        name: 'sw.users.permissions.role.detail',
+                        params: { id: this.role.id },
                     });
+                }
 
-                    this.role.privileges = this.privileges.filterPrivilegesRoles(this.role.privileges);
-                })
-                .finally(() => {
-                    this.isLoading = false;
+                await this.getRole();
+                this.isSaveSuccessful = true;
+            } catch {
+                this.createNotificationError({
+                    message: this.$t(
+                        'global.notification.notificationSaveErrorMessage',
+                        {
+                            entityName: this.role.name,
+                        },
+                        0,
+                    ),
                 });
+
+                this.role.privileges = this.privileges.filterPrivilegesRoles(this.role.privileges);
+            } finally {
+                this.isLoading = false;
+            }
         },
 
-        updateCurrentUser() {
-            return this.userService.getUser().then((response) => {
-                const data = response.data;
-                delete data.password;
+        async updateCurrentUser() {
+            const { data } = await this.userService.getUser();
 
-                return Shopware.Store.get('session').setCurrentUser(data);
-            });
+            delete data.password;
+
+            Shopware.Store.get('session').setCurrentUser(data);
         },
 
         onCloseConfirmPasswordModal() {

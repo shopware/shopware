@@ -1,80 +1,73 @@
-@import "~scss/variables";
-
 .sw-first-run-wizard-finish {
     text-align: center;
     align-self: center;
 
     &__bubble {
-        width: 72px;
-        height: 72px;
+        width: var(--scale-size-40);
+        height: var(--scale-size-40);
         border-radius: 50%;
         flex-shrink: 0;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        background-color: $color-emerald-50;
-        margin-bottom: 16px;
+        background-color: var(--color-background-positive-default);
+        margin-bottom: var(--scale-size-16);
     }
 
     &__icon {
-        color: $color-emerald-500;
+        color: var(--color-icon-positive-default);
     }
 
     .headline {
-        font-size: $font-size-m;
-        font-weight: $font-weight-semi-bold;
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary-default);
+        margin-bottom: var(--scale-size-2);
         text-align: center;
-        letter-spacing: 0.1px;
-        line-height: 25px;
     }
 
     .message {
-        font-size: $font-size-xs;
-        font-weight: normal;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        font-weight: var(--font-weight-regular);
+        color: var(--color-text-primary-default);
         text-align: center;
-        letter-spacing: 0.1px;
-        line-height: 22px;
-        margin: 20px 0;
+        margin-bottom: var(--scale-size-20) 0;
     }
 
     .headline-useful-links {
-        font-size: $font-size-m;
-        font-weight: $font-weight-semi-bold;
-        letter-spacing: 0.1px;
-        line-height: 25px;
-        margin-top: 50px;
+        font-size: var(--font-size-s);
+        line-height: var(--font-line-height-s);
+        font-weight: var(--font-weight-medium);
+        color: var(--color-text-primary-default);
         text-align: center;
+        margin-top: var(--scale-size-40);
+        margin-bottom: var(--scale-size-8);
     }
 
     .list-useful-links {
-        .external-link {
-            width: 100%;
-            display: inline-block;
-            text-decoration: none;
-            color: $color-shopware-brand-500;
-            font-size: $font-size-xs;
-            font-weight: normal;
-            letter-spacing: 0.1px;
-            line-height: 22px;
-            padding: 10px;
-            border-radius: $border-radius-default;
-
-            &:hover {
-                background-color: $color-gray-100;
-            }
-        }
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        gap: var(--scale-size-18);
     }
 
     .restart-progress {
-        transform: translate(0, 80px);
+        transform: translate(0, calc(-1 * var(--scale-size-48)));
 
         .sw-loader {
             background: none;
         }
 
         .sw-loader-info-text {
+            font-size: var(--font-size-s);
+            line-height: var(--font-line-height-s);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-text-primary-default);
+            padding-top: var(--scale-size-22);
             position: relative;
-            top: 50px;
+            top: var(--scale-size-48);
         }
     }
 }

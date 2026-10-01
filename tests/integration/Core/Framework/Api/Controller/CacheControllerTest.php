@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
-use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\MessageQueue\FullEntityIndexerMessage;
@@ -30,7 +29,6 @@ class CacheControllerTest extends TestCase
         $this->cache = static::getContainer()->get('cache.object');
     }
 
-    #[Group('slow')]
     public function testClearCacheEndpoint(): void
     {
         $this->cache = static::getContainer()->get('cache.object');
@@ -48,7 +46,7 @@ class CacheControllerTest extends TestCase
         static::assertTrue($this->cache->getItem('foo')->isHit());
         static::assertTrue($this->cache->getItem('bar')->isHit());
 
-        $this->getBrowser()->request('DELETE', '/api/_action/cache');
+        $this->getBrowser()->jsonRequest('DELETE', '/api/_action/cache');
 
         /** @var JsonResponse $response */
         $response = $this->getBrowser()->getResponse();
@@ -61,7 +59,7 @@ class CacheControllerTest extends TestCase
 
     public function testCacheInfoEndpoint(): void
     {
-        $this->getBrowser()->request('GET', '/api/_action/cache_info');
+        $this->getBrowser()->jsonRequest('GET', '/api/_action/cache_info');
 
         $response = $this->getBrowser()->getResponse();
         $content = $response->getContent();
@@ -76,12 +74,17 @@ class CacheControllerTest extends TestCase
         static::assertArrayHasKey('httpCache', $decodedContent);
         static::assertIsBool($decodedContent['httpCache']);
         static::assertArrayHasKey('cacheAdapter', $decodedContent);
-        static::assertSame('Array', $decodedContent['cacheAdapter']);
+        static::assertSame('Filesystem', $decodedContent['cacheAdapter']);
+        static::assertArrayHasKey('indexers', $decodedContent);
+        static::assertIsArray($decodedContent['indexers']);
+        static::assertArrayHasKey('category.indexer', $decodedContent['indexers']);
+        static::assertContains('category.tree', $decodedContent['indexers']['category.indexer']);
+        static::assertArrayNotHasKey('product.description_teaser.indexer', $decodedContent['indexers']);
     }
 
     public function testCacheIndexEndpoint(): void
     {
-        $this->getBrowser()->request('POST', '/api/_action/index');
+        $this->getBrowser()->jsonRequest('POST', '/api/_action/index');
 
         $response = $this->getBrowser()->getResponse();
 
@@ -94,15 +97,13 @@ class CacheControllerTest extends TestCase
         $bus = static::getContainer()->get('messenger.default_bus');
         $bus->reset();
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/index',
-            [],
-            [],
+            ['skip' => ['category.indexer']],
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
-            ],
-            json_encode(['skip' => ['category.indexer']], \JSON_THROW_ON_ERROR)
+            ]
         );
 
         $response = $this->getBrowser()->getResponse();
@@ -125,15 +126,13 @@ class CacheControllerTest extends TestCase
         $bus = static::getContainer()->get('messenger.default_bus');
         $bus->reset();
 
-        $this->getBrowser()->request(
+        $this->getBrowser()->jsonRequest(
             'POST',
             '/api/_action/index',
-            [],
-            [],
+            ['only' => ['category.indexer']],
             [
                 'HTTP_CONTENT_TYPE' => 'application/json',
             ],
-            json_encode(['only' => ['category.indexer']], \JSON_THROW_ON_ERROR)
         );
 
         $response = $this->getBrowser()->getResponse();
@@ -158,9 +157,9 @@ class CacheControllerTest extends TestCase
 
             $response = $this->getBrowser()->getResponse();
 
-            static::assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+            static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
             $decode = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
-            static::assertEquals(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $decode['errors'][0]['code'], (string) $response->getContent());
+            static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $decode['errors'][0]['code'], (string) $response->getContent());
         } finally {
             $this->resetBrowser();
         }

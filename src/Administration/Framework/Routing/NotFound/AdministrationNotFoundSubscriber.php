@@ -2,8 +2,8 @@
 
 namespace Shopware\Administration\Framework\Routing\NotFound;
 
-use Psr\Container\ContainerInterface;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;

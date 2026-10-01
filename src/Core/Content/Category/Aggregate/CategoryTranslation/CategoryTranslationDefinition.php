@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\BreadcrumbField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\CustomFields;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Choice;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
@@ -18,6 +19,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class CategoryTranslationDefinition extends EntityTranslationDefinition
 {
@@ -54,14 +58,19 @@ class CategoryTranslationDefinition extends EntityTranslationDefinition
             (new StringField('name', 'name'))->addFlags(new ApiAware(), new Required()),
             (new BreadcrumbField())->addFlags(new ApiAware(), new WriteProtected()),
             new JsonField('slot_config', 'slotConfig'),
-            (new StringField('link_type', 'linkType'))->addFlags(new ApiAware()),
+            (new StringField('link_type', 'linkType'))->addFlags(new ApiAware(), new Choice([
+                CategoryDefinition::LINK_TYPE_CATEGORY,
+                CategoryDefinition::LINK_TYPE_PRODUCT,
+                CategoryDefinition::LINK_TYPE_EXTERNAL,
+                CategoryDefinition::LINK_TYPE_LANDING_PAGE,
+            ])),
             (new IdField('internal_link', 'internalLink'))->addFlags(new ApiAware()),
             (new StringField('external_link', 'externalLink'))->addFlags(new ApiAware()),
             (new BoolField('link_new_tab', 'linkNewTab'))->addFlags(new ApiAware()),
             (new LongTextField('description', 'description'))->addFlags(new ApiAware(), new AllowHtml()),
-            (new LongTextField('meta_title', 'metaTitle'))->addFlags(new ApiAware()),
-            (new LongTextField('meta_description', 'metaDescription'))->addFlags(new ApiAware()),
-            (new LongTextField('keywords', 'keywords'))->addFlags(new ApiAware()),
+            (new StringField('meta_title', 'metaTitle'))->addFlags(new ApiAware()),
+            (new StringField('meta_description', 'metaDescription'))->addFlags(new ApiAware()),
+            (new StringField('keywords', 'keywords'))->addFlags(new ApiAware()),
             (new CustomFields())->addFlags(new ApiAware()),
         ]);
     }

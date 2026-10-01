@@ -1,3 +1,5 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning */
+
 /**
  * @sw-package buyers-experience
  */
@@ -8,14 +10,36 @@ let repositoryFactoryMock;
 let repositoryFactoryCreateMock;
 
 async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {}) {
+    const productMediaRepositoryMock = {
+        create: jest.fn(() => {
+            return {
+                _isNew: true,
+                mediaId: null,
+                position: null,
+                productId: null,
+                media: null,
+            };
+        }),
+        save: jest.fn(() => Promise.resolve()),
+        syncDeleted: jest.fn(() => Promise.resolve()),
+        search: jest.fn(() => Promise.resolve([])),
+        get: jest.fn(() => Promise.resolve({})),
+    };
+
     repositoryFactoryCreateMock = {
         search: () => Promise.resolve([]),
         save: jest.fn(() => Promise.resolve([])).mockName('repositoryFactory save'),
         get: () => Promise.resolve({}),
         syncDeleted: () => Promise.resolve({}),
+        create: jest.fn(() => ({})), // General create mock
     };
     repositoryFactoryMock = {
-        create: jest.fn(() => repositoryFactoryCreateMock),
+        create: jest.fn((entityName) => {
+            if (entityName === 'product_media') {
+                return productMediaRepositoryMock;
+            }
+            return repositoryFactoryCreateMock;
+        }),
         ...repositoryFactoryOverride,
     };
 
@@ -31,8 +55,17 @@ async function createWrapper(propsOverride = {}, repositoryFactoryOverride = {})
         },
         global: {
             provide: {
+                mediaPresignedUploadService: {
+                    prepareUpload: jest.fn(),
+                    uploadToPresignedUrl: jest.fn(),
+                    finalizeUpload: jest.fn(),
+                },
                 repositoryFactory: repositoryFactoryMock,
-                searchRankingService: {},
+                searchRankingService: {
+                    isValidTerm: (term) => {
+                        return term && term.trim().length >= 1;
+                    },
+                },
                 configService: {
                     getConfig: () =>
                         Promise.resolve({
@@ -126,10 +159,34 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
     beforeEach(() => {
         global.activeAclRoles = [];
 
+        const mockMediaEntity = {
+            id: 'media-id-123',
+            position: 1,
+            fileName: 'test-image',
+            fileExtension: 'jpg',
+            url: 'http://example.com/test-image.jpg',
+        };
+
+        const mockProductMediaEntity = {
+            id: 'product-media-assoc-id-1',
+            mediaId: mockMediaEntity.id,
+            media: mockMediaEntity,
+            position: mockMediaEntity.position,
+        };
+
+        const productMediaCollection = new Shopware.Data.EntityCollection(
+            '/product/72bfaf5d90214ce592715a9649d8760a/media',
+            'product_media',
+            Shopware.Context.api,
+            null,
+            [mockProductMediaEntity],
+        );
+
         const product = {
             id: '72bfaf5d90214ce592715a9649d8760a',
-            media: [],
+            media: productMediaCollection,
         };
+
         product.getEntityName = () => 'T-Shirt';
 
         Shopware.Store.register({
@@ -186,11 +243,6 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                 },
             },
         });
-    });
-
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should have an disabled generate variants button', async () => {
@@ -265,10 +317,26 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(deleteVariantsButton.exists()).toBeFalsy();
     });
 
-    it('should add the downloads column when the product state is equal "is-download"', async () => {
+    it('should keep the current inline edit row when another variant is double clicked before saving', async () => {
+        global.activeAclRoles = ['product.editor'];
+
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const variantGrid = wrapper.vm.$refs.variantGrid;
+
+        variantGrid.onDbClickCell(wrapper.vm.variants[0]);
+        expect(variantGrid.currentInlineEditId).toBe(1);
+
+        variantGrid.onDbClickCell(wrapper.vm.variants[1]);
+        expect(variantGrid.currentInlineEditId).toBe(1);
+    });
+
+    it('should add the downloads column when the product type is equal "digital"', async () => {
         const wrapper = await createWrapper(
             {
                 productStates: ['is-download'],
+                productType: 'digital',
             },
             {
                 create: (entity) => {
@@ -313,7 +381,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         };
 
         const wrapper = await createWrapper(
-            { productStates: ['is-download'] },
+            { productStates: ['is-download'], productType: 'digital' },
             {
                 create: () => ({
                     search: () => Promise.resolve([item]),
@@ -358,7 +426,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         };
 
         const wrapper = await createWrapper(
-            { productStates: ['is-download'] },
+            { productStates: ['is-download'], productType: 'digital' },
             {
                 create: () => ({
                     search: () => Promise.resolve([item]),
@@ -389,7 +457,7 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
             $refs: {
                 variantGrid: {
                     selection: {
-                        foo: { states: ['is-download'] },
+                        foo: { states: ['is-download'], type: 'digital' },
                     },
                 },
             },
@@ -454,6 +522,37 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         expect(criteria.queries[2].score).toBe(5000);
     });
 
+    it('buildSearchQuery ignores empty terms from leading or repeated whitespace', async () => {
+        const criteria = new Criteria();
+        const wrapper = await createWrapper();
+
+        // Regression test for issue #16838: a leading space produced an empty
+        // term, which built a `contains` filter with an empty value and made the
+        // API reject the whole query with FRAMEWORK__INVALID_FILTER_QUERY.
+        wrapper.vm.term = ' red';
+        wrapper.vm.buildSearchQuery(criteria);
+
+        // Only the non-empty term "red" yields option queries (+1 productNumber query).
+        expect(criteria.queries).toHaveLength(3);
+        criteria.queries.forEach((query) => {
+            expect(query.query.value).not.toBe('');
+        });
+        expect(criteria.queries[0].query.value).toBe('red');
+        expect(criteria.queries[1].query.value).toBe('red');
+        // The productNumber query uses the trimmed term, not the raw " red".
+        expect(criteria.queries[2].query.value).toBe('red');
+    });
+
+    it('buildSearchQuery returns an unmodified criteria for a whitespace-only term', async () => {
+        const criteria = new Criteria();
+        const wrapper = await createWrapper();
+
+        wrapper.vm.term = '   ';
+        wrapper.vm.buildSearchQuery(criteria);
+
+        expect(criteria.queries).toHaveLength(0);
+    });
+
     it('should update variant listing config of product when deleting variant', async () => {
         global.activeAclRoles = ['product.deleter'];
 
@@ -479,7 +578,10 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
         const deleteModal = wrapper.find('.sw-product-variants-overview__delete-modal');
         expect(deleteModal.exists()).toBe(true);
 
-        await wrapper.findByText('button', 'sw-product.variations.generatedListDeleteModalButtonDelete').trigger('click');
+        await deleteModal
+            .findAll('button')
+            .find((button) => button.text().trim() === 'global.default.delete')
+            .trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.productRepository.save).toHaveBeenCalledTimes(1);
@@ -525,5 +627,85 @@ describe('src/module/sw-product/component/sw-product-variants/sw-product-variant
                 }),
             ]),
         );
+    });
+
+    it('should correctly create a new product_media entity when media inheritance is removed', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const mockVariant = {
+            id: 'variant-id-1',
+            media: new Shopware.Data.EntityCollection('/product/variant-id-1/media', 'product_media', Shopware.Context.api),
+        };
+
+        const storeProductMedia = Shopware.Store.get('swProductDetail').product.media.first();
+        const mediaItemToUnInherit = storeProductMedia
+            ? storeProductMedia.media
+            : {
+                  id: 'fallback-media-id',
+                  position: 1,
+              };
+
+        const mockProductMediaRepositoryCreate = jest.fn(() => {
+            return {
+                _isNew: true,
+                mediaId: null,
+                position: null,
+                productId: null,
+                media: null,
+            };
+        });
+
+        wrapper.vm.productMediaRepository.create = mockProductMediaRepositoryCreate;
+
+        await wrapper.vm.onMediaInheritanceRemove(mockVariant, mediaItemToUnInherit);
+
+        expect(mockProductMediaRepositoryCreate).toHaveBeenCalledTimes(1);
+        expect(mockProductMediaRepositoryCreate).toHaveBeenCalledWith(Shopware.Context.api);
+
+        expect(mockVariant.media).toHaveLength(1);
+
+        const newProductMedia = mockVariant.media.at(0);
+        expect(newProductMedia).toBeDefined();
+        expect(newProductMedia.mediaId).toBe(mediaItemToUnInherit.id);
+        expect(newProductMedia.position).toBe(mediaItemToUnInherit.position);
+        expect(newProductMedia.productId).toBe('72bfaf5d90214ce592715a9649d8760a');
+
+        expect(newProductMedia.media).toEqual(mediaItemToUnInherit);
+        expect(newProductMedia._isNew).toBe(true);
+    });
+
+    it('should handle error when deleting variant fails', async () => {
+        global.activeAclRoles = ['product.deleter'];
+
+        const syncDeletedMock = jest.fn().mockRejectedValueOnce(new Error('Delete failed'));
+
+        const wrapper = await createWrapper(
+            {},
+            {
+                create: jest.fn(() => ({
+                    search: () => Promise.resolve([]),
+                    save: jest.fn(() => Promise.resolve()),
+                    get: () => Promise.resolve({}),
+                    syncDeleted: syncDeletedMock,
+                })),
+            },
+        );
+        await flushPromises();
+
+        const createNotificationErrorSpy = jest.spyOn(wrapper.vm, 'createNotificationError');
+
+        wrapper.vm.toBeDeletedVariantIds = [{ id: 'variant-1' }];
+        wrapper.vm.showDeleteModal = true;
+        wrapper.vm.modalLoading = false;
+
+        await wrapper.vm.onConfirmDelete();
+        await flushPromises();
+
+        expect(wrapper.vm.modalLoading).toBe(false);
+        expect(wrapper.vm.toBeDeletedVariantIds).toEqual([]);
+        expect(createNotificationErrorSpy).toHaveBeenCalledWith({
+            message: 'sw-product.variations.generatedListMessageDeleteError',
+        });
     });
 });

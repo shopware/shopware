@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Plugin\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
@@ -14,7 +13,10 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Validation;
 
 #[Package('framework')]
 class MakerCommand extends Command
@@ -33,35 +35,26 @@ class MakerCommand extends Command
         $this
             ->addArgument('plugin-name', InputArgument::OPTIONAL, 'Plugin name (PascalCase)');
 
-        if (!$this->generator->hasCommandOption()) {
-            return;
-        }
+        $option = $this->generator->getCommandOption();
 
-        $this->addOption(
-            $this->generator->getCommandOptionName(),
-            null,
-            null,
-            $this->generator->getCommandOptionDescription(),
-        );
+        if ($option !== null) {
+            $this->getDefinition()->addOption($option);
+        }
     }
 
     protected function interact(InputInterface $input, OutputInterface $output): void
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
 
         foreach ($this->getDefinition()->getArguments() as $argument) {
             if ($input->getArgument($argument->getName())) {
                 continue;
             }
 
-            $value = $io->ask($argument->getDescription(), null, function ($value) {
-                if ($value === null || $value === '') {
-                    // @phpstan-ignore-next-line RuntimeException is fine in console IO validators
-                    throw new \RuntimeException('This value should not be blank');
-                }
+            $question = new Question($argument->getDescription());
+            $question->setValidator(Validation::createCallable(new NotBlank()));
 
-                return $value;
-            });
+            $value = $io->askQuestion($question);
 
             $input->setArgument($argument->getName(), $value);
         }
@@ -102,7 +95,7 @@ class MakerCommand extends Command
 
             $this->generator->addScaffoldConfig($configuration, $input, $io);
 
-            $stubCollection = $this->scaffoldingCollector->collect($configuration);
+            $stubCollection = $this->scaffoldingCollector->collect($configuration, $this->generator);
 
             $this->scaffoldingWriter->write($stubCollection, $configuration);
 

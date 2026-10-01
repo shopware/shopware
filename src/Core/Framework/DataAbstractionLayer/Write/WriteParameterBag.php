@@ -18,13 +18,21 @@ class WriteParameterBag
     private ?string $currentWriteLanguageId = null;
 
     public function __construct(
-        /** Defines the entity definition where the field placed in */
+        /**
+         * Defines the entity definition where the field placed in
+         */
         private readonly EntityDefinition $definition,
-        /** Contains the write context instance of the current write process */
+        /**
+         * Contains the write context instance of the current write process
+         */
         private readonly WriteContext $context,
-        /** Contains the current property path for the proccessed field e.g product/{id}/name */
+        /**
+         * Contains the current property path for the proccessed field e.g product/{id}/name
+         */
         private string $path,
-        /** Contains all already applied write commands of the current write process */
+        /**
+         * Contains all already applied write commands of the current write process
+         */
         private readonly WriteCommandQueue $commandQueue,
         private PrimaryKeyBag $primaryKeyBag = new PrimaryKeyBag()
     ) {

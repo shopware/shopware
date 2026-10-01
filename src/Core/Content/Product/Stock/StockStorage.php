@@ -46,13 +46,13 @@ class StockStorage extends AbstractStockStorage
             return;
         }
 
-        if (\count($changes) === 0) {
+        if ($changes === []) {
             return;
         }
 
         $sql = <<<'SQL'
             UPDATE product
-            SET stock = stock + :quantity, sales = sales - :quantity, available_stock = stock
+            SET stock = stock + :quantity, sales = sales - :quantity, available_stock = stock, updated_at = NOW()
             WHERE id = :id AND version_id = :version
         SQL;
 
@@ -93,7 +93,7 @@ class StockStorage extends AbstractStockStorage
     {
         $ids = array_filter(array_unique($ids));
 
-        if (empty($ids)) {
+        if ($ids === []) {
             return;
         }
 
@@ -109,7 +109,8 @@ class StockStorage extends AbstractStockStorage
                 COALESCE(product.is_closeout, parent.is_closeout, 0) * product.stock
                 >=
                 COALESCE(product.is_closeout, parent.is_closeout, 0) * IFNULL(product.min_purchase, parent.min_purchase)
-            ), 0)
+            ), 0),
+                product.updated_at = NOW()
             WHERE product.id IN (:ids)
             AND product.version_id = :version
         ';
@@ -141,7 +142,7 @@ class StockStorage extends AbstractStockStorage
             }
         }
 
-        if (!empty($updated)) {
+        if ($updated !== []) {
             $this->dispatcher->dispatch(new ProductNoLongerAvailableEvent($updated, $context));
         }
     }

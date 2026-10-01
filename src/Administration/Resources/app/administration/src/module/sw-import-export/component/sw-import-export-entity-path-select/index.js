@@ -22,12 +22,9 @@ export default {
         'search',
     ],
 
-    mixins: [
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('remove-api-error')],
 
     props: {
-        // eslint-disable-next-line vue/require-prop-types
         value: {
             required: true,
         },
@@ -43,7 +40,6 @@ export default {
         highlightSearchTerm: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
         placeholder: {
@@ -123,11 +119,7 @@ export default {
                 'listPrice.gross',
                 'listPrice.linked',
             ],
-            visibilityProperties: [
-                'all',
-                'link',
-                'search',
-            ],
+            visibilityProperties: ['all', 'link', 'search'],
             notMappedItem: {
                 label: this.$t('sw-import-export.profile.mapping.notMapped'),
                 relation: undefined,
@@ -160,9 +152,7 @@ export default {
         },
 
         resultListClasses() {
-            return [
-                'sw-import-export-entity-path-select__result-list',
-            ];
+            return ['sw-import-export-entity-path-select__result-list'];
         },
 
         singleSelection: {
@@ -369,15 +359,7 @@ export default {
                 return [];
             }
 
-            let definition;
-            if (isCustomField) {
-                definition = {
-                    properties: this.getCustomFields(this.currentEntity || this.entityType),
-                };
-            } else {
-                definition = Shopware.EntityDefinition.get(this.currentEntity);
-            }
-
+            const definition = this.getDefinition(isCustomField);
             const unprocessedValues = {
                 definition: definition,
                 options: [],
@@ -422,6 +404,57 @@ export default {
     },
 
     methods: {
+        getDefinition(isCustomField) {
+            if (isCustomField) {
+                return {
+                    properties: this.getCustomFields(this.currentEntity || this.entityType),
+                };
+            }
+
+            // if entity is read or write protected, do not provide any property
+            const definition = Shopware.EntityDefinition.get(this.currentEntity);
+            if (definition.readProtected || definition.writeProtected) {
+                return {
+                    properties: {},
+                };
+            }
+
+            // Filter out properties which are not AdminApiSourceAware
+            return {
+                properties: definition.filterProperties(this.propertyFilter),
+            };
+        },
+
+        propertyFilter(property) {
+            const readProtectedLength = property?.flags?.read_protected?.length || 0;
+
+            // if associated entity is read or write protected, do not provide as property
+            if (property.type === 'association') {
+                const subEntity = Shopware.EntityDefinition.get(property.entity);
+                if (subEntity && (subEntity.readProtected || subEntity.writeProtected)) {
+                    return false;
+                }
+            }
+
+            if (readProtectedLength === 0) {
+                return false;
+            }
+
+            if (!property?.flags?.read_protected?.[0]?.some((key) => key.endsWith('AdminApiSource'))) {
+                return false;
+            }
+
+            /**
+             * Allow read-only properties to be selectable.
+             * These properties are safe for export profiles.
+             */
+            return true;
+
+            // const writeProtectedLength = property?.flags?.write_protected?.length || 0;
+
+            // return writeProtectedLength === 0;
+        },
+
         isSelected(item) {
             return this.getKey(item, this.valueProperty) === this.value;
         },
@@ -527,10 +560,7 @@ export default {
             const translationDefinition = Shopware.EntityDefinition.get(translationProperty.entity);
             const translationProperties = Object.keys(translationDefinition.properties);
 
-            const newOptions = [
-                ...options,
-                ...this.getTranslationProperties(path, translationProperties),
-            ];
+            const newOptions = [...options, ...this.getTranslationProperties(path, translationProperties)];
 
             // Remove translation property and translatable properties
             const filteredProperties = properties.filter((propertyName) => {
@@ -577,10 +607,7 @@ export default {
                 return { properties, options, definition, path };
             }
 
-            const newOptions = [
-                ...options,
-                ...this.getPriceProperties(path),
-            ];
+            const newOptions = [...options, ...this.getPriceProperties(path)];
 
             // Remove visibility property
             const filteredProperties = properties.filter((propertyName) => {
@@ -596,10 +623,7 @@ export default {
         },
 
         getPriceProperties(path) {
-            return [
-                ...this.generatePriceProperties('price', path),
-                ...this.generatePriceProperties('purchasePrices', path),
-            ];
+            return [...this.generatePriceProperties('price', path), ...this.generatePriceProperties('purchasePrices', path)];
         },
 
         generatePriceProperties(priceType, path) {
@@ -622,10 +646,7 @@ export default {
                 return { definition, options, properties, path };
             }
 
-            const newOptions = [
-                ...options,
-                ...this.generateLineItemProperties(path),
-            ];
+            const newOptions = [...options, ...this.generateLineItemProperties(path)];
             const filteredProperties = properties.filter((propertyName) => {
                 return propertyName !== 'lineItems';
             });
@@ -654,10 +675,7 @@ export default {
             const transactionDefinition = Shopware.EntityDefinition.get(transactionsProperty.entity);
             const transactionProperties = Object.keys(transactionDefinition.properties);
 
-            const newOptions = [
-                ...options,
-                ...this.generateTransactionsProperties(path, transactionProperties),
-            ];
+            const newOptions = [...options, ...this.generateTransactionsProperties(path, transactionProperties)];
             const filteredProperties = properties.filter((propertyName) => {
                 return propertyName !== 'transactions';
             });
@@ -689,10 +707,7 @@ export default {
             const deliveryDefinition = Shopware.EntityDefinition.get(deliveryProperty.entity);
             const deliveryProperties = Object.keys(deliveryDefinition.properties);
 
-            const newOptions = [
-                ...options,
-                ...this.generateDeliveryProperties(path, deliveryProperties),
-            ];
+            const newOptions = [...options, ...this.generateDeliveryProperties(path, deliveryProperties)];
             const filteredProperties = properties.filter((propertyName) => {
                 return propertyName !== 'deliveries';
             });
@@ -742,10 +757,7 @@ export default {
                 return { properties, options, definition, path };
             }
 
-            const newOptions = [
-                ...options,
-                ...this.getVisibilityProperties(path),
-            ];
+            const newOptions = [...options, ...this.getVisibilityProperties(path)];
 
             // Remove visibility property
             const filteredProperties = properties.filter((propertyName) => {
@@ -776,10 +788,7 @@ export default {
                 return { properties, options, definition, path };
             }
 
-            const newOptions = [
-                ...options,
-                ...this.getMediaProperties(path),
-            ];
+            const newOptions = [...options, ...this.getMediaProperties(path)];
 
             // Remove media property
             const filteredProperties = properties.filter((propertyName) => {
@@ -807,10 +816,7 @@ export default {
                 return { properties, options, definition, path };
             }
 
-            const newOptions = [
-                ...options,
-                ...this.getAssignedProductsProperties(path),
-            ];
+            const newOptions = [...options, ...this.getAssignedProductsProperties(path)];
 
             // Remove assignedProducts property
             const filteredProperties = properties.filter((propertyName) => {
@@ -838,10 +844,7 @@ export default {
                 return { properties, options, definition, path };
             }
 
-            const newOptions = [
-                ...options,
-                ...this.getCategoryProperties(path),
-            ];
+            const newOptions = [...options, ...this.getCategoryProperties(path)];
 
             // Remove media property
             const filteredProperties = properties.filter((propertyName) => {

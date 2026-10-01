@@ -2,7 +2,10 @@
 
 namespace Shopware\Storefront\Theme\Command;
 
+use Psr\Clock\ClockInterface;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider;
 use Shopware\Storefront\Theme\ThemeService;
@@ -13,11 +16,11 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[Package('discovery')]
 #[AsCommand(
     name: 'theme:compile',
     description: 'Compile the theme',
 )]
-#[Package('framework')]
 class ThemeCompileCommand extends Command
 {
     private SymfonyStyle $io;
@@ -27,7 +30,8 @@ class ThemeCompileCommand extends Command
      */
     public function __construct(
         private readonly ThemeService $themeService,
-        private readonly AbstractAvailableThemeProvider $themeProvider
+        private readonly AbstractAvailableThemeProvider $themeProvider,
+        private readonly ClockInterface $clock
     ) {
         parent::__construct();
     }
@@ -42,12 +46,22 @@ class ThemeCompileCommand extends Command
             ->addOption('only-themes', 'O', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Compile only themes for given theme ids')
             ->addOption('skip-themes', 'S', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Skip compiling themes for given theme ids')
             ->addOption('sync', null, InputOption::VALUE_NONE, 'Compile the theme synchronously')
+            /** @deprecated tag:v6.8.0 - option will be removed, the cleanup runs via the theme.delete_files scheduled task */
+            ->addOption('no-cleanup', null, InputOption::VALUE_NONE, '[DEPRECATED] Has no effect, unused theme directories are removed by the theme.delete_files scheduled task')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new SymfonyStyle($input, $output);
+
+        if ($input->getOption('no-cleanup')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--no-cleanup" option of the "theme:compile" command is deprecated and will be removed in v6.8.0.0. The command no longer deletes unused theme directories, the "theme.delete_files" scheduled task does.'
+            );
+        }
+
         $context = Context::createCLIContext();
         if ($input->getOption('sync')) {
             $context->addState(ThemeService::STATE_NO_QUEUE);
@@ -58,7 +72,7 @@ class ThemeCompileCommand extends Command
         $onlySalesChannel = ((array) $input->getOption('only')) ?: null;
         $skipSalesChannel = ((array) $input->getOption('skip')) ?: null;
         if ($onlySalesChannel !== null && $skipSalesChannel !== null
-            && \count(array_intersect($onlySalesChannel, $skipSalesChannel)) > 0) {
+            && array_intersect($onlySalesChannel, $skipSalesChannel) !== []) {
             $this->io->error('The sales channel includes and skips contain contradicting entries:' . implode(
                 ', ',
                 array_intersect($onlySalesChannel, $skipSalesChannel)
@@ -70,7 +84,7 @@ class ThemeCompileCommand extends Command
         $onlyThemes = ((array) $input->getOption('only-themes')) ?: null;
         $skipThemes = ((array) $input->getOption('skip-themes')) ?: null;
         if ($onlyThemes !== null && $skipThemes !== null
-            && \count(array_intersect($onlyThemes, $skipThemes)) > 0) {
+            && array_intersect($onlyThemes, $skipThemes) !== []) {
             $this->io->error('The theme includes and skips contain contradicting entries:' . implode(
                 ', ',
                 array_intersect($onlyThemes, $skipThemes)
@@ -89,9 +103,9 @@ class ThemeCompileCommand extends Command
 
             $this->io->block(\sprintf('Compiling theme for sales channel for : %s', $salesChannelId));
 
-            $start = microtime(true);
+            $start = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
             $this->themeService->compileTheme($salesChannelId, $themeId, $context, null, !$input->getOption('keep-assets'));
-            $this->io->note(\sprintf('Took %f seconds', microtime(true) - $start));
+            $this->io->note(\sprintf('Took %F seconds', (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $start));
         }
 
         return self::SUCCESS;

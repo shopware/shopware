@@ -10,11 +10,15 @@ use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\CustomEntity\CustomEntityException;
+use Shopware\Core\System\CustomEntity\Schema\CustomEntityNameValidator;
 use Shopware\Core\System\CustomEntity\Schema\SchemaUpdater;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SchemaUpdater::class)]
 class SchemaUpdaterTest extends TestCase
 {
@@ -26,7 +30,7 @@ class SchemaUpdaterTest extends TestCase
         ];
         $schema = new Schema();
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, [$entity]);
 
         $this->assertColumns($schema, 'custom_entity_empty_entity', ['id', 'created_at', 'updated_at']);
@@ -40,10 +44,22 @@ class SchemaUpdaterTest extends TestCase
         ];
         $schema = new Schema();
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, [$entity]);
 
         $this->assertColumns($schema, 'ce_empty_entity', ['id', 'created_at', 'updated_at']);
+    }
+
+    public function testInvalidNamesAreRejectedThroughTheNameValidator(): void
+    {
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
+
+        $this->expectExceptionObject(CustomEntityException::invalidFieldName('ce_poc', 'foo bar'));
+
+        $updater->applyCustomEntities(new Schema(), [[
+            'name' => 'ce_poc',
+            'fields' => \json_encode([['name' => 'foo bar', 'type' => 'int', 'storeApiAware' => true]], \JSON_THROW_ON_ERROR),
+        ]]);
     }
 
     public function testExtendingExistingTables(): void
@@ -60,13 +76,12 @@ class SchemaUpdaterTest extends TestCase
             'fields' => '[{"name":"product","reference":"product","onDelete":"set-null","inherited":true,"type":"one-to-one"}]',
         ];
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, [$customEntity]);
 
         $this->assertColumns($schema, 'product', ['customentityextensionproduct']);
 
-        $productTable = $schema->getTable('product');
-        $columnComment = $productTable->getColumn('customentityextensionproduct')->getComment();
+        $columnComment = $schema->getTable('product')->getColumn('customentityextensionproduct')->getComment();
         static::assertSame('custom-entity-element', $columnComment);
     }
 
@@ -92,7 +107,7 @@ class SchemaUpdaterTest extends TestCase
             new Table('language', [new Column('id', Type::getType(Types::BINARY))]),
         ]);
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, $entities);
 
         $this->assertColumns($schema, 'custom_entity_blog', ['id', 'top_seller_id', 'author_id', 'created_at', 'updated_at', 'position', 'rating']);
@@ -108,7 +123,7 @@ class SchemaUpdaterTest extends TestCase
     {
         $schema = new Schema();
 
-        $updater = new SchemaUpdater();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
         $updater->applyCustomEntities($schema, $entities);
 
         foreach ($expectedSchema as $tableName => $columns) {
@@ -187,6 +202,145 @@ class SchemaUpdaterTest extends TestCase
     }
 
     /**
+     * @param list<array{name: string, fields: string}> $entities
+     * @param array<string, list<string>> $notExpectedSchema
+     * @param list<string> $expectedNonExistTableNames
+     */
+    #[DataProvider('associationWithIgnoreMissingReferencePairsProvider')]
+    public function testAssociationsWithIgnoreMissingReference(array $entities, array $notExpectedSchema, array $expectedNonExistTableNames): void
+    {
+        $schema = new Schema();
+
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
+        $updater->applyCustomEntities($schema, $entities);
+
+        foreach ($expectedNonExistTableNames as $nonExistTableName) {
+            // the reference table should not be created if the ignoreMissingReference attribute is true
+            static::assertFalse($schema->hasTable($nonExistTableName), \sprintf('Table %s do exists, but it should not be created', $nonExistTableName));
+        }
+
+        foreach ($notExpectedSchema as $tableName => $columns) {
+            static::assertTrue($schema->hasTable($tableName), \sprintf('Table %s do not exists', $tableName));
+
+            $table = $schema->getTable($tableName);
+
+            foreach ($columns as $column) {
+                static::assertFalse(
+                    $table->hasColumn($column),
+                    \sprintf('Column %s found in table %s: %s', $column, $table->getObjectName()->toString(), \print_r($table->getColumns(), true))
+                );
+            }
+        }
+    }
+
+    public static function associationWithIgnoreMissingReferencePairsProvider(): \Generator
+    {
+        yield 'testOneToOneWithIgnoreMissingReference' => [
+            'entities' => [
+                [
+                    'name' => 'custom_entity_left',
+                    'fields' => '[{"name":"right","reference":"custom_entity_right","onDelete":"set-null","type":"one-to-one","ignoreMissingReference":true}]',
+                ],
+            ],
+            'notExpectedSchema' => [
+                'custom_entity_left' => ['right_id'],
+            ],
+            'expectedNonExistTableNames' => ['custom_entity_right'],
+        ];
+
+        yield 'testOneToManyWithIgnoreMissingReference' => [
+            'entities' => [
+                [
+                    'name' => 'custom_entity_left',
+                    'fields' => '[{"name":"right","reference":"custom_entity_right","onDelete":"set-null","type":"one-to-many","ignoreMissingReference":true}]',
+                ],
+            ],
+            'notExpectedSchema' => [
+                'custom_entity_left' => [], // no reference table, so no reference table columns should be added
+            ],
+            'expectedNonExistTableNames' => ['custom_entity_right'],
+        ];
+
+        yield 'testManyToOneWithIgnoreMissingReference' => [
+            'entities' => [
+                [
+                    'name' => 'custom_entity_left',
+                    'fields' => '[{"name":"right","reference":"custom_entity_right","onDelete":"set-null","type":"many-to-one","ignoreMissingReference":true}]',
+                ],
+            ],
+            'notExpectedSchema' => [
+                'custom_entity_left' => ['right_id'],
+            ],
+            'expectedNonExistTableNames' => ['custom_entity_right'],
+        ];
+
+        yield 'testManyToManyWithIgnoreMissingReference' => [
+            'entities' => [
+                [
+                    'name' => 'custom_entity_left',
+                    'fields' => '[{"name":"right","reference":"custom_entity_right","onDelete":"set-null","type":"many-to-many","ignoreMissingReference":true}]',
+                ],
+            ],
+            'notExpectedSchema' => [
+                'custom_entity_left' => [], // no reference table, so no reference table columns should be added
+            ],
+            'expectedNonExistTableNames' => ['custom_entity_right', 'custom_entity_left_rights'],
+        ];
+    }
+
+    /**
+     * @param list<array{name: string, fields: string}> $entities
+     */
+    #[DataProvider('associationWithoutIgnoreMissingReferenceProvider')]
+    public function testAssociationWithoutIgnoreMissingReference(array $entities): void
+    {
+        $schema = new Schema();
+        $updater = new SchemaUpdater(new CustomEntityNameValidator());
+        $this->expectException(CustomEntityException::class);
+        $this->expectExceptionMessageMatches('/Association reference table "custom_entity_right" not found/');
+        $updater->applyCustomEntities($schema, $entities);
+    }
+
+    public static function associationWithoutIgnoreMissingReferenceProvider(): \Generator
+    {
+        yield 'testOneToManyWithoutIgnoreMissingReference' => [
+            'entities' => [
+                [
+                    'name' => 'custom_entity_left',
+                    'fields' => '[{"name":"right","reference":"custom_entity_right","onDelete":"set-null","type":"one-to-many"}]',
+                ],
+            ],
+        ];
+
+        yield 'testManyToManyWithoutIgnoreMissingReference' => [
+            'entities' => [
+                [
+                    'name' => 'custom_entity_left',
+                    'fields' => '[{"name":"right","reference":"custom_entity_right","onDelete":"set-null","type":"many-to-many"}]',
+                ],
+            ],
+        ];
+
+        yield 'testManyToOneWithoutIgnoreMissingReference' => [
+            'entities' => [
+                [
+                    'name' => 'custom_entity_left',
+                    'fields' => '[{"name":"right","reference":"custom_entity_right","onDelete":"set-null","type":"many-to-one"}]',
+                ],
+            ],
+        ];
+
+        yield 'testOneToOneWithoutIgnoreMissingReference' => [
+            'entities' => [
+                [
+                    'name' => 'custom_entity_left',
+                    'fields' => '[{"name":"right","reference":"custom_entity_right","onDelete":"set-null","type":"one-to-one"}]',
+                ],
+            ],
+        ];
+    }
+
+    /**
      * @param list<string> $columns
      */
     private function assertColumns(Schema $schema, string $table, array $columns): void
@@ -196,10 +350,9 @@ class SchemaUpdaterTest extends TestCase
         $table = $schema->getTable($table);
 
         foreach ($columns as $column) {
-            // strtolower required for assertContains
             static::assertTrue(
                 $table->hasColumn($column),
-                \sprintf('Column %s not found in table %s: %s', $column, $table->getName(), \print_r($table->getColumns(), true))
+                \sprintf('Column %s not found in table %s: %s', $column, $table->getObjectName()->toString(), \print_r($table->getColumns(), true))
             );
         }
     }

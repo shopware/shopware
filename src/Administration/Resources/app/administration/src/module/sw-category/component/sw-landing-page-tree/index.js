@@ -3,6 +3,11 @@ import './sw-landing-page-tree.scss';
 
 const { Criteria } = Shopware.Data;
 
+// shopware.api.max_limit caps every Admin API request, rejecting anything higher instead of clamping.
+// It is configurable but defaults to 500, which the Administration hardcodes everywhere; stay consistent
+// with that until the value is exposed to the client.
+const PAGE_SIZE = 500;
+
 /**
  * @sw-package discovery
  */
@@ -10,20 +15,11 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'syncService',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'syncService', 'acl'],
 
-    emits: [
-        'landing-page-checked-elements-count',
-        'unsaved-changes',
-    ],
+    emits: ['landing-page-checked-elements-count', 'unsaved-changes'],
 
-    mixins: [
-        'notification',
-    ],
+    mixins: ['notification'],
 
     props: {
         landingPageId: {
@@ -40,21 +36,18 @@ export default {
         allowEdit: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         allowCreate: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         allowDelete: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
     },
@@ -65,6 +58,9 @@ export default {
             translationContext: 'sw-landing-page',
             linkContext: 'sw.category.landingPageDetail',
             isLoadingInitialData: true,
+            isLoadingMore: false,
+            page: 1,
+            total: 0,
         };
     },
 
@@ -74,8 +70,10 @@ export default {
         },
 
         cmsLandingPageCriteria() {
-            const criteria = new Criteria(1, 500);
+            const criteria = new Criteria(this.page, PAGE_SIZE);
             criteria.addSorting(Criteria.sort('name'));
+            // Names are not unique, so paging without a stable tiebreaker can skip or repeat entries.
+            criteria.addSorting(Criteria.sort('id'));
 
             return criteria;
         },
@@ -92,6 +90,10 @@ export default {
             return Object.values(this.loadedLandingPages);
         },
 
+        hasMoreLandingPages() {
+            return this.landingPages.length < this.total;
+        },
+
         disableContextMenu() {
             if (!this.allowEdit) {
                 return true;
@@ -102,7 +104,7 @@ export default {
 
         contextMenuTooltipText() {
             if (!this.allowEdit) {
-                return this.$tc('sw-privileges.tooltip.warning');
+                return this.$t('sw-privileges.tooltip.warning');
             }
 
             return null;
@@ -142,7 +144,7 @@ export default {
 
         currentLanguageId() {
             this.isLoadingInitialData = true;
-            this.loadedLandingPages = {};
+            this.resetLandingPages();
 
             this.loadLandingPages().finally(() => {
                 this.isLoadingInitialData = false;
@@ -159,7 +161,7 @@ export default {
             this.loadLandingPages()
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                     });
                 })
                 .finally(() => {
@@ -169,8 +171,55 @@ export default {
 
         loadLandingPages() {
             return this.landingPageRepository.search(this.cmsLandingPageCriteria).then((result) => {
+                this.total = result.total ?? result.length;
                 this.addLandingPages(result);
             });
+        },
+
+        loadMoreLandingPages() {
+            this.isLoadingMore = true;
+            this.page += 1;
+
+            return this.loadLandingPages()
+                .catch(() => {
+                    this.page -= 1;
+
+                    this.createNotificationError({
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
+                    });
+                })
+                .finally(() => {
+                    this.isLoadingMore = false;
+                });
+        },
+
+        resetLandingPages() {
+            this.page = 1;
+            this.total = 0;
+            this.loadedLandingPages = {};
+        },
+
+        // Offsets shift as soon as entries are added, removed or renamed, so every page that was
+        // already loaded has to be fetched again to stay in sync with the server ordering.
+        async reloadLandingPages() {
+            const loadedPages = this.page;
+            const reloaded = {};
+            let total = 0;
+
+            for (let page = 1; page <= loadedPages; page += 1) {
+                this.page = page;
+
+                const result = await this.landingPageRepository.search(this.cmsLandingPageCriteria);
+
+                total = result.total ?? result.length;
+                result.forEach((landingPage) => {
+                    reloaded[landingPage.id] = landingPage;
+                });
+            }
+
+            // Swapped in one go: emptying the map first would flash an empty tree on every mutation.
+            this.total = total;
+            this.loadedLandingPages = reloaded;
         },
 
         checkedElementsCount(count) {
@@ -179,8 +228,11 @@ export default {
 
         deleteCheckedItems(checkedItems) {
             const ids = Object.keys(checkedItems);
-            this.landingPageRepository.syncDeleted(ids).then(() => {
+
+            return this.landingPageRepository.syncDeleted(ids).then(() => {
                 ids.forEach((id) => this.removeFromStore(id));
+
+                return this.reloadLandingPages();
             });
         },
 
@@ -196,6 +248,8 @@ export default {
                 if (landingPage.id === this.landingPageId) {
                     this.$router.push({ name: 'sw.category.index' });
                 }
+
+                return this.reloadLandingPages();
             });
         },
 
@@ -216,8 +270,8 @@ export default {
             const behavior = {
                 cloneChildren: false,
                 overwrites: {
-                    name: `${contextItem.data.name} ${this.$tc('global.default.copy')}`,
-                    url: `${contextItem.data.url}-${this.$tc('global.default.copy')}`,
+                    name: `${contextItem.data.name} ${this.$t('global.default.copy')}`,
+                    url: `${contextItem.data.url}-${this.$t('global.default.copy')}`,
                     active: false,
                 },
             };
@@ -225,20 +279,23 @@ export default {
             this.landingPageRepository
                 .clone(contextItem.id, behavior, Shopware.Context.api)
                 .then((clone) => {
-                    const criteria = new Criteria(1, 25);
-                    criteria.setIds([clone.id]);
-                    this.landingPageRepository.search(criteria).then((landingPages) => {
-                        landingPages.forEach((element) => {
-                            element.childCount = 0;
-                            element.parentId = null;
-                        });
+                    return this.reloadLandingPages().then(() => {
+                        const criteria = new Criteria(1, 25);
+                        criteria.setIds([clone.id]);
 
-                        this.addLandingPages(landingPages);
+                        return this.landingPageRepository.search(criteria).then((landingPages) => {
+                            landingPages.forEach((element) => {
+                                element.childCount = 0;
+                                element.parentId = null;
+                            });
+
+                            this.addLandingPages(landingPages);
+                        });
                     });
                 })
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$tc('global.notification.unspecifiedSaveErrorMessage'),
+                        message: this.$t('global.notification.unspecifiedSaveErrorMessage'),
                     });
                 });
         },
@@ -250,7 +307,9 @@ export default {
         },
 
         syncLandingPages() {
-            return this.landingPageRepository.sync(this.landingPages);
+            return this.landingPageRepository.sync(this.landingPages).then(() => {
+                return this.reloadLandingPages();
+            });
         },
 
         createNewLandingPage(name) {
@@ -261,10 +320,13 @@ export default {
 
             newLandingPage.save = () => {
                 return this.landingPageRepository.save(newLandingPage).then(() => {
-                    const criteria = new Criteria(1, 25);
-                    criteria.setIds([newLandingPage.id].filter((id) => id !== null));
-                    this.landingPageRepository.search(criteria).then((landingPages) => {
-                        this.addLandingPages(landingPages);
+                    return this.reloadLandingPages().then(() => {
+                        const criteria = new Criteria(1, 25);
+                        criteria.setIds([newLandingPage.id].filter((id) => id !== null));
+
+                        return this.landingPageRepository.search(criteria).then((landingPages) => {
+                            this.addLandingPages(landingPages);
+                        });
                     });
                 });
             };
@@ -290,16 +352,10 @@ export default {
 
             const existingLandingPageEntries = Object.entries(this.loadedLandingPages || {});
             const newLandingPageEntries = landingPages.map((landingPage) => {
-                return [
-                    landingPage.id,
-                    landingPage,
-                ];
+                return [landingPage.id, landingPage];
             });
 
-            this.loadedLandingPages = Object.fromEntries([
-                ...existingLandingPageEntries,
-                ...newLandingPageEntries,
-            ]);
+            this.loadedLandingPages = Object.fromEntries([...existingLandingPageEntries, ...newLandingPageEntries]);
         },
 
         removeFromStore(id) {

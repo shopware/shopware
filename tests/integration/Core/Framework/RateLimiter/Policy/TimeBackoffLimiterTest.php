@@ -2,17 +2,17 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\RateLimiter\Policy;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoff;
-use Shopware\Core\Framework\RateLimiter\Policy\TimeBackoffLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\RateLimiter\Exception\ReserveNotSupportedException;
 use Symfony\Component\RateLimiter\LimiterInterface;
@@ -22,7 +22,7 @@ use Symfony\Component\RateLimiter\Util\TimeUtil;
 /**
  * @internal
  */
-#[CoversClass(TimeBackoffLimiter::class)]
+#[Package('framework')]
 class TimeBackoffLimiterTest extends TestCase
 {
     use CustomerTestTrait;
@@ -66,8 +66,9 @@ class TimeBackoffLimiterTest extends TestCase
         $factory = new RateLimiterFactory(
             $this->config,
             new CacheStorage(new ArrayAdapter()),
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(LockFactory::class)
+            static::createStub(SystemConfigService::class),
+            new NativeClock(),
+            static::createStub(LockFactory::class),
         );
 
         $this->limiter = $factory->create('example');
@@ -98,8 +99,7 @@ class TimeBackoffLimiterTest extends TestCase
             static::assertTrue($limit->isAccepted());
         }
 
-        static::expectException(\InvalidArgumentException::class);
-        static::expectExceptionMessage(\sprintf('Cannot reserve more tokens (%d) than the size of the rate limiter (%d)', $consume, $maxLimit));
+        $this->expectExceptionObject(new \InvalidArgumentException(\sprintf('Cannot reserve more tokens (%d) than the size of the rate limiter (%d).', $consume, $maxLimit)));
         $this->limiter->consume($consume);
     }
 
@@ -113,19 +113,19 @@ class TimeBackoffLimiterTest extends TestCase
     {
         $backoff = new TimeBackoff($this->id, $this->config['limits']);
 
-        static::assertEquals(0, $backoff->getAttempts());
-        static::assertEquals($this->config['limits'][0]['limit'], $backoff->getAvailableAttempts(time()));
+        static::assertSame(0, $backoff->getAttempts());
+        static::assertSame($this->config['limits'][0]['limit'], $backoff->getAvailableAttempts(time()));
 
         $backoff->setTimer(time());
         $backoff->setAttempts(3);
 
-        static::assertEquals(3, $backoff->getAttempts());
+        static::assertSame(3, $backoff->getAttempts());
 
         foreach ($this->config['limits'] as $limit) {
             for ($i = 0; $i < 2; ++$i) {
                 // request should be thorttled for new request
                 static::assertTrue($backoff->shouldThrottle($backoff->getAttempts() + 1, time()));
-                static::assertEquals(0, $backoff->getAvailableAttempts(time()));
+                static::assertSame(0, $backoff->getAvailableAttempts(time()));
 
                 // after wait time, request could be send again
                 static::assertFalse($backoff->shouldThrottle($backoff->getAttempts() + 1, time() + $this->intervalToSeconds($limit['interval'])));
@@ -136,12 +136,12 @@ class TimeBackoffLimiterTest extends TestCase
 
                 // request should be thorttled again
                 static::assertTrue($backoff->shouldThrottle($backoff->getAttempts(), time()));
-                static::assertEquals(0, $backoff->getAvailableAttempts(time()));
+                static::assertSame(0, $backoff->getAvailableAttempts(time()));
 
                 // after wait time, request could be send again
                 $time = time() + $this->intervalToSeconds($limit['interval']);
                 static::assertFalse($backoff->shouldThrottle($backoff->getAttempts(), $time));
-                static::assertEquals(1, $backoff->getAvailableAttempts($time));
+                static::assertSame(1, $backoff->getAvailableAttempts($time));
             }
         }
     }

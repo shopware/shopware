@@ -19,16 +19,19 @@ class BarTest extends TestCase
         // not allowed
         static::assertEquals($expected, $response);
 
+        // Allowed as `assertSame` checks for the same reference, not the actual contents of the object
+        static::assertSame($expected, $response);
+
         $this->assertFoo($expected, $response);
 
         // allowed
-        static::assertEquals($expected->getStatusCode(), $response->getStatusCode());
+        static::assertSame($expected->getStatusCode(), $response->getStatusCode());
 
         // allowed
         AssertResponseHelper::assertResponseEquals($expected, $response);
 
         // allowed
-        static::assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
     }
 
     public function testRedirects(): void
@@ -38,12 +41,20 @@ class BarTest extends TestCase
         $expected = new RedirectResponse('bar');
 
         // not allowed
-        static::assertSame($expected, $response);
+        static::assertEquals($expected, $response);
     }
 
     public function assertFoo(mixed $expected, mixed $actual): void
     {
         // allowed
-        static::assertEquals($expected, $actual);
+        static::assertSame($expected, $actual);
+    }
+
+    public function doesNotAssertNeverType(Response $foo): void
+    {
+        $bar = new \stdClass();
+        \assert($bar instanceof Response);
+
+        static::assertSame($bar, $foo);
     }
 }

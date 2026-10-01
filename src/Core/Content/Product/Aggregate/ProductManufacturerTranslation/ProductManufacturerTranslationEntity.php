@@ -7,6 +7,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\TranslationEntity;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductManufacturerTranslationEntity extends TranslationEntity
 {
@@ -17,6 +20,8 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
     protected string $productManufacturerVersionId;
 
     protected ?string $name = null;
+
+    protected ?string $link = null;
 
     protected ?string $description = null;
 
@@ -40,6 +45,16 @@ class ProductManufacturerTranslationEntity extends TranslationEntity
     public function setName(?string $name): void
     {
         $this->name = $name;
+    }
+
+    public function getLink(): ?string
+    {
+        return $this->link;
+    }
+
+    public function setLink(?string $link): void
+    {
+        $this->link = $link;
     }
 
     public function getDescription(): ?string

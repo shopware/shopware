@@ -22,7 +22,10 @@
                     <div class="basic-captcha-content-image" id="{{ formId }}-basic-captcha-content-image"></div>
 
                     {% block component_basic_captcha_refresh_icon %}
-                        <button type="button" class="btn btn-outline-primary basic-captcha-content-refresh-icon" id="{{ formId }}-basic-captcha-content-refresh-icon">
+                        <button type="button" 
+                                class="btn btn-outline-primary basic-captcha-content-refresh-icon" 
+                                id="{{ formId }}-basic-captcha-content-refresh-icon"
+                                aria-label="{{ 'captcha.basicCaptchaRefreshButton'|trans|sw_sanitize }}">
                             {% sw_icon 'arrow-switch' %}
                         </button>
                     {% endblock %}

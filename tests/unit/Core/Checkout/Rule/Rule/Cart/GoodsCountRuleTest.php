@@ -7,15 +7,23 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
+use Shopware\Core\Checkout\Cart\Rule\LineItemOfManufacturerRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
+use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Rule\SimpleRule;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
+use Symfony\Component\Validator\Constraints\Choice;
+use Symfony\Component\Validator\Constraints\Type;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -24,14 +32,12 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 #[CoversClass(GoodsCountRule::class)]
 class GoodsCountRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     public function testRuleWithExactCountMatch(): void
     {
         $rule = (new GoodsCountRule())->assign(['count' => 0, 'operator' => Rule::OPERATOR_EQ]);
 
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -43,7 +49,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = (new GoodsCountRule())->assign(['count' => 0, 'operator' => Rule::OPERATOR_EQ]);
 
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -55,7 +61,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = (new GoodsCountRule())->assign(['count' => 1, 'operator' => Rule::OPERATOR_LTE]);
 
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -67,7 +73,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = (new GoodsCountRule())->assign(['count' => 2, 'operator' => Rule::OPERATOR_LTE]);
 
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -82,7 +88,7 @@ class GoodsCountRuleTest extends TestCase
 
         $cart->add((new LineItem('A', 'test'))->setGood(true));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
@@ -95,7 +101,7 @@ class GoodsCountRuleTest extends TestCase
 
         $cart = new Cart('test');
         $cart->add((new LineItem('a', 'a'))->setGood(true));
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -107,7 +113,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = (new GoodsCountRule())->assign(['count' => 0, 'operator' => Rule::OPERATOR_GTE]);
 
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -119,7 +125,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = (new GoodsCountRule())->assign(['count' => 2, 'operator' => Rule::OPERATOR_GTE]);
 
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
@@ -131,7 +137,7 @@ class GoodsCountRuleTest extends TestCase
         $rule = (new GoodsCountRule())->assign(['count' => 2, 'operator' => Rule::OPERATOR_NEQ]);
 
         $cart = new Cart('test');
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertTrue(
             $rule->match(new CartRuleScope($cart, $context))
@@ -145,17 +151,39 @@ class GoodsCountRuleTest extends TestCase
         $cart = new Cart('test');
         $cart->add((new LineItem('a', 'a'))->setGood(true));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
         );
     }
 
+    public function testFilterEvaluatesGoodsWithoutProductDataLikeTheAllMatchMode(): void
+    {
+        $manufacturerId = Uuid::randomHex();
+
+        $product = CartRuleFixture::createLineItem()->setPayloadValue('manufacturerId', $manufacturerId);
+        $option = CartRuleFixture::createLineItem('customized-products-option')
+            ->setChildren(new LineItemCollection([CartRuleFixture::createLineItem('option-values')]));
+        $customizedProduct = CartRuleFixture::createLineItem('customized-products')
+            ->setGood(false)
+            ->setChildren(new LineItemCollection([$product, $option]));
+
+        $rule = new GoodsCountRule(Rule::OPERATOR_EQ, 2);
+        $rule->addRule(new LineItemOfManufacturerRule(Rule::OPERATOR_NEQ, [$manufacturerId]));
+
+        $scope = new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$customizedProduct])),
+            static::createStub(SalesChannelContext::class),
+        );
+
+        static::assertTrue($rule->match($scope));
+    }
+
     public function testMatchWithWrongScopeShouldReturnFalse(): void
     {
         $goodsCountRule = new GoodsCountRule();
-        $wrongScope = $this->createMock(RuleScope::class);
+        $wrongScope = static::createStub(RuleScope::class);
 
         static::assertFalse($goodsCountRule->match($wrongScope));
     }
@@ -182,11 +210,59 @@ class GoodsCountRuleTest extends TestCase
 
         $result = $goodsCountRule->getConstraints();
 
-        static::assertArrayHasKey('count', $result);
-        static::assertArrayHasKey('operator', $result);
+        static::assertEquals([
+            'count' => RuleConstraints::int(),
+            'operator' => RuleConstraints::numericOperators(false),
+        ], $result);
+    }
 
-        static::assertIsArray($result['count']);
-        static::assertIsArray($result['operator']);
+    public function testConstraintsRejectStringCount(): void
+    {
+        $violations = $this->validateConstraint('count', '3');
+
+        $this->assertViolationCode($violations, Type::INVALID_TYPE_ERROR);
+    }
+
+    public function testConstraintsRejectFloatCount(): void
+    {
+        $violations = $this->validateConstraint('count', 1.1);
+
+        $this->assertViolationCode($violations, Type::INVALID_TYPE_ERROR);
+    }
+
+    #[DataProvider('validNumericOperators')]
+    public function testConstraintsAcceptAvailableOperators(string $operator): void
+    {
+        $violations = $this->validateConstraint('operator', $operator);
+
+        static::assertCount(0, $violations);
+    }
+
+    #[DataProvider('invalidNumericOperators')]
+    public function testConstraintsRejectInvalidOperator(string $operator): void
+    {
+        $violations = $this->validateConstraint('operator', $operator);
+
+        $this->assertViolationCode($violations, Choice::NO_SUCH_CHOICE_ERROR);
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function validNumericOperators(): \Generator
+    {
+        yield 'equals' => [Rule::OPERATOR_EQ];
+        yield 'not equals' => [Rule::OPERATOR_NEQ];
+        yield 'less than or equals' => [Rule::OPERATOR_LTE];
+        yield 'greater than or equals' => [Rule::OPERATOR_GTE];
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function invalidNumericOperators(): \Generator
+    {
+        yield 'unknown operator' => ['Invalid'];
     }
 
     #[DataProvider('getLineItemScopeTestData')]
@@ -199,7 +275,7 @@ class GoodsCountRuleTest extends TestCase
 
         $match = $rule->match(new LineItemScope(
             $this->createLineItemWithGoodsCount(),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -231,13 +307,27 @@ class GoodsCountRuleTest extends TestCase
         $cart->add((new LineItem('b', 'a'))->setGood(true));
         $cart->add((new LineItem('c', 'a'))->setGood(true));
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         return new CartRuleScope($cart, $context);
     }
 
     private function createLineItemWithGoodsCount(): LineItem
     {
-        return $this->createLineItem()->setGood(true);
+        return CartRuleFixture::createLineItem()->setGood(true);
+    }
+
+    private function validateConstraint(string $field, mixed $value): ConstraintViolationListInterface
+    {
+        return Validation::createValidator()->validate($value, (new GoodsCountRule())->getConstraints()[$field]);
+    }
+
+    private function assertViolationCode(ConstraintViolationListInterface $violations, string $expectedCode): void
+    {
+        static::assertCount(1, $violations);
+
+        foreach ($violations as $violation) {
+            static::assertSame($expectedCode, $violation->getCode());
+        }
     }
 }

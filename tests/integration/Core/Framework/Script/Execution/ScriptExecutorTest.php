@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Facade\RepositoryFacadeHookFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Core\Framework\Script\ScriptException;
 use Shopware\Core\Framework\Struct\ArrayStruct;
@@ -27,6 +27,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 /**
  * @internal
  */
+#[Package('framework')]
 class ScriptExecutorTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -64,7 +65,7 @@ class ScriptExecutorTest extends TestCase
 
                 continue;
             }
-            static::assertEquals($value, $object->get($key));
+            static::assertSame($value, $object->get($key));
         }
     }
 
@@ -80,8 +81,11 @@ class ScriptExecutorTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
-        $this->expectException(ScriptExecutionFailedException::class);
-        $this->expectExceptionMessage('The service "Hook: simple-function-case" has a dependency on a non-existent service "none-existing"');
+        $this->expectExceptionObject(ScriptException::scriptExecutionFailed(
+            'simple-function-case',
+            'simple-function-case/simple-function-case.twig',
+            new \Exception('The service "Hook: simple-function-case" has a dependency on a non-existent service "none-existing"')
+        ));
 
         $this->executor->execute(new TestHook('simple-function-case', Context::createDefaultContext(), [], ['none-existing']));
     }
@@ -90,10 +94,11 @@ class ScriptExecutorTest extends TestCase
     {
         $this->loadAppsFromDir(__DIR__ . '/_fixtures');
 
-        $this->expectException(ScriptExecutionFailedException::class);
-        $innerException = ScriptException::noHookServiceFactory('product.repository');
-
-        $this->expectExceptionMessage($innerException->getMessage());
+        $this->expectExceptionObject(ScriptException::scriptExecutionFailed(
+            'simple-function-case',
+            'simple-function-case/simple-function-case.twig',
+            ScriptException::noHookServiceFactory('product.repository')
+        ));
 
         $this->executor->execute(new TestHook('simple-function-case', Context::createDefaultContext(), [], ['product.repository']));
     }
@@ -139,7 +144,7 @@ class ScriptExecutorTest extends TestCase
         $context = Context::createDefaultContext();
         $this->executor->execute(new StoppableTestHook('stoppable-case', $context, ['object' => $object]));
 
-        static::assertEquals([
+        static::assertSame([
             'first-script' => 'called',
             'second-script' => 'called',
         ], $object->all());
@@ -155,12 +160,12 @@ class ScriptExecutorTest extends TestCase
         $this->executor->execute(new DeprecatedTestHook('simple-function-case', $context, ['object' => $object]));
 
         static::assertTrue($object->has('foo'));
-        static::assertEquals('bar', $object->get('foo'));
+        static::assertSame('bar', $object->get('foo'));
 
         $traces = $this->getScriptTraces();
         static::assertArrayHasKey('simple-function-case', $traces);
         static::assertCount(1, $traces['simple-function-case'][0]['deprecations']);
-        static::assertEquals([
+        static::assertSame([
             DeprecatedTestHook::getDeprecationNotice() => 1,
         ], $traces['simple-function-case'][0]['deprecations']);
     }
@@ -181,7 +186,7 @@ class ScriptExecutorTest extends TestCase
         $traces = $this->getScriptTraces();
         static::assertArrayHasKey('simple-service-script', $traces);
         static::assertArrayHasKey('The `repository` service is deprecated for testing purposes.', $traces['simple-service-script'][0]['deprecations']);
-        static::assertEquals(2, $traces['simple-service-script'][0]['deprecations']['The `repository` service is deprecated for testing purposes.']);
+        static::assertSame(2, $traces['simple-service-script'][0]['deprecations']['The `repository` service is deprecated for testing purposes.']);
     }
 
     public function testNotImplementingAFunctionThatWillBeRequiredTriggersException(): void
@@ -200,13 +205,13 @@ class ScriptExecutorTest extends TestCase
         $traces = $this->getScriptTraces();
         static::assertArrayHasKey('simple-function-case::test', $traces);
         static::assertCount(1, $traces['simple-function-case::test'][0]['deprecations']);
-        static::assertEquals([
+        static::assertSame([
             'Function "test" will be required from v6.5.0.0 onward, but is not implemented in script "simple-function-case/simple-function-case.twig", please make sure you add the block in your script.' => 1,
         ], $traces['simple-function-case::test'][0]['deprecations']);
     }
 
     /**
-     * @return array<string, array{0: array<string>, 1: array<string, mixed>}>
+     * @return iterable<string, array{0: array<string>, 1: array<string, mixed>}>
      */
     public static function executeProvider(): iterable
     {

@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DataAbstractionLayer\Dbal;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
@@ -31,8 +32,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Allows to hydrate database values into struct objects.
- *
- * @internal
  */
 #[Package('framework')]
 class EntityHydrator
@@ -58,9 +57,13 @@ class EntityHydrator
     private static array $manyToOne = [];
 
     /**
-     * @var array<string, array<string, Field>>
+     * Keyed by the definition instance: multiple definition instances for the same entity name can
+     * coexist in one process (the test suite reboots kernels), and the cached fields carry the
+     * serializers and services of the container they were compiled in.
+     *
+     * @var \WeakMap<EntityDefinition, array<string, Field>>|null
      */
-    private static array $translatedFields = [];
+    private static ?\WeakMap $translatedFields = null;
 
     /**
      * @internal
@@ -70,7 +73,7 @@ class EntityHydrator
     }
 
     /**
-     * @template TEntityCollection of EntityCollection<Entity>
+     * @template TEntityCollection of EntityCollection
      *
      * @param TEntityCollection $collection
      * @param array<mixed> $rows
@@ -86,7 +89,7 @@ class EntityHydrator
 
         self::$partialFullPaths = [];
 
-        if (!empty(self::$partial)) {
+        if (self::$partial !== []) {
             /** @var TEntityCollection $collection */
             $collection = new EntityCollection();
 
@@ -160,8 +163,8 @@ class EntityHydrator
 
             $encoded = $field->getSerializer()->encode($field, $existence, $kvPair, $params);
 
-            foreach ($encoded as $key => $value) {
-                $mapped[$key] = $value;
+            foreach ($encoded as $key => $encodedValue) {
+                $mapped[$key] = $encodedValue;
             }
         }
 
@@ -288,7 +291,7 @@ class EntityHydrator
     protected function manyToMany(array $row, string $root, Entity $entity, ?Field $field): void
     {
         if ($field === null) {
-            throw new \RuntimeException('No field provided');
+            throw DataAbstractionLayerException::entityHydratorError('No association field for "manyToMany" provided');
         }
 
         $accessor = $root . '.' . $field->getPropertyName() . '.id_mapping';
@@ -330,6 +333,7 @@ class EntityHydrator
             $entity->addTranslated($field, $translation);
 
             $chainFieldValue = self::value($row, $chain[0], $field);
+            // @phpstan-ignore property.dynamicName (We have to dynamically set all translated field in the original entity)
             $entity->$field = $chainFieldValue !== null ? ($fieldValue === $chainFieldValue ? $translation : $typed->getSerializer()->decode($typed, $chainFieldValue)) : null;
         }
     }
@@ -341,9 +345,9 @@ class EntityHydrator
      */
     protected function getTranslatedFields(EntityDefinition $definition, array $fields): array
     {
-        $key = $definition->getEntityName();
-        if (isset(self::$translatedFields[$key])) {
-            return self::$translatedFields[$key];
+        $cache = self::$translatedFields ??= new \WeakMap();
+        if (isset($cache[$definition])) {
+            return $cache[$definition];
         }
 
         $translatedFields = [];
@@ -352,7 +356,7 @@ class EntityHydrator
             $translatedFields[$field->getPropertyName()] = EntityDefinitionQueryHelper::getTranslatedField($definition, $field);
         }
 
-        return self::$translatedFields[$key] = $translatedFields;
+        return $cache[$definition] = $translatedFields;
     }
 
     /**
@@ -361,11 +365,11 @@ class EntityHydrator
     protected function manyToOne(array $row, string $root, ?Field $field, Context $context): ?Entity
     {
         if ($field === null) {
-            throw new \RuntimeException('No field provided');
+            throw DataAbstractionLayerException::entityHydratorError('No association field for "manyToOne" provided');
         }
 
         if (!$field instanceof AssociationField) {
-            throw new \RuntimeException(\sprintf('Provided field %s is no association field', $field->getPropertyName()));
+            throw DataAbstractionLayerException::entityHydratorError(\sprintf('Provided field %s is no association field', $field->getPropertyName()));
         }
         $pk = $this->getManyToOneProperty($field);
 
@@ -413,7 +417,7 @@ class EntityHydrator
                 $values[] = self::value($row, $accessor, $propertyName);
             }
 
-            if (empty($values)) {
+            if ($values === []) {
                 return;
             }
 
@@ -498,11 +502,10 @@ class EntityHydrator
         );
 
         if ($reference === null) {
-            throw new \RuntimeException(\sprintf(
-                'Can not find field by storage name %s in definition %s',
-                $field->getReferenceField(),
-                $field->getReferenceDefinition()->getEntityName()
-            ));
+            throw DataAbstractionLayerException::fieldByStorageNameNotFound(
+                $field->getReferenceDefinition()->getEntityName(),
+                $field->getReferenceField()
+            );
         }
 
         return self::$manyToOne[$key] = $reference->getPropertyName();
@@ -565,7 +568,7 @@ class EntityHydrator
         $hydrator = $this->container->get($hydratorClass);
 
         if (!$hydrator instanceof self) {
-            throw new \RuntimeException(\sprintf('Hydrator for entity %s not registered', $definition->getEntityName()));
+            throw DataAbstractionLayerException::entityHydratorError(\sprintf('Hydrator for entity %s not registered', $definition->getEntityName()));
         }
 
         $identifier = implode('-', self::buildUniqueIdentifier($definition, $row, $root));
@@ -579,7 +582,7 @@ class EntityHydrator
         $entity = new $entityClass();
 
         if (!$entity instanceof Entity) {
-            throw new \RuntimeException(\sprintf('Expected instance of Entity.php, got %s', $entity::class));
+            throw DataAbstractionLayerException::entityHydratorError(\sprintf('Expected instance of Entity.php, got %s', $entity::class));
         }
 
         $entity->addExtension(EntityReader::FOREIGN_KEYS, new ArrayStruct([], $definition->getEntityName() . '_foreign_keys_extension'));

@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1715081559AdjustSentMailActionOnReviewSent;
@@ -15,6 +16,7 @@ use Shopware\Tests\Migration\MigrationTestTrait;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1715081559AdjustSentMailActionOnReviewSent::class)]
 class Migration1715081559AdjustSentMailActionOnReviewSentTest extends TestCase
 {
@@ -26,6 +28,11 @@ class Migration1715081559AdjustSentMailActionOnReviewSentTest extends TestCase
     protected function setUp(): void
     {
         $this->migration = new Migration1715081559AdjustSentMailActionOnReviewSent();
+    }
+
+    public function testGetCreationTimestamp(): void
+    {
+        static::assertSame(1715081559, (new Migration1715081559AdjustSentMailActionOnReviewSent())->getCreationTimestamp());
     }
 
     /**
@@ -53,10 +60,7 @@ class Migration1715081559AdjustSentMailActionOnReviewSentTest extends TestCase
             )
             ->fetchAssociative();
 
-        static::assertSame(
-            $expectedConfig,
-            json_decode($result['config'] ?? '', true)
-        );
+        static::assertSame($expectedConfig, json_decode($result['config'] ?? '', true));
     }
 
     /**
@@ -75,7 +79,7 @@ class Migration1715081559AdjustSentMailActionOnReviewSentTest extends TestCase
             ],
             'missingActionName' => [
                 'actionName' => null,
-                'config' => json_encode(self::getConfig($mailTemplateId)),
+                'config' => json_encode(self::getConfig($mailTemplateId), \JSON_THROW_ON_ERROR),
                 'expectedConfig' => [
                     'recipient' => [
                         'data' => [],
@@ -87,7 +91,7 @@ class Migration1715081559AdjustSentMailActionOnReviewSentTest extends TestCase
             ],
             'wrongMailTemplateId' => [
                 'actionName' => 'action.mail.send',
-                'config' => json_encode(self::getConfig($wrongMailTemplateId)),
+                'config' => json_encode(self::getConfig($wrongMailTemplateId), \JSON_THROW_ON_ERROR),
                 'expectedConfig' => [
                     'recipient' => [
                         'data' => [],
@@ -99,7 +103,7 @@ class Migration1715081559AdjustSentMailActionOnReviewSentTest extends TestCase
             ],
             'validEntry' => [
                 'actionName' => 'action.mail.send',
-                'config' => json_encode(self::getConfig($mailTemplateId)),
+                'config' => json_encode(self::getConfig($mailTemplateId), \JSON_THROW_ON_ERROR),
                 'expectedConfig' => [
                     'recipient' => [
                         'data' => [],
@@ -111,7 +115,7 @@ class Migration1715081559AdjustSentMailActionOnReviewSentTest extends TestCase
             ],
             'corruptedConfig' => [
                 'actionName' => 'action.mail.send',
-                'config' => json_encode(self::getCorruptedConfig()),
+                'config' => json_encode(self::getCorruptedConfig(), \JSON_THROW_ON_ERROR),
                 'expectedConfig' => [
                     'recipient' => [
                         'data' => [],

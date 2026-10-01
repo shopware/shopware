@@ -1,7 +1,6 @@
 import template from './sw-modal.html.twig';
 import './sw-modal.scss';
 
-const { Component } = Shopware;
 const utils = Shopware.Utils;
 
 /**
@@ -16,7 +15,7 @@ const utils = Shopware.Utils;
  *     Lorem Ipsum
  * </sw-modal>
  */
-Component.register('sw-modal', {
+export default {
     template,
 
     inheritAttrs: false,
@@ -50,6 +49,7 @@ Component.register('sw-modal', {
                 'default',
                 'small',
                 'large',
+                'x-large',
                 'full',
             ],
             validator(value) {
@@ -60,6 +60,7 @@ Component.register('sw-modal', {
                     'default',
                     'small',
                     'large',
+                    'x-large',
                     'full',
                 ].includes(value);
             },
@@ -80,22 +81,25 @@ Component.register('sw-modal', {
         showHeader: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         showFooter: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
         },
 
         closable: {
             type: Boolean,
             required: false,
-            // eslint-disable-next-line vue/no-boolean-default
             default: true,
+        },
+
+        zIndex: {
+            type: Number,
+            required: false,
+            default: null,
         },
     },
 
@@ -114,10 +118,7 @@ Component.register('sw-modal', {
         },
 
         modalDialogClasses() {
-            return [
-                `sw-modal--${this.id}`,
-                { 'has--header': this.showHeader },
-            ];
+            return [`sw-modal--${this.id}`, { 'has--header': this.showHeader }];
         },
 
         modalBodyClasses() {
@@ -196,9 +197,13 @@ Component.register('sw-modal', {
                 return;
             }
 
+            if (!this.closable) {
+                return;
+            }
+
             if (event.key === 'Escape' || event.keyCode === 27) {
                 this.closeModal();
             }
         },
     },
-});
+};

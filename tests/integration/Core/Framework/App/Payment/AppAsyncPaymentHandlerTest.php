@@ -4,19 +4,25 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Payment;
 
 use GuzzleHttp\Exception\ServerException;
 use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\RequestInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Payment\Cart\Token\JWTFactoryV2;
+use Shopware\Core\Checkout\Payment\Cart\Token\PaymentToken;
+use Shopware\Core\Checkout\Payment\Cart\Token\PaymentTokenGenerator;
 use Shopware\Core\Checkout\Payment\Cart\Token\TokenStruct;
 use Shopware\Core\Checkout\Payment\PaymentException;
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Response\PaymentResponse;
+use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
  */
+#[Package('checkout')]
 class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
 {
     final public const REDIRECT_URL = 'http://payment.app/do/something';
@@ -51,8 +57,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('The app payment process was interrupted due to the following error:' . \PHP_EOL . 'Payment was reported as failed.');
+        $this->expectExceptionObject(AppException::interrupted('Payment was reported as failed.'));
         $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
@@ -70,8 +75,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('The app payment process was interrupted due to the following error:' . \PHP_EOL . self::ERROR_MESSAGE);
+        $this->expectExceptionObject(AppException::interrupted(self::ERROR_MESSAGE));
         $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
@@ -88,8 +92,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->expectException(AppException::class);
-        $this->expectExceptionMessage('The app payment process was interrupted due to the following error:' . \PHP_EOL . self::ERROR_MESSAGE);
+        $this->expectExceptionObject(AppException::interrupted(self::ERROR_MESSAGE));
         $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
@@ -123,10 +126,14 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
-        $this->appendNewResponse(new Response(200, [], $json));
+        $mockResponse = new Response(200, [], $json);
+        $this->appendNewResponse($mockResponse);
 
-        $this->expectException(ServerException::class);
-        $this->expectExceptionMessage('Could not verify the authenticity of the response');
+        $this->expectExceptionObject(new ServerException(
+            'Could not verify the authenticity of the response',
+            static::createStub(RequestInterface::class),
+            $mockResponse
+        ));
         $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
@@ -143,10 +150,14 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $json = \json_encode($response, \JSON_THROW_ON_ERROR);
         static::assertNotFalse($json);
 
-        $this->appendNewResponse(new Response(200, ['shopware-app-signature' => 'invalid'], $json));
+        $mockResponse = new Response(200, ['shopware-app-signature' => 'invalid'], $json);
+        $this->appendNewResponse($mockResponse);
 
-        $this->expectException(ServerException::class);
-        $this->expectExceptionMessage('Could not verify the authenticity of the response');
+        $this->expectExceptionObject(new ServerException(
+            'Could not verify the authenticity of the response',
+            static::createStub(RequestInterface::class),
+            $mockResponse
+        ));
         $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
@@ -157,7 +168,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $this->appendNewResponse($this->signResponse(['in' => 'valid']));
+        $this->appendNewResponse($this->signResponse([]));
 
         static::assertNull($this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext));
     }
@@ -169,15 +180,24 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->createTransaction($orderId, $paymentMethodId);
         $salesChannelContext = $this->getSalesChannelContext($paymentMethodId);
 
-        $this->appendNewResponse(new Response(500));
+        $mockResponse = new Response(500);
+        $this->appendNewResponse($mockResponse);
 
-        $this->expectException(ServerException::class);
-        $this->expectExceptionMessage('Could not verify the authenticity of the response');
+        $this->expectExceptionObject(new ServerException(
+            'Could not verify the authenticity of the response',
+            static::createStub(RequestInterface::class),
+            $mockResponse
+        ));
         $this->paymentProcessor->pay($orderId, new Request(), $salesChannelContext);
     }
 
-    public function testPayFinalizeWithUnsignedResponse(): void
+    /**
+     * @deprecated tag:v6.8.0 - remove this test
+     */
+    public function testPayFinalizeWithUnsignedResponseOldStruct(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $data = $this->prepareTransaction();
 
         $response = (new PaymentResponse())->assign([
@@ -196,8 +216,42 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
     }
 
-    public function testPayFinalizeWithWronglySignedResponse(): void
+    public function testPayFinalizeWithUnsignedResponse(): void
     {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $data = $this->prepareTransaction();
+
+        $response = (new PaymentResponse())->assign([
+            'message' => self::ERROR_MESSAGE,
+        ]);
+        $json = \json_encode($response, \JSON_THROW_ON_ERROR);
+        static::assertNotFalse($json);
+
+        $mockResponse = new Response(200, ['shopware-app-signature' => 'invalid'], $json);
+        $this->appendNewResponse($mockResponse);
+
+        $this->expectExceptionObject(new ServerException(
+            'Could not verify the authenticity of the response',
+            static::createStub(RequestInterface::class),
+            $mockResponse
+        ));
+        try {
+            // @deprecated tag:v6.8.0 - replace following line with:
+            // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+            $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']), $data['paymentToken']);
+        } finally {
+            $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
+        }
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - remove this test
+     */
+    public function testPayFinalizeWithWronglySignedResponseOldStruct(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $data = $this->prepareTransaction();
 
         $response = (new PaymentResponse())->assign([
@@ -216,8 +270,42 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
     }
 
-    public function testPayFinalizeWithErrorResponse(): void
+    public function testPayFinalizeWithWronglySignedResponse(): void
     {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $data = $this->prepareTransaction();
+
+        $response = (new PaymentResponse())->assign([
+            'message' => self::ERROR_MESSAGE,
+        ]);
+        $json = \json_encode($response, \JSON_THROW_ON_ERROR);
+        static::assertNotFalse($json);
+
+        $mockResponse = new Response(200, [], $json);
+        $this->appendNewResponse($mockResponse);
+
+        $this->expectExceptionObject(new ServerException(
+            'Could not verify the authenticity of the response',
+            static::createStub(RequestInterface::class),
+            $mockResponse
+        ));
+        try {
+            // @deprecated tag:v6.8.0 - replace following line with:
+            // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+            $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']), $data['paymentToken']);
+        } finally {
+            $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
+        }
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - remove this test
+     */
+    public function testPayFinalizeWithErrorResponseOldStruct(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $data = $this->prepareTransaction();
 
         $this->appendNewResponse(new Response(500));
@@ -230,6 +318,29 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
     }
 
+    public function testPayFinalizeWithErrorResponse(): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $data = $this->prepareTransaction();
+
+        $mockResponse = new Response(500);
+        $this->appendNewResponse($mockResponse);
+
+        $this->expectExceptionObject(new ServerException(
+            'Could not verify the authenticity of the response',
+            static::createStub(RequestInterface::class),
+            $mockResponse
+        ));
+        try {
+            // @deprecated tag:v6.8.0 - replace following line with:
+            // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+            $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']), $data['paymentToken']);
+        } finally {
+            $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
+        }
+    }
+
     public function testPayFinalize(): void
     {
         $data = $this->prepareTransaction();
@@ -239,7 +350,9 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         ]);
         $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
 
-        $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+        // @deprecated tag:v6.8.0 - replace following line with:
+        // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+        $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']), $data['paymentToken']);
 
         $request = $this->getLastRequest();
         static::assertNotNull($request);
@@ -260,7 +373,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,
-            'shopId' => $this->shopIdProvider->getShopId(),
+            'shopId' => $this->shopIdProvider->getShopId()->id,
             'appVersion' => '1.0.0',
             'inAppPurchases' => null,
         ], $content['source']);
@@ -277,8 +390,13 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_AUTHORIZED, $data['transactionId']);
     }
 
-    public function testPayFinalizeCanceledState(): void
+    /**
+     * @deprecated tag:v6.8.0 - remove this test
+     */
+    public function testPayFinalizeCanceledStateOldStruct(): void
     {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $data = $this->prepareTransaction();
 
         $response = (new PaymentResponse())->assign([
@@ -294,8 +412,34 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_CANCELLED, $data['transactionId']);
     }
 
-    public function testPayFinalizeOnlyMessage(): void
+    public function testPayFinalizeCanceledState(): void
     {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $data = $this->prepareTransaction();
+
+        $response = (new PaymentResponse())->assign([
+            'status' => StateMachineTransitionActions::ACTION_CANCEL,
+        ]);
+        $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
+
+        $this->expectExceptionObject(PaymentException::customerCanceled($data['transactionId'], ''));
+        try {
+            // @deprecated tag:v6.8.0 - replace following line with:
+            // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+            $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']), $data['paymentToken']);
+        } finally {
+            $this->assertOrderTransactionState(OrderTransactionStates::STATE_CANCELLED, $data['transactionId']);
+        }
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - remove this test
+     */
+    public function testPayFinalizeOnlyMessageOldStruct(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $data = $this->prepareTransaction();
 
         $response = (new PaymentResponse())->assign([
@@ -311,8 +455,34 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
     }
 
-    public function testPayFinalizeNoState(): void
+    public function testPayFinalizeOnlyMessage(): void
     {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $data = $this->prepareTransaction();
+
+        $response = (new PaymentResponse())->assign([
+            'message' => self::ERROR_MESSAGE,
+        ]);
+        $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
+
+        $this->expectExceptionObject(AppException::interrupted(self::ERROR_MESSAGE));
+        try {
+            // @deprecated tag:v6.8.0 - replace following line with:
+            // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+            $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']), $data['paymentToken']);
+        } finally {
+            $this->assertOrderTransactionState(OrderTransactionStates::STATE_FAILED, $data['transactionId']);
+        }
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - remove this test
+     */
+    public function testPayFinalizeNoStateOldStruct(): void
+    {
+        Feature::skipTestIfActive('v6.8.0.0', $this);
+
         $data = $this->prepareTransaction();
 
         $response = (new PaymentResponse())->assign([
@@ -326,8 +496,28 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_OPEN, $data['transactionId']);
     }
 
+    public function testPayFinalizeNoState(): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $data = $this->prepareTransaction();
+
+        $response = (new PaymentResponse())->assign([
+            'status' => '',
+        ]);
+        $this->appendNewResponse($this->signResponse($response->jsonSerialize()));
+
+        // @deprecated tag:v6.8.0 - replace following line with:
+        // $this->paymentProcessor->finalize($data['paymentToken'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']));
+        $this->paymentProcessor->finalize($data['token'], new Request(), $this->getSalesChannelContext($data['paymentMethodId']), $data['paymentToken']);
+
+        $this->assertOrderTransactionState(OrderTransactionStates::STATE_OPEN, $data['transactionId']);
+    }
+
     /**
-     * @return array{token: TokenStruct, transactionId: string, paymentMethodId: string}
+     * @deprecated tag:v6.8.0 - will not return `token` anymore, `paymentToken` will not be nullable
+     *
+     * @return array{token: TokenStruct, transactionId: string, paymentMethodId: string, paymentToken: PaymentToken|null}
      */
     private function prepareTransaction(): array
     {
@@ -364,7 +554,7 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertArrayHasKey('source', $content);
         static::assertSame([
             'url' => $this->shopUrl,
-            'shopId' => $this->shopIdProvider->getShopId(),
+            'shopId' => $this->shopIdProvider->getShopId()->id,
             'appVersion' => '1.0.0',
             'inAppPurchases' => null,
         ], $content['source']);
@@ -374,6 +564,9 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertNotEmpty($token);
         static::assertArrayHasKey('order', $content);
         static::assertIsArray($content['order']);
+        static::assertArrayHasKey('language', $content['order']);
+        static::assertIsArray($content['order']['language']);
+        static::assertArrayHasKey('translationCode', $content['order']['language']);
         static::assertArrayHasKey('orderCustomer', $content['order']);
         static::assertIsArray($content['order']['orderCustomer']);
         static::assertArrayHasKey('customer', $content['order']['orderCustomer']);
@@ -395,13 +588,17 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         $this->assertOrderTransactionState(OrderTransactionStates::STATE_OPEN, $transactionId);
 
         return [
-            'token' => $token,
+            'token' => $token instanceof TokenStruct ? $token : $this->getDummyStruct(),
             'transactionId' => $transactionId,
             'paymentMethodId' => $paymentMethodId,
+            'paymentToken' => $token instanceof PaymentToken ? $token : null,
         ];
     }
 
-    private function getToken(string $returnUrl): TokenStruct
+    /**
+     * @deprecated tag:v6.8.0 - will only return `PaymentToken`
+     */
+    private function getToken(string $returnUrl): TokenStruct|PaymentToken
     {
         $query = \parse_url($returnUrl, \PHP_URL_QUERY);
         static::assertIsString($query);
@@ -412,6 +609,24 @@ class AppAsyncPaymentHandlerTest extends AbstractAppPaymentHandlerTestCase
         static::assertNotEmpty($token);
         static::assertIsString($token);
 
-        return static::getContainer()->get(JWTFactoryV2::class)->parseToken($token);
+        if (!Feature::isActive('v6.8.0.0')) {
+            return static::getContainer()->get(JWTFactoryV2::class)->parseToken($token);
+        }
+
+        return static::getContainer()->get(PaymentTokenGenerator::class)->decode($token);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - remove this method
+     */
+    private function getDummyStruct(): TokenStruct
+    {
+        $tokenStruct = null;
+        Feature::silent('v6.8.0.0', static function () use (&$tokenStruct): void {
+            $tokenStruct = new TokenStruct();
+        });
+        static::assertInstanceOf(TokenStruct::class, $tokenStruct);
+
+        return $tokenStruct;
     }
 }

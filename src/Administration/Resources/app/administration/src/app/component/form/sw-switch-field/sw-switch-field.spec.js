@@ -18,11 +18,6 @@ async function createWrapper(additionalOptions = {}) {
 }
 
 describe('src/app/component/base/sw-switch-field', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should render the mt-switch', async () => {
         const wrapper = await createWrapper();
 
@@ -30,8 +25,6 @@ describe('src/app/component/base/sw-switch-field', () => {
     });
 
     it('should use the correct checked value', async () => {
-        global.activeFeatureFlags = ['ENABLE_METEOR_COMPONENTS'];
-
         const wrapper = await createWrapper();
         expect(wrapper.vm.checkedValue).toBe(false);
 

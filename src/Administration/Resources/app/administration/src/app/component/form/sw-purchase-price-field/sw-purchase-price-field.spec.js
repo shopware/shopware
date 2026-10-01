@@ -45,10 +45,7 @@ const defaultPrice = {
 // initial component setup
 const setup = async (propOverride) => {
     const props = {
-        price: [
-            dollarPrice,
-            euroPrice,
-        ],
+        price: [dollarPrice, euroPrice],
         taxRate,
         currency,
         defaultPrice,
@@ -58,21 +55,13 @@ const setup = async (propOverride) => {
 
     return mount(await wrapTestComponent('sw-purchase-price-field', { sync: true }), {
         global: {
-            stubs: [
-                'sw-price-field',
-                'sw-field',
-            ],
+            stubs: ['sw-price-field', 'sw-field'],
         },
         props,
     });
 };
 
 describe('components/form/sw-purchase-price-field', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await setup();
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain the dollar price', async () => {
         const wrapper = await setup();
         expect(wrapper.vm.purchasePrice[0].gross).toEqual(dollarPrice.gross);

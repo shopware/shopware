@@ -6,12 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppEntity;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
 use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedHook;
 
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(SystemConfigChangedHook::class)]
 class SystemConfigChangedHookTest extends TestCase
 {
@@ -70,5 +72,15 @@ class SystemConfigChangedHookTest extends TestCase
             ['system_config:read'],
             false,
         ];
+    }
+
+    public function testSilentIsNotInPayload(): void
+    {
+        $hook = new SystemConfigChangedHook([], [], null, true);
+        static::assertTrue($hook->silent);
+        static::assertSame([
+            'changes' => [],
+            'salesChannelId' => null,
+        ], $hook->getWebhookPayload());
     }
 }

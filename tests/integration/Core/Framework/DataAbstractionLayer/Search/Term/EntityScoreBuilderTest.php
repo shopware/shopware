@@ -21,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Query\ScoreQuery;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\EntityScoreQueryBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchPattern;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\SearchTerm;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\TestDefaults;
@@ -28,6 +29,7 @@ use Shopware\Core\Test\TestDefaults;
 /**
  * @internal
  */
+#[Package('framework')]
 class EntityScoreBuilderTest extends TestCase
 {
     use DataAbstractionLayerFieldTestBehaviour;
@@ -76,7 +78,7 @@ class EntityScoreBuilderTest extends TestCase
 
         $queries = $builder->buildScoreQueries($pattern, $this->onlyDateFieldDefinition, 'test', $this->context);
 
-        static::assertNotEquals(
+        static::assertNotSame(
             [
                 new ScoreQuery(new EqualsFilter('test.dateTime', $dateTerm), 100),
                 new ScoreQuery(new ContainsFilter('test.dateTime', $dateTerm), 50),

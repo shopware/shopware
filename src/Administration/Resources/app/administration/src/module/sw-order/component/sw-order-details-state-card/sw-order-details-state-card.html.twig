@@ -5,65 +5,76 @@
     :title="title"
     :is-loading="isLoading"
 >
-
     {% block sw_order_detail_state_card_state %}
     <div class="sw-order-detail-state-card__state">
-        <sw-container
-            class="sw-order-detail-state-card__state-container"
-            gap="16px"
-            columns="33% auto auto"
-        >
-
+        <div class="sw-order-detail-state-card__state-container">
             {% block sw_order_detail_state_card_state_select %}
             <sw-order-state-select-v2
                 v-tooltip="{
-                    message: $tc('sw-privileges.tooltip.warning'),
+                    message: $t('sw-privileges.tooltip.warning'),
                     disabled: acl.can('order.editor'),
                     showOnDisabledElements: true
                 }"
                 :transition-options="stateOptions"
                 :state-type="entityName"
-                rounded-style
+                :state-name="entity.stateMachineState.technicalName"
                 :placeholder="entity.stateMachineState.translated.name"
                 :label="stateLabel"
-                :background-style="stateSelectBackgroundStyle"
                 :disabled="disabled"
                 :is-loading="statesLoading"
                 @state-select="onStateSelected"
-            />
-            {% endblock %}
-
-            {% block sw_order_detail_state_card_state_history_text %}
-            <div
-                v-if="lastStateChange"
-                class="sw-order-detail-state-card__state-history-text"
             >
-                <i18n-t
-                    keypath="sw-order.stateCard.labelHistory"
-                    scope="local"
-                >
-                    <template #time>
-                        <sw-time-ago :date="lastStateChange.createdAt" />
-                    </template>
-                    <template #author>
-                        {{ lastStateChange.user ? lastStateChange.user.firstName + ' ' + lastStateChange.user.lastName : $tc('sw-order.stateCard.labelSystemUser') }}
-                    </template>
-                </i18n-t>
-            </div>
-            <div v-else></div>
+                <template #hint>
+                    {% block sw_order_detail_state_card_state_history_text %}
+                    <div
+                        v-if="lastStateChange"
+                        class="sw-order-detail-state-card__state-history-text"
+                    >
+                        {% block sw_order_detail_state_card_state_history_text_label %}
+                        <i18n-t
+                            keypath="sw-order.stateCard.labelHistory"
+                            scope="local"
+                        >
+                            <template #time>
+                                <sw-time-ago
+                                    :date="lastStateChange.createdAt"
+                                    :date-time-format="{ month: '2-digit', day: '2-digit' }"
+                                />
+                            </template>
+
+                            <template #author>
+                                {{ lastChangeAuthorLabel }}
+                            </template>
+                        </i18n-t>
+                        {% endblock %}
+
+                        {% block sw_order_detail_state_card_state_history_text_internal_comment %}
+                        <mt-icon
+                            v-if="lastStateChange.internalComment"
+                            v-tooltip="lastStateChange.internalComment"
+                            name="regular-comment"
+                            size="var(--scale-size-14)"
+                        />
+                        {% endblock %}
+                    </div>
+
+                    <div v-else></div>
+                    {% endblock %}
+                </template>
+            </sw-order-state-select-v2>
             {% endblock %}
 
             {% block sw_order_detail_state_card_state_history_button %}
-            <sw-external-link
+            <mt-link
+                as="button"
                 class="sw-order-detail-state-card__state-history-button"
                 icon="regular-long-arrow-right"
                 @click="onShowStatusHistory"
             >
-                {{ $tc('sw-order.stateCard.labelShowHistoryModal') }}
-            </sw-external-link>
+                {{ $t('sw-order.stateCard.labelShowHistoryModal') }}
+            </mt-link>
             {% endblock %}
-
-        </sw-container>
+        </div>
 
         {% block sw_order_state_change_card_state_modal %}
         <sw-order-state-change-modal
@@ -90,6 +101,5 @@
         <slot></slot>
     </sw-container>
     {% endblock %}
-
 </mt-card>
 {% endblock %}

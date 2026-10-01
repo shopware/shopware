@@ -4,9 +4,16 @@
 const swProfileStore = Shopware.Store.register('swProfile', {
     state() {
         return {
+            minSearchTermLength: 2,
             searchPreferences: [],
             userSearchPreferences: null,
         };
+    },
+
+    actions: {
+        setMinSearchTermLength(minSearchTermLength: number) {
+            this.minSearchTermLength = minSearchTermLength;
+        },
     },
 });
 

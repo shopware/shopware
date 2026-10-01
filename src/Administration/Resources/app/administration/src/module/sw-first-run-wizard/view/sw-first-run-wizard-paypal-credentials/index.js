@@ -7,17 +7,14 @@ import template from './sw-first-run-wizard-paypal-credentials.html.twig';
 export default {
     template,
 
-    emits: [
-        'frw-set-title',
-        'buttons-update',
-    ],
+    emits: ['frw-set-title', 'buttons-update'],
 
     computed: {
         buttonConfig() {
             return [
                 {
                     key: 'back',
-                    label: this.$tc('sw-first-run-wizard.general.buttonBack'),
+                    label: this.$t('global.default.back'),
                     position: 'left',
                     variant: 'secondary',
                     action: 'sw.first.run.wizard.index.paypal.info',
@@ -25,7 +22,7 @@ export default {
                 },
                 {
                     key: 'skip',
-                    label: this.$tc('sw-first-run-wizard.general.buttonSkip'),
+                    label: this.$t('sw-first-run-wizard.general.buttonSkip'),
                     position: 'right',
                     variant: 'secondary',
                     action: 'sw.first.run.wizard.index.plugins',
@@ -33,7 +30,7 @@ export default {
                 },
                 {
                     key: 'next',
-                    label: this.$tc('sw-first-run-wizard.general.buttonNext'),
+                    label: this.$t('sw-first-run-wizard.general.buttonNext'),
                     position: 'right',
                     variant: 'primary',
                     action: 'sw.first.run.wizard.index.plugins',
@@ -54,7 +51,7 @@ export default {
         },
 
         setTitle() {
-            this.$emit('frw-set-title', this.$tc('sw-first-run-wizard.paypalInfo.modalTitle'));
+            this.$emit('frw-set-title', this.$t('sw-first-run-wizard.paypalInfo.modalTitle'));
         },
 
         updateButtons() {

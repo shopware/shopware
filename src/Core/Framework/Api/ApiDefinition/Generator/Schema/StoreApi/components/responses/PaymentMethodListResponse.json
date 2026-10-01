@@ -1,0 +1,35 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "responses": {
+            "PaymentMethodListResponse": {
+                "description": "",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "total": {
+                                    "description": "Total amount",
+                                    "type": "integer"
+                                },
+                                "aggregations": {
+                                    "description": "aggregation result",
+                                    "$ref": "#/components/schemas/EntitySearchResult/properties/aggregations"
+                                },
+                                "elements": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/PaymentMethod"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        }
+    }
+} 

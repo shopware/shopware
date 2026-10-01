@@ -5,10 +5,10 @@ import CaptchaService from './service/captcha.service';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register('sw-settings-basic-information', () => import('./page/sw-settings-basic-information'));
 Shopware.Component.register('sw-settings-captcha-select-v2', () => import('./component/sw-settings-captcha-select-v2'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Shopware.Service().register('captchaService', () => {
@@ -23,9 +23,9 @@ Module.register('sw-settings-basic-information', {
     description: 'sw-settings-basic-information.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#9AA8B5',
-    icon: 'regular-cog',
-    favicon: 'icon-module-settings.png',
+    color: 'var(--sw-color-module-neutral-default)',
+    icon: 'regular-bars',
+    favicon: 'icon-module-settings.svg',
 
     routes: {
         index: {

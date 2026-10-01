@@ -12,12 +12,14 @@ use Shopware\Core\Content\Cms\DataResolver\ResolverContext\ResolverContext;
 use Shopware\Core\Content\Cms\SalesChannel\Struct\ManufacturerLogoStruct;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerEntity;
 use Shopware\Core\Content\Product\Cms\ManufacturerLogoCmsElementResolver;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,6 +27,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ManufacturerLogoTypeCmsResolverTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -43,7 +46,7 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
 
     public function testCollect(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -56,7 +59,7 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
 
     public function testEnrichWithoutContext(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();
@@ -78,7 +81,7 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId('product_01');
         $product->setManufacturer($manufacturer);
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), static::getContainer()->get(SalesChannelProductDefinition::class), $product);
+        $resolverContext = new EntityResolverContext(static::createStub(SalesChannelContext::class), new Request(), static::getContainer()->get(SalesChannelProductDefinition::class), $product);
         $result = new ElementDataCollection();
 
         $media = new MediaEntity();
@@ -107,7 +110,40 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
         $manufacturerLogoStruct = $slot->getData();
         static::assertInstanceOf(ManufacturerLogoStruct::class, $manufacturerLogoStruct);
         static::assertNotEmpty($manufacturerLogoStruct->getManufacturer());
-        static::assertEquals('manufacturer_01', $manufacturerLogoStruct->getManufacturer()->getId());
-        static::assertEquals('media_01', $manufacturerLogoStruct->getMediaId());
+        static::assertSame('manufacturer_01', $manufacturerLogoStruct->getManufacturer()->getId());
+        static::assertSame('media_01', $manufacturerLogoStruct->getMediaId());
+    }
+
+    public function testCollectWithMappedManufacturerWithoutMediaInEntityContext(): void
+    {
+        $product = new SalesChannelProductEntity();
+        $product->setId('product_01');
+        $product->setManufacturerId('manufacturer_01');
+        $manufacturer = new ProductManufacturerEntity();
+        $manufacturer->setId('manufacturer_01');
+        $product->setManufacturer($manufacturer);
+
+        $resolverContext = new EntityResolverContext(
+            static::createStub(SalesChannelContext::class),
+            new Request(),
+            static::getContainer()->get(SalesChannelProductDefinition::class),
+            $product
+        );
+
+        $fieldConfig = new FieldConfigCollection();
+        $fieldConfig->add(new FieldConfig('media', FieldConfig::SOURCE_MAPPED, 'product.manufacturer.media'));
+
+        $slot = new CmsSlotEntity();
+        $slot->setUniqueIdentifier('id');
+        $slot->setType('manufacturer-logo');
+        $slot->setFieldConfig($fieldConfig);
+
+        $collection = $this->manufacturerLogoCmsElementResolver->collect($slot, $resolverContext);
+        static::assertNotNull($collection);
+        static::assertArrayHasKey(ProductManufacturerDefinition::class, $collection->all());
+
+        $criteria = $collection->all()[ProductManufacturerDefinition::class]['mapped_product_manufacturer_id'];
+        static::assertSame(['manufacturer_01'], $criteria->getIds());
+        static::assertArrayHasKey('media', $criteria->getAssociations());
     }
 }

@@ -6,46 +6,55 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
-use Shopware\Core\Content\ProductStream\ProductStreamDefinition;
+use Shopware\Core\Content\ProductStream\Aggregate\ProductStreamFilter\ProductStreamFilterDefinition;
+use Shopware\Core\Content\ProductStream\DataAbstractionLayer\ProductStreamWriteResultHelper;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException;
-use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Exception\UnmappedFieldException as DeprecatedUnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableTransaction;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\UnmappedFieldException;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ManyToManyIdFieldUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotEqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\QueryStringParser;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\Language\LanguageCollection;
+use Shopware\Core\System\Language\LanguageEntity;
 use Symfony\Component\Messenger\MessageBusInterface;
 
 #[Package('framework')]
 class ProductStreamUpdater extends AbstractProductStreamUpdater
 {
+    public const INDEXER_NAME = 'product_stream_mapping.indexer';
+
     /**
      * @internal
      *
      * @param EntityRepository<ProductCollection> $repository
+     * @param EntityRepository<LanguageCollection> $languageRepository
      */
     public function __construct(
         private readonly Connection $connection,
         private readonly ProductDefinition $productDefinition,
         private readonly EntityRepository $repository,
         private readonly MessageBusInterface $messageBus,
-        private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater
+        private readonly ManyToManyIdFieldUpdater $manyToManyIdFieldUpdater,
+        private readonly EntityRepository $languageRepository,
+        private readonly bool $indexingEnabled,
     ) {
     }
 
     public function getName(): string
     {
-        return 'product_stream_mapping.indexer';
+        return self::INDEXER_NAME;
     }
 
     public function iterate(?array $offset): ?EntityIndexingMessage
@@ -65,61 +74,72 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             return;
         }
 
-        $filter = $this->connection->fetchOne(
-            'SELECT api_filter FROM product_stream WHERE invalid = 0 AND api_filter IS NOT NULL AND id = :id',
+        /** @var array{invalid: int|string, api_filter: string|null}|false $stream */
+        $stream = $this->connection->fetchAssociative(
+            'SELECT invalid, api_filter FROM product_stream WHERE id = :id',
             ['id' => Uuid::fromHexToBytes($streamId)]
         );
-        // if the filter is invalid
-        if ($filter === false) {
+        // the stream is gone, its mappings went with it through the foreign key
+        if ($stream === false) {
             return;
         }
 
-        $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+        // an invalid stream, or one left without filters, has nothing to match against
+        $criteria = null;
+        if ((int) $stream['invalid'] === 0 && $stream['api_filter'] !== null) {
+            $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
 
-        $filter = json_decode((string) $filter, true, 512, \JSON_THROW_ON_ERROR);
-
-        $criteria = $this->getCriteria($filter);
-        if ($criteria === null) {
-            return;
+            if (\is_array($filter)) {
+                $criteria = $this->getCriteria($filter);
+            }
         }
 
-        $considerInheritance = $message->getContext()->considerInheritance();
-        $message->getContext()->setConsiderInheritance(true);
+        $criteria?->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 
         $binaryStreamId = Uuid::fromHexToBytes($streamId);
 
-        /** @var list<string> $ids */
-        $ids = $this->connection->fetchFirstColumn(
+        /** @var list<string> $oldMatches */
+        $oldMatches = $this->connection->fetchFirstColumn(
             'SELECT LOWER(HEX(product_id)) FROM product_stream_mapping WHERE product_stream_id = :id',
             ['id' => $binaryStreamId],
         );
 
-        RetryableTransaction::retryable($this->connection, function () use ($binaryStreamId): void {
-            $this->connection->executeStatement(
-                'DELETE FROM product_stream_mapping WHERE product_stream_id = :id',
-                ['id' => $binaryStreamId],
-            );
-        });
-
-        /** @var list<string> $matches */
-        $matches = $this->repository->searchIds($criteria, $message->getContext())->getIds();
-
-        $insert = new MultiInsertQueryQueue($this->connection, 250, false, false);
-
-        foreach ($matches as $id) {
-            $ids[] = $id;
-            $insert->addInsert('product_stream_mapping', [
-                'product_id' => Uuid::fromHexToBytes($id),
-                'product_version_id' => $version,
-                'product_stream_id' => $binaryStreamId,
-            ]);
+        if ($criteria === null) {
+            // nothing left to match against, so every mapping the stream still holds has to go
+            $newMatches = [];
+        } else {
+            try {
+                $newMatches = $this->collectMatchingIdsInLanguageContexts($this->getLanguageContexts($message->getContext()), $criteria);
+            } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
+                // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
+                // invalid filter, remove all mappings
+                $newMatches = [];
+            }
         }
 
-        $insert->execute();
+        $toBeAdded = array_values(array_diff($newMatches, $oldMatches));
+        $toBeDeleted = array_values(array_diff($oldMatches, $newMatches));
 
-        $message->getContext()->setConsiderInheritance($considerInheritance);
+        if ($toBeAdded !== []) {
+            RetryableTransaction::retryable($this->connection, function () use ($toBeAdded, $binaryStreamId): void {
+                $this->insertMappings($toBeAdded, $binaryStreamId);
+            });
+        }
 
-        $ids = array_unique($ids);
+        if ($toBeDeleted !== []) {
+            RetryableTransaction::retryable($this->connection, function () use ($toBeDeleted, $binaryStreamId): void {
+                $this->connection->executeStatement(
+                    'DELETE FROM product_stream_mapping WHERE product_id IN (:ids) AND product_stream_id = :streamId',
+                    [
+                        'ids' => Uuid::fromHexToBytesList($toBeDeleted),
+                        'streamId' => $binaryStreamId,
+                    ],
+                    ['ids' => ArrayParameterType::BINARY],
+                );
+            });
+        }
+
+        $ids = array_unique([...$toBeAdded, ...$toBeDeleted]);
 
         foreach (array_chunk($ids, 250) as $chunkedIds) {
             $this->manyToManyIdFieldUpdater->update(
@@ -133,9 +153,17 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
 
     public function update(EntityWrittenContainerEvent $event): ?EntityIndexingMessage
     {
-        $ids = $event->getPrimaryKeys(ProductStreamDefinition::ENTITY_NAME);
+        if (!$this->indexingEnabled) {
+            return null;
+        }
 
-        if (empty($ids)) {
+        if ($event->getEventByEntityName(ProductStreamFilterDefinition::ENTITY_NAME) === null) {
+            return null;
+        }
+
+        $ids = ProductStreamWriteResultHelper::getAffectedStreamIds($event);
+
+        if ($ids === []) {
             return null;
         }
 
@@ -153,17 +181,20 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
      */
     public function updateProducts(array $ids, Context $context): void
     {
+        if (!$this->indexingEnabled) {
+            return;
+        }
+
         $streams = $this->connection->fetchAllAssociative('SELECT id, api_filter FROM product_stream WHERE invalid = 0 AND api_filter IS NOT NULL');
 
-        $insert = new MultiInsertQueryQueue($this->connection);
+        $languageContexts = $this->getLanguageContexts($context);
 
-        $version = Uuid::fromHexToBytes(Defaults::LIVE_VERSION);
+        /** @var list<array{streamId: string, productIds: list<string>}> $matches */
+        $matches = [];
 
-        $considerInheritance = $context->considerInheritance();
-        $context->setConsiderInheritance(true);
         foreach ($streams as $stream) {
             $filter = json_decode((string) $stream['api_filter'], true, 512, \JSON_THROW_ON_ERROR);
-            if (empty($filter)) {
+            if (!\is_array($filter) || $filter === []) {
                 continue;
             }
 
@@ -174,32 +205,34 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             }
 
             try {
-                $matches = $this->repository->searchIds($criteria, $context);
-            } catch (UnmappedFieldException) {
+                $matchedIds = $this->collectMatchingIdsInLanguageContexts($languageContexts, $criteria);
+            } catch (UnmappedFieldException|DeprecatedUnmappedFieldException) {
+                // @deprecated tag:v6.8.0 - drop DeprecatedUnmappedFieldException, unmappedField() only returns UnmappedFieldException then
                 // skip if filter field is not found
                 continue;
             }
 
-            foreach ($matches->getIds() as $id) {
-                if (!\is_string($id)) {
-                    continue;
-                }
-                $insert->addInsert('product_stream_mapping', [
-                    'product_id' => Uuid::fromHexToBytes($id),
-                    'product_version_id' => $version,
-                    'product_stream_id' => $stream['id'],
-                ]);
+            if ($matchedIds === []) {
+                continue;
             }
-        }
-        $context->setConsiderInheritance($considerInheritance);
 
-        RetryableTransaction::retryable($this->connection, function () use ($ids, $insert): void {
+            $matches[] = ['streamId' => (string) $stream['id'], 'productIds' => $matchedIds];
+        }
+
+        RetryableTransaction::retryable($this->connection, function () use ($ids, $matches): void {
+            if ($matches !== []) {
+                $this->lockProducts($ids);
+            }
+
             $this->connection->executeStatement(
                 'DELETE FROM product_stream_mapping WHERE product_id IN (:ids)',
                 ['ids' => Uuid::fromHexToBytesList($ids)],
                 ['ids' => ArrayParameterType::BINARY]
             );
-            $insert->execute();
+
+            foreach ($matches as $match) {
+                $this->insertMappings($match['productIds'], $match['streamId']);
+            }
         });
     }
 
@@ -212,6 +245,100 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     public function getDecorated(): EntityIndexer
     {
         throw new DecorationPatternException(static::class);
+    }
+
+    /**
+     * Locks the products before the mapping rows are touched, as a concurrent product delete takes the same
+     * locks in that order through its cascade. Sorted ids keep parallel runs in one order.
+     *
+     * @param string[] $productIds
+     */
+    private function lockProducts(array $productIds): void
+    {
+        $ids = Uuid::fromHexToBytesList($productIds);
+        sort($ids);
+
+        foreach (array_chunk($ids, 250) as $chunk) {
+            $this->connection->executeStatement(
+                'SELECT id FROM product WHERE id IN (:ids) AND version_id = :version ORDER BY id FOR UPDATE',
+                [
+                    'ids' => $chunk,
+                    'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                ],
+                ['ids' => ArrayParameterType::BINARY],
+            );
+        }
+    }
+
+    /**
+     * Selecting from `product` keeps the existence check in the insert, as the ids come from a search that
+     * ran before the write, so a product may be deleted by now.
+     *
+     * @param list<string> $productIds
+     */
+    private function insertMappings(array $productIds, string $binaryStreamId): void
+    {
+        foreach (array_chunk($productIds, 250) as $chunk) {
+            $this->connection->executeStatement(
+                'INSERT IGNORE INTO product_stream_mapping (product_id, product_version_id, product_stream_id)
+                 SELECT product.id, product.version_id, :streamId
+                 FROM product
+                 WHERE product.id IN (:ids) AND product.version_id = :version',
+                [
+                    'streamId' => $binaryStreamId,
+                    'ids' => Uuid::fromHexToBytesList($chunk),
+                    'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
+                ],
+                ['ids' => ArrayParameterType::BINARY],
+            );
+        }
+    }
+
+    /**
+     * @return list<Context>
+     */
+    private function getLanguageContexts(Context $context): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new NotEqualsFilter('salesChannels.id', null));
+        $languages = $this->languageRepository->search($criteria, Context::createDefaultContext())->getEntities();
+
+        return array_values($languages->map(
+            fn (LanguageEntity $language): Context => $this->createLanguageContext($context, $language)
+        ));
+    }
+
+    private function createLanguageContext(Context $context, LanguageEntity $language): Context
+    {
+        $languageContext = clone $context;
+        $languageContext->assign([
+            'languageIdChain' => array_values(array_unique(array_filter([$language->getId(), $language->getParentId(), Defaults::LANGUAGE_SYSTEM]))),
+        ]);
+
+        return $languageContext;
+    }
+
+    /**
+     * @param list<Context> $languageContexts
+     *
+     * @return list<string>
+     */
+    private function collectMatchingIdsInLanguageContexts(array $languageContexts, Criteria $criteria): array
+    {
+        /** @var array<string, true> $matches */
+        $matches = [];
+
+        foreach ($languageContexts as $languageContext) {
+            $languageMatches = $languageContext->enableInheritance(
+                fn (Context $context): array => $this->repository->searchIds($criteria, $context)->getIds()
+            );
+
+            foreach ($languageMatches as $id) {
+                $matches[$id] = true;
+            }
+        }
+
+        return array_keys($matches);
     }
 
     /**
@@ -228,7 +355,7 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
             $parsed[] = QueryStringParser::fromArray($this->productDefinition, $filter, $exception, '');
         }
 
-        if (empty($filters)) {
+        if ($filters === []) {
             return null;
         }
 
@@ -250,8 +377,10 @@ class ProductStreamUpdater extends AbstractProductStreamUpdater
     private function replaceCheapestPriceFilters(array $filters): array
     {
         foreach ($filters as $key => $filter) {
-            if (!empty($filter['queries'])) {
-                $filters[$key]['queries'] = $this->replaceCheapestPriceFilters($filter['queries']);
+            $queries = $filter['queries'] ?? null;
+            if (\is_array($queries) && $queries !== []) {
+                /** @var non-empty-array<int, array<string, mixed>> $queries */
+                $filters[$key]['queries'] = $this->replaceCheapestPriceFilters($queries);
             }
 
             if (!$priceQueries = $this->getPriceQueries($filter)) {

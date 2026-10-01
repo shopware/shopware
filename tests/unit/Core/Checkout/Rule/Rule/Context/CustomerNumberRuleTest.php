@@ -30,7 +30,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setCustomerNumber('NO. 1');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')
@@ -50,7 +50,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setCustomerNumber('NO. 2');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')
@@ -70,7 +70,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setCustomerNumber('no. 1');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')
@@ -87,7 +87,7 @@ class CustomerNumberRuleTest extends TestCase
 
         $cart = new Cart('test');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')
@@ -107,7 +107,7 @@ class CustomerNumberRuleTest extends TestCase
         $customer = new CustomerEntity();
         $customer->setCustomerNumber('no. 2');
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')
@@ -126,7 +126,7 @@ class CustomerNumberRuleTest extends TestCase
             $this->expectException(CustomerException::class);
         }
 
-        $context = $this->createMock(SalesChannelContext::class);
+        $context = static::createStub(SalesChannelContext::class);
 
         $context
             ->method('getCustomer')

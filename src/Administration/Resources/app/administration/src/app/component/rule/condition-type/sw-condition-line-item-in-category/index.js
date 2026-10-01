@@ -1,21 +1,19 @@
 import template from './sw-condition-line-item-in-category.html.twig';
 import './sw-condition-line-item-in-category.scss';
 
-const { Component, Context } = Shopware;
-const { mapPropertyErrors } = Component.getComponentHelper();
+const { Context } = Shopware;
 const { EntityCollection, Criteria } = Shopware.Data;
 
 /**
  * @sw-package fundamentals@after-sales
+ * @deprecated tag:v6.8.0 - Will be removed. Use sw-condition-generic instead.
  */
-Component.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-item', {
+// eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
+export default {
     template,
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     data() {
         return {
@@ -47,15 +45,6 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-i
                     categoryIds,
                 };
             },
-        },
-
-        ...mapPropertyErrors('condition', [
-            'value.operator',
-            'value.categoryIds',
-        ]),
-
-        currentError() {
-            return this.conditionValueOperatorError || this.conditionValueCategoryIdsError;
         },
     },
 
@@ -96,4 +85,4 @@ Component.extend('sw-condition-line-item-in-category', 'sw-condition-base-line-i
             return Object.values(category.breadcrumb).join(' / ');
         },
     },
-});
+};

@@ -51,11 +51,11 @@ class AppFlowEventDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required()),
-            (new StringField('name', 'name', 255))->addFlags(new Required()),
-            (new ListField('aware', 'aware', StringField::class))->addFlags(new Required()),
-            new CustomFields(),
+            (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required())->setDescription('Unique identity of app flow event.'),
+            (new FkField('app_id', 'appId', AppDefinition::class))->addFlags(new Required())->setDescription('Unique identity of app.'),
+            (new StringField('name', 'name', 255))->addFlags(new Required())->setDescription('Unique name of the AppFlowEvent.'),
+            (new ListField('aware', 'aware', StringField::class))->addFlags(new Required())->setDescription('Parameter that indicates the areas in which the app flow event is supported.'),
+            (new CustomFields())->setDescription('Additional fields that offer a possibility to add own fields for the different program-areas.'),
             new ManyToOneAssociationField('app', 'app_id', AppDefinition::class, 'id', false),
             (new OneToManyAssociationField('flows', FlowDefinition::class, 'app_flow_event_id'))->addFlags(new CascadeDelete()),
         ]);

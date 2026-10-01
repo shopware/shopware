@@ -73,12 +73,6 @@ describe('module/sw-cms/elements/product-listing/component/index', () => {
         Shopware.Store.get('cmsPage').resetCmsPageState();
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should use demo products', async () => {
         const wrapper = await createWrapper();
         Shopware.Store.get('cmsPage').setCurrentDemoProducts(currentDemoProducts);

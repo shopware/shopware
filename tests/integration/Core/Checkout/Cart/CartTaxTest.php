@@ -145,9 +145,9 @@ class CartTaxTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($testCase === 'tax-free') {
-            static::assertEquals((500 * $quantity) + 10, $response['price']['totalPrice']);
+            static::assertSame((500 * $quantity) + 10, $response['price']['totalPrice']);
         } else {
-            static::assertEquals((550 * $quantity) + 11, $response['price']['totalPrice']);
+            static::assertSame((550 * $quantity) + 11, $response['price']['totalPrice']);
         }
     }
 
@@ -228,9 +228,9 @@ class CartTaxTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($testCase === 'tax-free') {
-            static::assertEquals((550 * $quantity) + 11, $response['price']['totalPrice']);
+            static::assertSame((550 * $quantity) + 11, $response['price']['totalPrice']);
         } else {
-            static::assertEquals((605 * $quantity) + 12.1, $response['price']['totalPrice']);
+            static::assertSame((605 * $quantity) + 12.1, $response['price']['totalPrice']);
         }
     }
 
@@ -292,9 +292,9 @@ class CartTaxTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($testCase === 'tax-free') {
-            static::assertEquals(FloatComparator::cast((585.43 * $quantity) + 11.71), $response['price']['totalPrice']);
+            static::assertSame(FloatComparator::cast((585.43 * $quantity) + 11.71), $response['price']['totalPrice']);
         } else {
-            static::assertEquals(FloatComparator::cast((643.97 * $quantity) + 12.88), $response['price']['totalPrice']);
+            static::assertSame(FloatComparator::cast((643.97 * $quantity) + 12.88), $response['price']['totalPrice']);
         }
     }
 
@@ -313,14 +313,14 @@ class CartTaxTest extends TestCase
         return [
             'case 1 tax-free' => ['tax-free', true, false, 100, 100, 1],
             'case 2 tax-free' => ['tax-free', true, false, 1000, 100, 2],
-            'case 3 tax-free' => ['tax-free', true, true, 1000, 100, 1],
+            'case 3 tax-free' => ['no tax-free', true, true, 1000, 100, 1],
             'case 4 tax-free' => ['tax-free', true, true, 1000, 1000, 2],
             'case 5 no-tax-free' => ['no-tax-free', true, false, 1000, 100, 1],
             'case 6 no-tax-free' => ['no-tax-free', true, true, 1000, 1000, 1],
             'case 7 no-tax-free' => ['no-tax-free', false, false, 1000, 1000, 1],
             'case 8 no-tax-free' => ['no-tax-free', false, false, 1000, 1000, 2],
-            'case 9 tax-free' => ['tax-free', false, true, 100, 100, 1],
-            'case 10 tax-free' => ['tax-free', false, true, 100, 1000, 2],
+            'case 9 tax-free' => ['no tax-free', false, true, 100, 100, 1],
+            'case 10 tax-free' => ['no tax-free', false, true, 100, 1000, 2],
             'case 11 tax-free' => ['tax-free', true, true, 100, 1000, 1],
         ];
     }
@@ -351,20 +351,20 @@ class CartTaxTest extends TestCase
             'case 8 no tax-free' => ['no tax-free', 1000, true, false, 100, 100,  1],
             'case 9 no tax-free' => ['no tax-free', 1000, true, true, 100, 100, 1],
             'case 10 tax-free' => ['tax-free', 0, true, true, 100, 100, 1],
-            'case 11 tax-free' => ['tax-free', 0, false, true, 100, 100, 1],
-            'case 12 tax-free' => ['tax-free', 0, false, true, 0, 100, 1],
-            'case 13 tax-free' => ['tax-free', 0, false, true, 1000, 100, 1],
+            'case 11 tax-free' => ['no tax-free', 0, false, true, 100, 100, 1],
+            'case 12 tax-free' => ['no tax-free', 0, false, true, 0, 100, 1],
+            'case 13 tax-free' => ['no tax-free', 0, false, true, 1000, 100, 1],
             'case 14 tax-free' => ['tax-free', 0, true, false, 100, 100, 1],
             'case 15 tax-free' => ['tax-free', 0, true, false, 100, 1000, 1],
             'case 16 tax-free' => ['tax-free', 0, true, false, 100, 0, 1],
             'case 17 tax-free' => ['tax-free', 0, true, false, 1000, 0, 2],
-            'case 18 tax-free' => ['tax-free', 0, false, true, 0, 1000, 2],
-            'case 19 tax-free' => ['tax-free', 0, false, true, 0, 999.99, 3],
+            'case 18 tax-free' => ['no tax-free', 0, false, true, 0, 1000, 2],
+            'case 19 tax-free' => ['no tax-free', 0, false, true, 0, 999.99, 3],
             'case 20 tax-free' => ['tax-free', 0, true, false, 1000, 0, 3],
             'case 21 no tax-free' => ['no tax-free', 0, true, true, 1000, 100, 1, ['DE1234567890123'], true],
-            'case 22 tax-free' => ['tax-free', 0, false, true, 1000, 100, 1, ['DE1234567890123'], false],
-            'case 23 tax-free' => ['tax-free', 0, false, true, 1000, 100, 1, ['DE123456789'], false],
-            'case 24 tax-free' => ['tax-free', 0, false, true, 1000, 100, 1, ['DE123456789'], true],
+            'case 22 tax-free' => ['no tax-free', 0, false, true, 1000, 100, 1, ['DE1234567890123'], false],
+            'case 23 tax-free' => ['no tax-free', 0, false, true, 1000, 100, 1, ['DE123456789'], false],
+            'case 24 tax-free' => ['no tax-free', 0, false, true, 1000, 100, 1, ['DE123456789'], true],
         ];
     }
 

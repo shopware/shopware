@@ -49,7 +49,6 @@ async function createWrapper(privileges = []) {
                     </div>
                 `,
                 },
-                'sw-empty-state': true,
                 'sw-context-menu-item': true,
                 'sw-modal': {
                     template: `
@@ -64,6 +63,16 @@ async function createWrapper(privileges = []) {
                 'sw-rating-stars': true,
                 'sw-data-grid-column-boolean': true,
                 'sw-pagination': true,
+                'sw-time-ago': true,
+            },
+            mocks: {
+                $route: {
+                    meta: {
+                        $module: {
+                            icon: 'regular-content',
+                        },
+                    },
+                },
             },
         },
     });
@@ -92,16 +101,8 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
         });
     });
 
-    it('should be a Vue.JS component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should be able to edit a review', async () => {
-        const wrapper = await createWrapper([
-            'product.editor',
-        ]);
+        const wrapper = await createWrapper(['product.editor']);
 
         await wrapper.setData({ dataSource, total: 2 });
 
@@ -119,9 +120,7 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
     });
 
     it('should be able to delete a review', async () => {
-        const wrapper = await createWrapper([
-            'product.editor',
-        ]);
+        const wrapper = await createWrapper(['product.editor']);
 
         await wrapper.setData({ dataSource, total: 2 });
 
@@ -213,6 +212,9 @@ describe('src/module/sw-product/view/sw-product-detail-reviews', () => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.assetFilter).toEqual(expect.any(Function));
-        expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        if (!Shopware.Feature.isActive('V6_8_0_0')) {
+            // eslint-disable-next-line jest/no-conditional-expect
+            expect(wrapper.vm.dateFilter).toEqual(expect.any(Function));
+        }
     });
 });

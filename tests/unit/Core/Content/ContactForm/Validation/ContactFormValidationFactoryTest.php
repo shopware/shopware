@@ -26,15 +26,15 @@ class ContactFormValidationFactoryTest extends TestCase
     #[DataProvider('systemConfigDataProvider')]
     public function testCreate(bool $required, \Closure $expectsClosure): void
     {
-        $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
+        $systemConfigServiceMock = static::createStub(SystemConfigService::class);
         $systemConfigServiceMock->method('get')->willReturn($required);
 
         $validation = new ContactFormValidationFactory(
-            $this->createMock(EventDispatcherInterface::class),
+            static::createStub(EventDispatcherInterface::class),
             $systemConfigServiceMock
         );
 
-        $contextMock = $this->createMock(SalesChannelContext::class);
+        $contextMock = static::createStub(SalesChannelContext::class);
 
         $definition = $validation->create($contextMock);
 
@@ -45,22 +45,22 @@ class ContactFormValidationFactoryTest extends TestCase
     {
         yield 'is required' => [
             true,
-            function (DataValidationDefinition $definition, SalesChannelContext $context): void {
+            static function (DataValidationDefinition $definition, SalesChannelContext $context): void {
                 static::assertEquals($definition->getProperties(), [
                     'salutationId' => [
                         new NotBlank(),
-                        new EntityExists(['entity' => 'salutation', 'context' => $context->getContext()]),
+                        new EntityExists(entity: 'salutation', context: $context->getContext()),
                     ],
                     'email' => [new NotBlank(), new Email()],
                     'subject' => [new NotBlank()],
                     'comment' => [new NotBlank()],
                     'firstName' => [
                         new NotBlank(),
-                        new Regex(['pattern' => ContactFormValidationFactory::DOMAIN_NAME_REGEX, 'match' => false]),
+                        new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
                     ],
                     'lastName' => [
                         new NotBlank(),
-                        new Regex(['pattern' => ContactFormValidationFactory::DOMAIN_NAME_REGEX, 'match' => false]),
+                        new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
                     ],
                     'phone' => [new NotBlank()],
                 ]);
@@ -69,20 +69,20 @@ class ContactFormValidationFactoryTest extends TestCase
 
         yield 'is not required' => [
             false,
-            function (DataValidationDefinition $definition, SalesChannelContext $context): void {
+            static function (DataValidationDefinition $definition, SalesChannelContext $context): void {
                 static::assertEquals($definition->getProperties(), [
                     'salutationId' => [
                         new NotBlank(),
-                        new EntityExists(['entity' => 'salutation', 'context' => $context->getContext()]),
+                        new EntityExists(entity: 'salutation', context: $context->getContext()),
                     ],
                     'email' => [new NotBlank(), new Email()],
                     'subject' => [new NotBlank()],
                     'comment' => [new NotBlank()],
                     'firstName' => [
-                        new Regex(['pattern' => ContactFormValidationFactory::DOMAIN_NAME_REGEX, 'match' => false]),
+                        new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
                     ],
                     'lastName' => [
-                        new Regex(['pattern' => ContactFormValidationFactory::DOMAIN_NAME_REGEX, 'match' => false]),
+                        new Regex(pattern: ContactFormValidationFactory::DOMAIN_NAME_REGEX, match: false),
                     ],
                 ]);
             },

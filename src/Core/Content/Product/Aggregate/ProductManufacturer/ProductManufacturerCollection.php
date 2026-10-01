@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<ProductManufacturerEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('inventory')]
 class ProductManufacturerCollection extends EntityCollection
@@ -16,12 +18,12 @@ class ProductManufacturerCollection extends EntityCollection
      */
     public function getMediaIds(): array
     {
-        return $this->fmap(fn (ProductManufacturerEntity $productManufacturer) => $productManufacturer->getMediaId());
+        return $this->fmap(static fn (ProductManufacturerEntity $productManufacturer) => $productManufacturer->getMediaId());
     }
 
     public function filterByMediaId(string $id): self
     {
-        return $this->filter(fn (ProductManufacturerEntity $productManufacturer) => $productManufacturer->getMediaId() === $id);
+        return $this->filter(static fn (ProductManufacturerEntity $productManufacturer) => $productManufacturer->getMediaId() === $id);
     }
 
     public function getApiAlias(): string

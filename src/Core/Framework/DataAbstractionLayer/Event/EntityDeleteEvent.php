@@ -103,7 +103,7 @@ class EntityDeleteEvent extends Event implements ShopwareEvent
 
     public function filled(): bool
     {
-        return \count($this->commands) > 0;
+        return $this->commands !== [];
     }
 
     public function addSuccess(\Closure $callback): void

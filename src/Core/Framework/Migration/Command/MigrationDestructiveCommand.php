@@ -6,15 +6,16 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationCollection;
 use Shopware\Core\Framework\Migration\MigrationCollectionLoader;
 use Shopware\Core\Framework\Migration\MigrationException;
+use Shopware\Core\Framework\Migration\MigrationStep;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
+#[Package('framework')]
 #[AsCommand(
     name: 'database:migrate-destructive',
     description: 'Executes all migrations',
 )]
-#[Package('framework')]
 class MigrationDestructiveCommand extends MigrationCommand
 {
     protected function configure(): void
@@ -33,6 +34,9 @@ class MigrationDestructiveCommand extends MigrationCommand
         );
     }
 
+    /**
+     * @return \Generator<class-string<MigrationStep>>
+     */
     protected function getMigrationGenerator(MigrationCollection $collection, ?int $until, ?int $limit): \Generator
     {
         yield from $collection->migrateDestructiveInSteps($until, $limit);

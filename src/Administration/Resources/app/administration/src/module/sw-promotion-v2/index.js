@@ -9,7 +9,7 @@ import defaultSearchConfiguration from './default-search-configuration';
 
 const { Module } = Shopware;
 
-/* eslint-disable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-disable sw-deprecation-rules/private-feature-declarations */
 Shopware.Component.register(
     'sw-promotion-v2-settings-trigger',
     () => import('./component/discount/sw-promotion-v2-settings-trigger'),
@@ -47,7 +47,6 @@ Shopware.Component.register(
     'sw-promotion-v2-empty-state-hero',
     () => import('./component/sw-promotion-v2-empty-state-hero'),
 );
-Shopware.Component.register('sw-promotion-v2-rule-select', () => import('./component/sw-promotion-v2-rule-select'));
 Shopware.Component.register(
     'sw-promotion-v2-sales-channel-select',
     () => import('./component/sw-promotion-v2-sales-channel-select'),
@@ -58,7 +57,7 @@ Shopware.Component.register('sw-promotion-v2-list', () => import('./page/sw-prom
 Shopware.Component.register('sw-promotion-v2-detail-base', () => import('./view/sw-promotion-v2-detail-base'));
 Shopware.Component.register('sw-promotion-v2-conditions', () => import('./view/sw-promotion-v2-conditions'));
 Shopware.Component.register('sw-promotion-detail-discounts', () => import('./view/sw-promotion-detail-discounts'));
-/* eslint-enable max-len, sw-deprecation-rules/private-feature-declarations */
+/* eslint-enable sw-deprecation-rules/private-feature-declarations */
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 Module.register('sw-promotion-v2', {
@@ -68,9 +67,9 @@ Module.register('sw-promotion-v2', {
     description: 'sw-promotion-v2.general.description',
     version: '1.0.0',
     targetVersion: '1.0.0',
-    color: '#FFD700',
-    icon: 'regular-megaphone',
-    favicon: 'icon-module-marketing.png',
+    color: 'var(--sw-color-module-yellow-default)',
+    icon: 'regular-discount',
+    favicon: 'icon-module-marketing.svg',
     entity: 'promotion',
 
     routes: {
@@ -149,7 +148,7 @@ Module.register('sw-promotion-v2', {
             props: {
                 default: (route) => {
                     return {
-                        promotionId: route.params.id,
+                        promotionId: route.params.id?.toLowerCase(),
                     };
                 },
             },
@@ -160,7 +159,7 @@ Module.register('sw-promotion-v2', {
         {
             id: 'sw-marketing',
             label: 'global.sw-admin-menu.navigation.mainMenuItemMarketing',
-            color: '#FFD700',
+            color: 'var(--sw-color-module-yellow-default)',
             icon: 'regular-megaphone',
             position: 60,
             privilege: 'promotion.viewer',
@@ -169,9 +168,9 @@ Module.register('sw-promotion-v2', {
             id: 'sw-promotion-v2',
             path: 'sw.promotion.v2.index',
             label: 'sw-promotion-v2.general.mainMenuItemGeneral',
-            color: '#FFD700',
-            icon: 'regular-megaphone',
-            position: 100,
+            color: 'var(--sw-color-module-yellow-default)',
+            icon: 'regular-discount',
+            position: 10,
             parent: 'sw-marketing',
             privilege: 'promotion.viewer',
         },

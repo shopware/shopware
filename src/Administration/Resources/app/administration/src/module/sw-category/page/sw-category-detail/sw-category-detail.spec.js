@@ -19,11 +19,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
                     },
                     'sw-category-tree': {
                         template: '<div class="sw-category-tree"></div>',
-                        props: [
-                            'allowEdit',
-                            'allowCreate',
-                            'allowDelete',
-                        ],
+                        props: ['allowEdit', 'allowCreate', 'allowDelete'],
                     },
                     'sw-button-process': {
                         template: '<div class="sw-button-process"><slot></slot></div>',
@@ -49,6 +45,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
                     'sw-empty-state': true,
                 },
                 provide: {
+                    customFieldDataProviderService: { getCustomFieldSets: () => Promise.resolve([]) },
                     cmsService: {
                         getEntityMappingTypes: () => {},
                     },
@@ -146,10 +143,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     it('should allow to create', async () => {
-        global.activeAclRoles = [
-            'category.creator',
-            'category.editor',
-        ];
+        global.activeAclRoles = ['category.creator', 'category.editor'];
 
         const wrapper = await createWrapper();
 
@@ -173,11 +167,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     it('should allow to delete', async () => {
-        global.activeAclRoles = [
-            'category.creator',
-            'category.editor',
-            'category.deleter',
-        ];
+        global.activeAclRoles = ['category.creator', 'category.editor', 'category.deleter'];
 
         const wrapper = await createWrapper();
 
@@ -201,11 +191,7 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
     });
 
     it('should set default layout', async () => {
-        global.activeAclRoles = [
-            'category.creator',
-            'category.editor',
-            'category.deleter',
-        ];
+        global.activeAclRoles = ['category.creator', 'category.editor', 'category.deleter'];
 
         const wrapper = await createWrapper();
 
@@ -230,5 +216,63 @@ describe('src/module/sw-category/page/sw-category-detail', () => {
 
         const lastCallParameters = saveMock.mock.lastCall;
         expect(lastCallParameters[0].cmsPageId).toBeUndefined();
+    });
+
+    it('should save changed slot config fields only', async () => {
+        const wrapper = await createWrapper();
+
+        const origin = {
+            sections: [
+                {
+                    id: 'section1',
+                    blocks: [
+                        {
+                            id: 'block1',
+                            slots: [
+                                {
+                                    id: 'slot1',
+                                    translated: { config: { key1: { value: 'value1' }, key2: { value: 'value2' } } },
+                                },
+                                { id: 'slot2', translated: { config: { key1: { value: 'value1' } } } },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        };
+
+        const changes = {
+            sections: [
+                {
+                    id: 'section1',
+                    blocks: [
+                        {
+                            id: 'block1',
+                            slots: [
+                                { id: 'slot1', config: { key1: { value: 'newValue1' }, key2: { value: 'value2' } } },
+                                { id: 'slot2', config: { key1: { value: 'newValue1' } } },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        };
+
+        const expectedSlotOverrides = {
+            slot1: { key1: { value: 'newValue1' } },
+            slot2: { key1: { value: 'newValue1' } },
+        };
+
+        const result = wrapper.vm.extractSlotOverrides(origin, changes);
+
+        expect(result).toEqual(expectedSlotOverrides);
+    });
+
+    it('should load landing page translations for CMS inheritance handling', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.landingPageCriteria.associations.some(({ association }) => association === 'translations')).toBe(
+            true,
+        );
     });
 });

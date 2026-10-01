@@ -2,8 +2,6 @@ import { inject } from 'vue';
 import template from './sw-switch-field-deprecated.html.twig';
 import './sw-switch-field-deprecated.scss';
 
-const { Component } = Shopware;
-
 /**
  * @sw-package framework
  *
@@ -14,15 +12,12 @@ const { Component } = Shopware;
  * @component-example
  * <sw-switch-field-deprecated v-model="aBooleanProperty" label="Name"></sw-switch-field>
  */
-Component.extend('sw-switch-field-deprecated', 'sw-checkbox-field-deprecated', {
+export default {
     template,
 
     inheritAttrs: false,
 
-    emits: [
-        'inheritance-remove',
-        'inheritance-restore',
-    ],
+    emits: ['inheritance-remove', 'inheritance-restore'],
 
     props: {
         noMarginTop: {
@@ -35,17 +30,9 @@ Component.extend('sw-switch-field-deprecated', 'sw-checkbox-field-deprecated', {
             type: String,
             required: false,
             default: 'default',
-            validValues: [
-                'small',
-                'medium',
-                'default',
-            ],
+            validValues: ['small', 'medium', 'default'],
             validator(val) {
-                return [
-                    'small',
-                    'medium',
-                    'default',
-                ].includes(val);
+                return ['small', 'medium', 'default'].includes(val);
             },
         },
         ariaLabel: {
@@ -77,4 +64,4 @@ Component.extend('sw-switch-field-deprecated', 'sw-checkbox-field-deprecated', {
             this.$emit('inheritance-restore', event);
         },
     },
-});
+};

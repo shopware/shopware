@@ -4,12 +4,14 @@ namespace Shopware\Tests\Integration\Core\Framework\Adapter\Twig;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Twig\TwigFilter;
 
 /**
  * @internal
  */
+#[Package('framework')]
 class ReplaceRecursiveFilterTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -66,7 +68,7 @@ class ReplaceRecursiveFilterTest extends TestCase
 
         $result = $this->replaceRecursiveFilter->replaceRecursive($arrayOne, $arrayTwo);
 
-        static::assertEquals($expect, $result);
+        static::assertSame($expect, $result);
     }
 
     public function testReplaceRecursiveThreeObjects(): void
@@ -118,6 +120,6 @@ class ReplaceRecursiveFilterTest extends TestCase
 
         $result = $this->replaceRecursiveFilter->replaceRecursive($arrayOne, $arrayTwo, $arrayThree);
 
-        static::assertEquals($expect, $result);
+        static::assertSame($expect, $result);
     }
 }

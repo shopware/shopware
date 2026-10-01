@@ -2,7 +2,6 @@ import template from './sw-snippet-field.html.twig';
 import './sw-snippet-field.scss';
 
 const {
-    Component,
     Data: { Criteria },
 } = Shopware;
 
@@ -16,13 +15,10 @@ const {
  * @component-example
  * <sw-snippet-field snippet="myPlugin.test.snippet" fieldType="text"></sw-switch-field>
  */
-Component.register('sw-snippet-field', {
+export default {
     template,
 
-    inject: [
-        'snippetSetService',
-        'repositoryFactory',
-    ],
+    inject: ['snippetSetService', 'repositoryFactory'],
 
     props: {
         snippet: {
@@ -34,15 +30,9 @@ Component.register('sw-snippet-field', {
             type: String,
             required: false,
             default: 'text',
-            validValues: [
-                'text',
-                'textarea',
-            ],
+            validValues: ['text', 'textarea'],
             validator(value) {
-                return [
-                    'text',
-                    'textarea',
-                ].includes(value);
+                return ['text', 'textarea'].includes(value);
             },
         },
     },
@@ -167,4 +157,4 @@ Component.register('sw-snippet-field', {
             this.closeEditModal();
         },
     },
-});
+};

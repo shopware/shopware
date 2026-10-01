@@ -143,12 +143,6 @@ const createAdvancedSelectionModal = async (customOptions) => {
 };
 
 describe('components/sw-entity-advanced-selection-modal', () => {
-    it('should be a Vue.js component', async () => {
-        const searchModal = await createAdvancedSelectionModal();
-
-        expect(searchModal.vm).toBeTruthy();
-    });
-
     it('should respect the entered search term in criteria', async () => {
         const searchModal = await createAdvancedSelectionModal();
 
@@ -200,12 +194,7 @@ describe('components/sw-entity-advanced-selection-modal', () => {
         // assert proper event dispatch with correct data
         const selectionSubmitEvent = searchModal.emitted('selection-submit');
         expect(selectionSubmitEvent).toHaveLength(1);
-        expect(selectionSubmitEvent[0]).toEqual([
-            [
-                'one',
-                'two',
-            ],
-        ]);
+        expect(selectionSubmitEvent[0]).toEqual([['one', 'two']]);
         expect(searchModal.emitted('modal-close')).toHaveLength(1);
     });
 

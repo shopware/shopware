@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('inventory')]
 #[CoversClass(ProductSortingEntity::class)]
 class ProductSortingEntityTest extends TestCase
 {
@@ -96,6 +96,99 @@ class ProductSortingEntityTest extends TestCase
         static::assertEquals(
             $expected,
             $entity->createDalSorting()
+        );
+    }
+
+    public static function dalSortingDefaultSortBScoreProvider(): \Generator
+    {
+        yield 'Test empty config' => [
+            [],
+            [
+                new FieldSorting('_score', FieldSorting::DESCENDING),
+                new FieldSorting('id', FieldSorting::ASCENDING),
+            ],
+            new FieldSorting('_score', FieldSorting::DESCENDING),
+        ];
+
+        yield 'Test one field' => [
+            [
+                ['field' => 'name', 'order' => 'desc', 'priority' => 1],
+            ],
+            [
+                new FieldSorting('name', FieldSorting::DESCENDING),
+                new FieldSorting('_score', FieldSorting::DESCENDING),
+                new FieldSorting('id', FieldSorting::ASCENDING),
+            ],
+            new FieldSorting('_score', FieldSorting::DESCENDING),
+        ];
+
+        yield 'Test without fallback sorting' => [
+            [
+                ['field' => 'name', 'order' => 'desc', 'priority' => 1],
+            ],
+            [
+                new FieldSorting('name', FieldSorting::DESCENDING),
+                new FieldSorting('id', FieldSorting::ASCENDING),
+            ],
+            null,
+        ];
+
+        yield 'Test multiple fields' => [
+            [
+                ['field' => 'name', 'order' => 'desc', 'priority' => 2],
+                ['field' => 'price', 'order' => 'asc', 'priority' => 1],
+            ],
+            [
+                new FieldSorting('name', FieldSorting::DESCENDING),
+                new FieldSorting('price', FieldSorting::ASCENDING),
+                new FieldSorting('_score', FieldSorting::DESCENDING),
+                new FieldSorting('id', FieldSorting::ASCENDING),
+            ],
+            new FieldSorting('_score', FieldSorting::DESCENDING),
+        ];
+
+        yield 'Test skip default _score field' => [
+            [
+                ['field' => 'name', 'order' => 'desc', 'priority' => 2],
+                ['field' => '_score', 'order' => 'asc', 'priority' => 1],
+            ],
+            [
+                new FieldSorting('name', FieldSorting::DESCENDING),
+                new FieldSorting('_score', FieldSorting::ASCENDING),
+                new FieldSorting('id', FieldSorting::ASCENDING),
+            ],
+            new FieldSorting('_score', FieldSorting::DESCENDING),
+        ];
+
+        yield 'Sort by priority' => [
+            [
+                ['field' => 'name', 'order' => 'desc', 'priority' => 1],
+                ['field' => '_score', 'order' => 'asc', 'priority' => 3],
+                ['field' => 'sales', 'order' => 'asc', 'priority' => 2],
+            ],
+            [
+                new FieldSorting('_score', FieldSorting::ASCENDING),
+                new FieldSorting('sales', FieldSorting::ASCENDING),
+                new FieldSorting('name', FieldSorting::DESCENDING),
+                new FieldSorting('id', FieldSorting::ASCENDING),
+            ],
+            new FieldSorting('_score', FieldSorting::DESCENDING),
+        ];
+    }
+
+    /**
+     * @param array<mixed> $fields
+     * @param array<FieldSorting> $expected
+     */
+    #[DataProvider('dalSortingDefaultSortBScoreProvider')]
+    public function testCreateDalSortingWithFallbackSorting(array $fields, array $expected, ?FieldSorting $fallbackSorting = null): void
+    {
+        $entity = new ProductSortingEntity();
+        $entity->setFields($fields);
+
+        static::assertEquals(
+            $expected,
+            $entity->createDalSorting($fallbackSorting)
         );
     }
 }

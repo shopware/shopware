@@ -6,10 +6,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Bridge\Doctrine\Middleware\Debug\DebugDataHolder;
 use Symfony\Bridge\Doctrine\Middleware\Debug\Query;
 
-use function array_slice;
-
 /**
- * @phpstan-type Backtrace array<array{function?: string, line: int, file: string, class?: string, object?: Object, type: string}>
+ * @phpstan-type Backtrace list<array{function: string, line?: int, file?: string, class?: class-string, type?: '->'|'::', args?: list<mixed>, object?: object}>
  * @phpstan-type QueryInfo array{
  *     sql: string,
  *     executionMS: float,

@@ -13,9 +13,7 @@ Shopware.Utils.debounce = function debounce(fn) {
 async function createWrapper() {
     return mount(await wrapTestComponent('sw-property-search', { sync: true }), {
         props: {
-            options: [
-                {},
-            ],
+            options: [{}],
         },
         global: {
             renderStubDefaultSlot: true,
@@ -158,12 +156,6 @@ describe('components/base/sw-property-search', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should have a pagination element inside group grid', async () => {
         const wrapper = await createWrapper();
         await flushPromises();
@@ -269,7 +261,6 @@ describe('components/base/sw-property-search', () => {
 
         expect(wrapper.vm.optionPage).toBe(1);
 
-        // eslint-disable-next-line max-len
         const nextPageButton = wrapper.find(
             '.sw-property-search__tree-selection__option_grid .sw-pagination__list-button:not(.is-active)',
         );
@@ -311,7 +302,6 @@ describe('components/base/sw-property-search', () => {
         expect(wrapper.vm.optionPage).toBe(1);
         expect(groupOptions).toBe(12);
 
-        // eslint-disable-next-line max-len
         const nextPageButton = wrapper.find(
             '.sw-property-search__tree-selection__option_grid .sw-pagination__list-button:not(.is-active)',
         );

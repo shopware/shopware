@@ -1,10 +1,10 @@
 /**
- * @sw-package framework
+ * @sw-package after-sales
  */
 import { mount } from '@vue/test-utils';
 
 describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
-    const CreateSettingsMailer = async function CreateSettingsMailer(emailAgent = null) {
+    const createSettingsMailer = async function createSettingsMailer(emailAgent = null) {
         return mount(
             await wrapTestComponent('sw-settings-mailer', {
                 sync: true,
@@ -46,13 +46,13 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
     };
 
     it('should be a vue js component', async () => {
-        const settingsMailer = await new CreateSettingsMailer();
+        const settingsMailer = await createSettingsMailer();
 
         expect(settingsMailer.vm).toBeTruthy();
     });
 
     it('should load the mailerSettings on creation', async () => {
-        const settingsMailer = await new CreateSettingsMailer();
+        const settingsMailer = await createSettingsMailer();
         const spyLoadMailer = jest.spyOn(settingsMailer.vm, 'loadMailerSettings');
 
         await settingsMailer.vm.createdComponent();
@@ -61,7 +61,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
     });
 
     it('should assign the loaded mailerSettings', async () => {
-        const settingsMailer = await new CreateSettingsMailer();
+        const settingsMailer = await createSettingsMailer();
         await flushPromises();
 
         const expectedMailerSettings = {
@@ -83,7 +83,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
     });
 
     it('should call the saveValues function', async () => {
-        const settingsMailer = await new CreateSettingsMailer();
+        const settingsMailer = await createSettingsMailer();
         const spySaveValues = jest.spyOn(settingsMailer.vm.systemConfigApiService, 'saveValues');
 
         const expectedMailerSettings = {
@@ -107,7 +107,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
     });
 
     it('should throw smtp configuration errors', async () => {
-        const wrapper = await new CreateSettingsMailer('smtp');
+        const wrapper = await createSettingsMailer('smtp');
         await flushPromises();
 
         expect(wrapper.vm.smtpHostError).toBeNull();
@@ -124,7 +124,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
     });
 
     it('should reset smtp host error', async () => {
-        const wrapper = await new CreateSettingsMailer();
+        const wrapper = await createSettingsMailer();
         wrapper.vm.smtpHostError = { detail: 'FooBar' };
         expect(wrapper.vm.smtpHostError).toStrictEqual({ detail: 'FooBar' });
 
@@ -134,7 +134,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
     });
 
     it('should reset smtp port error', async () => {
-        const wrapper = await new CreateSettingsMailer();
+        const wrapper = await createSettingsMailer();
         wrapper.vm.smtpPortError = { detail: 'FooBar' };
         expect(wrapper.vm.smtpPortError).toStrictEqual({ detail: 'FooBar' });
 
@@ -144,7 +144,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
     });
 
     it('should reset mailer settings when submitting as emailAgent local', async () => {
-        const wrapper = await new CreateSettingsMailer();
+        const wrapper = await createSettingsMailer();
 
         await wrapper.setData({
             mailerSettings: {
@@ -179,7 +179,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
     });
 
     it('should be possible to set disableDelivery to true', async () => {
-        const wrapper = await new CreateSettingsMailer();
+        const wrapper = await createSettingsMailer();
 
         await wrapper.setData({
             mailerSettings: {
@@ -208,7 +208,7 @@ describe('src/module/sw-settings-mailer/page/sw-settings-mailer', () => {
     });
 
     it('should display and allow selection of email sendmail options', async () => {
-        const wrapper = await new CreateSettingsMailer();
+        const wrapper = await createSettingsMailer();
 
         // Verify options are correct
         expect(wrapper.vm.emailSendmailOptions).toEqual([

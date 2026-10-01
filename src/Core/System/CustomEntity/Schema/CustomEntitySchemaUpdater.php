@@ -13,6 +13,10 @@ use Symfony\Component\Lock\LockFactory;
  * @internal
  *
  * @phpstan-import-type CustomEntityField from SchemaUpdater
+ *
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\System\CustomEntity\CustomEntityTest
  */
 #[Package('framework')]
 class CustomEntitySchemaUpdater
@@ -28,8 +32,6 @@ class CustomEntitySchemaUpdater
 
     public function update(): void
     {
-        $this->connection->getDatabasePlatform()->registerDoctrineTypeMapping('enum', 'string');
-
         $this->lock(function (): void {
             /** @var list<array{name: string, fields: string}> $tables */
             $tables = $this->connection->fetchAllAssociative('SELECT name, fields FROM custom_entity');
@@ -93,20 +95,24 @@ class CustomEntitySchemaUpdater
     {
         foreach ($schema->getTables() as $table) {
             if ($table->getComment() === self::COMMENT) {
-                $schema->dropTable($table->getName());
+                $schema->dropTable($table->getObjectName()->getUnqualifiedName()->getValue());
 
                 continue;
             }
 
             foreach ($table->getForeignKeys() as $foreignKey) {
-                if (\str_starts_with($foreignKey->getName(), 'fk_ce_')) {
-                    $table->removeForeignKey($foreignKey->getName());
+                $foreignKeyName = $foreignKey->getObjectName()?->getIdentifier()->getValue();
+                if ($foreignKeyName === null) {
+                    continue;
+                }
+                if (\str_starts_with($foreignKeyName, 'fk_ce_')) {
+                    $table->dropForeignKey($foreignKeyName);
                 }
             }
 
             foreach ($table->getColumns() as $column) {
                 if ($column->getComment() === self::COMMENT) {
-                    $table->dropColumn($column->getName());
+                    $table->dropColumn($column->getObjectName()->getIdentifier()->getValue());
                 }
             }
         }

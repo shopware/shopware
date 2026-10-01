@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Snippet;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
@@ -9,15 +10,26 @@ use Symfony\Component\HttpFoundation\Response;
 #[Package('discovery')]
 class SnippetException extends HttpException
 {
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
+     */
     final public const SNIPPET_DUPLICATED_FIRST_LEVEL_KEY_EXCEPTION = 'SNIPPET__DUPLICATED_FIRST_LEVEL_KEY';
     final public const SNIPPET_EXTEND_OR_OVERWRITE_CORE_EXCEPTION = 'SNIPPET__EXTEND_OR_OVERWRITE_CORE';
     final public const SNIPPET_DEFAULT_LANGUAGE_NOT_GIVEN_EXCEPTION = 'SNIPPET__DEFAULT_LANGUAGE_NOT_GIVEN';
+    final public const SNIPPET_INVALID_FILE_EXCEPTION = 'SNIPPET__INVALID_SNIPPET_FILE';
 
     /**
      * @param array<string> $duplicatedKeys
+     *
+     * @deprecated tag:v6.8.0 - Will be removed without replacement
      */
     public static function duplicatedFirstLevelKey(array $duplicatedKeys): self
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'),
+        );
+
         return new self(
             Response::HTTP_CONFLICT,
             self::SNIPPET_DUPLICATED_FIRST_LEVEL_KEY_EXCEPTION,
@@ -46,6 +58,17 @@ class SnippetException extends HttpException
             self::SNIPPET_DEFAULT_LANGUAGE_NOT_GIVEN_EXCEPTION,
             'The following snippet file must always be provided when providing snippets: {{ defaultLanguage }}',
             ['defaultLanguage' => $defaultLanguage]
+        );
+    }
+
+    public static function invalidSnippetFile(string $filePath, \Throwable $previous): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::SNIPPET_INVALID_FILE_EXCEPTION,
+            'The administration snippet file "{{ filePath }}" is invalid: {{ message }}',
+            ['filePath' => $filePath, 'message' => $previous->getMessage()],
+            $previous
         );
     }
 }

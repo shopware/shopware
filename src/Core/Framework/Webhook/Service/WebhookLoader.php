@@ -12,7 +12,9 @@ use Shopware\Core\Framework\Webhook\Webhook;
 /**
  * @internal
  *
- * @codeCoverageIgnore @see \Shopware\Tests\Integration\Core\Framework\Webhook\Service\WebhookLoaderTest
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Framework\Webhook\Service\WebhookLoaderTest
  */
 #[Package('framework')]
 class WebhookLoader
@@ -78,7 +80,7 @@ class WebhookLoader
         $webhooks = $this->connection->fetchAllAssociative($sql);
 
         return array_map(
-            fn (array $webhook) => new Webhook(
+            static fn (array $webhook) => new Webhook(
                 $webhook['webhookId'],
                 $webhook['webhookName'],
                 $webhook['eventName'],

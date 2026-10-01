@@ -36,7 +36,7 @@ class CmsSlotsDataResolver
      * @internal
      *
      * @param iterable<CmsElementResolverInterface> $resolvers
-     * @param array<string, SalesChannelRepository> $repositories
+     * @param array<string, SalesChannelRepository<covariant EntityCollection<covariant Entity>>> $repositories
      */
     public function __construct(
         iterable $resolvers,
@@ -49,7 +49,16 @@ class CmsSlotsDataResolver
         }
     }
 
-    private function __resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
+    public function resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
+    {
+        return $this->extensions->publish(
+            name: CmsSlotsDataResolveExtension::NAME,
+            extension: new CmsSlotsDataResolveExtension($slots, $resolverContext),
+            function: $this->_resolve(...),
+        );
+    }
+
+    private function _resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
     {
         $criteriaList = $this->extensions->publish(
             name: CmsSlotsDataCollectExtension::NAME,
@@ -77,15 +86,6 @@ class CmsSlotsDataResolver
         );
     }
 
-    public function resolve(CmsSlotCollection $slots, ResolverContext $resolverContext): CmsSlotCollection
-    {
-        return $this->extensions->publish(
-            name: CmsSlotsDataResolveExtension::NAME,
-            extension: new CmsSlotsDataResolveExtension($slots, $resolverContext),
-            function: $this->__resolve(...),
-        );
-    }
-
     /**
      * @return array<string, CriteriaCollection>
      */
@@ -110,11 +110,9 @@ class CmsSlotsDataResolver
     }
 
     /**
-     * @template TEntityCollection of EntityCollection
-     *
      * @param array<CriteriaCollection> $criteriaList
-     * @param array<EntitySearchResult<TEntityCollection>> $identifierResult
-     * @param array<array<EntitySearchResult<TEntityCollection>>> $criteriaResult
+     * @param array<EntitySearchResult<covariant EntityCollection<covariant Entity>>> $identifierResult
+     * @param array<array<EntitySearchResult<covariant EntityCollection<covariant Entity>>>> $criteriaResult
      */
     private function enrichCmsSlots(
         CmsSlotCollection $slots,
@@ -145,9 +143,9 @@ class CmsSlotsDataResolver
     }
 
     /**
-     * @param string[][] $directReads
+     * @param array<string, array<string>> $directReads
      *
-     * @return array<string, EntitySearchResult<EntityCollection>>
+     * @return array<string, EntitySearchResult<covariant EntityCollection<covariant Entity>>>
      */
     private function fetchByIdentifier(array $directReads, SalesChannelContext $context): array
     {
@@ -172,23 +170,22 @@ class CmsSlotsDataResolver
     /**
      * @param array<string, array<string, Criteria>> $searches
      *
-     * @return array<string, array<string, EntitySearchResult<EntityCollection>>>
+     * @return array<string, array<string, EntitySearchResult<covariant EntityCollection<covariant Entity>>>>
      */
     private function fetchByCriteria(array $searches, SalesChannelContext $context): array
     {
         $searchResults = [];
+
         foreach ($searches as $definitionClass => $criteriaObjects) {
+            $definition = $this->definitionRegistry->get($definitionClass);
+            $repository = $this->getSalesChannelApiRepository($definition);
+
+            if (!$repository instanceof SalesChannelRepository) {
+                $repository = $this->getApiRepository($definition);
+            }
+
             foreach ($criteriaObjects as $criteriaHash => $criteria) {
-                $definition = $this->definitionRegistry->get($definitionClass);
-
-                $repository = $this->getSalesChannelApiRepository($definition);
-
-                if ($repository) {
-                    $result = $repository->search($criteria, $context);
-                } else {
-                    $repository = $this->getApiRepository($definition);
-                    $result = $repository->search($criteria, $context->getContext());
-                }
+                $result = $repository instanceof SalesChannelRepository ? $repository->search($criteria, $context) : $repository->search($criteria, $context->getContext());
 
                 $searchResults[$definitionClass][$criteriaHash] = $result;
             }
@@ -200,7 +197,7 @@ class CmsSlotsDataResolver
     /**
      * @param array<string, CriteriaCollection> $criteriaCollections
      *
-     * @return array{0: array<string, array<string>>, 1: array<string, array<string, Criteria>>}
+     * @return array{array<string, array<string>>, array<string, array<string, Criteria>>}
      */
     private function optimizeCriteriaObjects(array $criteriaCollections): array
     {
@@ -224,10 +221,7 @@ class CmsSlotsDataResolver
             }
         }
 
-        foreach ($directReads as $definition => $idLists) {
-            /** @var array<string, array<string>> $directReads */
-            $directReads[$definition] = array_merge(...$idLists);
-        }
+        $directReads = array_map(static fn (array $directRead) => array_merge(...$directRead), $directReads);
 
         return [
             array_filter($directReads),
@@ -243,12 +237,12 @@ class CmsSlotsDataResolver
         }
 
         // sortings must be an own search
-        if (\count($criteria->getSorting())) {
+        if ($criteria->getSorting() !== []) {
             return false;
         }
 
         // queries must be an own search
-        if (\count($criteria->getQueries())) {
+        if ($criteria->getQueries() !== []) {
             return false;
         }
 
@@ -266,22 +260,28 @@ class CmsSlotsDataResolver
         );
 
         // any kind of filters must be an own search
-        if (!empty($filters)) {
+        if ($filters !== []) {
             return false;
         }
 
-        if (empty($criteria->getIds())) {
+        if ($criteria->getIds() === []) {
             return false;
         }
 
         return true;
     }
 
+    /**
+     * @return EntityRepository<covariant EntityCollection<covariant Entity>>
+     */
     private function getApiRepository(EntityDefinition $definition): EntityRepository
     {
         return $this->definitionRegistry->getRepository($definition->getEntityName());
     }
 
+    /**
+     * @return ?SalesChannelRepository<covariant EntityCollection<covariant Entity>>
+     */
     private function getSalesChannelApiRepository(EntityDefinition $definition): ?SalesChannelRepository
     {
         return $this->repositories[$definition->getEntityName()] ?? null;
@@ -307,10 +307,8 @@ class CmsSlotsDataResolver
     }
 
     /**
-     * @template TEntityCollection of EntityCollection
-     *
      * @param array<string, CriteriaCollection> $criteriaObjects
-     * @param array<string, array<EntitySearchResult<TEntityCollection>>> $searchResults
+     * @param array<string, array<EntitySearchResult<covariant EntityCollection<covariant Entity>>>> $searchResults
      */
     private function mapSearchResults(ElementDataCollection $result, CmsSlotEntity $slot, array $criteriaObjects, array $searchResults): void
     {
@@ -337,10 +335,8 @@ class CmsSlotsDataResolver
     }
 
     /**
-     * @template TEntityCollection of EntityCollection
-     *
      * @param array<string, CriteriaCollection> $criteriaObjects
-     * @param array<string, EntitySearchResult<TEntityCollection>> $entities
+     * @param array<string, EntitySearchResult<covariant EntityCollection<covariant Entity>>> $entities
      */
     private function mapEntities(ElementDataCollection $result, CmsSlotEntity $slot, array $criteriaObjects, array $entities): void
     {
@@ -359,9 +355,18 @@ class CmsSlotsDataResolver
                 }
 
                 $ids = $criteria->getIds();
-                $filtered = $entities[$definition]->filter(fn (Entity $entity) => \in_array($entity->getUniqueIdentifier(), $ids, true));
+                $searchResult = $entities[$definition];
+                $filtered = $searchResult->getEntities()->filter(static fn (Entity $entity) => \in_array($entity->getUniqueIdentifier(), $ids, true));
 
-                $result->add($key, $filtered);
+                // ElementDataCollection expects the result wrapper, not the inner collection
+                $result->add($key, new EntitySearchResult(
+                    $this->definitionRegistry->get($definition)->getEntityName(),
+                    $filtered->count(),
+                    $filtered,
+                    $searchResult->getAggregations(),
+                    $searchResult->getCriteria(),
+                    $searchResult->getContext(),
+                ));
             }
         }
     }

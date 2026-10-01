@@ -12,6 +12,7 @@
         position-identifier="sw-flow-list-card"
     >
         <sw-entity-listing
+            v-if="isLoading || total > 0"
             class="sw-flow-list__grid"
             show-selection
             :show-settings="false"
@@ -23,7 +24,7 @@
             :sort-by="sortBy"
             :sort-direction="sortDirection"
             :repository="flowRepository"
-            :items="flows"
+            :data-source="flows"
             :is-loading="isLoading"
             :full-page="false"
             :plain-appearance="true"
@@ -48,14 +49,19 @@
 
             {% block sw_flow_list_grid_columns_event_name %}
             <template #column-eventName="{ item }">
-                <div v-if="isValidTrigger(item.eventName)">
-                    <strong>
+                <div
+                    v-if="isValidTrigger(item.eventName)"
+                    class="sw-flow-list__event-name"
+                >
+                    <p class="sw-flow-list__event-name-label">
                         {{ getTranslatedEventName(item.eventName) }}
-                    </strong>
-                    <p>{{ item.eventName }}</p>
+                    </p>
                 </div>
+
                 <div v-else>
-                    <p>{{ $tc('sw-flow.list.unknownTrigger') }}</p>
+                    <p class="sw-flow-list__event-name-unknown">
+                        {{ $t('sw-flow.list.unknownTrigger') }}
+                    </p>
                 </div>
             </template>
             {% endblock %}
@@ -63,14 +69,13 @@
 
             {% block sw_flow_list_grid_actions %}
             <template #actions="{ item }">
-
                 {% block sw_flow_list_grid_actions_duplicate %}
                 <sw-context-menu-item
                     class="sw-flow-list__item-duplicate"
                     :disabled="!acl.can('flow.creator')"
                     @click="onDuplicateFlow(item)"
                 >
-                    {{ $tc('global.default.duplicate') }}
+                    {{ $t('global.default.duplicate') }}
                 </sw-context-menu-item>
                 {% endblock %}
 
@@ -91,9 +96,10 @@
                 <sw-context-menu-item
                     class="sw-context-menu-item--danger sw-flow-list__item-delete"
                     :disabled="!acl.can('flow.deleter')"
+                    variant="danger"
                     @click="onDeleteFlow(item)"
                 >
-                    {{ $tc('global.default.delete') }}
+                    {{ $t('global.default.delete') }}
                 </sw-context-menu-item>
                 {% endblock %}
             </template>
@@ -104,13 +110,11 @@
                 <sw-modal
                     v-if="currentFlow.id === item.id && isDeleting"
                     variant="small"
-                    :title="$tc('global.default.warning')"
+                    :title="$t('global.default.warning')"
                     @modal-close="onCloseDeleteModal"
                 >
                     {% block sw_flow_list_grid_action_modal_confirm_delete_text %}
-                    <mt-banner variant="attention">
-                        {{ deleteWarningMessage() }}
-                    </mt-banner>
+                    <p>{{ deleteWarningMessage() }}</p>
                     {% endblock %}
 
                     <template #modal-footer>
@@ -120,14 +124,14 @@
                             variant="secondary"
                             @click="onCloseDeleteModal"
                         >
-                            {{ $tc('global.default.cancel') }}
+                            {{ $t('global.default.cancel') }}
                         </mt-button>
                         <mt-button
                             size="small"
                             variant="critical"
                             @click="onConfirmDelete(item)"
                         >
-                            {{ $tc('global.default.delete') }}
+                            {{ $t('global.default.delete') }}
                         </mt-button>
                         {% endblock %}
                     </template>
@@ -145,23 +149,38 @@
         </sw-entity-listing>
 
         {% block sw_flow_list_empty_state %}
-        <sw-empty-state
-            v-if="!total && !isLoading"
+        <mt-empty-state
+            v-if="!isLoading && !total"
             class="sw-flow-list__empty-state"
-            :absolute="false"
-            :title="$tc('sw-flow.list.emptyStateTitle')"
-            :subline="$tc('sw-flow.list.emptyStateSubTitle')"
+            centered
+            icon="regular-flow"
+            :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-flow.list.emptyStateTitle')"
+            :description="isValidTerm(term) ? $t('sw-empty-state.messageNoResultSubline') : $t('sw-flow.list.emptyStateSubTitle')"
+            :link-text="isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
+            :link-href="isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
         >
-            {% block sw_flow_list_empty_state_icon %}
-            <template #icon>
-                <img
-                    :alt="$tc('sw-flow.list.emptyStateTitle')"
-                    :src="assetFilter('/administration/administration/static/img/empty-states/settings-empty-state.svg')"
+            <template
+                v-if="!isValidTerm(term)"
+                #button
+            >
+                <mt-button
+                    v-tooltip="{
+                        message: $t('sw-privileges.tooltip.warning'),
+                        disabled: acl.can('flow.creator'),
+                        showOnDisabledElements: true
+                    }"
+                    variant="primary"
+                    :disabled="!acl.can('flow.creator')"
+                    @click="$router.push({ name: 'sw.flow.create' })"
                 >
+                    {{ $t('sw-flow.list.buttonAddFlow') }}
+                </mt-button>
             </template>
-            {% endblock %}
-        </sw-empty-state>
+        </mt-empty-state>
         {% endblock %}
+
+        {# @deprecated tag:v6.8.0 - Kept as extension anchor, the icon became an mt-empty-state prop. #}
+        {% block sw_flow_list_empty_state_icon %}{% endblock %}
 
         {% block sw_flow_list_modal_content_custom %}
         {% endblock %}

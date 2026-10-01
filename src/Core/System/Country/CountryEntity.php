@@ -15,6 +15,9 @@ use Shopware\Core\System\Currency\Aggregate\CurrencyCountryRounding\CurrencyCoun
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\Tax\Aggregate\TaxRule\TaxRuleCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('fundamentals@discovery')]
 class CountryEntity extends Entity
 {
@@ -76,7 +79,7 @@ class CountryEntity extends Entity
     protected ?string $defaultPostalCodePattern = null;
 
     /**
-     * @var array<array<string, array<string, string>>>
+     * @var list<list<string>>
      */
     protected array $addressFormat;
 
@@ -331,7 +334,7 @@ class CountryEntity extends Entity
     }
 
     /**
-     * @return array<array<string, array<string, string>>>
+     * @return list<list<string>>
      */
     public function getAddressFormat(): array
     {
@@ -339,7 +342,7 @@ class CountryEntity extends Entity
     }
 
     /**
-     * @param array<array<string, array<string, string>>> $addressFormat
+     * @param list<list<string>> $addressFormat
      */
     public function setAddressFormat(array $addressFormat): void
     {

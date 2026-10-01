@@ -6,9 +6,9 @@ import { mount } from '@vue/test-utils';
 
 const { Criteria, EntityCollection } = Shopware.Data;
 
-const entities = [
-    { id: 'id1', name: 'first' },
-];
+const entities = [{ id: 'id1', name: 'first' }];
+
+const translatedEntities = [{ id: 'id1', name: null, translated: { name: 'first' } }];
 
 function getCollection() {
     return new EntityCollection(
@@ -27,10 +27,7 @@ async function createWrapper(slots) {
             stubs: {
                 'sw-base-filter': {
                     template: '<div class="sw-base-filter"><slot></slot></div>',
-                    props: [
-                        'showResetButton',
-                        'active',
-                    ],
+                    props: ['showResetButton', 'active'],
                 },
                 'sw-entity-multi-select': {
                     template:
@@ -97,11 +94,21 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         await wrapper.getComponent('.sw-entity-multi-select').vm.$emit('update:entity-collection', entities);
 
-        const [
-            name,
-            criteria,
-            value,
-        ] = wrapper.emitted('filter-update')[0];
+        const [name, criteria, value] = wrapper.emitted('filter-update')[0];
+
+        expect(name).toBe('category-filter');
+        expect(criteria).toEqual([Criteria.equalsAny('category.id', ['id1'])]);
+        expect(value[0]).toEqual({ id: 'id1', name: 'first' });
+
+        expect(wrapper.emitted('filter-reset')).toBeFalsy();
+    });
+
+    it('should emit `filter-update` event when user chooses translated entity', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.getComponent('.sw-entity-multi-select').vm.$emit('update:entity-collection', translatedEntities);
+
+        const [name, criteria, value] = wrapper.emitted('filter-update')[0];
 
         expect(name).toBe('category-filter');
         expect(criteria).toEqual([Criteria.equalsAny('category.id', ['id1'])]);
@@ -180,10 +187,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
             label: 'Test',
             value: null,
             filterCriteria: null,
-            options: [
-                { key: 'option1' },
-                { key: 'option2' },
-            ],
+            options: [{ key: 'option1' }, { key: 'option2' }],
         };
 
         await wrapper.setProps({
@@ -205,10 +209,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
             label: 'Test',
             value: null,
             filterCriteria: null,
-            options: [
-                { key: 'option1' },
-                { key: 'option2' },
-            ],
+            options: [{ key: 'option1' }, { key: 'option2' }],
         };
 
         await wrapper.setProps({
@@ -217,11 +218,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         await wrapper.getComponent('.sw-multi-select').vm.$emit('update:value', [filter.options[0].key]);
         expect(wrapper.emitted('filter-update')).toEqual([
-            [
-                'category-filter',
-                [Criteria.equalsAny('category', ['option1'])],
-                ['option1'],
-            ],
+            ['category-filter', [Criteria.equalsAny('category', ['option1'])], ['option1']],
         ]);
     });
 
@@ -237,10 +234,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
             label: 'Test',
             value: null,
             filterCriteria: null,
-            options: [
-                { key: 'option1' },
-                { key: 'option2' },
-            ],
+            options: [{ key: 'option1' }, { key: 'option2' }],
             existingType: true,
         };
 
@@ -252,11 +246,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
 
         expect(wrapper.emitted()['filter-update'][0]).toEqual([
             'category-filter',
-            [
-                Criteria.multi('or', [
-                    Criteria.not('and', [Criteria.equals('option1.id', null)]),
-                ]),
-            ],
+            [Criteria.multi('or', [Criteria.not('and', [Criteria.equals('option1.id', null)])])],
             ['option1'],
         ]);
     });
@@ -307,10 +297,7 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
                 label: 'Test',
                 value: ['option1'],
                 filterCriteria: null,
-                options: [
-                    { key: 'option1' },
-                    { key: 'option2' },
-                ],
+                options: [{ key: 'option1' }, { key: 'option2' }],
                 existingType: true,
             },
         });
@@ -318,8 +305,6 @@ describe('src/app/component/filter/sw-multi-select-filter', () => {
         await wrapper.getComponent('.sw-multi-select').vm.$emit('update:value', []);
 
         expect(wrapper.emitted('filter-update')).toBeFalsy();
-        expect(wrapper.emitted('filter-reset')[0]).toEqual([
-            'category-filter',
-        ]);
+        expect(wrapper.emitted('filter-reset')[0]).toEqual(['category-filter']);
     });
 });

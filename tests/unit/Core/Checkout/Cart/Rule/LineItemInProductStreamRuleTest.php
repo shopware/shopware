@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -15,9 +16,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleException;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -29,8 +31,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Group('rules')]
 class LineItemInProductStreamRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private LineItemInProductStreamRule $rule;
 
     protected function setUp(): void
@@ -69,7 +69,7 @@ class LineItemInProductStreamRuleTest extends TestCase
 
         $match = $this->rule->match(new LineItemScope(
             $this->createLineItemWithProductStreams($lineItemProductStreamIds),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -110,11 +110,11 @@ class LineItemInProductStreamRuleTest extends TestCase
             $this->createLineItemWithProductStreams($lineItemCategoryIds),
         ]);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -140,12 +140,12 @@ class LineItemInProductStreamRuleTest extends TestCase
             $this->createLineItemWithProductStreams(['1']),
             $this->createLineItemWithProductStreams($lineItemCategoryIds),
         ]);
-        $containerLineItem = $this->createContainerLineItem($lineItemCollection)->setPayloadValue('streamIds', ['1']);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = CartRuleFixture::createContainerLineItem($lineItemCollection)->setPayloadValue('streamIds', ['1']);
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
 
         static::assertSame($expected, $match);
@@ -177,7 +177,7 @@ class LineItemInProductStreamRuleTest extends TestCase
 
         $this->rule->match(new LineItemScope(
             $this->createLineItemWithProductStreams(['3']),
-            $this->createMock(SalesChannelContext::class)
+            static::createStub(SalesChannelContext::class)
         ));
     }
 
@@ -194,7 +194,7 @@ class LineItemInProductStreamRuleTest extends TestCase
         static::assertArrayHasKey('operator', $ruleConstraints, 'Constraint operator not found in Rule');
         $operators = $ruleConstraints['operator'];
         static::assertEquals(new NotBlank(), $operators[0]);
-        static::assertEquals(new Choice($expectedOperators), $operators[1]);
+        static::assertEquals(new Choice(choices: $expectedOperators), $operators[1]);
 
         $this->rule->assign(['operator' => Rule::OPERATOR_EQ]);
         static::assertArrayHasKey('streamIds', $ruleConstraints, 'Constraint streamIds not found in Rule');
@@ -203,11 +203,53 @@ class LineItemInProductStreamRuleTest extends TestCase
         static::assertEquals(new ArrayOfUuid(), $streamIds[1]);
     }
 
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemWithoutProductDataProvider')]
+    public function testLineItemWithoutProductData(string $type, bool $lineItemScope, bool $expected): void
+    {
+        $rule = new LineItemInProductStreamRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);
+
+        $lineItem = CartRuleFixture::createLineItem($type);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertSame($expected, $rule->match($scope));
+    }
+
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
+    public function testLineItemWithDataIsEvaluated(string $type, bool $lineItemScope): void
+    {
+        $id = Uuid::randomHex();
+        $rule = new LineItemInProductStreamRule(Rule::OPERATOR_EQ, [$id]);
+        $lineItem = CartRuleFixture::createLineItem($type)->setPayloadValue('streamIds', [$id]);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertTrue($rule->match($scope));
+    }
+
+    public function testProductWithNullValueIsEvaluatedInCart(): void
+    {
+        $rule = new LineItemInProductStreamRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);
+        $lineItem = CartRuleFixture::createLineItem()->setPayloadValue('streamIds', null);
+        $scope = new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$lineItem])),
+            static::createStub(SalesChannelContext::class),
+        );
+
+        static::assertTrue($rule->match($scope));
+    }
+
     /**
      * @param array<string> $streamIds
      */
     private function createLineItemWithProductStreams(array $streamIds): LineItem
     {
-        return $this->createLineItem()->setPayloadValue('streamIds', $streamIds);
+        return CartRuleFixture::createLineItem()->setPayloadValue('streamIds', $streamIds);
     }
 }

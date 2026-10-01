@@ -15,8 +15,8 @@ use Shopware\Core\Test\Generator;
 /**
  * @internal
  */
-#[CoversClass(PromotionLineItemFactory::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionLineItemFactory::class)]
 class PromotionLineItemFactoryTest extends TestCase
 {
     public function testSupports(): void
@@ -57,10 +57,22 @@ class PromotionLineItemFactoryTest extends TestCase
         static::assertSame(0.0, $percentagePrice->getPercentage());
     }
 
+    public function testCreateTrimsPromotionCode(): void
+    {
+        $factory = new PromotionLineItemFactory();
+
+        $lineItem = $factory->create([
+            'id' => 'test-id',
+            'referencedId' => "\u{00a0}test-referenced-id \t",
+        ], Generator::generateSalesChannelContext());
+
+        static::assertSame(Uuid::fromStringToHex('promotion-test-referenced-id'), $lineItem->getId());
+        static::assertSame('test-referenced-id', $lineItem->getReferencedId());
+    }
+
     public function testUpdate(): void
     {
-        $this->expectException(CartException::class);
-        $this->expectExceptionMessage('Line item type "promotion" cannot be updated.');
+        $this->expectExceptionObject(CartException::lineItemTypeNotUpdatable('promotion'));
 
         $factory = new PromotionLineItemFactory();
 

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mcp xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="">
+    <mcp-tools>
+        <mcp-tool name="sync-orders" url="https://app.example.com/mcp/sync">
+            <label>Sync Orders</label>
+            <label lang="de-DE">Bestellungen synchronisieren</label>
+            <description>Synchronize orders from external ERP</description>
+            <description lang="de-DE">Bestellungen vom externen ERP synchronisieren</description>
+            <input-schema>
+                <property name="since" type="string" description="ISO 8601 date" required="true"/>
+                <property name="limit" type="integer" description="Max number of orders"/>
+                <property name="" type="string"/>
+            </input-schema>
+            <required-privileges>
+                <privilege>product:read</privilege>
+                <privilege>order:read</privilege>
+            </required-privileges>
+        </mcp-tool>
+        <mcp-tool name="stock-check" url="https://app.example.com/mcp/stock">
+            <label>Stock Check</label>
+        </mcp-tool>
+    </mcp-tools>
+    <mcp-prompts>
+        <mcp-prompt name="order-context" url="https://app.example.com/mcp/prompt/order-context">
+            <label>Order Context</label>
+            <label lang="de-DE">Bestellungskontext</label>
+            <description>Context for order management</description>
+            <description lang="de-DE">Kontext für die Bestellungsverwaltung</description>
+        </mcp-prompt>
+        <mcp-prompt name="product-context" url="https://app.example.com/mcp/prompt/product-context">
+            <label>Product Context</label>
+        </mcp-prompt>
+    </mcp-prompts>
+    <mcp-resources>
+        <mcp-resource name="order-stats" uri="app-example://order-stats" url="https://app.example.com/mcp/resource/order-stats" mime-type="application/json">
+            <label>Order Stats</label>
+            <label lang="de-DE">Bestellungsstatistiken</label>
+            <description>Live order statistics</description>
+        </mcp-resource>
+        <mcp-resource name="product-list" uri="app-example://product-list" url="https://app.example.com/mcp/resource/product-list" mime-type="application/json">
+            <label>Product List</label>
+        </mcp-resource>
+    </mcp-resources>
+</mcp>

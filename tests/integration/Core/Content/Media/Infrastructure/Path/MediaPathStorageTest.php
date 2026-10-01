@@ -4,10 +4,10 @@ namespace Shopware\Tests\Integration\Core\Content\Media\Infrastructure\Path;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Statement;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Infrastructure\Path\SqlMediaPathStorage;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -15,7 +15,7 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 /**
  * @internal
  */
-#[CoversClass(SqlMediaPathStorage::class)]
+#[Package('discovery')]
 class MediaPathStorageTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
@@ -46,7 +46,7 @@ class MediaPathStorageTest extends TestCase
             ->get(Connection::class)
             ->fetchOne('SELECT path FROM media WHERE id = :id', ['id' => $ids->getBytes('media')]);
 
-        static::assertEquals('test.jpg', $path);
+        static::assertSame('test.jpg', $path);
     }
 
     public function testStoreThumbnailPath(): void
@@ -62,11 +62,19 @@ class MediaPathStorageTest extends TestCase
             'created_at' => '2022-01-01',
         ]);
 
+        $inserts->addInsert('media_thumbnail_size', [
+            'id' => $ids->getBytes('thumbnail-size-1'),
+            'width' => 100,
+            'height' => 100,
+            'created_at' => '2022-01-01',
+        ]);
+
         $inserts->addInsert('media_thumbnail', [
             'id' => $ids->getBytes('media_thumbnail'),
             'media_id' => $ids->getBytes('media'),
             'width' => 100,
             'height' => 100,
+            'media_thumbnail_size_id' => $ids->getBytes('thumbnail-size-1'),
             'created_at' => '2022-01-01',
         ]);
 
@@ -82,7 +90,7 @@ class MediaPathStorageTest extends TestCase
             ->get(Connection::class)
             ->fetchOne('SELECT path FROM media_thumbnail WHERE id = :id', ['id' => $ids->getBytes('media_thumbnail')]);
 
-        static::assertEquals('test.jpg', $path);
+        static::assertSame('test.jpg', $path);
     }
 
     public function testEmptyParametersDoesNotTriggerDatabaseQueries(): void
@@ -90,7 +98,7 @@ class MediaPathStorageTest extends TestCase
         $statement = $this->createMock(Statement::class);
         $statement->expects($this->never())->method('executeStatement');
 
-        $connection = $this->createMock(Connection::class);
+        $connection = static::createStub(Connection::class);
         $connection->method('prepare')->willReturn($statement);
 
         $storage = new SqlMediaPathStorage(static::getContainer()->get(Connection::class));

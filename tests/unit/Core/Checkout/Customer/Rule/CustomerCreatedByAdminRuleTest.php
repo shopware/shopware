@@ -31,7 +31,7 @@ class CustomerCreatedByAdminRuleTest extends TestCase
         static::assertArrayHasKey('shouldCustomerBeCreatedByAdmin', $constraints, 'Constraint shouldCustomerBeCreatedByAdmin not found in Rule');
         static::assertEquals($constraints['shouldCustomerBeCreatedByAdmin'], [
             new NotNull(),
-            new Type(['type' => 'bool']),
+            new Type(type: 'bool'),
         ]);
     }
 
@@ -60,7 +60,7 @@ class CustomerCreatedByAdminRuleTest extends TestCase
     public function testMatchWithWrongRuleScope(): void
     {
         $rule = new CustomerCreatedByAdminRule();
-        $scope = $this->createMock(TestRuleScope::class);
+        $scope = static::createStub(TestRuleScope::class);
 
         $match = $rule->match($scope);
 
@@ -94,7 +94,7 @@ class CustomerCreatedByAdminRuleTest extends TestCase
 
         $scope = new CheckoutRuleScope($salesChannelContext);
         $match = $rule->match($scope);
-        static::assertEquals($match, $isMatching);
+        static::assertSame($match, $isMatching);
     }
 
     public static function getCaseTestMatchValues(): \Generator

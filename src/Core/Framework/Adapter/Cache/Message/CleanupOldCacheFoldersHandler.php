@@ -9,11 +9,11 @@ use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 /**
  * @internal
  */
-#[AsMessageHandler]
 #[Package('framework')]
-final class CleanupOldCacheFoldersHandler
+#[AsMessageHandler]
+final readonly class CleanupOldCacheFoldersHandler
 {
-    public function __construct(private readonly CacheClearer $cacheClearer)
+    public function __construct(private CacheClearer $cacheClearer)
     {
     }
 

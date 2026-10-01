@@ -46,7 +46,11 @@
                    {% if validationRules is not empty %}data-validation="{{ validationRules }}"{% endif %}
                    {% if 'required' in validationRules %}aria-required="true"{% endif %}
                    {% if checked === true %}checked="checked"{% endif %}
-                   {% if attributes is not empty %}{% for key, value in attributes %}{% if value is not empty %}{{ key ~ '=' ~ value ~ ' ' }}{% endif %}{% endfor %}{% endif %}
+                   {% if attributes is not empty %}
+                       {% for key, value in attributes %}
+                           {% if value is not empty %}{{ key }}="{{ value }}"{% else %}{{ key }}{% endif %}
+                       {% endfor %}
+                   {% endif %}
                    {% if disabled === true %}disabled{% endif %}>
         {% endblock %}
 

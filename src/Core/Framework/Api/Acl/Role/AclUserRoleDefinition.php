@@ -13,6 +13,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\UserDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class AclUserRoleDefinition extends MappingEntityDefinition
 {
@@ -33,6 +36,7 @@ class AclUserRoleDefinition extends MappingEntityDefinition
         return new FieldCollection([
             (new FkField('user_id', 'userId', UserDefinition::class))->addFlags(new PrimaryKey(), new Required()),
             (new FkField('acl_role_id', 'aclRoleId', AclRoleDefinition::class))->addFlags(new PrimaryKey(), new Required()),
+            // MappingEntityDefinitions have no default fields, so createdAt and updatedAt need to be defined here
             new CreatedAtField(),
             new UpdatedAtField(),
             new ManyToOneAssociationField('user', 'user_id', UserDefinition::class),

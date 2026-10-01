@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Mail\MailerConfigurationCompilerPass;
 use Shopware\Core\Content\Mail\Service\MailSender;
 use Shopware\Core\Content\Mail\Transport\MailerTransportLoader;
+use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
@@ -14,6 +15,7 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @internal
  */
+#[Package('after-sales')]
 #[CoversClass(MailerConfigurationCompilerPass::class)]
 class MailerConfigurationCompilerPassTest extends TestCase
 {
@@ -24,7 +26,7 @@ class MailerConfigurationCompilerPassTest extends TestCase
         $container->setDefinition('mailer.default_transport', new Definition(\ArrayObject::class));
         $container->setDefinition('mailer.transports', new Definition(\ArrayObject::class));
         $container->setDefinition('mailer.mailer', new Definition(\ArrayObject::class, [null, new Reference('message_bus')]));
-        $container->setDefinition(MailSender::class, new Definition(MailSender::class, [new Reference('mailer.default_transport'), new Reference('filesystem'), new Reference('config_service'), 0, new Reference('message_bus')]));
+        $container->setDefinition(MailSender::class, new Definition(MailSender::class, [new Reference('mailer.default_transport'), new Reference('filesystem'), new Reference('config_service'), 0, new Reference('logger'), 0, new Reference('message_bus')]));
 
         $pass = new MailerConfigurationCompilerPass();
         $pass->process($container);
@@ -51,6 +53,6 @@ class MailerConfigurationCompilerPassTest extends TestCase
 
         $mailer = $container->getDefinition(MailSender::class);
         $originalMailer = $container->getDefinition('mailer.mailer');
-        static::assertSame($originalMailer->getArgument(1), $mailer->getArgument(4));
+        static::assertSame($originalMailer->getArgument(1), $mailer->getArgument(6));
     }
 }

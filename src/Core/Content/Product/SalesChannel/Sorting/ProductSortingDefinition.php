@@ -18,6 +18,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\TranslationsAssociationFi
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('inventory')]
 class ProductSortingDefinition extends EntityDefinition
 {
@@ -52,7 +55,7 @@ class ProductSortingDefinition extends EntityDefinition
     {
         $collection = new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new PrimaryKey(), new Required()),
-            new LockedField(),
+            new LockedField(false),
             (new StringField('url_key', 'key'))->addFlags(new ApiAware(), new Required()),
             (new IntField('priority', 'priority'))->addFlags(new ApiAware(), new Required()),
             (new BoolField('active', 'active'))->addFlags(new Required()),

@@ -11,8 +11,24 @@ import {
     getAppInformation,
     getUserInformation,
     getUserTimezone,
+    getShopId,
+    getTheme,
 } from '@shopware-ag/meteor-admin-sdk/es/context';
+import { isService } from '@shopware-ag/meteor-admin-sdk/es/_private/context';
 import { getId } from '@shopware-ag/meteor-admin-sdk/es/window';
+import { publish } from '@shopware-ag/meteor-admin-sdk/es/channel';
+import { nextTick } from 'vue';
+import useTheme from 'src/app/composables/use-theme';
+
+jest.mock('@shopware-ag/meteor-admin-sdk/es/channel', () => {
+    const actual = jest.requireActual('@shopware-ag/meteor-admin-sdk/es/channel');
+
+    return {
+        __esModule: true,
+        ...actual,
+        publish: jest.fn(actual.publish),
+    };
+});
 
 describe('src/app/init/context.init.ts', () => {
     beforeAll(() => {
@@ -100,7 +116,9 @@ describe('src/app/init/context.init.ts', () => {
         Shopware.Store.get('extensions').addExtension({
             name: 'jestapp',
             baseUrl: '',
-            permissions: [],
+            permissions: {
+                read: ['product'],
+            },
             version: '1.0.0',
             type: 'app',
             integrationId: '123',
@@ -113,9 +131,25 @@ describe('src/app/init/context.init.ts', () => {
                     name: 'jestapp',
                     version: '1.0.0',
                     type: 'app',
+                    privileges: {
+                        read: ['product'],
+                    },
                 }),
             );
         });
+    });
+
+    it('should identify a Shopware Service through the private SDK API', async () => {
+        Shopware.Store.get('extensions').addExtension({
+            name: 'jestservice',
+            baseUrl: window.location.origin,
+            permissions: {},
+            version: '1.0.0',
+            type: 'app',
+            sourceType: 'service',
+        });
+
+        await expect(isService()).resolves.toBe(true);
     });
 
     it('should return user information', async () => {
@@ -123,9 +157,7 @@ describe('src/app/init/context.init.ts', () => {
             name: 'jestapp',
             baseUrl: '',
             permissions: {
-                read: [
-                    'user',
-                ],
+                read: ['user'],
             },
             version: '1.0.0',
             type: 'app',
@@ -227,5 +259,63 @@ describe('src/app/init/context.init.ts', () => {
 
         expect(Shopware.Store.get('context').windowId).not.toBeNull();
         expect(windowId).toBe(Shopware.Store.get('context').app.windowId);
+    });
+
+    it('should return correct shopId', async () => {
+        expect(Shopware.Store.get('context').app.config.shopId).toBeNull();
+
+        expect(await getShopId()).toBeNull();
+
+        Shopware.Store.get('context').app.config.shopId = 'shop-id';
+
+        expect(await getShopId()).toBe('shop-id');
+    });
+
+    describe('theme', () => {
+        afterEach(async () => {
+            useTheme().setTheme('system');
+            await nextTick();
+
+            localStorage.removeItem('mt-theme');
+        });
+
+        it('should handle the resolved theme', async () => {
+            useTheme().setTheme('dark');
+            await nextTick();
+
+            await expect(getTheme()).resolves.toBe('dark');
+
+            useTheme().setTheme('light');
+            await nextTick();
+
+            await expect(getTheme()).resolves.toBe('light');
+        });
+
+        it('should resolve the system preference to a concrete theme', async () => {
+            await expect(getTheme()).resolves.toBe('light');
+        });
+
+        it('should publish the resolved theme on change', async () => {
+            publish.mockClear();
+
+            useTheme().setTheme('dark');
+            await nextTick();
+
+            expect(publish).toHaveBeenCalledWith('contextTheme', 'dark');
+        });
+
+        it('should not publish when the resolved theme stays the same', async () => {
+            publish.mockClear();
+
+            useTheme().setTheme('light');
+            await nextTick();
+
+            publish.mockClear();
+
+            useTheme().setTheme('system');
+            await nextTick();
+
+            expect(publish).not.toHaveBeenCalledWith('contextTheme', expect.anything());
+        });
     });
 });

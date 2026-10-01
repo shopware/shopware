@@ -29,8 +29,8 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 /**
  * @internal
  */
-#[CoversClass(PromotionValidator::class)]
 #[Package('checkout')]
+#[CoversClass(PromotionValidator::class)]
 class PromotionValidatorTest extends TestCase
 {
     private WriteContext $context;
@@ -45,8 +45,8 @@ class PromotionValidatorTest extends TestCase
 
         $registry = new StaticDefinitionInstanceRegistry(
             [PromotionDefinition::class, PromotionDiscountDefinition::class],
-            $this->createMock(ValidatorInterface::class),
-            $this->createMock(EntityWriteGatewayInterface::class)
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
         );
 
         /** @var PromotionDefinition $promotionDefinition */
@@ -79,7 +79,7 @@ class PromotionValidatorTest extends TestCase
                 'code' => ' ',
             ],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 
@@ -100,7 +100,7 @@ class PromotionValidatorTest extends TestCase
 
             $violation = $firstException->getViolations()->get(0);
 
-            static::assertEquals('/0/code', $violation->getPropertyPath());
+            static::assertSame('/0/code', $violation->getPropertyPath());
 
             throw $e;
         }
@@ -123,7 +123,7 @@ class PromotionValidatorTest extends TestCase
                 'valid_until' => '2019-02-25 11:59:59',
             ],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 
@@ -137,7 +137,7 @@ class PromotionValidatorTest extends TestCase
             $event->getExceptions()->tryToThrow();
             static::fail('Validation with invalid until was not triggered.');
         } catch (WriteException $e) {
-            static::assertEquals(WriteConstraintViolationException::class, $e->getExceptions()[0]::class);
+            static::assertSame(WriteConstraintViolationException::class, $e->getExceptions()[0]::class);
 
             throw $e;
         }
@@ -159,7 +159,7 @@ class PromotionValidatorTest extends TestCase
                 'code' => ' ',
             ],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 
@@ -196,7 +196,7 @@ class PromotionValidatorTest extends TestCase
                 'value' => $value,
             ],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 
@@ -210,22 +210,20 @@ class PromotionValidatorTest extends TestCase
             $event->getExceptions()->tryToThrow();
             static::fail('Validation with invalid until was not triggered.');
         } catch (WriteException $e) {
-            static::assertEquals(WriteConstraintViolationException::class, $e->getExceptions()[0]::class);
+            static::assertSame(WriteConstraintViolationException::class, $e->getExceptions()[0]::class);
 
             throw $e;
         }
     }
 
     /**
-     * @return array<string, array{0: string, 1: float}>
+     * @return iterable<string, array{0: string, 1: float}>
      */
-    public static function invalidProvider(): array
+    public static function invalidProvider(): iterable
     {
-        return [
-            'negative percentage' => ['percentage', -0.01],
-            'percentage over 100' => ['percentage', 100.01],
-            'negative absolute' => ['absolute', -0.01],
-        ];
+        yield 'negative percentage' => ['percentage', -0.01];
+        yield 'percentage over 100' => ['percentage', 100.01];
+        yield 'negative absolute' => ['absolute', -0.01];
     }
 
     /**
@@ -253,7 +251,7 @@ class PromotionValidatorTest extends TestCase
                 'value' => $value,
             ],
             ['id' => Uuid::randomBytes()],
-            $this->createMock(EntityExistence::class),
+            static::createStub(EntityExistence::class),
             '/0'
         );
 
@@ -268,16 +266,14 @@ class PromotionValidatorTest extends TestCase
     }
 
     /**
-     * @return array<string, array{0: string, 1: float}>
+     * @return iterable<string, array{0: string, 1: float}>
      */
-    public static function validProvider(): array
+    public static function validProvider(): iterable
     {
-        return [
-            'zero percentage' => ['percentage', -0.00],
-            '100 percentage' => ['percentage', 100.00],
-            'zero absolute' => ['absolute', 0.00],
-            'positive absolute' => ['absolute', 260.00],
-        ];
+        yield 'zero percentage' => ['percentage', -0.00];
+        yield '100 percentage' => ['percentage', 100.00];
+        yield 'zero absolute' => ['absolute', 0.00];
+        yield 'positive absolute' => ['absolute', 260.00];
     }
 
     /**

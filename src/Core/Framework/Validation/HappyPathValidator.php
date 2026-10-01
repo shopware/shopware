@@ -39,8 +39,11 @@ class HappyPathValidator implements ValidatorInterface
     /**
      * @param Constraint|Constraint[]|null $constraints
      */
-    public function validate(mixed $value, Constraint|array|null $constraints = null, string|GroupSequence|array|null $groups = null): ConstraintViolationListInterface
-    {
+    public function validate(
+        mixed $value,
+        Constraint|array|null $constraints = null,
+        string|GroupSequence|array|null $groups = null
+    ): ConstraintViolationListInterface {
         if ($constraints === null) {
             return $this->inner->validate($value, $constraints, $groups);
         }
@@ -67,13 +70,20 @@ class HappyPathValidator implements ValidatorInterface
         return $this->inner->hasMetadataFor($value);
     }
 
-    public function validateProperty(object $object, string $propertyName, string|GroupSequence|array|null $groups = null): ConstraintViolationListInterface
-    {
+    public function validateProperty(
+        object $object,
+        string $propertyName,
+        string|GroupSequence|array|null $groups = null
+    ): ConstraintViolationListInterface {
         return $this->inner->validateProperty($object, $propertyName, $groups);
     }
 
-    public function validatePropertyValue(object|string $objectOrClass, string $propertyName, mixed $value, string|GroupSequence|array|null $groups = null): ConstraintViolationListInterface
-    {
+    public function validatePropertyValue(
+        object|string $objectOrClass,
+        string $propertyName,
+        mixed $value,
+        string|GroupSequence|array|null $groups = null
+    ): ConstraintViolationListInterface {
         return $this->inner->validatePropertyValue($objectOrClass, $propertyName, $value, $groups);
     }
 
@@ -100,7 +110,7 @@ class HappyPathValidator implements ValidatorInterface
             return $value;
         }
 
-        if (empty($constraint->normalizer)) {
+        if ($constraint->normalizer === null) {
             return $value;
         }
 
@@ -110,7 +120,6 @@ class HappyPathValidator implements ValidatorInterface
             return $value;
         }
 
-        /** @var callable(mixed): mixed $normalizer */
         return $normalizer($value);
     }
 
@@ -133,7 +142,8 @@ class HappyPathValidator implements ValidatorInterface
 
                 break;
             case $constraint instanceof NotBlank:
-                if ($value === false || (empty($value) && $value !== '0')) {
+                // NotBlank rejects all falsy values except the string '0'
+                if ($value === false || (!$value && $value !== '0')) {
                     return false;
                 }
 
@@ -154,12 +164,10 @@ class HappyPathValidator implements ValidatorInterface
                     $ctypeFunction = 'ctype_' . $type;
 
                     if (\function_exists($isFunction)) {
-                        /** @phpstan-ignore-next-line - we need the dynamic call here, checked with function_exists before */
                         if (!$isFunction($value)) {
                             return false;
                         }
                     } elseif (\function_exists($ctypeFunction)) {
-                        /** @phpstan-ignore-next-line - we need the dynamic call here, checked with function_exists before */
                         if (!$ctypeFunction($value)) {
                             return false;
                         }
@@ -214,7 +222,6 @@ class HappyPathValidator implements ValidatorInterface
 
                     if (($existsInArray || $existsInArrayAccess) && property_exists($fieldConstraint, 'constraints')) {
                         if ((is_countable($fieldConstraint->constraints) ? \count($fieldConstraint->constraints) : 0) > 0) {
-                            /** @var array<mixed>|\ArrayAccess<string|int, mixed> $value */
                             if (!$this->validateConstraint($value[$field], $fieldConstraint->constraints)) {
                                 return false;
                             }

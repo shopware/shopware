@@ -1,9 +1,10 @@
+/* eslint-disable sw-test-rules/test-file-max-lines-warning, sw-test-rules/test-file-max-lines-error */
+
 /**
  * @sw-package inventory
  */
-import { config, mount } from '@vue/test-utils';
+import { config, DOMWrapper, mount } from '@vue/test-utils';
 import { createRouter, createWebHashHistory } from 'vue-router';
-import findByLabel from '../../../../../test/_helper_/find-by-label';
 
 let bulkEditResponse = {
     data: {},
@@ -21,6 +22,8 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         },
         customMocks = {
             productRepositoryMock: undefined,
+            templateType: 'default',
+            options: [],
         },
     ) {
         const productEntity = productEntityOverride === undefined ? { metaTitle: 'test' } : productEntityOverride;
@@ -68,9 +71,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         return mount(await wrapTestComponent('sw-bulk-edit-product', { sync: true }), {
             global: {
-                plugins: [
-                    router,
-                ],
+                plugins: [router],
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),
                     'sw-loader': await wrapTestComponent('sw-loader'),
@@ -78,12 +79,77 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-bulk-edit-change-type-field-renderer': await wrapTestComponent(
                         'sw-bulk-edit-change-type-field-renderer',
                     ),
-                    'sw-bulk-edit-form-field-renderer': await wrapTestComponent('sw-bulk-edit-form-field-renderer'),
+                    'sw-bulk-edit-form-field-renderer': {
+                        template: `
+                            <div>
+                                <template v-if="templateType === 'select'">
+                                    <select
+                                        :value="modelValue || value"
+                                        @change="onInput"
+                                        class="sw-form-field-renderer"
+                                    >
+                                        <option
+                                            v-for="option in options"
+                                            class="sw-form-field-renderer__option"
+                                            :key="option.value"
+                                            :value="option.value"
+                                        >
+                                            {{ option.label }}
+                                        </option>
+                                    </select>
+                                </template>
+                                <template v-else>
+                                    <input
+                                        :value="modelValue || value"
+                                        @input="onInput"
+                                        class="sw-form-field-renderer"
+                                    />
+                                </template>
+                            </div>
+                        `,
+                        props: {
+                            modelValue: {
+                                type: [
+                                    String,
+                                    Number,
+                                    Boolean,
+                                    Object,
+                                    Array,
+                                ],
+                                default: null,
+                            },
+                            value: {
+                                type: [
+                                    String,
+                                    Number,
+                                    Boolean,
+                                    Object,
+                                    Array,
+                                ],
+                                default: null,
+                            },
+                            templateType: {
+                                type: String,
+                                default: () => customMocks.templateType,
+                            },
+                            options: {
+                                type: Array,
+                                default: () => customMocks.options || [],
+                            },
+                        },
+                        methods: {
+                            onInput(event) {
+                                this.$emit('update:model-value', event.target.value);
+                                this.$emit('update:value', event.target.value);
+                                this.$emit('update:entity-collection', event.target.value);
+                            },
+                        },
+                    },
                     'sw-bulk-edit-change-type': await wrapTestComponent('sw-bulk-edit-change-type'),
                     'sw-form-field-renderer': await wrapTestComponent('sw-form-field-renderer'),
-                    'sw-empty-state': await wrapTestComponent('sw-empty-state'),
                     'sw-button-process': await wrapTestComponent('sw-button-process'),
                     'sw-ignore-class': true,
+                    'sw-context-menu-item': true,
                     'sw-select-base': await wrapTestComponent('sw-select-base'),
                     'sw-single-select': await wrapTestComponent('sw-single-select'),
                     'sw-text-field': await wrapTestComponent('sw-text-field'),
@@ -128,7 +194,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'sw-bulk-edit-product-media': true,
                     'sw-tabs': await wrapTestComponent('sw-tabs'),
                     'sw-tabs-deprecated': await wrapTestComponent('sw-tabs-deprecated', { sync: true }),
-                    'sw-tabs-item': await wrapTestComponent('sw-tabs-item'),
+                    'sw-tabs-item': {
+                        template: '<div><slot></slot></div>',
+                    },
                     'sw-label': true,
                     'sw-extension-component-section': true,
                     'sw-inheritance-switch': true,
@@ -136,6 +204,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'mt-loader': true,
                     'sw-loader-deprecated': true,
                     'sw-app-topbar-button': true,
+                    'sw-app-topbar-sidebar': true,
                     'sw-error-summary': true,
                     'sw-ai-copilot-badge': true,
                     'sw-context-button': true,
@@ -149,9 +218,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                     'mt-text-field': true,
                     'mt-tabs': true,
                     'sw-media-collapse': true,
-                    'mt-floating-ui': true,
                 },
                 provide: {
+                    customFieldDataProviderService: {
+                        getCustomFieldSets: () => Promise.resolve([{ id: 'field-set-id-1' }]),
+                    },
                     validationService: {},
                     bulkEditApiFactory: {
                         getHandler: () => {
@@ -183,10 +254,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
                             if (entity === 'custom_field_set') {
                                 return {
-                                    search: () =>
-                                        Promise.resolve([
-                                            { id: 'field-set-id-1' },
-                                        ]),
+                                    search: () => Promise.resolve([{ id: 'field-set-id-1' }]),
                                     get: () => Promise.resolve({ id: '' }),
                                 };
                             }
@@ -225,6 +293,17 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                                 };
                             }
 
+                            if (entity === 'product_price') {
+                                return {
+                                    search: () => Promise.resolve([]),
+                                    get: () => Promise.resolve(null),
+                                    create: () => ({
+                                        id: `price-id-${Math.random().toString(36).slice(2)}`,
+                                        isNew: () => true,
+                                    }),
+                                };
+                            }
+
                             return {
                                 search: () => Promise.resolve([{ id: 'Id' }]),
                                 get: () => Promise.resolve({ id: 'Id' }),
@@ -239,10 +318,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                             return Promise.resolve();
                         },
                     },
+                    documentV2Service: {},
                     shortcutService: {
                         startEventListener: () => {},
                         stopEventListener: () => {},
                     },
+                    syncService: {},
                 },
             },
             props: {
@@ -340,6 +421,16 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     });
 
     beforeEach(async () => {
+        jest.spyOn(Shopware.Service('userConfigService'), 'search').mockResolvedValue({
+            data: {
+                'measurement.preferenceUnits': {
+                    length: 'mm',
+                    weight: 'kg',
+                },
+            },
+        });
+        jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+
         const mockResponses = global.repositoryFactoryMock.responses;
         mockResponses.addResponse({
             method: 'post',
@@ -356,14 +447,11 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
                 ],
             },
         });
-        Shopware.Store.get('swBulkEdit').selectedIds = [
-            Shopware.Utils.createId(),
-        ];
+        Shopware.Store.get('swBulkEdit').selectedIds = [Shopware.Utils.createId()];
     });
 
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-        expect(wrapper.vm).toBeTruthy();
+    afterEach(() => {
+        jest.restoreAllMocks();
     });
 
     it('should be handled change data', async () => {
@@ -376,7 +464,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await flushPromises();
 
-        await activeField.find('.sw-field--switch__input input').setValue('checked');
+        await activeField.find('.sw-form-field-renderer').setValue('checked');
 
         expect(wrapper.vm.bulkEditProduct.active.isChanged).toBeTruthy();
 
@@ -395,6 +483,20 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         expect(wrapper.find('.sw-bulk-edit-save-modal-confirm').exists()).toBeTruthy();
         expect(wrapper.vm.$route.path).toBe('/index/null/0/save/confirm');
+    });
+
+    it('should set active to false when root products are bulk deactivated', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        wrapper.vm.bulkEditProduct.active.isChanged = true;
+        wrapper.vm.onProcessData();
+
+        expect(wrapper.vm.bulkEditSelected).toContainEqual({
+            field: 'active',
+            type: 'overwrite',
+            value: false,
+        });
     });
 
     it('should close confirm modal', async () => {
@@ -460,8 +562,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        const emptyState = wrapper.find('.sw-empty-state');
-        expect(emptyState.find('.sw-empty-state__title').text()).toBe('sw-bulk-edit.product.messageEmptyTitle');
+        expect(wrapper.find('.mt-empty-state__headline').text()).toBe('sw-bulk-edit.product.messageEmptyTitle');
     });
 
     it('should be selected taxRate on click change tax field', async () => {
@@ -469,10 +570,26 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             taxId: null,
         };
 
-        const wrapper = await createWrapper(productEntity, {
-            name: 'sw.bulk.edit.product',
-            params: { parentId: 'null' },
-        });
+        const wrapper = await createWrapper(
+            productEntity,
+            {
+                name: 'sw.bulk.edit.product',
+                params: { parentId: 'null' },
+            },
+            {
+                templateType: 'select',
+                options: [
+                    {
+                        value: 'taxRate1',
+                        label: 'Rate 1',
+                    },
+                    {
+                        value: 'taxRate2',
+                        label: 'Rate 2',
+                    },
+                ],
+            },
+        );
 
         await flushPromises();
 
@@ -481,16 +598,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await flushPromises();
 
-        await taxField.find('.sw-select__selection').trigger('click');
+        await taxField.find('.sw-form-field-renderer').setValue('taxRate2');
 
         await flushPromises();
 
-        const taxList = wrapper.find('.sw-select-result-list__item-list');
-        const secondTax = taxList.find('.sw-select-option--1');
-        await secondTax.trigger('click');
-
-        expect(secondTax.text()).toBe('Rate 2');
-        expect(wrapper.vm.taxRate.name).toBe('Rate 2');
+        const taxId = Shopware.Store.get('swProductDetail').product.taxId;
+        expect(taxId).toBe('taxRate2');
     });
 
     it('should be correct data when the user overwrite minPurchase', async () => {
@@ -516,6 +629,104 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(changeField.value).toBe(2);
     });
 
+    it('should offer the GARAN fields in product bulk edit', async () => {
+        const productEntity = {
+            guaranteeMonths: 36,
+            guaranteeConfirmed: true,
+        };
+        const wrapper = await createWrapper(productEntity, {
+            name: 'sw.bulk.edit.product',
+            params: { parentId: 'null' },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.labellingFormFields.map((field) => field.name)).toEqual(['releaseDate']);
+        expect(wrapper.vm.guaranteeFormFields.map((field) => field.name)).toEqual([
+            'guaranteeMonths',
+            'guaranteeConfirmed',
+        ]);
+
+        wrapper.vm.bulkEditProduct.guaranteeMonths.isChanged = true;
+        wrapper.vm.bulkEditProduct.guaranteeConfirmed.isChanged = true;
+        wrapper.vm.onProcessData();
+
+        expect(wrapper.vm.bulkEditSelected).toContainEqual({
+            field: 'guaranteeMonths',
+            type: 'overwrite',
+            value: 36,
+        });
+        expect(wrapper.vm.bulkEditSelected).toContainEqual({
+            field: 'guaranteeConfirmed',
+            type: 'overwrite',
+            value: true,
+        });
+    });
+
+    it('should preserve GARAN field inheritance for variants', async () => {
+        const wrapper = await createWrapper(
+            undefined,
+            {
+                name: 'sw.bulk.edit.product',
+                params: { parentId: 'productId' },
+            },
+            {
+                productRepositoryMock: {
+                    create: jest.fn(() => ({
+                        isNew: () => true,
+                    })),
+                    get: jest.fn(() =>
+                        Promise.resolve({
+                            id: 'productId',
+                            guaranteeMonths: 36,
+                            guaranteeConfirmed: true,
+                            price: [
+                                {
+                                    currencyId: 'currencyId1',
+                                    gross: 10,
+                                    net: 8.4,
+                                    linked: true,
+                                },
+                            ],
+                            purchasePrices: [
+                                {
+                                    currencyId: 'currencyId1',
+                                    gross: 8,
+                                    net: 6.72,
+                                    linked: true,
+                                },
+                            ],
+                        }),
+                    ),
+                },
+            },
+        );
+
+        await flushPromises();
+
+        expect(wrapper.vm.guaranteeFormFields).toEqual(
+            expect.arrayContaining([
+                expect.objectContaining({ name: 'guaranteeMonths', canInherit: true }),
+                expect.objectContaining({ name: 'guaranteeConfirmed', canInherit: true }),
+            ]),
+        );
+
+        wrapper.vm.bulkEditProduct.guaranteeMonths.isChanged = true;
+        wrapper.vm.bulkEditProduct.guaranteeConfirmed.isChanged = true;
+        wrapper.vm.onProcessData();
+
+        expect(wrapper.vm.bulkEditSelected).toContainEqual({
+            field: 'guaranteeMonths',
+            type: 'overwrite',
+            value: null,
+        });
+        expect(wrapper.vm.bulkEditSelected).toContainEqual({
+            field: 'guaranteeConfirmed',
+            type: 'overwrite',
+            value: null,
+        });
+    });
+
     it('should be null for the value and the type is overwrite data when minPurchase set to clear type', async () => {
         const productEntity = {
             minPurchase: 2,
@@ -534,8 +745,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await minPurchaseField.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const changeTypeList = wrapper.find('.sw-select-result-list__item-list');
-        const clearOption = changeTypeList.find('.sw-select-option--1');
+        const clearOption = new DOMWrapper(document.body).get('.sw-select-result-list__item-list .sw-select-option--1');
 
         await clearOption.trigger('click');
         await flushPromises();
@@ -555,7 +765,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         const priceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-price');
-        const priceGrossInput = wrapper.findByLabel('global.sw-price-field.labelPriceGross');
+        const priceGrossInput = priceFieldsForm.find('input');
         await priceGrossInput.setValue('6');
         await flushPromises();
 
@@ -573,6 +783,26 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(wrapper.vm.bulkEditProduct.price.value).toBeTruthy();
     });
 
+    it('should add default taxId when price is changed without selecting tax change', async () => {
+        const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+
+        await flushPromises();
+
+        const priceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-price');
+        const priceGrossInput = priceFieldsForm.find('input');
+        await priceGrossInput.setValue('6');
+        await flushPromises();
+
+        await priceFieldsForm.find('.sw-bulk-edit-change-field__change input').setValue('checked');
+
+        wrapper.vm.onProcessData();
+
+        const taxChangeField = wrapper.vm.bulkEditSelected.find((field) => field.field === 'taxId');
+        expect(taxChangeField).toBeDefined();
+        expect(taxChangeField.type).toBe('overwrite');
+        expect(taxChangeField.value).toBe('rate1');
+    });
+
     it('should be getting the list price when the price field is exists', async () => {
         const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
 
@@ -580,17 +810,13 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         const priceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-price');
         await priceFieldsForm.find('.sw-bulk-edit-change-field__change input').setValue('checked');
-        const priceGrossInput = findByLabel(priceFieldsForm, 'global.sw-price-field.labelPriceGross');
+        const priceGrossInput = priceFieldsForm.find('input');
         await priceGrossInput.setValue('6');
         await flushPromises();
 
         const listPriceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-listPrice');
         await listPriceFieldsForm.find('.sw-bulk-edit-change-field__change input').setValue('checked');
         await flushPromises();
-
-        const listPriceFields = listPriceFieldsForm.find('.sw-price-field');
-        const listPriceGrossInput = findByLabel(listPriceFields, 'global.sw-price-field.labelPriceGross');
-        await listPriceGrossInput.setValue('5');
 
         wrapper.vm.onProcessData();
 
@@ -609,14 +835,14 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         await flushPromises();
 
         const priceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-price');
-        const priceGrossInput = findByLabel(priceFieldsForm, 'global.sw-price-field.labelPriceGross');
+        const priceGrossInput = priceFieldsForm.find('input');
         await priceGrossInput.setValue('6');
         await flushPromises();
 
         await priceFieldsForm.find('.sw-bulk-edit-change-field__change input').setValue('checked');
 
         const listPriceFieldsForm = wrapper.find('.sw-bulk-edit-change-field-listPrice');
-        const listPriceGrossInput = findByLabel(listPriceFieldsForm, 'global.sw-price-field.labelPriceGross');
+        const listPriceGrossInput = listPriceFieldsForm.find('input');
         await listPriceGrossInput.setValue('5');
         await flushPromises();
 
@@ -632,6 +858,128 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(changeField.value[0]).toHaveProperty('linked');
         expect(changeField.value[0]).toHaveProperty('gross');
         expect(changeField.value[0]).toHaveProperty('listPrice');
+    });
+
+    it('should send listPrice in request when only listPrice is changed without price', async () => {
+        const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+
+        await flushPromises();
+
+        wrapper.vm.product.listPrice = [
+            {
+                currencyId: wrapper.vm.currency.id,
+                gross: 100,
+                net: 84.03,
+                linked: true,
+            },
+        ];
+        wrapper.vm.bulkEditProduct.listPrice.isChanged = true;
+
+        wrapper.vm.onProcessData();
+
+        const changeField = wrapper.vm.bulkEditSelected.find((field) => field.field === 'price');
+        expect(changeField).toBeDefined();
+        expect(changeField.value[0]).toHaveProperty('listPrice');
+        expect(changeField.value[0].listPrice.gross).toBe(100);
+
+        expect(changeField.value[0].gross).toBeNull();
+        expect(changeField.value[0].net).toBeNull();
+    });
+
+    it('should send regulationPrice in request when only regulationPrice is changed without price', async () => {
+        const wrapper = await createWrapper({}, { name: 'sw.bulk.edit.product', params: { parentId: 'null' } });
+
+        await flushPromises();
+
+        wrapper.vm.product.regulationPrice = [
+            {
+                currencyId: wrapper.vm.currency.id,
+                gross: 150,
+                net: 126.05,
+                linked: true,
+            },
+        ];
+        wrapper.vm.bulkEditProduct.regulationPrice.isChanged = true;
+
+        wrapper.vm.onProcessData();
+
+        const changeField = wrapper.vm.bulkEditSelected.find((field) => field.field === 'price');
+        expect(changeField).toBeDefined();
+        expect(changeField.value[0]).toHaveProperty('regulationPrice');
+        expect(changeField.value[0].regulationPrice.gross).toBe(150);
+
+        expect(changeField.value[0].gross).toBeNull();
+        expect(changeField.value[0].net).toBeNull();
+    });
+
+    it('should preserve child price inheritance when restoring inherited prices', async () => {
+        const wrapper = await createWrapper(
+            undefined,
+            {
+                name: 'sw.bulk.edit.product',
+                params: { parentId: 'productId' },
+            },
+            {
+                productRepositoryMock: {
+                    create: jest.fn(() => ({
+                        isNew: () => true,
+                    })),
+                    get: jest.fn(() => {
+                        return Promise.resolve({
+                            id: 'productId',
+                            name: 'parentProduct',
+                            tax: {
+                                id: 'rate1',
+                                taxRate: 19,
+                            },
+                            price: [
+                                {
+                                    currencyId: 'currencyId1',
+                                    gross: 10,
+                                    net: 8.4,
+                                    linked: true,
+                                    listPrice: {
+                                        currencyId: 'currencyId1',
+                                        gross: 12,
+                                        net: 10.08,
+                                        linked: true,
+                                    },
+                                    regulationPrice: {
+                                        currencyId: 'currencyId1',
+                                        gross: 11,
+                                        net: 9.24,
+                                        linked: true,
+                                    },
+                                },
+                            ],
+                            purchasePrices: [
+                                {
+                                    currencyId: 'currencyId1',
+                                    gross: 8,
+                                    net: 6.72,
+                                    linked: true,
+                                },
+                            ],
+                        });
+                    }),
+                },
+            },
+        );
+
+        await flushPromises();
+
+        wrapper.vm.onInheritanceRemove({ name: 'isPriceInherited' });
+        wrapper.vm.bulkEditProduct.isPriceInherited.isChanged = true;
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.onInheritanceRestore({ name: 'isPriceInherited' });
+        await wrapper.vm.$nextTick();
+
+        wrapper.vm.onProcessData();
+
+        const priceChanges = wrapper.vm.bulkEditSelected.filter((field) => field.field === 'price');
+        expect(priceChanges).toHaveLength(1);
+        expect(priceChanges[0].value).toBeNull();
     });
 
     it('should be correct data when select categories', async () => {
@@ -773,6 +1121,102 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
         expect(changeField.value[0].ruleId).toBe('ruleId');
     });
 
+    it('should sync selectedPriceRules and product prices when rules are added or removed for the remove-pricing-rule action', async () => {
+        const { EntityCollection } = Shopware.Data;
+
+        const productEntity = {
+            id: 'productId',
+            price: [
+                {
+                    currencyId: 'currencyId1',
+                    gross: 10,
+                    linked: true,
+                    net: 8.4,
+                },
+            ],
+            prices: new EntityCollection('/product-price', 'product_price', Shopware.Context.api),
+        };
+
+        const wrapper = await createWrapper(productEntity, {
+            name: 'sw.bulk.edit.product',
+            params: { parentId: 'null' },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.vm.selectedPriceRules).toHaveLength(0);
+
+        wrapper.vm.onRuleChange([{ id: '1', name: 'Cart >= 0' }]);
+
+        expect(wrapper.vm.product.prices).toHaveLength(1);
+        expect(wrapper.vm.product.prices[0].ruleId).toBe('1');
+        expect(wrapper.vm.product.prices[0].ruleName).toBe('Cart >= 0');
+        expect(wrapper.vm.selectedPriceRules).toHaveLength(1);
+        expect(wrapper.vm.selectedPriceRules[0].id).toBe('1');
+        expect(wrapper.vm.selectedPriceRules[0].name).toBe('Cart >= 0');
+
+        wrapper.vm.onRuleChange([{ id: '1', name: 'Cart >= 0' }]);
+
+        expect(wrapper.vm.product.prices).toHaveLength(1);
+
+        wrapper.vm.onRuleChange([
+            { id: '1', name: 'Cart >= 0' },
+            { id: '2', name: 'Customer from USA' },
+        ]);
+
+        expect(wrapper.vm.product.prices).toHaveLength(2);
+        expect([...wrapper.vm.product.prices].map((p) => p.ruleId).sort()).toEqual(['1', '2']);
+        expect([...wrapper.vm.selectedPriceRules].map((r) => r.id).sort()).toEqual(['1', '2']);
+
+        wrapper.vm.onRuleChange([{ id: '2', name: 'Customer from USA' }]);
+
+        expect(wrapper.vm.product.prices).toHaveLength(1);
+        expect(wrapper.vm.product.prices[0].ruleId).toBe('2');
+        expect(wrapper.vm.selectedPriceRules).toHaveLength(1);
+        expect(wrapper.vm.selectedPriceRules[0].id).toBe('2');
+
+        wrapper.vm.onRuleChange([]);
+
+        expect(wrapper.vm.product.prices).toHaveLength(0);
+        expect(wrapper.vm.selectedPriceRules).toHaveLength(0);
+    });
+
+    it('should resolve selectedPriceRules label from the loaded rule association when the rule is outside the loaded rules', async () => {
+        const { EntityCollection } = Shopware.Data;
+
+        const productEntity = {
+            id: 'productId',
+            price: [
+                {
+                    currencyId: 'currencyId1',
+                    gross: 10,
+                    linked: true,
+                    net: 8.4,
+                },
+            ],
+            prices: new EntityCollection('/product-price', 'product_price', Shopware.Context.api),
+        };
+
+        const wrapper = await createWrapper(productEntity, {
+            name: 'sw.bulk.edit.product',
+            params: { parentId: 'null' },
+        });
+
+        await flushPromises();
+
+        // A server-loaded price whose rule is outside the loaded `rules` window (capped at 500).
+        // It carries no `ruleName`, only the loaded `rule` association.
+        wrapper.vm.product.prices.add({
+            id: 'price-999',
+            ruleId: '999',
+            rule: { id: '999', name: 'Rule beyond 500' },
+        });
+
+        expect(wrapper.vm.selectedPriceRules).toHaveLength(1);
+        expect(wrapper.vm.selectedPriceRules[0].id).toBe('999');
+        expect(wrapper.vm.selectedPriceRules[0].name).toBe('Rule beyond 500');
+    });
+
     it('should restrict fields on including digital products', async () => {
         const wrapper = await createWrapper();
 
@@ -795,10 +1239,21 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         wrapper.vm.createdComponent();
         expect(wrapper.vm.setRouteMetaModule).toHaveBeenCalled();
-        expect(wrapper.vm.$route.meta.$module.color).toBe('#57D9A3');
+        expect(wrapper.vm.$route.meta.$module.color).toBe('var(--sw-color-module-green-default)');
         expect(wrapper.vm.$route.meta.$module.icon).toBe('regular-products');
 
         wrapper.vm.setRouteMetaModule.mockRestore();
+    });
+
+    it('should provide bulk-edit specific property empty-state copy', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.propertyFormFields[0].config.emptyStateTitle).toBe(
+            'sw-bulk-edit.product.property.titleEmptyState',
+        );
+        expect(wrapper.vm.propertyFormFields[0].config.emptyStateDescription).toBe(
+            'sw-bulk-edit.product.property.descriptionEmptyState',
+        );
     });
 
     it('should disable processing button', async () => {
@@ -876,15 +1331,18 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
             },
         ],
         [
-            true,
+            false,
             'price',
-            true,
+            [
+                {
+                    currencyId: 'currencyId',
+                    gross: '1',
+                    net: '2',
+                },
+            ],
         ],
-        [
-            true,
-            'price',
-            null,
-        ],
+        [true, 'price', true],
+        [true, 'price', null],
     ];
 
     it.each(dataProvider)('should have set price to product when value is not boolean', async (isChanged, item, value) => {
@@ -913,7 +1371,7 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         let expected;
         if (value && typeof value !== 'boolean') {
-            expected = [value];
+            expected = Array.isArray(value) ? value : [value];
         }
 
         expect(wrapper.vm.product[item]).toEqual(expected);
@@ -937,6 +1395,9 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
     it('should get parent product successful', async () => {
         const wrapper = await createWrapper(undefined, undefined, {
             productRepositoryMock: {
+                create: jest.fn(() => ({
+                    isNew: () => true,
+                })),
                 get: jest.fn(() => {
                     return Promise.resolve({
                         id: 'productId',
@@ -975,5 +1436,295 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         expect(wrapper.vm.parentProduct).toStrictEqual({});
         expect(wrapper.vm.parentProductFrozen).toBeNull();
+    });
+
+    it('should get preference units', async () => {
+        const wrapper = await createWrapper();
+        Shopware.Service('userConfigService').search.mockResolvedValue({
+            data: {
+                'measurement.preferenceUnits': {
+                    length: 'cm',
+                    weight: 'g',
+                },
+            },
+        });
+
+        await wrapper.vm.loadPreferenceUnits();
+
+        expect(wrapper.vm.lengthUnit).toBe('cm');
+        expect(wrapper.vm.weightUnit).toBe('g');
+    });
+
+    it('should not get preference units', async () => {
+        const wrapper = await createWrapper();
+        Shopware.Service('userConfigService').search.mockResolvedValue({ data: {} });
+
+        await wrapper.vm.loadPreferenceUnits();
+
+        expect(wrapper.vm.lengthUnit).toBe('mm');
+        expect(wrapper.vm.weightUnit).toBe('kg');
+    });
+
+    it('should flag the selected sales channel as removed for a variant', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [
+                { id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_2', productId: 'parent_id', salesChannelId: 'scn_2', visibility: 30 },
+                { id: 'vis_3', productId: 'parent_id', salesChannelId: 'scn_3', visibility: 20 },
+            ],
+        });
+
+        // In Remove mode the selector holds the channel(s) to remove — here scn_1.
+        const change = {
+            field: 'visibilities',
+            type: 'remove',
+            mappingReferenceField: 'salesChannelId',
+            value: [{ id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 }],
+        };
+
+        wrapper.vm.transformVariantVisibilityChange(change);
+
+        // The change is handed to the dedicated handler path: type/value stay intact, the
+        // removed channels come straight from the selection and the parent set is attached
+        // as the fallback base for inheriting variants.
+        expect(change.type).toBe('remove');
+        expect(change.removedSalesChannelIds).toEqual(['scn_1']);
+        expect(change.inheritedVisibilities).toEqual([
+            { salesChannelId: 'scn_1', visibility: 30 },
+            { salesChannelId: 'scn_2', visibility: 30 },
+            { salesChannelId: 'scn_3', visibility: 20 },
+        ]);
+    });
+
+    it('should flag every selected sales channel as removed for a variant', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [
+                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_2', salesChannelId: 'scn_2', visibility: 30 },
+                { id: 'vis_3', salesChannelId: 'scn_3', visibility: 20 },
+            ],
+        });
+
+        // The user selected scn_1 and scn_3 to be removed.
+        const change = {
+            field: 'visibilities',
+            type: 'remove',
+            mappingReferenceField: 'salesChannelId',
+            value: [
+                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_3', salesChannelId: 'scn_3', visibility: 20 },
+            ],
+        };
+
+        wrapper.vm.transformVariantVisibilityChange(change);
+
+        expect(change.removedSalesChannelIds).toEqual(['scn_1', 'scn_3']);
+        expect(change.inheritedVisibilities).toEqual([
+            { salesChannelId: 'scn_1', visibility: 30 },
+            { salesChannelId: 'scn_2', visibility: 30 },
+            { salesChannelId: 'scn_3', visibility: 20 },
+        ]);
+    });
+
+    it('should flag the removed sales channels via onProcessData', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [
+                { id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_2', productId: 'parent_id', salesChannelId: 'scn_2', visibility: 30 },
+            ],
+        });
+
+        wrapper.vm.bulkEditProduct.visibilities = {
+            isChanged: true,
+            type: 'remove',
+            value: [{ id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 }],
+            isInherited: false,
+        };
+        wrapper.vm.product.visibilities = wrapper.vm.bulkEditProduct.visibilities.value;
+
+        wrapper.vm.onProcessData();
+
+        const visibilityChange = wrapper.vm.bulkEditSelected.find((entry) => entry.field === 'visibilities');
+        expect(visibilityChange).toBeDefined();
+        expect(visibilityChange.type).toBe('remove');
+        expect(visibilityChange.mappingReferenceField).toBe('salesChannelId');
+        expect(visibilityChange.removedSalesChannelIds).toEqual(['scn_1']);
+        expect(visibilityChange.inheritedVisibilities).toEqual([
+            { salesChannelId: 'scn_1', visibility: 30 },
+            { salesChannelId: 'scn_2', visibility: 30 },
+        ]);
+    });
+
+    it('should NOT flag a parent bulk edit visibility remove (non-variant path)', async () => {
+        // parentId 'null' marks a parent (non-variant) bulk edit, so isChild() is false.
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'null', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.bulkEditProduct.visibilities = {
+            isChanged: true,
+            type: 'remove',
+            value: [{ id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 }],
+        };
+        wrapper.vm.product.visibilities = wrapper.vm.bulkEditProduct.visibilities.value;
+
+        wrapper.vm.onProcessData();
+
+        // Parent bulk edit path keeps the standard REMOVE semantics — the transform only
+        // applies to variant (child) edits, so no per-variant flags are attached.
+        const visibilityChange = wrapper.vm.bulkEditSelected.find((entry) => entry.field === 'visibilities');
+        expect(visibilityChange.type).toBe('remove');
+        expect(visibilityChange.removedSalesChannelIds).toBeUndefined();
+        expect(visibilityChange.inheritedVisibilities).toBeUndefined();
+    });
+
+    it('should flag nothing to remove when the variant field stays inherited', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [{ id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 }],
+        });
+
+        // Field left inherited → value is null, nothing is selected for removal.
+        const change = {
+            field: 'visibilities',
+            type: 'remove',
+            mappingReferenceField: 'salesChannelId',
+            value: null,
+        };
+
+        wrapper.vm.transformVariantVisibilityChange(change);
+
+        // No removed channels → the handler leaves every variant untouched.
+        expect(change.removedSalesChannelIds).toEqual([]);
+        expect(change.addedVisibilities).toEqual([]);
+        expect(change.inheritedVisibilities).toEqual([{ salesChannelId: 'scn_1', visibility: 30 }]);
+    });
+
+    it('should flag the selected sales channels as added for a variant', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [
+                { id: 'vis_1', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_2', salesChannelId: 'scn_2', visibility: 30 },
+            ],
+        });
+
+        // In Add mode the selector holds the channel(s) to add — here scn_3.
+        const change = {
+            field: 'visibilities',
+            type: 'add',
+            mappingReferenceField: 'salesChannelId',
+            value: [{ id: 'vis_x', salesChannelId: 'scn_3', visibility: 20 }],
+        };
+
+        wrapper.vm.transformVariantVisibilityChange(change);
+
+        expect(change.type).toBe('add');
+        expect(change.removedSalesChannelIds).toEqual([]);
+        expect(change.addedVisibilities).toEqual([{ salesChannelId: 'scn_3', visibility: 20 }]);
+        // The inherited set is attached so the handler keeps scn_1/scn_2 when materializing.
+        expect(change.inheritedVisibilities).toEqual([
+            { salesChannelId: 'scn_1', visibility: 30 },
+            { salesChannelId: 'scn_2', visibility: 30 },
+        ]);
+    });
+
+    it('should flag added sales channels via onProcessData', async () => {
+        const wrapper = await createWrapper(undefined, {
+            name: 'sw.bulk.edit.product.save',
+            params: { parentId: 'parent_id', includesDigital: '0' },
+        });
+
+        await flushPromises();
+
+        wrapper.vm.parentProductFrozen = JSON.stringify({
+            id: 'parent_id',
+            visibilities: [
+                { id: 'vis_1', productId: 'parent_id', salesChannelId: 'scn_1', visibility: 30 },
+                { id: 'vis_2', productId: 'parent_id', salesChannelId: 'scn_2', visibility: 30 },
+            ],
+        });
+
+        wrapper.vm.bulkEditProduct.visibilities = {
+            isChanged: true,
+            type: 'add',
+            value: [{ id: 'vis_x', productId: 'parent_id', salesChannelId: 'scn_3', visibility: 20 }],
+            isInherited: false,
+        };
+        wrapper.vm.product.visibilities = wrapper.vm.bulkEditProduct.visibilities.value;
+
+        wrapper.vm.onProcessData();
+
+        const visibilityChange = wrapper.vm.bulkEditSelected.find((entry) => entry.field === 'visibilities');
+        expect(visibilityChange).toBeDefined();
+        expect(visibilityChange.type).toBe('add');
+        expect(visibilityChange.addedVisibilities).toEqual([{ salesChannelId: 'scn_3', visibility: 20 }]);
+        expect(visibilityChange.inheritedVisibilities).toEqual([
+            { salesChannelId: 'scn_1', visibility: 30 },
+            { salesChannelId: 'scn_2', visibility: 30 },
+        ]);
+    });
+
+    it('should save preference units', async () => {
+        const wrapper = await createWrapper();
+
+        await wrapper.setData({
+            lengthUnit: 'cm',
+            weightUnit: 'g',
+            preferenceUnits: {
+                length: 'mm',
+                weight: 'kg',
+            },
+        });
+
+        await wrapper.vm.savePreferenceUnits();
+
+        expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
+            'measurement.preferenceUnits': {
+                length: 'cm',
+                weight: 'g',
+            },
+        });
     });
 });

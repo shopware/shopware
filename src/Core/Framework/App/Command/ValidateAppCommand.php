@@ -2,10 +2,9 @@
 
 namespace Shopware\Core\Framework\App\Command;
 
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\AppXmlParsingException;
-use Shopware\Core\Framework\App\Manifest\Exception\ManifestNotFoundException;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
@@ -15,16 +14,17 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\Finder;
 
 /**
  * @internal only for use by the app-system
  */
+#[Package('framework')]
 #[AsCommand(
     name: 'app:validate',
     description: 'Validates an app',
 )]
-#[Package('framework')]
 class ValidateAppCommand extends Command
 {
     public function __construct(
@@ -36,7 +36,7 @@ class ValidateAppCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new ShopwareStyle($input, $output);
+        $io = new SymfonyStyle($input, $output);
         $dir = $this->appDir; // validate all apps as default
         $successMessage = 'all apps valid';
 
@@ -53,7 +53,7 @@ class ValidateAppCommand extends Command
 
         $invalids = $this->validate($dir);
 
-        if (\count($invalids) > 0) {
+        if ($invalids !== []) {
             foreach ($invalids as $invalid) {
                 $io->error($invalid);
             }
@@ -72,7 +72,7 @@ class ValidateAppCommand extends Command
     }
 
     /**
-     * @return array<int, string>
+     * @return list<string>
      */
     private function validate(string $appDir): array
     {
@@ -95,12 +95,12 @@ class ValidateAppCommand extends Command
     }
 
     /**
-     * @return Manifest[]
+     * @return list<Manifest>
      */
     private function getManifestsFromDir(string $dir): array
     {
-        if (!file_exists($dir)) {
-            throw new ManifestNotFoundException($dir);
+        if (!\is_dir($dir)) {
+            throw AppException::manifestNotFound($dir);
         }
 
         $finder = new Finder();
@@ -113,14 +113,14 @@ class ValidateAppCommand extends Command
             $manifests[] = Manifest::createFromXmlFile($xml->getPathname());
         }
 
-        if (\count($manifests) === 0) {
-            throw new ManifestNotFoundException($dir);
+        if ($manifests === []) {
+            throw AppException::manifestNotFound($dir);
         }
 
         return $manifests;
     }
 
-    private function getAppFolderByName(string $name, ShopwareStyle $io): ?string
+    private function getAppFolderByName(string $name, SymfonyStyle $io): ?string
     {
         $finder = new Finder();
         $finder->in($this->appDir)

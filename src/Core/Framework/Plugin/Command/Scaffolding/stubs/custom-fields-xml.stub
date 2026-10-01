@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<custom-fields xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/CustomField/Schema/custom-fields-1.0.xsd">
+    <custom-field-set>
+        <name>swag_example_set</name>
+        <label>Example custom field set</label>
+        <label lang="de-DE">Beispiel-Zusatzfeld-Set</label>
+        <related-entities>
+            <product/>
+        </related-entities>
+        <fields>
+            <int name="swag_example_size">
+                <label>Size</label>
+                <label lang="de-DE">Größe</label>
+                <position>1</position>
+            </int>
+        </fields>
+    </custom-field-set>
+</custom-fields>

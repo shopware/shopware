@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Plugin\Command\Lifecycle;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Lifecycle\PluginUpdateAllCommand;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\PluginCollection;
@@ -20,6 +21,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(PluginUpdateAllCommand::class)]
 class PluginUpdateAllCommandTest extends TestCase
 {
@@ -28,6 +30,7 @@ class PluginUpdateAllCommandTest extends TestCase
         $pluginService = $this->createMock(PluginService::class);
         $pluginService->expects($this->once())->method('refreshPlugins');
 
+        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([new PluginCollection([
             $this->createPlugin('Test'),
             $this->createPlugin('Test2'),
@@ -48,6 +51,7 @@ class PluginUpdateAllCommandTest extends TestCase
         $pluginService = $this->createMock(PluginService::class);
         $pluginService->expects($this->once())->method('refreshPlugins');
 
+        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([new PluginCollection([
             $this->createPlugin('Test'),
             $this->createPlugin('Test2', false, '2.0.0'),
@@ -69,19 +73,20 @@ class PluginUpdateAllCommandTest extends TestCase
         $pluginService->expects($this->once())->method('refreshPlugins');
 
         $updateAblePlugin = $this->createPlugin('Test2', upgradeVersion: '1.0.1');
+        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([new PluginCollection([
             $this->createPlugin('Test'),
             $updateAblePlugin,
         ])]);
 
-        $updateMock = $this->createMock(UpdateContext::class);
+        $updateMock = static::createStub(UpdateContext::class);
 
         $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
         $pluginLifecycleService
             ->expects($this->once())
             ->method('updatePlugin')
             ->with($updateAblePlugin)
-            ->willReturnCallback(function (PluginEntity $plugin, Context $context) use ($updateMock) {
+            ->willReturnCallback(static function (PluginEntity $plugin, Context $context) use ($updateMock) {
                 $plugin->setVersion((string) $plugin->getUpgradeVersion());
                 $plugin->setUpgradeVersion(null);
                 static::assertFalse($context->hasState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING));
@@ -104,19 +109,20 @@ class PluginUpdateAllCommandTest extends TestCase
         $pluginService->expects($this->once())->method('refreshPlugins');
 
         $updateAblePlugin = $this->createPlugin('Test2', upgradeVersion: '1.0.1');
+        /** @var StaticEntityRepository<PluginCollection> */
         $pluginRepository = new StaticEntityRepository([new PluginCollection([
             $this->createPlugin('Test'),
             $updateAblePlugin,
         ])]);
 
-        $updateMock = $this->createMock(UpdateContext::class);
+        $updateMock = static::createStub(UpdateContext::class);
 
         $pluginLifecycleService = $this->createMock(PluginLifecycleService::class);
         $pluginLifecycleService
             ->expects($this->once())
             ->method('updatePlugin')
             ->with($updateAblePlugin)
-            ->willReturnCallback(function (PluginEntity $plugin, Context $context) use ($updateMock) {
+            ->willReturnCallback(static function (PluginEntity $plugin, Context $context) use ($updateMock) {
                 $plugin->setVersion((string) $plugin->getUpgradeVersion());
                 $plugin->setUpgradeVersion(null);
                 static::assertTrue($context->hasState(PluginLifecycleService::STATE_SKIP_ASSET_BUILDING));

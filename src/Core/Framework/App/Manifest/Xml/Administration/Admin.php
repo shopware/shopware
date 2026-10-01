@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Manifest\Xml\Administration;
 
-use Shopware\Core\Framework\App\Exception\InvalidArgumentException;
+use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\Manifest\Xml\XmlElement;
 use Shopware\Core\Framework\Log\Package;
 
@@ -81,7 +81,7 @@ class Admin extends XmlElement
     protected static function parse(\DOMElement $element): array
     {
         if (\count($element->getElementsByTagName('main-module')) > 1) {
-            throw new InvalidArgumentException('Main module must only appear once');
+            throw AppException::invalidArgument('Main module must only appear once');
         }
 
         $actionButtons = [];

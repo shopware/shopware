@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Adapter\Twig;
 
 use Shopware\Core\Framework\Adapter\AdapterException;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Symfony\Component\Filesystem\Path;
@@ -19,6 +20,7 @@ use Twig\Loader\ArrayLoader;
  * @final
  */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class StringTemplateRenderer
 {
     private Environment $twig;
@@ -37,7 +39,7 @@ class StringTemplateRenderer
     {
         // use private twig instance here, because we use custom template loader
         $this->twig = new TwigEnvironment(new ArrayLoader(), [
-            'cache' => new FilesystemCache(Path::join($this->cacheDir, 'twig', 'string-template-renderer')),
+            'cache' => new FilesystemCache(Path::join($this->cacheDir)),
         ]);
 
         $this->disableTestMode();
@@ -73,6 +75,11 @@ class StringTemplateRenderer
             /** @var EscaperExtension $escaperExtension */
             $escaperExtension = $this->twig->getExtension(EscaperExtension::class);
             $escaperExtension->setDefaultStrategy($htmlEscape ? 'html' : false);
+        }
+
+        if ($this->twig->hasExtension(CoreExtension::class) && \array_key_exists('timezone', $data) && $data['timezone'] !== null) {
+            $coreExtension = $this->twig->getExtension(CoreExtension::class);
+            $coreExtension->setTimezone($data['timezone']);
         }
 
         try {

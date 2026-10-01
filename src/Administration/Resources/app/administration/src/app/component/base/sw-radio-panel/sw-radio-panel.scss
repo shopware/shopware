@@ -2,7 +2,7 @@
 @import "~scss/mixins";
 
 .sw-radio-panel {
-    background: $color-white;
+    background: var(--color-background-primary-default);
     display: block;
     position: relative;
     max-width: 300px;
@@ -10,8 +10,8 @@
     .sw-radio-panel__image {
         width: 80px;
         height: 80px;
-        background-color: $color-shopware-brand-50;
-        color: $color-shopware-brand-100;
+        background-color: var(--color-background-brand-default);
+        color: var(--color-icon-brand-default);
         border-radius: 50%;
         margin: 0 auto 15px;
         display: flex;
@@ -21,10 +21,10 @@
 
     .sw-radio-panel__title {
         display: block;
-        font-size: $font-size-m;
+        font-size: var(--font-size-m);
         font-weight: normal;
         margin: 0 0 12px;
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         transition: all 0.2s ease-in-out;
 
         &.is--truncate {
@@ -36,7 +36,7 @@
 
     .sw-radio-panel__description {
         display: block;
-        font-size: $font-size-xs;
+        font-size: var(--font-size-xs);
 
         &.is--truncate {
             @include truncate;
@@ -49,7 +49,7 @@
         display: block;
         padding: 30px;
         height: 100%;
-        border: 1px solid $color-gray-300;
+        border: 1px solid var(--color-border-primary-default);
         border-radius: $border-radius-default;
         text-align: center;
         cursor: pointer;
@@ -62,8 +62,8 @@
         right: 15px;
         width: 15px;
         height: 15px;
-        background-color: $color-gray-100;
-        border: 2px solid $color-gray-300;
+        background-color: var(--color-background-secondary-default);
+        border: 2px solid var(--color-border-primary-default);
         border-radius: 50%;
         transition: all 0.2s ease-in-out;
     }
@@ -75,26 +75,26 @@
         visibility: hidden;
 
         &:checked + .sw-radio-panel__body {
-            border-color: $color-shopware-brand-500;
+            border-color: var(--color-border-brand-default);
 
             .sw-radio-panel__title {
-                color: $color-shopware-brand-500;
+                color: var(--color-text-brand-default);
             }
 
             .sw-radio-panel__radio {
-                border: 5px solid $color-shopware-brand-500;
-                background-color: $color-white;
+                border: 5px solid var(--color-border-brand-default);
+                background-color: var(--color-background-primary-default);
             }
         }
     }
 
     &:hover {
         .sw-radio-panel__title {
-            color: $color-shopware-brand-500;
+            color: var(--color-text-brand-default);
         }
 
         .sw-radio-panel__body {
-            border-color: $color-shopware-brand-500;
+            border-color: var(--color-border-brand-default);
         }
     }
 }

@@ -3,9 +3,11 @@
 namespace Shopware\Core\Content\Seo\Validation;
 
 use Shopware\Core\Content\Seo\SeoUrlRoute\SeoUrlRouteConfig;
+use Shopware\Core\Content\Seo\Validation\Constraint\ValidSeoPathInfo;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Routing\Validation\Constraint\RouteNotBlocked;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -31,20 +33,20 @@ class SeoUrlValidationFactory implements SeoUrlDataValidationFactoryInterface
         $fkConstraints = [new NotBlank()];
 
         if ($routeConfig) {
-            $fkConstraints[] = new EntityExists([
-                'entity' => $routeConfig->getDefinition()->getEntityName(),
-                'context' => $context,
-            ]);
+            $fkConstraints[] = new EntityExists(
+                entity: $routeConfig->getDefinition()->getEntityName(),
+                context: $context,
+            );
         }
 
         $definition
             ->add('foreignKey', ...$fkConstraints)
             ->add('routeName', new NotBlank(), new Type('string'))
             ->add('pathInfo', new NotBlank(), new Type('string'))
-            ->add('seoPathInfo', new NotBlank(), new Type('string'))
-            ->add('salesChannelId', new NotBlank(), new EntityExists([
-                'entity' => SalesChannelDefinition::ENTITY_NAME,
-                'context' => $context,
-            ]));
+            ->add('seoPathInfo', new NotBlank(), new Type('string'), new ValidSeoPathInfo(), new RouteNotBlocked())
+            ->add('salesChannelId', new NotBlank(), new EntityExists(
+                entity: SalesChannelDefinition::ENTITY_NAME,
+                context: $context,
+            ));
     }
 }

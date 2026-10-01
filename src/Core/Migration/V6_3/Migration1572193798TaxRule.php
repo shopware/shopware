@@ -15,8 +15,6 @@ use Shopware\Core\System\Tax\TaxRuleType\ZipCodeRuleTypeFilter;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('framework')]
 class Migration1572193798TaxRule extends MigrationStep

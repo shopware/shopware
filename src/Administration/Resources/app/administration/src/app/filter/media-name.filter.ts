@@ -12,7 +12,6 @@ Shopware.Filter.register(
             fileName?: string;
             fileExtension?: string;
         },
-        // eslint-disable-next-line @typescript-eslint/no-inferrable-types
         fallback: string = '',
     ): string => {
         if (!value) {

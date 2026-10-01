@@ -7,8 +7,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
-use Shopware\Core\System\SystemConfig\Exception\BundleConfigNotFoundException;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -43,10 +44,9 @@ class SystemConfigValidator
             // If sales channel is defined, nulls are valid values, as they are used to remove custom values in child configuration
             $allowNulls = $saleChannelId !== 'null';
 
-            /** @var string[] $allKeys */
             $allKeys = array_keys($inputValues);
 
-            $domains = array_map(fn (string $key) => implode('.', explode('.', $key, -1)), $allKeys);
+            $domains = array_map($this->getSystemConfigDomain(...), $allKeys);
             $domains = array_unique($domains);
 
             $subDefinition = new DataValidationDefinition('systemConfig.update.' . $saleChannelId);
@@ -60,7 +60,7 @@ class SystemConfigValidator
                 }
             }
 
-            if (empty($subDefinition->getProperties())) {
+            if ($subDefinition->getProperties() === []) {
                 continue;
             }
 
@@ -71,27 +71,24 @@ class SystemConfigValidator
     }
 
     /**
-     * @param array<string, mixed> $formConfig
+     * @param list<SystemConfigTab> $formConfig
      * @param array<string> $inputConfigKeys
      *
      * @return array<string, Constraint[]>
      */
     private function prepareValidationConstraints(array $formConfig, array $inputConfigKeys, bool $allowNulls): array
     {
-        /** @var array<string, Constraint[]> $constraints */
         $constraints = [];
 
-        foreach ($formConfig as $card) {
-            $elements = $card['elements'] ?? [];
+        foreach ($formConfig as $tab) {
+            foreach ($tab->cards as $card) {
+                foreach ($card->elements as $element) {
+                    if (!\in_array($element->name, $inputConfigKeys, true)) {
+                        continue;
+                    }
 
-            foreach ($elements as $element) {
-                if (!\in_array($element['name'], $inputConfigKeys, true)) {
-                    continue;
+                    $constraints[$element->name] = $this->buildConstraintsWithConfigs($element->config, $allowNulls);
                 }
-
-                $elementConfig = $element['config'];
-
-                $constraints[$element['name']] = $this->buildConstraintsWithConfigs($elementConfig, $allowNulls);
             }
         }
 
@@ -101,18 +98,18 @@ class SystemConfigValidator
     /**
      * @param array<string, mixed> $elementConfig
      *
-     * @return array<int, Constraint>
+     * @return list<Constraint>
      */
     private function buildConstraintsWithConfigs(array $elementConfig, bool $allowNulls): array
     {
         /** @var array<string, callable(mixed): Constraint> $constraints */
         $constraints = [
-            'minLength' => fn (mixed $ruleValue) => new Assert\Length(['min' => $ruleValue]),
-            'maxLength' => fn (mixed $ruleValue) => new Assert\Length(['max' => $ruleValue]),
-            'min' => fn (mixed $ruleValue) => new Assert\Range(['min' => $ruleValue]),
-            'max' => fn (mixed $ruleValue) => new Assert\Range(['max' => $ruleValue]),
-            'dataType' => fn (mixed $ruleValue) => new Assert\Type($ruleValue),
-            'required' => fn (mixed $ruleValue) => new Assert\NotBlank(null, null, $allowNulls),
+            'minLength' => static fn (mixed $ruleValue) => new Assert\Length(min: $ruleValue === null ? null : max(0, (int) $ruleValue)),
+            'maxLength' => static fn (mixed $ruleValue) => new Assert\Length(max: $ruleValue === null ? null : max(1, (int) $ruleValue)),
+            'min' => static fn (mixed $ruleValue) => new Assert\Range(min: $ruleValue),
+            'max' => static fn (mixed $ruleValue) => new Assert\Range(max: $ruleValue),
+            'dataType' => static fn (mixed $ruleValue) => new Assert\Type($ruleValue),
+            'required' => static fn (mixed $ruleValue) => new Assert\NotBlank(null, null, $allowNulls),
         ];
 
         $constraintsResult = [];
@@ -131,14 +128,25 @@ class SystemConfigValidator
     }
 
     /**
-     * @return array<string, mixed>
+     * @return list<SystemConfigTab>
      */
     private function getSystemConfigByDomain(string $domain, Context $context): array
     {
         try {
-            return $this->configurationService->getConfiguration($domain, $context);
-        } catch (BundleConfigNotFoundException $e) {
+            return $this->configurationService->getSystemConfigDefinition($domain, $context);
+        } catch (SystemConfigException) {
             return [];
         }
+    }
+
+    private function getSystemConfigDomain(string $key): string
+    {
+        $parts = explode('.', $key);
+
+        if (\count($parts) < 3) {
+            return $parts[0];
+        }
+
+        return $parts[0] . '.' . $parts[1];
     }
 }

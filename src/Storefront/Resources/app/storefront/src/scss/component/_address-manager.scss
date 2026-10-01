@@ -1,4 +1,8 @@
 .address-manager-modal {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
     .btn-icon-hover-white {
         &:hover,
         &:focus {
@@ -17,7 +21,7 @@
     }
 
     .modal-body {
-        padding-top: 0;
+        padding-top: 4px;
         height: 550px;
     }
 

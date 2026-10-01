@@ -4,15 +4,12 @@ namespace Shopware\Core\Framework\Store\Struct;
 
 use Shopware\Core\Framework\Log\Package;
 
-/**
- * @codeCoverageIgnore
- */
 #[Package('checkout')]
 class ImageStruct extends StoreStruct
 {
     protected string $remoteLink;
 
-    protected ?string $raw;
+    protected ?string $raw = null;
 
     /**
      * @return ImageStruct

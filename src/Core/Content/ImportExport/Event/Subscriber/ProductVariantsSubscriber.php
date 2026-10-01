@@ -5,9 +5,11 @@ namespace Shopware\Core\Content\ImportExport\Event\Subscriber;
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\ImportExport\Event\ImportExportAfterImportRecordEvent;
-use Shopware\Core\Content\ImportExport\Exception\ProcessingException;
+use Shopware\Core\Content\ImportExport\ImportExportException;
 use Shopware\Core\Content\Product\Aggregate\ProductConfiguratorSetting\ProductConfiguratorSettingDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
+use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\Api\Sync\SyncBehavior;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncServiceInterface;
@@ -16,6 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -24,7 +27,18 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal
  *
- * @phpstan-type CombinationPayload list<array{id: string, parentId: string, productNumber: string, stock: int, options: list<array{id: string, name: string, group: array{id: string, name: string}}>}>
+ * @phpstan-type CombinationPayload list<array{
+ *     id: string,
+ *     parentId: string,
+ *     productNumber: string,
+ *     stock: int,
+ *     type?: string, // @deprecated tag:v6.8.0 - Make type required
+ *     options: list<array{
+ *         id: string,
+ *         name: string,
+ *         group: array{id: string, name: string}
+ *     }>
+ * }>
  */
 #[Package('fundamentals@after-sales')]
 class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterface
@@ -41,6 +55,9 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
 
     /**
      * @internal
+     *
+     * @param EntityRepository<PropertyGroupCollection> $groupRepository
+     * @param EntityRepository<PropertyGroupOptionCollection> $optionRepository
      */
     public function __construct(
         private readonly SyncServiceInterface $syncService,
@@ -62,37 +79,43 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
 
     public function onAfterImportRecord(ImportExportAfterImportRecordEvent $event): void
     {
-        $row = $event->getRow();
         $entityName = $event->getConfig()->get('sourceEntity');
-        $entityWrittenEvents = $event->getResult()->getEvents();
-
-        if ($entityName !== ProductDefinition::ENTITY_NAME || empty($row['variants']) || !$entityWrittenEvents) {
+        if ($entityName !== ProductDefinition::ENTITY_NAME) {
             return;
         }
 
-        $variants = $this->parseVariantString($row['variants']);
+        $variantString = $event->getRow()['variants'] ?? '';
+        if (!\is_string($variantString)) {
+            return;
+        }
+        if ($variantString === '') {
+            return;
+        }
 
-        $entityWrittenEvent = $entityWrittenEvents->filter(fn ($event) => $event instanceof EntityWrittenEvent && $event->getEntityName() === ProductDefinition::ENTITY_NAME)->first();
+        $entityWrittenEvents = $event->getResult()->getEvents();
+        if ($entityWrittenEvents === null) {
+            return;
+        }
 
+        $variants = $this->parseVariantString($variantString);
+
+        $entityWrittenEvent = $entityWrittenEvents->filter(static fn ($event) => $event->getEntityName() === ProductDefinition::ENTITY_NAME)->first();
         if (!$entityWrittenEvent instanceof EntityWrittenEvent) {
             return;
         }
 
         $writeResults = $entityWrittenEvent->getWriteResults();
-
-        if (empty($writeResults)) {
+        if ($writeResults === []) {
             return;
         }
 
         $parentId = $writeResults[0]->getPrimaryKey();
-        $parentPayload = $writeResults[0]->getPayload();
-
         if (!\is_string($parentId)) {
             return;
         }
 
         $context = $event->getContext();
-        $payload = $this->getCombinationsPayload($variants, $parentId, $parentPayload['productNumber'], $context);
+        $payload = $this->getCombinationsPayload($variants, $parentId, $writeResults[0]->getPayload()['productNumber'], $context);
 
         $variantIds = array_column($payload, 'id');
         $this->connection->executeStatement(
@@ -153,11 +176,11 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
             $groupName = trim($groupOptions[0]);
             $options = array_filter(array_map('trim', explode(',', $groupOptions[1])));
 
-            if (empty($groupName) || empty($options)) {
+            if ($groupName === '' || $options === []) {
                 $this->throwExceptionFailedParsingVariants($variantsString);
             }
 
-            $options = array_map(fn ($option) => \sprintf('%s|%s', $groupName, $option), $options);
+            $options = array_map(static fn (string $option): string => \sprintf('%s|%s', $groupName, $option), $options);
 
             $result[] = $options;
         }
@@ -167,7 +190,7 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
 
     private function throwExceptionFailedParsingVariants(string $variantsString): void
     {
-        throw new ProcessingException(\sprintf(
+        throw ImportExportException::processingError(\sprintf(
             'Failed parsing variants from string "%s", valid format is: "size: L, XL, | color: Green, White"',
             $variantsString
         ));
@@ -209,13 +232,19 @@ class ProductVariantsSubscriber implements EventSubscriberInterface, ResetInterf
             $variantId = Uuid::fromStringToHex(\sprintf('%s.%s', $parentId, $key));
             $variantProductNumber = \sprintf('%s.%s', $productNumber, $key);
 
-            $payload[] = [
+            $variant = [
                 'id' => $variantId,
                 'parentId' => $parentId,
                 'productNumber' => $variantProductNumber,
                 'stock' => 0,
                 'options' => $options,
             ];
+
+            if (Feature::isActive('v6.8.0.0')) {
+                $variant['type'] = ProductDefinition::TYPE_PHYSICAL;
+            }
+
+            $payload[] = $variant;
         }
 
         return $payload;

@@ -20,7 +20,6 @@ async function createWrapper() {
                     template: '<div class="mt-card"><slot></slot></div>',
                 },
                 'sw-text-field': {
-                    // eslint-disable-next-line max-len
                     template:
                         '<input class="sw-text-field" :value="value" @input="$emit(\'update:value\', $event.target.value)" />',
                     props: [
@@ -32,7 +31,6 @@ async function createWrapper() {
                     ],
                 },
                 'mt-textarea': {
-                    // eslint-disable-next-line max-len
                     template:
                         '<textarea class="sw-text-field" :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
                     props: [
@@ -55,18 +53,11 @@ async function createWrapper() {
                 },
                 'sw-upload-listener': {
                     template: '<div class="sw-upload-listener"></div>',
-                    props: [
-                        'uploadTag',
-                        'auto-upload',
-                    ],
+                    props: ['uploadTag', 'auto-upload'],
                 },
                 'sw-media-modal-v2': {
                     template: '<div class="sw-media-modal-v2"></div>',
-                    props: [
-                        'variant',
-                        'caption',
-                        'allowMultiSelect',
-                    ],
+                    props: ['variant', 'caption', 'allowMultiSelect'],
                 },
             },
             provide: {
@@ -108,18 +99,12 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
         expect(ogTitleInput.props('modelValue')).toBe('');
         expect(ogTitleInput.props('maxLength')).toBe(255);
 
-        expect(ogTitleDisplay.map((element) => element.text())).toEqual([
-            '',
-            '',
-        ]);
+        expect(ogTitleDisplay.map((element) => element.text())).toEqual(['', '']);
 
         await wrapper.setProps({ ogTitle: TEST_OG_TITLE });
 
         expect(ogTitleInput.props('modelValue')).toBe(TEST_OG_TITLE);
-        expect(ogTitleDisplay.map((element) => element.text())).toEqual([
-            TEST_OG_TITLE,
-            TEST_OG_TITLE,
-        ]);
+        expect(ogTitleDisplay.map((element) => element.text())).toEqual([TEST_OG_TITLE, TEST_OG_TITLE]);
     });
 
     it('should display the ogDescription and allow changing it', async () => {
@@ -137,9 +122,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
         expect(ogDescriptionDisplay.text()).toBe('');
 
         await ogDescriptionInput.vm.$emit('update:modelValue', TEST_OG_DESCRIPTION);
-        expect(wrapper.emitted('update:og-description')).toEqual([
-            [TEST_OG_DESCRIPTION],
-        ]);
+        expect(wrapper.emitted('update:og-description')).toEqual([[TEST_OG_DESCRIPTION]]);
 
         await wrapper.setProps({ ogDescription: TEST_OG_DESCRIPTION });
 
@@ -150,18 +133,9 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
     it('should allow uploading an og-image', async () => {
         const wrapper = await createWrapper();
 
-        // media preview should be empty
+        // media preview should be empty (images not rendered due to v-if)
         let imageElements = wrapper.findAll('.sw-generic-social-media-card__media-preview-image');
-        expect(imageElements.map((element) => element.attributes())).toEqual([
-            expect.not.objectContaining({
-                src: TEST_OG_IMAGE.url,
-                alt: TEST_OG_IMAGE.alt,
-            }),
-            expect.not.objectContaining({
-                src: TEST_OG_IMAGE.url,
-                alt: TEST_OG_IMAGE.alt,
-            }),
-        ]);
+        expect(imageElements).toHaveLength(0);
 
         // read the uploadTag
         const uploadTag = wrapper.vm.uploadTag;
@@ -177,9 +151,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
             targetId: TEST_OG_IMAGE.id,
         });
 
-        expect(wrapper.emitted('update:og-image-id')).toEqual([
-            [TEST_OG_IMAGE.id],
-        ]);
+        expect(wrapper.emitted('update:og-image-id')).toEqual([[TEST_OG_IMAGE.id]]);
 
         await wrapper.setProps({ ogImageId: TEST_OG_IMAGE.id });
         await flushPromises();
@@ -201,18 +173,9 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
     it('should allow selecting an existing images as og-image', async () => {
         const wrapper = await createWrapper();
 
-        // media preview should be empty and the media modal should not be open
+        // media preview should be empty (images not rendered due to v-if) and the media modal should not be open
         let imageElements = wrapper.findAll('.sw-generic-social-media-card__media-preview-image');
-        expect(imageElements.map((element) => element.attributes())).toEqual([
-            expect.not.objectContaining({
-                src: TEST_OG_IMAGE.url,
-                alt: TEST_OG_IMAGE.alt,
-            }),
-            expect.not.objectContaining({
-                src: TEST_OG_IMAGE.url,
-                alt: TEST_OG_IMAGE.alt,
-            }),
-        ]);
+        expect(imageElements).toHaveLength(0);
         expect(wrapper.find('sw-generic-social-media-card__media-modal').exists()).toBe(false);
 
         // read the uploadTag from the mediaUpload component
@@ -258,9 +221,7 @@ describe('src/module/sw-custom-entity/component/sw-generic-social-media-card', (
                 alt: TEST_OG_IMAGE.alt,
             }),
         ]);
-        expect(wrapper.emitted('update:og-image-id')).toEqual([
-            [TEST_OG_IMAGE.id],
-        ]);
+        expect(wrapper.emitted('update:og-image-id')).toEqual([[TEST_OG_IMAGE.id]]);
 
         // close the media modal
         mediaModal.vm.$emit('media-modal-close');

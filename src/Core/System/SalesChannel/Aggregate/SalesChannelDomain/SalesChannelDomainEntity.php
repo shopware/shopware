@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain;
 
+use Shopware\Core\Content\MeasurementSystem\MeasurementUnits;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
@@ -12,6 +13,9 @@ use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\Snippet\Aggregate\SnippetSet\SnippetSetEntity;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class SalesChannelDomainEntity extends Entity
 {
@@ -36,11 +40,15 @@ class SalesChannelDomainEntity extends Entity
 
     protected ?LanguageEntity $language = null;
 
+    protected MeasurementUnits $measurementUnits;
+
     protected ?ProductExportCollection $productExports = null;
 
     protected ?SalesChannelEntity $salesChannelDefaultHreflang = null;
 
     protected bool $hreflangUseOnlyLocale;
+
+    protected bool $isExternalStorefront = false;
 
     public function getUrl(): string
     {
@@ -160,5 +168,25 @@ class SalesChannelDomainEntity extends Entity
     public function setSalesChannelDefaultHreflang(?SalesChannelEntity $salesChannelDefaultHreflang): void
     {
         $this->salesChannelDefaultHreflang = $salesChannelDefaultHreflang;
+    }
+
+    public function getMeasurementUnits(): MeasurementUnits
+    {
+        return $this->measurementUnits;
+    }
+
+    public function setMeasurementUnits(MeasurementUnits $measurementUnits): void
+    {
+        $this->measurementUnits = $measurementUnits;
+    }
+
+    public function getIsExternalStorefront(): bool
+    {
+        return $this->isExternalStorefront;
+    }
+
+    public function setIsExternalStorefront(bool $isExternalStorefront): void
+    {
+        $this->isExternalStorefront = $isExternalStorefront;
     }
 }

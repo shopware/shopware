@@ -5,13 +5,28 @@
 import template from './sw-sidebar-filter-panel.html.twig';
 import './sw-sidebar-filter-panel.scss';
 
-const { Component } = Shopware;
-
 /**
  * @private
  */
-Component.register('sw-sidebar-filter-panel', {
+export default {
     template,
+
+    inject: {
+        parentRegisterSidebarItem: {
+            from: 'registerSidebarItem',
+            default: null,
+        },
+    },
+
+    provide() {
+        return {
+            registerSidebarItem: this.registerSidebarItem,
+        };
+    },
+
+    shortcuts: {
+        OF: 'openFilterPanel',
+    },
 
     props: {
         activeFilterNumber: {
@@ -20,11 +35,28 @@ Component.register('sw-sidebar-filter-panel', {
         },
     },
 
-    computed: {},
+    data() {
+        return {
+            filterSidebarItem: null,
+        };
+    },
 
     methods: {
+        registerSidebarItem(sidebarItem) {
+            this.filterSidebarItem = sidebarItem;
+            this.parentRegisterSidebarItem?.(sidebarItem);
+        },
+
+        openFilterPanel() {
+            if (!this.filterSidebarItem?.openContent) {
+                return;
+            }
+
+            this.filterSidebarItem.openContent();
+        },
+
         resetAll() {
             this.$refs.filterPanel.resetAll();
         },
     },
-});
+};

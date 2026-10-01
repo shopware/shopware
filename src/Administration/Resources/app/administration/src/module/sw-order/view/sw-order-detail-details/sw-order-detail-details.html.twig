@@ -1,19 +1,17 @@
 {% block sw_order_detail_details %}
 <div class="sw-order-detail-details">
-
     {% block sw_order_detail_details_payment %}
     <sw-order-details-state-card
         v-if="transaction"
         position="transaction"
-        :title="$tc('sw-order.detailsTab.labelTransactionCard')"
+        :title="$t('sw-order.detailsTab.labelTransactionCard')"
         :order="order"
         :entity="transaction"
-        :state-label="$tc('sw-order.stateCard.headlineTransactionState')"
+        :state-label="$t('sw-order.stateCard.headlineTransactionState')"
         :disabled="!acl.can('order.editor') || undefined"
         @show-status-history="showStateHistoryModal = true"
         @save-edits="onSaveEdits"
     >
-
         {% block sw_order_detail_details_payment_billing_address %}
         <sw-order-address-selection
             class="sw-order-detail-details__billing-address"
@@ -21,9 +19,13 @@
             :address="billingAddress"
             :address-id="selectedBillingAddressId"
             :disabled="!acl.can('order.editor') || undefined"
-            :label="$tc('sw-order.createBase.detailsBody.labelBillingAddress')"
+            :label="$t('sw-order.createBase.detailsBody.labelBillingAddress')"
             @change-address="onChangeOrderAddress"
         />
+        {% endblock %}
+
+        {% block sw_order_detail_details_payment_billing_address_divider %}
+        <hr class="sw-order-detail-state-card__divider sw-order-detail-details__divider">
         {% endblock %}
 
         {% block sw_order_detail_details_payment_method_select %}
@@ -33,12 +35,11 @@
             label-property="distinguishableName"
             disabled
             :criteria="paymentMethodCriteria"
-            :label="$tc('sw-order.createBase.detailsFooter.labelPaymentMethod')"
-            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderPaymentMethod')"
+            :label="$t('sw-order.createBase.detailsFooter.labelPaymentMethod')"
+            :placeholder="$t('sw-order.createBase.detailsFooter.placeholderPaymentMethod')"
             show-clearable-button
         />
         {% endblock %}
-
     </sw-order-details-state-card>
     {% endblock %}
 
@@ -46,15 +47,14 @@
     <sw-order-details-state-card
         v-if="delivery"
         position="delivery"
-        :title="$tc('sw-order.detailsTab.labelDeliveryCard')"
+        :title="$t('sw-order.detailsTab.labelDeliveryCard')"
         :order="order"
         :entity="delivery"
-        :state-label="$tc('sw-order.stateCard.headlineDeliveryState')"
+        :state-label="$t('sw-order.stateCard.headlineDeliveryState')"
         :disabled="!acl.can('order.editor') || undefined"
         @show-status-history="showStateHistoryModal = true"
         @save-edits="onSaveEdits"
     >
-
         {% block sw_order_detail_details_shipping_address %}
         <sw-order-address-selection
             class="sw-order-detail-details__shipping-address"
@@ -62,9 +62,13 @@
             :address="shippingAddress"
             :address-id="selectedShippingAddressId"
             :disabled="!acl.can('order.editor') || undefined"
-            :label="$tc('sw-order.createBase.detailsBody.labelShippingAddress')"
+            :label="$t('sw-order.createBase.detailsBody.labelShippingAddress')"
             @change-address="onChangeOrderAddress"
         />
+        {% endblock %}
+
+        {% block sw_order_detail_details_shipping_address_divider %}
+        <hr class="sw-order-detail-state-card__divider sw-order-detail-details__divider">
         {% endblock %}
 
         {% block sw_order_detail_details_shipping_method_select %}
@@ -73,8 +77,8 @@
             entity="shipping_method"
             disabled
             :criteria="salesChannelCriteria"
-            :label="$tc('sw-order.createBase.detailsFooter.labelShippingMethod')"
-            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderShippingMethod')"
+            :label="$t('sw-order.createBase.detailsFooter.labelShippingMethod')"
+            :placeholder="$t('sw-order.createBase.detailsFooter.placeholderShippingMethod')"
             show-clearable-button
         />
         {% endblock %}
@@ -88,7 +92,9 @@
             class="sw-order-detail-details__shipping-cost"
             :disabled="!acl.can('order.editor')"
             :step="1"
-            :label="$tc('sw-order.detailDeliveries.labelShippingCosts')"
+            :min="0"
+            :label="$t('sw-order.detailDeliveries.labelShippingCosts')"
+            @input-change="onShippingChargeEdited"
         >
             <template #suffix>
                 {{ order.currency.symbol }}
@@ -101,7 +107,7 @@
             v-model="delivery.shippingDateEarliest"
             disabled
             hide-hint
-            :label="$tc('sw-order.detailDeliveries.labelDeliveryDate')"
+            :label="$t('sw-order.detailDeliveries.labelDeliveryDate')"
         />
         {% endblock %}
 
@@ -110,16 +116,17 @@
             v-model:value="delivery.trackingCodes"
             class="sw-order-user-card__tracking-code-select"
             :disabled="!acl.can('order.editor') || undefined"
-            :placeholder="$tc('sw-order.detailBase.placeholderTrackingCodeSelect')"
-            :label="$tc('sw-order.detailBase.labelTrackingCodes')"
+            :placeholder="$t('sw-order.detailBase.placeholderTrackingCodeSelect')"
+            :label="$t('sw-order.detailBase.labelTrackingCodes')"
             :validate="validateTrackingCode"
             @update:value="saveAndReload"
         >
             <template #message-add-data>
-                <span>{{ $tc('sw-order.detailBase.addTrackingCode') }}</span>
+                <span>{{ $t('sw-order.detailBase.addTrackingCode') }}</span>
             </template>
+
             <template #message-enter-valid-data>
-                <span>{{ $tc('sw-order.detailBase.enterValidTrackingCode') }}</span>
+                <span>{{ $t('sw-order.detailBase.enterValidTrackingCode') }}</span>
             </template>
         </sw-multi-tag-select>
         {% endblock %}
@@ -130,36 +137,33 @@
     {% block sw_order_detail_details_order %}
     <sw-order-details-state-card
         position="order"
-        :title="$tc('sw-order.detailsTab.labelOrderCard')"
+        :title="$t('sw-order.detailsTab.labelOrderCard')"
         :order="order"
         :entity="order"
         :disabled="!acl.can('order.editor') || undefined"
-        :state-label="$tc('sw-order.stateCard.headlineOrderState')"
+        :state-label="$t('sw-order.stateCard.headlineOrderState')"
         @show-status-history="showStateHistoryModal = true"
         @save-edits="onSaveEdits"
     >
-
         {% block sw_order_detail_details_order_email %}
-
         <mt-text-field
             v-model="order.orderCustomer.email"
             class="sw-order-detail-details__email"
             :disabled="!acl.can('order.editor') || undefined"
-            :label="$tc('sw-order.createBase.detailsBody.labelEmail')"
-            :placeholder="$tc('sw-order.createBase.detailsBody.placeholderEmail')"
+            :label="$t('sw-order.createBase.detailsBody.labelEmail')"
+            :placeholder="$t('sw-order.createBase.detailsBody.placeholderEmail')"
             :error="orderOrderCustomerEmailError"
             required
         />
         {% endblock %}
 
         {% block sw_order_detail_details_order_phone_number %}
-
         <mt-text-field
             v-model="order.addresses.get(order.billingAddressId).phoneNumber"
             class="sw-order-detail-details__phone-number"
             :disabled="!acl.can('order.editor') || undefined"
-            :label="$tc('sw-order.createBase.detailsBody.labelPhoneNumber')"
-            :placeholder="$tc('sw-order.createBase.detailsBody.placeholderPhoneNumber')"
+            :label="$t('sw-order.createBase.detailsBody.labelPhoneNumber')"
+            :placeholder="$t('sw-order.createBase.detailsBody.placeholderPhoneNumber')"
         />
         {% endblock %}
 
@@ -168,8 +172,8 @@
             v-model:value="order.salesChannelId"
             entity="sales_channel"
             disabled
-            :label="$tc('sw-order.createBase.detailsFooter.labelSalesChannel')"
-            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderSalesChannel')"
+            :label="$t('sw-order.createBase.detailsFooter.labelSalesChannel')"
+            :placeholder="$t('sw-order.createBase.detailsFooter.placeholderSalesChannel')"
             show-clearable-button
         />
         {% endblock %}
@@ -180,29 +184,27 @@
             entity="language"
             disabled
             :criteria="salesChannelCriteria"
-            :label="$tc('sw-order.createBase.detailsFooter.labelOrderLanguage')"
-            :placeholder="$tc('sw-order.createBase.detailsFooter.placeholderOrderLanguage')"
+            :label="$t('sw-order.createBase.detailsFooter.labelOrderLanguage')"
+            :placeholder="$t('sw-order.createBase.detailsFooter.placeholderOrderLanguage')"
             show-clearable-button
         />
         {% endblock %}
 
         {% block sw_order_detail_details_order_affiliate %}
-
         <mt-text-field
             v-model="order.affiliateCode"
             class="sw-order-detail-details__affiliate-code"
             :disabled="!acl.can('order.editor') || undefined"
-            :label="$tc('sw-order.detailBase.labelAffiliateCode')"
+            :label="$t('sw-order.detailBase.labelAffiliateCode')"
         />
         {% endblock %}
 
         {% block sw_order_detail_details_order_campaign %}
-
         <mt-text-field
             v-model="order.campaignCode"
             class="sw-order-detail-details__campaign-code"
             :disabled="!acl.can('order.editor') || undefined"
-            :label="$tc('sw-order.detailBase.labelCampaignCode')"
+            :label="$t('sw-order.detailBase.labelCampaignCode')"
         />
         {% endblock %}
 
@@ -211,16 +213,17 @@
             v-model="order.customerComment"
             class="sw-order-detail-details__customer-comment"
             :disabled="!acl.can('order.editor')"
-            :label="$tc('sw-order.detailBase.labelCustomerComment')"
+            :label="$t('sw-order.detailBase.labelCustomerComment')"
         >
             <template #hint>
                 <div class="sw-order-detail-details__field-hint">
                     <mt-icon
-                        size="12"
+                        size="var(--scale-size-12)"
                         name="solid-info-circle"
                         class="sw-order-detail-details__field-hint__icon"
                     />
-                    <p>{{ $tc('sw-order.detailBase.helpTextCustomerComment') }}</p>
+
+                    <p>{{ $t('sw-order.detailBase.helpTextCustomerComment') }}</p>
                 </div>
             </template>
         </mt-textarea>
@@ -231,16 +234,17 @@
             v-model="order.internalComment"
             class="sw-order-detail-details__internal-comment"
             :disabled="!acl.can('order.editor')"
-            :label="$tc('sw-order.detailBase.labelInternalComment')"
+            :label="$t('sw-order.detailBase.labelInternalComment')"
         >
             <template #hint>
                 <div class="sw-order-detail-details__field-hint">
                     <mt-icon
-                        size="12"
+                        size="var(--scale-size-12)"
                         name="solid-info-circle"
                         class="sw-order-detail-details__field-hint__icon"
                     />
-                    <p>{{ $tc('sw-order.detailBase.helpTextInternalComment') }}</p>
+
+                    <p>{{ $t('sw-order.detailBase.helpTextInternalComment') }}</p>
                 </div>
             </template>
         </mt-textarea>
@@ -261,7 +265,7 @@
     <mt-card
         v-if="customFieldSets.length > 0"
         position-identifier="sw-order-detail-details-custom-fields"
-        :title="$tc('sw-settings-custom-field.general.mainMenuItemGeneral')"
+        :title="$t('sw-settings-custom-field.general.mainMenuItemGeneral')"
     >
         <sw-custom-field-set-renderer
             :entity="order"
@@ -274,11 +278,11 @@
         position-identifier="sw-order-detail-base-custom-fields__after"
     />
     {% endblock %}
+
     {% block sw_order_detail_base_state_history_modal %}
     <sw-order-state-history-modal
         v-if="showStateHistoryModal"
         :order="order"
-        :is-loading="isLoading"
         @modal-close="showStateHistoryModal = false"
     />
     {% endblock %}

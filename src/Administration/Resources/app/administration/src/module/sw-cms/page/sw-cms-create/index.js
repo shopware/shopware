@@ -10,9 +10,7 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('placeholder')],
 
     data() {
         return {
@@ -40,12 +38,12 @@ export default {
 
     methods: {
         createdComponent() {
-            Shopware.Store.get('adminMenu').collapseSidebar();
+            this.resetRelatedStores();
 
             const isSystemDefaultLanguage = Shopware.Store.get('context').isSystemDefaultLanguage;
             if (!isSystemDefaultLanguage) {
                 Shopware.Store.get('context').resetLanguageToDefault();
-                this.$store.commit('cmsPageState/setIsSystemDefaultLanguage', isSystemDefaultLanguage);
+                Shopware.Store.get('cmsPage').setIsSystemDefaultLanguage(isSystemDefaultLanguage);
             }
 
             this.page = this.pageRepository.create();
@@ -61,7 +59,7 @@ export default {
 
             if ((this.isSystemDefaultLanguage && !this.page.name) || !this.page.type) {
                 this.createNotificationWarning({
-                    message: this.$tc('sw-cms.detail.notification.messageMissingFields'),
+                    message: this.$t('sw-cms.detail.notification.messageMissingFields'),
                 });
 
                 return Promise.reject();
@@ -119,9 +117,9 @@ export default {
                         page.extensions[`${utils.string.camelCase(type)}SwCmsPage`].push(entity);
                     }
                 }
-            } catch (e) {
+            } catch (_e) {
                 this.createNotificationError({
-                    message: this.$tc('sw-cms.create.notification.assignToEntityError'),
+                    message: this.$t('sw-cms.create.notification.assignToEntityError'),
                 });
             }
 

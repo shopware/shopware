@@ -1,8 +1,7 @@
 import template from './sw-select-rule-create.html.twig';
 import './sw-select-rule-create.scss';
 
-const { Component } = Shopware;
-const { Criteria } = Shopware.Data;
+const { Criteria, EntityCollection } = Shopware.Data;
 
 /**
  * @private
@@ -18,21 +17,13 @@ const { Criteria } = Shopware.Data;
  *     \@dismiss-rule="onDismissRule">
  * </sw-select-rule-create>
  */
-Component.register('sw-select-rule-create', {
+export default {
     template,
     inheritAttrs: false,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-        'ruleConditionDataProviderService',
-    ],
+    inject: ['repositoryFactory', 'feature', 'ruleConditionDataProviderService'],
 
-    emits: [
-        'save-rule',
-        'dismiss-rule',
-        'update:rules',
-    ],
+    emits: ['save-rule', 'dismiss-rule', 'update:rules'],
 
     props: {
         ruleId: {
@@ -86,6 +77,12 @@ Component.register('sw-select-rule-create', {
                 return '';
             },
         },
+
+        size: {
+            type: String,
+            required: false,
+            default: 'default',
+        },
     },
 
     data() {
@@ -120,8 +117,14 @@ Component.register('sw-select-rule-create', {
 
     methods: {
         onSaveRule(ruleId, rule) {
-            if (this.rules) {
-                this.rules.add(rule);
+            if (this.rules && rule) {
+                const collection = EntityCollection.fromCollection(this.rules);
+
+                if (!collection.has(ruleId)) {
+                    collection.add(rule);
+                }
+
+                this.onUpdateCollection(collection);
             }
 
             this.$emit('save-rule', ruleId, rule);
@@ -180,4 +183,4 @@ Component.register('sw-select-rule-create', {
             );
         },
     },
-});
+};

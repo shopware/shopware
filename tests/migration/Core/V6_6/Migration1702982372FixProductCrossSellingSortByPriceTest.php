@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Migration\V6_6\Migration1702982372FixProductCrossSellingSortByPrice;
@@ -13,12 +14,13 @@ use Shopware\Core\Migration\V6_6\Migration1702982372FixProductCrossSellingSortBy
 /**
  * @internal
  */
+#[Package('framework')]
 #[CoversClass(Migration1702982372FixProductCrossSellingSortByPrice::class)]
 class Migration1702982372FixProductCrossSellingSortByPriceTest extends TestCase
 {
     public function testGetCreationTimestamp(): void
     {
-        static::assertEquals('1702982372', (new Migration1702982372FixProductCrossSellingSortByPrice())->getCreationTimestamp());
+        static::assertSame(1702982372, (new Migration1702982372FixProductCrossSellingSortByPrice())->getCreationTimestamp());
     }
 
     public function testMigrationChangesSortBy(): void
@@ -51,6 +53,6 @@ class Migration1702982372FixProductCrossSellingSortByPriceTest extends TestCase
         SELECT `sort_by` from `product_cross_selling` WHERE `id` = :id
         ', ['id' => $crossSellingId])->fetchOne();
 
-        static::assertEquals('cheapestPrice', $sortBy);
+        static::assertSame('cheapestPrice', $sortBy);
     }
 }

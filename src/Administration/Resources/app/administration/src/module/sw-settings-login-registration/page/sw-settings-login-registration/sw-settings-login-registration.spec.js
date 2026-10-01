@@ -25,10 +25,38 @@ async function createWrapper() {
                 },
                 provide: {
                     systemConfigApiService: {
-                        getConfig: () =>
-                            Promise.resolve({
+                        getSchema: () => {
+                            return Promise.resolve([
+                                {
+                                    title: null,
+                                    name: null,
+                                    cards: [
+                                        {
+                                            title: {
+                                                'en-GB': 'Login & Registration',
+                                            },
+                                            name: null,
+                                            elements: [
+                                                {
+                                                    name: 'isCustomerBoundToSalesChannel',
+                                                    type: 'bool',
+                                                    config: {
+                                                        label: {
+                                                            'en-GB': 'Bind customer to sales channel',
+                                                        },
+                                                    },
+                                                },
+                                            ],
+                                        },
+                                    ],
+                                },
+                            ]);
+                        },
+                        getValues: () => {
+                            return Promise.resolve({
                                 'core.systemWideLoginRegistration.isCustomerBoundToSalesChannel': true,
-                            }),
+                            });
+                        },
                     },
                 },
                 stubs: {
@@ -66,10 +94,6 @@ describe('module/sw-settings-login-registration/page/sw-settings-login-registrat
 
     beforeEach(async () => {
         wrapper = await createWrapper();
-    });
-
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
     });
 
     it('should contain the settings card system', async () => {

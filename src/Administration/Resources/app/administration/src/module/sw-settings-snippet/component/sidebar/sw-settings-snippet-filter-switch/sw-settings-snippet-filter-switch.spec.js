@@ -35,10 +35,6 @@ describe('sw-settings-snippet-filter-switch', () => {
         await flushPromises();
     });
 
-    it('should be a Vue.js component', async () => {
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should contain a prop property, called: value', async () => {
         expect(wrapper.vm.value).toBe(false);
         await wrapper.setProps({

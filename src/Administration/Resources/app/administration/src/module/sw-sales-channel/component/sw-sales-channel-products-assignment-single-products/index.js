@@ -5,20 +5,18 @@
 import template from './sw-sales-channel-products-assignment-single-products.html.twig';
 import './sw-sales-channel-products-assignment-single-products.scss';
 
-const { Component, Mixin, Filter } = Shopware;
+const { Mixin, Filter } = Shopware;
 const { Criteria } = Shopware.Data;
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
-Component.register('sw-sales-channel-products-assignment-single-products', {
+export default {
     template,
 
     inject: ['repositoryFactory'],
 
     emits: ['selection-change'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         salesChannel: {
@@ -57,9 +55,7 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
 
             criteria.addAssociation('visibilities.salesChannel');
             criteria.addFilter(
-                Criteria.not('and', [
-                    Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id),
-                ]),
+                Criteria.not('and', [Criteria.equals('product.visibilities.salesChannelId', this.salesChannel.id)]),
             );
             criteria.addFilter(Criteria.equals('parentId', null));
 
@@ -70,12 +66,12 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
             return [
                 {
                     property: 'name',
-                    label: this.$tc('sw-sales-channel.detail.products.columnProductName'),
+                    label: this.$t('sw-sales-channel.detail.products.columnProductName'),
                     allowResize: true,
                 },
                 {
                     property: 'productNumber',
-                    label: this.$tc('sw-sales-channel.detail.products.columnProductNumber'),
+                    label: this.$t('sw-sales-channel.detail.products.columnProductNumber'),
                     allowResize: true,
                 },
             ];
@@ -137,4 +133,4 @@ Component.register('sw-sales-channel-products-assignment-single-products', {
             this.getProducts();
         },
     },
-});
+};

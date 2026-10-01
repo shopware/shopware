@@ -16,7 +16,7 @@ use Shopware\Core\Framework\Rule\RuleComparison;
 use Shopware\Core\Framework\Rule\RuleException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 
 /**
  * @internal
@@ -25,7 +25,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 #[Group('rules')]
 class LineItemOfManufacturerRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
     use IntegrationTestBehaviour;
 
     private LineItemOfManufacturerRule $rule;
@@ -102,7 +101,7 @@ class LineItemOfManufacturerRuleTest extends TestCase
             $this->createLineItemWithManufacturer('1'),
             $this->createLineItemWithManufacturer($lineItemManufacturerId),
         ]);
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -131,8 +130,8 @@ class LineItemOfManufacturerRuleTest extends TestCase
             $this->createLineItemWithManufacturer('1'),
             $this->createLineItemWithManufacturer($lineItemManufacturerId),
         ]);
-        $containerLineItem = $this->createContainerLineItem($lineItemCollection)->setPayloadValue('manufacturerId', '1');
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = CartRuleFixture::createContainerLineItem($lineItemCollection)->setPayloadValue('manufacturerId', '1');
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -174,6 +173,6 @@ class LineItemOfManufacturerRuleTest extends TestCase
 
     private function createLineItemWithManufacturer(string $manufacturerId): LineItem
     {
-        return $this->createLineItem()->setPayloadValue('manufacturerId', $manufacturerId);
+        return CartRuleFixture::createLineItem()->setPayloadValue('manufacturerId', $manufacturerId);
     }
 }

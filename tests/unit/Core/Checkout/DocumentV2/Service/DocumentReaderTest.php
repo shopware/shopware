@@ -13,7 +13,9 @@ use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentMediaGuard;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentReader;
+use Shopware\Core\Content\Media\Aggregate\MediaFolder\MediaFolderCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
@@ -48,6 +50,7 @@ class DocumentReaderTest extends TestCase
             $mediaService,
             new DocumentRendererRegistry([]),
             new DocumentFileResolver(),
+            new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[]])),
         );
 
         $renderedDocument = $reader->read($document->getId(), Context::createDefaultContext(), '', 'pdf');
@@ -73,6 +76,7 @@ class DocumentReaderTest extends TestCase
             $mediaService,
             new DocumentRendererRegistry([]),
             new DocumentFileResolver(),
+            new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[]])),
         );
 
         $renderedDocument = $reader->read($document->getId(), Context::createDefaultContext(), '', null);
@@ -89,6 +93,7 @@ class DocumentReaderTest extends TestCase
             static::createStub(MediaService::class),
             new DocumentRendererRegistry([]),
             new DocumentFileResolver(),
+            new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[]])),
         );
 
         $this->expectExceptionObject(DocumentV2Exception::documentFormatUnavailable($document->getId(), 'default'));
@@ -105,6 +110,7 @@ class DocumentReaderTest extends TestCase
             static::createStub(MediaService::class),
             new DocumentRendererRegistry([]),
             new DocumentFileResolver(),
+            new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[]])),
         );
 
         $this->expectExceptionObject(DocumentV2Exception::documentFormatUnavailable($document->getId(), 'xml'));
@@ -121,6 +127,7 @@ class DocumentReaderTest extends TestCase
             static::createStub(MediaService::class),
             new DocumentRendererRegistry([]),
             new DocumentFileResolver(),
+            new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[]])),
         );
 
         $this->expectExceptionObject(DocumentV2Exception::documentFormatUnavailable($document->getId(), 'pdf'));
@@ -146,7 +153,7 @@ class DocumentReaderTest extends TestCase
         $mediaService = static::createStub(MediaService::class);
         $mediaService->method('loadFile')->willReturn('content');
 
-        $reader = new DocumentReader($this->createDocumentRepository($document, calls: 2), $mediaService, new DocumentRendererRegistry([]), new DocumentFileResolver());
+        $reader = new DocumentReader($this->createDocumentRepository($document, calls: 2), $mediaService, new DocumentRendererRegistry([]), new DocumentFileResolver(), new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[]])));
 
         $plainResult = $reader->read($document->getId(), Context::createDefaultContext(), '', DocumentFormat::PDF->value);
         $zugferdResult = $reader->read($document->getId(), Context::createDefaultContext(), '', DocumentFormat::ZUGFERD_EMBEDDED_PDF->value);
@@ -179,6 +186,7 @@ class DocumentReaderTest extends TestCase
                 new StaticDocumentRenderer(DocumentFormat::PDF, fileExtension: 'pdf'),
             ]),
             new DocumentFileResolver(),
+            new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[]])),
         );
 
         $renderedDocument = $reader->read($document->getId(), Context::createDefaultContext(), '', DocumentFormat::PDF->value);
@@ -208,6 +216,7 @@ class DocumentReaderTest extends TestCase
             static::createStub(MediaService::class),
             new DocumentRendererRegistry([]),
             new DocumentFileResolver(),
+            new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[]])),
         );
 
         $this->expectExceptionObject(
@@ -223,7 +232,7 @@ class DocumentReaderTest extends TestCase
             new DocumentCollection([]),
         ], new DocumentDefinition());
 
-        $reader = new DocumentReader($documentRepository, static::createStub(MediaService::class), new DocumentRendererRegistry([]), new DocumentFileResolver());
+        $reader = new DocumentReader($documentRepository, static::createStub(MediaService::class), new DocumentRendererRegistry([]), new DocumentFileResolver(), new DocumentMediaGuard(StaticEntityRepository::of(MediaFolderCollection::class, [[]])));
 
         $this->expectExceptionObject(DocumentV2Exception::documentNotFound('unknown-id'));
 

@@ -43,6 +43,8 @@ class OpenApiPathBuilder
     }
 
     /**
+     * @internal
+     *
      * @return array<string, OpenApiPathItem> path items keyed by their path
      */
     public function createPathItems(EntityDefinition $definition, string $path): array
@@ -66,6 +68,8 @@ class OpenApiPathBuilder
     }
 
     /**
+     * @internal
+     *
      * @return array{name: string, description: string}
      */
     public function createTag(EntityDefinition $definition): array
@@ -76,7 +80,7 @@ class OpenApiPathBuilder
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed, use createPathItems() instead
+     * @deprecated tag:v6.8.0 - Will be removed, the class becomes internal
      *
      * @return PathItem[]
      */
@@ -84,7 +88,7 @@ class OpenApiPathBuilder
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'createPathItems()')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
         $pathItems = [];
@@ -103,13 +107,13 @@ class OpenApiPathBuilder
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed, use createTag() instead
+     * @deprecated tag:v6.8.0 - Will be removed, the class becomes internal
      */
     public function getTag(EntityDefinition $definition): Tag
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'createTag()')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
         return new Tag($this->createTag($definition));

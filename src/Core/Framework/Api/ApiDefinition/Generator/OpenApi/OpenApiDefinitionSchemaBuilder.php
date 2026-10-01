@@ -73,6 +73,8 @@ class OpenApiDefinitionSchemaBuilder
     /**
      * Builds the flat schema of the definition and, for the JSON:API type, the resource schema wrapping it.
      *
+     * @internal
+     *
      * @return array<string, OpenApiSchema> schemas keyed by their component name
      */
     public function createSchemas(
@@ -285,6 +287,8 @@ class OpenApiDefinitionSchemaBuilder
     /**
      * Builds only the dynamic entity-extension contribution for a JSON-owned component.
      *
+     * @internal
+     *
      * @return array<string, OpenApiSchema> the schema keyed by its component name, empty without extensions
      */
     public function createExtensionSchemas(EntityDefinition $definition, string $path, bool $forSalesChannel): array
@@ -321,7 +325,7 @@ class OpenApiDefinitionSchemaBuilder
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed, use createSchemas() instead
+     * @deprecated tag:v6.8.0 - Will be removed, the class becomes internal
      *
      * @return array<string, Schema>
      */
@@ -334,14 +338,14 @@ class OpenApiDefinitionSchemaBuilder
     ): array {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'createSchemas()')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
         return $this->createSchemaAnnotations($this->createSchemas($definition, $path, $forSalesChannel, $onlyFlat, $apiType));
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed, use createExtensionSchemas() instead
+     * @deprecated tag:v6.8.0 - Will be removed, the class becomes internal
      *
      * @return array<string, Schema>
      */
@@ -349,7 +353,7 @@ class OpenApiDefinitionSchemaBuilder
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'createExtensionSchemas()')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
         return $this->createSchemaAnnotations($this->createExtensionSchemas($definition, $path, $forSalesChannel));

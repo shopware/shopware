@@ -52,6 +52,8 @@ class OpenApiSchemaBuilder
     /**
      * The document skeleton for the given API. The generators add paths, component schemas and tags to it.
      *
+     * @internal
+     *
      * @return OpenApiDocument
      */
     public function createSpec(string $api): array
@@ -76,13 +78,13 @@ class OpenApiSchemaBuilder
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed, use `createSpec()` and work on the returned array instead
+     * @deprecated tag:v6.8.0 - Will be removed, the class becomes internal
      */
     public function enrich(OpenApi $openApi, string $api): void
     {
         Feature::triggerDeprecationOrThrow(
             'v6.8.0.0',
-            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'createSpec()')
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
         );
 
         $spec = $this->createSpec($api);

@@ -1195,17 +1195,13 @@ use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFac
 
 ## OpenAPI generators no longer use `zircote/swagger-php`
 
-The OpenAPI specifications of the Admin API and the Store API are assembled as plain PHP arrays. The `zircote/swagger-php` package was removed from the Shopware dependencies, and the methods of the specification builders that returned its annotation objects were removed:
+The OpenAPI specifications of the Admin API and the Store API are assembled as plain PHP arrays. The `zircote/swagger-php` package was removed from the Shopware dependencies, and the following methods that returned its annotation objects were removed without replacement:
 
-| Removed | Replacement |
-|---|---|
-| `OpenApiSchemaBuilder::enrich(OpenApi $openApi, string $api)` | `OpenApiSchemaBuilder::createSpec(string $api): array` |
-| `OpenApiPathBuilder::getPathActions()` | `OpenApiPathBuilder::createPathItems()` |
-| `OpenApiPathBuilder::getTag()` | `OpenApiPathBuilder::createTag()` |
-| `OpenApiDefinitionSchemaBuilder::getSchemaByDefinition()` | `OpenApiDefinitionSchemaBuilder::createSchemas()` |
-| `OpenApiDefinitionSchemaBuilder::getExtensionSchemaByDefinition()` | `OpenApiDefinitionSchemaBuilder::createExtensionSchemas()` |
+- `OpenApiSchemaBuilder::enrich()`
+- `OpenApiPathBuilder::getPathActions()` and `getTag()`
+- `OpenApiDefinitionSchemaBuilder::getSchemaByDefinition()` and `getExtensionSchemaByDefinition()`
 
-The replacements take the same arguments and return the same structure as plain arrays, so a call such as `json_decode($schema->toJson(), true)` on a result becomes the result itself. `DeactivateValidationAnalysis` was removed without replacement. The classes `OpenApiSchemaBuilder`, `OpenApiPathBuilder` and `OpenApiDefinitionSchemaBuilder` in `Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi` are internal.
+The classes `OpenApiSchemaBuilder`, `OpenApiPathBuilder` and `OpenApiDefinitionSchemaBuilder` in `Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi` are internal, and `DeactivateValidationAnalysis` was removed. Extensions contribute API schema through the bundle schema JSON files under `Resources/Schema/`, which did not change.
 
 Extensions that used `zircote/swagger-php` through the Shopware installation must require the package in their own `composer.json`. The generated specifications themselves did not change.
 

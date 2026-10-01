@@ -194,11 +194,11 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
-### OpenAPI builders return plain arrays
+### OpenAPI builders are deprecated for extension use
 
-The builders behind the generated Admin API and Store API specifications gained methods that return the specification as plain PHP arrays: `OpenApiSchemaBuilder::createSpec()`, `OpenApiPathBuilder::createPathItems()` and `createTag()`, and `OpenApiDefinitionSchemaBuilder::createSchemas()` and `createExtensionSchemas()`. The generated documents are unchanged.
+The Admin API and Store API specifications are assembled as plain PHP arrays. The generated documents are unchanged.
 
-The former methods returning `zircote/swagger-php` annotation objects (`enrich()`, `getPathActions()`, `getTag()`, `getSchemaByDefinition()`, `getExtensionSchemaByDefinition()`) are deprecated and removed with 6.8 together with the `zircote/swagger-php` dependency. The three builder classes become internal with 6.8. Extensions calling the deprecated methods should switch to the array variants; extensions relying on `zircote/swagger-php` being installed through Shopware must require it themselves.
+The public methods of `OpenApiSchemaBuilder`, `OpenApiPathBuilder` and `OpenApiDefinitionSchemaBuilder` in `Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi` that return `zircote/swagger-php` annotation objects (`enrich()`, `getPathActions()`, `getTag()`, `getSchemaByDefinition()`, `getExtensionSchemaByDefinition()`) are deprecated. They are removed with 6.8 together with the `zircote/swagger-php` dependency, and the three classes become internal. Extensions should contribute API schema through the bundle schema JSON files instead of calling the builders; extensions relying on `zircote/swagger-php` being installed through Shopware must require it themselves.
 
 ## API
 

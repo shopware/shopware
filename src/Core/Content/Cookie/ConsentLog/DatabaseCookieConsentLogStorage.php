@@ -58,11 +58,16 @@ final class DatabaseCookieConsentLogStorage extends AbstractCookieConsentLogStor
         ]);
     }
 
+    /**
+     * A known hash keeps its first snapshot. Only the duplicate is skipped, every other
+     * error is raised, so a decision is never stored without its snapshot.
+     */
     public function snapshot(CookieConsentConfigSnapshot $snapshot): void
     {
         $this->connection->executeStatement(
-            'INSERT IGNORE INTO `cookie_consent_config_snapshot` (`id`, `config_hash`, `cookie_groups`, `created_at`)
-            VALUES (:id, :configHash, :cookieGroups, :createdAt)',
+            'INSERT INTO `cookie_consent_config_snapshot` (`id`, `config_hash`, `cookie_groups`, `created_at`)
+            VALUES (:id, :configHash, :cookieGroups, :createdAt)
+            ON DUPLICATE KEY UPDATE `id` = `id`',
             [
                 'id' => Uuid::randomBytes(),
                 'configHash' => $snapshot->configHash,

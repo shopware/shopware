@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Content\Cookie\ConsentLog;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Exception\DriverException;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
@@ -77,6 +78,14 @@ class DatabaseCookieConsentLogStorageTest extends TestCase
         static::assertSame('cookie.groupStatistical', $cookieGroups[0]['technicalName']);
         static::assertSame('Statistics', $cookieGroups[0]['name']);
         static::assertSame('lorem', $cookieGroups[0]['entries'][0]['cookie']);
+    }
+
+    public function testASnapshotThatCannotBeStoredIsNotSkippedSilently(): void
+    {
+        // Longer than the `config_hash` column, so the database rejects it instead of treating it as a duplicate
+        $this->expectException(DriverException::class);
+
+        $this->storage->snapshot(new CookieConsentConfigSnapshot(str_repeat('a', 256), [], new \DateTimeImmutable('2026-07-13 12:00:00')));
     }
 
     public function testCleanupDeletesOldDecisionsButKeepsSnapshots(): void

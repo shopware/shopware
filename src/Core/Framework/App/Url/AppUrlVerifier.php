@@ -19,12 +19,13 @@ use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
  */
 #[Package('framework')]
-class AppUrlVerifier
+class AppUrlVerifier implements ResetInterface
 {
     public const VERIFICATION_RESULT_CACHE_KEY = 'app_url_verification_result';
     private const VERIFICATION_CACHE_KEY_PREFIX = 'app_url_verify-';
@@ -33,6 +34,8 @@ class AppUrlVerifier
     private const INITIAL_SOFT_FAIL_BACKOFF = 60; // 1 minute
     private const MAX_SOFT_FAIL_BACKOFF = 60 * 60; // 1 hour
     private const VERIFY_PATH = '/api/app-system/shop/verify';
+
+    private ?VerificationState $pass = null;
 
     public function __construct(
         private readonly string $appEnv,
@@ -57,10 +60,15 @@ class AppUrlVerifier
     }
 
     /**
-     * Verify the shops APP_URL in any environment, ignoring any previous verification attempts.
+     * Verify the shops APP_URL in any environment, ignoring the stored result of previous verification attempts.
+     * A pass is reused until the service is reset.
      */
     public function forceVerify(ShopId $shopId): VerificationState
     {
+        if ($this->pass !== null) {
+            return $this->pass;
+        }
+
         $appUrl = $shopId->getFingerprint(AppUrl::IDENTIFIER);
         \assert($appUrl !== null);
 
@@ -73,10 +81,16 @@ class AppUrlVerifier
         }
 
         try {
-            return $this->performVerification($appUrl);
+            $state = $this->performVerification($appUrl);
         } finally {
             $this->releaseLock($lock);
         }
+
+        if ($state->is(VerificationStatus::PASS)) {
+            $this->pass = $state;
+        }
+
+        return $state;
     }
 
     /**
@@ -148,6 +162,11 @@ class AppUrlVerifier
         }
 
         return hash_equals($storedToken, $token);
+    }
+
+    public function reset(): void
+    {
+        $this->pass = null;
     }
 
     private function handleSoftFail(string $appUrl, VerificationState $previousState): bool

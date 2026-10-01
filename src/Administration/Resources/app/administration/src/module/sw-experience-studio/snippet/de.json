@@ -30,6 +30,16 @@
         "panels": {
           "sorting": "Sortierung"
         }
+      },
+      "sw-tabs-panel": {
+        "panels": {
+          "general": "Allgemein"
+        }
+      },
+      "sw-tabs-tab": {
+        "panels": {
+          "general": "Allgemein"
+        }
       }
     },
     "list": {

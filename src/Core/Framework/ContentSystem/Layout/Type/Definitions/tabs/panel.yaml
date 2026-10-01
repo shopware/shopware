@@ -18,19 +18,18 @@ properties:
     enum:
       - "tabs"
       - "pills"
+      - "underline"
     adminUI:
-      component: "radio-panel"
+      component: "select"
       panel: "general"
       props:
         options:
           - value: "tabs"
             label: "Tabs"
-            icon: "regular-window"
-            description: "Classic tab navigation with an underline."
           - value: "pills"
             label: "Pills"
-            icon: "regular-circle"
-            description: "Rounded buttons instead of tabs."
+          - value: "underline"
+            label: "Underline"
 
   alignment:
     type: string

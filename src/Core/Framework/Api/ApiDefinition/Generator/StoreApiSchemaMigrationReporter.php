@@ -2,8 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
-use OpenApi\Annotations\Components;
-use OpenApi\Annotations\OpenApi;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
 use Shopware\Core\Framework\Api\ApiException;
@@ -119,7 +117,7 @@ class StoreApiSchemaMigrationReporter
             $schemaName = $this->definitionSchemaBuilder->getSchemaName($definition);
 
             if (\in_array($schemaName, $jsonSchemaNames, true)) {
-                $definitionSchemas[$schemaName] = $this->definitionSchemaBuilder->getExtensionSchemaByDefinition(
+                $definitionSchemas[$schemaName] = $this->definitionSchemaBuilder->createExtensionSchemas(
                     $definition,
                     $this->getResourceUri($definition),
                     true,
@@ -128,7 +126,7 @@ class StoreApiSchemaMigrationReporter
                 continue;
             }
 
-            $definitionSchemas[$schemaName] = $this->definitionSchemaBuilder->getSchemaByDefinition(
+            $definitionSchemas[$schemaName] = $this->definitionSchemaBuilder->createSchemas(
                 $definition,
                 $this->getResourceUri($definition),
                 true,
@@ -137,19 +135,9 @@ class StoreApiSchemaMigrationReporter
             );
         }
 
-        $openApi = new OpenApi([
-            'openapi' => '3.2.0',
-        ]);
-        $openApi->components = new Components([]);
-
+        $componentSchemas = [];
         foreach ($definitionSchemas as $schema) {
-            $openApi->components->merge(array_values($schema));
-        }
-
-        $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
-        $componentSchemas = $data['components']['schemas'] ?? [];
-        if (!\is_array($componentSchemas)) {
-            $componentSchemas = [];
+            $componentSchemas += $schema;
         }
 
         return [

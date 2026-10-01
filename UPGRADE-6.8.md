@@ -1193,6 +1193,22 @@ use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFac
 {# @var services.response \Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade #}
 ```
 
+## OpenAPI generators no longer use `zircote/swagger-php`
+
+The OpenAPI specifications of the Admin API and the Store API are assembled as plain PHP arrays. The `zircote/swagger-php` package was removed from the Shopware dependencies, and the methods of the specification builders that returned its annotation objects were removed:
+
+| Removed | Replacement |
+|---|---|
+| `OpenApiSchemaBuilder::enrich(OpenApi $openApi, string $api)` | `OpenApiSchemaBuilder::createSpec(string $api): array` |
+| `OpenApiPathBuilder::getPathActions()` | `OpenApiPathBuilder::createPathItems()` |
+| `OpenApiPathBuilder::getTag()` | `OpenApiPathBuilder::createTag()` |
+| `OpenApiDefinitionSchemaBuilder::getSchemaByDefinition()` | `OpenApiDefinitionSchemaBuilder::createSchemas()` |
+| `OpenApiDefinitionSchemaBuilder::getExtensionSchemaByDefinition()` | `OpenApiDefinitionSchemaBuilder::createExtensionSchemas()` |
+
+The replacements take the same arguments and return the same structure as plain arrays, so a call such as `json_decode($schema->toJson(), true)` on a result becomes the result itself. `DeactivateValidationAnalysis` was removed without replacement. The classes `OpenApiSchemaBuilder`, `OpenApiPathBuilder` and `OpenApiDefinitionSchemaBuilder` in `Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi` are internal.
+
+Extensions that used `zircote/swagger-php` through the Shopware installation must require the package in their own `composer.json`. The generated specifications themselves did not change.
+
 </details>
 
 ## Moved `UnmappedFieldException`

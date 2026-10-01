@@ -2,10 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
-use OpenApi\Annotations\Components;
-use OpenApi\Annotations\License;
-use OpenApi\Annotations\OpenApi;
-use OpenApi\Annotations\Parameter;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
@@ -26,6 +22,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
  *
  * @phpstan-import-type Api from DefinitionService
  * @phpstan-import-type OpenApiSpec from DefinitionService
+ * @phpstan-import-type OpenApiDocument from OpenApiSchemaBuilder
  */
 #[Package('framework')]
 class StoreApiGenerator implements ApiDefinitionGeneratorInterface
@@ -63,10 +60,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
 
     public function generate(array $definitions, string $api, string $apiType, ?string $bundleName): array
     {
-        $openApi = new OpenApi([
-            'openapi' => '3.2.0',
-        ]);
-        $this->openApiBuilder->enrich($openApi, $api);
+        $spec = $this->openApiBuilder->createSpec($api);
 
         $forSalesChannel = $api === DefinitionService::STORE_API;
 
@@ -93,10 +87,11 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         $generatedSchemas = $this->getGeneratedSchemas($definitions, $jsonSchemaNames, $forSalesChannel);
         $referencedJsonSchemaNames = $this->getReferencedJsonSchemaNames($jsonSpec, $generatedSchemas['componentSchemas']);
 
+        $componentSchemas = [];
         foreach ($generatedSchemas['definitionSchemas'] as $schemaName => $schema) {
             if (\in_array($schemaName, $jsonSchemaNames, true)) {
                 // A matching JSON component owns the base schema; PHP contributes only dynamic extensions.
-                $openApi->components->merge(array_values($schema));
+                $componentSchemas += $schema;
 
                 continue;
             }
@@ -105,19 +100,19 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            $openApi->components->merge(array_values($schema));
+            $componentSchemas += $schema;
         }
 
-        $this->addGeneralInformation($openApi);
-        $this->addLanguageIdParameter($openApi);
+        $spec['info']['description'] = 'This endpoint reference contains an overview of all endpoints comprising the Shopware Store API';
+        $spec['components'] = $this->createComponents($spec['components'], $componentSchemas);
 
-        $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
-        $data['paths'] ??= [];
-        $data['components']['schemas'] ??= [];
+        // keeps the key order of previous versions, which listed the path map after the components
+        unset($spec['paths']);
+        $spec['paths'] = [];
 
-        $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($data, $jsonSpec);
+        $preFinalSpecs = $this->mergeComponentsSchemaRequiredFieldsRecursive($spec, $jsonSpec);
         /** @var OpenApiSpec $finalSpecs */
-        $finalSpecs = array_replace_recursive($data, $preFinalSpecs);
+        $finalSpecs = array_replace_recursive($spec, $preFinalSpecs);
 
         $this->filterUndefinedRequiredProperties($finalSpecs);
         /** @var OpenApiSpec $finalSpecs */
@@ -172,34 +167,47 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
         return ltrim('/', $rootPath) . '/' . str_replace('_', '-', $definition->getEntityName());
     }
 
-    private function addGeneralInformation(OpenApi $openApi): void
+    /**
+     * Adds the generated schemas and the shared language header parameter to the default components. The key order
+     * of previous versions is kept: generated schemas come first, an empty schema map last.
+     *
+     * @param array<string, array<array-key, mixed>> $components
+     * @param array<string, array<string, mixed>> $componentSchemas
+     *
+     * @return array<string, array<array-key, mixed>>
+     */
+    private function createComponents(array $components, array $componentSchemas): array
     {
-        $openApi->info->description = 'This endpoint reference contains an overview of all endpoints comprising the Shopware Store API';
-        $openApi->info->license = new License([
-            'name' => 'MIT',
-            'url' => 'https://github.com/shopware/shopware/blob/trunk/LICENSE',
-        ]);
-    }
+        $result = [];
 
-    private function addLanguageIdParameter(OpenApi $openApi): void
-    {
-        $openApi->components->parameters = [
-            new Parameter([
-                'parameter' => 'swLanguageId',
+        if ($componentSchemas !== []) {
+            $result['schemas'] = $componentSchemas;
+        }
+
+        $result['responses'] = $components['responses'];
+        $result['parameters'] = [
+            'swLanguageId' => [
                 'name' => 'sw-language-id',
                 'in' => 'header',
+                'description' => 'Instructs Shopware to return the response in the given language.',
                 'required' => false,
                 'schema' => [
                     'type' => 'string',
                     'pattern' => '^[0-9a-f]{32}$',
                 ],
-                'description' => 'Instructs Shopware to return the response in the given language.',
-            ]),
+            ],
         ];
+        $result['securitySchemes'] = $components['securitySchemes'];
+
+        if ($componentSchemas === []) {
+            $result['schemas'] = [];
+        }
+
+        return $result;
     }
 
     /**
-     * @param array<string, array<string, mixed>> $specsFromDefinition
+     * @param OpenApiDocument $specsFromDefinition
      * @param array<string, array<string, mixed>> $specsFromStaticJsonDefinition
      *
      * @return array<string, array<string, mixed>>
@@ -276,7 +284,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             $schemaName = $this->definitionSchemaBuilder->getSchemaName($definition);
 
             if (\in_array($schemaName, $jsonSchemaNames, true)) {
-                $definitionSchemas[$schemaName] = $this->definitionSchemaBuilder->getExtensionSchemaByDefinition(
+                $definitionSchemas[$schemaName] = $this->definitionSchemaBuilder->createExtensionSchemas(
                     $definition,
                     $this->getResourceUri($definition),
                     $forSalesChannel,
@@ -285,7 +293,7 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            $definitionSchemas[$schemaName] = $this->definitionSchemaBuilder->getSchemaByDefinition(
+            $definitionSchemas[$schemaName] = $this->definitionSchemaBuilder->createSchemas(
                 $definition,
                 $this->getResourceUri($definition),
                 $forSalesChannel,
@@ -294,19 +302,9 @@ class StoreApiGenerator implements ApiDefinitionGeneratorInterface
             );
         }
 
-        $openApi = new OpenApi([
-            'openapi' => '3.2.0',
-        ]);
-        $openApi->components = new Components([]);
-
+        $componentSchemas = [];
         foreach ($definitionSchemas as $schema) {
-            $openApi->components->merge(array_values($schema));
-        }
-
-        $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
-        $componentSchemas = $data['components']['schemas'] ?? [];
-        if (!\is_array($componentSchemas)) {
-            $componentSchemas = [];
+            $componentSchemas += $schema;
         }
 
         return [

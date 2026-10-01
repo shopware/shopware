@@ -454,30 +454,156 @@ class EntitySearcherTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{int, int|null, int, int, int, 5?: int}>
+     * @return iterable<string, array{totalCountMode: int, limit: int|null, matchingProducts: int, expectedTotal: int, expectedEntities: int, offset?: int}>
      */
     public static function totalCountProvider(): iterable
     {
-        yield 'no total with a single result per page' => [Criteria::TOTAL_COUNT_MODE_NONE, 1, 2, 1, 1];
-        yield 'no total with a full page' => [Criteria::TOTAL_COUNT_MODE_NONE, 2, 2, 2, 2];
-        yield 'no total without a limit' => [Criteria::TOTAL_COUNT_MODE_NONE, null, 2, 2, 2];
-        yield 'no total without a limit after an offset' => [Criteria::TOTAL_COUNT_MODE_NONE, null, 2, 1, 1, 1];
-        yield 'no total without a limit past the end' => [Criteria::TOTAL_COUNT_MODE_NONE, null, 2, 0, 0, 3];
-        yield 'no total with a partial page' => [Criteria::TOTAL_COUNT_MODE_NONE, 3, 2, 2, 2];
-        yield 'exact total with a single result per page' => [Criteria::TOTAL_COUNT_MODE_EXACT, 1, 2, 2, 1];
-        yield 'exact total with a full page' => [Criteria::TOTAL_COUNT_MODE_EXACT, 2, 2, 2, 2];
-        yield 'exact total without a limit' => [Criteria::TOTAL_COUNT_MODE_EXACT, null, 2, 2, 2];
-        yield 'exact total without a limit after an offset' => [Criteria::TOTAL_COUNT_MODE_EXACT, null, 2, 2, 1, 1];
-        yield 'exact total without a limit past the end' => [Criteria::TOTAL_COUNT_MODE_EXACT, null, 2, 2, 0, 3];
-        yield 'exact total with a partial page' => [Criteria::TOTAL_COUNT_MODE_EXACT, 3, 2, 2, 2];
-        yield 'next pages with a single result per page' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 1, 2, 2, 1];
-        yield 'next pages with a full page' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 2, 2, 2, 2];
-        yield 'next pages without a limit' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, null, 2, 2, 2];
-        yield 'next pages without a limit after an offset' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, null, 2, 2, 1, 1];
-        yield 'next pages without a limit past the end' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, null, 2, 2, 0, 3];
-        yield 'next pages with a partial page' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 3, 2, 2, 2];
-        yield 'next pages capped below eight matches' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 1, 8, 7, 1];
-        yield 'next pages capped below fourteen matches' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 2, 14, 13, 2];
+        yield 'no total with a single result per page' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_NONE,
+            'limit' => 1,
+            'matchingProducts' => 2,
+            'expectedTotal' => 1,
+            'expectedEntities' => 1,
+        ];
+        yield 'no total with a full page' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_NONE,
+            'limit' => 2,
+            'matchingProducts' => 2,
+            'expectedTotal' => 2,
+            'expectedEntities' => 2,
+        ];
+        yield 'no total without a limit' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_NONE,
+            'limit' => null,
+            'matchingProducts' => 2,
+            'expectedTotal' => 2,
+            'expectedEntities' => 2,
+        ];
+        yield 'no total without a limit after an offset' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_NONE,
+            'limit' => null,
+            'matchingProducts' => 2,
+            'expectedTotal' => 1,
+            'expectedEntities' => 1,
+            'offset' => 1,
+        ];
+        yield 'no total without a limit past the end' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_NONE,
+            'limit' => null,
+            'matchingProducts' => 2,
+            'expectedTotal' => 0,
+            'expectedEntities' => 0,
+            'offset' => 3,
+        ];
+        yield 'no total with a partial page' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_NONE,
+            'limit' => 3,
+            'matchingProducts' => 2,
+            'expectedTotal' => 2,
+            'expectedEntities' => 2,
+        ];
+        yield 'exact total with a single result per page' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_EXACT,
+            'limit' => 1,
+            'matchingProducts' => 2,
+            'expectedTotal' => 2,
+            'expectedEntities' => 1,
+        ];
+        yield 'exact total with a full page' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_EXACT,
+            'limit' => 2,
+            'matchingProducts' => 2,
+            'expectedTotal' => 2,
+            'expectedEntities' => 2,
+        ];
+        yield 'exact total without a limit' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_EXACT,
+            'limit' => null,
+            'matchingProducts' => 2,
+            'expectedTotal' => 2,
+            'expectedEntities' => 2,
+        ];
+        yield 'exact total without a limit after an offset' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_EXACT,
+            'limit' => null,
+            'matchingProducts' => 2,
+            'expectedTotal' => 2,
+            'expectedEntities' => 1,
+            'offset' => 1,
+        ];
+        yield 'exact total without a limit past the end' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_EXACT,
+            'limit' => null,
+            'matchingProducts' => 2,
+            'expectedTotal' => 2,
+            'expectedEntities' => 0,
+            'offset' => 3,
+        ];
+        yield 'exact total with a partial page' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_EXACT,
+            'limit' => 3,
+            'matchingProducts' => 2,
+            'expectedTotal' => 2,
+            'expectedEntities' => 2,
+        ];
+        yield 'next pages with a single result per page' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_NEXT_PAGES,
+            'limit' => 1,
+            'matchingProducts' => 2,
+            'expectedTotal' => 2,
+            'expectedEntities' => 1,
+        ];
+        yield 'next pages with a full page' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_NEXT_PAGES,
+            'limit' => 2,
+            'matchingProducts' => 2,
+            'expectedTotal' => 2,
+            'expectedEntities' => 2,
+        ];
+        yield 'next pages without a limit' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_NEXT_PAGES,
+            'limit' => null,
+            'matchingProducts' => 2,
+            'expectedTotal' => 2,
+            'expectedEntities' => 2,
+        ];
+        yield 'next pages without a limit after an offset' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_NEXT_PAGES,
+            'limit' => null,
+            'matchingProducts' => 2,
+            'expectedTotal' => 2,
+            'expectedEntities' => 1,
+            'offset' => 1,
+        ];
+        yield 'next pages without a limit past the end' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_NEXT_PAGES,
+            'limit' => null,
+            'matchingProducts' => 2,
+            'expectedTotal' => 2,
+            'expectedEntities' => 0,
+            'offset' => 3,
+        ];
+        yield 'next pages with a partial page' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_NEXT_PAGES,
+            'limit' => 3,
+            'matchingProducts' => 2,
+            'expectedTotal' => 2,
+            'expectedEntities' => 2,
+        ];
+        yield 'next pages capped below eight matches' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_NEXT_PAGES,
+            'limit' => 1,
+            'matchingProducts' => 8,
+            'expectedTotal' => 7,
+            'expectedEntities' => 1,
+        ];
+        yield 'next pages capped below fourteen matches' => [
+            'totalCountMode' => Criteria::TOTAL_COUNT_MODE_NEXT_PAGES,
+            'limit' => 2,
+            'matchingProducts' => 14,
+            'expectedTotal' => 13,
+            'expectedEntities' => 2,
+        ];
     }
 
     public function testJsonListEqualsAnyFilter(): void

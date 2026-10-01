@@ -10,6 +10,8 @@
 
 ## Constraints
 
+- Before planning or making a change, read the principle file for the area the change touches ([docs/principles/README.md](docs/principles/README.md) routes by task and by area). Check: does the change contradict a rule, a Why line or a Not chosen line of that file?
+- A change to a rule changes its pinning test in the same commit. The pinning test is the enforcing class's test, unless the rule's In code list names another.
 - `RenderingSpecificationResolver`: iterates sources via `supports()` bool check, first match wins — NOT null-return
 - OpenAPI schemas: update `src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/` when modifying endpoints
 - Constraints owned by a reference document: pipeline step order — [docs/pipeline-steps.md](docs/pipeline-steps.md); introspection assembly and the `storageSchema` fold — [docs/introspection-endpoints.md](docs/introspection-endpoints.md); primitive property satisfaction and what each write-time gate admits — [docs/layout-write-gates.md](docs/layout-write-gates.md); which error codes count as a client defect — [docs/client-defect-codes.md](docs/client-defect-codes.md)

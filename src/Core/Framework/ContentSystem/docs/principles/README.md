@@ -85,7 +85,3 @@ The render path's steps are in [data-flow.md](../data-flow.md).
 - [wire-contract.md](wire-contract.md): one paired codec and one rendered forest per format
 - [extension-surface.md](extension-surface.md): the bounded extension surface
 - [clients.md](clients.md): the administration type and the storefront's shared partial
-
-## Changing a rule
-
-The pinning test is the enforcing class's test, unless the In code list names another. It changes in the same commit as the rule.

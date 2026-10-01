@@ -75,7 +75,7 @@ In code:
 
 - `ContentSystemElementTypeCompilerPass` finds the types directory of a plugin without a service registration.
 - `ContentSystemElementTypePersister` writes the type of an app to a `schema` JSON field.
-- `ElementTypeSpecificationSerializerTest` pins the rule.
+- `ElementTypeSpecificationSerializerTest` pins that a declaration round-trips through its JSON schema unchanged.
 - See [custom-types.md](../../Layout/Type/docs/custom-types.md).
 
 ## The module adds nothing to a platform base class plugins extend

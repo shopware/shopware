@@ -339,6 +339,27 @@ when called.
 Existing `Shopware.*` access remains supported. Use `Shopware.Store.get()` and
 `Shopware.Mixin.getByName()` for registrations that an extension creates at runtime.
 
+### Use the mixin-replacing composables in extensions (experimental)
+
+The composables that replace Administration mixins, such as `useListing`, `useNotification` and
+`useValidation`, are now available to extensions through `Shopware.Composables` and the
+`shopware:composables` module:
+
+```ts
+import { useListing } from 'shopware:composables';
+import useNotification from 'shopware:composables/useNotification';
+
+const { page, limit, total } = useListing({ getList });
+```
+
+Call them in `setup()` only. They are annotated `@experimental stableVersion:v6.9.0`, so their names and
+signatures can change before Shopware 6.9.
+
+An extension that imports `shopware:composables` requires Shopware 6.7.16.0 or later, so require
+`shopware/administration` `>=6.7.16.0` in its `composer.json`. On an older Administration, the import throws
+an error that names the required and the installed version. An extension that still supports older versions
+keeps using the mixins.
+
 ## Storefront
 
 ### Display the complete legal guarantee notice at checkout

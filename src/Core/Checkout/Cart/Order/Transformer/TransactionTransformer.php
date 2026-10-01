@@ -9,7 +9,6 @@ use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Cart\Transaction\Struct\TransactionCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Struct\Struct;
 
 #[Package('checkout')]
 class TransactionTransformer
@@ -38,22 +37,20 @@ class TransactionTransformer
         string $stateId,
         Context $context
     ): array {
-        $id = self::getId($transaction);
-
-        return array_filter([
-            'id' => $id,
+        $data = [
             'paymentMethodId' => $transaction->getPaymentMethodId(),
             'amount' => $transaction->getAmount(),
-            'stateId' => !$id ? $stateId : null,
-            'validationData' => !$id ? $transaction->getValidationStruct()?->jsonSerialize() : null,
-        ]);
-    }
+        ];
 
-    private static function getId(Struct $struct): ?string
-    {
-        return $struct->getExtensionOfType(
-            OrderConverter::ORIGINAL_ID,
-            IdStruct::class
-        )?->getId();
+        $id = $transaction->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId();
+        if ($id !== null) {
+            return ['id' => $id, ...$data];
+        }
+
+        return [
+            ...$data,
+            'stateId' => $stateId,
+            'validationData' => $transaction->getValidationStruct()?->jsonSerialize(),
+        ];
     }
 }

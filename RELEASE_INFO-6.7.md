@@ -194,6 +194,12 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
+### Order recalculation keeps an open payment transaction in sync with the order total
+
+Recalculating an order, for example after editing it in the Administration, now moves the order's primary transaction to the new order total while that transaction is `open` or `reminded`. The transaction keeps its ID and state, and payment extensions reading `order_transaction.amount` of an unpaid order get the edited total instead of the amount the transaction was created with. Transactions in any other state keep their amount.
+
+`OrderConverter::convertToCart()` now converts the order's transactions too, with the primary transaction first. With the new cart permission `CheckoutPermissions::KEEP_ORDER_TRANSACTION`, the cart processor keeps that transaction and moves it to the cart total instead of creating a new one, and `OrderConverter::convertToOrder()` writes it back as an update of its amount and payment method.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation

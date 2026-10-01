@@ -271,10 +271,6 @@ class OrderConverter
             throw OrderException::missingAssociation('deliveries');
         }
 
-        if ($order->getTransactions() === null) {
-            throw OrderException::missingAssociation('transactions');
-        }
-
         $cart = new Cart(Uuid::randomHex());
         $cart->setPrice($order->getPrice());
         $cart->setCustomerComment($order->getCustomerComment());
@@ -304,9 +300,12 @@ class OrderConverter
         $cart->setDeliveries(
             $this->convertDeliveries($order->getPrimaryOrderDeliveryId(), $order->getDeliveries(), $lineItems)
         );
-        $cart->setTransactions(
-            $this->convertTransactions($order->getTransactions())
-        );
+
+        if ($order->getTransactions() !== null) {
+            $cart->setTransactions(
+                $this->convertTransactions($order->getPrimaryOrderTransactionId(), $order->getTransactions())
+            );
+        }
 
         $event = new OrderConvertedEvent($order, $cart, $context);
         $this->eventDispatcher->dispatch($event);
@@ -521,10 +520,18 @@ class OrderConverter
         return $cartDeliveries;
     }
 
-    private function convertTransactions(OrderTransactionCollection $orderTransactions): TransactionCollection
+    private function convertTransactions(?string $primaryOrderTransactionId, OrderTransactionCollection $orderTransactions): TransactionCollection
     {
+        // Ensure the primary transaction is first, so `$transactions->first()` returns the primary transaction.
+        $keys = \array_filter(\array_unique([$primaryOrderTransactionId, ...$orderTransactions->getKeys()]));
+
         $cartTransactions = new TransactionCollection();
-        foreach ($orderTransactions as $orderTransaction) {
+        foreach ($keys as $id) {
+            $orderTransaction = $orderTransactions->get($id);
+            if ($orderTransaction === null) {
+                continue;
+            }
+
             $cartTransaction = new Transaction(
                 $orderTransaction->getAmount(),
                 $orderTransaction->getPaymentMethodId(),

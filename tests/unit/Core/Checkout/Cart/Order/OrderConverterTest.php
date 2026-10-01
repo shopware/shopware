@@ -400,6 +400,28 @@ class OrderConverterTest extends TestCase
         static::assertEquals(CartOrderConversionStub::getExpectedConvertToCart(), $result);
     }
 
+    public function testConvertToCartPutsThePrimaryTransactionFirst(): void
+    {
+        $order = $this->getOrder();
+        $order->setPrimaryOrderTransactionId('order-transaction-id');
+
+        $cart = $this->orderConverter->convertToCart($order, Context::createDefaultContext());
+
+        static::assertSame(
+            ['order-transaction-id', 'order-transaction-cancelled-id', 'order-transaction-failed-id'],
+            array_values($cart->getTransactions()->map(
+                static fn (Transaction $transaction) => $transaction->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId()
+            ))
+        );
+    }
+
+    public function testConvertToCartWithoutLoadedTransactions(): void
+    {
+        $cart = $this->orderConverter->convertToCart($this->getOrder('order-no-transactions'), Context::createDefaultContext());
+
+        static::assertCount(0, $cart->getTransactions());
+    }
+
     #[DataProvider('convertToCartManipulatedOrderData')]
     public function testConvertToCartManipulatedOrder(string $manipulateOrder = ''): void
     {
@@ -693,7 +715,6 @@ class OrderConverterTest extends TestCase
                 ->setPayloadValue(LineItem::PAYLOAD_PRODUCT_TYPE, ProductDefinition::TYPE_PHYSICAL)
                 ->setLabel('line-item-label-2')
         );
-        $cart->getTransactions()->add(new Transaction(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()), 'payment-method-id'));
 
         return $cart;
     }

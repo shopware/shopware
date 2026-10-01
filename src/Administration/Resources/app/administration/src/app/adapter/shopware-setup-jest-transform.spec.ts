@@ -13,6 +13,28 @@ import ShopwareSetupJestTransformBase from './_mocks_/sw-jest-transform-fixture.
 import ShopwareSetupJestTransformBlockOverride from './_mocks_/sw-jest-transform-block-fixture.override.vue';
 import ShopwareSetupJestTransformBlockBase from './_mocks_/sw-jest-transform-block-fixture.vue';
 
+/**
+ * Mounts the override, the way `sw-admin` mounts every registered one at boot, then the component it
+ * extends. Both happen per test because the suite unmounts every wrapper after each one, and an
+ * unmounted override takes its block registration with it.
+ */
+async function mountBlockFixture() {
+    const global = {
+        components: {
+            'sw-block': await wrapTestComponent('sw-block', { sync: true }),
+        },
+        plugins: [createDataScopeFixture()],
+    };
+
+    mount(ShopwareSetupJestTransformBlockOverride, { global });
+
+    const wrapper = mount(ShopwareSetupJestTransformBlockBase, { global });
+
+    await flushPromises();
+
+    return wrapper;
+}
+
 describe('test/transformer/shopwareSetupVueTransformer', () => {
     beforeEach(() => {
         delete _overridesMap['sw-jest-transform-fixture'];
@@ -98,22 +120,11 @@ describe('test/transformer/shopwareSetupVueTransformer', () => {
     });
 
     it('resolves override-local state inside dynamic directive arguments of <sw-block extends> content', async () => {
-        const global = {
-            components: {
-                'sw-block': await wrapTestComponent('sw-block', { sync: true }),
-            },
-            plugins: [createDataScopeFixture()],
-        };
-
-        mount(ShopwareSetupJestTransformBlockOverride, { global });
-
-        const wrapper = mount(ShopwareSetupJestTransformBlockBase, { global });
-
-        await flushPromises();
+        const wrapper = await mountBlockFixture();
 
         // `@[eventName]` and `:[labelAttribute]` read override-local bindings through the rewritten
         // slot-scope path, which Vue would cut short at the first `]` if the path contained one.
-        const button = wrapper.get('button');
+        const button = wrapper.get('.dynamic-button');
 
         expect(button.attributes('aria-label')).toBe('Increment');
         expect(wrapper.find('.default-content').exists()).toBe(false);
@@ -121,5 +132,43 @@ describe('test/transformer/shopwareSetupVueTransformer', () => {
         await button.trigger('click');
 
         expect(button.text()).toBe('1');
+    });
+
+    describe('template writes inside <sw-block extends> content', () => {
+        it('writes a declared override binding from an update expression back into the base state', async () => {
+            const wrapper = await mountBlockFixture();
+
+            await wrapper.get('.increment').trigger('click');
+
+            expect(wrapper.get('.counter').text()).toBe('11');
+            // The base template reads the same state, so the write is not confined to the block content.
+            expect(wrapper.get('.base-counter').text()).toBe('11');
+        });
+
+        it('writes a declared override binding through v-model', async () => {
+            const wrapper = await mountBlockFixture();
+
+            await wrapper.get('.counter-input').setValue('42');
+
+            expect(wrapper.get('.counter').text()).toBe('42');
+            expect(wrapper.get('.base-counter').text()).toBe('42');
+        });
+
+        it('writes an override-local binding from an update expression', async () => {
+            const wrapper = await mountBlockFixture();
+
+            await wrapper.get('.private-increment').trigger('click');
+            await wrapper.get('.private-increment').trigger('click');
+
+            expect(wrapper.get('.clicks').text()).toBe('2');
+        });
+
+        it('writes an override-local binding through v-model', async () => {
+            const wrapper = await mountBlockFixture();
+
+            await wrapper.get('.label-input').setValue('changed');
+
+            expect(wrapper.get('.label').text()).toBe('changed');
+        });
     });
 });

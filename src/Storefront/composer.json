@@ -53,7 +53,7 @@
         "symfony/validator": "~7.4.0",
         "twig/intl-extra": "^3.26.0",
         "twig/string-extra": "^3.24.0",
-        "twig/twig": "^3.26.0"
+        "twig/twig": "^3.29.0"
     },
     "require-dev": {
         "symfony/css-selector": "~7.4.0",

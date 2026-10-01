@@ -33,6 +33,8 @@ export const COOKIE_CONFIGURATION_CLOSE_OFF_CANVAS = 'CookieConfiguration_CloseO
 
 export default class CookieConfiguration extends Plugin {
 
+    static lastTriggerElement = null;
+
     static options = {
         offCanvasPosition: 'left',
         submitEvent: 'click',
@@ -48,6 +50,11 @@ export default class CookieConfiguration extends Plugin {
         entriesClass: 'offcanvas-cookie-entries',
         groupClass: 'offcanvas-cookie-group',
         parentInputClass: 'offcanvas-cookie-parent-input',
+        // Consent offcanvas selectors
+        consentAcceptButtonSelector: '.js-wishlist-cookie-accept',
+        consentLoginButtonSelector: '.js-wishlist-login',
+        consentCancelButtonSelector: '.js-wishlist-cookie-offcanvas-cancel',
+        consentPreferencesButtonSelector: '.js-wishlist-cookie-preferences',
     };
 
     init() {
@@ -59,6 +66,13 @@ export default class CookieConfiguration extends Plugin {
         this._httpClient = new HttpClient();
 
         this._registerEvents();
+
+        document.$emitter.subscribe('CookieConfiguration/requestConsent', (payload) => {
+            if (payload instanceof CustomEvent) {
+                payload = payload.detail;
+            }
+            this.openRequestConsentOffCanvas(payload.route, payload.cookieName);
+        });
     }
 
     /**
@@ -205,6 +219,64 @@ export default class CookieConfiguration extends Plugin {
         if (cookiePermissionPlugin && cookiePermissionPlugin[0]) {
             cookiePermissionPlugin[0]._hideCookieBar();
             cookiePermissionPlugin[0]._removeBodyPadding();
+        }
+    }
+
+    /**
+     * Opens a feature-specific consent offcanvas
+     *
+     * @param {string} route
+     * @param {string} cookieName
+     */
+    openRequestConsentOffCanvas(route, cookieName) {
+        if (!route || !cookieName) {
+            return;
+        }
+
+        CookieConfiguration.lastTriggerElement = document.activeElement;
+
+        AjaxOffCanvas.open(route, false, () => {
+            window.PluginManager.initializePlugins();
+            const offcanvas = document.querySelector('.offcanvas');
+            if (!offcanvas){
+                return;
+            }
+            this._registerConsentOffcanvasEvents(offcanvas, cookieName);
+        }, 'left');
+    }
+
+    /**
+     * Register event listeners for the consent offcanvas
+     *
+     * @param {HTMLElement} offcanvas
+     * @param {string} cookieName
+     */
+    _registerConsentOffcanvasEvents(offcanvas, cookieName) {
+        const {
+            consentAcceptButtonSelector,
+            consentLoginButtonSelector,
+            consentCancelButtonSelector,
+            consentPreferencesButtonSelector,
+        } = this.options;
+
+        const acceptBtn = offcanvas.querySelector(consentAcceptButtonSelector);
+        if (acceptBtn) {
+            acceptBtn.addEventListener('click', this._onAccept.bind(this, cookieName));
+        }
+
+        const loginBtn = offcanvas.querySelector(consentLoginButtonSelector);
+        if (loginBtn) {
+            loginBtn.addEventListener('click', this._onLogin.bind(this));
+        }
+
+        const cancelBtn = offcanvas.querySelector(consentCancelButtonSelector);
+        if (cancelBtn) {
+            cancelBtn.addEventListener('click', this._onCancel.bind(this));
+        }
+
+        const prefBtn = offcanvas.querySelector(consentPreferencesButtonSelector);
+        if (prefBtn) {
+            prefBtn.addEventListener('click', this._onPreferences.bind(this));
         }
     }
 
@@ -515,5 +587,66 @@ export default class CookieConfiguration extends Plugin {
         const elements = OffCanvas ? OffCanvas.getOffCanvas() : [];
 
         return (elements && elements.length > 0) ? elements[0] : false;
+    }
+
+    /**
+     * @private
+     * @param {string} cookieName
+     */
+    _onAccept(cookieName) {
+        CookieStorage.setItem(cookieName, '1', 30);
+        AjaxOffCanvas.close();
+    }
+
+    /**
+     * Thin wrapper so tests can spy on navigation without mocking window.location
+     *
+     * @private
+     * @param {string} url
+     */
+    _navigateTo(url) {
+        window.location.href = url;
+    }
+
+    /**
+     * @private
+     */
+    _onLogin() {
+        AjaxOffCanvas.close();
+        this._navigateTo(window.router['frontend.account.login.page']);
+    }
+
+    /**
+     * @private
+     */
+    _onCancel() {
+        AjaxOffCanvas.close();
+    }
+
+    /**
+     * @private
+     */
+    _onPreferences(e) {
+        e.preventDefault();
+        AjaxOffCanvas.close();
+        this.openOffCanvas(() => {
+            const offcanvasElement = document.querySelector('.offcanvas');
+            if (!offcanvasElement) {
+                return;
+            }
+            offcanvasElement.addEventListener('hidden.bs.offcanvas',
+                this._restoreFocus.bind(this),
+                { once: true },
+            );
+        });
+    }
+
+    /**
+     * Restores focus to the element that triggered the consent offcanvas (e.g., add-to-wishlist button)
+     * @private
+     */
+    _restoreFocus() {
+        const btn = CookieConfiguration.lastTriggerElement;
+        btn?.focus?.();
     }
 }

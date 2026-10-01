@@ -87,6 +87,8 @@ describe('OffCanvasMenuPlugin tests', () => {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
             setFocus: jest.fn(),
+            _addFocusTrapGuard: jest.fn(),
+            _removeFocusTrapGuard: jest.fn(),
         };
 
         /** @deprecated tag:v6.7.0 - Feature flag mock will be removed. */

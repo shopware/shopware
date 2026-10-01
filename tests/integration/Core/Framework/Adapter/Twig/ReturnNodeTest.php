@@ -39,6 +39,9 @@ class ReturnNodeTest extends TestCase
         yield 'Test if case' => ['sw-function/if-case.html.twig', '1', ['x' => 1]];
         yield 'Test else case' => ['sw-function/if-case.html.twig', '2', ['x' => 2]];
         yield 'Test array case' => ['sw-function/array-case.html.twig', '2'];
+        yield 'Test nested return values' => ['sw-function/nested-case.html.twig', '2'];
+        yield 'Test null return value' => ['sw-function/null-case.html.twig', 'yes'];
+        yield 'Test variadic arguments' => ['sw-function/variadic-case.html.twig', '2'];
         yield 'Test call (deprecated macro)' => ['call-case.html.twig', '1'];
         yield 'Test assign (deprecated macro)' => ['assign-case.html.twig', '1'];
         yield 'Test if case (deprecated macro)' => ['if-case.html.twig', '1', ['x' => 1]];

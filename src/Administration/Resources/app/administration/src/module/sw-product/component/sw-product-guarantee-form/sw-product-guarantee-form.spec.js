@@ -138,6 +138,34 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
         expect(confirmedField.element.disabled).toBe(true);
     });
 
+    it('should show the guarantee confirmation a variant inherits from its parent', async () => {
+        store.product.guaranteeConfirmed = null;
+        store.parentProduct = { id: 'parentId', guaranteeConfirmed: true };
+        await flushPromises();
+
+        const confirmedField = wrapper.find('.sw-field--switch input');
+
+        expect(confirmedField.element.checked).toBe(true);
+        expect(confirmedField.element.disabled).toBe(true);
+        expect(
+            wrapper.find('.sw-product-guarantee-form__switches .sw-inheritance-switch--is-inherited').exists(),
+        ).toBe(true);
+    });
+
+    it('should not show a variant with its own guarantee confirmation as inherited', async () => {
+        store.product.guaranteeConfirmed = false;
+        store.parentProduct = { id: 'parentId', guaranteeConfirmed: true };
+        await flushPromises();
+
+        const confirmedField = wrapper.find('.sw-field--switch input');
+
+        expect(confirmedField.element.checked).toBe(false);
+        expect(confirmedField.element.disabled).toBe(false);
+        expect(
+            wrapper.find('.sw-product-guarantee-form__switches .sw-inheritance-switch--is-not-inherited').exists(),
+        ).toBe(true);
+    });
+
     describe('unmet label requirements notice', () => {
         it('should not be shown while the label is deactivated', async () => {
             store.product.guaranteeConfirmed = false;

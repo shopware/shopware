@@ -17,8 +17,10 @@ swDefinePublic({});
                 name: environmentName,
                 moduleGraph: {
                     getModuleById: jest.fn((id: string) => (knownVirtualIds.includes(id) ? { id } : undefined)),
+                    invalidateModule: jest.fn(),
                 },
                 logger: { error: jest.fn<void, [message: unknown]>() },
+                hot: { send: jest.fn() },
             },
         };
     }
@@ -76,21 +78,38 @@ swDefinePublic({});
         expect(options.read).not.toHaveBeenCalled();
     });
 
-    it('reports a transform failure at its file location without skipping virtual-module invalidation', async () => {
+    it('reports a transform failure once, at its file location, instead of pushing the update', async () => {
         const plugin = createPlugin();
         const file = '/example/sw-broken-component.vue';
         const virtualId = `${file}.shopware-setup.vue`;
         const context = createHotUpdateContext([virtualId]);
+        const message =
+            '[shopware-setup] /example/sw-broken-component.vue:2:23\nUnable to parse Shopware setup script: Unexpected token, expected ","';
 
-        // Without the report, a save with no browser attached printed nothing (issue #19562). Throwing
-        // would not do: Vite sends a hook error to the client overlay, never to the terminal.
+        // Without the report, a save with no browser attached printed nothing (issue #19562). A pushed
+        // update would make a connected client refetch the module and Vite report the failure again.
         const result = await plugin.hotUpdate.call(context, createHotUpdateOptions(file, { source: brokenSource }));
 
-        expect(result).toEqual([{ id: virtualId }]);
+        expect(result).toEqual([]);
         expect(context.environment.logger.error).toHaveBeenCalledTimes(1);
-        expect(context.environment.logger.error).toHaveBeenCalledWith(
-            '[shopware-setup] /example/sw-broken-component.vue:2:23\nUnable to parse Shopware setup script: Unexpected token, expected ","',
+        expect(context.environment.logger.error).toHaveBeenCalledWith(message);
+        expect(context.environment.hot.send).toHaveBeenCalledWith({ type: 'error', err: { message, stack: '' } });
+        expect(context.environment.moduleGraph.invalidateModule).toHaveBeenCalledWith({ id: virtualId });
+    });
+
+    it('reports a transform failure of a file no client has loaded yet', async () => {
+        const plugin = createPlugin();
+        const context = createHotUpdateContext([]);
+
+        const result = await plugin.hotUpdate.call(
+            context,
+            createHotUpdateOptions('/example/sw-broken-component.vue', { source: brokenSource }),
         );
+
+        expect(result).toEqual([]);
+        expect(context.environment.logger.error).toHaveBeenCalledTimes(1);
+        expect(context.environment.hot.send).toHaveBeenCalledTimes(1);
+        expect(context.environment.moduleGraph.invalidateModule).not.toHaveBeenCalled();
     });
 
     it('reports a failure without a source offset by file name only', async () => {

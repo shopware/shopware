@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import type { Logger, Plugin } from 'vite';
+import type { Plugin } from 'vite';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -125,19 +125,21 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     }
 
     /**
-     * Transforms a saved file so a failure reaches the watcher output.
+     * Transforms a saved file and returns its formatted diagnostic, or `null` when it compiles.
      *
      * A successful result is stashed for the `load` the hot update triggers, so a save is transformed once.
      */
-    async function transformChangedFile(fileName: string, source: string, logger: Logger): Promise<void> {
+    async function transformChangedFile(fileName: string, source: string): Promise<string | null> {
         try {
             const result = await transformSource(source, fileName);
 
             if (result) {
                 resolvedTransforms.set(fileName, { source, result });
             }
+
+            return null;
         } catch (error) {
-            logger.error(formatTransformError(error, fileName, source));
+            return formatTransformError(error, fileName, source);
         }
     }
 
@@ -295,20 +297,32 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
          *
          * It is also where a transform failure gets reported. Otherwise the transform runs only once a
          * client requests the module (`resolveId`/`load`), so saving a file that does not compile printed
-         * nothing at all (issue #19562). Logging rather than throwing: a hook that throws sends its error
-         * to the connected client's overlay, not to the terminal, and it would skip the invalidation below.
+         * nothing at all (issue #19562). A failure is reported here instead of pushing the update, which
+         * would make the client refetch the module, fail again in `load` and get it reported twice.
          */
         async hotUpdate({ type, file, modules, read }) {
             if (!file.endsWith('.vue') || virtualSourcemap.isVirtualFileName(file) || isDependencyFile(file)) {
                 return undefined;
             }
 
+            const virtualModule = this.environment.moduleGraph.getModuleById(virtualSourcemap.toVirtualFileName(file));
+
             // Vite runs this hook once per environment (client and ssr); report only once.
             if (type !== 'delete' && this.environment.name === 'client') {
-                await transformChangedFile(file, await read(), this.environment.logger);
-            }
+                const failure = await transformChangedFile(file, await read());
 
-            const virtualModule = this.environment.moduleGraph.getModuleById(virtualSourcemap.toVirtualFileName(file));
+                if (failure) {
+                    this.environment.logger.error(failure);
+                    this.environment.hot.send({ type: 'error', err: { message: failure, stack: '' } });
+
+                    // Without a pushed update nothing drops the cached transform, so a reload would serve stale code.
+                    if (virtualModule) {
+                        this.environment.moduleGraph.invalidateModule(virtualModule);
+                    }
+
+                    return [];
+                }
+            }
 
             if (!virtualModule) {
                 return undefined;

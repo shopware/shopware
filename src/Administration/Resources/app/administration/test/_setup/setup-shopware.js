@@ -31,6 +31,7 @@ jest.doMock(resolve(join(srcPath, 'src/app/composables/index')), () => {
                     name,
                     {
                         enumerable: true,
+                        configurable: true,
                         get: () => require(join(srcPath, 'src/app/composables', file(name))).default,
                     },
                 ]),

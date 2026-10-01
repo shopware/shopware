@@ -41,6 +41,7 @@ describe('scripts/generate-shopware-modules', () => {
         it('makes every root export a subpath of its own', () => {
             expect(Object.keys(registry['shopware:utils'].subpaths)).toEqual(registry['shopware:utils'].exports);
             expect(Object.keys(registry['shopware:data'].subpaths)).toEqual(registry['shopware:data'].exports);
+            expect(Object.keys(registry['shopware:composables'].subpaths)).toEqual(registry['shopware:composables'].exports);
         });
 
         it('reads the utility namespaces that can be destructured', () => {
@@ -82,6 +83,12 @@ describe('scripts/generate-shopware-modules', () => {
                 [
                     '/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */',
                     "declare module 'shopware:composables' {",
+                ].join('\n'),
+            );
+            expect(declarations).toContain(
+                [
+                    '/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */',
+                    "declare module 'shopware:composables/useListing' {",
                 ].join('\n'),
             );
             expect(declarations).toContain(

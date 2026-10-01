@@ -54,13 +54,7 @@ function createProbeGlobal(): VirtualModuleGlobal {
     return {
         Utils: branchOf('shopware:utils', 'Utils') as unknown as VirtualModuleGlobal['Utils'],
         Data: branchOf('shopware:data', 'Data') as unknown as VirtualModuleGlobal['Data'],
-        // A root-only family, so its markers come from the root exports instead of the subpaths.
-        Composables: Object.fromEntries(
-            registry['shopware:composables'].exports.map((key) => [
-                key,
-                `Composables:${key}`,
-            ]),
-        ) as unknown as VirtualModuleGlobal['Composables'],
+        Composables: branchOf('shopware:composables', 'Composables') as unknown as VirtualModuleGlobal['Composables'],
         Mixin: { getByName: (key) => `Mixin:${key}` },
         Store: { get: (id) => `Store:${id}` },
     };
@@ -174,14 +168,13 @@ describe('build/vite-plugins/virtual-shopware-modules/definitions', () => {
                 'shopware:data',
                 () => Shopware.Data,
             ],
+            [
+                'shopware:composables',
+                () => Shopware.Composables,
+            ],
         ])('%s publishes exactly the keys of its branch', (family, branch) => {
             expect(registry[family].exports.sort()).toEqual(Object.keys(branch()).sort());
             expect(Object.keys(registry[family].subpaths).sort()).toEqual(Object.keys(branch()).sort());
-        });
-
-        it('shopware:composables publishes exactly the keys of its branch, and no subpaths', () => {
-            expect(registry['shopware:composables'].exports.sort()).toEqual(Object.keys(Shopware.Composables).sort());
-            expect(registry['shopware:composables'].subpaths).toEqual({});
         });
 
         it('promises no named export a utility namespace does not have', () => {

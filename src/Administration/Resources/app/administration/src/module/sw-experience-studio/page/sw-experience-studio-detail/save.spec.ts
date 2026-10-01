@@ -81,6 +81,48 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail save', ()
         });
     });
 
+    it('keeps the successful save when only the reload fails', async () => {
+        const authoredLayout: ContentElementNode[] = [
+            { id: 'element-1', component: 'Sw:Media:Image', properties: {} },
+        ];
+        const save = jest.fn().mockResolvedValue(undefined);
+        const get = jest.fn().mockRejectedValue(new Error('network down'));
+        const $t = jest.fn((key: string) => key);
+        const vm = {
+            layout: { id: 'layout-1', name: 'Landing page', layout: authoredLayout },
+            allowSave: true,
+            layoutRootSource: 'product',
+            layoutLoadCriteria: {},
+            layoutRepository: { save, get },
+            applyPreviewContextDefaults: jest.fn(),
+            createNotificationSuccess: jest.fn(),
+            createNotificationError: jest.fn(),
+            notifySaveError: methods.notifySaveError,
+            extractApiErrorDetail: methods.extractApiErrorDetail,
+            $t,
+            $router: { push: jest.fn() },
+            isCreateMode: true,
+            isLoading: false,
+        };
+
+        await methods.onSave.call(vm);
+
+        expect(save).toHaveBeenCalledTimes(1);
+        expect(vm.isLoading).toBe(false);
+        expect(vm.createNotificationSuccess).toHaveBeenCalledWith({
+            message: 'sw-experience-studio.detail.messageSaved',
+        });
+        expect(vm.createNotificationError).toHaveBeenCalledWith({
+            message: 'sw-experience-studio.detail.messageReloadError',
+        });
+        expect(vm.applyPreviewContextDefaults).not.toHaveBeenCalled();
+        expect(vm.layout.layout).toEqual(authoredLayout);
+        expect(vm.$router.push).toHaveBeenCalledWith({
+            name: 'sw.experience.studio.detail',
+            params: { id: 'layout-1' },
+        });
+    });
+
     it('adopts the server-canonical layout returned by the save reload without client-side re-normalization', async () => {
         // Authored client-side: style as a bare scalar, no seeded default, keys in author order.
         const authoredElement: ContentElementNode = {

@@ -1304,19 +1304,27 @@ export default Shopware.Component.wrapComponentConfig({
 
             try {
                 await this.layoutRepository.save(layout, Shopware.Context.api);
-                this.layout = await this.layoutRepository.get(layout.id, Shopware.Context.api, this.layoutLoadCriteria);
-                this.applyPreviewContextDefaults();
             } catch (error) {
+                this.isLoading = false;
                 this.notifySaveError(error);
 
                 return;
-            } finally {
-                this.isLoading = false;
             }
 
             this.createNotificationSuccess({
                 message: this.$t('sw-experience-studio.detail.messageSaved'),
             });
+
+            try {
+                this.layout = await this.layoutRepository.get(layout.id, Shopware.Context.api, this.layoutLoadCriteria);
+                this.applyPreviewContextDefaults();
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.messageReloadError'),
+                });
+            } finally {
+                this.isLoading = false;
+            }
 
             if (this.isCreateMode) {
                 void this.$router.push({

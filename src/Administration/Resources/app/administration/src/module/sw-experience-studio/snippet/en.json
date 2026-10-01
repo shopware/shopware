@@ -125,7 +125,8 @@
       },
       "messageSaved": "Content layout saved successfully.",
       "messageSaveError": "The content layout could not be saved.",
-      "messageSaveErrorDetail": "The content layout could not be saved: {detail}"
+      "messageSaveErrorDetail": "The content layout could not be saved: {detail}",
+      "messageReloadError": "The content layout was saved but could not be reloaded."
     }
   }
 }

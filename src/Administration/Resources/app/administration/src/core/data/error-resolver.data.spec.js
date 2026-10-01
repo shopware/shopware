@@ -106,8 +106,11 @@ describe('src/core/data/error-resolver.data', () => {
             expect(Shopware.Store.get('error').addApiError).not.toHaveBeenCalled();
             expect(Shopware.Store.get('error').addSystemError).toHaveBeenCalledTimes(1);
             expect(Shopware.Store.get('error').addSystemError).toHaveBeenCalledWith({
-                media: expect.any(Shopware.Classes.ShopwareError),
+                error: expect.any(Shopware.Classes.ShopwareError),
             });
+            expect(Shopware.Store.get('error').addSystemError.mock.calls[0][0].error.detail).toBe(
+                'Required property "media" is wired from "mediaId", which has no value.',
+            );
         });
 
         it('should convert to ShopwareError', () => {

@@ -241,7 +241,7 @@ class MailAttachmentsBuilderTest extends TestCase
         $this->documentGenerator
             ->expects($this->once())
             ->method('readDocument')
-            ->with($xmlDocId, $context, '', null)
+            ->with($xmlDocId, $context, '', '')
             ->willReturn($document);
 
         $this->mediaRepository

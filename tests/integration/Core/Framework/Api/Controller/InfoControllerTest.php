@@ -336,6 +336,8 @@ class InfoControllerTest extends TestCase
                     lcfirst((new \ReflectionClass(CustomerAware::class))->getShortName()),
                     CustomerGroupAware::class,
                     lcfirst((new \ReflectionClass(CustomerGroupAware::class))->getShortName()),
+                    A11yRenderedDocumentAware::class,
+                    lcfirst((new \ReflectionClass(A11yRenderedDocumentAware::class))->getShortName()),
                     MailAware::class,
                     lcfirst((new \ReflectionClass(MailAware::class))->getShortName()),
                     SalesChannelAware::class,

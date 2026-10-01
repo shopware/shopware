@@ -113,6 +113,9 @@ async function createWrapper(activeTab = 'sorting') {
                         boxLayout: {
                             value: {},
                         },
+                        boxHeadlineLevel: {
+                            value: 2,
+                        },
                         defaultSorting: {
                             value: {},
                         },

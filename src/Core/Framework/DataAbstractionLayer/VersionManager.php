@@ -17,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Extension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ResetOnClone;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\WriteProtected;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
@@ -343,6 +344,10 @@ class VersionManager
         $fields = $definition->getFields();
 
         foreach ($fields as $field) {
+            if ($field->is(ResetOnClone::class)) {
+                continue;
+            }
+
             $writeProtection = $field->getFlag(WriteProtected::class);
             if ($writeProtection && !$writeProtection->isAllowed(Context::SYSTEM_SCOPE)) {
                 continue;

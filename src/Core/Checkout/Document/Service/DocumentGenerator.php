@@ -58,7 +58,7 @@ class DocumentGenerator
         string $documentId,
         Context $context,
         string $deepLinkCode = '',
-        /* , string $fileType = PdfRenderer::FILE_EXTENSION */
+        /* , ?string $fileType = PdfRenderer::FILE_EXTENSION */
     ): ?RenderedDocument {
         $fileType = \func_num_args() > 3 ? \func_get_args()[3] : PdfRenderer::FILE_EXTENSION;
 
@@ -79,7 +79,9 @@ class DocumentGenerator
             throw DocumentException::documentNotFound($documentId);
         }
 
-        $fileType ??= $document->getDocumentMediaFile()?->getFileExtension() ?? PdfRenderer::FILE_EXTENSION;
+        if ($fileType === null || $fileType === '') {
+            $fileType = $document->getDocumentMediaFile()?->getFileExtension() ?? PdfRenderer::FILE_EXTENSION;
+        }
 
         $document = $this->ensureDocumentMediaFileGenerated($document, $fileType, $context);
         $documentMedia = $this->loadMediaByFileType($document, $fileType);

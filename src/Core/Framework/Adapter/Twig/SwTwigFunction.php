@@ -20,7 +20,25 @@ use Twig\Template;
  */
 class SwTwigFunction
 {
+    /**
+     * @deprecated tag:v6.7.0 - Will be removed
+     */
     public static mixed $macroResult = null;
+
+    /**
+     * @var array<int, array{returned: bool, value: mixed}>
+     */
+    private static array $macroReturnStack = [];
+
+    public static function returnFromMacro(mixed $value): void
+    {
+        $stackIndex = array_key_last(self::$macroReturnStack);
+        if ($stackIndex === null) {
+            return;
+        }
+
+        self::$macroReturnStack[$stackIndex] = ['returned' => true, 'value' => $value];
+    }
 
     /**
      * Returns the attribute value for a given array/object.
@@ -113,23 +131,20 @@ class SwTwigFunction
     }
 
     /**
-     * @param array<array-key, mixed> $args
-     * @param array<array-key, mixed> $context
-     *
-     * @return mixed
-     *
-     * @deprecated tag:v6.7.0 - Will be removed
+     * @param \Closure(): mixed $macro
      */
-    public static function callMacro(Template $template, string $method, array $args, int $lineno, array $context, Source $source)
+    public static function callMacro(\Closure $macro): mixed
     {
-        Feature::triggerDeprecationOrThrow('v6.7.0.0', Feature::deprecatedMethodMessage(__CLASS__, __METHOD__, 'v6.7.0.0'));
-        $result = CoreExtension::callMacro($template, $method, $args, $lineno, $context, $source);
+        $stackIndex = \count(self::$macroReturnStack);
+        self::$macroReturnStack[$stackIndex] = ['returned' => false, 'value' => null];
 
-        if (self::$macroResult !== null) {
-            $result = self::$macroResult;
-            self::$macroResult = null;
+        try {
+            $result = $macro();
+            $return = self::$macroReturnStack[$stackIndex];
+        } finally {
+            unset(self::$macroReturnStack[$stackIndex]);
         }
 
-        return $result;
+        return $return['returned'] ? $return['value'] : $result;
     }
 }

@@ -5,6 +5,8 @@
         {% set cover = product.cover.media %}
         {% set variation = product.variation %}
         {% set displayParent = product.variantListingConfig.displayParent and product.parentId === null %}
+        {% set headlineLevel = element.config.boxHeadlineLevel.value %}
+        {% set headlineClasses = "product-name-headline mb-0" %}
 
         <div class="card product-box box-{{ layout }}" data-product-information="{{ {id, name}|json_encode }}">
             {% block component_product_box_content %}
@@ -114,10 +116,19 @@
 
                             {% block component_product_box_name %}
                                 {# @deprecated tag:v6.7.0 - Product name will have class `stretched-link` and will be streched over the product image. #}
-                                <a href="{{ seoUrl('frontend.detail.page', { productId: id }) }}"
-                                   class="product-name{% if feature('ACCESSIBILITY_TWEAKS') %} stretched-link{% endif %}">
-                                    {{ name }}
-                                </a>
+                                {% if headlineLevel is not empty %}
+                                    {{ "<h#{headlineLevel} class=\"#{headlineClasses}\">"|raw }}
+                                        <a href="{{ seoUrl('frontend.detail.page', { productId: id }) }}"
+                                           class="product-name{% if feature('ACCESSIBILITY_TWEAKS') %} stretched-link{% endif %}">
+                                            {{ name }}
+                                        </a>
+                                    {{ "</h#{headlineLevel}>"|raw }}
+                                {% else %}
+                                    <a href="{{ seoUrl('frontend.detail.page', { productId: id }) }}"
+                                       class="product-name{% if feature('ACCESSIBILITY_TWEAKS') %} stretched-link{% endif %}">
+                                        {{ name }}
+                                    </a>
+                                {% endif %}
                             {% endblock %}
 
                             {% block component_product_box_variant_characteristics %}
@@ -131,7 +142,7 @@
                                                 </span>
 
                                                 {% if product.variation|last != variation %}
-                                                    {{ ' | ' }}
+                                                    <span aria-hidden="true">|</span>
                                                 {% endif %}
                                             {% endfor %}
                                         {% endif %}
@@ -140,9 +151,9 @@
                             {% endblock %}
 
                             {% block component_product_box_description %}
-                                <div class="product-description">
+                                <p class="product-description mb-0">
                                     {{ product.translated.description|striptags|raw }}
-                                </div>
+                                </p>
                             {% endblock %}
 
                             {% block component_product_box_price %}

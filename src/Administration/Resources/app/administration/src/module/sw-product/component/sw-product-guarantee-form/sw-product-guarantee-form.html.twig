@@ -58,5 +58,25 @@
         {% endblock %}
     </sw-container>
     {% endblock %}
+
+    {% block sw_product_guarantee_form_requirements_notice %}
+    <mt-banner
+        v-if="unmetGuaranteeLabelRequirements.length > 0"
+        ref="requirementsNotice"
+        class="sw-product-guarantee-form__requirements-notice"
+        variant="attention"
+    >
+        {{ $tc('sw-product.settingsForm.noticeGuaranteeRequirements') }}
+
+        <ul>
+            <li
+                v-for="requirement in unmetGuaranteeLabelRequirements"
+                :key="requirement"
+            >
+                {{ requirement }}
+            </li>
+        </ul>
+    </mt-banner>
+    {% endblock %}
 </div>
 {% endblock %}

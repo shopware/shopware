@@ -1,0 +1,6 @@
+{% sw_macro_function value(...values) %}
+    {% return values %}
+{% end_sw_macro_function %}
+
+{% set result = _self.value(1, 2) %}
+{{ result[1] }}

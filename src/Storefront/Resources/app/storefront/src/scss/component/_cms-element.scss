@@ -186,6 +186,14 @@ General styling for cms elements
         color: $headings-color;
     }
 
+    &.has-vertical-alignment {
+        justify-content: center;
+
+        .cms-element-alignment {
+            width: 100%;
+        }
+    }
+
     &.has-border {
         .cms-element-title {
             margin-top: $spacer-sm;

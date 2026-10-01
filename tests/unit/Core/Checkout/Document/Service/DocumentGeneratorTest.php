@@ -120,7 +120,9 @@ class DocumentGeneratorTest extends TestCase
         $expectClosure($renderedDocument);
     }
 
-    public function testReadDocumentAutoDetectsXmlFileTypeWhenNullIsPassed(): void
+    #[TestWith([null])]
+    #[TestWith([''])]
+    public function testReadDocumentAutoDetectsXmlFileTypeWhenNoFileTypeIsPassed(?string $fileType): void
     {
         $xmlMedia = new MediaEntity();
         $xmlMedia->setId(Uuid::randomHex());
@@ -163,7 +165,7 @@ class DocumentGeneratorTest extends TestCase
             $this->createMock(Connection::class),
         );
 
-        $renderedDocument = $generator->readDocument($document->getId(), $context, '', null);
+        $renderedDocument = $generator->readDocument($document->getId(), $context, '', $fileType);
 
         static::assertNotNull($renderedDocument);
         static::assertSame('xml', $renderedDocument->getFileExtension());

@@ -999,6 +999,10 @@ export default {
         },
 
         onSaveFinished(response) {
+            if (response === 'success' || response === 'empty') {
+                Shopware.Utils.EventBus.emit('sw-product-detail-save-success');
+            }
+
             const updatePromises = [];
 
             if (Shopware.State.list().includes('swSeoUrl')) {

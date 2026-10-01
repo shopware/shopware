@@ -125,6 +125,9 @@ class OffCanvasSingleton {
 
         this._disableBackgroundAccessibility(offCanvas);
 
+        // Keep the Bootstrap focus-trap working when the offcanvas is the last element before `</body>`.
+        window.focusHandler._addFocusTrapGuard(offCanvas);
+
         OffCanvasSingleton.bsOffcanvas.show();
         window.history.pushState('offcanvas-open', '');
 
@@ -150,6 +153,7 @@ class OffCanvasSingleton {
                     this._restoreBackgroundState();
                     offCanvas.remove();
 
+                    window.focusHandler._removeFocusTrapGuard();
                     window.focusHandler.resumeFocusState('offcanvas');
 
                     this.$emitter.publish('onCloseOffcanvas', {
@@ -235,7 +239,10 @@ class OffCanvasSingleton {
         // Clear the singleton reference after disposal
         OffCanvasSingleton.bsOffcanvas = null;
         const offCanvasElements = this.getOffCanvas();
-        return Iterator.iterate(offCanvasElements, offCanvas => offCanvas.remove());
+        return Iterator.iterate(offCanvasElements, offCanvas => {
+            offCanvas.remove();
+            window.focusHandler._removeFocusTrapGuard();
+        });
     }
 
     /**

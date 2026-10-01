@@ -44,6 +44,8 @@ describe('AddressEditorPlugin test', () => {
         window.focusHandler = {
             saveFocusState: jest.fn(),
             resumeFocusState: jest.fn(),
+            _addFocusTrapGuard: jest.fn(),
+            _removeFocusTrapGuard: jest.fn(),
         };
 
         addressEditor = new AddressEditorPlugin(element, {

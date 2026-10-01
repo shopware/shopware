@@ -11,7 +11,7 @@
  */
 
 import { NodeTypes } from '@vue/compiler-dom';
-import { decodeHTML } from 'entities';
+import { decodeHTMLStrict } from 'entities';
 import type {
     DirectiveNode as CoreDirectiveNode,
     ElementNode as CoreElementNode,
@@ -140,7 +140,8 @@ function collectBindingPatternNames(directive: DirectiveNode | undefined): Set<s
 
 /**
  * A complete character reference (`&gt;`, `&#62;`, `&#x3e;`). With its semicolon it decodes the same
- * wherever it stands, so each one can be decoded on its own.
+ * wherever it stands, so each one can be decoded on its own - strictly, so a semicolon-less prefix
+ * (`&not` in `&notit;`) stays as written, as Vue keeps it in an attribute value.
  */
 const CHARACTER_REFERENCE = /&(?:#\d+|#x[\da-f]+|[a-z\d]+);/gi;
 
@@ -173,7 +174,7 @@ function getTemplateOffsetMapper(
     let mappable = true;
 
     const content = raw.replace(CHARACTER_REFERENCE, (reference: string, index: number) => {
-        const character = decodeHTML(reference);
+        const character = decodeHTMLStrict(reference);
 
         if (character !== reference) {
             mappable &&= /^.$/su.test(character);

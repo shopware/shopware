@@ -1,4 +1,4 @@
-@import "~scss/mixins";
+@import '~scss/mixins';
 
 .sw-experience-studio-toolbar {
     display: grid;
@@ -35,6 +35,12 @@
         gap: 20px;
         align-items: center;
         align-self: stretch;
+    }
+
+    &__version-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     &__back-btn {

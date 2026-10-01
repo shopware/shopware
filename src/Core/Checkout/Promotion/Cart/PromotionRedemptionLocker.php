@@ -5,9 +5,9 @@ namespace Shopware\Core\Checkout\Promotion\Cart;
 use Shopware\Core\Checkout\Cart\Extension\CheckoutPlaceOrderExtension;
 use Shopware\Core\Checkout\Promotion\Cart\Extension\LockExtension;
 use Shopware\Core\Checkout\Promotion\PromotionException;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\Lock\LockFactory;
 
 /**
  * @internal
@@ -17,7 +17,7 @@ class PromotionRedemptionLocker implements EventSubscriberInterface
 {
     private const LOCK_TTL = 5;
 
-    public function __construct(private readonly LockFactory $lockFactory)
+    public function __construct(private readonly LockManager $lockManager)
     {
     }
 
@@ -58,11 +58,11 @@ class PromotionRedemptionLocker implements EventSubscriberInterface
                 continue;
             }
 
-            $lock = $this->lockFactory->createLock($this->getLockKey($key), self::LOCK_TTL);
-
-            if (!$lock->acquire(true)) {
-                throw PromotionException::promotionUsageLocked($key);
-            }
+            $lock = $this->lockManager->acquire(
+                $this->getLockKey($key),
+                ttl: self::LOCK_TTL,
+                blocking: true,
+            ) ?? throw PromotionException::promotionUsageLocked($key);
 
             $locks[$key] = $lock;
         }

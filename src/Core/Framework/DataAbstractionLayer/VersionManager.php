@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
@@ -55,7 +56,6 @@ use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Util\Json;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -80,7 +80,7 @@ class VersionManager
         private readonly VersionCommitDefinition $versionCommitDefinition,
         private readonly VersionCommitDataDefinition $versionCommitDataDefinition,
         private readonly VersionDefinition $versionDefinition,
-        private readonly LockFactory $lockFactory,
+        private readonly LockManager $lockManager,
         private readonly ClockInterface $clock
     ) {
     }
@@ -172,11 +172,8 @@ class VersionManager
         }
 
         // acquire a lock to prevent multiple merges of the same version
-        $lock = $this->lockFactory->createLock('sw-merge-version-' . $versionId);
-
-        if (!$lock->acquire()) {
-            throw DataAbstractionLayerException::versionMergeAlreadyLocked($versionId);
-        }
+        $lock = $this->lockManager->acquire('sw-merge-version-' . $versionId)
+            ?? throw DataAbstractionLayerException::versionMergeAlreadyLocked($versionId);
 
         if (!$this->versionExists($versionId)) {
             throw DataAbstractionLayerException::versionNotExists($versionId);

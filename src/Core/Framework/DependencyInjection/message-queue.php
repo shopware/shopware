@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\DependencyInjection;
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Adapter\Doctrine\Messenger\DoctrineTransportFactory;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Adapter\Messenger\Middleware\QueuedTimeMiddleware;
 use Shopware\Core\Framework\MessageQueue\Api\ConsumeMessagesController;
 use Shopware\Core\Framework\MessageQueue\Middleware\RoutingOverwriteMiddleware;
@@ -79,7 +80,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('messenger.default_transport_name'),
             param('shopware.admin_worker.memory_limit'),
             param('shopware.admin_worker.poll_interval'),
-            service('lock.factory'),
+            service(LockManager::class),
         ])
         ->call('setContainer', [
             service('service_container'),

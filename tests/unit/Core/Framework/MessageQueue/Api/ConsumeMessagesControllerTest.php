@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Lock\LockManager;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -44,7 +45,7 @@ class ConsumeMessagesControllerTest extends TestCase
             'async',
             '128M',
             20,
-            static::createStub(LockFactory::class)
+            new LockManager(static::createStub(LockFactory::class))
         );
 
         $this->expectExceptionObject(MessageQueueException::validReceiverNameNotProvided());
@@ -73,7 +74,7 @@ class ConsumeMessagesControllerTest extends TestCase
             'async',
             '128M',
             20,
-            $lockFactory
+            new LockManager($lockFactory)
         );
 
         $this->expectExceptionObject(MessageQueueException::workerIsLocked('async'));
@@ -145,7 +146,7 @@ class ConsumeMessagesControllerTest extends TestCase
             'async',
             '-1',
             1,
-            $lockFactory
+            new LockManager($lockFactory)
         );
 
         $request = new Request();

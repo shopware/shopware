@@ -4,12 +4,14 @@ namespace Shopware\Core\System\Salutation\SalesChannel;
 
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\Salutation\Extension\SalutationRouteExtension;
 use Shopware\Core\System\Salutation\SalutationCollection;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,6 +29,7 @@ class SalutationRoute extends AbstractSalutationRoute
     public function __construct(
         private readonly SalesChannelRepository $salutationRepository,
         private readonly CacheTagCollector $cacheTagCollector,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -47,6 +50,15 @@ class SalutationRoute extends AbstractSalutationRoute
         defaults: [PlatformRequest::ATTRIBUTE_ENTITY => SalutationDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true],
     )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): SalutationRouteResponse
+    {
+        return $this->extensions->publish(
+            name: SalutationRouteExtension::NAME,
+            extension: new SalutationRouteExtension($request, $context, $criteria),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(Request $request, SalesChannelContext $context, Criteria $criteria): SalutationRouteResponse
     {
         $this->cacheTagCollector->addTag(self::buildName());
 

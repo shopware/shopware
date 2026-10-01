@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\SalesChannel\FindVariant;
 
+use Shopware\Core\Content\Product\Extension\FindProductVariantRouteExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -36,6 +38,7 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
         private readonly CacheTagCollector $cacheTagCollector,
         private readonly SystemConfigService $systemConfigService,
         private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -51,6 +54,15 @@ class FindProductVariantRoute extends AbstractFindProductVariantRoute
         defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ProductDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context): FindProductVariantRouteResponse
+    {
+        return $this->extensions->publish(
+            name: FindProductVariantRouteExtension::NAME,
+            extension: new FindProductVariantRouteExtension($productId, $request, $context),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(string $productId, Request $request, SalesChannelContext $context): FindProductVariantRouteResponse
     {
         $switchedGroup = RequestParamHelper::get($request, 'switchedGroup');
 

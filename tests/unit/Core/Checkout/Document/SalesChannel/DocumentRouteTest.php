@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentDefinition;
 use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
+use Shopware\Core\Checkout\Document\Extension\DocumentRouteExtension;
 use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute;
@@ -33,14 +34,18 @@ use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -83,6 +88,7 @@ class DocumentRouteTest extends TestCase
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $this->expectExceptionObject(DocumentException::documentNotFound('documentId'));
@@ -114,6 +120,7 @@ class DocumentRouteTest extends TestCase
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $this->expectExceptionObject(DocumentException::orderNotFound('test'));
@@ -144,6 +151,7 @@ class DocumentRouteTest extends TestCase
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $this->expectExceptionObject(DocumentException::customerNotLoggedIn());
@@ -182,6 +190,7 @@ class DocumentRouteTest extends TestCase
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $request = new Request();
@@ -231,6 +240,7 @@ class DocumentRouteTest extends TestCase
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $request = new Request([
@@ -279,6 +289,7 @@ class DocumentRouteTest extends TestCase
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $request = new Request();
@@ -327,6 +338,7 @@ class DocumentRouteTest extends TestCase
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $request = new Request([
@@ -378,6 +390,7 @@ class DocumentRouteTest extends TestCase
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $request = new Request([
@@ -449,6 +462,7 @@ class DocumentRouteTest extends TestCase
             $rateLimiter,
             new GuestAuthenticator(),
             $fileRenderers,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $request = new Request([
@@ -524,6 +538,7 @@ class DocumentRouteTest extends TestCase
             $rateLimiter,
             new GuestAuthenticator(),
             $fileRenderers,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $request = new Request([
@@ -589,6 +604,7 @@ class DocumentRouteTest extends TestCase
             $rateLimiter,
             $guestAuthenticator,
             $fileRenderers,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $request = new Request([
@@ -628,6 +644,7 @@ class DocumentRouteTest extends TestCase
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $request = new Request();
@@ -667,7 +684,8 @@ class DocumentRouteTest extends TestCase
             $documentRepository,
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
-            $fileRenderersMock
+            $fileRenderersMock,
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $request = new Request();
@@ -721,6 +739,7 @@ class DocumentRouteTest extends TestCase
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderersMock,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $request = new Request();
@@ -775,6 +794,7 @@ class DocumentRouteTest extends TestCase
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             $fileRenderers,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -841,7 +861,8 @@ class DocumentRouteTest extends TestCase
             $documentRepository,
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
-            $fileRenderersMock
+            $fileRenderersMock,
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -911,7 +932,8 @@ class DocumentRouteTest extends TestCase
             $documentRepository,
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
-            $fileRenderersMock
+            $fileRenderersMock,
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -935,8 +957,6 @@ class DocumentRouteTest extends TestCase
     #[DisabledFeatures(['DOCUMENT_GENERATION_REWORK'])]
     public function testDownloadWithInvalidFileTypeParameterShouldNotCallReadDocumentAndThrowException(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
         $customerID = Uuid::randomHex();
         $customer = $this->createCustomer($customerID, false);
         $order = $this->createOrder($customerID);
@@ -964,7 +984,8 @@ class DocumentRouteTest extends TestCase
             $documentRepository,
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
-            $fileRenderersMock
+            $fileRenderersMock,
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -1018,7 +1039,8 @@ class DocumentRouteTest extends TestCase
             $documentRepository,
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
-            $fileRenderersMock
+            $fileRenderersMock,
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -1085,6 +1107,7 @@ class DocumentRouteTest extends TestCase
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             new \ArrayIterator([]),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -1140,6 +1163,7 @@ class DocumentRouteTest extends TestCase
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             new \ArrayIterator([]),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -1191,6 +1215,7 @@ class DocumentRouteTest extends TestCase
             static::createStub(RateLimiter::class),
             new GuestAuthenticator(),
             new \ArrayIterator([]),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $context = static::createStub(SalesChannelContext::class);
@@ -1208,6 +1233,44 @@ class DocumentRouteTest extends TestCase
             null,
             DocumentFormat::ZUGFERD_XML->value,
         );
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $documentId = Uuid::randomHex();
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $deepLinkCode = Random::getAlphanumericString(32);
+        $fileType = PdfRenderer::FILE_EXTENSION;
+        $format = DocumentFormat::PDF->value;
+        $response = new Response();
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('document-route.download.pre', static function (DocumentRouteExtension $extension) use ($documentId, $request, $context, $deepLinkCode, $fileType, $format, $response): void {
+            static::assertSame([
+                'documentId' => $documentId,
+                'request' => $request,
+                'context' => $context,
+                'deepLinkCode' => $deepLinkCode,
+                'fileType' => $fileType,
+                'format' => $format,
+            ], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new DocumentRoute(
+            static::createStub(DocumentGenerator::class),
+            $this->createDocumentReaderStub(),
+            static::createStub(EntityRepository::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(GuestAuthenticator::class),
+            [],
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->download($documentId, $request, $context, $deepLinkCode, $fileType, $format));
     }
 
     private function createCustomer(string $customerId, bool $isGuest): CustomerEntity

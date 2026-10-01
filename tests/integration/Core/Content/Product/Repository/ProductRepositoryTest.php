@@ -1644,6 +1644,18 @@ class ProductRepositoryTest extends TestCase
         static::assertNull($stored[$ids->get('red')]);
         static::assertSame('0', $stored[$ids->get('green')]);
 
+        // The Administration reads variants without inheritance and needs null to show the switch as inherited.
+        $rawVariants = $this->repository->search(new Criteria($ids->getList(['red', 'green'])), $this->context);
+
+        $red = $rawVariants->getEntities()->get($ids->get('red'));
+        static::assertInstanceOf(ProductEntity::class, $red);
+        static::assertNull($red->get('guaranteeConfirmed'));
+        static::assertFalse($red->isGuaranteeConfirmed());
+
+        $green = $rawVariants->getEntities()->get($ids->get('green'));
+        static::assertInstanceOf(ProductEntity::class, $green);
+        static::assertFalse($green->get('guaranteeConfirmed'));
+
         $context = Context::createDefaultContext();
         $context->setConsiderInheritance(true);
 

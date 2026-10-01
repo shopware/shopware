@@ -6,14 +6,14 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartException;
-use Shopware\Core\Checkout\Cart\Extension\CheckoutCartAddOrderLineItemsExtension;
-use Shopware\Core\Checkout\Cart\Extension\CheckoutCartCollectOrderLineItemsExtension;
+use Shopware\Core\Checkout\Cart\Extension\CheckoutCartCollectReorderLineItemsExtension;
+use Shopware\Core\Checkout\Cart\Extension\CheckoutCartReorderExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartItemAddRoute;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderLineItemsAddRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartReorderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
@@ -37,8 +37,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @internal
  */
 #[Package('checkout')]
-#[CoversClass(CartOrderLineItemsAddRoute::class)]
-class CartOrderLineItemsAddRouteTest extends TestCase
+#[CoversClass(CartReorderRoute::class)]
+class CartReorderRouteTest extends TestCase
 {
     public function testTheRouteIsPublishedAsAnExtension(): void
     {
@@ -51,8 +51,8 @@ class CartOrderLineItemsAddRouteTest extends TestCase
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener(
-            CheckoutCartAddOrderLineItemsExtension::onPre(),
-            static function (CheckoutCartAddOrderLineItemsExtension $extension) use (&$seen): void {
+            CheckoutCartReorderExtension::onPre(),
+            static function (CheckoutCartReorderExtension $extension) use (&$seen): void {
                 $seen = $extension;
                 $extension->result = new CartResponse(new Cart('replaced'));
                 $extension->stopPropagation();
@@ -63,9 +63,9 @@ class CartOrderLineItemsAddRouteTest extends TestCase
         $orderRoute->expects($this->never())->method('load');
 
         $response = $this->createRoute($orderRoute, static::createStub(AbstractCartItemAddRoute::class), $dispatcher)
-            ->add($orderId, $request, $cart, $context);
+            ->reorder($orderId, $request, $cart, $context);
 
-        static::assertInstanceOf(CheckoutCartAddOrderLineItemsExtension::class, $seen);
+        static::assertInstanceOf(CheckoutCartReorderExtension::class, $seen);
         static::assertSame($orderId, $seen->orderId);
         static::assertSame($request, $seen->request);
         static::assertSame($cart, $seen->cart);
@@ -84,7 +84,7 @@ class CartOrderLineItemsAddRouteTest extends TestCase
 
         static::expectExceptionObject(CartException::orderNotFound($orderId));
 
-        $route->add($orderId, new Request(), new Cart('token'), Generator::generateSalesChannelContext());
+        $route->reorder($orderId, new Request(), new Cart('token'), Generator::generateSalesChannelContext());
     }
 
     public function testOrderWithoutLineItemsThrows(): void
@@ -98,7 +98,7 @@ class CartOrderLineItemsAddRouteTest extends TestCase
 
         static::expectExceptionObject(CartException::lineItemNotFound($orderId));
 
-        $route->add($orderId, new Request(), new Cart('token'), Generator::generateSalesChannelContext());
+        $route->reorder($orderId, new Request(), new Cart('token'), Generator::generateSalesChannelContext());
     }
 
     public function testOnlyProductsAreRebuiltFromTheOrder(): void
@@ -190,7 +190,7 @@ class CartOrderLineItemsAddRouteTest extends TestCase
         $cartItemAddRoute->method('add')->willReturn(new CartResponse(new Cart('token')));
 
         $this->createRoute($orderRoute, $cartItemAddRoute)
-            ->add($orderId, new Request(), new Cart('token'), Generator::generateSalesChannelContext());
+            ->reorder($orderId, new Request(), new Cart('token'), Generator::generateSalesChannelContext());
     }
 
     public function testAListenerCanAppendItsOwnLineItemsOnPost(): void
@@ -200,8 +200,8 @@ class CartOrderLineItemsAddRouteTest extends TestCase
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener(
-            CheckoutCartCollectOrderLineItemsExtension::onPost(),
-            static function (CheckoutCartCollectOrderLineItemsExtension $extension) use ($own): void {
+            CheckoutCartCollectReorderLineItemsExtension::onPost(),
+            static function (CheckoutCartCollectReorderLineItemsExtension $extension) use ($own): void {
                 $extension->result = [...$extension->result, $own];
             }
         );
@@ -223,8 +223,8 @@ class CartOrderLineItemsAddRouteTest extends TestCase
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener(
-            CheckoutCartCollectOrderLineItemsExtension::onPre(),
-            static function (CheckoutCartCollectOrderLineItemsExtension $extension) use ($own): void {
+            CheckoutCartCollectReorderLineItemsExtension::onPre(),
+            static function (CheckoutCartCollectReorderLineItemsExtension $extension) use ($own): void {
                 $extension->result = [$own];
                 $extension->stopPropagation();
             }
@@ -243,8 +243,8 @@ class CartOrderLineItemsAddRouteTest extends TestCase
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addListener(
-            CheckoutCartCollectOrderLineItemsExtension::onPre(),
-            static fn (CheckoutCartCollectOrderLineItemsExtension $extension) => $extension->stopPropagation()
+            CheckoutCartCollectReorderLineItemsExtension::onPre(),
+            static fn (CheckoutCartCollectReorderLineItemsExtension $extension) => $extension->stopPropagation()
         );
 
         $order = $this->createOrder($orderId, new OrderLineItemCollection([
@@ -278,7 +278,7 @@ class CartOrderLineItemsAddRouteTest extends TestCase
             ->willReturn(new CartResponse(new Cart('token')));
 
         $this->createRoute($this->createOrderRoute(new OrderCollection([$order])), $cartItemAddRoute, $dispatcher)
-            ->add($orderId, new Request(), new Cart('token'), Generator::generateSalesChannelContext());
+            ->reorder($orderId, new Request(), new Cart('token'), Generator::generateSalesChannelContext());
 
         static::assertIsArray($captured, 'the add route must never be handed null');
 
@@ -289,8 +289,8 @@ class CartOrderLineItemsAddRouteTest extends TestCase
         AbstractOrderRoute $orderRoute,
         AbstractCartItemAddRoute $cartItemAddRoute,
         ?EventDispatcher $dispatcher = null
-    ): CartOrderLineItemsAddRoute {
-        return new CartOrderLineItemsAddRoute(
+    ): CartReorderRoute {
+        return new CartReorderRoute(
             $orderRoute,
             $cartItemAddRoute,
             new LineItemFactoryRegistry(

@@ -73,8 +73,8 @@ use Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartItemRemoveRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartItemUpdateRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartLoadRoute;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderLineItemsAddRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartReorderRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\SalesChannel\ProductShippingCostRoute;
 use Shopware\Core\Checkout\Cart\SalesChannel\ShippingCostRoute;
@@ -282,7 +282,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ExtensionDispatcher::class),
         ]);
 
-    $services->set(CartOrderLineItemsAddRoute::class)
+    $services->set(CartReorderRoute::class)
         ->public()
         ->args([
             service(OrderRoute::class),

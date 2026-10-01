@@ -5,6 +5,41 @@
 import string from 'src/core/service/utils/string.utils';
 
 describe('src/core/service/utils/string.utils.js', () => {
+    it.each([
+        [
+            'a contact person',
+            { firstName: 'Ada', lastName: 'Lovelace', displayName: 'Ada Lovelace' },
+            { firstName: 'Ada', lastName: 'Lovelace' },
+        ],
+        [
+            'a contact person with a company',
+            { firstName: ' Ada ', lastName: 'Lovelace', displayName: 'Ada Lovelace' },
+            { firstName: 'Ada', lastName: 'Lovelace' },
+        ],
+        [
+            'a company without a contact person',
+            { firstName: '', lastName: '', displayName: 'Acme GmbH' },
+            { firstName: 'Acme', lastName: 'GmbH' },
+        ],
+        [
+            'a company with one word',
+            { firstName: null, lastName: null, displayName: 'Acme' },
+            { firstName: 'Acme', lastName: '' },
+        ],
+        [
+            'a company with several words',
+            { firstName: '', lastName: '', displayName: 'Dickson  Moody Associates' },
+            { firstName: 'Dickson', lastName: 'Associates' },
+        ],
+        [
+            'nothing at all',
+            {},
+            { firstName: '', lastName: '' },
+        ],
+    ])('should derive the avatar name from %s', (_name, entity, expected) => {
+        expect(string.avatarName(entity)).toEqual(expected);
+    });
+
     it('should be true if valid CIDR is detected', async () => {
         expect(string.isValidCidr('1200:0000:AB00:1234:0000:2552:7777:1313/56')).toBe(true);
         expect(string.isValidCidr('21DA:D3:0:2F3B:2AA:FF:FE28:9C5A/128')).toBe(true);

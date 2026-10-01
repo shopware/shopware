@@ -1,4 +1,4 @@
-{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
+{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.displayName }},
 
 Im Anhang dieser E-Mail finden Sie die Rechnung für Ihre Bestellung mit der Nummer: {{ order.orderNumber }}
 

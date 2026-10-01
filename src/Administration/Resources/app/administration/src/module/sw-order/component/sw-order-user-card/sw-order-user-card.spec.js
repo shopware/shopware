@@ -26,6 +26,21 @@ describe('modules/sw-order/component/sw-order-user-card/tracking-code-display', 
         trackingUrl: trackingUrlWithPlaceholder,
     };
 
+    it.each([
+        [
+            'a contact person',
+            { firstName: 'Ada', lastName: 'Lovelace', displayName: 'Ada Lovelace' },
+            { firstName: 'Ada', lastName: 'Lovelace' },
+        ],
+        [
+            'a company without a contact person',
+            { firstName: '', lastName: '', displayName: 'Acme GmbH' },
+            { firstName: 'Acme', lastName: 'GmbH' },
+        ],
+    ])('should build the avatar name for %s', async (_name, orderCustomer, expected) => {
+        expect(userCard.computed.avatarName.call({ currentOrder: { orderCustomer } })).toEqual(expected);
+    });
+
     it('should render no url, when no base url is present in the shipping method', async () => {
         expect(userCard.methods.renderTrackingUrl(trackingCode, shippingMethodNoUrl)).toBe('');
     });

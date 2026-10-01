@@ -275,6 +275,7 @@ jobs:
         run: |
           # The source shop needs the built assets of this branch, but a lower version than the
           # update target, so the update check offers SW_RECOVERY_NEXT_VERSION.
+          mkdir -p base-shopware
           rsync -a --exclude node_modules new-shopware/src/ base-shopware/src/
 
           composer -d base-shopware/src/Core config version "${SHOPWARE_UPDATE_FROM}"

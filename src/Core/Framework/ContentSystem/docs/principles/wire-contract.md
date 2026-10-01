@@ -16,8 +16,8 @@ In code:
 
 - `StoredElementCodec::encode()` delegates to `StoredElement::jsonSerialize()`.
 - `StoredTreeCodec` and `MutationResponse` call the codec.
-- `StoredElementCodecStructuralDecodeTest` pins the rule.
-- `StoredElementCodecDataRequirementTest` pins the rule.
+- `StoredElementCodecStructuralDecodeTest` pins that decode throws on an unknown top-level key instead of stripping it.
+- `StoredElementCodecDataRequirementTest` pins that decode throws, naming the element, on a data requirement with an unregistered source.
 - See [Layout/Field/README.md](../../Layout/Field/README.md).
 
 ## The Admin API exchanges `StoredElement`
@@ -67,8 +67,8 @@ In code:
 - `ContentRouteCompilerPass` generates the routes.
 - Every full-mode response builds its page through `ContentPage::fromRenderResult()`.
 - `ResolvedValueIndexFactory` numbers the refs in document order.
-- `ResolvedValueIndexFactoryTest` pins the rule.
-- `ContentRouteRenderingTest` pins the rule.
+- `ResolvedValueIndexFactoryTest` pins that the value index numbers refs in pre-order document order.
+- `ContentRouteRenderingTest` pins that a data response assigns only to element ids the skeleton response carries.
 - See [Output/README.md](../../Output/README.md).
 
 ## A PHP name is wire-inert behind a module-owned encoder
@@ -81,7 +81,7 @@ In code:
 
 - `ContentPageEncoder` writes its keys and `ContentPageEncoder::ELEMENT_API_ALIAS` as literals.
 - `ContentSkeletonPage` reaches the wire through `StructEncoder`.
-- `ContentRouteRenderingTest` pins the rule.
+- `ContentRouteRenderingTest` pins that the wire carries `id`, `name` and `version`, never the struct's `layoutId`-prefixed names.
 - See [Output/README.md](../../Output/README.md).
 
 ## Structural malformation and registry drift are different cases on read

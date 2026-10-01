@@ -53,7 +53,7 @@ In code:
 
 - `DraftLayoutDecoder::decodeLintable()` and `LayoutDiagnostics::analyze()` turn a client defect into an `InvalidConfig` violation.
 - `ContentLayoutWriteValidator` checks the tree that `LayoutWriteContext` holds.
-- `ContentDiagnoseControllerTest` pins the rule.
+- `ContentDiagnoseControllerTest` pins that diagnose answers 200 with the violations in the verdict and throws nothing.
 - See [diagnose.md](../../Api/docs/diagnose.md).
 
 ## The codec and the constraint descriptor keep separate copies of the wiring rules, and one change tightens both
@@ -70,5 +70,5 @@ In code:
 
 - `StoredElementCodec` is the codec.
 - `StoredTreeConstraints` is the constraint descriptor.
-- `StoredTreeShapeConformanceTest` pins the rule.
+- `StoredTreeShapeConformanceTest` pins that the codec and the descriptor agree on every payload and names each descriptor-only check.
 - See [Layout/Field/README.md](../../Layout/Field/README.md).

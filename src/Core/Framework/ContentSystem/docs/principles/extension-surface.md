@@ -14,7 +14,7 @@ In code:
 
 - `InternalClassRule::CONTENT_SYSTEM_PUBLIC_SURFACE` lists the offered classes.
 - The same list names `RenderedTreeEditor`, which has no core caller.
-- `ContentPipelineTest` pins the rule.
+- `ContentPipelineTest` pins that a listener on either event replaces the tree the pipeline carries on.
 - See [extending.md](../extending.md).
 
 ## InternalClassRule enforces publicness positively

@@ -22,7 +22,7 @@ Exceptions: The passes of `LayoutWriteBoundary::apply()` seed declared defaults 
 In code:
 
 - `sw-experience-studio-detail` re-reads the layout after saving it.
-- The `sw-experience-studio-detail` spec pins the rule.
+- The `sw-experience-studio-detail` spec pins that the editor adopts the reloaded layout as the server returned it.
 - See [layout-write-gates.md](../layout-write-gates.md).
 
 ## A rule about a stored value has one owner, and every path that needs the rule calls that owner
@@ -38,7 +38,7 @@ Exceptions: A `resolvedBy` storage key is undeclared, and `matchesStoredValueSha
 In code:
 
 - `StoredElementCodec::MAX_NESTING_DEPTH` owns the nesting bound.
-- `StoredTreeShapeConformanceTest` pins the rule.
+- `StoredTreeShapeConformanceTest` pins that the codec and the descriptor agree on `MAX_NESTING_DEPTH`.
 - See [Layout/Field/README.md](../../Layout/Field/README.md).
 
 ## A present null and an absent key are different states
@@ -71,5 +71,5 @@ In code:
 - `StoredValue::fromDecoded()` reads an empty array as a list.
 - `StoredElementCodec::decodeStyle()` rejects an empty breakpoint map.
 - `StoredElement::jsonSerialize()` omits every empty member except `properties`.
-- `StoredElementCodecStructuralDecodeTest` pins the rule.
+- `StoredElementCodecStructuralDecodeTest` pins that decode rejects an empty breakpoint map instead of reading it as absent.
 - See [Layout/Element/README.md](../../Layout/Element/README.md).

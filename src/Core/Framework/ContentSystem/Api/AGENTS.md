@@ -5,26 +5,17 @@
 ## Navigation
 
 - Why nothing is dropped silently, and how a defect is classified: [failure-and-loss.md](../docs/principles/failure-and-loss.md)
-
-## Source Code References
-
-- `ContentPreviewController` - Scope `ApiRouteScope`, binding `ContentPreviewRequest`, delegating to `ContentPreviewPageBuilder`. No direct render route: checking well-formedness/resolvability without minting a token goes through the diagnose route instead. Route, mint mechanics, decode gate, token contract: [docs/preview-url.md](docs/preview-url.md)
-- `ContentPreviewPayloadStore` - Both directions of the token-addressed preview envelope: `store(ContentPreviewRequest): string`, `load(string $token): ?ContentPreviewRequest`. Token lifetime, the load-time `previewPayloadInvalid` fault, Storefront redemption: [docs/preview-url.md](docs/preview-url.md)
-- `ContentDiagnoseController` - Scope `ApiRouteScope`; decodes the request draft via `DraftLayoutDecoder::decodeLintable()`, operating only on that draft tree — never reading or writing the stored `content_layout` entity. Route, contract, `rootSource` resolvability branch: [docs/diagnose.md](docs/diagnose.md)
-- `LayoutMutationController` - The stateless draft mutation actions, scope `ApiRouteScope`. Each builds one `Mutation/Op` and runs it through `Mutation/MutationPipeline`, returning a `MutationResponse` without persisting. Routes and contract: [docs/mutation.md](docs/mutation.md)
-- `ContentLayoutMutationController` - The persisted counterpart: loads the stored layout by id, guards `expectedVersion`, applies the operation via `Mutation/PersistedLayoutMutator::mutate()`, and commits through the resolvability gates. Routes and contract: [docs/persisted-mutation.md](docs/persisted-mutation.md)
-- `ContentPreviewRequest` / `ContentDiagnoseRequest` / the draft and persisted mutation request DTOs (one per action) - envelope DTOs; each controller action binds its DTO via `#[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]` on the action **parameter**, never the DTO class. `layoutId` is a route path argument, not a DTO field
-- `DraftLayoutDecoder` - Shared request draft-layout decode, injected into the preview, diagnose, and both mutation controllers. Decode paths (`decode()`, `decodeOne()`, `decodeLintable()`), style canonicalisation, the separate storage-side decode: [docs/draft-layout-decoder.md](docs/draft-layout-decoder.md)
-- `LayoutDiagnosticsResultNormalizer` - Zero-dependency (`new`-able) normalizer: `normalizeResolutions()`, `normalizeReport()`. Instantiated inside the `MutationResponse`/`DiagnoseResponse` factories, not by the controllers
-- `MutationResponse` - `\JsonSerializable` (`@final`, `#[Package('framework')]`) owning the mutation response wire shape for every draft and persisted mutation route; not a service. Encoding: [docs/mutation-response.md](docs/mutation-response.md)
-- `DiagnoseResponse` - Sibling `\JsonSerializable` for the resolve-and-diagnose route, owning its two-key shape. Encoding: [docs/diagnose-response.md](docs/diagnose-response.md)
-- Preview resolution entry: `Adapter/RenderingSpecificationResolver::resolveWithoutLayout(entityType, entityId, request, context)` — assignment-free, selects source by `supportsEntityType()`
-- Root-context selection (diagnose + draft mutation routes): `rootSource` resolves via `Adapter/RootSourceRegistry::resolveGated($rootSource, $context)` → `sourceFor()` (entity type, section key, or `none`) → `providedRootContext()`, not `resolveWithoutLayout()` (the preview path)
-- `DraftLayoutChecker` (module root) — preview-action draft check (intrinsic-subset diagnostics)
-- Introspection: `Framework/Api/Controller/InfoController` (`content-system-{element-types,data-loaders,entity-types,style-options,root-sources}`)
+- Preview action route, mint mechanics, decode gate, token contract: [docs/preview-url.md](docs/preview-url.md)
+- Diagnose action route, contract, `rootSource` resolvability branch: [docs/diagnose.md](docs/diagnose.md)
+- Stateless draft mutation actions, routes and contract: [docs/mutation.md](docs/mutation.md)
+- Persisted mutation actions, routes and contract: [docs/persisted-mutation.md](docs/persisted-mutation.md)
+- Shared draft-layout decode paths and style canonicalisation: [docs/draft-layout-decoder.md](docs/draft-layout-decoder.md)
+- Mutation response wire shape and encoding: [docs/mutation-response.md](docs/mutation-response.md)
+- Diagnose response wire shape and encoding: [docs/diagnose-response.md](docs/diagnose-response.md)
 
 ## Constraints
 
+- Bind each action's request DTO via `#[MapRequestPayload(validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]` on the action parameter, never the DTO class; `layoutId` stays a route path argument, not a DTO field.
 - Draft-route and persisted-route failures are `ContentSystemException`s (400 / 404 / 409); condition tables: [docs/mutation-errors.md](docs/mutation-errors.md), [docs/persisted-mutation-errors.md](docs/persisted-mutation-errors.md), [docs/diagnose.md](docs/diagnose.md#errors), [docs/preview-url.md](docs/preview-url.md#errors)
 - Mutation responses (draft and persisted) share one shape and never silently drop edited-out content. Shape/encoding: [docs/mutation-response.md](docs/mutation-response.md)
 - Diagnose reports per-element client config defects as `invalid_config` violations (HTTP 200), not errors — see `ContentSystemException::isClientDefect()`

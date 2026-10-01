@@ -6,16 +6,6 @@
 
 - Why these constraints hold, and what was not chosen: [data-loading.md](../docs/principles/data-loading.md)
 
-## Source Code References
-
-- `AbstractSpecificationSource` - Base: `supports()`, `resolveLayoutId()`, `resolveSpecificationData()`, `resolveTargetElementId()`, `resolveCacheTags()`, `supportsEntityType()` (default `false`), `resolveSpecificationDataForEntity()` (default throws `entityTypeResolutionUnsupported`), `providedRootContext(Context $context): list<ProvidedContext>` (default `[]`) — last three overridden by entity sources; `providedRootContext()` is reached via `RootSourceRegistry::resolve()` → `sourceFor($rootSource)`, the single resolution path the write gate, the diagnose route, and the mutation routes all go through
-- `RenderingSpecificationResolver` - `resolve()` iterates sources via `supports()` → `RenderingSpecificationFactory::create()`; `resolveWithoutLayout(entityType, entityId, …)` selects via `supportsEntityType()` → `createWithoutLayout()`, throws `unknownEntityType` on no match
-- `RenderingSpecificationFactory` - `create()` assembles `ResolvedContentLayout` (layout ID plus `RenderingSpecification`); `createWithoutLayout()` assembles a bare `RenderingSpecification` (no layout id, no assignment lookup) for the preview action
-- Entity sources co-located with domain aggregates: `Content/Product/.../ProductSpecificationSource`, `Content/Category/.../CategorySpecificationSource`, `Content/LandingPage/.../LandingPageSpecificationSource`
-- Domain-aware sources in Storefront: `Storefront/ContentSystem/HeaderContentLayout/HeaderSpecificationSource`, `Storefront/ContentSystem/FooterContentLayout/FooterSpecificationSource`
-- `EntityLayoutResolver`, `EntityLayoutContextFactory` (FactoryHelper/) - Shared entity resolution; `EntityLayoutContextFactory::providedRootContext(AbstractContentLayoutAssignableDefinition $definition): list<ProvidedContext>` delegates to `RootContextMapper::map($definition->getPageDataRequirements())`. `buildSpecificationData(string $entityId, Request $request, SalesChannelContext $context, AbstractContentLayoutAssignableDefinition $definition): SpecificationData` is the assignment-free assembly entry point — all three entity sources call it from `resolveSpecificationDataForEntity()`; the assignment-based `resolveSpecificationData(string $path, …)` extracts the entity id from the path and delegates to it
-- `DomainAwareLayoutResolver`, `NavigationAliasResolver` (FactoryHelper/) - Header/footer resolution
-
 ## Constraints
 
 - Sources use `supports()` bool method — NOT null-return pattern

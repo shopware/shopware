@@ -29,4 +29,4 @@ Connects CMS-capable entities (Product, Category, Landing Page) and domain-scope
 ## Subdirectories
 
 - **Entity/** - Abstract base classes for the assignment side: `AbstractContentLayoutAssignmentEntity` (the assignment-record entity) and `AbstractContentLayoutAssignableDefinition` (the `EntityDefinition` base for assignable entity types, exposing `getPageDataRequirements()`, `getContentLayoutEntityType()`, etc.)
-- **FactoryHelper/** - Shared resolution logic (EntityLayoutResolver, EntityLayoutContextFactory, DomainAwareLayoutResolver, NavigationAliasResolver)
+- **FactoryHelper/** - Shared resolution logic (EntityLayoutResolver, EntityLayoutContextFactory, DomainAwareLayoutResolver, NavigationAliasResolver). `EntityLayoutContextFactory::providedRootContext()` delegates to `Diagnostics/RootContextMapper::map()` on the definition's `getPageDataRequirements()`, and its `buildSpecificationData()` is the assignment-free assembly entry point all three entity sources call from `resolveSpecificationDataForEntity()`.

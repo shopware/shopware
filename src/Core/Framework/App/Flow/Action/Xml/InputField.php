@@ -161,7 +161,7 @@ class InputField extends XmlElement
     }
 
     /**
-     * @return list<array<string, mixed>>
+     * @return list<array{value: string, label: array<string, string>}>
      */
     private static function parseOptions(\DOMElement $element): array
     {
@@ -179,13 +179,11 @@ class InputField extends XmlElement
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{value: string, label: array<string, string>}
      */
     private static function parseOption(\DOMElement $element): array
     {
-        $values = [];
-
-        $values['value'] = $element->getAttribute('value');
+        $values = ['label' => []];
 
         foreach ($element->childNodes as $child) {
             if (!$child instanceof \DOMElement) {
@@ -195,6 +193,6 @@ class InputField extends XmlElement
             $values = XmlParserUtils::mapTranslatedTag($child, $values);
         }
 
-        return $values;
+        return ['value' => $element->getAttribute('value'), 'label' => $values['label']];
     }
 }

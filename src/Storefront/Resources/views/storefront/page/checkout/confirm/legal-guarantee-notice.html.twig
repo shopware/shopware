@@ -1,0 +1,16 @@
+{% block page_checkout_confirm_legal_guarantee_notice_inline_content %}
+    <div id="legalGuaranteeNoticeInline"
+         class="confirm-legal-guarantee-notice confirm-legal-guarantee-notice-inline"
+         role="region"
+         tabindex="-1"
+         aria-label="{{ 'checkout.confirmLegalGuaranteeNoticeLink'|trans|striptags }}">
+        {% block page_checkout_confirm_legal_guarantee_notice_inline_link %}
+            <a href="{{ context.languageId|sw_legal_guarantee_notice_link }}"
+               target="_blank"
+               rel="noopener"
+               aria-label="{{ 'checkout.confirmLegalGuaranteeNoticeLink'|trans|striptags }}">
+                {{ context.languageId|sw_legal_guarantee_notice }}
+            </a>
+        {% endblock %}
+    </div>
+{% endblock %}

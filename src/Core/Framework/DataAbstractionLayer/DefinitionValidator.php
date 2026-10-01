@@ -1206,7 +1206,11 @@ class DefinitionValidator
             return [];
         }
 
-        $ref = $this->getShortClassName($this->registry->get($association->getReferenceDefinition()->getClass()));
+        $reference = $association instanceof ManyToManyAssociationField
+            ? $association->getToManyReferenceDefinition()
+            : $association->getReferenceDefinition();
+
+        $ref = $this->getShortClassName($reference);
         $def = $this->getShortClassName($definition);
 
         $ref = str_replace($def, '', $ref);
@@ -1304,6 +1308,10 @@ class DefinitionValidator
 
     private function getShortClassName(EntityDefinition $definition): string
     {
+        if ($definition instanceof AttributeEntityDefinition) {
+            return lcfirst((string) preg_replace('/^.*\\\\|Entity$/', '', $definition->getEntityClass()));
+        }
+
         return lcfirst((string) preg_replace('/.*\\\\([^\\\\]+)Definition/', '$1', $definition->getClass()));
     }
 
@@ -1461,7 +1469,7 @@ class DefinitionValidator
             return null;
         }
         $referenceVersionFieldForReference = $definition->getFields()
-            ->filter(static fn (Field $field): bool => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition()->getClass() === $reference->getClass());
+            ->filter(static fn (Field $field): bool => $field instanceof ReferenceVersionField && $field->getVersionReferenceDefinition() === $reference);
 
         if (\count($referenceVersionFieldForReference) > 0) {
             return null;

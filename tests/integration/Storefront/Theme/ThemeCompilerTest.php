@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Kernel;
 use Shopware\Core\System\SystemConfig\Service\AppConfigReader;
-use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
+use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -147,7 +147,7 @@ class ThemeCompilerTest extends TestCase
 
     public function testDBException(): void
     {
-        $configService = $this->getConfigurationServiceDbException(
+        $systemConfigDefinitionService = $this->getSystemConfigDefinitionServiceDbException(
             [
                 new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
             ]
@@ -161,7 +161,7 @@ class ThemeCompilerTest extends TestCase
 
         $event = new ThemeCompilerEnrichScssVariablesEvent([], TestDefaults::SALES_CHANNEL, Context::createDefaultContext());
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($systemConfigDefinitionService, $storefrontPluginRegistry);
         $exception = null;
         try {
             $subscriber->enrichExtensionVars($event);
@@ -271,7 +271,7 @@ PHP_EOL;
 }
 PHP_EOL;
 
-        $configService = $this->getConfigurationService(
+        $systemConfigDefinitionService = $this->getSystemConfigDefinitionService(
             [
                 new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
             ]
@@ -283,7 +283,7 @@ PHP_EOL;
             ]
         );
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($systemConfigDefinitionService, $storefrontPluginRegistry);
 
         $this->eventDispatcher->addSubscriber($subscriber);
 
@@ -435,9 +435,9 @@ PHP_EOL;
     /**
      * @param array<int, Plugin> $plugins
      */
-    private function getConfigurationService(array $plugins): ConfigurationService
+    private function getSystemConfigDefinitionService(array $plugins): SystemConfigDefinitionService
     {
-        return new ConfigurationService(
+        return new SystemConfigDefinitionService(
             $plugins,
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
@@ -450,9 +450,9 @@ PHP_EOL;
     /**
      * @param array<int, Plugin> $plugins
      */
-    private function getConfigurationServiceDbException(array $plugins): ConfigurationService
+    private function getSystemConfigDefinitionServiceDbException(array $plugins): SystemConfigDefinitionService
     {
-        return new ConfigurationServiceException(
+        return new SystemConfigDefinitionServiceException(
             $plugins,
             new ConfigReader(),
             static::getContainer()->get(AppConfigReader::class),
@@ -483,7 +483,7 @@ PHP_EOL;
 /**
  * @internal
  */
-class ConfigurationServiceException extends ConfigurationService
+class SystemConfigDefinitionServiceException extends SystemConfigDefinitionService
 {
     /**
      * @throws Exception

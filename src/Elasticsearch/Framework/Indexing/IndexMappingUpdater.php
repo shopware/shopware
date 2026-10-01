@@ -53,7 +53,14 @@ class IndexMappingUpdater
                     'body' => $this->indexMappingProvider->build($definition, $context),
                 ]);
             } catch (BadRequest400Exception $exception) {
-                if (str_contains($exception->getMessage(), 'cannot be changed from type') || str_contains($exception->getMessage(), 'can\'t merge a non object mapping')) {
+                $errorMessage = $exception->getMessage();
+
+                $mapperConflicted = str_contains($errorMessage, 'conflicts with existing mapper:\n\tCannot update parameter');
+                $mapperCannotBeChanged = str_contains($errorMessage, 'cannot be changed from type');
+                $cannotMergeNonObject = str_contains($errorMessage, 'can\'t merge a non object mapping');
+
+                // If one of these errors occur, we need to reindex the entity
+                if ($mapperConflicted || $mapperCannotBeChanged || $cannotMergeNonObject) {
                     $entitiesToReindex[] = $definition->getEntityDefinition()->getEntityName();
 
                     $exception = ElasticsearchProductException::cannotChangeFieldType($exception);

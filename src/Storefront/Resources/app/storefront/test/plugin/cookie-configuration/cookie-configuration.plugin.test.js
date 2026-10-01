@@ -1853,5 +1853,46 @@ describe('CookieConfiguration plugin tests', () => {
 
             expect(logConsentSpy).toHaveBeenCalledWith('accept_selected', ['lorem'], cookieGroups);
         });
+
+        test('_onAccept logs the feature cookie together with the earlier selection', async () => {
+            const groupsWithWishlist = [
+                ...cookieGroups,
+                {
+                    technicalName: 'cookie.groupComfortFeatures',
+                    isRequired: false,
+                    entries: [{ cookie: 'wishlist-enabled' }],
+                },
+            ];
+            global.fetch = jest.fn().mockResolvedValue({
+                json: jest.fn().mockResolvedValue({
+                    hash: 'test-hash',
+                    languageId: 'test-lang-id',
+                    elements: groupsWithWishlist,
+                }),
+            });
+            const logConsentSpy = jest.spyOn(plugin, '_logConsent').mockImplementation(jest.fn());
+            CookieStorage.setItem('lorem', '1', 30);
+
+            await plugin._onAccept('wishlist-enabled');
+
+            // Only the new cookie would record the earlier accepted statistics as rejected
+            expect(logConsentSpy).toHaveBeenCalledWith('accept_selected', ['lorem', 'wishlist-enabled'], groupsWithWishlist);
+            expect(AjaxOffCanvas.close).toHaveBeenCalled();
+
+            CookieStorage.removeItem('lorem');
+            CookieStorage.removeItem('wishlist-enabled');
+        });
+
+        test('_onAccept does not fetch the cookie groups while logging is off', async () => {
+            delete window.router['frontend.cookie.consent.log'];
+            global.fetch = jest.fn();
+
+            await plugin._onAccept('wishlist-enabled');
+
+            expect(global.fetch).not.toHaveBeenCalled();
+            expect(CookieStorage.getItem('wishlist-enabled')).toBe('1');
+
+            CookieStorage.removeItem('wishlist-enabled');
+        });
     });
 });

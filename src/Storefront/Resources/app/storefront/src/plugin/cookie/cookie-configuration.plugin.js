@@ -1137,6 +1137,31 @@ export default class CookieConfiguration extends Plugin {
     _onAccept(cookieName) {
         CookieStorage.setItem(cookieName, '1', this._getDefaultCookieExpiration());
         AjaxOffCanvas.close();
+
+        return this._logFeatureConsent();
+    }
+
+    /**
+     * A feature consent (e.g. for the wishlist) adds one cookie to the visitor's earlier decision,
+     * so the full selection is logged. Logging only the new cookie would record every other group as rejected.
+     *
+     * @private
+     */
+    async _logFeatureConsent() {
+        if (!window.router['frontend.cookie.consent.log']) {
+            return;
+        }
+
+        const data = await this._fetchCookieGroups();
+        if (!data) {
+            return;
+        }
+
+        const acceptedCookies = this._extractAllCookiesFromGroups(data.elements)
+            .filter(({ cookie, isRequired }) => !isRequired && CookieStorage.getItem(cookie))
+            .map(({ cookie }) => cookie);
+
+        this._logConsent('accept_selected', acceptedCookies, data.elements);
     }
 
     /**

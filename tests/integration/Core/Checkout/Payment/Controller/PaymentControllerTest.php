@@ -69,7 +69,10 @@ class PaymentControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->tokenFactory = static::getContainer()->get(JWTFactoryV2::class);
+        if (!Feature::isActive('v6.8.0.0')) {
+            $this->tokenFactory = static::getContainer()->get(JWTFactoryV2::class);
+        }
+
         $this->orderRepository = static::getContainer()->get('order.repository');
         $this->orderTransactionRepository = static::getContainer()->get('order_transaction.repository');
         $this->paymentMethodRepository = static::getContainer()->get('payment_method.repository');

@@ -25,7 +25,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\AclPrivilegeCollection;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\AppEventPolicy;
 use Shopware\Core\Framework\Webhook\Authorization\Policy\PolicyRegistry;
+use Shopware\Core\Framework\Webhook\Authorization\Policy\PrivilegePolicy;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEntityWrittenEvent;
 use Shopware\Core\Framework\Webhook\Hookable\HookableEventFactory;
 use Shopware\Core\Framework\Webhook\Message\WebhookEventMessage;
@@ -299,7 +301,7 @@ class WebhookManagerTest extends TestCase
             ],
         ]);
 
-        $this->prepareWebhook('product.written', true);
+        $this->prepareWebhook('product.written', true, resolvesPrivileges: false);
 
         $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
@@ -531,7 +533,7 @@ class WebhookManagerTest extends TestCase
     /**
      * @param list<string> $acl
      */
-    private function prepareWebhook(string $eventName, bool $onlyLiveVersion = false, array $acl = ['product:read']): Webhook
+    private function prepareWebhook(string $eventName, bool $onlyLiveVersion = false, array $acl = ['product:read'], bool $resolvesPrivileges = true): Webhook
     {
         $webhook = $this->getWebhook($eventName, $onlyLiveVersion);
         static::assertIsString($webhook->appAclRoleId);
@@ -541,6 +543,7 @@ class WebhookManagerTest extends TestCase
             ->willReturn([$webhook]);
 
         $this->webhookLoader
+            ->expects($resolvesPrivileges ? $this->once() : $this->never())
             ->method('getPrivilegesForRoles')
             ->with([$webhook->appAclRoleId])
             ->willReturn([$webhook->appAclRoleId => new AclPrivilegeCollection($acl)]);
@@ -571,7 +574,7 @@ class WebhookManagerTest extends TestCase
             $isAdminWorkerEnabled,
             $deliveryService,
             $this->webhookOutboxStore,
-            new PolicyRegistry([]),
+            new PolicyRegistry([new AppEventPolicy(), new PrivilegePolicy($this->webhookLoader)]),
         );
     }
 

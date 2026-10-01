@@ -10,11 +10,13 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\LineItemInCategoryRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
+use Shopware\Core\Checkout\Cart\Rule\LineItemTagRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Shopware\Core\Test\Stub\Rule\CountingTrueRule;
@@ -305,6 +307,24 @@ class MatchAllLineItemsRuleTest extends TestCase
 
         static::assertTrue($match);
         static::assertSame(2, $condition->matchCount);
+    }
+
+    public function testCustomLineItemPassesNegatedTagRuleForProductAndCustomTypes(): void
+    {
+        $rule = new MatchAllLineItemsRule(
+            [new LineItemTagRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()])],
+            null,
+            [LineItem::PRODUCT_LINE_ITEM_TYPE, LineItem::CUSTOM_LINE_ITEM_TYPE]
+        );
+
+        $match = $rule->match(new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([
+                CartRuleFixture::createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE, 1, 'CUSTOM'),
+            ])),
+            static::createStub(SalesChannelContext::class)
+        ));
+
+        static::assertTrue($match);
     }
 
     public function testRuleConstraints(): void

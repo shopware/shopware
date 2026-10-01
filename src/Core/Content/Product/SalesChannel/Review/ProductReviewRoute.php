@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
+use Shopware\Core\Content\Product\Extension\ProductReviewRouteExtension;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -32,7 +34,8 @@ class ProductReviewRoute extends AbstractProductReviewRoute
     public function __construct(
         private readonly EntityRepository $productReviewRepository,
         private readonly SystemConfigService $systemConfigService,
-        private readonly CacheTagCollector $cacheTagCollector
+        private readonly CacheTagCollector $cacheTagCollector,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -53,6 +56,15 @@ class ProductReviewRoute extends AbstractProductReviewRoute
         defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ProductReviewDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
+    {
+        return $this->extensions->publish(
+            name: ProductReviewRouteExtension::NAME,
+            extension: new ProductReviewRouteExtension($productId, $request, $context, $criteria),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
     {
         $salesChannelId = $context->getSalesChannelId();
         if (!$this->systemConfigService->getBool('core.listing.showReview', $salesChannelId)) {

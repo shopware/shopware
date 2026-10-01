@@ -43,6 +43,8 @@ export default {
             isLoading: false,
             selectedItems: {},
             searchTerm: '',
+            page: 1,
+            limit: 10,
             nestedLineItemsModal: null,
             showDeleteModal: false,
         };
@@ -76,6 +78,12 @@ export default {
 
                 return keyWords.every((key) => targets.some((i) => i.includes(key.toLowerCase())));
             });
+        },
+
+        paginatedLineItems() {
+            const start = (this.page - 1) * this.limit;
+
+            return [...this.orderLineItems].slice(start, start + this.limit);
         },
 
         lineItemIds() {
@@ -294,6 +302,7 @@ export default {
 
         insertLineItem(item) {
             this.order.lineItems.unshift(item);
+            this.page = 1;
 
             this.$nextTick(() => {
                 this.$refs.dataGrid?.onDbClickCell(item);
@@ -331,8 +340,9 @@ export default {
             });
         },
 
-        onDeleteItem(item, itemIndex) {
+        onDeleteItem(item) {
             if (item.isNew()) {
+                const itemIndex = this.order.lineItems.findIndex((lineItem) => lineItem?.id === item.id);
                 this.order.lineItems.splice(itemIndex, 1);
 
                 return;
@@ -362,6 +372,12 @@ export default {
 
         onSearchTermChange(searchTerm) {
             this.searchTerm = searchTerm.toLowerCase();
+            this.page = 1;
+        },
+
+        onPageChange({ page, limit }) {
+            this.page = page;
+            this.limit = limit;
         },
 
         isCreditItem(id) {

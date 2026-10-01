@@ -1,6 +1,10 @@
 {# ludtwig-ignore-file twig-json-encode-escape-js #}
 {% sw_extends '@Storefront/storefront/page/content/page.html.twig' %}
 
+{% block base_body_classes %}
+    {{ parent() }} sw-experience-studio-preview
+{% endblock %}
+
 {% block base_body_script %}
     {{ parent() }}
 

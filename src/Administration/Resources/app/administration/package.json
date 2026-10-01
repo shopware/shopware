@@ -72,6 +72,7 @@
     "ace-builds": "1.37.4",
     "apexcharts": "4.4.0",
     "app-module-path": "2.2.0",
+    "axe-core": "4.10.3",
     "autoprefixer": "10.4.20",
     "axios": "0.31.1",
     "axios-v1": "npm:axios@1.18.1",

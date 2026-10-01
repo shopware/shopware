@@ -85,6 +85,24 @@
                 />
             </button>
 
+            <button
+                v-if="elementAccessibilityViolations.length > 0"
+                v-tooltip="{
+                    message: $t('sw-experience-studio.detail.sidebarTree.accessibility'),
+                }"
+                class="sw-experience-studio-sidebar-tree-node__action sw-experience-studio-sidebar-tree-node__action--accessibility"
+                type="button"
+                :aria-label="$t('sw-experience-studio.detail.sidebarTree.accessibility')"
+                @mousedown="preventDrag"
+                @touchstart="preventDrag"
+                @click.stop="onOpenAccessibilityModal"
+            >
+                <mt-icon
+                    name="regular-universal-access"
+                    size="16px"
+                />
+            </button>
+
         </div>
         {% endblock %}
     </div>
@@ -148,11 +166,13 @@
                         :parent-element-id="contentElement.id"
                         :parent-slot-name="slot.name"
                         :index-in-parent="childIndex"
+                        :accessibility-violations="accessibilityViolations"
                         @select-element="$emit('select-element', $event)"
                         @add-element="$emit('add-element', $event)"
                         @duplicate-element="$emit('duplicate-element', $event)"
                         @delete-element="$emit('delete-element', $event)"
                         @move-element="$emit('move-element', $event)"
+                        @accessibility-fix-apply="$emit('accessibility-fix-apply', $event)"
                     />
                 </div>
                 <div
@@ -163,6 +183,98 @@
             </div>
         </template>
     </div>
+    {% endblock %}
+
+    {% block sw_experience_studio_sidebar_tree_node_accessibility_modal %}
+    <sw-modal
+        v-if="showAccessibilityModal"
+        class="sw-experience-studio-sidebar-tree-node__accessibility-modal"
+        :title="$t('sw-experience-studio.detail.sidebarTree.accessibility')"
+        @modal-close="onCloseAccessibilityModal"
+    >
+        <p>
+            {{ $t('sw-experience-studio.detail.toolbar.accessibilityModal.issuesFound', {
+                count: elementAccessibilityViolations.length,
+            }) }}
+        </p>
+
+        <ul class="sw-experience-studio-sidebar-tree-node__violations">
+            <li
+                v-for="violation in elementAccessibilityViolations"
+                class="sw-experience-studio-sidebar-tree-node__violation"
+                :data-impact="violation.impact || 'unknown'"
+                :key="violation.id"
+            >
+                <div class="sw-experience-studio-sidebar-tree-node__violation-header">
+                    <strong>{{ violation.help }}</strong>
+                    <span class="sw-experience-studio-sidebar-tree-node__impact">
+                        {{ violation.impact || 'unknown' }}
+                    </span>
+                </div>
+                <p class="sw-experience-studio-sidebar-tree-node__violation-description">
+                    {{ violation.description }}
+                </p>
+                <p class="sw-experience-studio-sidebar-tree-node__violation-meta">
+                    {{ $t('sw-experience-studio.detail.toolbar.accessibilityModal.affectedNodes', {
+                        count: violation.nodes.length,
+                    }) }}
+                </p>
+                <a
+                    class="sw-experience-studio-sidebar-tree-node__violation-link"
+                    :href="violation.helpUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    {{ $t('sw-experience-studio.detail.toolbar.accessibilityModal.learnMore') }}
+                </a>
+            </li>
+        </ul>
+
+        <p v-if="accessibilityFixError">
+            {{ $t(accessibilityFixError) }}
+        </p>
+
+        <template v-if="accessibilityFixProposal">
+            <h3>{{ $t('sw-experience-studio.detail.sidebarTree.accessibilityFixProposal') }}</h3>
+            <p>{{ accessibilityFixProposal.summary }}</p>
+            <ul class="sw-experience-studio-sidebar-tree-node__proposal-operations">
+                <li
+                    v-for="operation in accessibilityFixProposal.operations"
+                    :key="`${operation.type}-${operation.path}`"
+                >
+                    {{ operation.type }}: {{ operation.path }}
+                    ({{ formatAccessibilityFixValue(getAccessibilityFixCurrentValue(operation)) }} →
+                    {{ formatAccessibilityFixValue(operation.value) }})
+                </li>
+            </ul>
+        </template>
+
+        <template #modal-footer>
+            <mt-button
+                v-if="accessibilityFixProposal"
+                variant="secondary"
+                @click="onCancelAccessibilityFix"
+            >
+                {{ $t('global.default.cancel') }}
+            </mt-button>
+            <mt-button
+                v-if="!accessibilityFixProposal"
+                variant="secondary"
+                :is-loading="isAccessibilityFixLoading"
+                :disabled="!allowEdit || isAccessibilityFixLoading || undefined"
+                @click="onRequestAccessibilityFix"
+            >
+                {{ $t('sw-experience-studio.detail.sidebarTree.accessibilityFix') }}
+            </mt-button>
+            <mt-button
+                v-else-if="accessibilityFixProposal.operations.length > 0"
+                variant="primary"
+                @click="onApplyAccessibilityFix"
+            >
+                {{ $t('sw-experience-studio.detail.sidebarTree.accessibilityFixApply') }}
+            </mt-button>
+        </template>
+    </sw-modal>
     {% endblock %}
 </div>
 {% endblock %}

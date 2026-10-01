@@ -96,6 +96,93 @@
         }
     }
 
+    &__accessibility-action {
+        position: relative;
+        overflow: visible;
+    }
+
+    &__accessibility-badge {
+        position: absolute;
+        top: -6px;
+        right: -6px;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    &__accessibility-violations {
+        display: grid;
+        gap: 12px;
+        margin: 16px 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    &__accessibility-violation {
+        --a11y-impact-color: #64748b;
+
+        padding: 14px 16px;
+        border: 1px solid var(--color-border-primary-default);
+        border-left: 3px solid var(--a11y-impact-color);
+        border-radius: 4px;
+        background: var(--color-background-secondary-default);
+
+        &[data-impact='critical'] {
+            --a11y-impact-color: var(--color-text-critical-default);
+        }
+
+        &[data-impact='serious'] {
+            --a11y-impact-color: #d97706;
+        }
+
+        &[data-impact='moderate'] {
+            --a11y-impact-color: #ca8a04;
+        }
+
+        &[data-impact='minor'] {
+            --a11y-impact-color: #2563eb;
+        }
+
+        &[data-impact='unknown'] {
+            --a11y-impact-color: var(--color-text-secondary-default);
+        }
+    }
+
+    &__accessibility-violation-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--color-text-primary-default);
+    }
+
+    &__accessibility-impact {
+        flex-shrink: 0;
+        padding: 3px 7px;
+        border: 1px solid var(--a11y-impact-color);
+        border-radius: 10px;
+        color: var(--a11y-impact-color);
+        font-size: var(--font-size-xxs);
+        font-weight: var(--font-weight-semi-bold);
+        line-height: 1;
+        text-transform: uppercase;
+    }
+
+    &__accessibility-violation-description {
+        margin: 8px 0;
+        color: var(--color-text-secondary-default);
+        line-height: 1.45;
+    }
+
+    &__accessibility-violation-meta {
+        margin: 0 0 8px;
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xxs);
+    }
+
+    &__accessibility-violation-link {
+        font-size: var(--font-size-xxs);
+    }
+
     &__sales-channel-field {
         display: flex;
         flex-shrink: 0;

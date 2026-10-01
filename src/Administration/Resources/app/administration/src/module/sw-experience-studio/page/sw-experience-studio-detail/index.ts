@@ -12,6 +12,9 @@ import type { ContentSystemLayoutPreset } from 'src/core/service/api/content-sys
 import type { ExperienceStudioElementTypeStore } from 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
 import type { ExperienceStudioLayoutPresetStore } from 'src/module/sw-experience-studio/store/experience-studio-layout-preset.store';
 import type { ExperienceStudioStyleOptionStore } from 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
+import type { AccessibilityViolation } from '../../util/accessibility.types';
+import type { AccessibilityFixOperation } from '../../util/accessibility-fix.types';
+import { applyAccessibilityFixOperations } from '../../util/accessibility-fix.util';
 
 import type { ContentElementNode } from 'src/core/service/content-element.types';
 import { getStorefrontSalesChannelCriteria } from 'src/module/sw-experience-studio/util/sales-channel-criteria.util';
@@ -137,6 +140,8 @@ export default Shopware.Component.wrapComponentConfig({
         layoutTypeLoadError: string | null;
         createWizardName: string;
         createWizardSelectedType: string | null;
+        previewRefreshSequence: number;
+        accessibilityViolations: AccessibilityViolation[];
     } {
         return {
             layout: null,
@@ -158,6 +163,8 @@ export default Shopware.Component.wrapComponentConfig({
             layoutTypeLoadError: null,
             createWizardName: '',
             createWizardSelectedType: null,
+            previewRefreshSequence: 0,
+            accessibilityViolations: [],
         };
     },
 
@@ -375,6 +382,18 @@ export default Shopware.Component.wrapComponentConfig({
 
         onViewportChange(viewport: Viewport): void {
             this.currentViewport = viewport;
+        },
+
+        onPreviewFrameLoad(): void {
+            this.previewRefreshSequence += 1;
+        },
+
+        onAccessibilityScanResults(violations: AccessibilityViolation[]): void {
+            this.accessibilityViolations = violations;
+        },
+
+        onAccessibilityFixApply(operations: AccessibilityFixOperation[]): void {
+            this.applyLayoutMutation((layout) => applyAccessibilityFixOperations(layout, operations) ? {} : false);
         },
 
         async loadDefaultPreviewSalesChannel(): Promise<void> {

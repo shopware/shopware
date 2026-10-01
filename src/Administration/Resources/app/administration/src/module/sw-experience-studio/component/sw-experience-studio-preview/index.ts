@@ -43,6 +43,7 @@ export default Shopware.Component.wrapComponentConfig({
         'inline-edit-change',
         'inline-edit-commit',
         'inline-edit-cancel',
+        'preview-frame-load',
     ],
 
     props: {
@@ -185,6 +186,12 @@ export default Shopware.Component.wrapComponentConfig({
         suspendAutoReload(nextValue: boolean, previousValue: boolean) {
             if (previousValue && !nextValue) {
                 this.debouncedLoadPreview?.();
+            }
+        },
+
+        activeFrame(nextFrame: 'a' | 'b' | null, previousFrame: 'a' | 'b' | null) {
+            if (nextFrame && nextFrame !== previousFrame) {
+                this.$emit('preview-frame-load');
             }
         },
     },

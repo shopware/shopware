@@ -92,16 +92,11 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
      * The route is anonymous and every accepted request inserts a row, so the number of
      * decisions a single client can write has to be capped. Checked before the payload is
      * parsed, so malformed requests count against the limit too. The IP is only the limiter
-     * key, it is never stored with the decision.
+     * key, it is never stored with the decision. Requests without a client IP share one limit.
      */
     private function ensureNotRateLimited(Request $request): void
     {
-        $clientIp = $request->getClientIp();
-        if ($clientIp === null) {
-            return;
-        }
-
-        $this->rateLimiter->ensureAccepted(RateLimiter::COOKIE_CONSENT_LOG, $clientIp);
+        $this->rateLimiter->ensureAccepted(RateLimiter::COOKIE_CONSENT_LOG, (string) $request->getClientIp());
     }
 
     /**

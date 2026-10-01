@@ -289,11 +289,13 @@ class CookieConsentLogRouteTest extends TestCase
         $this->route->log($request, Generator::generateSalesChannelContext());
     }
 
-    public function testARequestWithoutAClientIpIsNotRateLimited(): void
+    public function testRequestsWithoutAClientIpShareOneRateLimit(): void
     {
-        // The limiter is keyed by IP only, so a request without one cannot be attributed
+        // Without a client IP there is no key per client, but the limit must not be skipped
         $rateLimiter = $this->createMock(RateLimiter::class);
-        $rateLimiter->expects($this->never())->method('ensureAccepted');
+        $rateLimiter->expects($this->once())
+            ->method('ensureAccepted')
+            ->with(RateLimiter::COOKIE_CONSENT_LOG, '');
 
         $response = $this->createRoute($rateLimiter)->log($this->request(['consentAction' => 'accept_all']), Generator::generateSalesChannelContext());
 

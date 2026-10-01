@@ -20,6 +20,11 @@ General styling for cms sections
     .full-width {
         @include make-container();
         --#{$prefix}gutter-x: 0;
+
+        // Prevent gutter mismatch between .full-width and .cms-block-container-row
+        .cms-block-container-row {
+            --#{$prefix}gutter-x: 0;
+        }
     }
 
     .cms-section-sidebar {

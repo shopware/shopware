@@ -15,6 +15,7 @@ import ruleContainerMixin from 'shopware:mixins/ruleContainer';
 import useNotificationStore from 'shopware:stores/notification';
 import useSystemStore from 'shopware:stores/system';
 import composables, { useListing } from 'shopware:composables';
+import useListingDefault from 'shopware:composables/useListing';
 import directUseListing from 'src/app/composables/use-listing';
 
 describe('shopware:* virtual modules', () => {
@@ -46,6 +47,10 @@ describe('shopware:* virtual modules', () => {
 
         it('export a DAL class as default', () => {
             expect(CriteriaClass).toBe(Shopware.Data.Criteria);
+        });
+
+        it('export a composable as default', () => {
+            expect(useListingDefault).toBe(directUseListing);
         });
 
         it('export a registered mixin as default', () => {

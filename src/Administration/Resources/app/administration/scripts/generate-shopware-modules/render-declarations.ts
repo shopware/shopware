@@ -58,15 +58,17 @@ function namedExports(value: string, names: string[]): string[] {
 }
 
 /** A subpath of a branch that is itself an object, e.g. `shopware:utils/debug`. */
-function branchSubpath(specifier: string, branchModule: string, key: string, exports: string[]): string {
-    return block(specifier, [
+function branchSubpath(specifier: string, branchModule: string, key: string, exports: string[], stability?: string): string {
+    const body = [
         `import type branch from '${branchModule}';`,
         '',
         `const member: (typeof branch)['${key}'];`,
         '',
         'export default member;',
         ...namedExports('member', exports),
-    ]);
+    ];
+
+    return block(specifier, body, stability);
 }
 
 /** The root import of a branch, e.g. `shopware:utils`, which publishes the whole branch and its members. */
@@ -118,6 +120,15 @@ export function renderDeclarations(registry: ModuleRegistry): string {
             registry['shopware:composables'].exports,
             COMPOSABLES_EXPERIMENTAL,
         ),
+    );
+    Object.entries(registry['shopware:composables'].subpaths).forEach(
+        ([
+            key,
+            exports,
+        ]) =>
+            blocks.push(
+                branchSubpath(`shopware:composables/${key}`, COMPOSABLES_MODULE, key, exports, COMPOSABLES_EXPERIMENTAL),
+            ),
     );
 
     Object.keys(registry['shopware:mixins'].subpaths).forEach((key) =>

@@ -1,0 +1,96 @@
+# Failure and loss
+
+The rules in this area apply across the module and govern how it handles a defect and content that an operation cannot keep. The model is fail fast at the point of origin, with one closed code set for client defects.
+
+## A component throws where it meets invalid data, and nothing degrades silently
+
+Every component fails fast on invalid, unrepresentable or misconfigured data, at the point where it meets that data. No component skips, coerces or swallows invalid, unrepresentable or misconfigured data. No path degrades into an output that looks like a valid result. No change loosens a value-domain check to make a suite pass.
+
+Why: A skipped defect surfaces far from its cause, as a state that no write could produce. A degraded result that looks valid cannot be told from a correct one, so no caller can react to it.
+
+Not chosen: Skipping, coercing or falling back.
+
+Exceptions: A data loader degrades to a not-found result on a collaborator's HTTP exception, under the [degradation rule](data-loading.md#a-loader-degrades-on-a-named-domain-outcome-and-lets-every-other-fault-propagate), or on an entity id that `Uuid::isValid()` rejects, so that an unsubstituted placeholder never reaches an id parser. Each database registry loader skips and logs a malformed row under the [build-time rule](#a-declaration-or-registration-defect-fails-the-build-or-the-load-never-a-request). The attribution reconciler drops a diverged attribution, as [extension-surface.md](extension-surface.md#an-app-shipped-declaration-is-validated-and-reconciled-by-the-module-never-trusted-or-patched) states. The type declaration reader reads the `meta`, `properties` and `slots` keys only and ignores every other top-level key.
+
+In code:
+
+- `RenderedElement` admits a scalar, null, an array of those, a `Struct`, a `\DateTimeInterface` or a `\BackedEnum` as a property value and throws `unsupportedPropertyValueType()` on anything else.
+- `SlicedDistributionConfig` rejects a slice size below 1 instead of clamping it.
+- `ResolvedValueIndexEncoder` throws on a missing index, because an empty map would look like a page whose elements resolved nothing.
+- `RenderedElementTest`, `SlicedDistributionConfigTest` and `ResolvedValueIndexEncoderTest` pin the allowlist, the rejection and the throw.
+- See [DataLoader/README.md](../../Hydration/DataLoader/README.md#degradation-boundary).
+
+## A declaration or registration defect fails the build or the load, never a request
+
+The registry load fails fast on a property-key collision, on `resolvedBy` on a primitive or on `enum` on a non-primitive. The container build fails fast on a loader with no config serializer, on an abstract loader class, on an unparseable `@extends` or on a duplicate source. Decoration is the only way to replace a data loader, and registration order never replaces one. Install and update of an app fail on a malformed row, as [extension-surface.md](extension-surface.md#an-app-shipped-declaration-is-validated-and-reconciled-by-the-module-never-trusted-or-patched) states. The production load skips and logs a malformed persisted row. It never invents a name for a malformed persisted row.
+
+Why: A request-time defect surfaces far from its cause. The registry splits when one loader rejects a row and another loader skips and logs the same row. A persisted row can drift after install, for example when a dependency is deactivated, so the production load skips it instead of failing every request.
+
+Not chosen: Validation at request time.
+
+In code:
+
+- `YamlTypeLoader`, `DefaultBindingSpecificationSynthesizer` and `ContentSystemDataLoaderCompilerPass` enforce the load and build failures.
+- `DefaultBindingSpecificationSynthesizerTest` and `ContentSystemDataLoaderCompilerPassTest` pin those failures.
+- See [architecture.md](../../Layout/Type/docs/architecture.md).
+
+## The module drops nothing silently and reports every loss
+
+The mutation response returns a detached child as orphaned and names every dropped property and every dropped wiring key. The server answers an undeclared field with a 400. It answers a request affordance that the route does not support with a 400. It strips neither. A request DTO accepts no extra attributes. An editor that reads the orphaned child and the dropped names from the mutation response can offer re-placement, undo or confirmation. An editor that discards them promotes silent loss.
+
+Why: A client that cannot tell applied state from ignored state builds on the ignored state. To the author, a loss that the client hides looks unreported.
+
+Not chosen: Stripping an undeclared field and saving the rest, or an editor that reads only the convenient response channels.
+
+Exceptions: A whole-subtree remove reports no orphans, because the removal is itself the request.
+
+In code:
+
+- `MutationResponse` carries `LayoutMutation::orphaned()`, `droppedWiring()` and `droppedProperties()`.
+- `ContentRoute` and `UnknownRequestFieldExceptionListener` produce the 400s.
+- `MutationResponseTest`, `ContentRouteTest` and `UnknownRequestFieldExceptionListenerTest` pin the loss reports and the 400s.
+- See [mutation-response.md](../../Api/docs/mutation-response.md).
+
+## The cause of a defect sets its classification, and HTTP status is a separate axis
+
+A code that a client can cause is a client defect, and `CLIENT_DEFECT_CODES` lists it. A defect whose only possible cause is data bypassing the write gate is an internal fault, and `CLIENT_DEFECT_CODES` does not list it. The module never repairs an internal fault. The route or serializer that meets a defect sets the HTTP status of that defect on its own path. A persisted-row defect keeps one HTTP status on every path that meets it. A mutation payload defect reaches the client as a 400 with a code and a detail, never as a 500 or a silent save.
+
+| Path that meets a defect in an id or in a layout | HTTP status or behaviour |
+|---|---|
+| DAL write | 400 |
+| Strict draft decode | throws |
+| Diagnose | reports a violation |
+| Stored-column read | 500 |
+
+Why: A status derived from `CLIENT_DEFECT_CODES` would make a read of stored corruption a 400 that marks the client as the cause.
+
+Not chosen: One axis that sets both the HTTP status and the client-defect mark, or a status that a generic catch site sets for every path.
+
+Exceptions: `CLIENT_DEFECT_CODES` lists neither the mutation structural 400s nor the field-selection 400. A mutation payload that its request object rejects is a 400 without an error code.
+
+In code:
+
+- `StoredElementListFieldSerializer` wraps module exceptions at the write boundary as 400s.
+- `DraftLayoutDecoder` and `LayoutDiagnostics` read `isClientDefect()`.
+- `DraftLayoutDecoder::decode()` remaps a client defect to `invalidLayoutStructure`.
+- `UnknownRequestFieldExceptionListener` remaps an unknown field to `unknownRequestField`.
+- `ContentSystemExceptionTest`, `StoredElementListFieldSerializerTest` and `DraftLayoutDecoderTest` pin the 400 wrapping, the client-defect reads and the remap in the decoder.
+- [mutation-errors.md](../../Api/docs/mutation-errors.md) lists each mutation error with its status and code.
+- See [client-defect-codes.md](../client-defect-codes.md).
+
+## One exception class holds a closed, pinned set of client-defect codes
+
+Each code has one factory that new callers reuse. The module has one exception class, and its `CLIENT_DEFECT_CODES` is the one list of codes that mark a client defect. `CLIENT_DEFECT_CODES` is a public constant that only grows. A test pins its exact membership. A new code enters four places in one change: the constant, the pinned list, the documentation and the administration's own enumeration of the codes it acts on. The administration's `structuralErrorCodes` lists the structural codes of the mutation operations. A change that adds a structural code of a mutation operation extends that list and [mutation-errors.md](../../Api/docs/mutation-errors.md) together. A changed value in `CLIENT_DEFECT_CODES` is a compatibility break to report. A rejection about an element carries that element's id.
+
+Why: A client acts on codes. A server code that is missing from the client's table is a silent 400. Parallel codes split what a cross-cutting reader treats as one condition. A rejection without the element id sends the editor searching.
+
+Not chosen: An open code space whose unknown codes a client ignores, or an exception class, a catalogue or a code per feature or per call site.
+
+Exceptions: `unknownStyleBreakpoint()` and `invalidLoaderConfig()` each reuse the code of another factory. `unknownStyleBreakpoint()` reuses its code by documented design. The codec throws the wiring factories that the render step also throws, without an element id.
+
+In code:
+
+- `ContentSystemException` holds the catalogue.
+- The administration's `structuralErrorCodes` lists the mutation error codes that it maps to a message.
+- `ContentSystemExceptionTest` pins `ContentSystemException::CLIENT_DEFECT_CODES` as literal wire strings.
+- See [client-defect-codes.md](../client-defect-codes.md).

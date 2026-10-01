@@ -47,7 +47,7 @@ Response:
 
 ## `storageSchema`
 
-`properties` publishes the *hydrated* output schema: what a rendered element of this type carries. `storageSchema` publishes the other half, what an element of this type **stores**, keyed by stored key. A client reads it instead of deriving storage keys from binding-specification internals itself. Derived per type by `Layout/Type/StoredSchemaResolver`; encodes as `{}` for a type that stores nothing.
+`properties` publishes the *hydrated* output schema: what a rendered element of this type carries. `storageSchema` publishes the other half, what an element of this type **stores**, keyed by stored key. Derived per type by `Layout/Type/StoredSchemaResolver`; encodes as `{}` for a type that stores nothing. See [The Admin API exchanges `StoredElement`](../../../docs/principles/wire-contract.md#the-admin-api-exchanges-storedelement).
 
 Each entry is `{ kind, type, required }` plus an optional `default`, and `kind` says where the key comes from:
 

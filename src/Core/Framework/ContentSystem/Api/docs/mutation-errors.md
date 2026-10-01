@@ -22,3 +22,5 @@ A resolvability problem (an unresolved required property, a broken context chain
 | Collective validation fails or a per-file/per-row load step raises the matching `*_LOAD_FAILED` code for an element-type, style-option, or binding registry used by the operation | 500 | The corresponding `ELEMENT_TYPE_LOAD_FAILED`, `STYLE_OPTION_LOAD_FAILED`, or `BINDING_SPECIFICATION_LOAD_FAILED` error propagates |
 
 Runtime definition failures also include invalid filenames and binding canonicalization/type errors (500 with their specific codes). Preset-loading operations additionally expose preset load and validation errors. See [definition-load errors](../../docs/definition-load-errors.md) for the code/status mapping and app-install distinction.
+
+The mutation-structural codes above — `mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType` — are not client defects; see [Client-Defect Error Codes](../../docs/client-defect-codes.md).

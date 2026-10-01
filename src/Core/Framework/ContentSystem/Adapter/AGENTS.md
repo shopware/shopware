@@ -2,6 +2,10 @@
 > directory. The references and constraints below cover most code changes; read
 > the README when you need the mental model.
 
+## Navigation
+
+- Why these constraints hold, and what was not chosen: [data-loading.md](../docs/principles/data-loading.md)
+
 ## Source Code References
 
 - `RootSourceRegistry` - The single authority over the valid root-source set: `knownRootSources()` (entity types + section keys + `none`, excludes `main`), `entityRootSources()` (the subset backing `content-system-entity-types.json`), `resolve(rootSource, Context): list<ProvidedContext>`, `sourceFor(rootSource)`. `resolve()` fails hard on an unknown id, so callers gate membership first; the entity-type list is baked in at build time by `ContentLayoutAssignableCompilerPass`
@@ -23,3 +27,4 @@
 - Entity query: `WHERE entity_id = X AND (sales_channel_id = Y OR IS NULL) ORDER BY sales_channel_id DESC LIMIT 1`
 - Entity default: when the entity query finds nothing, `EntityLayoutContextFactory::resolveLayoutId()` falls back to the system config key from `AbstractContentLayoutAssignableDefinition::getContentLayoutDefaultConfigKey()` (read for the sales channel, so the channel value overrides the global one); `null` for landing pages, so they have no default. See [docs/entity-rendering.md](docs/entity-rendering.md#default-layout)
 - Header/footer query: `WHERE (domain_id = X AND sales_channel_id = Y) OR (domain_id IS NULL AND sales_channel_id = Y) OR (domain_id IS NULL AND sales_channel_id IS NULL) ORDER BY domain_id DESC, sales_channel_id DESC LIMIT 1`. Three explicit tiers (domain+channel, then channel, then global); there is NO domain-only tier (`domain_id = X AND sales_channel_id IS NULL` never matches)
+- Never let a request parameter choose the entity a loader targets or the property it reads. A per-request value reaches a loader only through a declared property. Check: can a query parameter named like the entity id field replace the server-derived placeholder value?

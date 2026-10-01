@@ -3,7 +3,7 @@
 `ContextConsumerMirror` is the creation-time step `MutationPipeline` runs after the diagnostics pass. It mirrors
 onto the created elements the `acceptsContext` consumers their own resolutions already prove, and nothing else. It
 is `@internal`, `#[Package('framework')]` like everything else here, and absent from `InternalClassRule`'s
-public-surface allowlist. Only the draft pipeline calls it, so a persisted mutation commits without mirrored wiring.
+public-surface allowlist.
 
 `apply(StoredTree $tree, array $resolutions, array $createdElementIds): StoredTree`.
 
@@ -56,10 +56,5 @@ parent-rebuilding recursion over `StoredElement::$slots`, because `StoredTree::l
 Writing no consumer returns the input `StoredTree` instance itself, which is what the pipeline's re-analysis gate
 reads.
 
-Restricting mirroring to `created()` is what makes an explicit unwiring durable: the ambient offer that proved the
-reference does not go away, so mirroring on a non-creating mutation would write back in the same response the
-consumer that was just removed. That durability holds through every mutation except one: `ReplaceElement`
-re-scaffolds the target element under the same id, which counts as `created()` (see
-[replace-element.md](replace-element.md)), so mirroring re-applies to it and restores every consumer the node's own
-resolutions still prove, including one an explicit unwiring had just removed. That is wanted: a type swap is a
-fresh scaffold, and the removal applied to the old node, not the new one.
+`ReplaceElement` re-scaffolds the target element under the same id, which counts as `created()` (see
+[replace-element.md](replace-element.md)). See [The draft pipeline writes derived wiring only where proved](../../docs/principles/mutation.md#the-draft-pipeline-writes-derived-wiring-only-where-proved).

@@ -4,11 +4,11 @@ Which of the two element models a class is about is the sharpest subject distinc
 
 There is no unprefixed element subject: a name saying only "element" leaves the reader unable to tell which of the two contracts below applies, which is exactly the ambiguity the prefixes exist to remove.
 
-**`Stored*`** is the storage, authoring, validation, mutation and admin-exchange side. It carries `dataRequirements`, context wiring (`contextDefinitions`) and `attributedSpecifications`, and its property values are wrapped in a value object, never raw and never a hydrated object. That wrapping makes "a loaded entity sitting in storage" a type error rather than a runtime check.
+**`Stored*`** is the storage, authoring, validation, mutation and admin-exchange side. It carries `dataRequirements`, context wiring (`contextDefinitions`) and `attributedSpecifications`, and its property values are wrapped in a value object.
 
-**`Rendered*`** is the render-time and Store-API-response side. It carries `id`, `component`, a flat `properties` map, `slots` and `style`, and its property values are raw PHP values, hydrated entities included. No data requirements, no wiring, no attribution: those authoring concerns finish their work before anything renders.
+**`Rendered*`** is the render-time and Store-API-response side. It carries `id`, `component`, a flat `properties` map, `slots` and `style`, and its property values are raw PHP values, hydrated entities included. No data requirements, no wiring, no attribution.
 
-Exclusivity holds only for the discriminating members: `dataRequirements`, `contextDefinitions` and `attributedSpecifications` on `Stored*`, and raw, unwrapped property values on `Rendered*`. `id`, `component`, `slots` and `style` are shared by both. Wiring on a `Rendered*` subject, or a hydrated value inside a `Stored*` property, is not an extension of the model, it is a name that has stopped being true.
+Exclusivity holds only for the discriminating members: `dataRequirements`, `contextDefinitions` and `attributedSpecifications` on `Stored*`, and raw, unwrapped property values on `Rendered*`. `id`, `component`, `slots` and `style` are shared by both.
 
 ## Where each subject belongs
 

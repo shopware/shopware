@@ -51,4 +51,4 @@ final class ProductDetailLoader extends AbstractContentDataLoader
 }
 ```
 
-Catch `ShopwareHttpException`, the single covering ancestor, never an enumerated union of the classes the chain appears to throw. Classes outside the boundary (`\TypeError`, `\JsonException`, Doctrine DBAL exceptions) propagate by design: degrading them blanks the element and hides a loader defect.
+See [A loader degrades on a named domain outcome and lets every other fault propagate](../../../docs/principles/data-loading.md#a-loader-degrades-on-a-named-domain-outcome-and-lets-every-other-fault-propagate).

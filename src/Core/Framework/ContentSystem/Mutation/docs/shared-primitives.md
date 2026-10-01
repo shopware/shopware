@@ -14,7 +14,7 @@ and the ops call them there.
 - `storedDefaults(AbstractContentSystemElementTypeRegistry $registry, string $type): array<string, StoredValue>` -
   the type's defaults keyed by property key and wrapped for storage. Delegates to the single per-type rule
   `Layout/Type/StoredDefaultProvider::forType`, shared with `scaffoldElement`, `Op/ReplaceElement`, and the
-  write-boundary `Layout/LayoutDefaultSeeder`, so a type's stored defaults are defined once.
+  write-boundary `Layout/LayoutDefaultSeeder`.
 - `requireRegistered(registry, string $type): void` - throws `ContentSystemException::mutationUnknownType` when the
   type is unregistered.
 - `resolveDefaultSpecification(bindingRegistry, string $type): ?BindingSpecification` - the type's default binding

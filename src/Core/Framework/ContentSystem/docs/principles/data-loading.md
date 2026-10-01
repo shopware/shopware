@@ -1,0 +1,82 @@
+# Data loading
+
+Data loading turns an element's data requirements into loaded values and publishes the loader configuration that an authoring client needs. The model is a loader as a consumer of typed inputs that take their final form at write time and that introspection publishes.
+
+## A loader degrades on a named domain outcome and lets every other fault propagate
+
+Each loader degrades gracefully behind a narrow catch. The loader wraps the collaborator call it delegates to and catches `ShopwareHttpException` there. On that catch, it returns `ContentDataLoaderResult::notFound()`. Every other fault, an infrastructure fault or a type error among them, propagates. Each loader's own call chain determines what the loader wraps and whether its degradation is whole or partial.
+
+Why: A collaborator throws for ordinary domain reasons, such as a deleted category. When an exception reaches `StorefrontController::loadContentPage()`, that controller catches every `\Exception` and renders the page without its layout. A blanket catch hides the outage that a shop needs to see and blanks an element where a loader defect needs an error report.
+
+Not chosen: A loader that throws on every failure, which turns one failing element into a page without its layout. Catching everything in a loader. One central wrapper for all loaders, which cannot give each loader its own code after the call, its own whole-or-partial handling and its own catch scope.
+
+Exceptions: `EntityCollectionLoader::emptyCollectionResult()` maps an absent or empty id list to an empty collection, not to not-found.
+
+In code:
+
+- Every built-in loader, `EntityLoader::load()` among them, contains `catch (ShopwareHttpException)`.
+- `EntityLoaderTest` pins the rule.
+- See [Hydration/DataLoader/README.md](../../Hydration/DataLoader/README.md#degradation-boundary).
+
+```text
+repository throws   UuidException::invalidUuid('not-a-uuid'), a ShopwareHttpException
+load() returns      ContentDataLoaderResult::notFound(), data null
+repository throws   \TypeError('Argument #1 ($criteria) must be of type Criteria, null given')
+load() throws       the same \TypeError instance, unmodified
+```
+
+## A loader consumes typed inputs resolved from its own declared specification
+
+Loader configuration follows the principle known as parse, do not validate. A loader declares its configuration in `configSpecification()`. It reads every input off the `LoaderInputs` that `LoaderInputResolver` resolves from that declaration, never off the element or a stored value. A static default lives in the key's `ConfigKeySpecification`, never in `load()`. `LoaderInputResolver` applies that default centrally. `LoaderInputResolver` owns the presence and type guards. The loader owns the check for domain emptiness.
+
+Why: A loader that reads the element makes every stored key a contract. A default written in the body of `load()` drifts from the published schema.
+
+Not chosen: A `load()` that reads configuration and properties off the stored element.
+
+Exceptions: A loader declares a sales-channel fallback, such as navigation depth, without a default. The loader applies the fallback in `load()`.
+
+In code:
+
+- `AbstractContentDataLoader::load()` receives the resolved `LoaderInputs`.
+- `LoaderInputResolver::resolve()` resolves the inputs and applies each static default.
+- `ContentSystemDataLoaderCompilerPass` dry-runs every `configSpecification()` at build time.
+- `LoaderInputResolverTest` pins the rule.
+- See [custom-loaders.md](../../Hydration/DataLoader/docs/custom-loaders.md).
+
+## Loader configuration takes its final form at write time, and no request selects what loads
+
+No render-time step substitutes or overrides any part of the loader configuration. At bind time, `resolvedBy` becomes a stored data requirement, and a config reference names a fixed, gate-validated stored property. A per-request value must reach loader inputs only through a declared property. No request parameter may select or override which entity a loader loads or which property the loader reads.
+
+Why: A request that picks a loader's target bypasses every gate that certified the layout. Removing the request's ability to pick that target is cheaper than guarding each case.
+
+Not chosen: Loader configuration that the module resolves or picks per request.
+
+In code:
+
+- `BindingApplicator::apply()` writes a typed `DataRequirement`.
+- `TypeConsistentBindingSpecificationValidator` checks property references.
+- `StoredTreePreparer` substitutes property strings only.
+- `BindingApplicatorTest` pins the rule.
+- See [applying.md](../../Binding/docs/applying.md).
+
+## An authoring client reads loader configuration through introspection and never parses it
+
+The introspection endpoints exist so that an authoring client never parses loader configuration or hardcodes root context. The client reads config keys, capabilities, stored keys and each root source's context from the introspection endpoints. A branched loader configuration publishes one flat union, which loses precision but still spares the client from parsing loader configuration. The published union marks a branched key as required only when every branch that declares the key requires it.
+
+Why: A client that parses loader configuration depends on every loader's config grammar.
+
+Not chosen: Clients that parse loader configuration for exact per-root-source requirements.
+
+In code:
+
+- `InfoController::contentSystemDataLoaders()` serves the config keys and capabilities that `ContentSystemDataLoaderSchemaGenerator::getSchema()` builds.
+- `contentSystemRootSources()` serves each root source's context.
+- `StoredSchemaResolver::resolve()` resolves the stored keys of an element type.
+- `StoredSchemaResolverTest` pins the rule.
+- `ContentSystemDataLoaderSchemaGeneratorTest` pins the rule.
+- See [introspection.md](../../Hydration/DataLoader/docs/introspection.md).
+
+## Also true by construction
+
+- `StoredTreePreparer` substitutes a placeholder token in one pass at the property's own level, in full rendering only. An unresolved token stays literal, and placeholder values become properties only on the page-level virtual root: [pipeline-steps.md](../pipeline-steps.md)
+- A loader-resolved value dedups by its source, configuration and value identity. Any other object dedups by instance identity, a non-object by value equality, and every explicit null shares one ref: [Output/README.md](../../Output/README.md)

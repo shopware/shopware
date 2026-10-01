@@ -32,6 +32,6 @@ Invalid:
   Consumer (title)               <-- Siblings cannot share
 ```
 
-Distribution strategy applies only to direct children. Deeper descendants do NOT receive context unless intermediate elements explicitly re-provide it.
+Distribution strategy applies only to direct children.
 
 Practical implication: Place consumers as direct children of provider for strategies to work as intended. For multi-level context, intermediate elements must both accept and re-provide context.

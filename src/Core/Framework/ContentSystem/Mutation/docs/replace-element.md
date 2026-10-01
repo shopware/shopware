@@ -1,7 +1,7 @@
 # ReplaceElement
 
 The one operation that changes an element's type in place, and the only one whose contract is a set of carry-over
-rules rather than a placement. The other eight are in [operations.md](operations.md).
+rules rather than a placement. The other operations are in [operations.md](operations.md).
 
 `__construct(AbstractContentSystemElementTypeRegistry $registry, string $elementId, string $newType, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator)`.
 

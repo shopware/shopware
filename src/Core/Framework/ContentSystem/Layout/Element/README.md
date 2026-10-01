@@ -9,7 +9,7 @@ The storage-side element model, and the edit idiom for the rendered one. Element
 ## Key Classes
 
 - `StoredElement` - The storage-side node, rebuilt rather than mutated: every edit returns a new instance through a `with*()` method.
-- `StoredValue` - Wraps each property value by variant, so a hydrated entity can never sit in the stored tree by type rather than by convention.
+- `StoredValue` - Wraps each property value by variant.
 - `RenderedTreeEditor` - Applies one per-element transformation across a whole rendered forest.
 - `ElementIdRule` - The element-id value domain, stated once for the decode gate, the write descriptor and the published `ContentElementId` schema.
 

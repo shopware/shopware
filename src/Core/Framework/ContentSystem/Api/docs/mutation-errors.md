@@ -27,13 +27,15 @@ Most draft-route failures are 400, carried by `ContentSystemException`:
 - `invalidLayoutStructure`, and `elementTypesInvalid` on preview
 - the structural mutation codes `mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType`
 - the bind-element codes `bindingSpecificationNotFound`, `bindingTypeMismatch`
-- hydration exceptions, on preview
 
-Three draft failures are not 400, so a client cannot treat the status as constant:
+A hydration-layer client defect never surfaces raw on preview: `DraftLayoutChecker` runs `Diagnostics/LayoutDiagnostics` before the pipeline, and every `CLIENT_DEFECT_CODES` entry reaches it as an intrinsic `ViolationCode::InvalidConfig` error, so preview answers `elementTypesInvalid` (400) instead of that code's own status.
+
+Four draft failures are not 400, so a client cannot treat the status as constant:
 
 - `bindingSpecificationDefaultAmbiguous` (409) on `insert-element` and `replace-element`
 - `layoutPresetNotFound` (404) on `insert-preset`
 - preview opens a sales-channel context in `ContentPreviewPageBuilder::build()` before it decodes anything, so an unknown `salesChannelId` answers `SalesChannelException::salesChannelNotFound()` (404) and an unknown `languageId` answers `languageNotFound()` (412) — neither one a `ContentSystemException`
+- preview also renders, so an infrastructure fault inside a data loader — the classes outside the loaders' `ShopwareHttpException` degradation boundary, such as a `\TypeError` or a DBAL exception — propagates as a 500, as does `duplicateElementId` when a `RenderedTreeFinalizationEvent` listener reintroduces one (`DraftLayoutDecoder::decode()` already rejected a duplicate in the request at 400)
 
 The diagnose and draft-mutation routes gate `rootSource` membership against `RootSourceRegistry::knownRootSources()` and reject an unknown non-empty value with `unknownRootSource` (400). That is the same gate the write validator applies, so `RootSourceRegistry::resolve()` never sees an unregistered id.
 

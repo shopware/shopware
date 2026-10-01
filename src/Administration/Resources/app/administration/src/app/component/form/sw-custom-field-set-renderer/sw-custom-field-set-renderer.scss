@@ -20,7 +20,6 @@
         margin-bottom: 22px;
     }
 
-    // Meteor and legacy fields ship different default margins, so the wrapper owns the spacing between fields
     .sw-inherit-wrapper {
         margin-bottom: var(--scale-size-32);
 

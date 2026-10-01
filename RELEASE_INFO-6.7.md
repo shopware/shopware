@@ -48,6 +48,10 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Unlimited DAL searches with next-pages totals
+
+Database-backed DAL searches using `Criteria::TOTAL_COUNT_MODE_NEXT_PAGES` without a limit now return all matching entities after the requested offset and report the exact total, as `TOTAL_COUNT_MODE_EXACT` does. Previously, these searches returned at most one entity. Searches with a limit continue to use bounded lookahead totals.
+
 ### Filtered listings show the main variant only if it matches the active filters
 
 Filtered product listings show a variant product's main variant only if it matches all active filters, such as property, price or manufacturer filters. Otherwise, a matching variant is shown. Products configured to display their parent always show the parent.

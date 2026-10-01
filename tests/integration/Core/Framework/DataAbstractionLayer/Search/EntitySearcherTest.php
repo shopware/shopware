@@ -416,7 +416,7 @@ class EntitySearcherTest extends TestCase
     }
 
     #[DataProvider('totalCountProvider')]
-    public function testTotalCountsEntitiesWithAToManyFilter(int $totalCountMode, ?int $limit, int $matchingProducts, int $expectedTotal, int $expectedEntities): void
+    public function testTotalCountsEntitiesWithAToManyFilter(int $totalCountMode, ?int $limit, int $matchingProducts, int $expectedTotal, int $expectedEntities, int $offset = 0): void
     {
         $ids = $this->createProductsWithTwoMatchingTagsEach($matchingProducts);
 
@@ -424,6 +424,7 @@ class EntitySearcherTest extends TestCase
         $criteria->addFilter(new EqualsAnyFilter('product.id', array_values($ids->prefixed('product-'))));
         $criteria->addFilter(new ContainsFilter('product.tags.name', 'limit-one'));
         $criteria->setLimit($limit);
+        $criteria->setOffset($offset);
         $criteria->setTotalCountMode($totalCountMode);
 
         $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
@@ -434,7 +435,7 @@ class EntitySearcherTest extends TestCase
     }
 
     #[DataProvider('totalCountProvider')]
-    public function testTotalCountsEntitiesWithASearchTerm(int $totalCountMode, ?int $limit, int $matchingProducts, int $expectedTotal, int $expectedEntities): void
+    public function testTotalCountsEntitiesWithASearchTerm(int $totalCountMode, ?int $limit, int $matchingProducts, int $expectedTotal, int $expectedEntities, int $offset = 0): void
     {
         $ids = $this->createProductsWithTwoMatchingTagsEach($matchingProducts);
 
@@ -442,6 +443,7 @@ class EntitySearcherTest extends TestCase
         $criteria->addFilter(new EqualsAnyFilter('product.id', array_values($ids->prefixed('product-'))));
         $criteria->setTerm('limit one total');
         $criteria->setLimit($limit);
+        $criteria->setOffset($offset);
         $criteria->setTotalCountMode($totalCountMode);
 
         $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
@@ -452,18 +454,21 @@ class EntitySearcherTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{int, int|null, int, int, int}>
+     * @return iterable<string, array{int, int|null, int, int, int, 5?: int}>
      */
     public static function totalCountProvider(): iterable
     {
         yield 'exact total with a single result per page' => [Criteria::TOTAL_COUNT_MODE_EXACT, 1, 2, 2, 1];
         yield 'exact total with a full page' => [Criteria::TOTAL_COUNT_MODE_EXACT, 2, 2, 2, 2];
         yield 'exact total without a limit' => [Criteria::TOTAL_COUNT_MODE_EXACT, null, 2, 2, 2];
+        yield 'exact total without a limit after an offset' => [Criteria::TOTAL_COUNT_MODE_EXACT, null, 2, 2, 1, 1];
+        yield 'exact total without a limit past the end' => [Criteria::TOTAL_COUNT_MODE_EXACT, null, 2, 2, 0, 3];
         yield 'exact total with a partial page' => [Criteria::TOTAL_COUNT_MODE_EXACT, 3, 2, 2, 2];
         yield 'next pages with a single result per page' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 1, 2, 2, 1];
         yield 'next pages with a full page' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 2, 2, 2, 2];
-        // Without a limit, the current lookahead formula still fetches its one sentinel row.
-        yield 'next pages without a limit' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, null, 2, 1, 1];
+        yield 'next pages without a limit' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, null, 2, 2, 2];
+        yield 'next pages without a limit after an offset' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, null, 2, 2, 1, 1];
+        yield 'next pages without a limit past the end' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, null, 2, 2, 0, 3];
         yield 'next pages with a partial page' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 3, 2, 2, 2];
         yield 'next pages capped below eight matches' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 1, 8, 7, 1];
         yield 'next pages capped below fourteen matches' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 2, 14, 13, 2];

@@ -27,7 +27,7 @@ In code:
 
 ## A rule about a stored value has one owner, and every path that needs the rule calls that owner
 
-Admissibility for a declared property, a default's shape, the nesting bound and a wire message must each have a single source of truth, its owner. Diagnostics, the conformance validator, the codec and the mutation operations must call that owner. Those callers must keep no copy of the rule. A rule needed at mutation time and at the write boundary is one shared provider.
+Admissibility for a declared property, a default's shape, the nesting bound and a wire message must each have a "single source of truth", its owner. Diagnostics, the conformance validator, the codec and the mutation operations must call that owner. Those callers must keep no copy of the rule. A rule needed at mutation time and at the write boundary is one shared provider.
 
 Why: In an earlier design, diagnostics, the conformance validator and the mutation operations each kept a private match table for the same admission rule. With three tables, the module stores or drops a value that one table accepts and another rejects, depending on the path that the value takes.
 

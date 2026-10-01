@@ -71,7 +71,7 @@ The render path's steps are in [data-flow.md](../data-flow.md).
 
 ### By area
 
-- [failure-and-loss.md](failure-and-loss.md): fail fast and report every loss
+- [failure-and-loss.md](failure-and-loss.md): "fail fast" and report every loss
 - [values.md](values.md): the server owns every value rule
 - [stored-model.md](stored-model.md): the stored element and its one conversion
 - [type-declarations.md](type-declarations.md): what a type declaration may state

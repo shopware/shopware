@@ -65,7 +65,7 @@ In code:
 
 ## An app or plugin extends the module through declared data the module reads
 
-The module applies the open/closed principle to element capabilities. An extension adds a capability as an element type, a style option or a binding specification that the module reads. An app's rows hold the declaration as raw JSON, which round-trips without a migration. The module does not add a capability that needs an edit to a core class per entity or per element. For a capability that needs a per-entity or per-element core edit, the module makes the framework change once, for every element. An extension developer can then use that framework change alone.
+The module applies the "open/closed principle" to element capabilities. An extension adds a capability as an element type, a style option or a binding specification that the module reads. An app's rows hold the declaration as raw JSON, which round-trips without a migration. The module does not add a capability that needs an edit to a core class per entity or per element. For a capability that needs a per-entity or per-element core edit, the module makes the framework change once, for every element. An extension developer can then use that framework change alone.
 
 Why: A core method that an app cannot reach is a capability that only first-party code has. Other per-entity requests follow the first one.
 

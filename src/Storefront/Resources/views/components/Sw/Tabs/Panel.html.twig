@@ -44,7 +44,6 @@
 } %}
 
 <div {{ attributes.defaults(attributeDefaults) }}>
-
     {% block navigation %}
         <ul {{ attributes.nested('nav').defaults({
             class: navCVA.apply({ variant, alignment }),
@@ -74,5 +73,4 @@
             <twig:Slot name="tabs"></twig:Slot>
         </div>
     {% endblock %}
-
 </div>

@@ -111,6 +111,9 @@ export default {
             return this.entity.stateMachineState.translated.name;
         },
 
+        /**
+         * @deprecated tag:v6.8.0 - Will be removed without replacement, `sw-order-state-select-v2` derives the state color from `stateName`
+         */
         stateSelectBackgroundStyle() {
             const technicalName = this.entity.stateMachineState.technicalName;
 

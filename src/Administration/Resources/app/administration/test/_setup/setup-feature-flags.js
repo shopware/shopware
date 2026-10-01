@@ -16,11 +16,16 @@ const featureConfigPath = resolve(
 );
 
 const featureConfig = parse(readFileSync(featureConfigPath, 'utf8'));
+const { flags } = featureConfig.shopware.feature;
 
-// FEATURE_ALL is `major` or a single major (`v6.8.0.0`), the lanes integration-major.yml runs.
-global.activeFeatureFlags = getMajorFeatureFlags(featureConfig, process.env.FEATURE_ALL ?? '');
+// Like in the browser, the flags that are on by default are active. FEATURE_ALL adds the majors of the
+// lanes integration-major.yml runs: all of them for `major`, or those up to a single major like `v6.8.0.0`.
+const defaultFlags = flags.filter((flag) => flag.default).map(({ name }) => normalizeFeatureFlag(name));
+const majorFlags = getMajorFeatureFlags(featureConfig, process.env.FEATURE_ALL ?? '');
+global.activeFeatureFlags = [...new Set([...defaultFlags, ...majorFlags])];
 
 // Registers every flag in both spellings, like `window._features_` in the browser, so a guard with an
-// unknown flag is reported
-const flagNames = featureConfig.shopware.feature.flags.flatMap(({ name }) => [name, normalizeFeatureFlag(name)]);
-Feature.init(Object.fromEntries(flagNames.map((name) => [name, false])));
+// unknown flag is reported. Flags a test activates later only reach `FeatureMock.isActive`.
+const activeFlags = new Set(global.activeFeatureFlags);
+const flagNames = flags.flatMap(({ name }) => [name, normalizeFeatureFlag(name)]);
+Feature.init(Object.fromEntries(flagNames.map((name) => [name, activeFlags.has(normalizeFeatureFlag(name))])));

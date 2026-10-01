@@ -1,6 +1,6 @@
 # Stored and Rendered Element Models
 
-Which of the two element models a class is about is the sharpest subject distinction in this module, and a name carries it as a prefix on the subject. The naming principles this page applies live in [NAMING.md](../NAMING.md).
+Which of the two element models a class is about is the sharpest subject distinction in this module, and a name carries it as a prefix on the subject. The naming principles are in [NAMING.md](../NAMING.md).
 
 There is no unprefixed element subject: a name saying only "element" leaves the reader unable to tell which of the two contracts below applies, which is exactly the ambiguity the prefixes exist to remove.
 

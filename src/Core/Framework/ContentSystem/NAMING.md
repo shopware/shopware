@@ -1,6 +1,6 @@
 # Naming
 
-How components in this module are named. This is the reasoning a contributor uses to name a new class, not a catalog of the existing ones: you should come away able to name something this module has never seen. The general principles are here; the two subjects that need room of their own are linked below.
+How components in this module are named.
 
 ## A name answers two questions
 

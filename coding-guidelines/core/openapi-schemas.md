@@ -1,6 +1,6 @@
 # OpenAPI schemas
 
-An OpenAPI schema states exactly what the server enforces. Client generators read the schema as the contract of the Admin API and the Store API. This guideline applies to the schema files under `src/Core/Framework/Api/ApiDefinition/Generator/Schema/`.
+An OpenAPI schema states exactly what the server enforces. Client generators read the schema as the contract of the Admin API and the Store API. Shopware's schema files live under `src/Core/Framework/Api/ApiDefinition/Generator/Schema/`.
 
 ## Rules
 

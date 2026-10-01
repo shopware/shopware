@@ -1,6 +1,6 @@
 # Empty JSON maps
 
-PHP uses one array type for a JSON object and for a JSON array. An empty PHP array therefore encodes as `[]`, whether the field holds a map or a list. This guideline fixes how Shopware code handles an empty JSON map.
+PHP uses one array type for a JSON object and for a JSON array. An empty PHP array therefore encodes as `[]`, whether the field holds a map or a list.
 
 ## Rules
 

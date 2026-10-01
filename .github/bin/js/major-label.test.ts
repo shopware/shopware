@@ -2,7 +2,11 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
     FEATURE_REGISTRY_PATH,
+    MAJOR_PATHS_PATH,
+    detectMajorLabels,
+    diffFromFiles,
     evaluateMajorLabels,
+    isDiffTooLarge,
     globToRegExp,
     labelNamesFor,
     labelsForDiff,
@@ -445,4 +449,91 @@ test('labelsForDiff emits nothing when no major is in flight', () => {
         labelsForDiff({ diff: diffFor('UPGRADE-6.8.md', '+## Anything'), flags: shipped, majorPaths: PATHS }),
         [],
     );
+});
+
+const tooLarge = Object.assign(new Error('Sorry, the diff exceeded the maximum number of files (300).'), {
+    status: 406,
+    response: { data: { errors: [{ resource: 'PullRequest', field: 'diff', code: 'too_large' }] } },
+});
+
+test('isDiffTooLarge recognises only the too_large refusal', () => {
+    assert.equal(isDiffTooLarge(tooLarge), true);
+    assert.equal(isDiffTooLarge(Object.assign(new Error('Not Acceptable'), { status: 406 })), false);
+    assert.equal(isDiffTooLarge(Object.assign(new Error('other side closed'), { status: 500 })), false);
+    assert.equal(isDiffTooLarge(undefined), false);
+});
+
+test('diffFromFiles rebuilds a diff the detection reads like the native one', () => {
+    const diff = diffFromFiles([
+        { filename: 'src/Core/Framework/Feature.php', patch: '@@ -1,1 +1,1 @@\n+     * @deprecated tag:v6.8.0 - Will be removed' },
+        { filename: 'src/Core/Checkout/DocumentV2/Huge.php' },
+    ]);
+    assert.deepEqual(evaluateMajorLabels({ diff, flags: FLAGS, targetMajor: '6.8', majorPaths: PATHS, isNextMajor: true }), {
+        behaviour: true,
+        cleanup: true,
+    });
+});
+
+const detect = (github: object) => {
+    const warnings: string[] = [];
+    const files: Record<string, string> = { [FEATURE_REGISTRY_PATH]: REGISTRY, [MAJOR_PATHS_PATH]: PATH_MAP };
+    const run = detectMajorLabels(
+        {
+            github: github as Parameters<typeof detectMajorLabels>[0]['github'],
+            core: { info: () => {}, warning: (message) => warnings.push(message) },
+            context: {
+                eventName: 'pull_request_target',
+                repo: { owner: 'shopware', repo: 'shopware' },
+                payload: { action: 'synchronize', pull_request: { number: 1, labels: [] } },
+            },
+        },
+        (path) => files[path],
+    );
+
+    return { run, warnings };
+};
+
+test('a diff too large for the diff format is read through the files endpoint', async () => {
+    const listFiles = async () => ({ data: [] });
+    const { run, warnings } = detect({
+        paginate: async (route: unknown, options: { pull_number: number; per_page: number }) => {
+            assert.equal(route, listFiles);
+            assert.deepEqual(options, { owner: 'shopware', repo: 'shopware', pull_number: 1, per_page: 100 });
+
+            return [
+                { filename: 'UPGRADE-6.8.md', patch: '@@ -1,1 +1,1 @@\n+## Something breaks' },
+                { filename: 'src/Core/Huge.php' },
+            ];
+        },
+        rest: {
+            pulls: {
+                get: async () => {
+                    throw tooLarge;
+                },
+                listFiles,
+            },
+        },
+    });
+
+    assert.deepEqual(await run, ['major/6.8']);
+    assert.deepEqual(warnings, [
+        'diff too large, read 2 file(s) through the files endpoint instead; 1 without a patch are matched by path only',
+    ]);
+});
+
+test('any other diff failure still fails the run', async () => {
+    const outage = Object.assign(new Error('other side closed'), { status: 500 });
+    const { run } = detect({
+        paginate: async () => assert.fail('must not fall back on an outage'),
+        rest: {
+            pulls: {
+                get: async () => {
+                    throw outage;
+                },
+                listFiles: async () => ({ data: [] }),
+            },
+        },
+    });
+
+    await assert.rejects(run, outage);
 });

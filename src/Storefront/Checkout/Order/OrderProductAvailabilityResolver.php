@@ -40,8 +40,8 @@ class OrderProductAvailabilityResolver
      */
     public function addAvailability(iterable $orders, SalesChannelContext $context): void
     {
-        $lineItems = [];
-        $productIds = [];
+        $deleted = [];
+        $byProductId = [];
 
         foreach ($orders as $order) {
             foreach ($order->getLineItems() ?? [] as $lineItem) {
@@ -49,25 +49,31 @@ class OrderProductAvailabilityResolver
                     continue;
                 }
 
-                $lineItems[] = $lineItem;
-
                 $productId = $lineItem->getProductId();
 
-                if ($productId !== null) {
-                    $productIds[$productId] = true;
+                if ($productId === null) {
+                    $deleted[] = $lineItem;
+
+                    continue;
                 }
+
+                $byProductId[$productId][] = $lineItem;
             }
         }
 
         // an empty id list leaves the criteria unfiltered and unlimited, which would read the whole catalogue
-        $visible = $productIds === [] ? [] : $this->getVisibleProductIds(array_keys($productIds), $context);
+        $visible = $byProductId === [] ? [] : $this->getVisibleProductIds(array_keys($byProductId), $context);
 
-        foreach ($lineItems as $lineItem) {
-            $productId = $lineItem->getProductId();
+        foreach ($deleted as $lineItem) {
+            $lineItem->addExtension(self::LINE_ITEM_EXTENSION, new ArrayStruct(['visible' => false]));
+        }
 
-            $lineItem->addExtension(self::LINE_ITEM_EXTENSION, new ArrayStruct([
-                'visible' => $productId !== null && isset($visible[$productId]),
-            ]));
+        foreach ($byProductId as $productId => $lineItems) {
+            foreach ($lineItems as $lineItem) {
+                $lineItem->addExtension(self::LINE_ITEM_EXTENSION, new ArrayStruct([
+                    'visible' => isset($visible[$productId]),
+                ]));
+            }
         }
     }
 
@@ -86,8 +92,8 @@ class OrderProductAvailabilityResolver
             $criteria->addFilter($this->productCloseoutFilterFactory->create($context));
         }
 
-        // searchIds() reads no entities, so no product is loaded and ProductPriceCalculator never publishes its
-        // extension, which a plugin listener may type hint as ProductEntity
+        // reading the products instead would publish ProductPriceCalculationExtension, whose listeners type hint
+        // ProductEntity and get a PartialEntity. searchIds() hydrates nothing, so none of that runs
         return array_flip($this->productRepository->searchIds($criteria, $context)->getIds());
     }
 }

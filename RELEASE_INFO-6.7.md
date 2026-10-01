@@ -333,6 +333,7 @@ The composables that replace Administration mixins, such as `useListing`, `useNo
 
 ```ts
 import { useListing } from 'shopware:composables';
+import useNotification from 'shopware:composables/useNotification';
 
 const { page, limit, total } = useListing({ getList });
 ```
@@ -344,6 +345,10 @@ The SFC migration codemod now imports the composables from `shopware:composables
 extension component looks like a migrated Administration one. In an extension, a component that uses
 the `cms-element` mixin is skipped, because its `useCmsElementDeprecated` replacement is not published;
 migrate it to `useCmsElement` by hand.
+An extension that imports `shopware:composables` requires Shopware 6.7.16.0 or later, so require
+`shopware/administration` `>=6.7.16.0` in its `composer.json`. On an older Administration, the import throws
+an error that names the required and the installed version. An extension that still supports older versions
+keeps using the mixins.
 
 ## Storefront
 

@@ -27,8 +27,12 @@
  *       shopware:data/Criteria  default only, like every class subpath
  *
  * `Shopware.Composables` — src/app/composables/index.ts
- * The same literal shape as the data branch, but root-only: every export reads the global object, so a
- * subpath would tree-shake nothing.
+ * The same literal shape and output as the data branch:
+ *
+ *     export default { useCmsElement, useListing, … };
+ *
+ *     → shopware:composables             named exports { useCmsElement, useListing, … }
+ *       shopware:composables/useListing  default only, like every composable file
  *
  * `Shopware.Mixin` — src/global.types.ts, `interface MixinContainer`
  * A runtime registry, so there is no literal to read and the declared contract is the type itself:
@@ -371,7 +375,7 @@ export function extractModuleRegistry(administrationRoot: string): ModuleRegistr
         },
         'shopware:composables': {
             exports: composableKeys,
-            subpaths: {},
+            subpaths: defaultOnlySubpaths(composableKeys),
         },
         'shopware:mixins': {
             exports: [],

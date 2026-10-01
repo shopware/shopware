@@ -34,6 +34,8 @@ export default {
             mcpIntegration: null,
             pendingMcpAllowlist: null,
             confirmPasswordModal: false,
+            passwordAction: null,
+            integrationToDelete: null,
         };
     },
 
@@ -132,8 +134,26 @@ export default {
                     return;
                 }
 
+                this.passwordAction = 'save';
                 this.confirmPasswordModal = true;
             });
+        },
+
+        onPasswordConfirmed(context) {
+            const action = this.passwordAction;
+            const integrationId = this.integrationToDelete;
+
+            this.confirmPasswordModal = false;
+            this.passwordAction = null;
+            this.integrationToDelete = null;
+
+            if (action === 'delete') {
+                this.deleteIntegration(integrationId, context);
+
+                return;
+            }
+
+            this.saveIntegration(context);
         },
 
         saveIntegration(context) {
@@ -152,6 +172,8 @@ export default {
 
         onCloseConfirmPasswordModal() {
             this.confirmPasswordModal = false;
+            this.passwordAction = null;
+            this.integrationToDelete = null;
         },
 
         updateIntegration(integration, context) {
@@ -286,7 +308,25 @@ export default {
 
             this.onCloseDeleteModal();
 
-            this.integrationRepository.delete(id).then(() => {
+            this.ssoSettingsService.isSso().then((response) => {
+                if (response.isSso) {
+                    this.deleteIntegration(id, { ...Shopware.Context.api });
+
+                    return;
+                }
+
+                this.integrationToDelete = id;
+                this.passwordAction = 'delete';
+                this.confirmPasswordModal = true;
+            });
+        },
+
+        deleteIntegration(id, context) {
+            if (!id) {
+                return;
+            }
+
+            this.integrationRepository.delete(id, context).then(() => {
                 this.getList();
             });
         },

@@ -110,6 +110,8 @@ class IntegrationController extends AbstractController
         Context $context,
         ResponseFactoryInterface $factory
     ): Response {
+        $this->validateScope($request);
+
         // Runs in the user scope. The generic CRUD route uses the CRUD scope, which write protection rejects.
         $this->integrationRepository->delete([['id' => $integrationId]], $context);
 

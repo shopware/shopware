@@ -275,7 +275,7 @@ class IntegrationControllerTest extends TestCase
         static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), (string) $client->getResponse()->getContent());
     }
 
-    public function testDeleteIntegrationDoesNotRequireVerifiedScope(): void
+    public function testDeleteIntegrationRequiresIntegrationVerifiedScope(): void
     {
         $ids = new IdsCollection();
 
@@ -286,8 +286,62 @@ class IntegrationControllerTest extends TestCase
             'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
         ]], Context::createDefaultContext());
 
-        $client = $this->getBrowser();
+        $client = $this->getBrowser(true, [UserVerifiedScope::IDENTIFIER]);
         $client->jsonRequest('DELETE', '/api/integration/' . $ids->get('integration'));
+
+        $response = $client->getResponse();
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+
+        $content = json_decode((string) $response->getContent(), true);
+        static::assertIsArray($content);
+        static::assertSame(
+            'This access token does not have the scope "integration-verified" to process this Request',
+            $content['errors'][0]['detail']
+        );
+    }
+
+    public function testDeleteIntegration(): void
+    {
+        $ids = new IdsCollection();
+
+        static::getContainer()->get('integration.repository')->create([[
+            'id' => $ids->get('integration'),
+            'label' => 'integration',
+            'accessKey' => AccessKeyHelper::generateAccessKey('integration'),
+            'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
+        ]], Context::createDefaultContext());
+
+        $client = $this->getBrowser(true, [IntegrationVerifiedScope::IDENTIFIER]);
+        $client->jsonRequest('DELETE', '/api/integration/' . $ids->get('integration'));
+
+        static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), (string) $client->getResponse()->getContent());
+    }
+
+    public function testIntegrationClientCanDeleteIntegrationWithoutVerifiedScope(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+
+        static::getContainer()->get('integration.repository')->create([
+            [
+                'id' => $ids->get('actor'),
+                'label' => 'admin integration',
+                'accessKey' => AccessKeyHelper::generateAccessKey('integration'),
+                'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
+                'admin' => true,
+            ],
+            [
+                'id' => $ids->get('target'),
+                'label' => 'integration to delete',
+                'accessKey' => AccessKeyHelper::generateAccessKey('integration'),
+                'secretAccessKey' => AccessKeyHelper::generateSecretAccessKey(),
+            ],
+        ], $context);
+
+        $client = $this->createClient(authorized: false);
+        $this->authorizeBrowserWithIntegration($client, $ids->get('actor'));
+
+        $client->jsonRequest('DELETE', '/api/integration/' . $ids->get('target'));
 
         static::assertSame(Response::HTTP_NO_CONTENT, $client->getResponse()->getStatusCode(), (string) $client->getResponse()->getContent());
     }

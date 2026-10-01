@@ -264,7 +264,7 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         expect(wrapper.find('.sw-modal.sw-integration-list__detail').exists()).toBeFalsy();
     });
 
-    it('should be able to delete a integration', async () => {
+    it('should ask for the current password before deleting an integration', async () => {
         const wrapper = await createWrapper(['integration.deleter']);
 
         const deleteMenuItem = wrapper.find('.sw_integration_list__delete-action');
@@ -281,8 +281,39 @@ describe('module/sw-integration/page/sw-integration-list', () => {
         await deleteButton.trigger('click');
         await flushPromises();
 
-        const modalAfterDelete = wrapper.find('.sw-modal');
-        expect(modalAfterDelete.exists()).toBeFalsy();
+        expect(wrapper.find('.sw-modal').exists()).toBeFalsy();
+
+        const verifyModal = wrapper.findComponent('sw-verify-user-modal-stub');
+        expect(verifyModal.exists()).toBeTruthy();
+        expect(verifyModal.attributes('oauth-scope')).toBe('integration-verified');
+        expect(wrapper.vm.integrationRepository.delete).not.toHaveBeenCalled();
+
+        verifyModal.vm.$emit('verified', { authToken: { access: 'integration-verified-token' } });
+        await flushPromises();
+
+        expect(wrapper.vm.integrationRepository.delete).toHaveBeenCalledWith('44de136acf314e7184401d36406c1e90', {
+            authToken: { access: 'integration-verified-token' },
+        });
+    });
+
+    it('should delete an integration without a password confirmation when SSO is active', async () => {
+        const wrapper = await createWrapper(['integration.deleter'], null, { isSso: true });
+
+        await wrapper.find('.sw_integration_list__delete-action').trigger('click');
+        await flushPromises();
+
+        const deleteButton = wrapper
+            .find('.sw-modal')
+            .findAll('button')
+            .find((button) => button.text().trim() === 'global.default.delete');
+        await deleteButton.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('sw-verify-user-modal-stub').exists()).toBeFalsy();
+        expect(wrapper.vm.integrationRepository.delete).toHaveBeenCalledWith(
+            '44de136acf314e7184401d36406c1e90',
+            expect.any(Object),
+        );
     });
 
     it('should not be able add an integration with admin-role as a non-admin', async () => {

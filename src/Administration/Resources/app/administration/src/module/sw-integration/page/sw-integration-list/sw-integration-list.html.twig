@@ -414,7 +414,7 @@
         <sw-verify-user-modal
             v-if="confirmPasswordModal"
             oauth-scope="integration-verified"
-            @verified="saveIntegration"
+            @verified="onPasswordConfirmed"
             @close="onCloseConfirmPasswordModal"
         />
         {% endblock %}

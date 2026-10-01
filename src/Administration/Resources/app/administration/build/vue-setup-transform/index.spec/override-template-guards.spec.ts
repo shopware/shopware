@@ -92,11 +92,11 @@ describe('build/vue-setup-transform override template guards', () => {
         expect(() => transformOrFail(source, 'authored-v-bind.override.vue')).toThrow('"v-bind" is not supported');
     });
 
-    it('rejects an HTML entity in an expression that reads a forwarded binding', () => {
+    it('rejects an HTML entity without its semicolon in an expression that reads a forwarded binding', () => {
         const source = stripIndent`
             <template>
             <sw-block extends="sw_example_component_body">
-                <p v-if="count &lt; max">low</p>
+                <p v-if="count &lt max">low</p>
             </sw-block>
             </template>
             <script setup>
@@ -109,11 +109,11 @@ describe('build/vue-setup-transform override template guards', () => {
             </script>
         `;
 
-        // Vue decodes the entity before the transform sees the expression, so its offsets no longer
-        // line up with the source and the rewrite would land on the wrong characters. The character
-        // itself is legal in a Vue expression, so the fix is to write it.
+        // Vue decodes a semicolon-less entity depending on the character after it, so it cannot be
+        // replayed on its own and the rewrite would land on guessed offsets. Terminating it with ";"
+        // (or writing the character itself) makes the expression mappable.
         expect(() => transformOrFail(source, 'entity-expression.override.vue')).toThrow(
-            'cannot contain HTML entities while it reads the forwarded override bindings "count", "max"',
+            'reads the forwarded override bindings "count", "max" and contains an HTML entity that cannot be mapped',
         );
     });
 

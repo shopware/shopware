@@ -133,10 +133,10 @@ function assertSwBlockAttributes(node: ElementNode, mode: ShopwareSetupMode, tem
  * Rejects a `<sw-block extends>` expression whose forwarded references cannot be rewritten.
  *
  * Every forwarded binding is reached through the generated slot scope, which means lowering has to
- * rewrite each reference in place. Vue hands expressions back with HTML entities already decoded, so an
- * expression written as `@click="count &lt; max && count++"` no longer lines up with its source and any
- * offset inside it would corrupt the template. That is rare and trivially avoidable - the character
- * itself is legal in a Vue expression - so it is reported rather than guessed at.
+ * rewrite each reference in place. Vue hands expressions back with HTML entities already decoded, and the
+ * analyzer maps offsets back through complete character references only: an entity written without its
+ * semicolon (`count &lt max`), or one that decodes to several characters, leaves no reliable position.
+ * That is rare and trivially avoidable, so it is reported rather than guessed at.
  */
 function assertMappableForwardedReferences(
     unmappableExpressions: UnmappableExpression[],
@@ -151,11 +151,11 @@ function assertMappableForwardedReferences(
         }
 
         throw new ShopwareSetupTransformError(
-            `An expression inside <sw-block extends> content cannot contain HTML entities while it reads the ` +
-                `forwarded override ${blocked.length === 1 ? 'binding' : 'bindings'} ${blocked
-                    .map((name) => `"${name}"`)
-                    .join(', ')}: the reference is rewritten into the generated slot scope, and the decoded text no ` +
-                'longer matches the source. Write the character itself instead.',
+            `An expression inside <sw-block extends> content reads the forwarded override ` +
+                `${blocked.length === 1 ? 'binding' : 'bindings'} ${blocked.map((name) => `"${name}"`).join(', ')} ` +
+                'and contains an HTML entity that cannot be mapped back to the source: one without its terminating ' +
+                'semicolon, or one that decodes to several characters. The reference is rewritten into the generated ' +
+                'slot scope in place. Terminate the entity with ";" or write the character itself.',
             templateOffset + expression.offset,
         );
     });

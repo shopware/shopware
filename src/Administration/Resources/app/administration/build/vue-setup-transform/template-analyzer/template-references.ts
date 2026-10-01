@@ -11,6 +11,7 @@
  */
 
 import { NodeTypes } from '@vue/compiler-dom';
+import { decodeHTML } from 'entities';
 import type {
     DirectiveNode as CoreDirectiveNode,
     ElementNode as CoreElementNode,
@@ -36,10 +37,10 @@ type TemplateReferences = {
     /**
      * Expressions whose offsets cannot be mapped back into the template, with the names they read.
      *
-     * Vue decodes HTML entities while parsing, so an expression written as `count &lt; max` reaches us
-     * shorter than its source and every offset inside it would land on the wrong character. Reading such
-     * an expression is fine; rewriting it is not, so the analyzer rejects one that reads a forwarded
-     * binding instead of emitting a corrupt edit.
+     * Vue decodes HTML entities while parsing, so offsets inside an expression are mapped back through its
+     * character references (see `getTemplateOffsetMapper`). One that cannot be mapped - an entity without
+     * its semicolon - is fine to read but not to rewrite, so the analyzer rejects it when it reads a
+     * forwarded binding instead of emitting a corrupt edit.
      */
     unmappableExpressions: UnmappableExpression[];
 };
@@ -138,21 +139,56 @@ function collectBindingPatternNames(directive: DirectiveNode | undefined): Set<s
 }
 
 /**
- * Where an expression's own offsets start inside the template, or null when they cannot be mapped.
- *
- * Vue hands back the *decoded* expression text, so a source that contained an HTML entity is shorter
- * than the range it came from and every offset inside it would be wrong. Comparing the two is the whole
- * check. A dynamic argument (`@[eventName]`) reports its brackets as part of the range but not as part
- * of the content, which is the one systematic difference that is not a decode.
+ * A complete character reference (`&gt;`, `&#62;`, `&#x3e;`). With its semicolon it decodes the same
+ * wherever it stands, so each one can be decoded on its own.
  */
-function getTemplateOffset(expression: TemplateExpression, isDynamicArgument = false): number | null {
+const CHARACTER_REFERENCE = /&(?:#\d+|#x[\da-f]+|[a-z\d]+);/gi;
+
+/**
+ * Maps an offset inside an expression's content to its template offset, or returns null when it cannot.
+ *
+ * Vue hands back the *decoded* expression text, so `count &gt; 1` arrives as `count > 1` and everything
+ * behind the entity sits three characters early. Decoding each character reference on its own rebuilds
+ * that content and records how far it shrank at which point. An entity Vue decoded without its semicolon
+ * (whose meaning depends on the next character) makes the rebuild differ from Vue's content, and one that
+ * decodes to several characters has no single position for each of them - both stay unmapped.
+ *
+ * A dynamic argument (`@[eventName]`) reports its brackets as part of the range but not of the content.
+ */
+function getTemplateOffsetMapper(
+    expression: TemplateExpression,
+    isDynamicArgument = false,
+): ((offset: number) => number) | null {
+    const start = expression.loc.start.offset + (isDynamicArgument ? 1 : 0);
     const raw = isDynamicArgument ? expression.loc.source.slice(1, -1) : expression.loc.source;
 
-    if (raw !== expression.content) {
+    // Nothing was decoded (the common case, and always for a dynamic argument: Vue never decodes names).
+    if (raw === expression.content) {
+        return (offset) => start + offset;
+    }
+
+    // Content offset behind each decoded reference, with how much shorter the content is from there on.
+    const shifts: Array<{ from: number; shift: number }> = [];
+    let shift = 0;
+    let mappable = true;
+
+    const content = raw.replace(CHARACTER_REFERENCE, (reference: string, index: number) => {
+        const character = decodeHTML(reference);
+
+        if (character !== reference) {
+            mappable &&= /^.$/su.test(character);
+            shift += reference.length - character.length;
+            shifts.push({ from: index + reference.length - shift, shift });
+        }
+
+        return character;
+    });
+
+    if (!mappable || content !== expression.content) {
         return null;
     }
 
-    return expression.loc.start.offset + (isDynamicArgument ? 1 : 0);
+    return (offset) => start + offset + (shifts.findLast(({ from }) => from <= offset)?.shift ?? 0);
 }
 
 /**
@@ -160,12 +196,19 @@ function getTemplateOffset(expression: TemplateExpression, isDynamicArgument = f
  *
  * An expression whose offsets cannot be mapped still contributes its names - the analyzer needs them to
  * decide forwarding, and to reject the file if one of them turns out to be forwarded.
+ *
+ * `within` is the directive value a v-for part was cut from: Vue places the part by its offset in the
+ * *decoded* value, so the part is mapped through that value rather than through its own range.
  */
 function addExpressionReferences(
     collector: ReferenceCollector,
     expression: TemplateExpression,
     templateScope: Set<string>,
-    { isDynamicArgument = false, isBindingPattern = false } = {},
+    {
+        isDynamicArgument = false,
+        isBindingPattern = false,
+        within = expression,
+    }: { isDynamicArgument?: boolean; isBindingPattern?: boolean; within?: TemplateExpression } = {},
 ): void {
     const occurrences = isBindingPattern
         ? collectPatternOccurrences(expression.content, templateScope)
@@ -177,22 +220,24 @@ function addExpressionReferences(
 
     occurrences.forEach((occurrence) => collector.references.add(occurrence.name));
 
-    const templateOffset = getTemplateOffset(expression, isDynamicArgument);
+    const toTemplateOffset = getTemplateOffsetMapper(within, isDynamicArgument);
 
-    if (templateOffset === null) {
+    if (toTemplateOffset === null) {
         collector.unmappableExpressions.push({
             names: new Set(occurrences.map((occurrence) => occurrence.name)),
-            offset: expression.loc.start.offset,
+            offset: within.loc.start.offset,
         });
 
         return;
     }
 
+    const offsetInWithin = expression.loc.start.offset - within.loc.start.offset;
+
     occurrences.forEach((occurrence) => {
         collector.occurrences.push({
             name: occurrence.name,
-            start: templateOffset + occurrence.start,
-            end: templateOffset + occurrence.end,
+            start: toTemplateOffset(offsetInWithin + occurrence.start),
+            end: toTemplateOffset(offsetInWithin + occurrence.end),
             expansion: occurrence.expansion,
         });
     });
@@ -240,12 +285,14 @@ function addDirectiveReferences(collector: ReferenceCollector, directive: Direct
     }
 
     if (directive.name === 'slot' || directive.name === 'for') {
+        const within = directive.exp;
+
         if (directive.name === 'for' && directive.forParseResult?.source) {
-            addExpressionReferences(collector, directive.forParseResult.source, templateScope);
+            addExpressionReferences(collector, directive.forParseResult.source, templateScope, { within });
         }
 
         getBindingPatternSources(directive).forEach((pattern) =>
-            addExpressionReferences(collector, pattern, templateScope, { isBindingPattern: true }),
+            addExpressionReferences(collector, pattern, templateScope, { isBindingPattern: true, within }),
         );
 
         return;

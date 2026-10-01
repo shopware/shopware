@@ -161,7 +161,14 @@ test.describe('Commercial accounts without a contact person', () => {
                 '@Storefront',
             ],
         },
-        async ({ ShopCustomer, StorefrontAccount, IdProvider, RegisterCompanyAccount, TestDataService, StoreApiContext }) => {
+        async ({
+            ShopCustomer,
+            StorefrontAccount,
+            IdProvider,
+            RegisterCompanyAccount,
+            TestDataService,
+            StoreApiContext,
+        }) => {
             const uuid = IdProvider.getIdPair().uuid;
             const account = {
                 email: `${uuid}@test.com`,

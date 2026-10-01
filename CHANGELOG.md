@@ -1,6 +1,15 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.28
+*  [#20334 - fix(inventory): keep GARAN label values inside the artwork (backport: 6.6.x)](https://github.com/shopware/shopware/issues/20334)
+*  [#20943 - fix(administration): allow saving and duplicating new products (backport: 6.6.x)](https://github.com/shopware/shopware/issues/20943)
+*  [#21022 - fix(storefront): keep review stars from overlapping product names (backport: 6.6.x)](https://github.com/shopware/shopware/issues/21022)
+*  [20356 - Add inline legal guarantee notice option](./changelog/release-6-6-10-28/2026-09-29-add-inline-legal-guarantee-notice.md)
+*  [20527 - Embed the GARAN label as inline PNG in the order confirmation mail](./changelog/release-6-6-10-28/2026-09-24-embed-garan-label-as-inline-png-in-order-confirmation-mail.md)
+*  [20771 - Link legal guarantee notice from privacy notices](./changelog/release-6-6-10-28/2026-09-25-link-legal-guarantee-notice-from-privacy-notices.md)
+*  [20904 - Show main variant in filtered listings only if it matches the active filters](./changelog/release-6-6-10-28/2026-10-01-show-main-variant-in-filtered-listings-only-if-it-matches-the-active-filters.md)
+
 ## 6.6.10.27
 *  [#20705 - fix(storefront): use product ID for order Garan labels (backport: 6.6.x)](https://github.com/shopware/shopware/issues/20705)
 *  [#20730 - fix: Ensure compatibility with Twig 3.29](https://github.com/shopware/shopware/issues/20730)

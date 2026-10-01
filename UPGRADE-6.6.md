@@ -1,3 +1,7 @@
+# 6.6.10.28
+## GARAN label in the order confirmation mail is embedded as an inline PNG
+The order confirmation mail now attaches the GARAN label as an inline PNG instead of an SVG `data:` URI, which Gmail and Outlook do not display. If you customized that template, replace `sw_garan_label_nested_uri` with the new `sw_garan_label_mail` filter as shown in `src/Core/Migration/Fixtures/mails/order_confirmation_mail/en-html.html.twig`.
+
 # 6.6.10.26
 ## Headline level for product boxes
 Product listings can now render the product name inside a headline element. New listing elements default to `<h2>`;

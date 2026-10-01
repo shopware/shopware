@@ -15,7 +15,7 @@ In code:
 - `ContentPreviewController::previewUrl()` builds the page first and stores the request after that.
 - `ContentPreviewPayloadStore::load()` throws `previewPayloadInvalid` for a malformed stored envelope.
 - Only the mint route requires `content_layout:read`.
-- `ContentSystemPreviewControllerTest` pins the rule.
+- `ContentSystemPreviewControllerTest` pins that redemption renders through the pipeline and a malformed envelope is a server fault.
 - See [preview-url.md](../../Api/docs/preview-url.md).
 
 ## The editor's preview shows what the storefront renders

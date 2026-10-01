@@ -51,7 +51,7 @@ In code:
 - `BindingApplicator` seeds defaults.
 - The write-boundary `LayoutDefaultSeeder` seeds defaults and fills only absent keys.
 - `LayoutDiagnostics` reads no default.
-- `ContentLayoutDefaultSeedingTest` pins the rule.
+- `ContentLayoutDefaultSeedingTest` pins that a plain DAL create gets its primitive default seeded.
 - See [layout-write-gates.md](../layout-write-gates.md).
 
 ## The creating write sets the root source of a layout
@@ -81,7 +81,7 @@ In code:
 
 - `StoredElementCodec::decode()` rejects `VirtualRootWrapper::VIRTUAL_ROOT_ID` and an integer-castable id with `INVALID_ELEMENT_ID`.
 - `StoredTree::validate()` reports `ViolationCode::DuplicateElementId`.
-- `StoredElementCodecStructuralDecodeTest` pins the rule.
+- `StoredElementCodecStructuralDecodeTest` pins that decode rejects the virtual-root literal and an integer-castable id.
 - See [client-defect-codes.md](../client-defect-codes.md).
 
 ## Also true by construction

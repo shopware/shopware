@@ -22,7 +22,7 @@ In code:
 
 - `ContentPipeline::load()` checks `prePruneForest` and the finished forest for a repeated id.
 - `WiringPlanner::plan()` validates `prePruneForest`.
-- `ContentRouteRenderingTest` pins the rule.
+- `ContentRouteRenderingTest` pins that a wiring defect fails the render in FULL and in SKELETON.
 - See [pipeline-steps.md](../pipeline-steps.md).
 
 ## Structure is a function independent of rendering mode
@@ -43,7 +43,7 @@ In code:
 - `StoredTreePreparer::prepare()` gates placeholder substitution on `RenderingMode::FULL`.
 - `ElementLowering::lower()` gates data resolution on the same mode.
 - `RenderedTreeFactory` walks both modes in one traversal.
-- `ContentRouteRenderingTest` pins the rule.
+- `ContentRouteRenderingTest` pins that the skeleton equals the full response minus the properties.
 - See [Rendering/README.md](../../Rendering/README.md).
 
 ## Rendering stages are direct calls handing each other typed immutable results

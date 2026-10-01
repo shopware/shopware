@@ -15,7 +15,7 @@ Exceptions: Raw SQL and migrations bypass the write boundary, with the obligatio
 In code:
 
 - `StoredElementListFieldSerializer::normalize()` passes every layout tree through `LayoutWriteBoundary::apply()`.
-- `ContentLayoutDefaultSeedingTest` pins the rule.
+- `ContentLayoutDefaultSeedingTest` pins that a plain DAL create, bypassing the mutation operations, still passes the write boundary's seeder.
 - See [layout-write-gates.md](../layout-write-gates.md).
 
 ## The order of the write passes is part of the contract

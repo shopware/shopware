@@ -47,24 +47,6 @@ class McpPromptTest extends TestCase
         static::assertSame([], $prompt->getDescription());
     }
 
-    public function testToArrayContainsTranslations(): void
-    {
-        $prompt = McpPrompt::fromArray([
-            'name' => 'my-prompt',
-            'url' => 'https://example.com/mcp/prompt',
-            'label' => ['en-GB' => 'My Prompt', 'de-DE' => 'Mein Prompt'],
-            'description' => ['en-GB' => 'Desc'],
-        ]);
-
-        $data = $prompt->toArray('en-GB');
-
-        static::assertSame('my-prompt', $data['name']);
-        static::assertSame('https://example.com/mcp/prompt', $data['url']);
-        static::assertSame('My Prompt', $data['label']['en-GB']);
-        static::assertSame('Mein Prompt', $data['label']['de-DE']);
-        static::assertSame('Desc', $data['description']['en-GB']);
-    }
-
     public function testFromArraySetsProperties(): void
     {
         $prompt = McpPrompt::fromArray([

@@ -46,27 +46,6 @@ class McpResourceTest extends TestCase
         static::assertSame([], $resource->getDescription());
     }
 
-    public function testToArrayContainsTranslations(): void
-    {
-        $resource = McpResource::fromArray([
-            'name' => 'my-resource',
-            'uri' => 'app://my-resource',
-            'url' => 'https://example.com/mcp/resource',
-            'mimeType' => 'application/json',
-            'label' => ['en-GB' => 'My Resource', 'de-DE' => 'Meine Ressource'],
-            'description' => ['en-GB' => 'Desc'],
-        ]);
-
-        $data = $resource->toArray('en-GB');
-
-        static::assertSame('my-resource', $data['name']);
-        static::assertSame('app://my-resource', $data['uri']);
-        static::assertSame('https://example.com/mcp/resource', $data['url']);
-        static::assertSame('application/json', $data['mimeType']);
-        static::assertSame('My Resource', $data['label']['en-GB']);
-        static::assertSame('Meine Ressource', $data['label']['de-DE']);
-    }
-
     public function testFromArraySetsProperties(): void
     {
         $resource = McpResource::fromArray([

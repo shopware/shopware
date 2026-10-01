@@ -1,7 +1,7 @@
 # MCP Loaders
 
 ## Purpose
-Loaders extend the MCP SDK's capability discovery to include tools, prompts, and resources from Shopware apps. Three concrete loaders (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`) extend `AbstractAppMcpLoader`, which provides the shared try/fetch/foreach pipeline plus `capabilityName()` (prefixes the app name) and `resolveDescription()` helpers.
+Loaders extend the MCP SDK's capability discovery to include tools, prompts, and resources from Shopware apps. Three concrete loaders (`AppMcpToolLoader`, `AppMcpPromptLoader`, `AppMcpResourceLoader`) extend `AbstractAppMcpLoader`, which fetches the active apps' features, skips those whose app has no secret (unless `requiresAppSecret()` says otherwise), and hands each one to `registerCapability()`; it also provides the `capabilityName()` (prefixes the app name) and `resolveDescription()` helpers.
 
 ## Plugin integration
 Plugins register MCP tools by tagging services with `shopware.mcp.tool` in their DI XML. At compile time, `McpToolDiscoveryCompilerPass` does two things:
@@ -30,8 +30,8 @@ Apps declare tools in `Resources/mcp.xml`:
 
 ### Pipeline
 1. `Mcp::createFromXmlFile()` parses the XML (uses `XmlUtils::loadFile()` for XXE-safe loading)
-2. `McpToolPersister` persists tools to `app_mcp_tool` table during app install/update
-3. `AppMcpToolLoader` (tagged `mcp.loader`) reads active app tools from DB at server build time
+2. `McpToolFeatureDefinition` stores tools as `app_feature` rows (type `mcp_tool`) during app install/update, and rejects the install when a tool's `<required-privileges>` are missing from the manifest `<permissions>`
+3. `AppMcpToolLoader` (tagged `mcp.loader`) reads active app tools from app feature storage at server build time
 4. Tool calls are proxied to the app webhook via `AppMcpCapabilityExecutor` with HMAC signing
 
 ### Reserved name enforcement
@@ -73,11 +73,11 @@ App tools whose `url` starts with `/` are dispatched as Symfony subrequests inst
 
 **Why POST form params, not JSON body:** Shopware's `JsonRequestTransformer` middleware only runs on the main request. In a subrequest, a raw JSON body is not parsed into the `request` ParameterBag. Passing `['arguments' => $arguments]` as form data ensures `hook.request.request.all('arguments')` returns the array in Twig scripts.
 
-**SQL filter:** `AppMcpToolLoader` loads apps where `app_secret IS NOT NULL OR t.url LIKE '/%'` -- apps without a registration secret are included when their tool URL is internal.
+**Secret filter:** `AbstractAppMcpLoader` skips capabilities of apps without a secret; `AppMcpToolLoader` overrides `requiresAppSecret()` so tools with an internal URL (starts with `/`) are still included.
 
 ### Classes
-- `AbstractAppMcpLoader` -- base class implementing `LoaderInterface`: wraps the DB fetch in a try/catch, iterates rows, and provides `capabilityName()` / `resolveDescription()` helpers for concrete loaders
-- `AppMcpToolLoader` -- reads from `app_mcp_tool`, registers tools, enforces reserved `shopware-` prefix, honors the `shopware.mcp.allowed_tools` compile-time allowlist
-- `AppMcpPromptLoader` -- reads from `app_mcp_prompt`, registers prompts
-- `AppMcpResourceLoader` -- reads from `app_mcp_resource`, registers resources
+- `AbstractAppMcpLoader` -- base class implementing `LoaderInterface`: fetches the typed features from app feature storage, applies the app-secret filter, and provides `capabilityName()` / `resolveDescription()` helpers for concrete loaders
+- `AppMcpToolLoader` -- reads `mcp_tool` features from app feature storage, registers tools, enforces reserved `shopware-` prefix, honors the `shopware.mcp.allowed_tools` compile-time allowlist
+- `AppMcpPromptLoader` -- reads `mcp_prompt` features, registers prompts
+- `AppMcpResourceLoader` -- reads `mcp_resource` features, registers resources
 - `AppMcpCapabilityExecutor` -- branches on URL prefix: `/` → subrequest (no HMAC); `http(s)://` → HMAC-signed Guzzle POST. Used by all three loaders to invoke app capabilities. Returns response body as JSON string.

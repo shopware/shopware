@@ -81,25 +81,6 @@ class McpResource extends XmlElement implements McpCapabilityItem
     /**
      * @return array<string, mixed>
      */
-    public function toArray(string $defaultLocale): array
-    {
-        $data = parent::toArray($defaultLocale);
-
-        foreach (self::TRANSLATABLE_FIELDS as $field) {
-            $camelField = self::kebabCaseToCamelCase($field);
-
-            $data[$camelField] = $this->ensureTranslationForDefaultLanguageExist(
-                $data[$camelField],
-                $defaultLocale,
-            );
-        }
-
-        return $data;
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
     protected static function parse(\DOMElement $element): array
     {
         $values = XmlParserUtils::parseAttributes($element);

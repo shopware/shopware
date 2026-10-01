@@ -2,6 +2,10 @@
 
 A data-driven layout system for serving structured content through the Store API. Layouts define element trees with data requirements and context distribution, rendered through an event-driven pipeline.
 
+## Design Principles
+
+The module is built on a set of written design rules, one file per area under [docs/principles/](docs/principles/README.md). Each rule comes with the reason behind it, the alternative that was considered and not chosen, the exceptions that exist in code, and the code and test that enforce it. Much of the code is only understandable against those rules: a check that looks redundant, a value that is never repaired, a null that is kept apart from an absent key. Read the file for the area before changing its code, and when a change needs a rule to move, change the rule, its pinning test and the code together.
+
 ## Core Concepts
 
 **Content Elements** - Building blocks of layouts. Each element has a component (e.g., `Sw:Product:Card`), properties for configuration, slots for child elements, and optional data requirements.

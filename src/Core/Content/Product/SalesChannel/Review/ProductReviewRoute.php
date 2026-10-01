@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
+use Shopware\Core\Content\Product\Extension\ProductReviewRouteExtension;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
@@ -12,6 +13,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -36,6 +38,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
         private readonly EntityRepository $productReviewRepository,
         private readonly SystemConfigService $systemConfigService,
         private readonly CacheTagCollector $cacheTagCollector,
+        private readonly ExtensionDispatcher $extensions,
         private readonly int $maxLimit = self::DEFAULT_MAX_LIMIT
     ) {
     }
@@ -58,14 +61,26 @@ class ProductReviewRoute extends AbstractProductReviewRoute
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
     {
+        return $this->extensions->publish(
+            name: ProductReviewRouteExtension::NAME,
+            extension: new ProductReviewRouteExtension(
+                $productId,
+                $request,
+                $context,
+                $this->applyConfiguredLimit($criteria, $context->getSalesChannelId()),
+            ),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
+    {
         $salesChannelId = $context->getSalesChannelId();
         if (!$this->systemConfigService->getBool('core.listing.showReview', $salesChannelId)) {
             throw ProductException::reviewNotActive();
         }
 
         $this->cacheTagCollector->addTag(self::buildName($productId));
-
-        $this->applyConfiguredLimit($criteria, $salesChannelId);
 
         $active = new MultiFilter(MultiFilter::CONNECTION_OR, [new EqualsFilter('status', true)]);
         if ($customer = $context->getCustomer()) {
@@ -88,16 +103,16 @@ class ProductReviewRoute extends AbstractProductReviewRoute
         return new ProductReviewRouteResponse($result);
     }
 
-    private function applyConfiguredLimit(Criteria $criteria, string $salesChannelId): void
+    private function applyConfiguredLimit(Criteria $criteria, string $salesChannelId): Criteria
     {
         if (!$criteria->hasState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST)) {
-            return;
+            return $criteria;
         }
 
         $reviewsPerPage = $this->systemConfigService->getInt('core.listing.reviewsPerPage', $salesChannelId);
         $reviewsPerPage = min($reviewsPerPage, $this->maxLimit);
         if ($reviewsPerPage <= 0) {
-            return;
+            return $criteria;
         }
 
         // The offset was derived from the max limit while resolving the page, so
@@ -118,5 +133,7 @@ class ProductReviewRoute extends AbstractProductReviewRoute
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
         $criteria->removeState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
+
+        return $criteria;
     }
 }

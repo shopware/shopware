@@ -71,9 +71,11 @@ test(
             return !!shopware?.Context?.app?.config?.bundles?.SwagAgenticCommerce;
         });
 
+        const deprecationBanner = page.locator('.sw-sales-channel-detail__agentic-commerce-deprecation-banner');
+
         if (!pluginInstalled) {
             await test.step('deprecation banner is visible', async () => {
-                await ShopAdmin.expects(page.locator('.mt-banner')).toBeVisible();
+                await ShopAdmin.expects(deprecationBanner).toBeVisible();
             });
 
             await test.step('clicking the install button always navigates somewhere', async () => {
@@ -82,7 +84,7 @@ test(
                     return !!shopware?.Context?.app?.config?.bundles?.SwagExtensionStore;
                 });
 
-                await page.locator('.mt-banner .mt-button').click();
+                await deprecationBanner.getByRole('button', { name: 'Install extension', exact: true }).click();
                 await page.waitForTimeout(500);
 
                 if (jsErrors.length > 0) {
@@ -99,7 +101,7 @@ test(
             });
         } else {
             await test.step('banner is hidden when plugin is installed', async () => {
-                await ShopAdmin.expects(page.locator('.mt-banner')).not.toBeVisible();
+                await ShopAdmin.expects(deprecationBanner).not.toBeVisible();
             });
         }
     },

@@ -8,8 +8,10 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
+use Shopware\Core\Content\Product\Extension\ProductReviewRouteExtension;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRoute;
+use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewRouteResponse;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -18,10 +20,15 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -76,7 +83,7 @@ class ProductReviewRouteTest extends TestCase
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
         $salesChannelContext->expects($this->once())->method('getCustomer')->willReturn($customer);
-        $salesChannelContext->expects($this->exactly(1))->method('getSalesChannelId')->willReturn('test');
+        $salesChannelContext->expects($this->exactly(2))->method('getSalesChannelId')->willReturn('test');
         $salesChannelContext->expects($this->exactly(1))->method('getContext')->willReturn($context);
 
         $expectedCriteria = new Criteria();
@@ -264,7 +271,7 @@ class ProductReviewRouteTest extends TestCase
         $this->expectExceptionObject(ProductException::reviewNotActive());
 
         $salesChannelContext = $this->createMock(SalesChannelContext::class);
-        $salesChannelContext->expects($this->exactly(1))->method('getSalesChannelId')->willReturn('testReviewNotActive');
+        $salesChannelContext->expects($this->exactly(2))->method('getSalesChannelId')->willReturn('testReviewNotActive');
 
         $this->route->load(
             Uuid::randomHex(),
@@ -272,6 +279,67 @@ class ProductReviewRouteTest extends TestCase
             $salesChannelContext,
             new Criteria(),
         );
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $productId = Uuid::randomHex();
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $criteria = new Criteria();
+        $response = static::createStub(ProductReviewRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('product-review-route.load.pre', static function (ProductReviewRouteExtension $extension) use ($productId, $request, $context, $criteria, $response): void {
+            static::assertSame(['productId' => $productId, 'request' => $request, 'context' => $context, 'criteria' => $criteria], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ProductReviewRoute(
+            static::createStub(EntityRepository::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($productId, $request, $context, $criteria));
+    }
+
+    public function testExtensionCanOverrideConfiguredPagination(): void
+    {
+        $context = static::createStub(SalesChannelContext::class);
+        $context->method('getSalesChannelId')->willReturn('test');
+        $context->method('getContext')->willReturn(Context::createDefaultContext());
+
+        $criteria = new Criteria();
+        $criteria->setLimit(100);
+        $criteria->setOffset(100);
+        $criteria->addState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(ProductReviewRouteExtension::onPre(), static function (ProductReviewRouteExtension $extension): void {
+            static::assertSame(10, $extension->criteria->getLimit());
+            static::assertSame(10, $extension->criteria->getOffset());
+            static::assertSame(Criteria::TOTAL_COUNT_MODE_EXACT, $extension->criteria->getTotalCountMode());
+            static::assertFalse($extension->criteria->hasState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST));
+
+            $extension->criteria->setLimit(5);
+            $extension->criteria->setOffset(5);
+        });
+
+        $route = new ProductReviewRoute(
+            new StaticEntityRepository([new ProductReviewCollection()]),
+            $this->config,
+            $this->cacheTagCollector,
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        $response = $route->load(Uuid::randomHex(), new Request(), $context, $criteria);
+
+        static::assertSame(5, $response->getResult()->getCriteria()->getLimit());
+        static::assertSame(5, $response->getResult()->getCriteria()->getOffset());
     }
 
     /**
@@ -285,6 +353,7 @@ class ProductReviewRouteTest extends TestCase
             $repository ?? $this->repository,
             $this->config,
             $cacheTagCollector ?? $this->cacheTagCollector,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
     }
 }

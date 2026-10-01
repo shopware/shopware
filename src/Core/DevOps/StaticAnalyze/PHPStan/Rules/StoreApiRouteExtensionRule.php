@@ -31,9 +31,12 @@ class StoreApiRouteExtensionRule implements Rule
 {
     /**
      * @param list<string> $legacyRouteMethods
+     * @param list<string> $abstractContractRouteMethods
      */
-    public function __construct(private readonly array $legacyRouteMethods = [])
-    {
+    public function __construct(
+        private readonly array $legacyRouteMethods = [],
+        private readonly array $abstractContractRouteMethods = [],
+    ) {
     }
 
     public function getNodeType(): string
@@ -67,8 +70,9 @@ class StoreApiRouteExtensionRule implements Rule
         }
 
         $parent = $class->getParentClass();
-        if ($class->hasNativeMethod('getDecorated')
-            || ($parent !== null && $parent->isAbstract() && $parent->hasNativeMethod($method->getName()))
+        if (!\in_array($name, $this->abstractContractRouteMethods, true)
+            && ($class->hasNativeMethod('getDecorated')
+                || ($parent !== null && $parent->isAbstract() && $parent->hasNativeMethod($method->getName())))
         ) {
             return [RuleErrorBuilder::message(\sprintf(
                 'Store API route %s must use extension events instead of an abstract route/decorator contract.',

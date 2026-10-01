@@ -138,7 +138,7 @@ export default {
                 },
                 {
                     property: 'user',
-                    dataIndex: 'customer.lastName,customer.firstName,customer.company',
+                    dataIndex: 'customer.lastName,customer.firstName',
                     label: 'sw-review.list.columnUser',
                 },
                 {
@@ -193,18 +193,6 @@ export default {
     },
 
     methods: {
-        customerName(customer) {
-            const personName = [
-                customer.lastName,
-                customer.firstName,
-            ]
-                .map((part) => (part ?? '').trim())
-                .filter((part) => part)
-                .join(', ');
-
-            return personName || customer.displayName;
-        },
-
         createdComponent() {
             this.getList();
         },

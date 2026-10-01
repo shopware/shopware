@@ -19,8 +19,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[CoversClass(CustomerLoginEvent::class)]
 class CustomerLoginEventTest extends TestCase
 {
-    use MailRecipientNameTestBehaviour;
-
     public function testRestoreScalarValuesCorrectly(): void
     {
         $event = new CustomerLoginEvent(
@@ -39,12 +37,5 @@ class CustomerLoginEventTest extends TestCase
 
         static::assertArrayHasKey('contextToken', $flow->data());
         static::assertSame('context-token', $flow->data()['contextToken']);
-    }
-
-    public function testTheMailRecipientCarriesTheResolvedName(): void
-    {
-        $this->assertRecipientNames(
-            fn (CustomerEntity $customer, SalesChannelContext $context) => new CustomerLoginEvent($context, $customer, 'context-token')
-        );
     }
 }

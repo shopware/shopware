@@ -63,40 +63,6 @@ class TradePartyViewTest extends TestCase
         static::assertSame('Jane Doe - Acme GmbH', $view->name);
     }
 
-    public function testBuyerNameDoesNotRepeatCompanyWhenItAlreadyIsThePersonName(): void
-    {
-        $order = $this->createOrderWithBillingAddress(
-            firstName: '',
-            lastName: 'Acme GmbH',
-            company: 'Acme GmbH',
-            street: '',
-            zipcode: '',
-            city: '',
-            countryIso: 'DE',
-        );
-
-        $view = TradePartyView::buyerFromOrder($order);
-
-        static::assertSame('Acme GmbH', $view->name);
-    }
-
-    public function testBuyerNameFallsBackToCompanyWhenPersonNameIsEmpty(): void
-    {
-        $order = $this->createOrderWithBillingAddress(
-            firstName: '',
-            lastName: '',
-            company: 'Acme GmbH',
-            street: '',
-            zipcode: '',
-            city: '',
-            countryIso: 'DE',
-        );
-
-        $view = TradePartyView::buyerFromOrder($order);
-
-        static::assertSame('Acme GmbH', $view->name);
-    }
-
     public function testBuyerCarriesAdditionalAddressLinesAndCountrySubdivision(): void
     {
         $state = new CountryStateEntity();

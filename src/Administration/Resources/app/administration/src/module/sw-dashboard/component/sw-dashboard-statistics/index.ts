@@ -436,7 +436,7 @@ export default Shopware.Component.wrapComponentConfig({
                 },
                 {
                     property: 'orderCustomer.firstName',
-                    dataIndex: 'orderCustomer.lastName,orderCustomer.firstName,orderCustomer.company',
+                    dataIndex: 'orderCustomer.firstName,orderCustomer.lastName',
                     label: 'sw-order.list.columnCustomerName',
                     allowResize: true,
                 },

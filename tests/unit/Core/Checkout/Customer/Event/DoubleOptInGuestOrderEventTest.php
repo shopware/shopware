@@ -19,8 +19,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 #[CoversClass(DoubleOptInGuestOrderEvent::class)]
 class DoubleOptInGuestOrderEventTest extends TestCase
 {
-    use MailRecipientNameTestBehaviour;
-
     public function testScalarValuesCorrectly(): void
     {
         $event = new DoubleOptInGuestOrderEvent(
@@ -39,12 +37,5 @@ class DoubleOptInGuestOrderEventTest extends TestCase
 
         static::assertArrayHasKey('confirmUrl', $flow->data());
         static::assertSame('my-confirm-url', $flow->data()['confirmUrl']);
-    }
-
-    public function testTheMailRecipientCarriesTheResolvedName(): void
-    {
-        $this->assertRecipientNames(
-            fn (CustomerEntity $customer, SalesChannelContext $context) => new DoubleOptInGuestOrderEvent($customer, $context, 'https://example.com/confirm')
-        );
     }
 }

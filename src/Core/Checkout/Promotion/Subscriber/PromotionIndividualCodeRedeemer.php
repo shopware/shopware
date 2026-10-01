@@ -88,7 +88,7 @@ class PromotionIndividualCodeRedeemer implements EventSubscriberInterface
                 $promotion->setRedeemed(
                     $item->getOrderId(),
                     $customer->getCustomerId() ?? '',
-                    $customer->getDisplayName()
+                    $customer->getFirstName() . ' ' . $customer->getLastName()
                 );
 
                 // save in database

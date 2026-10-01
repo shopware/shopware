@@ -1,4 +1,4 @@
-{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.displayName }},
+{% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},
 
 Im Anhang dieser E-Mail finden Sie den Lieferschein für Ihre Bestellung mit der Nummer: {{ order.orderNumber }}
 

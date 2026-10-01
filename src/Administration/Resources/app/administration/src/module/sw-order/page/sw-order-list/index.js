@@ -320,18 +320,6 @@ export default {
     },
 
     methods: {
-        orderCustomerName(customer) {
-            const personName = [
-                customer.lastName,
-                customer.firstName,
-            ]
-                .map((part) => (part ?? '').trim())
-                .filter((part) => part)
-                .join(', ');
-
-            return personName || customer.displayName;
-        },
-
         createdComponent() {},
 
         /**
@@ -435,7 +423,7 @@ export default {
                 },
                 {
                     property: 'orderCustomer.firstName',
-                    dataIndex: 'orderCustomer.lastName,orderCustomer.firstName,orderCustomer.company',
+                    dataIndex: 'orderCustomer.lastName,orderCustomer.firstName',
                     label: 'sw-order.list.columnCustomerName',
                     allowResize: true,
                 },

@@ -55,10 +55,6 @@ export default {
     },
 
     computed: {
-        avatarName() {
-            return Shopware.Utils.string.avatarName(this.customer);
-        },
-
         hasActionSlot() {
             return !!this.$slots.actions?.[0];
         },
@@ -79,18 +75,15 @@ export default {
         },
 
         fullName() {
-            const hasContactPerson = `${this.customer.firstName ?? ''}${this.customer.lastName ?? ''}`.trim() !== '';
+            const name = {
+                name: this.salutation(this.customer),
+                company: this.customer.company,
+            };
 
-            if (!hasContactPerson) {
-                return this.customer.displayName || this.salutation(this.customer);
-            }
-
-            return [
-                this.salutation(this.customer),
-                (this.customer.company ?? '').trim(),
-            ]
-                .filter((part) => part !== '')
-                .join(' - ');
+            return Object.values(name)
+                .filter((item) => item !== null)
+                .join(' - ')
+                .trim();
         },
 
         salutationCriteria() {

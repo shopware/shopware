@@ -96,7 +96,7 @@
                         v-if="item.customer"
                         :to="{ name: 'sw.customer.detail', params: { id: item.customerId } }"
                     >
-                        {{ customerName(item.customer) }}
+                        {{ item.customer.lastName }}, {{ item.customer.firstName }}
                     </router-link>
                 </template>
                 {% endblock %}

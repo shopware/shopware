@@ -395,7 +395,7 @@ export default {
                         message: this.$t(
                             'sw-customer.detail.messageSaveSuccess',
                             {
-                                name: `${this.customer.firstName} ${this.customer.lastName}`.trim() || this.customer.company,
+                                name: `${this.customer.firstName} ${this.customer.lastName}`,
                             },
                             0,
                         ),

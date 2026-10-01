@@ -45,7 +45,7 @@ export default {
 
                 this.createNotificationSuccess({
                     message: this.$t('sw-customer.detail.messageSaveSuccess', {
-                        name: this.customer.displayName,
+                        name: `${this.customer.firstName} ${this.customer.lastName}`,
                     }),
                 });
             } catch (error) {
@@ -70,7 +70,7 @@ export default {
 
                 this.createNotificationSuccess({
                     message: this.$t('sw-customer.detail.messageSaveSuccess', {
-                        name: this.customer.displayName,
+                        name: `${this.customer.firstName} ${this.customer.lastName}`,
                     }),
                 });
             } catch (error) {

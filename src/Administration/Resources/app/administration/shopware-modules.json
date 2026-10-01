@@ -72,8 +72,7 @@
                 "isEmptyOrSpaces",
                 "isUrl",
                 "isValidIp",
-                "isValidCidr",
-                "avatarName"
+                "isValidCidr"
             ],
             "types": [
                 "isObject",

@@ -285,6 +285,53 @@ class PromotionRedemptionUpdaterTest extends TestCase
         static::assertNull($promotionAEvenLater->getOrdersPerCustomerCount());
     }
 
+    public function testLineItemOfAnotherTypeCountsTowardsRedemptions(): void
+    {
+        $this->createPromotionsAndOrder();
+
+        /** @var EntityRepository<PromotionCollection> $promotionRepository */
+        $promotionRepository = static::getContainer()->get('promotion.repository');
+        $promotionId = $this->ids->create('customLineItemPromotion');
+        $this->createPromotion($promotionId, $promotionId, $promotionRepository, $this->salesChannelContext);
+
+        $lineItemId = Uuid::randomHex();
+        static::getContainer()->get('order_line_item.repository')->create([[
+            'id' => $lineItemId,
+            'orderId' => $this->ids->get('order'),
+            'orderVersionId' => Defaults::LIVE_VERSION,
+            'identifier' => $lineItemId,
+            'type' => 'custom',
+            'quantity' => 1,
+            'position' => 1,
+            'label' => 'label',
+            'promotionId' => $promotionId,
+            'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        ]], Context::createDefaultContext());
+
+        static::assertSame(1, $this->fetchPromotion($promotionId)->getOrderCount());
+
+        static::getContainer()
+            ->get('order_line_item.repository')
+            ->delete([['id' => $lineItemId]], Context::createDefaultContext());
+
+        static::assertSame(0, $this->fetchPromotion($promotionId)->getOrderCount());
+    }
+
+    private function fetchPromotion(string $promotionId): PromotionEntity
+    {
+        /** @var EntityRepository<PromotionCollection> $promotionRepository */
+        $promotionRepository = static::getContainer()->get('promotion.repository');
+
+        $promotion = $promotionRepository
+            ->search(new Criteria([$promotionId]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+
+        static::assertInstanceOf(PromotionEntity::class, $promotion);
+
+        return $promotion;
+    }
+
     private function createPromotionsAndOrder(string $orderCode = 'test-FABPB-test'): void
     {
         /** @var EntityRepository<PromotionCollection> */

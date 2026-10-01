@@ -29,9 +29,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(StaticProductProcessor::class)]
 class StaticProductProcessorTest extends TestCase
 {
-    use ProductSliderUnitTrait;
-
-    protected FieldConfigCollection $config;
+    private FieldConfigCollection $config;
 
     private SystemConfigService&MockObject $configService;
 
@@ -63,8 +61,8 @@ class StaticProductProcessorTest extends TestCase
 
     public function testCollect(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
         $expectedIds = ['product-1', 'product-2'];
 
@@ -96,8 +94,8 @@ class StaticProductProcessorTest extends TestCase
 
     public function testCollectEventCanModifyCriteria(): void
     {
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_STATIC, ['product-1']);
         $this->config->add($config);
@@ -128,11 +126,11 @@ class StaticProductProcessorTest extends TestCase
         $this->hideUnavailableProducts(false);
 
         $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, ['product-1', 'product-2']));
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
-        $products = $this->getProducts();
-        $searchResult = $this->getEntitySearchResult($products);
+        $products = ProductSliderFixture::getProducts();
+        $searchResult = ProductSliderFixture::getEntitySearchResult($products);
 
         $data = new ElementDataCollection();
         $data->add('product-slider_id', $searchResult);
@@ -156,12 +154,12 @@ class StaticProductProcessorTest extends TestCase
 
         // Configure the slot with products in order [product-2, product-1]
         $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, ['product-2', 'product-1']));
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
         // Simulate the DB returning products in a different order (e.g. as merged from another slider)
-        $products = $this->getProducts(); // returns [product-1, product-2]
-        $searchResult = $this->getEntitySearchResult($products);
+        $products = ProductSliderFixture::getProducts(); // returns [product-1, product-2]
+        $searchResult = ProductSliderFixture::getEntitySearchResult($products);
         $searchResult->assign(['criteria' => new Criteria(['product-1', 'product-2', 'product-2', 'product-1'])]);
 
         $data = new ElementDataCollection();
@@ -186,11 +184,11 @@ class StaticProductProcessorTest extends TestCase
         $this->hideUnavailableProducts(true);
 
         $this->config->add(new FieldConfig('products', FieldConfig::SOURCE_STATIC, ['product-1', 'product-2']));
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
-        $products = $this->getProducts();
-        $searchResult = $this->getEntitySearchResult($products);
+        $products = ProductSliderFixture::getProducts();
+        $searchResult = ProductSliderFixture::getEntitySearchResult($products);
 
         $data = new ElementDataCollection();
         $data->add('product-slider_id', $searchResult);
@@ -212,8 +210,8 @@ class StaticProductProcessorTest extends TestCase
         $this->configService->expects($this->never())->method('getBool');
         $this->eventDispatcher->expects($this->never())->method('dispatch');
 
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
         $data = new ElementDataCollection();
 
         $this->getProcessor()->enrich($slot, $data, $resolverContext);
@@ -227,8 +225,8 @@ class StaticProductProcessorTest extends TestCase
         $this->configService->expects($this->never())->method('getBool');
         $this->eventDispatcher->expects($this->never())->method('dispatch');
 
-        $slot = $this->getSlot();
-        $resolverContext = $this->getResolverContext();
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
 
         $searchResult = new EntitySearchResult(
             'tax',

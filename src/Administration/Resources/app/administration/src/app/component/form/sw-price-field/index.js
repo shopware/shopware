@@ -4,6 +4,11 @@ import './sw-price-field.scss';
 const { Application } = Shopware;
 const { debounce } = Shopware.Utils;
 
+// A value ending with a decimal separator is still being typed by the user
+function isConvertibleValue(value) {
+    return value !== null && value !== undefined && value !== '' && !value.toString().endsWith('.');
+}
+
 /**
  * @sw-package framework
  *
@@ -292,7 +297,7 @@ export default {
             this.$emit('price-gross-change', value);
             this.$emit('change', this.priceForCurrency);
 
-            if (this.priceForCurrency.linked && value && !value.toString().endsWith('.')) {
+            if (this.priceForCurrency.linked && isConvertibleValue(value)) {
                 this.onPriceGrossChangeDebounce();
             }
         },
@@ -303,19 +308,19 @@ export default {
             this.$emit('price-net-change', value);
             this.$emit('change', this.priceForCurrency);
 
-            if (this.priceForCurrency.linked && value && !value.toString().endsWith('.')) {
+            if (this.priceForCurrency.linked && isConvertibleValue(value)) {
                 this.onPriceNetChangeDebounce();
             }
         },
 
         onPriceGrossChange(value) {
-            if (this.priceForCurrency.linked && value && !value.toString().endsWith('.')) {
+            if (this.priceForCurrency.linked && isConvertibleValue(value)) {
                 this.convertGrossToNet(value);
             }
         },
 
         onPriceNetChange(value) {
-            if (this.priceForCurrency.linked && value && !value.toString().endsWith('.')) {
+            if (this.priceForCurrency.linked && isConvertibleValue(value)) {
                 this.convertNetToGross(value);
             }
         },

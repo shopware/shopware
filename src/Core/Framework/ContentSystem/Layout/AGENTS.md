@@ -7,7 +7,6 @@
 - Why these constraints hold, and what was not chosen (stored model): [stored-model.md](../docs/principles/stored-model.md)
 - Why both paths share one codec, and why the codec and the descriptor stay mirrored: [drafts-and-gates.md](../docs/principles/drafts-and-gates.md)
 - Why these constraints hold, and what was not chosen (context wiring): [context-wiring.md](../docs/principles/context-wiring.md)
-- What holds only until the module's first release, and why: [until-first-release.md](../docs/principles/until-first-release.md)
 - Why the value rules hold, and what was not chosen: [values.md](../docs/principles/values.md)
 - Why one codec serves storage and the Admin API, and what a read keeps: [wire-contract.md](../docs/principles/wire-contract.md)
 - Why a layout write has one admission point and a fixed pass order: [write-admission.md](../docs/principles/write-admission.md)
@@ -23,7 +22,6 @@
 - Seed a primitive default at write time, never at serve time: `LayoutDefaultSeeder` fills an absent key, never a present value, an authored null included. Check: does a serve or diagnostics path read a type default? `LayoutDefaultSeederTest` and `LayoutDiagnosticsTest` pin both halves.
 - Keep the draft decode and the write on one `StoredTreeStyleNormalizer` service, beside the one codec below. Check: `DraftLayoutStyleParityTest` pins that the draft decode and the write produce the same style.
 - Tighten `StoredElementCodec` and `StoredTreeConstraints` in one change. Check: `StoredTreeShapeConformanceTest` pins where the two agree.
-- Until the module's first release, change an existing row in place with no migration, read-side repair or shim. Check: can such a row still be read?
 - Check a written value, never repair it. No client may sanitize a value before sending it. Check: does the change add a server pass or a client step that rewrites, coerces, filters or drops a value?
 - Keep one codec for the stored element: storage and every Admin API body go through `StoredElementCodec`. Check: `StoredElementCodecTest` round-trips every field.
 - Keep the Admin API on the stored shape and the Store API on the rendered one. No stored-only key in a Store API body. No rendered value on the Admin API. Check: can the change put either into the wrong API?

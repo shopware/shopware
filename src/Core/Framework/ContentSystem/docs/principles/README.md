@@ -100,7 +100,6 @@ Orientation aid. The rule text is normative.
 - [wire-contract.md](wire-contract.md): one paired codec, which element class each API exchanges, module-owned encoding, one rendered forest per format, wire-inert names, and read policy
 - [extension-surface.md](extension-surface.md): the bounded extension surface, validated app declarations, guards that never throw on a permitted listener action, declared data, and platform base classes left alone
 - [clients.md](clients.md): the administration's one element type and the editor controls that metadata chooses, and the storefront's shared element partial
-- [until-first-release.md](until-first-release.md): the stance that holds only until the module's first release
 
 ## Before changing code
 

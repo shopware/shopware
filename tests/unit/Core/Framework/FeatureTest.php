@@ -218,14 +218,26 @@ class FeatureTest extends TestCase
         Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
     }
 
-    public function testTriggerDeprecationOrThrowReturnsWhenDeprecationsAreDisabled(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testTriggerDeprecationOrThrowDoesNotEmitWhenMajorFlagIsInactive(): void
     {
         $deprecationTrigger = $this->createMock(Triggerer::class);
         $deprecationTrigger->expects($this->never())->method('deprecation');
         Feature::$triggerer = $deprecationTrigger;
         Feature::$emitDeprecations = false;
 
-        Feature::triggerDeprecationOrThrow('v6.5.0.0', 'test');
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'test');
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the major feature flag.
+     */
+    public function testTriggerDeprecationOrThrowStillThrowsWhenMajorFlagIsActiveAndDeprecationsAreDisabled(): void
+    {
+        Feature::$emitDeprecations = false;
+
+        $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: test'));
+        Feature::triggerDeprecationOrThrow('v6.8.0.0', 'test');
     }
 
     #[DisabledFeatures(['v6.5.0.0'])]

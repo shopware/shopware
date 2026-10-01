@@ -15,6 +15,7 @@ use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Controller\AuthController as AdminAuthController;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
@@ -37,6 +38,7 @@ use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\RateLimiter\Policy\NoLimiter;
@@ -211,7 +213,8 @@ class RateLimiterTest extends TestCase
             static::getContainer()->get('request_stack'),
             $this->mockResetLimiter([
                 RateLimiter::LOGIN_ROUTE => 1,
-            ])
+            ]),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $this->createCustomer('loginTest@example.com');

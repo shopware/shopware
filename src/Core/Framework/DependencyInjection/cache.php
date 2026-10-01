@@ -73,7 +73,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(CartService::class),
         ])
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(StampedeProtectionConfigurator::class)
         ->public()
@@ -285,7 +286,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.http_cache.reverse_proxy.enabled'),
             service('event_dispatcher'),
         ])
-        ->tag('kernel.event_listener', ['event' => BeforeSendResponseEvent::class]);
+        ->tag('kernel.event_listener', ['event' => BeforeSendResponseEvent::class])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(ReverseProxyCache::class)
         ->args([

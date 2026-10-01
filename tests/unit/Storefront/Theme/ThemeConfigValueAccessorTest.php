@@ -6,7 +6,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -49,8 +48,6 @@ class ThemeConfigValueAccessorTest extends TestCase
 
     public function testGetWithoutThemeIdPostV68(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
         $configLoader = static::createStub(AbstractResolvedConfigLoader::class);
         $cacheTagCollector = static::createStub(CacheTagCollector::class);
 

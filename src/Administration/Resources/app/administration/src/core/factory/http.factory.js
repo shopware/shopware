@@ -228,6 +228,8 @@ function createMirroredInterceptorManager(axiosV0Interceptors, axiosV1Intercepto
             handlers[id] = null;
             axiosV0Interceptors.eject(id);
             axiosV1Interceptors.eject(id);
+            axiosV0Interceptors.handlers[id] = null;
+            axiosV1Interceptors.handlers[id] = null;
         },
         clear() {
             replaceHandlers([]);

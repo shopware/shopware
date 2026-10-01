@@ -163,6 +163,10 @@ whenever the parent supplies it. The message names the path of components that u
 thrown inside a Vue hook, Vue's error handling applies: a development build aborts the mount, a
 production build logs the error and keeps rendering.
 
+A `majorFlag` that is not registered, like the typo `V6_8_0` or the minor `V6_7_5_0`, can never become
+active. It logs a console error instead of the warning. So does a `deprecated` option that is no version,
+like `true`.
+
 Jest silences the `[Deprecation]` warnings through `global.allowedErrors`, because the suite runs both
 sides of a flag. A test that asserts a warning spies on `console.warn`.
 

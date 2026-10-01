@@ -3,6 +3,10 @@
  */
 
 describe('src/app/service/feature.service', () => {
+    beforeAll(() => {
+        Shopware.Feature.init({ V7_0_0_0: false });
+    });
+
     afterEach(() => {
         jest.restoreAllMocks();
     });
@@ -20,6 +24,17 @@ describe('src/app/service/feature.service', () => {
             Shopware.Service('feature').triggerDeprecationOrThrow('V7_0_0_0', 'otherService() is deprecated.');
 
             expect(warn).toHaveBeenCalledWith('[Deprecation]', 'otherService() is deprecated.');
+        });
+
+        it('logs an error for a flag that is not registered', () => {
+            const error = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            Shopware.Service('feature').triggerDeprecationOrThrow('V6_8_0', 'typoService() is deprecated.');
+
+            expect(error).toHaveBeenCalledWith(
+                '[Deprecation]',
+                'typoService() is deprecated.\nNote: this deprecation has a typo: "V6_8_0" is an unknown feature flag. Please fix it.',
+            );
         });
     });
 });

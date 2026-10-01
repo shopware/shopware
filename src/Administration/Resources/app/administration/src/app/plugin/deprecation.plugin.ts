@@ -57,7 +57,7 @@ export default {
 };
 
 function guard(component: ComponentPublicInstance, deprecation: Deprecation, subject: string): void {
-    const { version, comment } = typeof deprecation === 'string' ? { version: deprecation, comment: '' } : deprecation;
+    const { version, comment } = typeof deprecation === 'object' ? deprecation : { version: deprecation, comment: '' };
 
     const message = [
         `${subject} and will be removed in Shopware ${version}.`,
@@ -71,9 +71,14 @@ function guard(component: ComponentPublicInstance, deprecation: Deprecation, sub
 }
 
 /**
- * `v6.8.0.0`, `6.8.0` and `6.8` all map to the flag `V6_8_0_0`.
+ * `v6.8.0.0`, `6.8.0` and `6.8` all map to the flag `V6_8_0_0`. A non-string, like `true` from an
+ * untyped component, is passed on as it is, so the guard reports it as an unknown flag.
  */
-function toMajorFlag(version: string): string {
+function toMajorFlag(version: unknown): string {
+    if (typeof version !== 'string') {
+        return String(version);
+    }
+
     const [
         major,
         minor,

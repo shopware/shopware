@@ -4,8 +4,8 @@
 
 import { mount } from '@vue/test-utils';
 
-// v7.0.0.0 stands in for any future major. Its flag is only on where a test activates it, so the
-// cleanup of a real major leaves these tests as they are.
+// v7.0.0.0 stands in for any future major. It is registered like the real ones and only on where a test
+// activates it, so the cleanup of a real major leaves these tests as they are.
 const legacyComponent = {
     name: 'sw-legacy',
     template: '<div />',
@@ -32,6 +32,10 @@ function mountInPage(template: string, pageName = 'sw-page'): void {
 
 describe('src/app/plugin/deprecation.plugin', () => {
     let warn: jest.SpyInstance;
+
+    beforeAll(() => {
+        Shopware.Feature.init({ V7_0_0_0: false });
+    });
 
     beforeEach(() => {
         warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
@@ -73,6 +77,17 @@ describe('src/app/plugin/deprecation.plugin', () => {
                 'Used in: VTU_ROOT > sw-list > sw-legacy',
                 'Used in: VTU_ROOT > sw-grid > sw-legacy',
             ]);
+        });
+
+        it('reports a removal version that is no version as an unknown flag', () => {
+            const error = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            mount({ ...legacyComponent, deprecated: true });
+
+            expect(error).toHaveBeenCalledWith(
+                '[Deprecation]',
+                expect.stringContaining('"true" is an unknown feature flag'),
+            );
         });
     });
 

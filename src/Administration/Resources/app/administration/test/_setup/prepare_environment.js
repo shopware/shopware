@@ -55,7 +55,7 @@ import {
 } from '@shopware-ag/meteor-component-library';
 import { createI18n } from 'vue-i18n';
 import aclService from './_mocks_/acl.service.mock';
-import feature from './_mocks_/feature.service.mock';
+import feature, { FeatureMock } from './_mocks_/feature.service.mock';
 import repositoryFactory from './_mocks_/repositoryFactory.service.mock';
 import flushPromises from '../_helper_/flushPromises';
 import wrapTestComponent from '../_helper_/componentWrapper';
@@ -176,7 +176,7 @@ const customFieldDataProviderService = {
 // Add services
 Shopware.Service().register('acl', () => aclService);
 Shopware.Service().register('feature', () => feature);
-Shopware.Feature = Shopware.Service('feature');
+Shopware.Feature = FeatureMock;
 Shopware.Service().register('repositoryFactory', () => repositoryFactory);
 Shopware.Service().register('customFieldDataProviderService', () => customFieldDataProviderService);
 

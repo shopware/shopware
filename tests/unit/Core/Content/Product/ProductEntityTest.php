@@ -68,6 +68,18 @@ class ProductEntityTest extends TestCase
         static::assertFalse($upcoming->isReleased());
     }
 
+    public function testIsGuaranteeConfirmedTreatsAnInheritedValueAsUnconfirmed(): void
+    {
+        $product = new ProductEntity();
+
+        static::assertNull($product->get('guaranteeConfirmed'));
+        static::assertFalse($product->isGuaranteeConfirmed());
+
+        $product->setGuaranteeConfirmed(true);
+
+        static::assertTrue($product->isGuaranteeConfirmed());
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testStatesRoundTripOnTheLegacyPath(): void
     {

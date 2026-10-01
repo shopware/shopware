@@ -23,7 +23,7 @@ nightlies and the release gate. Change one and you change all three contexts.
 | `integration-major.yml` | the same, plus Jest, once per in-flight major (`FEATURE_ALL: v6.8.0.0`) |
 | `admin.yml` | ESLint, Stylelint and Jest for the Administration |
 | `storefront.yml` | ESLint, Stylelint, snippet and Twig lints, Jest and Vitest |
-| `acceptance.yml` | Playwright acceptance runs |
+| `acceptance.yml` | Playwright acceptance runs, reused by the label-triggered `acceptance-major.yml` PR entry point |
 | `lint-actions.yml` | actionlint, yamlfmt, zizmor, and the `.github/bin/js` tests |
 
 Composition, rather than duplication, is how the arms are built:
@@ -47,7 +47,9 @@ Three mechanisms decide how much runs:
 - **Major arms** — opt in on a PR with the `major-php`, `major-js`, or
   `major-acceptance` label, or the `major-tests` umbrella. `01-pr-issue-labeler.yml`
   applies the relevant PHP and Administration JS labels automatically when the diff
-  touches major feature flags. Nightly and manual runs ignore the labels. Each arm
+  touches major feature flags, and `major-acceptance` when acceptance specs change.
+  This detector retains its same-repository PR restriction; fork PRs can opt in manually.
+  Nightly and manual runs ignore the labels. Each arm
   runs one leg per major that has not shipped yet, so no lane mixes two majors; the
   lanes come from `feature.yaml` via `.github/bin/lib/feature-flags.php` and need no
   upkeep in the workflows.

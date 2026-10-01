@@ -1,0 +1,26 @@
+name: Major acceptance tests
+
+# A separate PR entry point keeps label-triggered runs from replacing acceptance-check.
+# Both repositories use the same label opt-in; no merge-queue or nightly scheduling here.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
+
+permissions:
+  contents: read
+
+jobs:
+  acceptance-major:
+    if: >-
+      (contains(github.event.pull_request.labels.*.name, 'major-acceptance') ||
+       contains(github.event.pull_request.labels.*.name, 'major-tests')) &&
+      (github.event.action != 'labeled' || github.event.label.name == 'major-acceptance' ||
+       github.event.label.name == 'major-tests')
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/acceptance.yml
+    secrets: inherit
+    with:
+      major: only

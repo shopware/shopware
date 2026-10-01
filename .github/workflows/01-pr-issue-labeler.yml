@@ -24,8 +24,8 @@ jobs:
       - uses: srvaroa/labeler@bf262763a8a8e191f5847873aecc0f29df84f957 # v1.14.0
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-      # Auto-apply the relevant major-test labels when the diff touches major feature flags, so the
-      # matching integration-major arm runs on the PRs where it matters without running it everywhere.
+      # Auto-apply major-test labels for feature-flag changes and acceptance spec changes, so the
+      # matching integration-major or acceptance-major arm runs where it matters.
       # Piggybacks on this job to avoid a runner spin-up of its own; costs one API call per PR event.
       # all further run conditions (action, fork head, existing labels) live in the
       # module's `shouldDetect` where they are unit-tested
@@ -40,7 +40,7 @@ jobs:
             const arms = await detectMajorTestArms({ github, core, context })
             const labels = labelsForMajorTestArms(arms, context.payload.pull_request.labels)
             core.setOutput('labels', labels.join(','))
-      # an app token is required for the added label to trigger integration-major's `labeled` run;
+      # an app token is required for the added label to trigger the major workflows' `labeled` runs;
       # if minting fails we fall back to GITHUB_TOKEN — the label still lands, the matrix starts on the next push
       - id: sts-major
         if: steps.detect-major.outputs.labels != ''

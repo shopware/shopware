@@ -1,3 +1,11 @@
+# 6.7.15.1 (upcoming)
+
+## Storefront
+
+### Display the complete legal guarantee notice at checkout
+
+Cart settings now offer `core.cart.showLegalGuaranteeNoticeInline` to display the complete localized legal guarantee notice below the checkout terms and conditions. The setting is disabled by default and requires `core.cart.showLegalGuaranteeNotice` to be enabled. Themes can customize its placement through the `page_checkout_confirm_legal_guarantee_notice_inline` and `page_checkout_confirm_legal_guarantee_notice_inline_bottom` blocks.
+
 # 6.7.15.0
 
 ## Features

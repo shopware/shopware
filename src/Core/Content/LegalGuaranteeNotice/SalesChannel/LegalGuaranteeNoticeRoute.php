@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Content\LegalGuaranteeNotice\SalesChannel;
 
+use Shopware\Core\Content\LegalGuaranteeNotice\Extension\LegalGuaranteeNoticeRouteExtension;
 use Shopware\Core\Content\LegalGuaranteeNotice\LegalGuaranteeNoticeRenderer;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -22,6 +24,7 @@ class LegalGuaranteeNoticeRoute extends AbstractLegalGuaranteeNoticeRoute
     public function __construct(
         private readonly SystemConfigService $systemConfigService,
         private readonly LegalGuaranteeNoticeRenderer $renderer,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -36,6 +39,15 @@ class LegalGuaranteeNoticeRoute extends AbstractLegalGuaranteeNoticeRoute
         methods: [Request::METHOD_GET]
     )]
     public function load(SalesChannelContext $context): LegalGuaranteeNoticeRouteResponse
+    {
+        return $this->extensions->publish(
+            name: LegalGuaranteeNoticeRouteExtension::NAME,
+            extension: new LegalGuaranteeNoticeRouteExtension($context),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(SalesChannelContext $context): LegalGuaranteeNoticeRouteResponse
     {
         if (!$this->systemConfigService->getBool('core.cart.showLegalGuaranteeNotice', $context->getSalesChannelId())) {
             return new LegalGuaranteeNoticeRouteResponse(null, null);

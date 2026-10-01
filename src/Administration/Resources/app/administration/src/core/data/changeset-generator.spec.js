@@ -4,6 +4,7 @@
 
 import ChangesetGenerator from 'src/core/data/changeset-generator.data';
 import EntityFactory from 'src/core/data/entity-factory.data';
+import Entity from 'src/core/data/entity.data';
 import entitySchemaMock from 'src/../test/_mocks_/entity-schema.json';
 
 const changesetGenerator = new ChangesetGenerator();
@@ -356,6 +357,66 @@ describe('src/core/data/changeset-generator.data.js', () => {
 
             expect(changes.optionalNote).toBeNull();
             expect(changes.plainName).toBeNull();
+        });
+    });
+
+    describe('to-many associations which were not loaded', () => {
+        beforeAll(() => {
+            Shopware.EntityDefinition.add('missing_association_test', {
+                entity: 'missing_association_test',
+                properties: {
+                    id: { type: 'uuid', flags: { primary_key: true, required: true } },
+                    name: { type: 'string', flags: {} },
+                    oneToManyExtension: {
+                        type: 'association',
+                        relation: 'one_to_many',
+                        entity: 'product',
+                        flags: { extension: true, cascade_delete: true },
+                        primary: 'id',
+                        referenceField: 'missingAssociationTestId',
+                    },
+                    manyToManyExtension: {
+                        type: 'association',
+                        relation: 'many_to_many',
+                        entity: 'category',
+                        mapping: 'missing_association_test_category',
+                        local: 'missingAssociationTestId',
+                        reference: 'categoryId',
+                        flags: { extension: true },
+                    },
+                    oneToMany: {
+                        type: 'association',
+                        relation: 'one_to_many',
+                        entity: 'product',
+                        flags: {},
+                        primary: 'id',
+                        referenceField: 'missingAssociationTestId',
+                    },
+                    manyToMany: {
+                        type: 'association',
+                        relation: 'many_to_many',
+                        entity: 'category',
+                        mapping: 'missing_association_test_category',
+                        local: 'missingAssociationTestId',
+                        reference: 'categoryId',
+                        flags: {},
+                    },
+                },
+            });
+        });
+
+        it('generates the changeset of the loaded fields', () => {
+            const testEntity = new Entity('missing-association-id', 'missing_association_test', {
+                id: 'missing-association-id',
+                name: 'Ada',
+                extensions: {},
+            });
+            testEntity.name = 'Grace';
+
+            const { changes, deletionQueue } = changesetGenerator.generate(testEntity);
+
+            expect(changes).toEqual({ id: 'missing-association-id', name: 'Grace' });
+            expect(deletionQueue).toEqual([]);
         });
     });
 });

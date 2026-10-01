@@ -110,6 +110,11 @@ export default class ChangesetGenerator {
 
             switch (field.relation) {
                 case 'one_to_many': {
+                    // associations which were not loaded by the API have no collection to diff against
+                    if (!draftValue || !originValue) {
+                        return;
+                    }
+
                     const associationChanges = this.handleOneToMany(field, draftValue, originValue, deletionQueue);
                     if (associationChanges.length > 0) {
                         changes[fieldName] = associationChanges;
@@ -117,6 +122,10 @@ export default class ChangesetGenerator {
                     break;
                 }
                 case 'many_to_many': {
+                    if (!draftValue || !originValue) {
+                        return;
+                    }
+
                     const associationChanges = this.handleManyToMany(draftValue, originValue, deletionQueue, field, entity);
                     if (associationChanges.length > 0) {
                         changes[fieldName] = associationChanges;

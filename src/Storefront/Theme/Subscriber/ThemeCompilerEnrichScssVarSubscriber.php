@@ -7,7 +7,7 @@ use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\IOStreamHelper;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
-use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
+use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -22,7 +22,7 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
      * @internal
      */
     public function __construct(
-        private readonly SystemConfigDefinitionService $systemConfigDefinitionService,
+        private readonly ConfigurationService $configurationService,
         private readonly StorefrontPluginRegistry $storefrontPluginRegistry
     ) {
     }
@@ -49,7 +49,7 @@ class ThemeCompilerEnrichScssVarSubscriber implements EventSubscriberInterface
             foreach ($this->storefrontPluginRegistry->getConfigurations() as $configuration) {
                 $allConfigs = array_merge(
                     $allConfigs,
-                    $this->systemConfigDefinitionService->getResolvedConfiguration(
+                    $this->configurationService->getResolvedSystemConfigDefinition(
                         $configuration->getTechnicalName() . '.config',
                         $event->getContext(),
                         $event->getSalesChannelId()

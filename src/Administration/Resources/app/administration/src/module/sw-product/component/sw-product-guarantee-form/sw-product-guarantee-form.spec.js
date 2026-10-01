@@ -44,7 +44,7 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
                             <div class="sw-inherit-wrapper">
                                 <slot name="content" v-bind="{
                                     currentValue: value,
-                                    isInherited: false,
+                                    isInherited: hasParent && (value === null || value === undefined),
                                     updateCurrentValue: (val) => $emit('update:value', val)
                                 }"></slot>
                             </div>`,
@@ -107,17 +107,25 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
                           }
                         : {}),
                     'mt-switch': {
+                        // Like the real mt-switch, an inherited switch shows its inheritedValue, ignores modelValue
+                        // and locks its input, while only the disabled prop greys out the whole switch.
                         template: `
-                            <div class="mt-switch">
+                            <div class="mt-switch" :class="{ 'mt-switch--disabled': disabled }">
                                 <label>{{ label }}</label>
                                 <input
                                     type="checkbox"
-                                    :checked="modelValue"
-                                    :disabled="disabled"
+                                    :checked="isInherited ? inheritedValue : modelValue"
+                                    :disabled="disabled || isInherited"
                                     @change="$emit('update:model-value', $event.target.checked)"
                                 />
                             </div>`,
-                        props: ['modelValue', 'label', 'disabled'],
+                        props: [
+                            'modelValue',
+                            'label',
+                            'disabled',
+                            'isInherited',
+                            'inheritedValue',
+                        ],
                     },
                     'mt-banner': {
                         template: '<div class="mt-banner"><slot></slot></div>',
@@ -156,6 +164,15 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
 
         expect(store.product.guaranteeMonths).toBe(42);
         expect(store.product.guaranteeConfirmed).toBe(true);
+    });
+
+    it('should show the confirmation a variant inherits from its parent product', async () => {
+        store.product.guaranteeConfirmed = null;
+        store.parentProduct = { id: 'parentId', guaranteeConfirmed: true };
+        await flushPromises();
+
+        expect(wrapper.find('.mt-switch input').element.checked).toBe(true);
+        expect(wrapper.find('.mt-switch').classes()).not.toContain('mt-switch--disabled');
     });
 
     it('should only offer valid guarantee durations in the stepper', async () => {

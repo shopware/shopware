@@ -27,10 +27,9 @@ class TwigEscapeCacheResetTest extends TestCase
         CachedEscaperRuntime::resetEscapeCache();
 
         try {
-            // Render so ServicesResetter has an initialized `twig` service to reset.
-            $twig = $container->get('twig');
-            static::assertInstanceOf(Environment::class, $twig);
-            $twig->createTemplate('{{ "warmup"|escape }}')->render([]);
+            // ServicesResetter only resets initialized services; fetching `twig` is enough. Rendering is not needed
+            // and would resolve the request-dependent Storefront globals without a request for every later test.
+            static::assertInstanceOf(Environment::class, $container->get('twig'));
             static::assertTrue($container->initialized('twig'));
 
             // Warm the cache: a second identical escape is a hit, so the inner escaper runs only once.

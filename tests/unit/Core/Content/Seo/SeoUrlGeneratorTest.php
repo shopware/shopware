@@ -108,6 +108,63 @@ class SeoUrlGeneratorTest extends TestCase
         static::assertSame($this->salesChannel->getId(), $urls[0]->getSalesChannelId());
     }
 
+    public function testGeneratePathInfoWithTheTargetRouteAndMergedRouteParameters(): void
+    {
+        $entity = $this->createTestEntity();
+
+        $entityRepository = new StaticEntityRepository([
+            new EntityCollection([$entity]),
+            new EntityCollection(),
+        ], $this->createTestDefinition());
+
+        $parser = static::createStub(TwigVariableParser::class);
+        $parser->method('parse')->willReturn([]);
+
+        $config = new SeoUrlRouteConfig(
+            definition: $this->createTestDefinition(),
+            routeName: 'storefront.app.MyApp.blog-detail',
+            template: 'my-blog-post',
+            primaryKeyParameterKey: 'id',
+            targetRouteName: 'frontend.script_endpoint',
+            routeParameters: ['hook' => 'blog-detail'],
+        );
+
+        $generateCalls = [];
+        $router = static::createStub(RouterInterface::class);
+        $router->method('generate')->willReturnCallback(
+            static function (string $name, array $parameters) use (&$generateCalls): string {
+                $generateCalls[] = [$name, $parameters];
+
+                return '/storefront/script/blog-detail?id=entity-1';
+            }
+        );
+
+        $route = static::createStub(SeoUrlRouteInterface::class);
+        $route->method('getConfig')->willReturn($config);
+        $route->method('getMapping')->willReturn(new SeoUrlMapping(
+            $entity,
+            $config->getPrimaryKeyParameter('entity-1'),
+            ['ceBlog' => ['id' => 'entity-1']]
+        ));
+
+        $generator = $this->createGenerator(
+            [self::TEST_ENTITY_NAME => $entityRepository],
+            $this->createTwigEnvironment(),
+            $parser,
+            router: $router
+        );
+
+        $urls = iterator_to_array($generator->generate(['entity-1'], 'my-blog-post', $route, $this->context, $this->salesChannel), false);
+
+        static::assertSame(
+            [['frontend.script_endpoint', ['hook' => 'blog-detail', 'id' => 'entity-1']]],
+            $generateCalls
+        );
+        static::assertCount(1, $urls);
+        static::assertSame('/storefront/script/blog-detail?id=entity-1', $urls[0]->getPathInfo());
+        static::assertSame('my-blog-post', $urls[0]->getSeoPathInfo());
+    }
+
     public function testGenerateForHeadlessStoresRelativeSeoPathInfo(): void
     {
         $entity = $this->createTestEntity();

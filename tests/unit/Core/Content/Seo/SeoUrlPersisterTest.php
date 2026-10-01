@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Content\Seo;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Platforms\MySQLPlatform;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -176,6 +177,18 @@ class SeoUrlPersisterTest extends TestCase
         ];
     }
 
+    public function testAChangedPathInfoIsWrittenWithoutReplacingAWriteProtectedSeoUrl(): void
+    {
+        $writtenValues = $this->persistSeoUrlUpdate(
+            ['seoPathInfo' => 'manual-path', 'isModified' => true, 'pathInfo' => '/storefront/script/old-hook?id=1'],
+            ['seoPathInfo' => 'template-path', 'isModified' => false, 'pathInfo' => '/storefront/script/new-hook?id=1'],
+            overwrite: false
+        );
+
+        static::assertContains('/storefront/script/new-hook?id=1', $writtenValues, 'Expected the SEO URLs of the entity to be retargeted to the new path info.');
+        static::assertNotContains('template-path', $writtenValues, 'Expected no SEO URL row to be written for "template-path".');
+    }
+
     public function testForceUpdateSeoUrlsPersistsNewSeoPaths(): void
     {
         $connection = $this->createMock(Connection::class);
@@ -292,12 +305,13 @@ class SeoUrlPersisterTest extends TestCase
     /**
      * Runs an update for one entity that already has a canonical SEO URL and returns every value that was
      * written to the database, so a test can check whether a row carrying a given `seo_path_info` was
-     * inserted. This is the only place that knows how the persister talks to the database: the canonical
-     * URL is served through the query builder used by `findCanonicalPaths()`, the writes are captured from
-     * the insert queue, which executes statements on the connection.
+     * inserted or a `path_info` was written. This is the only place that knows how the persister talks to
+     * the database: the canonical URL is served as the result of the one query the persister executes, the
+     * writes are captured from the statements executed on the connection, no matter whether the insert
+     * queue or a query builder executes them.
      *
-     * @param array{seoPathInfo: string, isModified: bool} $existing the canonical SEO URL already stored
-     * @param array{seoPathInfo: string, isModified: bool} $update the SEO URL the persister is asked to store
+     * @param array{seoPathInfo: string, isModified: bool, pathInfo?: string} $existing the canonical SEO URL already stored
+     * @param array{seoPathInfo: string, isModified: bool, pathInfo?: string} $update the SEO URL the persister is asked to store, both share one path info unless given
      *
      * @return list<mixed> all values written to the database
      */
@@ -306,6 +320,7 @@ class SeoUrlPersisterTest extends TestCase
         $foreignKey = Uuid::randomHex();
         $salesChannelId = Uuid::randomHex();
         $routeName = 'frontend.detail.page';
+        $pathInfo = '/detail/' . $foreignKey;
 
         $canonicalResult = static::createStub(Result::class);
         $canonicalResult->method('fetchAllAssociative')->willReturn([
@@ -315,19 +330,17 @@ class SeoUrlPersisterTest extends TestCase
                 'salesChannelId' => $salesChannelId,
                 'isModified' => $existing['isModified'] ? 1 : 0,
                 'seoPathInfo' => $existing['seoPathInfo'],
+                'pathInfo' => $existing['pathInfo'] ?? $pathInfo,
             ],
         ]);
-
-        $queryBuilder = static::createStub(QueryBuilder::class);
-        $queryBuilder->method('executeQuery')->willReturn($canonicalResult);
 
         $writtenValues = [];
         $transactions = 0;
 
         $connection = $this->createMock(Connection::class);
-        $connection->expects($this->atLeastOnce())
-            ->method('createQueryBuilder')
-            ->willReturn($queryBuilder);
+        $connection->method('createQueryBuilder')->willReturnCallback(static fn (): QueryBuilder => new QueryBuilder($connection));
+        $connection->method('getDatabasePlatform')->willReturn(new MySQLPlatform());
+        $connection->method('executeQuery')->willReturn($canonicalResult);
 
         // the writes happen inside a retryable transaction, so the double has to really run the closure,
         // otherwise no statement is ever reached and every assertion on the written values passes vacuously
@@ -355,7 +368,7 @@ class SeoUrlPersisterTest extends TestCase
             'foreignKey' => $foreignKey,
             'salesChannelId' => $salesChannelId,
             'routeName' => $routeName,
-            'pathInfo' => '/detail/' . $foreignKey,
+            'pathInfo' => $update['pathInfo'] ?? $pathInfo,
             'seoPathInfo' => $update['seoPathInfo'],
             'isModified' => $update['isModified'],
         ];

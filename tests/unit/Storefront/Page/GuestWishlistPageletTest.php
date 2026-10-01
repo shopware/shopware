@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -33,8 +32,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(GuestWishlistPageletLoader::class)]
 class GuestWishlistPageletTest extends TestCase
 {
-    use EventDispatcherBehaviour;
-
     private ProductListRoute&Stub $productListRouteMock;
 
     private SystemConfigService $systemConfigServiceStub;
@@ -113,7 +110,7 @@ class GuestWishlistPageletTest extends TestCase
             static::assertCount(3, $event->getPagelet()->getSearchResult()->getProducts());
         };
 
-        $this->addEventListener($this->eventDispatcher, GuestWishlistPageletLoadedEvent::class, $listenerClosure);
+        $this->eventDispatcher->addListener(GuestWishlistPageletLoadedEvent::class, $listenerClosure);
 
         $page = $this->getPageLoader($productListRoute)->load($request, $context);
 
@@ -149,7 +146,7 @@ class GuestWishlistPageletTest extends TestCase
             static::assertEquals($expectedCriteria, $event->getCriteria());
         };
 
-        $this->addEventListener($this->eventDispatcher, GuestWishListPageletProductCriteriaEvent::class, $listenerClosure);
+        $this->eventDispatcher->addListener(GuestWishListPageletProductCriteriaEvent::class, $listenerClosure);
 
         $this->getPageLoader()->load($request, $context);
 

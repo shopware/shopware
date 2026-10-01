@@ -23,11 +23,11 @@ use Shopware\Core\Framework\Log\Package;
 class TraitUsageInNewUnitTests
 {
     /**
-     * Behaviours that hook into the test lifecycle and therefore need the test instance.
+     * Behaviours that hook into the test lifecycle and therefore need the test instance. `EventDispatcherBehaviour`
+     * is not one of them in the unit suite: a unit test owns its dispatcher, so it registers listeners on it directly.
      */
     private const ALLOWED_TRAITS = [
         'Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour',
-        'Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour',
         'Symfony\Component\Clock\Test\ClockSensitiveTrait',
     ];
 

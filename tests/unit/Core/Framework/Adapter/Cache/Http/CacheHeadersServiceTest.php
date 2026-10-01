@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\RuleAreas;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
-use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -39,8 +38,6 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 #[CoversClass(CacheHeadersService::class)]
 class CacheHeadersServiceTest extends TestCase
 {
-    use EventDispatcherBehaviour;
-
     /**
      * @var array<string, string>
      */
@@ -356,7 +353,7 @@ class CacheHeadersServiceTest extends TestCase
         $firstCacheCookie = $firstResponse->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY)['']['/'][HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE];
         static::assertInstanceOf(Cookie::class, $firstCacheCookie);
 
-        $this->addEventListener($this->eventDispatcher, HttpCacheCookieEvent::class, static function (HttpCacheCookieEvent $event): void {
+        $this->eventDispatcher->addListener(HttpCacheCookieEvent::class, static function (HttpCacheCookieEvent $event): void {
             $ruleIds = $event->get('rule-ids');
             self::assertIsArray($ruleIds);
             $event->remove('rule-ids');
@@ -387,7 +384,7 @@ class CacheHeadersServiceTest extends TestCase
         $firstCacheCookie = $firstResponse->headers->getCookies(ResponseHeaderBag::COOKIES_ARRAY)['']['/'][HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE];
         static::assertInstanceOf(Cookie::class, $firstCacheCookie);
 
-        $this->addEventListener($this->eventDispatcher, HttpCacheCookieEvent::class, static function (HttpCacheCookieEvent $event): void {
+        $this->eventDispatcher->addListener(HttpCacheCookieEvent::class, static function (HttpCacheCookieEvent $event): void {
             $event->isCacheable = false;
         });
 

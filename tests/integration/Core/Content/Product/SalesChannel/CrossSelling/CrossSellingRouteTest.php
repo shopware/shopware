@@ -718,6 +718,65 @@ class CrossSellingRouteTest extends TestCase
         static::assertNotContains($productId, $element->getProducts()->getIds());
     }
 
+    public function testLoadShowsNoProductsForADynamicProductGroupWithOnlyAnEmptyCondition(): void
+    {
+        $productId = Uuid::randomHex();
+        $emptyStreamId = Uuid::randomHex();
+        $orContainerId = Uuid::randomHex();
+        $andContainerId = Uuid::randomHex();
+
+        // "Product" "is equal to any of" without a product, as saved by the Administration
+        static::getContainer()->get('product_stream.repository')->create([
+            [
+                'id' => $emptyStreamId,
+                'name' => 'Empty dynamic product group',
+                'filters' => [
+                    ['id' => $orContainerId, 'type' => 'multi', 'operator' => 'OR', 'position' => 0],
+                    ['id' => $andContainerId, 'parentId' => $orContainerId, 'type' => 'multi', 'operator' => 'AND', 'position' => 0],
+                    ['parentId' => $andContainerId, 'type' => 'equalsAny', 'field' => 'id', 'position' => 0],
+                ],
+            ],
+        ], $this->salesChannelContext->getContext());
+
+        $productData = $this->getProductData($productId);
+        $productData['crossSellings'] = [
+            [
+                'name' => 'Empty Cross Selling',
+                'position' => 1,
+                'sortBy' => ProductCrossSellingDefinition::SORT_BY_PRICE,
+                'sortDirection' => FieldSorting::ASCENDING,
+                'active' => true,
+                'productStreamId' => $emptyStreamId,
+            ],
+            [
+                'name' => 'Test Cross Selling',
+                'position' => 2,
+                'sortBy' => ProductCrossSellingDefinition::SORT_BY_PRICE,
+                'sortDirection' => FieldSorting::ASCENDING,
+                'active' => true,
+                'productStreamId' => $this->createProductStream(),
+            ],
+        ];
+
+        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+
+        $result = $this->route->load($productId, new Request(), $this->salesChannelContext, new Criteria())
+            ->getResult();
+
+        static::assertCount(2, $result);
+
+        $emptyElement = $result->first();
+        static::assertNotNull($emptyElement);
+        static::assertSame('Empty Cross Selling', $emptyElement->getCrossSelling()->getName());
+        static::assertSame(0, $emptyElement->getTotal());
+        static::assertCount(0, $emptyElement->getProducts());
+
+        $element = $result->last();
+        static::assertNotNull($element);
+        static::assertSame('Test Cross Selling', $element->getCrossSelling()->getName());
+        static::assertCount(5, $element->getProducts());
+    }
+
     public function testCrossSellingUsingDynamicGroupUpdatesAfterSeparateFilterSync(): void
     {
         $productId = Uuid::randomHex();

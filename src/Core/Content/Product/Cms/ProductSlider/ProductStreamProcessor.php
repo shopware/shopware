@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
+use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\EntityNotFoundException;
@@ -144,6 +145,16 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
         } catch (EntityNotFoundException $exception) {
             $this->logger->warning(
                 'Product stream configured for CMS product slider could not be found.',
+                [
+                    'productStreamId' => $config->getStringValue(),
+                    'exception' => $exception,
+                ]
+            );
+
+            return null;
+        } catch (NoFilterException $exception) {
+            $this->logger->warning(
+                'Product stream configured for CMS product slider has no usable filters.',
                 [
                     'productStreamId' => $config->getStringValue(),
                     'exception' => $exception,

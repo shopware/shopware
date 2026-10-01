@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -11,6 +12,7 @@ use Shopware\Core\Content\Product\Extension\ProductListingRouteExtension;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteResponse;
+use Shopware\Core\Content\ProductStream\ProductStreamException;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
@@ -19,10 +21,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -41,8 +45,7 @@ class ProductListingRouteTest extends TestCase
     public function testFiltersAreSetForCategories(): void
     {
         $categoryId = 'categoryId';
-        /** @var StaticEntityRepository<CategoryCollection> */
-        $categoryRepository = new StaticEntityRepository([
+        $categoryRepository = StaticEntityRepository::of(CategoryCollection::class, [
             new EntityCollection([
                 new PartialEntity([
                     'id' => $categoryId,
@@ -75,8 +78,7 @@ class ProductListingRouteTest extends TestCase
     {
         $categoryId = 'categoryId';
         $streamId = 'streamId';
-        /** @var StaticEntityRepository<CategoryCollection> */
-        $categoryRepository = new StaticEntityRepository([new EntityCollection([
+        $categoryRepository = StaticEntityRepository::of(CategoryCollection::class, [new EntityCollection([
             new PartialEntity(
                 [
                     'id' => $categoryId,
@@ -122,8 +124,7 @@ class ProductListingRouteTest extends TestCase
     {
         $categoryId = 'categoryId';
         $streamId = 'streamId';
-        /** @var StaticEntityRepository<CategoryCollection> */
-        $categoryRepository = new StaticEntityRepository([new EntityCollection([
+        $categoryRepository = StaticEntityRepository::of(CategoryCollection::class, [new EntityCollection([
             new PartialEntity(
                 [
                     'id' => $categoryId,
@@ -164,6 +165,52 @@ class ProductListingRouteTest extends TestCase
         );
     }
 
+    #[DataProvider('productStreamWithoutUsableFiltersProvider')]
+    public function testProductStreamWithoutUsableFiltersListsNoProducts(ShopwareHttpException $exception): void
+    {
+        $categoryId = 'categoryId';
+        $streamId = 'streamId';
+        $categoryRepository = StaticEntityRepository::of(CategoryCollection::class, [new EntityCollection([
+            new PartialEntity(
+                [
+                    'id' => $categoryId,
+                    'productStreamId' => $streamId,
+                    'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                ]
+            )])]);
+
+        $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
+        $productStreamBuilder->method('enrichCriteria')->willThrowException($exception);
+
+        $controller = new ProductListingRoute(
+            static::createStub(ProductListingLoader::class),
+            $categoryRepository,
+            $productStreamBuilder,
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $criteria = new Criteria();
+        $result = $controller->load(
+            $categoryId,
+            new Request(),
+            static::createStub(SalesChannelContext::class),
+            $criteria
+        )->getResult();
+
+        static::assertContainsEquals(new EqualsAnyFilter('product.id', []), $criteria->getFilters());
+        static::assertSame($streamId, $result->getStreamId());
+    }
+
+    /**
+     * @return \Generator<string, array{ShopwareHttpException}>
+     */
+    public static function productStreamWithoutUsableFiltersProvider(): \Generator
+    {
+        yield 'stream that is invalid or not indexed yet' => [ProductStreamException::noFilters('streamId')];
+        yield 'stream whose conditions are all empty' => [ProductStreamException::emptyProductStream('streamId')];
+    }
+
     public function testClassIsBaseOfDecorationChain(): void
     {
         $eventDispatcher = new EventDispatcher();
@@ -183,8 +230,7 @@ class ProductListingRouteTest extends TestCase
     public function testExtension(): void
     {
         $categoryId = 'categoryId';
-        /** @var StaticEntityRepository<CategoryCollection> */
-        $categoryRepository = new StaticEntityRepository([
+        $categoryRepository = StaticEntityRepository::of(CategoryCollection::class, [
             new EntityCollection([
                 new PartialEntity([
                     'id' => $categoryId,
@@ -224,8 +270,7 @@ class ProductListingRouteTest extends TestCase
         $categoryId = 'categoryId';
         $streamId = 'streamId';
 
-        /** @var StaticEntityRepository<CategoryCollection> */
-        $categoryRepository = new StaticEntityRepository([new EntityCollection([
+        $categoryRepository = StaticEntityRepository::of(CategoryCollection::class, [new EntityCollection([
             new PartialEntity(
                 [
                     'id' => $categoryId,
@@ -266,8 +311,7 @@ class ProductListingRouteTest extends TestCase
         $categoryId = 'categoryId';
         $streamId = 'streamId';
 
-        /** @var StaticEntityRepository<CategoryCollection> */
-        $categoryRepository = new StaticEntityRepository([new EntityCollection([
+        $categoryRepository = StaticEntityRepository::of(CategoryCollection::class, [new EntityCollection([
             new PartialEntity(
                 [
                     'id' => $categoryId,

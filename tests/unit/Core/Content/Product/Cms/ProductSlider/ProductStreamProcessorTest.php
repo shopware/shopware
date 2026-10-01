@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\Cms\ProductSlider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Rule\InvocationOrder;
 use PHPUnit\Framework\TestCase;
@@ -19,6 +20,7 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilter;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
+use Shopware\Core\Content\ProductStream\ProductStreamException;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Context;
@@ -33,6 +35,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -278,6 +281,48 @@ class ProductStreamProcessorTest extends TestCase
             ->method('dispatch');
 
         static::assertNull($this->getProcessor()->collect($slot, $this->config, $resolverContext));
+    }
+
+    #[DataProvider('productStreamWithoutUsableFiltersProvider')]
+    public function testCollectReturnsNullWhenProductStreamHasNoUsableFilters(ShopwareHttpException $exception): void
+    {
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
+
+        $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-id');
+        $this->config->add($config);
+
+        $this->productRepository->expects($this->never())->method('search');
+
+        $this->productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
+        $this->productStreamBuilder->expects($this->once())
+            ->method('enrichCriteria')
+            ->with(static::isInstanceOf(Criteria::class), 'product-stream-id', $resolverContext->getSalesChannelContext()->getContext())
+            ->willThrowException($exception);
+
+        $this->logger->expects($this->once())
+            ->method('warning')
+            ->with(
+                'Product stream configured for CMS product slider has no usable filters.',
+                [
+                    'productStreamId' => 'product-stream-id',
+                    'exception' => $exception,
+                ]
+            );
+
+        $this->eventDispatcher->expects($this->never())
+            ->method('dispatch');
+
+        static::assertNull($this->getProcessor()->collect($slot, $this->config, $resolverContext));
+    }
+
+    /**
+     * @return \Generator<string, array{ShopwareHttpException}>
+     */
+    public static function productStreamWithoutUsableFiltersProvider(): \Generator
+    {
+        yield 'stream that is invalid or not indexed yet' => [ProductStreamException::noFilters('product-stream-id')];
+        yield 'stream whose conditions are all empty' => [ProductStreamException::emptyProductStream('product-stream-id')];
     }
 
     public function testCollectDoesNotSwallowDeprecationFromBuildFiltersFallback(): void

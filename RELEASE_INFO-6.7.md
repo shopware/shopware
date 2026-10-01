@@ -180,6 +180,10 @@ Digital products are no longer limited to one unit per order regardless of `maxP
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
+### Reduced remote thumbnail URL generation overhead
+
+Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation
@@ -529,9 +533,6 @@ The Administration's product detail page enforces the same range.
 
 Values already stored above 600 months are untouched and keep rendering their label;
 they only have to be corrected the next time that product is written.
-### Reduced remote thumbnail URL generation overhead
-
-Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
 
 ### GARAN label in the order confirmation mail is sized and sits next to the line item
 

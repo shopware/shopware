@@ -155,6 +155,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(VirtualRootWrapper::class),
             service(PartialRenderer::class),
+            service(DataLoaderConfigSerializerProvider::class),
+            service(DataLoaderProvider::class),
         ]);
 
     // Output Services

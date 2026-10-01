@@ -38,7 +38,14 @@
                         show-clearable-button
                         :placeholder="getPlaceholder(field.type)"
                         @update:value="updateFieldValue(field.name, $event, baseUnit, selectedUnit)"
-                    />
+                    >
+                        <template
+                            v-if="field.config.entity === 'category'"
+                            #result-description-property="{ item }"
+                        >
+                            {{ getCategoryBreadcrumb(item) }}
+                        </template>
+                    </sw-form-field-renderer>
 
                     <sw-condition-unit-menu
                         v-if="field.config.unit"

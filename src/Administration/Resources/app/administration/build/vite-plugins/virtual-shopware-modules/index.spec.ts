@@ -213,43 +213,12 @@ describe('build/vite-plugins/virtual-shopware-modules', () => {
             expect(source).toContain('export default shopware.Composables;');
         });
 
-        it('gives a composable subpath the composable as default', () => {
-            const source = generateModuleSource('shopware:composables/useListing', registry, 'host') as string;
-
-            expect(source).toContain('export default shopware.Composables["useListing"];');
-            expect(source).not.toContain('export const');
-        });
-
         it('reads the global for an extension, which has no Administration source to import', () => {
             const source = generateModuleSource('shopware:data/Criteria', registry, 'extension') as string;
 
             expect(source).toContain('const shopware = globalThis.Shopware;');
             expect(source).not.toContain("from 'src/core/shopware'");
             expect(source).toContain('should be unreachable');
-            expect(source).not.toContain('Shopware.Composables');
-        });
-
-        describe('an extension importing the composables', () => {
-            /** Runs the generated preamble, everything before the first binding, against a fake global. */
-            const runPreamble = (specifier: string, shopware: unknown): void => {
-                const [preambleSource] = (generateModuleSource(specifier, registry, 'extension') as string).split('\n\n');
-
-                // eslint-disable-next-line @typescript-eslint/no-implied-eval
-                (new Function('globalThis', preambleSource) as (global: unknown) => void)({ Shopware: shopware });
-            };
-
-            it.each([
-                'shopware:composables',
-                'shopware:composables/useListing',
-            ])('names the required Shopware version when %s runs on an Administration without it', (specifier) => {
-                expect(() => runPreamble(specifier, { Utils: {} })).toThrow(
-                    '"shopware:composables" requires Shopware 6.7.16.0 or later',
-                );
-            });
-
-            it('passes on an Administration that has Shopware.Composables', () => {
-                expect(() => runPreamble('shopware:composables', { Composables: {} })).not.toThrow();
-            });
         });
 
         it('returns nothing for a specifier the registry does not list', () => {

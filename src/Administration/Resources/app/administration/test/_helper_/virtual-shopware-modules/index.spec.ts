@@ -15,7 +15,6 @@ import ruleContainerMixin from 'shopware:mixins/ruleContainer';
 import useNotificationStore from 'shopware:stores/notification';
 import useSystemStore from 'shopware:stores/system';
 import composables, { useListing } from 'shopware:composables';
-import useListingDefault from 'shopware:composables/useListing';
 import directUseListing from 'src/app/composables/use-listing';
 
 describe('shopware:* virtual modules', () => {
@@ -32,16 +31,6 @@ describe('shopware:* virtual modules', () => {
             expect(composables.useListing).toBe(Shopware.Composables.useListing);
         });
 
-        it('let a spec spy on a composable of the global object', () => {
-            const spy = jest.spyOn(Shopware.Composables, 'useListing');
-
-            expect(Shopware.Composables.useListing).toBe(spy);
-
-            spy.mockRestore();
-
-            expect(Shopware.Composables.useListing).toBe(directUseListing);
-        });
-
         it('export working members', () => {
             expect(createId()).toHaveLength(32);
             expect(new Criteria(1, 25).limit).toBe(25);
@@ -53,10 +42,6 @@ describe('shopware:* virtual modules', () => {
             expect(warn).toBe(Shopware.Utils.debug.warn);
             expect(error).toBe(Shopware.Utils.debug.error);
             expect(debugNamespace.warn).toBe(Shopware.Utils.debug.warn);
-        });
-
-        it('export a composable as default', () => {
-            expect(useListingDefault).toBe(directUseListing);
         });
 
         it('export a DAL class as default', () => {

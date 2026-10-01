@@ -24,9 +24,8 @@ import utils, { createId, debounce } from 'shopware:utils';
 import data, { Criteria } from 'shopware:data';
 ```
 
-`shopware:composables` provides `Shopware.Composables` the same way. It is
-`@experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES`, and an extension that imports it
-requires Shopware 6.7.16.0 or later.
+`shopware:composables` provides `Shopware.Composables` the same way, but has no subpaths. It is
+`@experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES`.
 
 Each member also has a subpath with a default export. Utility namespaces can have explicit named
 exports. For example, `shopware:utils/debug` provides `warn` and `error`.
@@ -35,7 +34,6 @@ exports. For example, `shopware:utils/debug` provides `warn` and `error`.
 import debug, { warn } from 'shopware:utils/debug';
 import EventBus from 'shopware:utils/EventBus';
 import CriteriaClass from 'shopware:data/Criteria';
-import useListing from 'shopware:composables/useListing';
 ```
 
 `shopware:mixins` and `shopware:stores` only have subpaths. The subpath matches the registry key.

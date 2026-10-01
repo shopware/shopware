@@ -82,24 +82,6 @@ function preamble(parsed: ParsedSpecifier, consumer: Consumer): string[] {
         'if (!shopware) {',
         `    throw new Error(${JSON.stringify(tooEarly)});`,
         '}',
-        ...(parsed.family === 'shopware:composables' ? composablesGuard() : []),
-    ];
-}
-
-/**
- * An extension bundle can run on an Administration older than its build, which has no
- * `Shopware.Composables` to read. Reading a composable there would fail with a bare TypeError.
- */
-function composablesGuard(): string[] {
-    const unavailable =
-        '"shopware:composables" requires Shopware 6.7.16.0 or later: this Administration has no ' +
-        "Shopware.Composables. Raise the extension's shopware/administration requirement or keep using " +
-        'the mixins through Shopware.Mixin.getByName().';
-
-    return [
-        'if (!shopware.Composables) {',
-        `    throw new Error(${JSON.stringify(unavailable)});`,
-        '}',
     ];
 }
 

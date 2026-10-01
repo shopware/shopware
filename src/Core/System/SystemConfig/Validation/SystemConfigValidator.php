@@ -8,7 +8,7 @@ use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
-use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
+use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -23,7 +23,7 @@ class SystemConfigValidator
      * @internal
      */
     public function __construct(
-        private readonly SystemConfigDefinitionService $systemConfigDefinitionService,
+        private readonly ConfigurationService $configurationService,
         private readonly DataValidator $validator
     ) {
     }
@@ -133,7 +133,7 @@ class SystemConfigValidator
     private function getSystemConfigByDomain(string $domain, Context $context): array
     {
         try {
-            return $this->systemConfigDefinitionService->getConfiguration($domain, $context);
+            return $this->configurationService->getSystemConfigDefinition($domain, $context);
         } catch (SystemConfigException) {
             return [];
         }

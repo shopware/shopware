@@ -3,7 +3,7 @@
 Server-side structural edits to a layout tree. Each operation takes a whole tree, applies exactly one structural
 change, re-resolves the result, and returns the new tree plus a diagnostics report. This is the "assemble" step
 performed server-side: the admin editor (or an agentic layout builder) sends the current draft and one edit, and gets
-back the edited, freshly diagnosed layout. The operations run two ways: statelessly over a request draft
+back the edited, freshly diagnosed layout. The operations run statelessly over a request draft
 (`MutationPipeline`, no persistence) and against a stored `content_layout` that the edit is committed to
 (`PersistedLayoutMutator`).
 
@@ -39,7 +39,7 @@ itself is agnostic to whether the tree came from a request draft or a loaded `co
 
 ## Result Channels
 
-Every operation reports five things alongside the new tree:
+Every operation reports these things alongside the new tree:
 
 - **affected** (`list<string>`) - element ids whose resolution may have changed. A conservative highlight hint for
   the editor, not a correctness claim; the diagnostics pass is the authority.
@@ -80,7 +80,7 @@ moved:
 - [docs/runners.md](docs/runners.md) - `MutationPipeline`, `PersistedLayoutMutator`, and result assembly
 - [docs/consumer-mirroring.md](docs/consumer-mirroring.md) - which resolutions become consumers on a created element
 - [docs/shared-primitives.md](docs/shared-primitives.md) - the helpers every operation inherits
-- [AGENTS.md](AGENTS.md) - the symbol index and the constraints that govern an edit here
+- [AGENTS.md](AGENTS.md) - the constraints that govern an edit here
 
 ## Subdirectories
 

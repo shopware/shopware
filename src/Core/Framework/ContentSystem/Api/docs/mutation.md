@@ -4,19 +4,9 @@
 
 The stateless draft mutation actions and the request envelope they share. Their response body is described in [mutation-response.md](mutation-response.md), their error model in [mutation-errors.md](mutation-errors.md), and applying a binding specification through a mutation in [mutation-binding.md](mutation-binding.md).
 
-```
-POST /api/_action/content-system/layout/insert-element
-POST /api/_action/content-system/layout/remove-element
-POST /api/_action/content-system/layout/move-element
-POST /api/_action/content-system/layout/replace-element
-POST /api/_action/content-system/layout/duplicate-element
-POST /api/_action/content-system/layout/wrap-elements
-POST /api/_action/content-system/layout/unwrap-element
-POST /api/_action/content-system/layout/attach-element
-POST /api/_action/content-system/layout/bind-element
-```
+Served by `Api/LayoutMutationController` under the path prefix `/api/_action/content-system/layout/`.
 
-Apply exactly one structural edit to an **unsaved** draft layout and return the re-resolved layout plus a diagnostics report, **without** persisting. This is the assemble step done server-side: the caller sends the current draft tree and one edit, and gets back the edited, freshly diagnosed tree, ready to feed straight into the next edit or into preview. Served by `Api/LayoutMutationController`; route names follow `api.action.content_system.layout.<op>`, where `<op>` is `insert_element`, `remove_element`, `move_element`, `replace_element`, `duplicate_element`, `wrap_elements`, `unwrap_element`, `attach_element`, or `bind_element`.
+Apply exactly one structural edit to an **unsaved** draft layout and return the re-resolved layout plus a diagnostics report, **without** persisting. This is the assemble step done server-side: the caller sends the current draft tree and one edit, and gets back the edited, freshly diagnosed tree, ready to feed straight into the next edit or into preview. Route names follow `api.action.content_system.layout.<op>`, where `<op>` is `insert_element`, `remove_element`, `move_element`, `replace_element`, `duplicate_element`, `wrap_elements`, `unwrap_element`, `attach_element`, or `bind_element`.
 
 Because each response already carries the diagnostics, a caller editing through these endpoints does not also call the diagnose endpoint. The optional `rootSource` binds that root source's context for binding-scope resolvability, using the same `Adapter/RootSourceRegistry::resolveGated()` selection as the diagnose endpoint (empty or omitted → only intrinsic well-formedness is evaluated).
 

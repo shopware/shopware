@@ -18,12 +18,6 @@
 
 ## Navigation
 
-- [docs/symbols.md](docs/symbols.md) - the classes, their roles, and their paths
-- [docs/operations.md](docs/operations.md) - per-operation contracts, constructors, error codes
-- [docs/replace-element.md](docs/replace-element.md) - carry-over and drop rules
-- [docs/shared-primitives.md](docs/shared-primitives.md) - the helpers every op inherits
-- [docs/runners.md](docs/runners.md) - pipeline, persisted mutator, result assembly
-- [docs/consumer-mirroring.md](docs/consumer-mirroring.md) - match rules and skips
 - [README.md](README.md) - the mental model
 - [failure-and-loss.md](../docs/principles/failure-and-loss.md) - why nothing is dropped silently, why a payload defect is a typed 400, and what was not chosen
 - [../docs/principles/mutation.md](../docs/principles/mutation.md) - why these constraints hold, and what was not chosen

@@ -15,7 +15,6 @@ In code:
 - `ContentPreviewController::previewUrl()` builds the page first and stores the request after that.
 - `ContentPreviewPayloadStore::load()` throws `previewPayloadInvalid` for a malformed stored envelope.
 - Only the mint route requires `content_layout:read`.
-- `ContentPreviewControllerTest` pins the rule.
 - `ContentSystemPreviewControllerTest` pins the rule.
 - See [preview-url.md](../../Api/docs/preview-url.md).
 
@@ -35,7 +34,6 @@ In code:
 
 - `ContentPreviewController::previewUrl()` returns only a URL.
 - `ContentSystemPreviewController::preview()` renders the storefront content page through `preview.html.twig`.
-- `ContentSystemPreviewControllerTest` pins the rule.
 - See [preview-url.md](../../Api/docs/preview-url.md).
 
 ## Preview rejects what it cannot render and reports nothing else
@@ -50,5 +48,4 @@ In code:
 
 - `DraftLayoutChecker::check()` keeps only `DiagnosticsReport::intrinsicErrors()`.
 - `ContentPreviewPageBuilder::build()` throws those errors as `elementTypesInvalid`.
-- `DraftLayoutCheckerTest` pins the rule.
 - See [preview-url.md](../../Api/docs/preview-url.md#errors).

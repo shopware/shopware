@@ -51,6 +51,11 @@ class LayoutDiagnostics
     }
 
     /**
+     * Flattens the tree and runs the checks in a fixed order. The strict style option view is read once for
+     * the whole analysis. The duplicate-id check runs once as a cross-element batch over the flattened set.
+     * Every element then runs its intrinsic checks, resolves its available context, and resolves its
+     * properties. The binding checks run only when `$rootContext` is not null.
+     *
      * @param list<StoredElement> $tree
      * @param list<ProvidedContext>|null $rootContext the bound source's root-ambient context, or null for the well-formedness subset
      */

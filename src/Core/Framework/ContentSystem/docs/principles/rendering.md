@@ -22,8 +22,6 @@ In code:
 
 - `ContentPipeline::load()` checks `prePruneForest` and the finished forest for a repeated id.
 - `WiringPlanner::plan()` validates `prePruneForest`.
-- `WiringPlannerTest` pins the rule.
-- `ContentPipelineTest` pins the rule.
 - `ContentRouteRenderingTest` pins the rule.
 - See [pipeline-steps.md](../pipeline-steps.md).
 
@@ -45,7 +43,6 @@ In code:
 - `StoredTreePreparer::prepare()` gates placeholder substitution on `RenderingMode::FULL`.
 - `ElementLowering::lower()` gates data resolution on the same mode.
 - `RenderedTreeFactory` walks both modes in one traversal.
-- `RenderedTreeFactoryTest` pins the rule.
 - `ContentRouteRenderingTest` pins the rule.
 - See [Rendering/README.md](../../Rendering/README.md).
 
@@ -62,7 +59,6 @@ In code:
 - `ContentPipeline::load()` calls `StoredTreePreparer::prepare()`, `WiringPlanner::plan()` and `ElementLowering::lower()`.
 - It reads a `TreePreparationResult`.
 - It dispatches only `ContentTreePreparationEvent` and `RenderedTreeFinalizationEvent`.
-- `ContentPipelineTest` pins the rule.
 - See [Event/README.md](../../Event/README.md).
 
 ## The two tree-replacement events fire at fixed points
@@ -79,7 +75,6 @@ In code:
 
 - `ContentPipeline::load()` dispatches both events without a `RenderingMode`.
 - It reads the tree that `replaceTree()` set.
-- `ContentPipelineTest` pins the rule.
 - See [custom-listeners.md](../../Event/Listener/docs/custom-listeners.md).
 
 ## A template reads a rendered element through a fixed small surface
@@ -95,7 +90,6 @@ In code:
 - `RenderedElement` has the five fields only.
 - `_element.html.twig` derives the class string from `style.values` and hands the property map to the component.
 - `StoredElement` has no class field.
-- `RenderedElementTest` pins the rule.
 - See [stored-and-rendered.md](../stored-and-rendered.md).
 
 ## A null in the rendered map means a resolution found nothing
@@ -112,8 +106,6 @@ In code:
 - It reads the loader values with `array_key_exists`.
 - It skips an authored null.
 - `ContextDeliveryResolver` overwrites stored values with loader values in the working map that it builds for `ContextDistributor::distribute()`.
-- `RenderedElementFactoryTest` pins the rule.
-- `ContextDeliveryResolverTest` pins the rule.
 - See [listener-api.md](../../Event/Listener/docs/listener-api.md).
 
 ```text

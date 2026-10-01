@@ -4,7 +4,7 @@ The plugin-facing guide to registering a new data source: what to extend, what t
 
 Data loaders fetch external data—APIs, computed values, aggregations. The built-in `entity` loader handles Shopware entities; other built-in loaders handle known data structures like product listing, navigation, language, currency, payment method, and shipping method.
 
-A data loader consists of three classes:
+A data loader consists of these classes:
 
 | Component  | Base Class                                  | Service Tag                        | Purpose                |
 |------------|---------------------------------------------|------------------------------------|------------------------|

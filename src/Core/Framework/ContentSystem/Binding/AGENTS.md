@@ -4,19 +4,6 @@
 
 ## Navigation
 
-- Specification model — [docs/specification-model.md](docs/specification-model.md)
-- Authoring tiers — [docs/authoring-sugar.md](docs/authoring-sugar.md)
-- Entity-name derivation — [docs/entity-name-derivation.md](docs/entity-name-derivation.md)
-- `resolvedBy` shorthand — [docs/resolved-by.md](docs/resolved-by.md)
-- Inline `bindings:`, app overlay — [docs/inline-bindings.md](docs/inline-bindings.md)
-- The per-type default — [docs/default-specification.md](docs/default-specification.md)
-- Load-time validation — [docs/validation.md](docs/validation.md)
-- Loading, registry, apps — [docs/loading-and-apps.md](docs/loading-and-apps.md)
-- Applying a binding — [docs/applying.md](docs/applying.md)
-- Write-boundary attribution — [docs/write-boundary.md](docs/write-boundary.md)
-- Introspection fold — [docs/introspection.md](docs/introspection.md)
-- Authoring guide — [docs/custom-specifications.md](docs/custom-specifications.md)
-- Symbol index: classes, roles, paths — [docs/symbols.md](docs/symbols.md)
 - Why app-shipped declarations are reconciled, never patched: [extension-surface.md](../docs/principles/extension-surface.md)
 
 ## Constraints

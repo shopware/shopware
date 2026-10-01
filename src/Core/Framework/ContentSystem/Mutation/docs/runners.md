@@ -1,6 +1,6 @@
 # Runners
 
-The two things that run an operation: `MutationPipeline`, the stateless runner over a decoded draft tree, and
+The things that run an operation: `MutationPipeline`, the stateless runner over a decoded draft tree, and
 `PersistedLayoutMutator`, which commits one operation to a stored `content_layout`. Both assemble their outcome
 through the same `MutationResult` named constructor.
 
@@ -71,7 +71,7 @@ Two known limitations are deferred to the planned layout draft/versioning system
 
 ## MutationResult assembly
 
-`MutationResult` is `@internal final readonly` with a private constructor, reached through two named constructors:
+`MutationResult` is `@internal final readonly` with a private constructor, reached through named constructors:
 
 - `fromAnalyzedMutation(StoredTree $mutated, LayoutAnalysis $analysis, LayoutMutation $mutation): self` is the
   single owner of the result assembly. It restricts the analysis resolutions to the mutation's `affected()` set via

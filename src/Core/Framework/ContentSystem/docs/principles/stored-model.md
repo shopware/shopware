@@ -35,8 +35,6 @@ In code:
 - The `StoredElement` and `RenderedElement` constructors throw on an integer key.
 - `StoredElementWiringDecoder::decodeConsumers()` throws on an integer key in a wiring map.
 - `PlaceholderValues::from()` throws on an integer key in a placeholder map.
-- `StoredElementTest` pins the rule.
-- `RenderedElementTest` pins the rule.
 - See [client-defect-codes.md](../client-defect-codes.md).
 
 ## The module seeds a primitive default at write time, never at serve time
@@ -53,7 +51,6 @@ In code:
 - `BindingApplicator` seeds defaults.
 - The write-boundary `LayoutDefaultSeeder` seeds defaults and fills only absent keys.
 - `LayoutDiagnostics` reads no default.
-- `LayoutDefaultSeederTest` pins the rule.
 - `ContentLayoutDefaultSeedingTest` pins the rule.
 - See [layout-write-gates.md](../layout-write-gates.md).
 
@@ -70,8 +67,6 @@ In code:
 - `ContentLayoutDefinition::ROOT_SOURCE_FIELD` carries the `Required` and `Immutable` flags.
 - `ContentLayoutWriteValidator` proves a stored layout resolvable against the root source in that field.
 - `ContentLayoutAssignmentWriteValidator` rejects a mismatch.
-- `ContentLayoutDefinitionTest` pins the rule.
-- `ContentLayoutAssignmentWriteValidatorTest` pins the rule.
 - See [Validation/README.md](../../Validation/README.md).
 
 ## An element id is an opaque string, unique across all roots of a layout

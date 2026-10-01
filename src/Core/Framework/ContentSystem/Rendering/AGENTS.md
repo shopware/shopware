@@ -5,7 +5,6 @@
 ## Navigation
 
 - Why the render path's rules hold, and what was not chosen: [rendering.md](../docs/principles/rendering.md)
-- Symbol index: classes, roles, signatures: [docs/symbols.md](docs/symbols.md)
 
 ## Constraints
 

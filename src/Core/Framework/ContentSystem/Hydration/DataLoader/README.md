@@ -28,7 +28,7 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 - **BreadcrumbDataLoader** (`breadcrumb`) — Breadcrumb trail
 - [**LanguageDataLoader** (`language`)](docs/language.md), [**CurrencyDataLoader** (`currency`)](docs/currency.md), [**PaymentMethodDataLoader** (`payment_method`)](docs/payment_method.md), [**ShippingMethodDataLoader** (`shipping_method`)](docs/shipping_method.md)
 
-The six unlinked loaders above — `service_menu`, `cross_selling`, `product_review`, `product_search`, `product_suggest`, `breadcrumb` — have no configuration reference yet.
+The unlinked loaders above — `service_menu`, `cross_selling`, `product_review`, `product_search`, `product_suggest`, `breadcrumb` — have no configuration reference yet.
 
 ## Degradation boundary
 

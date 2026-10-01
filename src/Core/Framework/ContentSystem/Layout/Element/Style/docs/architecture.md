@@ -1,6 +1,6 @@
 # Style Option Architecture
 
-The seven stages a style option declaration passes through, from immutable value object to app integration.
+The stages a style option declaration passes through, from immutable value object to app integration.
 
 1. **Specification Value Objects** (`Specification/`) — immutable VOs `StyleOptionSpecification` and `StyleOptionValueType`. `Specification/Dto/` carries the Symfony validation DTOs (`StyleOptionSpecificationDto`, its collection) that validate the well-formedness of a declaration at load.
 

@@ -9,7 +9,7 @@
 ## Constraints
 
 - Loaders MUST return `ContentDataLoaderResult` on every path and throws nothing itself
-- Guard every config value a loader dereferences as an entity id with `Uuid::isValid()`, after its lowercasing or alias resolution and before first use. Take the loader's null-input path on failure. Check: `EntityLoaderTest::testLoadReturnsNotFoundWhenPropertyIsNotValidUuid` pins the guard.
+- Guard every config value a loader dereferences as an entity id with `Uuid::isValid()`, after its lowercasing or alias resolution and before first use. Take the loader's null-input path on failure. Check: `EntityLoaderTest` pins the guard.
 - Wrap each throwing collaborator call in `load()` in `catch (ShopwareHttpException)`, never an enumerated union, and return `notFound()`. Let every other exception propagate. Decide per loader what to wrap. Check: `EntityLoaderTest` pins the degradation and the propagation.
 - Read every loader input off `LoaderInputs`, never off the element or `$requirement->config` (kept for loaders keyed on `source`). Declare a static default in `ConfigKeySpecification`, a context-derived fallback as `hasDefault: false` applied in `load()`. Check: `LoaderInputResolverTest` pins it.
 - `LoaderInputResolver` (called by `ElementDataResolver`) dereferences each `PropertyReference` key against the element's stored properties and type-checks it; an absent or wrongly typed stored value resolves to null. Presence and type guards belong there, NOT in the loader — but a domain emptiness fallback (e.g. an empty-string activeId) stays in the loader, because an empty string is a resolved value

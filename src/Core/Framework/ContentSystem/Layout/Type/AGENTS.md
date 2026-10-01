@@ -12,11 +12,6 @@ Type spec `properties` = schema for hydrated API output, NOT storage format
 
 ## Navigation
 
-- Symbol index: classes, roles, paths — [docs/symbols.md](docs/symbols.md)
-- The five stages a type declaration passes through — [docs/architecture.md](docs/architecture.md)
-- The `/api/_info/` type endpoint and the `storageSchema` fold — [docs/introspection.md](docs/introspection.md)
-- Why the type spec is the output schema, not the storage format — [docs/output-schema.md](docs/output-schema.md)
-- Authoring a custom element type — [docs/custom-types.md](docs/custom-types.md)
 - Why these constraints hold, and what was not chosen: [type-declarations.md](../../docs/principles/type-declarations.md)
 - Why an extension ships declarations, not core edits: [extension-surface.md](../../docs/principles/extension-surface.md)
 - Why a declaration defect fails the load, and what was not chosen: [failure-and-loss.md](../../docs/principles/failure-and-loss.md)
@@ -36,7 +31,7 @@ Type spec `properties` = schema for hydrated API output, NOT storage format
 - `TypedEnumValidator` enforces: `enum` only on primitives, must be list, values match declared type
 - `TypedDefaultValidator` enforces: `default` only on primitives, value matches declared type
 - Canonical primitive set: `string`, `integer`, `number`, `boolean`; any other `type` value is treated as a `class-string<Struct>` FQCN (filled by the pipeline). The set is exposed once as `PropertyType::PRIMITIVE_TYPES`, which `PropertyType::isPrimitive()`, `TypedEnumValidator`, `TypedDefaultValidator`, and `Binding/Validation/TypeConsistentBindingSpecificationValidator` all key off, rather than each keeping a private copy. The `enum` / `default` rules use this primitive-vs-FQCN distinction; `translatable` is narrower and does not consult the set at all — it keys off `type === 'string'` (see above)
-- `DatabaseTypeLoader` joins `app` and queries `WHERE app.active = 1` (deactivation mechanics in [docs/architecture.md](docs/architecture.md)). `ElementTypeCollisionDetector` also considers types of inactive apps to prevent name collisions across apps. Collision check is best-effort (TOCTOU window); the `UNIQUE KEY` on `app_content_system_element_type.name` is the authoritative guard. A persisted row whose schema fails to decode or validate is skipped and logged at `warning` level rather than failing the whole load.
+- `DatabaseTypeLoader` joins `app` and queries `WHERE app.active = 1` (deactivation mechanics in [docs/architecture.md](docs/architecture.md)). `ElementTypeCollisionDetector` also considers types of inactive apps to prevent name collisions across apps. Collision check is best-effort (TOCTOU window); the `UNIQUE KEY` on `app_content_system_element_type.name` is the authoritative guard.
 - Declare no context provider or consumer on a type. Check: does the change add a wiring field to `PropertySpecificationDto`? `DefaultBindingSpecificationSynthesizerTest` pins the shorthand.
 - Set `required` from this type's own behaviour, never by copying a sibling. Check: can the element render something useful without the value? Then it is optional. `LayoutDiagnosticsTest` pins both outcomes.
 - Never read `adminUI` server-side to decide storage, validation or normalization. Declare a storage-relevant kind as its own typed key. Check: does any PHP outside a serializer, a schema generator or a shape check read the block's content?

@@ -31,8 +31,6 @@ In code:
 - Inside `StoredElementListFieldSerializer::normalize()`, `LayoutWriteBoundary::apply()` seeds type defaults, normalizes style and reconciles attribution, in that order.
 - These passes run before `PreWriteValidationEvent`.
 - `ContentLayoutWriteValidator` checks well-formedness first, then membership with an early return, then resolvability.
-- `StoredElementListFieldSerializerTest` pins the rule.
-- `ContentLayoutWriteValidatorTest` pins the rule.
 - See [Validation/README.md](../../Validation/README.md).
 
 ## No DAL write can bypass the constraint descriptor

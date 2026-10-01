@@ -5,7 +5,6 @@
 ## Navigation
 
 - Why context flows only between adjacent elements, and how a candidate is picked: [context-wiring.md](../docs/principles/context-wiring.md)
-- Symbol index: classes, roles, fields: [docs/symbols.md](docs/symbols.md)
 
 ## Constraints
 

@@ -24,9 +24,7 @@ ContentTreePreparationEvent
   → duplicate-element-id check (on the forest the event handed back)
 ```
 
-The duplicate-element-id check runs twice on purpose. The first pass judges the pre-prune stored forest. The
-second judges the finished rendered forest. Both throw `CONTENT_SYSTEM__DUPLICATE_ELEMENT_ID` (500), and both
-run in either rendering mode. See [The render validates the whole stored forest in every mode](../docs/principles/rendering.md#the-render-validates-the-whole-stored-forest-in-every-mode).
+The duplicate-element-id check runs twice, on the pre-prune stored forest and on the finished rendered forest, in either rendering mode. See [The render validates the whole stored forest in every mode](../docs/principles/rendering.md#the-render-validates-the-whole-stored-forest-in-every-mode).
 
 The steps run inside `ContentPipeline::load()`, not as listeners, so a listener cannot interleave with
 them: the preparation event sees the tree before every preparation step, and the finalization event sees it

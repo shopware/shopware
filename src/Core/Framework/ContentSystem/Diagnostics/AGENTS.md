@@ -17,7 +17,6 @@
 
 ## Navigation
 
-- Symbol index: classes, roles, paths — [docs/symbols.md](docs/symbols.md)
 - Per-violation reporting rules — [docs/violation-rules.md](docs/violation-rules.md)
 - The violation model and the full code mapping table — [README.md](README.md)
 - Why a draft is held to well-formedness, and why diagnostics report rather than reject: [drafts-and-gates.md](../docs/principles/drafts-and-gates.md)

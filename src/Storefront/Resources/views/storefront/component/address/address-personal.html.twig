@@ -32,8 +32,11 @@
                     {% set isLoginPage = true %}
                 {% endif %}
 
-                {% set PRIVATE_TYPE = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') %}
-                {% set BUSINESS_TYPE = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
+                {# Keep these variable names for themes overriding the account type options. #}
+                {# ludtwig-ignore twig-variable-definition-naming #}
+                {% set privateType = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_PRIVATE') %}
+                {# ludtwig-ignore twig-variable-definition-naming #}
+                {% set businessType = constant('Shopware\\Core\\Checkout\\Customer\\CustomerEntity::ACCOUNT_TYPE_BUSINESS') %}
 
                 {% set accountTypeOptions %}
                     {% if isLoginPage %}
@@ -45,14 +48,14 @@
                     {% endif %}
 
                     {% if not onlyCompanyRegistration %}
-                        <option value="{{ PRIVATE_TYPE }}"
-                            {% if accountType === PRIVATE_TYPE or (isCompany == false and isLoginPage == false) %} selected="selected"{% endif %}>
+                        <option value="{{ privateType }}"
+                            {% if accountType === privateType or (isCompany == false and isLoginPage == false) %} selected="selected"{% endif %}>
                             {{ 'account.personalTypePrivate'|trans|sw_sanitize }}
                         </option>
                     {% endif %}
 
-                    <option value="{{ BUSINESS_TYPE }}"
-                        {% if accountType === BUSINESS_TYPE or (isCompany == true and isLoginPage == false) %} selected="selected"{% endif %}>
+                    <option value="{{ businessType }}"
+                        {% if accountType === businessType or (isCompany == true and isLoginPage == false) %} selected="selected"{% endif %}>
                         {{ 'account.personalTypeBusiness'|trans|sw_sanitize }}
                     </option>
                 {% endset %}

@@ -2,6 +2,10 @@
 > directory. The references and constraints below cover most code changes; read
 > the README when you need the mental model.
 
+## Navigation
+
+- Why these constraints hold, and what was not chosen: [data-loading.md](../docs/principles/data-loading.md)
+
 ## Source Code References
 
 - `AbstractSpecificationSource` - Base: `supports()`, `resolveLayoutId()`, `resolveSpecificationData()`, `resolveTargetElementId()`, `resolveCacheTags()`, `supportsEntityType()` (default `false`), `resolveSpecificationDataForEntity()` (default throws `entityTypeResolutionUnsupported`), `providedRootContext(Context $context): list<ProvidedContext>` (default `[]`) — last three overridden by entity sources; `providedRootContext()` is reached via `RootSourceRegistry::resolve()` → `sourceFor($rootSource)`, the single resolution path the write gate, the diagnose route, and the mutation routes all go through
@@ -20,3 +24,4 @@
 - 3 resolver instances: main (Core, tagged iterator), header + footer (Storefront, single source each)
 - Entity query: `WHERE entity_id = X AND (sales_channel_id = Y OR IS NULL) ORDER BY sales_channel_id DESC LIMIT 1`
 - Header/footer query: `WHERE (domain_id = X AND sales_channel_id = Y) OR (domain_id IS NULL AND sales_channel_id = Y) OR (domain_id IS NULL AND sales_channel_id IS NULL) ORDER BY domain_id DESC, sales_channel_id DESC LIMIT 1`. Three explicit tiers (domain+channel, then channel, then global); there is NO domain-only tier (`domain_id = X AND sales_channel_id IS NULL` never matches)
+- Never let a request parameter choose the entity a loader targets or the property it reads. A per-request value reaches a loader only through a declared property. Check: can a query parameter named like the entity id field replace the server-derived placeholder value?

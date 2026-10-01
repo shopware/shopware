@@ -4,4 +4,4 @@ Storefront DAL `PreWriteValidationEvent` gate for header/footer content layout a
 
 ## Key Classes
 
-- `HeaderFooterAssignmentWriteValidator` — the Storefront counterpart of Core's `ContentLayoutAssignmentWriteValidator`: a tree-blind type-match for header/footer assignment writes. It reads the bound layout's immutable `root_source` via Core's shared `LayoutRootSourceReader` and rejects the write (`ContentSystemException::rootSourceAssignmentMismatch`, 400) when it does not equal the section id (`header` / `footer`). Skipped when `SKIP_VALIDATION_STATE` is set
+- `HeaderFooterAssignmentWriteValidator` — the Storefront counterpart of Core's `ContentLayoutAssignmentWriteValidator`: a tree-blind type-match for header/footer assignment writes. It reads the bound layout's immutable `root_source` via Core's shared `LayoutRootSourceReader`. Skipped when `SKIP_VALIDATION_STATE` is set. See [The creating write sets the root source of a layout](../../../Core/Framework/ContentSystem/docs/principles/stored-model.md#the-creating-write-sets-the-root-source-of-a-layout)

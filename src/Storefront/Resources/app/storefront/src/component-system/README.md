@@ -249,6 +249,8 @@ export default class SomeOtherComponent extends ShopwareComponent {
 
 Of course, you can also register to events from anywhere else, also from outside of the component system. For example, if you just want to extend the logic of an existing component.
 
+Components communicate with each other only through this event system. Do not dispatch a DOM `CustomEvent` to reach another component. `window.Shopware` is an `EventEmitter`, so a listener registered with `window.Shopware.on()` never receives a DOM event, and nothing reports the missed event.
+
 ### Event Interception
 
 In addition to the normal asynchronous events, there is a separate event type which expects a return value that gets further processed within the component. These events make it even easier to extend a components logic and offers a bunch of different use cases, like manipulating request data before it gets send.

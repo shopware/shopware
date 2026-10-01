@@ -2,6 +2,10 @@
 > directory. The references and constraints below cover most code changes; read
 > the README when you need the mental model.
 
+## Navigation
+
+- Why every content element renders through one shared partial, and what was not chosen: [clients.md](../../Core/Framework/ContentSystem/docs/principles/clients.md)
+
 ## Source Code References
 
 - `HeaderContentLayout/HeaderSpecificationSource`, `FooterContentLayout/FooterSpecificationSource` — extend `Core/Framework/ContentSystem/Adapter/AbstractSpecificationSource`
@@ -17,3 +21,4 @@
 - `HeaderSpecificationSource` and `FooterSpecificationSource` carry the `content_system.specification_source` tag (section `header` / `footer`) — added in commit cf2cc8d for the diagnose route's section branch
 - Package: `#[Package('framework')]`
 - DI config: `Storefront/DependencyInjection/content-system.php`
+- Render a content element only by including `_element.html.twig` with `{ element: element } only`. Name an element's template by its type name. Check: does any template render an element another way?

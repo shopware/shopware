@@ -81,7 +81,7 @@ union of `subtreeIds` over each child, while `created` stays the empty default, 
 nodes.
 
 Reports the removed container's own static property values via `droppedProperties` and the wiring it consumed, its
-data requirement keys plus accepted-context keys, de-duplicated, via `droppedWiring`, so neither is silently lost.
+data requirement keys plus accepted-context keys, de-duplicated, via `droppedWiring`.
 The context the container *provided* is not reported, a carve-out stated with the other result-channel rules in
 [../AGENTS.md](../AGENTS.md).
 
@@ -112,7 +112,7 @@ becomes a concrete `DataRequirement`, merged into the element's existing data re
 same key, so re-applying a binding over an already-bound key replaces its wiring rather than failing. Every `inputs`
 entry with a default seeds that primitive property, but only into a key the element does not already carry
 (`StoredElement::property()` presence gate: `null` there means the key is absent, because an authored `null` is a
-present `StoredValue`, so an authored explicit `null` still wins over a seeded default). Every wired key's
+present `StoredValue`). Every wired key's
 attribution is recorded into `attributedSpecifications`, also merged and overwriting.
 
 Keeps the same id. `affected = [elementId]`; `created` stays the empty default (the element node is wired, not

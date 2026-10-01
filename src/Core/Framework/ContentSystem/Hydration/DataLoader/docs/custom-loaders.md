@@ -79,7 +79,7 @@ final class WeatherLoader extends AbstractContentDataLoader
 }
 ```
 
-`load()` never reads the config or the element itself. `LoaderInputResolver` turns the decoded config and the element's stored properties into `LoaderInputs` before the call: every declared key is already present, dereferenced, and type-checked, and reading a key the loader did not declare throws. Declare the fallback in `configSpecification()` — an in-body `??` would drift from what the schema advertises.
+`LoaderInputResolver` turns the decoded config and the element's stored properties into `LoaderInputs` before the call: every declared key is already present, dereferenced, and type-checked, and reading a key the loader did not declare throws. Declare the fallback in `configSpecification()`. See [A loader consumes typed inputs resolved from its own declared specification](../../../docs/principles/data-loading.md#a-loader-consumes-typed-inputs-resolved-from-its-own-declared-specification).
 
 **Service registration:**
 

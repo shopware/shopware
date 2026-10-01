@@ -15,7 +15,7 @@ An operation is a pure transform over the element tree:
 2. It applies one structural change through that tree's own algebra (`remove`, `insertAtRoot`, `insertIntoSlot`,
    `replace`), each returning a new `StoredTree`. Every walked node is rebuilt (`withSlots()` never returns `$this`);
    only a subtree handed in whole is placed by reference.
-3. It returns a new tree. The input cannot be mutated at all: `StoredTree` and `StoredElement` are `final readonly`.
+3. It returns a new tree. `StoredTree` and `StoredElement` are `final readonly`.
 
 Because the operation never mutates shared state, the same draft can be diffed against the result, and the result fed
 straight back into the next operation.
@@ -43,20 +43,17 @@ Every operation reports five things alongside the new tree:
 
 - **affected** (`list<string>`) - element ids whose resolution may have changed. A conservative highlight hint for
   the editor, not a correctness claim; the diagnostics pass is the authority.
-- **created** (`list<string>`) - element ids whose node the operation built fresh. A replacement keeps the target's
-  id and still counts, because its node is re-scaffolded. The consumer mirroring wires these ids and no others.
+- **created** (`list<string>`) - element ids whose node the operation built fresh. See [The draft pipeline writes derived wiring only where proved](../docs/principles/mutation.md#the-draft-pipeline-writes-derived-wiring-only-where-proved).
 - **orphaned** (`list<StoredElement>`) - subtrees the operation detached (for example, a replace dropping the
-  children of a slot the new type does not have). Returned so the caller can re-place them; never discarded.
+  children of a slot the new type does not have). Returned so the caller can re-place them.
 - **droppedWiring** (`list<string>`) - wiring keys the operation could not re-home (for example, a replace to a type
   without that reference property, or the data-requirement and accepted-context keys an unwrapped container
-  consumed). Reported so the caller can re-wire; never silently re-mapped.
+  consumed). Reported so the caller can re-wire.
 - **droppedProperties** (`array<string, StoredValue>`) - static property values the operation could not carry over
   (a replace whose new type cannot hold them, key absent or a value the new type's property type rejects, or an
-  unwrap that removes the container), keyed by property key. Reported so the caller can re-apply them; never
-  silently discarded.
+  unwrap that removes the container), keyed by property key. Reported so the caller can re-apply them.
 
-The contract is that no structural edit silently loses content or wiring: anything an operation cannot keep is handed
-back through `orphaned`, `droppedWiring`, or `droppedProperties`.
+See [The module drops nothing silently and reports every loss](../docs/principles/failure-and-loss.md#the-module-drops-nothing-silently-and-reports-every-loss).
 
 ## Affected-set rationale
 
@@ -77,7 +74,7 @@ moved:
 
 ## Reference
 
-- [docs/operations.md](docs/operations.md) - the nine operations one by one: insert, remove, move, replace,
+- [docs/operations.md](docs/operations.md) - the operations one by one: insert, remove, move, replace,
   duplicate, wrap, unwrap, attach, bind
 - [docs/replace-element.md](docs/replace-element.md) - what a type swap carries over, and what it drops
 - [docs/runners.md](docs/runners.md) - `MutationPipeline`, `PersistedLayoutMutator`, and result assembly
@@ -87,4 +84,4 @@ moved:
 
 ## Subdirectories
 
-- **Op/** - The nine concrete operations, each one structural edit.
+- **Op/** - The concrete operations, each one structural edit.

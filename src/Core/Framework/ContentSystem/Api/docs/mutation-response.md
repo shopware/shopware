@@ -2,6 +2,8 @@
 
 The response body every stateless draft mutation action ([mutation.md](mutation.md)) returns.
 
+`MutationResponse` is a `\JsonSerializable` value object (`@final`, `#[Package('framework')]`, not a service), built per request by both mutation controllers via a private constructor plus a `fromResult(MutationResult, StoredElementCodec)` factory: `layout` and `orphaned` are serialized through `StoredElementCodec::encode()`, `resolutions` and `diagnostics` through `LayoutDiagnosticsResultNormalizer`, and `jsonSerialize()` casts `resolutions` and `droppedProperties` to `(object)` when empty. It is output-only: serialized to the response and discarded, never cached, stored in a `SerializedField`, or denormalized with `StructNormalizer::denormalize()`.
+
 `200 OK`, never persisted, never cached:
 
 ```json
@@ -26,4 +28,4 @@ The response body every stateless draft mutation action ([mutation.md](mutation.
 | `droppedWiring`      | Wiring keys the edit could not keep (for example, a replace to a type without that reference property), so the caller can re-wire.                                                                 |
 | `droppedProperties`  | Static property values the edit could not carry to the new type (key absent, or a value the type rejects), keyed by property key, so the caller can re-apply them; encodes as `{}` when empty.     |
 
-Nothing the edit detaches or drops is silently lost: it is always returned through `orphaned`, `droppedWiring`, or `droppedProperties`.
+See [The module drops nothing silently and reports every loss](../../docs/principles/failure-and-loss.md#the-module-drops-nothing-silently-and-reports-every-loss).

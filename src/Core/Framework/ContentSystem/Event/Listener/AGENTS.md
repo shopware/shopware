@@ -2,9 +2,15 @@
 > directory. The references and constraints below cover most code changes; read
 > the README when you need the mental model.
 
+## Navigation
+
+- Why listener actions are listed before any guard: [extension-surface.md](../../docs/principles/extension-surface.md)
+- Why these constraints hold, and what was not chosen: [rendering.md](../../docs/principles/rendering.md)
+
 ## Constraints
 
-- Placeholders resolved in single pass, on the stored tree, after `ContentTreePreparationEvent` and in FULL mode only — a listener adding new placeholders MUST resolve them in the same dispatch cycle, and MUST NOT rely on the pipeline resolving anything in SKELETON mode
+- Placeholders resolved in single pass, on the stored tree, after `ContentTreePreparationEvent` and in FULL mode only — a listener MUST NOT rely on the pipeline resolving anything in SKELETON mode
 - Both events carry their forest in private storage and replace it via `replaceTree()`: `ContentTreePreparationEvent` the stored one, `RenderedTreeFinalizationEvent` the rendered one. Every other event property is readonly, and neither exposes `RenderingMode`
-- A finalization listener may rewrite property values, remove, reorder AND add an element; it may NOT repeat an element id. `ContentPipeline::load()` rejects a repeated id in the forest the event handed back, after the dispatch and before the result is assembled (`DUPLICATE_ELEMENT_ID`, 500, not a client defect)
+- Expect a check of the returned tree again. A repeated id fails after either event (`DUPLICATE_ELEMENT_ID`, 500, not a client defect), and invalid wiring fails after preparation. A finalization listener may still rewrite, remove, reorder and add elements. Check: `ContentPipelineTest`.
 - Extension: `#[AsEventListener]` attribute with event class and priority
+- Before adding a guard or rule on listener output, list every action the listener contract permits with its outcome (throw, drop or a new category). Never let a permitted action throw, and document a bar no sound guard can hold. Check: can any permitted action reach the new throw?

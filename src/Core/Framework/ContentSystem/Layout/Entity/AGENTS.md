@@ -2,6 +2,10 @@
 > [README.md](../README.md). The references and constraints below cover most code
 > changes; read the README when you need the mental model.
 
+## Navigation
+
+- Why these constraints hold, and what was not chosen: [stored-model.md](../../docs/principles/stored-model.md)
+
 ## Source Code References
 
 - `ContentLayoutEntity` - Layout template entity
@@ -14,3 +18,7 @@
 - ID generation: `Uuid::randomHex()`
 - Serialization: Automatic via custom field serializers in `Field/`
 - Package: `#[Package('framework')]`
+
+## Constraints
+
+- Keep `root_source` `Required` and `Immutable` on `ContentLayoutDefinition`: a layout holds one root source, and rejects an assignment to another kind. Check: can the field change after creation, or one layout serve two root sources? `ContentLayoutDefinitionTest` pins the flags.

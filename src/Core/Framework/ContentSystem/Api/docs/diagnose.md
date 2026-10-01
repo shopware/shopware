@@ -44,4 +44,4 @@ A malformed element **config** is reported as an `invalid_config` violation in t
 | `rootSource` is a non-empty value not registered in `RootSourceRegistry` | 400  | `unknownRootSource` (the route gates membership against `RootSourceRegistry::knownRootSources()` before resolving, the same as the write validator) |
 | Layout element missing a non-empty string `id`/`component` | 400  | `invalidLayoutStructure`                          |
 
-An internal fault during decoding (a non-client-defect `ContentSystemException`, e.g. an unexpected field type) propagates rather than being relabelled as an `invalid_config` violation — see `ContentSystemException::isClientDefect()`.
+An internal fault during decoding (a non-client-defect `ContentSystemException`, e.g. an unexpected field type) propagates.

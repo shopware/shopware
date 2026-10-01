@@ -2,6 +2,11 @@
 > directory. The references and constraints below cover most code changes; read
 > the README when you need the mental model.
 
+## Navigation
+
+- Why these constraints hold, and what was not chosen: [stored-model.md](../../docs/principles/stored-model.md)
+- Why the value rules hold, and what was not chosen: [values.md](../../docs/principles/values.md)
+
 ## Two element models
 
 The storage/render split (see
@@ -11,14 +16,12 @@ model set:
 - `StoredElement` — the storage model: what the admin edits, what the storage
   column holds. Storage, validation, mutation and diagnostics all run on it
   directly. `final readonly`; every edit returns a new instance via a `with*()`
-  method. Property values are wrapped in `StoredValue`, never a raw PHP scalar,
-  so a hydrated object can never sit in the stored tree by type rather than by
-  convention. Slots are `array<string, list<StoredElement>>`.
+  method. Property values are wrapped in `StoredValue`, never a raw PHP scalar.
+  Slots are `array<string, list<StoredElement>>`.
 - `RenderedElement` — the render model: what a response body and the Twig
   components read. It lives in `Rendering/`, not here. `final readonly`, and
-  deliberately not a `Struct`. It carries no data requirements, no context
-  wiring and no attribution, and its property values are raw unwrapped PHP
-  values, because the Twig filter chain needs entities unwrapped.
+  deliberately not a `Struct`. Its property values are raw unwrapped PHP
+  values.
   `Rendering/RenderedElementFactory` mints one and
   `Rendering/RenderedTreeFactory` mints the forest, both driven by
   `Rendering/ElementLowering`. Slots are
@@ -30,9 +33,12 @@ for the traversal contract and its slot-map constraint.
 
 ## Constraints
 
-- `StoredElement::property()` returns `null` for an absent key and never throws. An authored null is a PRESENT value whose variant is null, so it comes back as a `StoredValue` answering true to `isNull()` — absent and present-null are distinct states, and a bare null check conflates them
-- `StoredElement::properties()` never changes on a given instance — the map is private and `withProperties()` returns a new element. Its content is not only what an author typed: `Layout/LayoutDefaultSeeder` seeds a type's primitive defaults at the write boundary, and `Layout/Scaffolding/StoredTreePreparer` substitutes placeholders into string values during preparation, in FULL mode only. Every value is wrapped in a `StoredValue`
+- Tell a present null from an absent key: `StoredElement::property()` returns `null` only for an absent key and never throws. An authored null comes back with `isNull()` true. Check: does the change test `property($key) === null`? `StoredElementTest` pins both.
+- `StoredElement::properties()` never changes on a given instance — the map is private and `withProperties()` returns a new element. Every value is wrapped in a `StoredValue`
 - `Rendering/RenderedElementFactory` decides which keys the MINT produces: declared authored properties — every declared type except a single-FQCN reference, unions and bare `object` included — carrying the stored value, skipped when that value is the null variant, `dataRequirements[$key]` keys carrying the resolved loader value, the keys context was actually delivered under, and stored keys a parent's distribution config names — that last member excluding a declared reference property. Downstream is not closed: a `RenderedTreeFinalizationEvent` listener may hand back elements changed through `withProperty()` / `withProperties()`, and `ContentPipeline` carries that replacement forward rather than the tree it dispatched
 - A rendered element's own property map draws no distinction between a static, a loaded and a context-provided value; provenance is recorded beside the mint instead, in `Rendering/ElementMintResult` and the `LoweringResult` that collects them
 - `StoredElement::jsonSerialize()` maps each property through its own `StoredValue::jsonSerialize()`
-- Skeleton output (`ContentSkeletonElement`) strips properties entirely — `id`, `component`, `slots` and `style` (the universal style rides the skeleton, omitted when empty), plus, on root elements only, the `apiAlias` `StructEncoder` appends
+- Skeleton output (`ContentSkeletonElement`) strips properties entirely — `id`, `component`, `slots` and `style` (the universal style rides the skeleton, omitted when empty)
+- Keep the two element models apart: no wiring, data requirement or attribution on `RenderedElement`, no raw or hydrated value in a `StoredElement` property. Check: does the change put a member of one model on the other? `RenderedElementFactoryTest` pins the conversion between them.
+- Change a stored element only through a `with*()` method such as `StoredElement::withSlots()`. Never add a setter, drop `readonly`, or rebuild one by hand. Check: does a `new StoredElement(` take its arguments from another element? Use a with-method. `StoredElementTest` pins them.
+- Reject an integer-castable map key, never coerce it: every property, slot, data-requirement and wiring map is string-keyed. Check: does the change build such a map from input without a constructor or decoder that throws `invalidMapKey`? `StoredElementTest` pins the rejection.

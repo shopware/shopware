@@ -63,3 +63,6 @@ Prefer the existing Shopware extension point over a new abstraction.
 - Read `coding-guidelines/core/database-migations.md` when adding or changing migrations.
 - Read `coding-guidelines/core/feature-flags.md` when adding feature-flagged behavior, deprecations, or BC branches.
 - Read `coding-guidelines/core/6.5-new-php-language-features.md` when reaching for a newer language feature, named arguments included.
+- Read `coding-guidelines/core/invariants-by-construction.md` when adding a check for a guarantee that a type, a constructor or a factory method already carries.
+- Read `coding-guidelines/core/empty-json-maps.md` when a JSON field or a value object can hold an empty map.
+- Read `coding-guidelines/core/openapi-schemas.md` when adding or changing a schema file under `src/Core/Framework/Api/ApiDefinition/Generator/Schema/`.

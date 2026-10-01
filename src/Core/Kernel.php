@@ -324,7 +324,8 @@ class Kernel extends HttpKernel
             $plugins[$plugin['name']] = $plugin['version'];
         }
 
-        asort($plugins);
+        // sort by name, so the hash does not depend on the order in which the plugin loader returns the plugins
+        ksort($plugins);
 
         // The feature registry is initialized after the container cache is selected.
         /** @var list<string>|null $majorVersionFlagNames */

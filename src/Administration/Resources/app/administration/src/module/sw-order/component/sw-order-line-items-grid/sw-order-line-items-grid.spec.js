@@ -758,7 +758,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await selectAllCheckBox.setChecked(true);
         await selectAllCheckBox.trigger('change');
 
-        const deleteAllButton = wrapper.find('.sw-data-grid__bulk-selected .link-danger');
+        const deleteAllButton = wrapper.find('.sw-data-grid__bulk-selected .mt-link');
         await deleteAllButton.trigger('click');
 
         await flushPromises();
@@ -780,7 +780,7 @@ describe('src/module/sw-order/component/sw-order-line-items-grid', () => {
         await selectAllCheckBox.setChecked(true);
         await selectAllCheckBox.trigger('change');
 
-        const deleteAllButton = wrapper.find('.sw-data-grid__bulk-selected .link-danger');
+        const deleteAllButton = wrapper.find('.sw-data-grid__bulk-selected .mt-link');
         await deleteAllButton.trigger('click');
 
         itemRows = wrapper.findAll('.sw-data-grid__body .sw-data-grid__row');

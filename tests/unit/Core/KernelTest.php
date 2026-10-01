@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\StaticKernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Kernel;
@@ -25,6 +26,8 @@ use Symfony\UX\TwigComponent\TwigComponentBundle;
  * \Shopware\Tests\Integration\Core\KernelTest, as it requires a real boot.
  *
  * @internal
+ *
+ * @phpstan-import-type PluginInfo from KernelPluginLoader
  */
 #[Package('framework')]
 #[CoversClass(Kernel::class)]
@@ -54,6 +57,36 @@ class KernelTest extends TestCase
     public function testGetCacheDir(): void
     {
         static::assertStringStartsWith(self::PROJECT_DIR . '/var/cache/fooBar_h', $this->createKernel()->getCacheDir());
+    }
+
+    public function testCacheHashDoesNotDependOnPluginOrder(): void
+    {
+        $pluginA = $this->createPluginInfo('PluginA', '1.0.0');
+        $pluginB = $this->createPluginInfo('PluginB', '1.0.0');
+
+        static::assertSame(
+            $this->createKernel(plugins: [$pluginA, $pluginB])->getCacheDir(),
+            $this->createKernel(plugins: [$pluginB, $pluginA])->getCacheDir(),
+        );
+    }
+
+    public function testCacheHashIgnoresInactivePlugins(): void
+    {
+        $active = $this->createPluginInfo('PluginA', '1.0.0');
+        $inactive = $this->createPluginInfo('PluginB', '1.0.0', false);
+
+        static::assertSame(
+            $this->createKernel(plugins: [$active])->getCacheDir(),
+            $this->createKernel(plugins: [$active, $inactive])->getCacheDir(),
+        );
+    }
+
+    public function testCacheHashChangesWithPluginVersion(): void
+    {
+        static::assertNotSame(
+            $this->createKernel(plugins: [$this->createPluginInfo('PluginA', '1.0.0')])->getCacheDir(),
+            $this->createKernel(plugins: [$this->createPluginInfo('PluginA', '1.0.1')])->getCacheDir(),
+        );
     }
 
     public function testMajorFeatureEnvironmentChangesCacheDir(): void
@@ -90,7 +123,6 @@ class KernelTest extends TestCase
         $kernel = $this->createKernel();
 
         static::assertSame('/build-dir/fooBar', $kernel->getBuildDir());
-
         $this->setEnvVars(['V6_8_0_0' => 'true']);
         static::assertSame('/build-dir/fooBar', $kernel->getBuildDir());
     }
@@ -233,17 +265,37 @@ class KernelTest extends TestCase
         static::assertContains([$confDir . '/{routes}' . Kernel::CONFIG_EXTS, 'glob'], $captured);
     }
 
-    private function createKernel(string $environment = 'fooBar', string $projectDir = self::PROJECT_DIR): KernelStub
+    /**
+     * @param list<PluginInfo> $plugins
+     */
+    private function createKernel(string $environment = 'fooBar', string $projectDir = self::PROJECT_DIR, array $plugins = []): KernelStub
     {
         return new KernelStub(
             $environment,
             true,
-            new StaticKernelPluginLoader(new ClassLoader()),
+            new StaticKernelPluginLoader(new ClassLoader(), null, $plugins),
             'cacheId',
             '6.6.6',
             static::createStub(Connection::class),
             $projectDir,
         );
+    }
+
+    /**
+     * @return PluginInfo
+     */
+    private function createPluginInfo(string $name, string $version, bool $active = true): array
+    {
+        return [
+            'baseClass' => $name . '\\' . $name,
+            'name' => $name,
+            'active' => $active,
+            'path' => 'custom/plugins/' . $name,
+            'version' => $version,
+            'autoload' => [],
+            'managedByComposer' => false,
+            'composerName' => 'swag/' . strtolower($name),
+        ];
     }
 
     /**

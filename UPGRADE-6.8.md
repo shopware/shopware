@@ -326,9 +326,10 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
-## Removal of deprecated `ConfigurationService` class
+## Removal of legacy `ConfigurationService` getters
 
-The deprecated class `Shopware\Core\System\SystemConfig\Service\ConfigurationService` was removed. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
+The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` have been removed.
+Replace calls with `getSystemConfigDefinition()` and `getResolvedSystemConfigDefinition()`, respectively.
 
 ## `Feature` is final
 
@@ -359,6 +360,10 @@ public function load(Request $request, SalesChannelContext $context, ?Cart $cart
 ```
 
 A decoration that drops the parameter still works but gives up the optimization behind it, because the route then reads and calculates a cart the request already holds. Pass a cart wherever you have one: in a controller, type a `Cart` argument and the `CartValueResolver` provides the cart of the current request, elsewhere read it from `CartService::getCart()`.
+
+## `DocumentRoute::resolveRequest()` is private
+
+`Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute::resolveRequest()` is private, it only served the file type negotiation of the route itself. Download documents through `DocumentRoute::download()` or `/store-api/document/download/{documentId}/{deepLinkCode}`, which negotiate the file type from the `fileType` parameter or the `Accept` header.
 
 ## XML configuration is no longer supported
 
@@ -1316,6 +1321,19 @@ The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` d
 ## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
 
 The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.
+
+## Deprecated state select styling members in the order module
+
+The `backgroundStyle` and `roundedStyle` props and the `selectStyle` computed property of `sw-order-state-select-v2` were removed without replacement. The select derives the status color from its `stateName` prop instead. For the same reason, the `backgroundStyle()` method of `sw-order-general-info` and the `stateSelectBackgroundStyle` computed property of `sw-order-details-state-card` were removed.
+
+Pass the technical name of the current state instead of `background-style` and `rounded-style`:
+
+```html
+<sw-order-state-select-v2
+    state-type="order"
+    :state-name="order.stateMachineState.technicalName"
+/>
+```
 
 ## Removed `integrationService.updateAdmin()`
 
@@ -2360,6 +2378,10 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 # Storefront
 
 <details>
+
+## Removed `--no-cleanup` option of `theme:compile` and `theme:change`
+
+The `--no-cleanup` option was removed from both commands. The commands no longer delete unused theme directories themselves, the `theme.delete_files` scheduled task does. Passing the option now fails with an unknown-option error, so drop it from deploy scripts.
 
 ## Footer collapse headlines and columns now use semantic elements
 

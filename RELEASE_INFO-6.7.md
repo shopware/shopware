@@ -66,9 +66,10 @@ Deprecated service aliases with an announced removal version are removed when th
 
 The deprecated endpoint `GET /api/_action/system-config/schema` and its successor `GET /api/_action/system-config/get-schema` now require the existing `system_config:read` privilege. Integrations and API clients that call these endpoints must add this privilege to their ACL role.
 
-### Deprecation of `ConfigurationService` class
+### Deprecation of legacy `ConfigurationService` getters
 
-Due to structural data changes coming along with the new system configuration tabs feature, the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class is deprecated and will be removed in Shopware 6.8. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
+The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` are deprecated and will be removed in Shopware 6.8.
+Use `getSystemConfigDefinition()` and `getResolvedSystemConfigDefinition()`, respectively.
 
 ### Array values in static system configuration
 

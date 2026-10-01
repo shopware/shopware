@@ -1016,7 +1016,7 @@ class DefinitionValidator
     }
 
     /**
-     * @return array<class-string<EntityDefinition>, list<string>>
+     * @return array<string, list<string>>
      */
     private function validateInheritanceColumns(EntityDefinition $definition, Schema $schema): array
     {
@@ -1038,7 +1038,7 @@ class DefinitionValidator
                 $violations[] = \sprintf(
                     'Field %s on %s is flagged as Inherited, but the definition is not inheritance aware. Remove the `%s` flag from the field or make the definition inheritance aware by overriding `isInheritanceAware()`.',
                     $columnName,
-                    $definition->getClass(),
+                    $this->displayName($definition),
                     Inherited::class
                 );
 
@@ -1052,7 +1052,7 @@ class DefinitionValidator
             $violations[] = \sprintf(
                 'Field %s on %s is flagged as Inherited but the inheritance helper column `%s` is missing on table `%s`. Add a migration which uses the `%s` and calls $this->updateInheritance($connection, \'%s\', \'%s\').',
                 $columnName,
-                $definition->getClass(),
+                $this->displayName($definition),
                 $columnName,
                 $definition->getEntityName(),
                 InheritanceUpdaterTrait::class,
@@ -1061,7 +1061,7 @@ class DefinitionValidator
             );
         }
 
-        return [$definition->getClass() => $violations];
+        return [$this->displayName($definition) => $violations];
     }
 
     /**

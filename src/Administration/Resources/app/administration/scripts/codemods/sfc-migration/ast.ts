@@ -33,8 +33,8 @@ type Ctx = {
     /** Written through `report()`; a single `skip` entry refuses the component outright. */
     reports: (TodoEntry & { kind: ReportKind })[];
     /**
-     * The component belongs to an extension, which cannot import Administration source and reaches
-     * the composables through `shopware:composables` only.
+     * The component belongs to an extension, which cannot import Administration source, so a mixin whose
+     * composable `shopware:composables` does not publish refuses it.
      */
     extensionTarget: boolean;
 };

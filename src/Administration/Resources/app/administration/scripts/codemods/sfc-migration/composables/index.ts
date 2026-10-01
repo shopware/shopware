@@ -40,8 +40,8 @@ import {
 import { COMPOSABLE_DESCRIPTORS } from './descriptors';
 
 /**
- * The composables an extension can import: the `shopware:composables` exports of the checked-in
- * registry. A descriptor whose composable is not among them has no import an extension could write.
+ * The composables `shopware:composables` publishes, read from the checked-in registry. A descriptor whose
+ * composable is not among them is imported from its Administration file, which an extension cannot do.
  */
 const PUBLISHED_COMPOSABLES: ReadonlySet<string> = new Set(
     readRegistry(path.resolve(__dirname, '../../../..'))['shopware:composables'].exports,

@@ -135,8 +135,8 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
 
         expect(result.outcome).toBe('full');
         expect(result.reasons).toEqual([]);
-        expect(result.sfc).toContain("import useNotification from 'src/app/composables/use-notification';");
-        expect(result.sfc).toContain("import useSalutation from 'src/app/composables/use-salutation';");
+        expect(result.sfc).toContain("import { useNotification, useSalutation } from 'shopware:composables';");
+        expect(result.sfc).not.toContain('src/app/composables');
         expect(result.sfc).toContain('const { createNotificationSuccess } = useNotification();');
 
         // `salutation` appears in the template only, so nothing rewrote a reference to it — the
@@ -148,14 +148,23 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
         expect(result.sfc).not.toContain('createNotificationError');
     });
 
-    describe('extension targets', () => {
-        it('imports the composables from shopware:composables, which an extension can resolve', async () => {
-            const result = await convertFixture('sw-mixin-composable', { extensionTarget: true });
+    it('imports a composable shopware:composables does not publish from its Administration file', async () => {
+        const result = await convertFixture('sw-mixin-cms-element-scaffold');
 
-            expect(result.outcome).toBe('full');
-            expect(result.sfc).toContain("import { useNotification, useSalutation } from 'shopware:composables';");
-            expect(result.sfc).not.toContain('src/app/composables');
-            expect(result.sfc).toContain('const { createNotificationSuccess } = useNotification();');
+        expect(result.outcome).toBe('partial');
+        expect(result.sfc).toContain(
+            "import useCmsElementDeprecated from 'src/app/composables/use-cms-element-deprecated';",
+        );
+        expect(result.sfc).not.toContain('shopware:composables');
+    });
+
+    describe('extension targets', () => {
+        it('imports the composables the same way the Administration does', async () => {
+            const administration = await convertFixture('sw-mixin-composable');
+            const extension = await convertFixture('sw-mixin-composable', { extensionTarget: true });
+
+            expect(extension.outcome).toBe('full');
+            expect(extension.sfc).toBe(administration.sfc);
         });
 
         it('refuses a mixin whose composable is not published to extensions', async () => {

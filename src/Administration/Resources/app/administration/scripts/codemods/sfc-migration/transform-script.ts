@@ -42,6 +42,7 @@ import {
     resolveMixins,
 } from './option-handlers';
 import { rewriteMemberFn, rewriteThis } from './rewrite-this';
+import { PUBLISHED_COMPOSABLES } from './composables';
 
 type ScriptResult = {
     script: string | null;
@@ -135,19 +136,19 @@ function propsArgument(ctx: Ctx, collected: Collected, usesProps: boolean): stri
 }
 
 /**
- * The import lines of the composables replacing the mixins. The Administration imports each one from its
- * file; an extension has no Administration source and imports them from `shopware:composables`.
+ * The import lines of the composables replacing the mixins. The Administration and extensions import them
+ * the same way, from `shopware:composables`. Only an unpublished one, which resolveMixins refuses for an
+ * extension, falls back to its Administration file.
  */
-function composableImports(ctx: Ctx, composables: ResolvedComposable[]): string[] {
-    if (!ctx.extensionTarget) {
-        return composables.map(({ descriptor }) => `import ${descriptor.import.name} from '${descriptor.import.source}';`);
-    }
+function composableImports(composables: ResolvedComposable[]): string[] {
+    const imports = composables.map(({ descriptor }) => descriptor.import);
+    const published = imports.filter(({ name }) => PUBLISHED_COMPOSABLES.has(name)).map(({ name }) => name);
+    const unpublished = imports.filter(({ name }) => !PUBLISHED_COMPOSABLES.has(name));
 
-    return composables.length > 0
-        ? [
-              `import { ${composables.map(({ descriptor }) => descriptor.import.name).join(', ')} } from 'shopware:composables';`,
-          ]
-        : [];
+    return [
+        ...(published.length > 0 ? [`import { ${published.join(', ')} } from 'shopware:composables';`] : []),
+        ...unpublished.map(({ name, source }) => `import ${name} from '${source}';`),
+    ];
 }
 
 /**
@@ -187,7 +188,7 @@ function renderScript(
         vueImports.length > 0 ? `import { ${vueImports.join(', ')} } from 'vue';` : null,
         ctx.helpers.has('t') ? "import { useI18n } from 'vue-i18n';" : null,
         routerImports.length > 0 ? `import { ${routerImports.join(', ')} } from 'vue-router';` : null,
-        ...composableImports(ctx, composables),
+        ...composableImports(composables),
     ]
         .filter(Boolean)
         .join('\n');

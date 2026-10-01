@@ -239,27 +239,25 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
     });
 
     describe('a target above the Administration source', () => {
+        const name = 'sw-mixin-cms-element-scaffold';
         let tmpDir: string;
-        const sfcPath = (dir: string, name: string) => path.join(tmpDir, dir, name, `${name}.vue`);
+        const sfcPath = (dir: string, component: string) => path.join(tmpDir, dir, component, `${component}.vue`);
 
         beforeAll(() => {
             tmpDir = makeRoot('sfc-migration-mixed-');
-            fs.cpSync(path.join(FIXTURES, 'sw-mixin-composable'), path.join(tmpDir, 'admin/src/sw-mixin-composable'), {
-                recursive: true,
-            });
-            registerAll(path.join(tmpDir, 'admin/src'), 'sw-mixin-composable');
+            fs.cpSync(path.join(FIXTURES, name), path.join(tmpDir, `admin/src/${name}`), { recursive: true });
+            registerAll(path.join(tmpDir, 'admin/src'), name);
 
             // The same component under another name, because a name registered twice is skipped.
-            const fixture = path.join(FIXTURES, 'sw-mixin-composable');
             const index = fs
-                .readFileSync(path.join(fixture, 'index.js'), 'utf8')
-                .replace('composable.html', 'composable-copy.html');
-            writeFile(tmpDir, 'plugin/sw-mixin-composable-copy/index.js', index);
+                .readFileSync(path.join(FIXTURES, name, 'index.js'), 'utf8')
+                .replace(`${name}.html`, `${name}-copy.html`);
+            writeFile(tmpDir, `plugin/${name}-copy/index.js`, index);
             fs.copyFileSync(
-                path.join(fixture, 'sw-mixin-composable.html.twig'),
-                path.join(tmpDir, 'plugin/sw-mixin-composable-copy/sw-mixin-composable-copy.html.twig'),
+                path.join(FIXTURES, name, `${name}.html.twig`),
+                path.join(tmpDir, `plugin/${name}-copy/${name}-copy.html.twig`),
             );
-            registerAll(path.join(tmpDir, 'plugin'), 'sw-mixin-composable-copy');
+            registerAll(path.join(tmpDir, 'plugin'), `${name}-copy`);
         });
 
         afterAll(() => {
@@ -268,15 +266,17 @@ describe('scripts/codemods/sfc-migration/run-sfc-migration', () => {
 
         it('migrates each component outside the Administration source as an extension', async () => {
             const result = await runMigration(tmpDir, { write: true, adminSrc: path.join(tmpDir, 'admin/src') });
-            const administrationSfc = fs.readFileSync(sfcPath('admin/src', 'sw-mixin-composable'), 'utf8');
-            const extensionSfc = fs.readFileSync(sfcPath('plugin', 'sw-mixin-composable-copy'), 'utf8');
 
-            expect(reportOf(result, 'sw-mixin-composable')?.outcome).toBe('full');
-            expect(reportOf(result, 'sw-mixin-composable-copy')?.outcome).toBe('full');
-            expect(administrationSfc).toContain("import useNotification from 'src/app/composables/use-notification';");
-            expect(administrationSfc).not.toContain('shopware:composables');
-            expect(extensionSfc).toContain("import { useNotification, useSalutation } from 'shopware:composables';");
-            expect(extensionSfc).not.toContain('src/app/composables');
+            // useCmsElementDeprecated is not published, so only the Administration can import it.
+            expect(reportOf(result, name)?.outcome).toBe('partial');
+            expect(fs.readFileSync(sfcPath('admin/src', name), 'utf8')).toContain(
+                "import useCmsElementDeprecated from 'src/app/composables/use-cms-element-deprecated';",
+            );
+            expect(reportOf(result, `${name}-copy`)?.outcome).toBe('skipped');
+            expect(reportOf(result, `${name}-copy`)?.reasons).toContain(
+                "useCmsElementDeprecated() replaces the 'cms-element' mixin but is not published to extensions through shopware:composables",
+            );
+            expect(fs.existsSync(sfcPath('plugin', `${name}-copy`))).toBe(false);
         });
     });
 

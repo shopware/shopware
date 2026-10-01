@@ -340,9 +340,10 @@ const { page, limit, total } = useListing({ getList });
 Call them in `setup()` only. They are annotated `@experimental stableVersion:v6.9.0`, so their names and
 signatures can change before Shopware 6.9.
 
-When the SFC migration codemod runs on an extension, it now imports the composables from
-`shopware:composables`. A component that uses the `cms-element` mixin is skipped there, because its
-`useCmsElementDeprecated` replacement is not published; migrate it to `useCmsElement` by hand.
+The SFC migration codemod now imports the composables from `shopware:composables`, so a migrated
+extension component looks like a migrated Administration one. In an extension, a component that uses
+the `cms-element` mixin is skipped, because its `useCmsElementDeprecated` replacement is not published;
+migrate it to `useCmsElement` by hand.
 
 ## Storefront
 

@@ -42,18 +42,14 @@
                 :inherited-value="parentProduct.guaranteeConfirmed"
             >
                 <template #content="props">
-                    <mt-switch
-                        :is-inheritance-field="props.isInheritField"
-                        :is-inherited="props.isInherited"
-                        :inherited-value="parentProduct.guaranteeConfirmed"
+                    <sw-switch-field
+                        :map-inheritance="props"
                         :error="productGuaranteeConfirmedError"
-                        :label="$t('sw-product.settingsForm.labelGuaranteeConfirmed')"
-                        :help-text="$t('sw-product.settingsForm.helpTextGuaranteeConfirmed')"
-                        :disabled="!allowEdit"
-                        :model-value="props.currentValue"
-                        @update:model-value="props.updateCurrentValue"
-                        @inheritance-restore="props.restoreInheritance"
-                        @inheritance-remove="props.removeInheritance"
+                        :label="$tc('sw-product.settingsForm.labelGuaranteeConfirmed')"
+                        :help-text="$tc('sw-product.settingsForm.helpTextGuaranteeConfirmed')"
+                        :disabled="props.isInherited || !allowEdit"
+                        :value="props.currentValue"
+                        @update:value="props.updateCurrentValue"
                     />
 
                 </template>

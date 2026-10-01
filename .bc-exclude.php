@@ -84,12 +84,11 @@ return [
         // Fix to make promotions work with order recalculation
         'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',
 
+        'ADDED: Parameter visibility was added to Method __construct\(\) of class Shopware\\\\Core\\\\Framework\\\\Adapter\\\\Filesystem\\\\Plugin\\\\CopyBatchInput',
+
         // ProductEntity::$guaranteeConfirmed is null for a variant that inherits it, like every other inherited product flag.
         preg_quote('CHANGED: Type of property Shopware\Core\Content\Product\ProductEntity#$guaranteeConfirmed changed from bool to bool|null', '/'),
         preg_quote('CHANGED: Property Shopware\Core\Content\Product\ProductEntity#$guaranteeConfirmed changed default value from false to NULL', '/'),
-
-        // parent method has no type. not really a break
-        preg_quote('CHANGED: The return type of Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand#configure() changed from void to ', '/'),
 
         'ADDED: Parameter versionId was added to Method createIterator\(\) of class Shopware\\\\Core\\\\Framework\\\\DataAbstractionLayer\\\\Dbal\\\\Common\\\\IteratorFactory',
 

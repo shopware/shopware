@@ -21,6 +21,11 @@ import type {
 } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import { createContentLayoutRepository } from 'src/module/sw-experience-studio/util/content-layout-repository.util';
 import {
+    pruneScrollNavigationAnchors,
+    readScrollNavigationSettings,
+    scrollNavigationSettingsPayload,
+} from 'src/module/sw-experience-studio/util/scroll-navigation-settings.util';
+import {
     findElementLocation,
     updateElementPropertiesInLayout,
     updateElementStyleInLayout,
@@ -941,6 +946,41 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
+        onOpenPageSettings(): void {
+            // The settings panel shows the page settings whenever no element is selected.
+            this.selectedElementId = null;
+        },
+
+        pruneStaleScrollNavigationAnchors(): void {
+            if (!this.layout) {
+                return;
+            }
+
+            const settings = readScrollNavigationSettings(this.layout);
+            const pruned = pruneScrollNavigationAnchors(settings, this.layout.layout);
+
+            if (pruned === settings) {
+                return;
+            }
+
+            this.layout.settings = {
+                ...(this.layout.settings ?? {}),
+                ...scrollNavigationSettingsPayload(pruned).settings,
+            };
+        },
+
+        onLayoutSettingsChange(payload: { settings: Record<string, unknown> }): void {
+            if (!this.layout || !this.allowSave) {
+                return;
+            }
+
+            // Replace the whole object so the entity changeset and the preview watcher see one atomic change.
+            this.layout.settings = {
+                ...(this.layout.settings ?? {}),
+                ...payload.settings,
+            };
+        },
+
         draftMutationService(): ContentSystemLayoutDraftMutationService {
             return Shopware.Service('contentSystemLayoutDraftMutationService') as ContentSystemLayoutDraftMutationService;
         },
@@ -1059,6 +1099,7 @@ export default Shopware.Component.wrapComponentConfig({
 
                 this.editorStore.pushToHistory(currentLayout, previousSelectedElementId);
                 this.layout.layout = response.layout;
+                this.pruneStaleScrollNavigationAnchors();
                 this.selectedElementId = resolveSelectedElementId(response);
             } catch (error) {
                 if (requestId !== this.latestMutationRequestId) {

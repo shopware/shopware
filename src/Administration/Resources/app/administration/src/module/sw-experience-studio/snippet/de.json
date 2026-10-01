@@ -74,6 +74,8 @@
       "sidebarTree": {
         "title": "Struktur",
         "emptyState": "Dieses Layout enthält noch keine Elemente.",
+        "pageSettings": "Seiteneinstellungen",
+        "anchor": "Sprungpunkt der Scroll Navigation",
         "addElement": "Element hinzufügen",
         "addElementNoTypeAvailable": "Es ist kein registrierter Elementtyp zum Einfügen verfügbar.",
         "addElementNotAllowed": "Dieses Element kann nicht in den ausgewählten Slot eingefügt werden.",
@@ -90,10 +92,35 @@
         "emptySlot": "Dieser Slot enthält keine Elemente.",
         "errorLoad": "Die Vorschau konnte nicht geladen werden."
       },
+      "pageSettings": {
+        "title": "Seiteneinstellungen",
+        "scrollNavigation": {
+          "title": "Scroll Navigation",
+          "active": "Scroll Navigation anzeigen",
+          "activeHelp": "Listet alle Grid-Container, die als Sprungpunkt markiert sind, und lässt Besucher zwischen ihnen springen.",
+          "mode": "Darstellung",
+          "modeHelp": "Die Seitenleiste schwebt auf großen Bildschirmen neben dem Inhalt. Die flache Leiste bleibt auf jeder Bildschirmgröße oberhalb des Inhalts.",
+          "modeSidebar": "Seitenleiste",
+          "modeFlat": "Flache Leiste",
+          "position": "Position",
+          "positionRight": "Rechts",
+          "positionLeft": "Links",
+          "anchorCount": "Noch kein Element ist als Sprungpunkt markiert. | {count} Element ist als Sprungpunkt markiert. | {count} Elemente sind als Sprungpunkte markiert."
+        }
+      },
+      "anchorSettings": {
+        "title": "Scroll Navigation",
+        "enable": "Als Sprungpunkt verwenden",
+        "enableHelp": "Listet dieses Element in der Scroll Navigation der Seite und macht es zum Sprungziel.",
+        "label": "Bezeichnung",
+        "labelPlaceholder": "Bezeichnung in der Navigation eingeben ...",
+        "navigationInactive": "Die Scroll Navigation ist für diese Seite ausgeschaltet. Aktiviere sie in den Seiteneinstellungen, damit dieser Sprungpunkt angezeigt wird."
+      },
       "elementSettings": {
         "title": "Element-Einstellungen",
         "tabElement": "Element",
         "tabLayout": "Layout",
+        "tabScrollNavigation": "Scroll Navigation",
         "emptyState": "Wähle ein Element aus, um dessen Einstellungen zu bearbeiten.",
         "loading": "Element-Einstellungen werden geladen ...",
         "typeLoadError": "Element-Einstellungen konnten nicht geladen werden.",

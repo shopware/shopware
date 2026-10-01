@@ -55,6 +55,7 @@
                         @duplicate-element="onDuplicateElement"
                         @delete-element="onDeleteElement"
                         @move-element="onMoveElement"
+                        @open-page-settings="onOpenPageSettings"
                     />
                 {% endblock %}
 
@@ -91,6 +92,7 @@
                         :is-inline-editing-active="isInlineEditing"
                         @update-properties="onElementSettingsChange"
                         @update-style="onElementStyleChange"
+                        @update-settings="onLayoutSettingsChange"
                     />
                 {% endblock %}
                 </div>

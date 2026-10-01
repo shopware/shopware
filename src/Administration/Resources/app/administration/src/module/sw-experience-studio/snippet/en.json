@@ -74,6 +74,8 @@
       "sidebarTree": {
         "title": "Structure",
         "emptyState": "No elements in this layout yet.",
+        "pageSettings": "Page settings",
+        "anchor": "Scroll navigation anchor",
         "addElement": "Add element",
         "addElementNoTypeAvailable": "No registered element type is available for insertion.",
         "addElementNotAllowed": "This element cannot be inserted into the selected slot.",
@@ -90,10 +92,35 @@
         "emptySlot": "No elements in this slot.",
         "errorLoad": "Preview could not be loaded."
       },
+      "pageSettings": {
+        "title": "Page settings",
+        "scrollNavigation": {
+          "title": "Scroll navigation",
+          "active": "Show scroll navigation",
+          "activeHelp": "Lists every grid container marked as a scroll navigation anchor and lets visitors jump between them.",
+          "mode": "Presentation",
+          "modeHelp": "The sidebar floats beside the content on large screens. The flat bar stays above the content on every screen size.",
+          "modeSidebar": "Sidebar",
+          "modeFlat": "Flat bar",
+          "position": "Position",
+          "positionRight": "Right",
+          "positionLeft": "Left",
+          "anchorCount": "No element is marked as an anchor yet. | {count} element is marked as an anchor. | {count} elements are marked as anchors."
+        }
+      },
+      "anchorSettings": {
+        "title": "Scroll navigation",
+        "enable": "Use as an anchor",
+        "enableHelp": "Lists this element in the page's scroll navigation and makes it a jump target.",
+        "label": "Anchor label",
+        "labelPlaceholder": "Enter the label shown in the navigation...",
+        "navigationInactive": "The scroll navigation is switched off for this page. Enable it in the page settings to show this anchor."
+      },
       "elementSettings": {
         "title": "Element settings",
         "tabElement": "Element",
         "tabLayout": "Layout",
+        "tabScrollNavigation": "Scroll navigation",
         "emptyState": "Select an element to edit its settings.",
         "loading": "Loading element settings...",
         "typeLoadError": "Element settings could not be loaded.",

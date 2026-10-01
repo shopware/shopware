@@ -415,60 +415,58 @@ class EntitySearcherTest extends TestCase
         yield 'empty page past the end' => [['offset' => 5, 'limit' => 1, 'expectedEntities' => 0]];
     }
 
-    #[DataProvider('limitProvider')]
-    public function testExactTotalCountsEntitiesWithAToManyFilter(int $limit): void
+    #[DataProvider('totalCountProvider')]
+    public function testTotalCountsEntitiesWithAToManyFilter(int $totalCountMode, ?int $limit, int $matchingProducts, int $expectedTotal, int $expectedEntities): void
     {
-        $ids = $this->createProductsWithTwoMatchingTagsEach();
+        $ids = $this->createProductsWithTwoMatchingTagsEach($matchingProducts);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('product.id', $ids->getList(['p1', 'p2'])));
+        $criteria->addFilter(new EqualsAnyFilter('product.id', array_values($ids->prefixed('product-'))));
         $criteria->addFilter(new ContainsFilter('product.tags.name', 'limit-one'));
         $criteria->setLimit($limit);
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        $criteria->setTotalCountMode($totalCountMode);
 
         $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertSame(2, $result->getTotal());
+        static::assertSame($expectedTotal, $result->getTotal());
+        static::assertCount($expectedEntities, $result->getIds());
+        static::assertNotContains($ids->get('product-excluded'), $result->getIds());
     }
 
-    #[DataProvider('limitProvider')]
-    public function testExactTotalCountsEntitiesWithASearchTerm(int $limit): void
+    #[DataProvider('totalCountProvider')]
+    public function testTotalCountsEntitiesWithASearchTerm(int $totalCountMode, ?int $limit, int $matchingProducts, int $expectedTotal, int $expectedEntities): void
     {
-        $ids = $this->createProductsWithTwoMatchingTagsEach();
+        $ids = $this->createProductsWithTwoMatchingTagsEach($matchingProducts);
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('product.id', $ids->getList(['p1', 'p2'])));
+        $criteria->addFilter(new EqualsAnyFilter('product.id', array_values($ids->prefixed('product-'))));
         $criteria->setTerm('limit one total');
         $criteria->setLimit($limit);
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        $criteria->setTotalCountMode($totalCountMode);
 
         $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
 
-        static::assertSame(2, $result->getTotal());
-    }
-
-    public function testNextPagesTotalCountsEntitiesWithAToManyFilterAndALimitOfOne(): void
-    {
-        $ids = $this->createProductsWithTwoMatchingTagsEach();
-
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsAnyFilter('product.id', $ids->getList(['p1', 'p2'])));
-        $criteria->addFilter(new ContainsFilter('product.tags.name', 'limit-one'));
-        $criteria->setLimit(1);
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_NEXT_PAGES);
-
-        $result = $this->productRepository->searchIds($criteria, Context::createDefaultContext());
-
-        static::assertSame(2, $result->getTotal());
+        static::assertSame($expectedTotal, $result->getTotal());
+        static::assertCount($expectedEntities, $result->getIds());
+        static::assertNotContains($ids->get('product-excluded'), $result->getIds());
     }
 
     /**
-     * @return iterable<string, array{int}>
+     * @return iterable<string, array{int, int|null, int, int, int}>
      */
-    public static function limitProvider(): iterable
+    public static function totalCountProvider(): iterable
     {
-        yield 'limit 1' => [1];
-        yield 'limit 2' => [2];
+        yield 'exact total with a single result per page' => [Criteria::TOTAL_COUNT_MODE_EXACT, 1, 2, 2, 1];
+        yield 'exact total with a full page' => [Criteria::TOTAL_COUNT_MODE_EXACT, 2, 2, 2, 2];
+        yield 'exact total without a limit' => [Criteria::TOTAL_COUNT_MODE_EXACT, null, 2, 2, 2];
+        yield 'exact total with a partial page' => [Criteria::TOTAL_COUNT_MODE_EXACT, 3, 2, 2, 2];
+        yield 'next pages with a single result per page' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 1, 2, 2, 1];
+        yield 'next pages with a full page' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 2, 2, 2, 2];
+        // Without a limit, the current lookahead formula still fetches its one sentinel row.
+        yield 'next pages without a limit' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, null, 2, 1, 1];
+        yield 'next pages with a partial page' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 3, 2, 2, 2];
+        yield 'next pages capped below eight matches' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 1, 8, 7, 1];
+        yield 'next pages capped below fourteen matches' => [Criteria::TOTAL_COUNT_MODE_NEXT_PAGES, 2, 14, 13, 2];
     }
 
     public function testJsonListEqualsAnyFilter(): void
@@ -769,16 +767,20 @@ class EntitySearcherTest extends TestCase
         static::assertSame(0, $result->getTotal());
     }
 
-    private function createProductsWithTwoMatchingTagsEach(): IdsCollection
+    private function createProductsWithTwoMatchingTagsEach(int $matchingProducts): IdsCollection
     {
         $ids = new IdsCollection();
+        $products = [];
 
-        $this->productRepository->create([
-            (new ProductBuilder($ids, 'p1'))->name('limit one total')->price(100)
-                ->tag('limit-one-a')->tag('limit-one-b')->build(),
-            (new ProductBuilder($ids, 'p2'))->name('limit one total')->price(100)
-                ->tag('limit-one-c')->tag('limit-one-d')->build(),
-        ], Context::createDefaultContext());
+        foreach (range(1, $matchingProducts) as $number) {
+            $products[] = (new ProductBuilder($ids, 'product-' . $number))->name('limit one total')->price(100)
+                ->tag('limit-one-' . $number . '-a')->tag('limit-one-' . $number . '-b')->build();
+        }
+
+        $products[] = (new ProductBuilder($ids, 'product-excluded'))->name('unrelated item')->price(100)
+            ->tag('unrelated-a')->tag('unrelated-b')->build();
+
+        $this->productRepository->create($products, Context::createDefaultContext());
 
         return $ids;
     }

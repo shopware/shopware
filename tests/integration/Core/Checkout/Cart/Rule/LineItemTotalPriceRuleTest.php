@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\CartRuleFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -31,6 +31,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Package('fundamentals@after-sales')]
 class LineItemTotalPriceRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
@@ -250,9 +251,9 @@ class LineItemTotalPriceRuleTest extends TestCase
             'operator' => $operator,
         ]);
 
-        $lineItem = CartRuleFixture::createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItemPrice);
+        $lineItem = $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItemPrice);
         if ($lineItemWithoutPrice) {
-            $lineItem = CartRuleFixture::createLineItem();
+            $lineItem = $this->createLineItem();
         }
 
         $match = $this->rule->match(new LineItemScope(
@@ -310,21 +311,21 @@ class LineItemTotalPriceRuleTest extends TestCase
             'operator' => $operator,
         ]);
 
-        $lineItem1 = CartRuleFixture::createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItemPrice1);
+        $lineItem1 = $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItemPrice1);
         if ($lineItem1WithoutPrice) {
-            $lineItem1 = CartRuleFixture::createLineItem();
+            $lineItem1 = $this->createLineItem();
         }
 
-        $lineItem2 = CartRuleFixture::createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItemPrice2);
+        $lineItem2 = $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItemPrice2);
         if ($lineItem2WithoutPrice) {
-            $lineItem2 = CartRuleFixture::createLineItem();
+            $lineItem2 = $this->createLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
             $lineItem1,
             $lineItem2,
         ]);
-        $cart = CartRuleFixture::createCart($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -349,23 +350,23 @@ class LineItemTotalPriceRuleTest extends TestCase
             'operator' => $operator,
         ]);
 
-        $lineItem1 = CartRuleFixture::createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItemPrice1);
+        $lineItem1 = $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItemPrice1);
         if ($lineItem1WithoutPrice) {
-            $lineItem1 = CartRuleFixture::createLineItem();
+            $lineItem1 = $this->createLineItem();
         }
 
-        $lineItem2 = CartRuleFixture::createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItemPrice2);
+        $lineItem2 = $this->createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $lineItemPrice2);
         if ($lineItem2WithoutPrice) {
-            $lineItem2 = CartRuleFixture::createLineItem();
+            $lineItem2 = $this->createLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
             $lineItem1,
             $lineItem2,
         ]);
-        $containerLineItem = CartRuleFixture::createContainerLineItem($lineItemCollection);
+        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
         $containerLineItem->setType(LineItem::CONTAINER_LINE_ITEM);
-        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,

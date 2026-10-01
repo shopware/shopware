@@ -29,7 +29,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\CartRuleFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
  * @internal
@@ -38,6 +38,7 @@ use Shopware\Core\Test\Checkout\CartRuleFixture;
 #[Group('rules')]
 class CartVolumeRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
     use IntegrationTestBehaviour;
 
     private CartVolumeRule $rule;
@@ -73,7 +74,7 @@ class CartVolumeRuleTest extends TestCase
         $cart = $this->createCartDummy();
         $childLineItemCollection = $cart->getLineItems();
 
-        $containerLineItem = CartRuleFixture::createContainerLineItem($childLineItemCollection);
+        $containerLineItem = $this->createContainerLineItem($childLineItemCollection);
 
         $cart->setLineItems(new LineItemCollection([$containerLineItem]));
 
@@ -152,11 +153,11 @@ class CartVolumeRuleTest extends TestCase
     private function createCartDummy(): Cart
     {
         $lineItemCollection = new LineItemCollection([
-            CartRuleFixture::createLineItemWithDeliveryInfo(false, 3, 10, 40, 3 * Rule::VOLUME_FACTOR, 0.5),
-            CartRuleFixture::createLineItemWithDeliveryInfo(true, 3, 10, 40, 3 * Rule::VOLUME_FACTOR, 0.5),
+            $this->createLineItemWithDeliveryInfo(false, 3, 10, 40, 3 * Rule::VOLUME_FACTOR, 0.5),
+            $this->createLineItemWithDeliveryInfo(true, 3, 10, 40, 3 * Rule::VOLUME_FACTOR, 0.5),
         ]);
 
-        $cart = CartRuleFixture::createCart($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         $deliveryPositionCollection = new DeliveryPositionCollection();
         $calculatedPrice = new CalculatedPrice(1.0, 1.0, new CalculatedTaxCollection(), new TaxRuleCollection());

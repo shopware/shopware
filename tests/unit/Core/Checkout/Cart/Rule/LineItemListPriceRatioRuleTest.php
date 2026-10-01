@@ -15,7 +15,7 @@ use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\CartRuleFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
  * @internal
@@ -24,6 +24,8 @@ use Shopware\Core\Test\Checkout\CartRuleFixture;
 #[CoversClass(LineItemListPriceRatioRule::class)]
 class LineItemListPriceRatioRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
+
     private LineItemListPriceRatioRule $rule;
 
     protected function setUp(): void
@@ -58,7 +60,7 @@ class LineItemListPriceRatioRuleTest extends TestCase
             'operator' => $operator,
         ]);
 
-        $lineItem = $lineItemWithoutPrice ? CartRuleFixture::createLineItem() : $this->createLineItemWithListPrice($price, $listPrice);
+        $lineItem = $lineItemWithoutPrice ? $this->createLineItem() : $this->createLineItemWithListPrice($price, $listPrice);
 
         $match = $this->rule->match(new LineItemScope(
             $lineItem,
@@ -319,15 +321,15 @@ class LineItemListPriceRatioRuleTest extends TestCase
             'operator' => $operator,
         ]);
 
-        $lineItem1 = $lineItem1WithoutPrice ? CartRuleFixture::createLineItem() : $this->createLineItemWithListPrice($priceItem1, $listPriceItem1);
-        $lineItem2 = $lineItem2WithoutPrice ? CartRuleFixture::createLineItem() : $this->createLineItemWithListPrice($priceItem2, $listPriceItem2);
+        $lineItem1 = $lineItem1WithoutPrice ? $this->createLineItem() : $this->createLineItemWithListPrice($priceItem1, $listPriceItem1);
+        $lineItem2 = $lineItem2WithoutPrice ? $this->createLineItem() : $this->createLineItemWithListPrice($priceItem2, $listPriceItem2);
 
         $lineItemCollection = new LineItemCollection([
             $lineItem1,
             $lineItem2,
         ]);
 
-        $cart = CartRuleFixture::createCart($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -356,19 +358,19 @@ class LineItemListPriceRatioRuleTest extends TestCase
             'operator' => $operator,
         ]);
 
-        $lineItem1 = $lineItem1WithoutPrice ? CartRuleFixture::createLineItem() : $this->createLineItemWithListPrice($priceItem1, $listPriceItem1);
-        $lineItem2 = $lineItem2WithoutPrice ? CartRuleFixture::createLineItem() : $this->createLineItemWithListPrice($priceItem2, $listPriceItem2);
+        $lineItem1 = $lineItem1WithoutPrice ? $this->createLineItem() : $this->createLineItemWithListPrice($priceItem1, $listPriceItem1);
+        $lineItem2 = $lineItem2WithoutPrice ? $this->createLineItem() : $this->createLineItemWithListPrice($priceItem2, $listPriceItem2);
 
         $lineItemCollection = new LineItemCollection([
             $lineItem1,
             $lineItem2,
         ]);
-        $containerLineItem = CartRuleFixture::createLineItem();
+        $containerLineItem = $this->createLineItem();
         if ($containerLineItemPrice !== null && $containerLineItemListPrice !== null) {
             $containerLineItem = $this->createLineItemWithListPrice($containerLineItemPrice, $containerLineItemListPrice);
         }
         $containerLineItem->setChildren($lineItemCollection);
-        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -710,7 +712,7 @@ class LineItemListPriceRatioRuleTest extends TestCase
         $this->rule->assign(['amount' => $price, 'operator' => Rule::OPERATOR_EQ]);
 
         $match = $this->rule->match(new LineItemScope(
-            CartRuleFixture::createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $price),
+            self::createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $price),
             static::createStub(SalesChannelContext::class)
         ));
 
@@ -722,12 +724,12 @@ class LineItemListPriceRatioRuleTest extends TestCase
     {
         $rule = new LineItemListPriceRatioRule(Rule::OPERATOR_NEQ, 0.5);
 
-        $lineItem = CartRuleFixture::createLineItem($type);
+        $lineItem = self::createLineItem($type);
         $context = static::createStub(SalesChannelContext::class);
 
         $scope = $lineItemScope
             ? new LineItemScope($lineItem, $context)
-            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
     }
@@ -747,6 +749,6 @@ class LineItemListPriceRatioRuleTest extends TestCase
     {
         $listPrice = $listPriceAmount === null ? null : ListPrice::createFromUnitPrice($price, $listPriceAmount);
 
-        return CartRuleFixture::createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $price, $listPrice);
+        return self::createLineItemWithPrice(LineItem::PRODUCT_LINE_ITEM_TYPE, $price, $listPrice);
     }
 }

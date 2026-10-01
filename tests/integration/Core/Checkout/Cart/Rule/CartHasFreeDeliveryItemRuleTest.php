@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\CartRuleFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
  * @internal
@@ -27,6 +27,7 @@ use Shopware\Core\Test\Checkout\CartRuleFixture;
 #[Group('rules')]
 class CartHasFreeDeliveryItemRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
     use IntegrationTestBehaviour;
 
     /**
@@ -51,11 +52,11 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
     public function testIfShippingFreeLineItemsAreCaught(): void
     {
         $lineItemCollection = new LineItemCollection([
-            CartRuleFixture::createLineItemWithDeliveryInfo(false),
-            CartRuleFixture::createLineItemWithDeliveryInfo(true),
+            $this->createLineItemWithDeliveryInfo(false),
+            $this->createLineItemWithDeliveryInfo(true),
         ]);
 
-        $cart = CartRuleFixture::createCart($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         $match = (new CartHasDeliveryFreeItemRule())
             ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
@@ -66,13 +67,13 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
     public function testIfShippingFreeNestedLineItemsAreCaught(): void
     {
         $childLineItemCollection = new LineItemCollection([
-            CartRuleFixture::createLineItemWithDeliveryInfo(false),
-            CartRuleFixture::createLineItemWithDeliveryInfo(true),
+            $this->createLineItemWithDeliveryInfo(false),
+            $this->createLineItemWithDeliveryInfo(true),
         ]);
 
-        $containerLineItem = CartRuleFixture::createContainerLineItem($childLineItemCollection);
+        $containerLineItem = $this->createContainerLineItem($childLineItemCollection);
 
-        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
         $match = (new CartHasDeliveryFreeItemRule())
             ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
@@ -83,10 +84,10 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
     public function testNotContainsFreeDeliveryItems(): void
     {
         $lineItemCollection = new LineItemCollection([
-            CartRuleFixture::createLineItemWithDeliveryInfo(false),
+            $this->createLineItemWithDeliveryInfo(false),
         ]);
 
-        $cart = CartRuleFixture::createCart($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         $match = (new CartHasDeliveryFreeItemRule())
             ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
@@ -96,7 +97,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
 
     public function testEmptyDeliveryItems(): void
     {
-        $cart = CartRuleFixture::createCart(new LineItemCollection());
+        $cart = $this->createCart(new LineItemCollection());
 
         $match = (new CartHasDeliveryFreeItemRule())
             ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
@@ -112,10 +113,10 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
     public function testNotContainsFreeDeliveryItemsMatchesNotAllowed(): void
     {
         $lineItemCollection = new LineItemCollection([
-            CartRuleFixture::createLineItemWithDeliveryInfo(false),
+            $this->createLineItemWithDeliveryInfo(false),
         ]);
 
-        $cart = CartRuleFixture::createCart($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         $match = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => false])
             ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
@@ -126,11 +127,11 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
     public function testNotContainsFreeDeliveryItemsWithDeliveryFreeItem(): void
     {
         $lineItemCollection = new LineItemCollection([
-            CartRuleFixture::createLineItemWithDeliveryInfo(false),
-            CartRuleFixture::createLineItemWithDeliveryInfo(true),
+            $this->createLineItemWithDeliveryInfo(false),
+            $this->createLineItemWithDeliveryInfo(true),
         ]);
 
-        $cart = CartRuleFixture::createCart($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         $match = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => false])
             ->match(new CartRuleScope($cart, $this->createMock(SalesChannelContext::class)));
@@ -162,7 +163,7 @@ class CartHasFreeDeliveryItemRuleTest extends TestCase
     #[DataProvider('getLineItemFreeDeliveryTestData')]
     public function testLineItemIsFreeDelivery(bool $ruleActive, bool $isFreeDelivery, bool $expected): void
     {
-        $lineItem = CartRuleFixture::createLineItemWithDeliveryInfo($isFreeDelivery);
+        $lineItem = $this->createLineItemWithDeliveryInfo($isFreeDelivery);
 
         $match = (new CartHasDeliveryFreeItemRule())->assign(['allowed' => $ruleActive])
             ->match(new LineItemScope($lineItem, $this->createMock(SalesChannelContext::class)));

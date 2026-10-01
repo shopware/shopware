@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\CartRuleFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 
 /**
  * @internal
@@ -27,6 +27,7 @@ use Shopware\Core\Test\Checkout\CartRuleFixture;
 #[Group('rules')]
 class CartWeightRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
     use IntegrationTestBehaviour;
 
     private CartWeightRule $rule;
@@ -70,7 +71,7 @@ class CartWeightRuleTest extends TestCase
         $cart = $this->createCartDummy($lineItemWeight1, $lineItemWeight2, $lineItem1WithoutDeliveryInfo, $lineItem2WithoutDeliveryInfo);
         $childLineItemCollection = $cart->getLineItems();
 
-        $containerLineItem = CartRuleFixture::createContainerLineItem($childLineItemCollection);
+        $containerLineItem = $this->createContainerLineItem($childLineItemCollection);
 
         $cart->setLineItems(new LineItemCollection([$containerLineItem]));
 
@@ -151,14 +152,14 @@ class CartWeightRuleTest extends TestCase
 
     private function createCartDummy(?float $weight1, ?float $weight2, bool $lineItem1WithoutDeliveryInfo = false, bool $lineItem2WithoutDeliveryInfo = false): Cart
     {
-        $lineItem1 = CartRuleFixture::createLineItemWithDeliveryInfo(false, 3, $weight1);
+        $lineItem1 = $this->createLineItemWithDeliveryInfo(false, 3, $weight1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = CartRuleFixture::createLineItem();
+            $lineItem1 = $this->createLineItem();
         }
 
-        $lineItem2 = CartRuleFixture::createLineItemWithDeliveryInfo(false, 3, $weight2);
+        $lineItem2 = $this->createLineItemWithDeliveryInfo(false, 3, $weight2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = CartRuleFixture::createLineItem();
+            $lineItem2 = $this->createLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
@@ -166,6 +167,6 @@ class CartWeightRuleTest extends TestCase
             $lineItem2,
         ]);
 
-        return CartRuleFixture::createCart($lineItemCollection);
+        return $this->createCart($lineItemCollection);
     }
 }

@@ -18,7 +18,7 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Checkout\CartRuleFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Type;
@@ -31,6 +31,8 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Group('rules')]
 class LineItemCreationDateRuleTest extends TestCase
 {
+    use CartRuleHelperTrait;
+
     private const PAYLOAD_KEY = 'createdAt';
 
     private LineItemCreationDateRule $rule;
@@ -189,7 +191,7 @@ class LineItemCreationDateRuleTest extends TestCase
             $this->createLineItemWithCreatedDate($lineItemCreationDate2),
         ]);
 
-        $cart = CartRuleFixture::createCart($lineItemCollection);
+        $cart = $this->createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -213,8 +215,8 @@ class LineItemCreationDateRuleTest extends TestCase
             $this->createLineItemWithCreatedDate($lineItemCreationDate2),
         ]);
 
-        $containerLineItem = CartRuleFixture::createContainerLineItem($lineItemCollection);
-        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = $this->createContainerLineItem($lineItemCollection);
+        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -269,12 +271,12 @@ class LineItemCreationDateRuleTest extends TestCase
     {
         $rule = new LineItemCreationDateRule(Rule::OPERATOR_NEQ, '2020-01-01 12:00:00');
 
-        $lineItem = CartRuleFixture::createLineItem($type);
+        $lineItem = self::createLineItem($type);
         $context = static::createStub(SalesChannelContext::class);
 
         $scope = $lineItemScope
             ? new LineItemScope($lineItem, $context)
-            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
     }
@@ -292,6 +294,6 @@ class LineItemCreationDateRuleTest extends TestCase
 
     private function createLineItemWithCreatedDate(?string $createdAt): LineItem
     {
-        return CartRuleFixture::createLineItem()->setPayloadValue(self::PAYLOAD_KEY, $createdAt);
+        return $this->createLineItem()->setPayloadValue(self::PAYLOAD_KEY, $createdAt);
     }
 }

@@ -55,6 +55,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class PromotionCalculator
 {
     use PromotionCartInformationTrait;
+    use PromotionExclusionTrait;
 
     /**
      * @internal
@@ -91,7 +92,8 @@ class PromotionCalculator
             return $b->getPayloadValue('priority') <=> $a->getPayloadValue('priority');
         });
 
-        $this->buildExclusionPayload($discountLineItems);
+        $exclusions = $this->buildExclusions($discountLineItems);
+        $eligibility = [];
 
         foreach ($discountLineItems as $discountItem) {
             // if we dont have a scope
@@ -114,7 +116,10 @@ class PromotionCalculator
 
             // we have to verify if the line item is still valid
             // depending on the added requirements and conditions.
-            if (!$this->isRequirementValid($discountItem, $calculated, $context)) {
+            $isEligible = $this->isRequirementValid($discountItem, $calculated, $context);
+            $eligibility[$discountItem->getId()] = $isEligible;
+
+            if (!$isEligible) {
                 // hide the notEligibleErrors on automatic discounts
                 if (!$isAutomaticDiscount) {
                     $name = $discountItem->getLabel() ?? $discountItem->getId();
@@ -136,7 +141,7 @@ class PromotionCalculator
             }
 
             // if promotion is on exclusions stack it is ignored
-            if ($this->isExcluded($discountItem, $discountLineItems, $calculated, $context)) {
+            if ($this->isExcluded($discountItem, $discountLineItems, $exclusions, $eligibility, $calculated, $context)) {
                 if (!$isAutomaticDiscount) {
                     $calculated->addErrors(new PromotionExcludedError($discountItem->getDescription() ?? $discountItem->getId()));
                 }
@@ -183,111 +188,6 @@ class PromotionCalculator
             // prices for any upcoming iterations
             $this->calculateCart($calculated, $context);
         }
-    }
-
-    /**
-     * Converts preventCombination setting into explicit exclusions to be checked later on
-     */
-    private function buildExclusionPayload(LineItemCollection $discountLineItems): void
-    {
-        // collect all preventCombination promotions and prepare an ID list of all promotions currently considered
-        $preventCombinationPromotionIdMapping = [];
-        $allPromotionIdMapping = [];
-
-        foreach ($discountLineItems as $discountItem) {
-            $currentPromotionId = $discountItem->getPayloadValue('promotionId');
-            if ($currentPromotionId === null) {
-                continue;
-            }
-
-            $allPromotionIdMapping[$currentPromotionId] = true;
-
-            if ($discountItem->getPayloadValue('preventCombination')) {
-                $preventCombinationPromotionIdMapping[$currentPromotionId] = true;
-            }
-        }
-
-        if ($preventCombinationPromotionIdMapping === []) {
-            return;
-        }
-
-        $preventCombinationPromotionIds = \array_keys($preventCombinationPromotionIdMapping);
-        $allPromotionIds = \array_keys($allPromotionIdMapping);
-
-        // add explicit exclusions both to the excluding and excluded items
-        foreach ($discountLineItems as $discountItem) {
-            $currentPromotionId = $discountItem->getPayloadValue('promotionId');
-            if ($currentPromotionId === null) {
-                continue;
-            }
-
-            if ($discountItem->getPayloadValue('preventCombination')) {
-                // if preventCombination is set, no explicit exclusions exist yet. Add exclusions for all other promotions.
-                $newExclusions = $allPromotionIds;
-            } else {
-                // if preventCombination is not set, add exclusions for all promotions set to "prevent combination" to the ones already set.
-                $originalExclusions = $discountItem->getPayloadValue('exclusions');
-                $newExclusions = \array_unique(\array_merge($originalExclusions, $preventCombinationPromotionIds));
-            }
-            $filteredExclusions = \array_filter($newExclusions, static fn ($excludedPromotionId) => $excludedPromotionId !== $currentPromotionId);
-            $discountItem->setPayloadValue('exclusions', $filteredExclusions);
-        }
-    }
-
-    /**
-     * Checks if a discount item is excluded by another promotion of higher priority.
-     */
-    private function isExcluded(LineItem $checkedItem, LineItemCollection $sortedDiscountItems, Cart $calculated, SalesChannelContext $context): bool
-    {
-        $exclusions = [];
-        $checkedPromotionId = $checkedItem->getPayloadValue('promotionId');
-        $lineItems = $calculated->getLineItems();
-
-        foreach ($sortedDiscountItems as $discountItem) {
-            // if we dont have a scope: skip it, it might not belong to us
-            if (!$discountItem->hasPayloadValue('discountScope')) {
-                continue;
-            }
-
-            $priorityDiff = $discountItem->getPayloadValue('priority') - $checkedItem->getPayloadValue('priority');
-
-            if ($priorityDiff < 0) {
-                // collection is sorted by priority, from here on out there are only lower-priority items
-                break;
-            }
-
-            $promotionId = $discountItem->getPayloadValue('promotionId');
-            if ($promotionId === null) {
-                // malformed discountItems without promotionId shouldn't be able to exclude anything
-                continue;
-            }
-
-            if ($promotionId === $checkedPromotionId) {
-                // within the same priority, enforce the loading order: whichever item is loaded first enforces its exclusions and can't be excluded by later items.
-                // if we'd continue instead, two same-priority promotions could exclude each other and neither would be added.
-                break;
-            }
-
-            // if promotion is on exclusions stack it is ignored
-            // this avoids cycles that both promotions exclude each other
-            if (isset($exclusions[$promotionId])) {
-                continue;
-            }
-
-            if (!$lineItems->exists($discountItem) && !$this->isRequirementValid($discountItem, $calculated, $context)) {
-                // $discountItem's requirements are not fulfilled (doesn't need to be checked if it was already added)
-                continue;
-            }
-
-            foreach ($discountItem->getPayloadValue('exclusions') as $id) {
-                if ($id === $checkedPromotionId) {
-                    return true;
-                }
-                $exclusions[$id] = true;
-            }
-        }
-
-        return false;
     }
 
     /**

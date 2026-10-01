@@ -275,6 +275,48 @@ class PromotionDeliveryCalculatorTest extends TestCase
     }
 
     /**
+     * preventCombination is resolved by the delivery calculator itself, e.g. when the cart calculator skipped a zero-value cart.
+     */
+    public function testPreventCombinationIsResolvedWithoutCartCalculator(): void
+    {
+        $this->quantityPriceCalculator
+            ->method('calculate')
+            ->willReturnCallback(static function (QuantityPriceDefinition $definition): CalculatedPrice {
+                return new CalculatedPrice($definition->getPrice(), $definition->getPrice(), new CalculatedTaxCollection(), new TaxRuleCollection());
+            });
+
+        $preventCombinationDiscountItem = $this->getDiscountItem('prevent-combination-promotion')
+            ->setPayloadValue('code', 'code-1')
+            ->setPayloadValue('preventCombination', true)
+            ->setPayloadValue('priority', 2);
+        $otherDiscountItem = $this->getDiscountItem('other-promotion')
+            ->setPayloadValue('code', 'code-2')
+            ->setPayloadValue('priority', 1)
+            ->setPriceDefinition(new AbsolutePriceDefinition(-20.0));
+
+        $delivery = new Delivery(
+            new DeliveryPositionCollection(),
+            new DeliveryDate(new \DateTimeImmutable(), new \DateTimeImmutable()),
+            new ShippingMethodEntity(),
+            new ShippingLocation(new CountryEntity(), null, null),
+            new CalculatedPrice(100.0, 100.0, new CalculatedTaxCollection(), new TaxRuleCollection())
+        );
+
+        $cart = new Cart('promotion-test');
+        $cart->setDeliveries(new DeliveryCollection([$delivery]));
+
+        $this->promotionDeliveryCalculator->calculate(
+            new LineItemCollection([$otherDiscountItem, $preventCombinationDiscountItem]),
+            $cart,
+            $cart,
+            static::createStub(SalesChannelContext::class)
+        );
+
+        static::assertSame(90.0, $cart->getShippingCosts()->getTotalPrice());
+        static::assertTrue($cart->getErrors()->has('promotion-not-eligible'));
+    }
+
+    /**
      * Test that fixed delivery discounts don't bypass exclusion checks
      * This test reproduces the bug where a fixed delivery discount is applied
      * even when excluded by a higher priority cart discount

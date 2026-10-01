@@ -11,6 +11,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
+use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
@@ -25,7 +28,7 @@ class SystemConfigValidatorTest extends TestCase
 {
     /**
      * @param array<string, mixed> $inputValues
-     * @param list<array<string, mixed>> $formConfigs
+     * @param list<SystemConfigTab> $formConfigs
      */
     #[DataProvider('dataProviderTestValidateSuccess')]
     public function testValidateSuccess(array $inputValues, array $formConfigs): void
@@ -33,7 +36,7 @@ class SystemConfigValidatorTest extends TestCase
         $exceptionThrown = false;
 
         $configurationServiceMock = static::createStub(ConfigurationService::class);
-        $configurationServiceMock->method('getConfiguration')
+        $configurationServiceMock->method('getSystemConfigDefinition')
             ->willReturn($formConfigs);
 
         $dataValidatorMock = static::createStub(DataValidator::class);
@@ -53,13 +56,13 @@ class SystemConfigValidatorTest extends TestCase
 
     /**
      * @param array<string, mixed> $inputValues
-     * @param list<array<string, mixed>> $formConfigs
+     * @param list<SystemConfigTab> $formConfigs
      */
     #[DataProvider('dataProviderTestValidateFailure')]
     public function testValidateFailure(array $inputValues, array $formConfigs): void
     {
         $configurationServiceMock = static::createStub(ConfigurationService::class);
-        $configurationServiceMock->method('getConfiguration')
+        $configurationServiceMock->method('getSystemConfigDefinition')
             ->willReturn($formConfigs);
 
         $validateException = static::createStub(ConstraintViolationException::class);
@@ -79,7 +82,7 @@ class SystemConfigValidatorTest extends TestCase
 
     /**
      * @param array<string, mixed> $inputValues
-     * @param list<array<string, mixed>> $formConfigs
+     * @param list<SystemConfigTab> $formConfigs
      */
     #[DataProvider('dataProviderTestValidateSuccess')]
     public function testValidateWithEmptyConfig(array $inputValues, array $formConfigs): void
@@ -87,7 +90,7 @@ class SystemConfigValidatorTest extends TestCase
         $exceptionThrown = false;
 
         $configurationServiceMock = static::createStub(ConfigurationService::class);
-        $configurationServiceMock->method('getConfiguration')
+        $configurationServiceMock->method('getSystemConfigDefinition')
             ->willReturn([]);
 
         $dataValidatorMock = static::createStub(DataValidator::class);
@@ -112,17 +115,17 @@ class SystemConfigValidatorTest extends TestCase
         $configurationServiceMock = $this->createMock(ConfigurationService::class);
         $configurationServiceMock
             ->expects($this->once())
-            ->method('getConfiguration')
+            ->method('getSystemConfigDefinition')
             ->with('core.basicInformation', $context)
             ->willReturn([
-                [
-                    'elements' => [
+                new SystemConfigTab([
+                    new SystemConfigCard(
                         [
-                            'name' => 'core.basicInformation.foo',
-                            'config' => [],
+                            new SystemConfigElement('core.basicInformation.foo', []),
                         ],
-                    ],
-                ],
+                        []
+                    ),
+                ]),
             ]);
 
         $dataValidatorMock = $this->createMock(DataValidator::class);
@@ -142,7 +145,7 @@ class SystemConfigValidatorTest extends TestCase
     public function testValidateAddsNoConstraintsForDomainWithoutConfiguration(): void
     {
         $configurationServiceMock = static::createStub(ConfigurationService::class);
-        $configurationServiceMock->method('getConfiguration')
+        $configurationServiceMock->method('getSystemConfigDefinition')
             ->willReturn([]);
 
         $definition = null;
@@ -163,7 +166,7 @@ class SystemConfigValidatorTest extends TestCase
     public function testValidateIgnoresSystemConfigExceptionsWhileLoadingTheDomainConfiguration(): void
     {
         $configurationServiceMock = static::createStub(ConfigurationService::class);
-        $configurationServiceMock->method('getConfiguration')
+        $configurationServiceMock->method('getSystemConfigDefinition')
             ->willThrowException(SystemConfigException::configurationNotFound('missing'));
 
         $definition = null;
@@ -193,16 +196,18 @@ class SystemConfigValidatorTest extends TestCase
         $configKey = 'core.basicInformation.dummyKey';
 
         $configurationServiceMock = static::createStub(ConfigurationService::class);
-        $configurationServiceMock->method('getConfiguration')
+        $configurationServiceMock->method('getSystemConfigDefinition')
             ->willReturn([
-                [
-                    'elements' => [
-                        [
-                            'name' => $configKey,
-                            'config' => $elementConfig,
-                        ],
-                    ],
-                ],
+                new SystemConfigTab(
+                    [
+                        new SystemConfigCard(
+                            [
+                                new SystemConfigElement($configKey, $elementConfig),
+                            ],
+                            []
+                        ),
+                    ]
+                ),
             ]);
 
         $definition = null;
@@ -305,17 +310,19 @@ class SystemConfigValidatorTest extends TestCase
                 ],
             ],
             'formConfigs' => [
-                [
-                    'elements' => [
-                        [
-                            'name' => 'Dummy Name',
-                            'config' => [
-                                'required' => true,
-                                'maxLength' => 255,
+                new SystemConfigTab(
+                    [
+                        new SystemConfigCard(
+                            [
+                                new SystemConfigElement('Dummy Name', [
+                                    'required' => true,
+                                    'maxLength' => 255,
+                                ]),
                             ],
-                        ],
-                    ],
-                ],
+                            []
+                        ),
+                    ]
+                ),
             ],
         ];
 
@@ -326,14 +333,16 @@ class SystemConfigValidatorTest extends TestCase
                 ],
             ],
             'formConfigs' => [
-                [
-                    'elements' => [
-                        [
-                            'name' => 'core.basicInformation.dummyKey',
-                            'config' => [],
-                        ],
-                    ],
-                ],
+                new SystemConfigTab(
+                    [
+                        new SystemConfigCard(
+                            [
+                                new SystemConfigElement('core.basicInformation.dummyKey', []),
+                            ],
+                            []
+                        ),
+                    ]
+                ),
             ],
         ];
 
@@ -344,24 +353,23 @@ class SystemConfigValidatorTest extends TestCase
                 ],
             ],
             'formConfigs' => [
-                [
-                    'elements' => [
-                        [
-                            'name' => 'core.basicInformation.dummyKey',
-                            'config' => [
-                                'required' => true,
-                                'maxLength' => 255,
+                new SystemConfigTab(
+                    [
+                        new SystemConfigCard(
+                            [
+                                new SystemConfigElement('core.basicInformation.dummyKey', [
+                                    'required' => true,
+                                    'maxLength' => 255,
+                                ]),
+                                new SystemConfigElement('core.basicInformation.fieldNotFound', [
+                                    'required' => true,
+                                    'maxLength' => 255,
+                                ]),
                             ],
-                        ],
-                        [
-                            'name' => 'core.basicInformation.fieldNotFound',
-                            'config' => [
-                                'required' => true,
-                                'maxLength' => 255,
-                            ],
-                        ],
-                    ],
-                ],
+                            []
+                        ),
+                    ]
+                ),
             ],
         ];
     }
@@ -375,17 +383,19 @@ class SystemConfigValidatorTest extends TestCase
                 ],
             ],
             'formConfigs' => [
-                [
-                    'elements' => [
-                        [
-                            'name' => 'core.basicInformation.dummyField',
-                            'config' => [
-                                'required' => true,
-                                'maxLength' => 255,
+                new SystemConfigTab(
+                    [
+                        new SystemConfigCard(
+                            [
+                                new SystemConfigElement('core.basicInformation.dummyField', [
+                                    'required' => true,
+                                    'maxLength' => 255,
+                                ]),
                             ],
-                        ],
-                    ],
-                ],
+                            []
+                        ),
+                    ]
+                ),
             ],
         ];
     }

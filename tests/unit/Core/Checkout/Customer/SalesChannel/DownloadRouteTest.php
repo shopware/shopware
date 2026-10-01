@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Extension\DownloadRouteExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\DownloadRoute;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItemDownload\OrderLineItemDownloadEntity;
@@ -14,11 +15,13 @@ use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -48,7 +51,8 @@ class DownloadRouteTest extends TestCase
 
         $this->downloadRoute = new DownloadRoute(
             $this->downloadRepository,
-            $this->downloadResponseGenerator
+            $this->downloadResponseGenerator,
+            new ExtensionDispatcher(new EventDispatcher())
         );
     }
 
@@ -116,5 +120,27 @@ class DownloadRouteTest extends TestCase
 
         $response = $this->downloadRoute->load($request, $this->salesChannelContext);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $response = new Response();
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('download-route.load.pre', function (DownloadRouteExtension $extension) use ($request, $response): void {
+            static::assertSame(['request' => $request, 'context' => $this->salesChannelContext], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new DownloadRoute(
+            $this->downloadRepository,
+            $this->downloadResponseGenerator,
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($request, $this->salesChannelContext));
     }
 }

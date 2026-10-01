@@ -299,7 +299,7 @@ class WebhookManagerTest extends TestCase
             ],
         ]);
 
-        $this->prepareWebhook('product.written', true);
+        $this->prepareWebhook('product.written', true, resolvesPrivileges: false);
 
         $this->webhookOutboxStore->expects($this->never())->method('recordOutboxEntry');
 
@@ -531,7 +531,7 @@ class WebhookManagerTest extends TestCase
     /**
      * @param list<string> $acl
      */
-    private function prepareWebhook(string $eventName, bool $onlyLiveVersion = false, array $acl = ['product:read']): Webhook
+    private function prepareWebhook(string $eventName, bool $onlyLiveVersion = false, array $acl = ['product:read'], bool $resolvesPrivileges = true): Webhook
     {
         $webhook = $this->getWebhook($eventName, $onlyLiveVersion);
         static::assertIsString($webhook->appAclRoleId);
@@ -541,6 +541,7 @@ class WebhookManagerTest extends TestCase
             ->willReturn([$webhook]);
 
         $this->webhookLoader
+            ->expects($resolvesPrivileges ? $this->once() : $this->never())
             ->method('getPrivilegesForRoles')
             ->with([$webhook->appAclRoleId])
             ->willReturn([$webhook->appAclRoleId => new AclPrivilegeCollection($acl)]);

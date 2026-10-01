@@ -8,15 +8,21 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\AddressListingCriteriaEvent;
+use Shopware\Core\Checkout\Customer\Extension\ListAddressRouteExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\ListAddressRouteResponse;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -41,7 +47,8 @@ class ListAddressRouteTest extends TestCase
 
         $this->route = new ListAddressRoute(
             $this->addressRepository,
-            $this->eventDispatcher
+            $this->eventDispatcher,
+            new ExtensionDispatcher(new EventDispatcher())
         );
     }
 
@@ -77,7 +84,7 @@ class ListAddressRouteTest extends TestCase
             )
             ->willReturn($searchResult);
 
-        $route = new ListAddressRoute($addressRepository, $this->eventDispatcher);
+        $route = new ListAddressRoute($addressRepository, $this->eventDispatcher, new ExtensionDispatcher(new EventDispatcher()));
 
         $response = $route->load($criteria, $context, $customer);
 
@@ -87,5 +94,29 @@ class ListAddressRouteTest extends TestCase
         static::assertInstanceOf(AddressListingCriteriaEvent::class, $events[0]);
         static::assertSame($criteria, $events[0]->getCriteria());
         static::assertSame($context, $events[0]->getSalesChannelContext());
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $criteria = new Criteria();
+        $context = Generator::generateSalesChannelContext();
+        $customer = new CustomerEntity();
+        $response = static::createStub(ListAddressRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('list-address-route.load.pre', static function (ListAddressRouteExtension $extension) use ($criteria, $context, $customer, $response): void {
+            static::assertSame(['criteria' => $criteria, 'context' => $context, 'customer' => $customer], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ListAddressRoute(
+            static::createStub(SalesChannelRepository::class),
+            static::createStub(EventDispatcherInterface::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($criteria, $context, $customer));
     }
 }

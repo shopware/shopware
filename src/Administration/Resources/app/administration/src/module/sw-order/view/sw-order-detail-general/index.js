@@ -1,4 +1,5 @@
 import template from './sw-order-detail-general.html.twig';
+import './sw-order-detail-general.scss';
 
 /**
  * @sw-package checkout

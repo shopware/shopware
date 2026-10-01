@@ -111,6 +111,10 @@ return [
         preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationOnlyCompanyRegistration() changed from bool', '/'),
         preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationSeoMetaDescription() changed from string', '/'),
 
+        // ProductEntity::$guaranteeConfirmed is null for a variant that inherits it, like every other inherited product flag.
+        preg_quote('CHANGED: Type of property Shopware\Core\Content\Product\ProductEntity#$guaranteeConfirmed changed from bool to bool|null', '/'),
+        preg_quote('CHANGED: Property Shopware\Core\Content\Product\ProductEntity#$guaranteeConfirmed changed default value from false to NULL', '/'),
+
         // parent method has no type. not really a break
         preg_quote('CHANGED: The return type of Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand#configure() changed from void to ', '/'),
 

@@ -33,6 +33,6 @@ Response:
 }
 ```
 
-`range` bounds `integer`/`number` options, `maxLength` bounds `string` options (a string with no declared `maxLength` defaults to 255); `default` is advisory only — an introspection/Admin pre-fill hint. `breakpointAware` marks whether the option's value is set per breakpoint (`xs`, `sm`, `md`, `lg`, `xl`, `xxl`) or as a single flat scalar.
+`range` bounds `integer`/`number` options, `maxLength` bounds `string` options (a string with no declared `maxLength` defaults to 255); `default` pre-fills the editor; the write boundary fills the missing breakpoints of a partial map from it, and nothing else seeds it. `breakpointAware` marks whether the option's value is set per breakpoint (`xs`, `sm`, `md`, `lg`, `xl`, `xxl`) or as a single flat scalar.
 
 Full field-level schema: [content-system-style-options.json](../../../../../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-style-options.json).

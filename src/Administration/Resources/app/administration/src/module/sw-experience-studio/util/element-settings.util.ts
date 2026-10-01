@@ -159,10 +159,6 @@ export function isPropertyVisible(
     property: ContentSystemElementTypeProperty,
     propertyValues: Record<string, unknown>,
 ): boolean {
-    if (property.adminUI?.hidden === true) {
-        return false;
-    }
-
     const visibleWhen = property.adminUI?.visibleWhen;
 
     if (!visibleWhen) {

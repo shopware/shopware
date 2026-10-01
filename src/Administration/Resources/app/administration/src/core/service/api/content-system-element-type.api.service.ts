@@ -37,7 +37,6 @@ export interface ContentSystemElementTypePropertyAdminUi {
     entity?: string;
     helpText?: string;
     panel?: string;
-    hidden?: boolean;
     visibleWhen?: ContentSystemElementAdminUiVisibleWhen;
     [key: string]: unknown;
 }

@@ -1,7 +1,5 @@
 # Extending the Content System
 
-This is the entry point for the mechanisms plugins use to extend the ContentSystem, each row linking to where that mechanism is authored.
-
 | Extension Point           | Purpose                                                                |
 |---------------------------|------------------------------------------------------------------------|
 | **Element Types**         | New content components with declared properties and slots — authored per [Layout/Type/docs/custom-types.md](../Layout/Type/docs/custom-types.md) |

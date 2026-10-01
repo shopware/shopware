@@ -96,8 +96,6 @@ Admin-facing endpoints (layout preview, resolve-and-diagnose, the draft mutation
 - **Validation/** - [Validation/README.md](Validation/README.md) - DAL write-time resolvability gate (`PreWriteValidationEvent` validators)
 - **Storefront/ContentSystem/** - [Storefront/ContentSystem/README.md](../../../Storefront/ContentSystem/README.md) - Header and footer sections, which are Storefront-owned.
 
-`Helper/` and `Schema/` carry no documentation surface of their own.
-
 ## Reference Documents
 
 - [docs/README.md](docs/README.md) - Index of the module's reference documents, one subject per file

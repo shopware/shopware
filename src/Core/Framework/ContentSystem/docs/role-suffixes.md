@@ -1,6 +1,6 @@
 # Role Suffixes
 
-A role suffix is a contract, not decoration. This page says what each one promises and what breaks the promise; the naming principles it applies live in [NAMING.md](../NAMING.md).
+A role suffix is a contract, not decoration. The naming principles are in [NAMING.md](../NAMING.md).
 
 A `Validator` here is one of two sanctioned families: a constraint's paired `ConstraintValidator` — the inherited Shopware idiom, one validator per `Constraint` — or a write-boundary subscriber that rejects an invalid write. A service that only computes and returns a report is neither, however validation-shaped it feels. Choose by answering behavioral questions — does it pair with a `Constraint`, does it reject at a boundary, decide a pass/fail predicate, apply a decision it must first resolve — not by reaching for the nearest synonym.
 

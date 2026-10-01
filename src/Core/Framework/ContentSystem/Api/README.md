@@ -1,6 +1,6 @@
 # Api
 
-Admin API controllers for the content system. Store API rendering lives in `SalesChannel/`; this directory holds Admin-scoped (`ApiRouteScope`) endpoints: layout preview, resolve-and-diagnose, the stateless draft mutation actions, and persisted mutation actions that commit one edit to a stored layout.
+Admin API controllers for the content system. Store API rendering lives in `SalesChannel/`. The Admin-scoped (`ApiRouteScope`) endpoints: layout preview, resolve-and-diagnose, the stateless draft mutation actions, and persisted mutation actions that commit one edit to a stored layout.
 
 ## Key Classes
 

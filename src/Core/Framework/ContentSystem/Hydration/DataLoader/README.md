@@ -28,8 +28,6 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 - **BreadcrumbDataLoader** (`breadcrumb`) — Breadcrumb trail
 - [**LanguageDataLoader** (`language`)](docs/language.md), [**CurrencyDataLoader** (`currency`)](docs/currency.md), [**PaymentMethodDataLoader** (`payment_method`)](docs/payment_method.md), [**ShippingMethodDataLoader** (`shipping_method`)](docs/shipping_method.md)
 
-The unlinked loaders above — `service_menu`, `cross_selling`, `product_review`, `product_search`, `product_suggest`, `breadcrumb` — have no configuration reference yet.
-
 ## Degradation boundary
 
 A loader degrades a broken element to `notFound()` instead of failing the whole render. Its imperative form lives in [AGENTS.md](AGENTS.md). See [A loader degrades on a named domain outcome and lets every other fault propagate](../../docs/principles/data-loading.md#a-loader-degrades-on-a-named-domain-outcome-and-lets-every-other-fault-propagate).

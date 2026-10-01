@@ -1,7 +1,6 @@
 # ContentSystem Reference Documents
 
-The module's reference material, one subject per file. The module overview is in
-[../README.md](../README.md).
+The module overview is in [../README.md](../README.md).
 
 - [../NAMING.md](../NAMING.md) - How classes in this module are named, routing on to [stored-and-rendered.md](stored-and-rendered.md) (which of the two element models a class is about) and [role-suffixes.md](role-suffixes.md) (what each role suffix promises)
 - [pipeline-steps.md](pipeline-steps.md) - The order `ContentPipeline::load()` runs its steps in, and the orderings inside preparation that are load-bearing

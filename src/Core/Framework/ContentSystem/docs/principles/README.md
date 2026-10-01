@@ -1,9 +1,5 @@
 # Principles
 
-Every file in this directory holds the design rules of one area of the module.
-
-A block states one rule. Its heading names the rule. The sentences under the heading state the rule in normative voice. Where the reader matches a condition to an outcome, a table follows the rule sentences. A "Why" line gives the reason. A "Not chosen" line names the alternative the design did not choose. An "Exceptions" line appears only where the code holds a designed exception. An "In code" list names the enforcing symbols and the pinning tests. The last item of that list links to the mechanism.
-
 ## Terms that are easy to confuse
 
 | Pair | What they share | The one axis on which they differ | Governed by |
@@ -23,7 +19,7 @@ A block states one rule. Its heading names the rule. The sentences under the hea
 - prove resolvable: [drafts-and-gates.md](drafts-and-gates.md#the-module-holds-a-draft-to-well-formedness).
 - pin, pinned by: the test that asserts a rule.
 - skip and log: [failure-and-loss.md](failure-and-loss.md#a-declaration-or-registration-defect-fails-the-build-or-the-load-never-a-request).
-- exception: a designed exception to a rule that exists in code, stated on an "Exceptions" line.
+- exception: a designed exception to a rule, present in code.
 - the module: the Content System under `src/Core/Framework/ContentSystem/`.
 - present null, authored null, absent: [values.md](values.md#a-present-null-and-an-absent-key-are-different-states).
 - client defect: [failure-and-loss.md](failure-and-loss.md#the-cause-of-a-defect-sets-its-classification-and-http-status-is-a-separate-axis).
@@ -61,7 +57,7 @@ graph LR
     class SF data
 ```
 
-Orientation aid. The rule text is normative. The render path's steps are in [data-flow.md](../data-flow.md).
+The render path's steps are in [data-flow.md](../data-flow.md).
 
 ## Index
 
@@ -90,6 +86,6 @@ Orientation aid. The rule text is normative. The render path's steps are in [dat
 - [extension-surface.md](extension-surface.md): the bounded extension surface
 - [clients.md](clients.md): the administration type and the storefront's shared partial
 
-## Before changing code
+## Changing a rule
 
-Read the area file for the code you change. The area file carries the reason and the alternative the design did not choose. The AGENTS.md of that directory carries the imperative and its check. The pinning test is the enforcing class's test, unless the In code list names another, and it changes in the same commit as the rule.
+The pinning test is the enforcing class's test, unless the In code list names another. It changes in the same commit as the rule.

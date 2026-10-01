@@ -26,7 +26,7 @@ load() throws       the same \TypeError instance, unmodified
 
 ## A loader consumes typed inputs resolved from its own declared specification
 
-Loader configuration follows the principle known as parse, do not validate. A loader declares its configuration in `configSpecification()`. It reads every input off the `LoaderInputs` that `LoaderInputResolver` resolves from that declaration, never off the element or a stored value. A static default lives in the key's `ConfigKeySpecification`, never in `load()`. `LoaderInputResolver` applies that default centrally. `LoaderInputResolver` owns the presence and type guards. The loader owns the check for domain emptiness.
+Loader configuration follows the principle "parse, do not validate". A loader declares its configuration in `configSpecification()`. It reads every input off the `LoaderInputs` that `LoaderInputResolver` resolves from that declaration, never off the element or a stored value. A static default lives in the key's `ConfigKeySpecification`, never in `load()`. `LoaderInputResolver` applies that default centrally. `LoaderInputResolver` owns the presence and type guards. The loader owns the check for domain emptiness.
 
 Why: A loader that reads the element makes every stored key a contract. A default written in the body of `load()` drifts from the published schema.
 

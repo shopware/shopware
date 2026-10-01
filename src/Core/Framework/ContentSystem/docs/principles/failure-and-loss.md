@@ -1,6 +1,6 @@
 # Failure and loss
 
-The rules in this area apply across the module and govern how it handles a defect and content that an operation cannot keep. The model is fail fast at the point of origin, with one closed code set for client defects.
+The rules in this area apply across the module and govern how it handles a defect and content that an operation cannot keep. The model is "fail fast at the point of origin", with one closed code set for client defects.
 
 ## A component throws where it meets invalid data, and nothing degrades silently
 

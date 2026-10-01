@@ -35,9 +35,6 @@ class LineItemStockRule extends Rule
         parent::__construct();
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Use \Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule instead.
-     */
     public function match(RuleScope $scope): bool
     {
         Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', LineItemActualStockRule::class));
@@ -53,9 +50,6 @@ class LineItemStockRule extends Rule
         return false;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Use \Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule instead.
-     */
     public function getConstraints(): array
     {
         Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', LineItemActualStockRule::class));
@@ -66,9 +60,6 @@ class LineItemStockRule extends Rule
         ];
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Use \Shopware\Core\Checkout\Cart\Rule\LineItemActualStockRule instead.
-     */
     public function getConfig(): ?RuleConfig
     {
         if (Feature::isActive('v6.8.0.0')) {

@@ -24,9 +24,6 @@ class LineItemProductStatesRule extends Rule
 
     protected string $operator;
 
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed, as product states are deprecated.
-     */
     public function match(RuleScope $scope): bool
     {
         Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', LineItemProductTypeRule::class));
@@ -48,9 +45,6 @@ class LineItemProductStatesRule extends Rule
         return false;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed, as product states are deprecated.
-     */
     public function getConstraints(): array
     {
         Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0', LineItemProductTypeRule::class));
@@ -64,9 +58,6 @@ class LineItemProductStatesRule extends Rule
         ];
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed, as product states are deprecated.
-     */
     public function getConfig(): ?RuleConfig
     {
         if (Feature::isActive('v6.8.0.0')) {

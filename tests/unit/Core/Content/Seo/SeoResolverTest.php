@@ -408,6 +408,43 @@ class SeoResolverTest extends TestCase
         static::assertTrue($resolved->isCanonical);
     }
 
+    public function testResolveUrlPrefersEncodedMatchOverDecodedMatch(): void
+    {
+        $salesChannelId = Uuid::randomHex();
+
+        // The decoded row is returned FIRST, so only the usort tie-break (not the database order)
+        // can make the exact match of the still-encoded request path win.
+        $connection = static::createStub(Connection::class);
+        $firstResult = FakeResultFactory::createResult([
+            [
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => $salesChannelId,
+                'isCanonical' => true,
+                'pathInfo' => '/detail/decoded',
+                'seoPathInfo' => 'Babyöl',
+            ],
+            [
+                'id' => Uuid::randomHex(),
+                'salesChannelId' => $salesChannelId,
+                'isCanonical' => true,
+                'pathInfo' => '/detail/encoded',
+                'seoPathInfo' => 'Baby%C3%B6l',
+            ],
+        ], $connection);
+        $secondResult = FakeResultFactory::createResult([], $connection);
+
+        $connection->method('executeQuery')->willReturn($firstResult, $secondResult);
+        $connection->method('getDatabasePlatform')->willReturn(static::createStub(AbstractPlatform::class));
+
+        $seoResolver = new SeoResolver($connection);
+
+        $resolved = $seoResolver->resolveUrl(new SeoUrlRequestContext(Uuid::randomHex(), $salesChannelId, '/Baby%C3%B6l'));
+
+        static::assertSame('/detail/encoded', $resolved->pathInfo);
+        static::assertSame('Baby%C3%B6l', $resolved->seoPathInfo);
+        static::assertTrue($resolved->isCanonical);
+    }
+
     public function testResolveUrlFallbackFindsCanonicalSiblingWhenFirstHitIsNotCanonical(): void
     {
         $salesChannelId = Uuid::randomHex();

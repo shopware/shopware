@@ -5,8 +5,10 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Extension\ConvertGuestRouteExtension;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerEmailUnique;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -44,7 +46,8 @@ class ConvertGuestRoute extends AbstractConvertGuestRoute
         private readonly DataValidator $validator,
         private readonly DataValidationFactoryInterface $passwordValidationFactory,
         private readonly RequestStack $requestStack,
-        private readonly RateLimiter $rateLimiter
+        private readonly RateLimiter $rateLimiter,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -67,6 +70,19 @@ class ConvertGuestRoute extends AbstractConvertGuestRoute
         SalesChannelContext $context,
         CustomerEntity $customer,
         ?DataValidationDefinition $additionalValidationDefinitions = null
+    ): SuccessResponse {
+        return $this->extensions->publish(
+            name: ConvertGuestRouteExtension::NAME,
+            extension: new ConvertGuestRouteExtension($requestDataBag, $context, $customer, $additionalValidationDefinitions),
+            function: $this->_convertGuest(...),
+        );
+    }
+
+    private function _convertGuest(
+        RequestDataBag $requestDataBag,
+        SalesChannelContext $context,
+        CustomerEntity $customer,
+        ?DataValidationDefinition $additionalValidationDefinitions
     ): SuccessResponse {
         if (!$customer->getGuest()) {
             throw CustomerException::registeredCustomerCannotBeConverted($customer->getId());

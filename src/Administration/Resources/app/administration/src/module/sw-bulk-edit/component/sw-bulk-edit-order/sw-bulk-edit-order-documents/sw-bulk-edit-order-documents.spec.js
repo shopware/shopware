@@ -64,6 +64,21 @@ describe('sw-bulk-edit-order-documents', () => {
         wrapper.vm.documentTypeRepository.search.mockRestore();
     });
 
+    it('should label document types with the translated name when the current language has none', async () => {
+        await wrapper.setData({
+            documentTypes: [
+                {
+                    id: 'invoice-id',
+                    name: null,
+                    technicalName: 'invoice',
+                    translated: { name: 'Invoice' },
+                },
+            ],
+        });
+
+        expect(wrapper.find('.mt-field__label label').text()).toBe('Invoice');
+    });
+
     it('should disable document types correctly', async () => {
         await wrapper.setData({
             documentTypes: [

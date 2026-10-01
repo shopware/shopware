@@ -300,6 +300,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SeoResolver::class),
             param('shopware.routing.registered_api_prefixes'),
             service(DomainLoader::class),
+            param('shopware.routing.api_context_route_prefixes'),
         ]);
 
     $services->set(Router::class)
@@ -635,7 +636,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(GenericPageLoader::class),
             service('event_dispatcher'),
             service(OrderRoute::class),
-        ]);
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(AccountEditOrderPageLoader::class)
         ->args([
@@ -748,7 +750,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     // @deprecated tag:v6.8.0 Will be removed
     $services->set(CookieProviderInterface::class, CookieProvider::class)
-        ->deprecate('shopware/storefront', '6.7.3.0', 'The %service_id% service will be removed in v6.8.0.0. Use the CookieGroupCollectEvent instead to introduce cookies.');
+        ->deprecate('shopware/storefront', '6.7.3.0', 'The %service_id% service will be removed in v6.8.0.0. Use the CookieGroupCollectEvent instead to introduce cookies.')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     // @deprecated tag:v6.8.0 Will be removed
     $services->set(AppCookieProvider::class)
@@ -756,7 +759,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('.inner'),
         ])
-        ->deprecate('shopware/storefront', '6.7.3.0', 'The %service_id% service will be removed in v6.8.0.0 without replacement');
+        ->deprecate('shopware/storefront', '6.7.3.0', 'The %service_id% service will be removed in v6.8.0.0 without replacement')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(ResponseHeaderListener::class)
         ->tag('kernel.event_subscriber');

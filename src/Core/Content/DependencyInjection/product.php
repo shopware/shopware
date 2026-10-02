@@ -790,6 +790,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service(StockStorage::class),
             service(SystemConfigService::class),
+            service('event_dispatcher'),
         ]);
 
     $services->set(ProductCrossSellingRoute::class)

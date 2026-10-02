@@ -188,6 +188,7 @@ export default Shopware.Component.wrapComponentConfig({
             isResizing.value = false;
             document.body.style.cursor = '';
             document.body.style.userSelect = '';
+            document.body.classList.remove('sw-sidebar-renderer-is-resizing');
             document.removeEventListener('mousemove', handleSidebarResize, true);
             document.removeEventListener('mouseup', stopSidebarResize, true);
 
@@ -200,6 +201,7 @@ export default Shopware.Component.wrapComponentConfig({
             isResizing.value = true;
             document.body.style.cursor = 'col-resize';
             document.body.style.userSelect = 'none';
+            document.body.classList.add('sw-sidebar-renderer-is-resizing');
 
             document.addEventListener('mousemove', handleSidebarResize, { passive: true, capture: true });
             document.addEventListener('mouseup', stopSidebarResize, { capture: true });

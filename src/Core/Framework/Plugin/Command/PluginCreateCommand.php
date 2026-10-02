@@ -48,16 +48,11 @@ class PluginCreateCommand extends Command
             ->addOption('no-scaffold', null, null, 'Create only the required plugin files, skip all optional scaffold files');
 
         foreach ($this->generators as $generator) {
-            if (!$generator->hasCommandOption()) {
-                continue;
-            }
+            $option = $generator->getCommandOption();
 
-            $this->addOption(
-                $generator->getCommandOptionName(),
-                null,
-                null,
-                $generator->getCommandOptionDescription()
-            );
+            if ($option !== null) {
+                $this->getDefinition()->addOption($option);
+            }
         }
     }
 
@@ -111,7 +106,7 @@ class PluginCreateCommand extends Command
             }
 
             foreach ($this->generators as $generator) {
-                if ($noScaffold && $generator->hasCommandOption()) {
+                if ($noScaffold && $generator->getCommandOption() !== null) {
                     continue;
                 }
 

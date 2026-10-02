@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Shared\MailFlow;
 
-use Shopware\Core\Checkout\Document\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;

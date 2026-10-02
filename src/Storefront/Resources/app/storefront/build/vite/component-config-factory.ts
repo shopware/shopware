@@ -96,17 +96,18 @@ export async function createComponentBuildConfig(options: ComponentBuildConfigOp
     }
 
     const makeJsEntryName = (file: string): string => {
-        const name = file.replace(/\.(js|ts)$/, '');
+        const name = file.replace(/\.(js|ts)$/, '').replace(/\/index$/, '');
         return isExtension ? `${namespace}/${name}` : name;
     };
-    const makeStyleEntryName = (file: string): string =>
-        isExtension ? `${namespace}/${file}` : file;
+    const makeStyleEntryName = (file: string): string => file.replace(/\/index(?=\.(scss|css)$)/, '');
+    const namespacedStyleEntryName = (file: string): string =>
+        isExtension ? `${namespace}/${makeStyleEntryName(file)}` : makeStyleEntryName(file);
 
     // Virtual module bridge for plain CSS entries so Vite emits proper manifest entries.
     const plainCssShims = new Map<string, string>();
     const plainCssEntries: Record<string, string> = {};
     for (const cssFile of cssFiles) {
-        const entryKey = makeStyleEntryName(cssFile);
+        const entryKey = namespacedStyleEntryName(cssFile);
         const virtualId = `${PLAIN_CSS_SHIM_PREFIX}${entryKey}`;
         plainCssShims.set(virtualId, path.join(componentRoot, cssFile));
         plainCssEntries[entryKey] = virtualId;
@@ -117,7 +118,7 @@ export async function createComponentBuildConfig(options: ComponentBuildConfigOp
             jsFiles.map(file => [makeJsEntryName(file), path.join(componentRoot, file)]),
         ),
         ...Object.fromEntries(
-            scssFiles.map(file => [makeStyleEntryName(file), path.join(componentRoot, file)]),
+            scssFiles.map(file => [namespacedStyleEntryName(file), path.join(componentRoot, file)]),
         ),
         ...plainCssEntries,
     };

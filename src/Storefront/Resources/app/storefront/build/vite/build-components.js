@@ -358,13 +358,14 @@ async function main() {
         // without the extension and the object spread would silently drop the JS entry).
         // The assetFileNames function below strips the extension from the output filename.
         const makeJsEntryName = (file) => {
-            const name = file.replace(/\.(js|ts)$/, '');
+            const name = file.replace(/\.(js|ts)$/, '').replace(/\/index$/, '');
             return isExtension ? `${namespace}/${name}` : name;
         };
+        const makeStyleEntryName = (file) => file.replace(/\/index(?=\.(scss|css)$)/, '');
         const makeScssEntryName = (file) =>
-            isExtension ? `${namespace}/${file}` : file;
+            isExtension ? `${namespace}/${makeStyleEntryName(file)}` : makeStyleEntryName(file);
         const makeCssEntryName = (file) =>
-            isExtension ? `${namespace}/${file}` : file;
+            isExtension ? `${namespace}/${makeStyleEntryName(file)}` : makeStyleEntryName(file);
 
         // Virtual-CSS-module bridge for plain .css entries.
         //

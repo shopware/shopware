@@ -917,6 +917,9 @@
         "previousMedia": "Vorheriges Medienelement",
         "nextMedia": "Nächstes Medienelement"
       },
+      "mediaImageGrid": {
+        "ariaLabel": "Medienraster mit %total% Elementen"
+      },
       "productGallery": {
         "ariaLabel": "Produktgalerie mit %total% Elementen",
         "skipProductGallery": "Produktgalerie überspringen"

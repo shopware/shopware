@@ -917,6 +917,9 @@
         "previousMedia": "Previous media",
         "nextMedia": "Next media"
       },
+      "mediaImageGrid": {
+        "ariaLabel": "Media grid containing %total% items"
+      },
       "productGallery": {
         "ariaLabel": "Product gallery containing %total% items",
         "skipProductGallery": "Skip product gallery"

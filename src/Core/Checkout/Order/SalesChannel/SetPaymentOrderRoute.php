@@ -12,6 +12,7 @@ use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedCriteriaEvent;
 use Shopware\Core\Checkout\Order\Event\OrderPaymentMethodChangedEvent;
+use Shopware\Core\Checkout\Order\Extension\SetPaymentOrderRouteExtension;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -53,7 +55,8 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         private readonly CartService $cartService,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly InitialStateIdLoader $initialStateIdLoader,
-        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute
+        private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -72,6 +75,15 @@ class SetPaymentOrderRoute extends AbstractSetPaymentOrderRoute
         methods: [Request::METHOD_POST],
     )]
     public function setPayment(Request $request, SalesChannelContext $context): SetPaymentOrderRouteResponse
+    {
+        return $this->extensions->publish(
+            name: SetPaymentOrderRouteExtension::NAME,
+            extension: new SetPaymentOrderRouteExtension($request, $context),
+            function: $this->_setPayment(...),
+        );
+    }
+
+    private function _setPayment(Request $request, SalesChannelContext $context): SetPaymentOrderRouteResponse
     {
         $paymentMethodId = $request->request->getAlnum('paymentMethodId');
         if (!Uuid::isValid($paymentMethodId)) {

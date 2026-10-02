@@ -7,7 +7,7 @@
  * imports. `build/vite-plugins/virtual-shopware-modules` generates their runtime counterpart from
  * the same `shopware-modules.json`.
  *
- * Generated. Run `composer admin:generate-shopware-modules` after adding a utility, DAL class, mixin, or store.
+ * Generated. Run `composer admin:generate-shopware-modules` after adding a utility, DAL class, composable, mixin, or store.
  */
 
 /* eslint-disable sw-deprecation-rules/private-feature-declarations -- Intentional public facade. */
@@ -398,6 +398,185 @@ declare module 'shopware:data/FilterFactory' {
     import type branch from 'src/core/data/index';
 
     const member: (typeof branch)['FilterFactory'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables' {
+    import type branch from 'src/app/composables/index';
+
+    const members: typeof branch;
+
+    export default members;
+    export const useCmsElement: (typeof members)['useCmsElement'];
+    export const useCmsState: (typeof members)['useCmsState'];
+    export const useInlineSnippet: (typeof members)['useInlineSnippet'];
+    export const useListing: (typeof members)['useListing'];
+    export const useMediaGridListener: (typeof members)['useMediaGridListener'];
+    export const useMediaSidebarModal: (typeof members)['useMediaSidebarModal'];
+    export const useNotification: (typeof members)['useNotification'];
+    export const useNotificationTranslation: (typeof members)['useNotificationTranslation'];
+    export const usePlaceholder: (typeof members)['usePlaceholder'];
+    export const usePosition: (typeof members)['usePosition'];
+    export const useRuleBetweenOperator: (typeof members)['useRuleBetweenOperator'];
+    export const useRuleContainer: (typeof members)['useRuleContainer'];
+    export const useSalutation: (typeof members)['useSalutation'];
+    export const useTranslateWithFallback: (typeof members)['useTranslateWithFallback'];
+    export const useUserSettings: (typeof members)['useUserSettings'];
+    export const useValidation: (typeof members)['useValidation'];
+    export const useVideoCover: (typeof members)['useVideoCover'];
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/useCmsElement' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['useCmsElement'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/useCmsState' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['useCmsState'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/useInlineSnippet' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['useInlineSnippet'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/useListing' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['useListing'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/useMediaGridListener' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['useMediaGridListener'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/useMediaSidebarModal' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['useMediaSidebarModal'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/useNotification' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['useNotification'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/useNotificationTranslation' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['useNotificationTranslation'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/usePlaceholder' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['usePlaceholder'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/usePosition' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['usePosition'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/useRuleBetweenOperator' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['useRuleBetweenOperator'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/useRuleContainer' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['useRuleContainer'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/useSalutation' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['useSalutation'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/useTranslateWithFallback' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['useTranslateWithFallback'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/useUserSettings' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['useUserSettings'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/useValidation' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['useValidation'];
+
+    export default member;
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/useVideoCover' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['useVideoCover'];
 
     export default member;
 }

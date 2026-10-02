@@ -1292,6 +1292,18 @@ If your extension extends or decorates `\Shopware\Core\System\NumberRange\ValueG
 
 The method must raise the stored increment state to at least the given value without lowering an existing higher state.
 
+## Removal of `SalesChannelContextRestorer::restoreByOrder()`
+
+`\Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer::restoreByOrder()` and `\Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent` were removed. Load the order with the `orderCustomer`, `transactions.stateMachineState` and `primaryOrderDelivery` associations and pass it to `\Shopware\Core\Checkout\Cart\Order\OrderConverter::assembleSalesChannelContext()`. Add associations you used to add through `SalesChannelContextRestorerOrderCriteriaEvent` to that criteria directly.
+
+`restoreByOrder()` also re-evaluated the rules against the order. The assembled context carries the rules stored on the order instead. If you need them re-evaluated, also load the `lineItems` and `deliveries` associations and run the cart rule loader on it:
+
+```php
+$salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
+$cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
+$this->cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior($salesChannelContext->getPermissions()), true);
+```
+
 
 # Administration
 

@@ -20,6 +20,7 @@
                         {% set variant = lineItem.payload.options is defined ? lineItem.payload.options|map(option => option.option)|join(', ') : '' %}
                         <span class="hidden-line-item"
                               data-id="{{ productId }}"
+                              data-line-item-id="{{ lineItem.id }}"
                               data-sku="{{ lineItem.payload.productNumber ?? productId }}"
                               data-name="{{ lineItem.label }}"
                               data-quantity="{{ lineItem.quantity }}"

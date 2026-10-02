@@ -115,9 +115,13 @@
                         <span class="list-price-badge">&#37;</span>
                     {% endblock %}
 
-                    {# @deprecated tag:v6.8.0 - Snippets listing.beforeListPrice and listing.afterListPrice will be removed. Use twig blocks instead. #}
-                    {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
-                    {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
+                    {% set afterListPriceSnippetExists = false %}
+                    {% set beforeListPriceSnippetExists = false %}
+                    {% if not feature('v6.8.0.0') %}
+                        {# @deprecated tag:v6.8.0 - Snippets listing.beforeListPrice and listing.afterListPrice will be removed. Use twig blocks instead. #}
+                        {% set afterListPriceSnippetExists = 'listing.afterListPrice'|trans|length > 0 %}
+                        {% set beforeListPriceSnippetExists = 'listing.beforeListPrice'|trans|length > 0 %}
+                    {% endif %}
 
                     {% block buy_widget_was_price_wrapper %}
                         <span class="product-detail-list-price-wrapper">

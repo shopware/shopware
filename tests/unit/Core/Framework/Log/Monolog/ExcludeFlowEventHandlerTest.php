@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Framework\Log\Monolog;
 
 use Monolog\Handler\FingersCrossedHandler;
+use Monolog\Handler\HandlerInterface;
+use Monolog\Handler\TestHandler;
 use Monolog\Level;
 use Monolog\LogRecord;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -11,6 +13,8 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailSentEvent;
+use Shopware\Core\Framework\Log\Monolog\ErrorCodeLogLevelHandler;
+use Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler;
 use Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
@@ -37,6 +41,47 @@ class ExcludeFlowEventHandlerTest extends TestCase
         );
 
         $handler->handle($record);
+    }
+
+    public function testResetIsForwardedToResettableInnerHandler(): void
+    {
+        $innerHandler = $this->createMock(FingersCrossedHandler::class);
+        $innerHandler->expects($this->once())->method('reset');
+
+        $handler = new ExcludeFlowEventHandler($innerHandler, []);
+
+        $handler->reset();
+    }
+
+    public function testResetWorksWithNonResettableInnerHandler(): void
+    {
+        $innerHandler = static::createStub(HandlerInterface::class);
+
+        $handler = new ExcludeFlowEventHandler($innerHandler, []);
+
+        $this->expectNotToPerformAssertions();
+
+        $handler->reset();
+    }
+
+    public function testResetClearsFingersCrossedBufferThroughDecoratorChain(): void
+    {
+        $testHandler = new TestHandler();
+        $handler = new ExcludeFlowEventHandler(
+            new ErrorCodeLogLevelHandler(
+                new ExcludeExceptionHandler(new FingersCrossedHandler($testHandler, Level::Error), []),
+                []
+            ),
+            []
+        );
+
+        $handler->handle(new LogRecord(new \DateTimeImmutable(), 'app', Level::Info, 'previous request'));
+        $handler->reset();
+        $handler->handle(new LogRecord(new \DateTimeImmutable(), 'app', Level::Error, 'current request'));
+
+        $records = $testHandler->getRecords();
+        static::assertCount(1, $records);
+        static::assertSame('current request', $records[0]->message);
     }
 
     /**

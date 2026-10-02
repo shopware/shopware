@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Log\Monolog;
 
 use Monolog\Handler\FingersCrossedHandler;
+use Monolog\Handler\HandlerInterface;
 use Monolog\Level;
 use Monolog\LogRecord;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -44,6 +45,27 @@ class ErrorCodeLogLevelHandlerTest extends TestCase
         );
 
         $handler->handle($record);
+    }
+
+    public function testResetIsForwardedToResettableInnerHandler(): void
+    {
+        $innerHandler = $this->createMock(FingersCrossedHandler::class);
+        $innerHandler->expects($this->once())->method('reset');
+
+        $handler = new ErrorCodeLogLevelHandler($innerHandler, []);
+
+        $handler->reset();
+    }
+
+    public function testResetWorksWithNonResettableInnerHandler(): void
+    {
+        $innerHandler = static::createStub(HandlerInterface::class);
+
+        $handler = new ErrorCodeLogLevelHandler($innerHandler, []);
+
+        $this->expectNotToPerformAssertions();
+
+        $handler->reset();
     }
 
     /**

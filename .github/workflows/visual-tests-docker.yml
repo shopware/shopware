@@ -6,6 +6,7 @@ permissions:
 name: Visual Tests (Docker)
 
 on:
+  pull_request:
   workflow_dispatch:
     inputs:
       update-snapshots:
@@ -70,15 +71,8 @@ jobs:
           install-admin: true
           install-storefront: true
 
-      - name: Install Playwright dependencies
-        working-directory: tests/acceptance
-        run: |
-          npm config set fetch-retries 5
-          npm config set fetch-retry-mintimeout 20000
-          npm ci
       - name: Run visual tests in Playwright container
         working-directory: tests/acceptance
-        continue-on-error: true
         env:
           # `changed` only rewrites snapshots that fail the comparison, so scheduled
           # runs stop rebaselining every screen with sub-perceptual antialiasing drift.
@@ -105,7 +99,8 @@ jobs:
             -v "$GITHUB_WORKSPACE:/app" \
             -w /app/tests/acceptance \
             "mcr.microsoft.com/playwright:v${PLAYWRIGHT_VERSION}-noble" \
-            npx "$ATS_CMD" test --project=Visual --workers=1 "$UPDATE_SNAPSHOTS" "$FILTER"
+            /bin/bash -c "npm config set fetch-retries=5 fetch-retry-mintimeout=20000 && \
+            npm ci && npx "$ATS_CMD" test --project=Visual --workers=1 "$UPDATE_SNAPSHOTS" "$FILTER""
       - name: Upload visual test results
         if: always()
         continue-on-error: true

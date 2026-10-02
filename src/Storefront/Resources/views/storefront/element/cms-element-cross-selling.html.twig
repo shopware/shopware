@@ -52,8 +52,10 @@
                                          id="cross-selling-tab-{{ id }}-pane"
                                          role="tabpanel"
                                          aria-labelledby="cross-selling-tab-{{ id }}"
-                                         data-list-id="{{ id }}"
-                                         data-list-name="{{ crossSelling.translated.name ?: crossSelling.name }}"
+                                         {% if storefrontAnalytics and storefrontAnalytics.isActive() %}
+                                             data-list-id="{{ id }}"
+                                             data-list-name="{{ crossSelling.translated.name ?: crossSelling.name }}"
+                                         {% endif %}
                                     >
                                         {% set config = {
                                             title: {

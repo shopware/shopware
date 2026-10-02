@@ -66,9 +66,8 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
         const productBoxes = listing?.querySelectorAll('.product-box') ?? [];
         const lineItems = [];
 
-        // The breadcrumb describes the listing rather than the product, so it is only the fallback
-        // for product boxes whose page did not load the category associations.
-        const breadcrumbCategories = ProductPageHelper.getCategories();
+        // Get category from breadcrumbs (same for all items on this page)
+        const categories = ProductPageHelper.getCategories();
 
         // a paginated listing renders one page of a longer list, so the index counts across pages
         const listStart = ListAttributionHelper.getListStart(listing);
@@ -88,8 +87,6 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
                 return;
             }
 
-            const categories = ProductPageHelper.mapCategories(productData.categories);
-
             lineItems.push({
                 item_id: productData.sku ?? productData.id,
                 item_name: productData.name,
@@ -97,7 +94,7 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
                 item_variant: productData.variant,
                 price: productData.price,
                 index: listStart + lineItems.length,
-                ...(Object.keys(categories).length > 0 ? categories : breadcrumbCategories),
+                ...categories,
             });
         });
 

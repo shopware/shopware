@@ -24,7 +24,6 @@ export default class ProductPageHelper {
             name: cardData.name,
             brand: cardData.brand,
             variant: cardData.variant,
-            categories: cardData.categories,
             currency: detailData.currency,
             value: cardData.value,
         };
@@ -86,7 +85,6 @@ export default class ProductPageHelper {
                 brand: info.brand,
                 variant: info.variant,
                 value: info.price,
-                categories: ProductPageHelper.mapCategories(info.categories),
             };
         } catch {
             return {};
@@ -296,16 +294,24 @@ export default class ProductPageHelper {
      * @returns {Object}
      */
     static getCategories() {
-        const breadcrumbNodes = document.querySelectorAll('[aria-label="breadcrumb"] .breadcrumb-title');
         const categories = {};
 
-        breadcrumbNodes.forEach((node, index) => {
-            if (index < 5) {
-                const key = index === 0 ? 'item_category' : `item_category${index + 1}`;
-                categories[key] = node.textContent.trim();
-            }
+        ProductPageHelper.getCategoryNames().forEach((name, index) => {
+            const key = index === 0 ? 'item_category' : `item_category${index + 1}`;
+            categories[key] = name;
         });
 
         return categories;
+    }
+
+    /**
+     * Gets the category names of the page breadcrumb, from the top level down, at most the five
+     * levels GA4 supports
+     * @returns {string[]}
+     */
+    static getCategoryNames() {
+        return [...document.querySelectorAll('[aria-label="breadcrumb"] .breadcrumb-title')]
+            .slice(0, 5)
+            .map(node => node.textContent.trim());
     }
 }

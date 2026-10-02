@@ -31,7 +31,6 @@ use Shopware\Core\Content\Media\File\FileSaver;
 use Shopware\Core\Content\Media\MediaService;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
-use Shopware\Core\Content\Product\Cart\ProductCategoryPathResolver;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductConfiguratorLoader;
 use Shopware\Core\Content\Product\SalesChannel\Detail\ProductDetailRoute;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
@@ -67,6 +66,7 @@ use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\System\Salutation\AbstractSalutationsSorter;
 use Shopware\Core\System\Salutation\SalesChannel\SalutationRoute;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Checkout\Cart\AnalyticsLineItemPriceCalculator;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Checkout\Customer\CustomerGroupSubscriber;
 use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
@@ -114,7 +114,6 @@ use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainProvider;
 use Shopware\Storefront\Framework\SystemCheck\Util\SalesChannelDomainUtil;
 use Shopware\Storefront\Framework\Twig\Components\TwigComponentRenderEventListener;
 use Shopware\Storefront\Framework\Twig\ErrorTemplateResolver;
-use Shopware\Storefront\Framework\Twig\Extension\AnalyticsCategoryPathExtension;
 use Shopware\Storefront\Framework\Twig\Extension\AnalyticsLineItemPriceExtension;
 use Shopware\Storefront\Framework\Twig\Extension\ConfigExtension;
 use Shopware\Storefront\Framework\Twig\Extension\IconCacheTwigFilter;
@@ -393,14 +392,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(UrlEncodingTwigFilter::class)
         ->tag('twig.extension');
 
-    $services->set(AnalyticsLineItemPriceExtension::class)
-        ->args([service(CashRounding::class)])
-        ->tag('twig.extension');
+    $services->set(AnalyticsLineItemPriceCalculator::class)
+        ->args([service(CashRounding::class)]);
 
-    $services->set(AnalyticsCategoryPathExtension::class)
-        ->args([
-            service(ProductCategoryPathResolver::class),
-        ])
+    $services->set(AnalyticsLineItemPriceExtension::class)
+        ->args([service(AnalyticsLineItemPriceCalculator::class)])
         ->tag('twig.extension');
 
     $services->set(IconCacheTwigFilter::class)

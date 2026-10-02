@@ -45,10 +45,8 @@ use Shopware\Core\Content\Product\Aggregate\ProductTranslation\ProductTranslatio
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\Api\ProductActionController;
 use Shopware\Core\Content\Product\Api\ProductNumberFkResolver;
-use Shopware\Core\Content\Product\Cart\ProductCategoryPathResolver;
 use Shopware\Core\Content\Product\Cart\ProductGateway;
 use Shopware\Core\Content\Product\Cart\ProductLineItemCommandValidator;
-use Shopware\Core\Content\Product\Cart\ProductStreamCategoryLoader;
 use Shopware\Core\Content\Product\Cleanup\CleanupProductKeywordDictionaryTask;
 use Shopware\Core\Content\Product\Cleanup\CleanupProductKeywordDictionaryTaskHandler;
 use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTask;
@@ -277,15 +275,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('sales_channel.product.repository'),
             service('event_dispatcher'),
-            service(ProductStreamCategoryLoader::class),
         ]);
-
-    $services->set(ProductStreamCategoryLoader::class)
-        ->args([
-            service('category.repository'),
-        ]);
-
-    $services->set(ProductCategoryPathResolver::class);
 
     $services->set(AbstractPropertyGroupSorter::class, PropertyGroupSorter::class);
 

@@ -7,6 +7,7 @@ describe('plugin/google-analytics/events/select-item.event', () => {
     beforeEach(() => {
         window.gtag = jest.fn();
         window.sessionStorage.clear();
+        window.localStorage.clear();
 
         selectItemEvent = new SelectItemEvent();
         selectItemEvent.execute();
@@ -15,6 +16,7 @@ describe('plugin/google-analytics/events/select-item.event', () => {
     afterEach(() => {
         // the listener is delegated to `document`, which outlives a single test
         document.removeEventListener('click', selectItemEvent._boundOnClick);
+        document.removeEventListener('auxclick', selectItemEvent._boundOnClick);
         document.body.innerHTML = '';
         jest.clearAllMocks();
     });
@@ -161,7 +163,7 @@ describe('plugin/google-analytics/events/select-item.event', () => {
         ['a Cmd click', { metaKey: true }, ''],
         ['a Shift click', { shiftKey: true }, ''],
         ['a link with target _blank', {}, '_blank'],
-    ])('reports %s but keeps no attribution in this tab', (label, modifiers, target) => {
+    ])('reports %s and hands the list over to the new tab instead of keeping it here', (label, modifiers, target) => {
         renderListing([shirt]);
         const link = document.querySelector('.product-name');
         if (target) {
@@ -171,6 +173,27 @@ describe('plugin/google-analytics/events/select-item.event', () => {
         link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, ...modifiers }));
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'select_item', expect.anything());
-        expect(ListAttributionHelper.consume('SW10000')).toEqual({});
+        expect(window.sessionStorage.getItem('swGaSelectedItemList')).toBeNull();
+        expect(ListAttributionHelper.consume('SW10000')).toEqual({ item_list_id: 'category-1', item_list_name: 'Shirts' });
+    });
+
+    test('reports a middle click, which opens the product in another tab', () => {
+        renderListing([shirt]);
+
+        document.querySelector('.product-name').dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 1 }));
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'select_item', expect.objectContaining({
+            'item_list_id': 'category-1',
+        }));
+        expect(window.sessionStorage.getItem('swGaSelectedItemList')).toBeNull();
+        expect(ListAttributionHelper.consume('SW10000')).toEqual({ item_list_id: 'category-1', item_list_name: 'Shirts' });
+    });
+
+    test('ignores a right click, which opens the context menu', () => {
+        renderListing([shirt]);
+
+        document.querySelector('.product-name').dispatchEvent(new MouseEvent('auxclick', { bubbles: true, cancelable: true, button: 2 }));
+
+        expect(window.gtag).not.toHaveBeenCalled();
     });
 });

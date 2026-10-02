@@ -1,3 +1,4 @@
+import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 import RemoveFromWishlistEvent from 'src/plugin/google-analytics/events/remove-from-wishlist.event';
 
 describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
@@ -206,7 +207,10 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
         form.classList.add('product-wishlist-form');
         form.setAttribute('action', '/wishlist/product/delete/abc123-def456-789');
 
-        await removeFromWishlistEvent._onFormSubmit({ target: form });
+        form.submit = jest.fn();
+        const submitEvent = { target: form, defaultPrevented: false, preventDefault: jest.fn() };
+
+        await removeFromWishlistEvent._onFormSubmit(submitEvent);
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'remove_from_wishlist', expect.objectContaining({
             'items': [{
@@ -215,6 +219,49 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
                 'price': 99.99,
             }],
         }));
+        // the removal is held back until the event is sent, then submitted
+        expect(submitEvent.preventDefault).toHaveBeenCalled();
+        expect(form.submit).toHaveBeenCalledTimes(1);
+    });
+
+    test('submits the removal after a second when the category lookup hangs', async () => {
+        jest.useFakeTimers();
+        document.body.innerHTML = '<h1 class="product-detail-name">Test Product</h1>';
+
+        const resolveCategories = jest.spyOn(ProductPageHelper, 'resolveCategories')
+            .mockReturnValue(new Promise(() => {}));
+
+        const form = document.createElement('form');
+        form.classList.add('product-wishlist-form');
+        form.setAttribute('action', '/wishlist/product/delete/abc123-def456-789');
+        form.submit = jest.fn();
+
+        const submitted = removeFromWishlistEvent._onFormSubmit({ target: form, defaultPrevented: false, preventDefault: jest.fn() });
+        expect(form.submit).not.toHaveBeenCalled();
+
+        await jest.advanceTimersByTimeAsync(1000);
+        await submitted;
+
+        expect(form.submit).toHaveBeenCalledTimes(1);
+
+        resolveCategories.mockRestore();
+        jest.useRealTimers();
+    });
+
+    test('does not take over a submit another handler already handles', async () => {
+        document.body.innerHTML = '<h1 class="product-detail-name">Test Product</h1>';
+
+        const form = document.createElement('form');
+        form.classList.add('product-wishlist-form');
+        form.setAttribute('action', '/wishlist/product/delete/abc123-def456-789');
+        form.submit = jest.fn();
+        const submitEvent = { target: form, defaultPrevented: true, preventDefault: jest.fn() };
+
+        await removeFromWishlistEvent._onFormSubmit(submitEvent);
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'remove_from_wishlist', expect.anything());
+        expect(submitEvent.preventDefault).not.toHaveBeenCalled();
+        expect(form.submit).not.toHaveBeenCalled();
     });
 
     test('does not fire event on form submit for non-wishlist form', async () => {

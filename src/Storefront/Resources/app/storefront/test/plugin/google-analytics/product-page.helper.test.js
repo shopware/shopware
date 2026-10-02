@@ -190,8 +190,8 @@ describe('plugin/google-analytics/product-page.helper', () => {
             `;
         }
 
-        test('returns the categories of the card', () => {
-            renderCard({ id: 'product-123', name: 'Shirt', price: 19.99, sku: 'SW10000', categories: ['Clothing', 'Shirts'] });
+        test('returns the data of the card', () => {
+            renderCard({ id: 'product-123', name: 'Shirt', price: 19.99, sku: 'SW10000' });
 
             expect(ProductPageHelper.getProductCardData('product-123')).toEqual({
                 id: 'SW10000',
@@ -199,18 +199,7 @@ describe('plugin/google-analytics/product-page.helper', () => {
                 brand: undefined,
                 variant: undefined,
                 value: 19.99,
-                categories: {
-                    item_category: 'Clothing',
-                    item_category2: 'Shirts',
-                },
             });
-        });
-
-        // a page that does not load the category associations still renders product boxes
-        test('returns no categories when the card carries none', () => {
-            renderCard({ id: 'product-123', name: 'Shirt', price: 19.99, sku: 'SW10000' });
-
-            expect(ProductPageHelper.getProductCardData('product-123').categories).toEqual({});
         });
 
         test('returns nothing without a card', () => {

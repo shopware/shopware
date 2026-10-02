@@ -65,7 +65,7 @@ class LineItemGroupDefinitionTest extends TestCase
      * assigned and returned in its getter.
      */
     #[Group('lineitemgroup')]
-    public function tesSorterKeyProperty(): void
+    public function testSorterKeyProperty(): void
     {
         $group = new LineItemGroupDefinition('ID-1', 'COUNT', 2, 'PRICE_ASC', new RuleCollection());
 

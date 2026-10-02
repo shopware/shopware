@@ -253,4 +253,25 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
             }],
         });
     });
+
+    test('does not report the product when the consent was revoked during the category request', async () => {
+        document.body.innerHTML = `
+            <div class="product-box" data-product-information='{ "id": "product-123", "name": "Test Product", "price": 99.99, "sku": "SW10000" }'>
+                <div class="product-wishlist-product-123"></div>
+            </div>
+        `;
+
+        let answer;
+        const resolveCategories = jest.spyOn(ProductPageHelper, 'resolveCategories')
+            .mockReturnValue(new Promise(resolve => { answer = resolve; }));
+
+        const sent = addToWishlistEvent._onProductAdded({ detail: { productId: 'product-123' } });
+        addToWishlistEvent.disable();
+        answer({ item_category: 'Clothing' });
+        await sent;
+
+        expect(window.gtag).not.toHaveBeenCalled();
+
+        resolveCategories.mockRestore();
+    });
 });

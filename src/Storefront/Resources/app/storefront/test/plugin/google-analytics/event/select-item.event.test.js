@@ -17,6 +17,7 @@ describe('plugin/google-analytics/events/select-item.event', () => {
         // the listener is delegated to `document`, which outlives a single test
         document.removeEventListener('click', selectItemEvent._boundOnClick);
         document.removeEventListener('auxclick', selectItemEvent._boundOnClick);
+        Object.defineProperty(document, 'referrer', { value: '', configurable: true });
         document.body.innerHTML = '';
         jest.clearAllMocks();
     });
@@ -174,6 +175,8 @@ describe('plugin/google-analytics/events/select-item.event', () => {
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'select_item', expect.anything());
         expect(window.sessionStorage.getItem('swGaSelectedItemList')).toBeNull();
+        // the new tab is opened from this page
+        Object.defineProperty(document, 'referrer', { value: window.location.href, configurable: true });
         expect(ListAttributionHelper.consume('SW10000')).toEqual({ item_list_id: 'category-1', item_list_name: 'Shirts' });
     });
 
@@ -186,6 +189,8 @@ describe('plugin/google-analytics/events/select-item.event', () => {
             'item_list_id': 'category-1',
         }));
         expect(window.sessionStorage.getItem('swGaSelectedItemList')).toBeNull();
+        // the new tab is opened from this page
+        Object.defineProperty(document, 'referrer', { value: window.location.href, configurable: true });
         expect(ListAttributionHelper.consume('SW10000')).toEqual({ item_list_id: 'category-1', item_list_name: 'Shirts' });
     });
 

@@ -43,6 +43,8 @@ function isStorageSupported() {
  * would keep an attribution alive across browser sessions and attribute unrelated later visits.
  * A product opened in another tab is the exception. The new tab does not reliably start with a copy
  * of the session storage, so the attribution is handed over through `localStorage` for a minute.
+ * `localStorage` is shared by every tab, so a handover only applies to the page that was opened
+ * from the page that stored it, recognised by its referrer.
  */
 export default class ListAttributionHelper
 {
@@ -95,7 +97,8 @@ export default class ListAttributionHelper
 
     /**
      * Hands the attribution over to a product opened in another tab. Several products can be opened
-     * at once, so each is kept until its tab consumes it or it expires.
+     * at once, also the same product from the lists of different pages, so each is kept until its
+     * tab consumes it or it expires.
      *
      * @param {string} itemId the reported product number
      * @param {Object} list
@@ -106,11 +109,13 @@ export default class ListAttributionHelper
             return;
         }
 
+        // a referrer never carries the fragment of the page
+        const source = window.location.href.split('#')[0];
         const handovers = ListAttributionHelper._readHandovers()
-            .filter(handover => handover.itemId !== itemId)
+            .filter(handover => handover.itemId !== itemId || handover.source !== source)
             .slice(-(HANDOVER_LIMIT - 1));
 
-        handovers.push({ itemId, productId, list, expires: Date.now() + HANDOVER_TTL });
+        handovers.push({ itemId, productId, list, source, expires: Date.now() + HANDOVER_TTL });
 
         ListAttributionHelper._writeHandovers(handovers);
     }
@@ -139,8 +144,13 @@ export default class ListAttributionHelper
             return stored.list;
         }
 
+        // Only the tab opened from the page that stored the handover may take it. Another tab, the
+        // opener itself, and a direct visit of the product have a different or no referrer.
+        const referrer = document.referrer;
         const handovers = ListAttributionHelper._readHandovers();
-        const handover = handovers.find(matches);
+        const handover = referrer
+            ? handovers.find(entry => entry.source === referrer && matches(entry))
+            : undefined;
 
         if (!handover) {
             return {};

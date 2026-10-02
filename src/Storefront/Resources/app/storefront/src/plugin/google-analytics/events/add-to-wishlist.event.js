@@ -46,6 +46,11 @@ export default class AddToWishlistEvent extends EventAwareAnalyticsEvent
             categories = await ProductPageHelper.resolveCategories(productId);
         }
 
+        // the shopper can revoke the tracking consent while the categories are requested
+        if (!this.active) {
+            return;
+        }
+
         this.pushEvent('add_to_wishlist', {
             'currency': productData.currency,
             'value': productData.value,

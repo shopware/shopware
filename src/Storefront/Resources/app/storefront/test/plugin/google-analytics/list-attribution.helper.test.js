@@ -105,21 +105,68 @@ describe('plugin/google-analytics/list-attribution.helper', () => {
     describe('handOver', () => {
         const list = { item_list_id: 'category-1', item_list_name: 'Shirts' };
 
+        // the tab the product is opened in has the page that stored the handover as its referrer
+        function openedFrom(url) {
+            Object.defineProperty(document, 'referrer', { value: url, configurable: true });
+        }
+
         afterEach(() => {
             jest.useRealTimers();
+            openedFrom('');
+            window.history.replaceState(null, '', '/');
         });
 
-        test('hands the list over to the tab that views the product', () => {
+        test('hands the list over to the tab opened from this page', () => {
             ListAttributionHelper.handOver('SW10000', list, 'product-1');
+            openedFrom(window.location.href);
 
             expect(window.sessionStorage.getItem('swGaSelectedItemList')).toBeNull();
             expect(ListAttributionHelper.consume('SW10000')).toEqual(list);
             expect(ListAttributionHelper.consume('SW10000')).toEqual({});
         });
 
+        test('matches the referrer of a page whose address has a fragment', () => {
+            window.history.replaceState(null, '', '/shirts#filter');
+            ListAttributionHelper.handOver('SW10000', list, 'product-1');
+            openedFrom('http://localhost/shirts');
+
+            expect(ListAttributionHelper.consume('SW10000')).toEqual(list);
+        });
+
+        test('is not taken by a direct visit of the product', () => {
+            ListAttributionHelper.handOver('SW10000', list, 'product-1');
+            openedFrom('');
+
+            expect(ListAttributionHelper.consume('SW10000')).toEqual({});
+
+            openedFrom(window.location.href);
+            expect(ListAttributionHelper.consume('SW10000')).toEqual(list);
+        });
+
+        test('is not taken by a tab opened from another page', () => {
+            ListAttributionHelper.handOver('SW10000', list, 'product-1');
+            openedFrom('http://localhost/other-page');
+
+            expect(ListAttributionHelper.consume('SW10000')).toEqual({});
+        });
+
+        test('keeps the same product opened from the lists of two pages apart', () => {
+            window.history.replaceState(null, '', '/shirts');
+            ListAttributionHelper.handOver('SW10000', list, 'product-1');
+            window.history.replaceState(null, '', '/search');
+            ListAttributionHelper.handOver('SW10000', { item_list_id: 'search' }, 'product-1');
+
+            openedFrom('http://localhost/shirts');
+            expect(ListAttributionHelper.consume('SW10000')).toEqual(list);
+
+            openedFrom('http://localhost/search');
+            expect(ListAttributionHelper.consume('SW10000')).toEqual({ item_list_id: 'search' });
+        });
+
         test('keeps the handovers of several products opened at once', () => {
             ListAttributionHelper.handOver('SW10000', list, 'product-1');
             ListAttributionHelper.handOver('SW10001', { item_list_id: 'search' }, 'product-2');
+            openedFrom(window.location.href);
 
             expect(ListAttributionHelper.consume(undefined, ['product-2'])).toEqual({ item_list_id: 'search' });
             expect(ListAttributionHelper.consume('SW10000')).toEqual(list);
@@ -128,6 +175,7 @@ describe('plugin/google-analytics/list-attribution.helper', () => {
         test('prefers the selection of this tab over a handover', () => {
             ListAttributionHelper.handOver('SW10000', { item_list_id: 'search' }, 'product-1');
             ListAttributionHelper.remember('SW10000', list, 'product-1');
+            openedFrom(window.location.href);
 
             expect(ListAttributionHelper.consume('SW10000')).toEqual(list);
         });
@@ -135,6 +183,7 @@ describe('plugin/google-analytics/list-attribution.helper', () => {
         test('forgets a handover after a minute', () => {
             jest.useFakeTimers();
             ListAttributionHelper.handOver('SW10000', list, 'product-1');
+            openedFrom(window.location.href);
 
             jest.advanceTimersByTime(60001);
 
@@ -145,13 +194,16 @@ describe('plugin/google-analytics/list-attribution.helper', () => {
             for (let i = 0; i < 11; i++) {
                 ListAttributionHelper.handOver(`SW1000${i}`, list);
             }
+            openedFrom(window.location.href);
 
             expect(JSON.parse(window.localStorage.getItem('swGaSelectedItemListHandover'))).toHaveLength(10);
             expect(ListAttributionHelper.consume('SW10000')).toEqual({});
+            expect(ListAttributionHelper.consume('SW100010')).toEqual(list);
         });
 
         test('survives a corrupted handover value', () => {
             window.localStorage.setItem('swGaSelectedItemListHandover', '{invalid');
+            openedFrom(window.location.href);
 
             expect(ListAttributionHelper.consume('SW10000')).toEqual({});
         });

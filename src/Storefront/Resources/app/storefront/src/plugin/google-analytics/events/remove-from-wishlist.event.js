@@ -109,6 +109,11 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
             categories = await ProductPageHelper.resolveCategories(productId);
         }
 
+        // the shopper can revoke the tracking consent while the categories are requested
+        if (!this.active) {
+            return;
+        }
+
         this.pushEvent('remove_from_wishlist', {
             'currency': productData.currency,
             'value': productData.value,

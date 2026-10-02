@@ -29,8 +29,10 @@ export default class RemoveFromCart extends AnalyticsEvent
             return;
         }
 
-        const productId = removeButton.getAttribute('data-product-id');
-        if (!productId) {
+        // despite its name, the attribute holds the line item id, which a Store API client or an
+        // extension can set to something other than the product id
+        const lineItemId = removeButton.getAttribute('data-product-id');
+        if (!lineItemId) {
             return;
         }
 
@@ -38,10 +40,18 @@ export default class RemoveFromCart extends AnalyticsEvent
         // rendered there, so a remove button without a match belongs to a discount or another non
         // product line item, which GA4 does not report as an item. Reporting it anyway would put the
         // line item id into `item_id`, where every other event reports a product number.
-        const hiddenLineItem = document.querySelector(`.hidden-line-item[data-id="${productId}"]`);
+        // a theme that overrides the hidden line item without the line item id still matches by the
+        // product id, which is the same for every product added through the storefront
+        // The ids are compared instead of put into a selector, as a line item id from an API
+        // client can contain characters a selector would have to escape.
+        const hiddenLineItems = [...document.querySelectorAll('.hidden-line-item')];
+        const hiddenLineItem = hiddenLineItems.find(element => element.getAttribute('data-line-item-id') === lineItemId)
+            ?? hiddenLineItems.find(element => element.getAttribute('data-id') === lineItemId);
         if (!hiddenLineItem) {
             return;
         }
+
+        const productId = hiddenLineItem.getAttribute('data-id');
 
         const additionalProperties = LineItemHelper.getAdditionalProperties();
         const categories = LineItemHelper.getCategoriesFromElement(hiddenLineItem);

@@ -4,8 +4,10 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -16,7 +18,7 @@ use Shopware\Core\Framework\Rule\Container\MatchAllLineItemsRule;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 use Symfony\Component\Validator\Constraints\Choice;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -30,8 +32,6 @@ use Symfony\Component\Validator\Constraints\Type;
 #[Group('rules')]
 class LineItemDimensionWidthRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private LineItemDimensionWidthRule $rule;
 
     protected function setUp(): void
@@ -67,7 +67,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
 
         $lineItem = self::createLineItemWithWidth($lineItemAmount);
         if ($lineItemWithoutDeliveryInfo) {
-            $lineItem = self::createLineItem();
+            $lineItem = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $match = $this->rule->match(new LineItemScope(
@@ -132,12 +132,12 @@ class LineItemDimensionWidthRuleTest extends TestCase
 
         $lineItem1 = self::createLineItemWithWidth($lineItemAmount1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = self::createLineItem();
+            $lineItem1 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItem2 = self::createLineItemWithWidth($lineItemAmount2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = self::createLineItem();
+            $lineItem2 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
@@ -145,7 +145,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
             $lineItem2,
         ]);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -173,12 +173,12 @@ class LineItemDimensionWidthRuleTest extends TestCase
 
         $lineItem1 = self::createLineItemWithWidth($lineItemAmount1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = self::createLineItem();
+            $lineItem1 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItem2 = self::createLineItemWithWidth($lineItemAmount2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = self::createLineItem();
+            $lineItem2 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
@@ -186,12 +186,12 @@ class LineItemDimensionWidthRuleTest extends TestCase
             $lineItem2,
         ]);
 
-        $containerLineItem = self::createLineItem();
+        $containerLineItem = CartRuleFixture::createLineItem();
         if ($containerLineItemWidth !== null) {
             $containerLineItem = self::createLineItemWithWidth($containerLineItemWidth);
         }
         $containerLineItem->setChildren($lineItemCollection);
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $match = $this->rule->match(new CartRuleScope(
             $cart,
@@ -459,7 +459,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
 
         $lineItemCollection = new LineItemCollection($lineItems);
 
-        $cart = $this->createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
 
         $match = $allLineItemsRule->match(new CartRuleScope(
             $cart,
@@ -526,7 +526,7 @@ class LineItemDimensionWidthRuleTest extends TestCase
             [
                 self::createLineItemWithWidth(100),
                 self::createLineItemWithWidth(100),
-                self::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO')->setPayloadValue('promotionId', 'A'),
+                CartRuleFixture::createLineItem(LineItem::PROMOTION_LINE_ITEM_TYPE, 1, 'PROMO')->setPayloadValue('promotionId', 'A'),
             ],
             MatchAllLineItemsRule::OPERATOR_EQ, true,
         ];
@@ -593,34 +593,49 @@ class LineItemDimensionWidthRuleTest extends TestCase
         static::assertSame('amount', $result->getData()['fields']['amount']['name']);
     }
 
-    #[DataProvider('lineItemTypeProvider')]
-    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemWithoutProductDataProvider')]
+    public function testLineItemWithoutProductData(string $type, bool $lineItemScope, bool $expected): void
     {
         $rule = new LineItemDimensionWidthRule(Rule::OPERATOR_NEQ, 5.0);
 
-        $lineItem = self::createLineItem($type);
+        $lineItem = CartRuleFixture::createLineItem($type);
         $context = static::createStub(SalesChannelContext::class);
 
         $scope = $lineItemScope
             ? new LineItemScope($lineItem, $context)
-            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
     }
 
-    /**
-     * @return \Generator<string, array{non-empty-string, bool, bool}>
-     */
-    public static function lineItemTypeProvider(): \Generator
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
+    public function testLineItemWithDeliveryInformationIsEvaluated(string $type, bool $lineItemScope): void
     {
-        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
-        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
-        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
-        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
+        $rule = new LineItemDimensionWidthRule(Rule::OPERATOR_EQ, 5.0);
+        $lineItem = CartRuleFixture::createLineItem($type)->setDeliveryInformation(CartRuleFixture::createLineItemWithDeliveryInfo(false, 1, 50.0, null, 5.0, null)->getDeliveryInformation());
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertTrue($rule->match($scope));
+    }
+
+    public function testCustomLineItemWithDeliveryInformationIsEvaluatedInCart(): void
+    {
+        $rule = new LineItemDimensionWidthRule(Rule::OPERATOR_NEQ, 5.0);
+        $lineItem = CartRuleFixture::createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE)->setDeliveryInformation(new DeliveryInformation(1, 0, false));
+        $scope = new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$lineItem])),
+            static::createStub(SalesChannelContext::class),
+        );
+
+        static::assertTrue($rule->match($scope));
     }
 
     private static function createLineItemWithWidth(?float $width): LineItem
     {
-        return self::createLineItemWithDeliveryInfo(false, 1, 50.0, null, $width);
+        return CartRuleFixture::createLineItemWithDeliveryInfo(false, 1, 50.0, null, $width);
     }
 }

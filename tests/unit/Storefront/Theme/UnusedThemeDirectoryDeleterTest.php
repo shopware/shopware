@@ -3,17 +3,14 @@
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use Doctrine\DBAL\Connection;
-use League\Flysystem\DirectoryAttributes;
-use League\Flysystem\DirectoryListing;
-use League\Flysystem\FileAttributes;
-use League\Flysystem\FilesystemOperator;
-use League\Flysystem\FilesystemReader;
+use League\Flysystem\Filesystem;
+use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\AbstractThemePathBuilder;
 use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
-use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -22,88 +19,137 @@ use Symfony\Component\Clock\NativeClock;
 #[CoversClass(UnusedThemeDirectoryDeleter::class)]
 class UnusedThemeDirectoryDeleterTest extends TestCase
 {
-    public function testDeleteUnusedDirectories(): void
+    private const NOW = '2026-09-29 12:00:00';
+
+    private Filesystem $filesystem;
+
+    private MockClock $clock;
+
+    private UnusedThemeDirectoryDeleter $deleter;
+
+    protected function setUp(): void
     {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->once())->method('fetchAllAssociative')->willReturn([
-            ['salesChannelId' => 'salesChannelId1', 'themeId' => 'themeId1'],
-            ['salesChannelId' => 'salesChannelId2', 'themeId' => 'themeId1'],
+        $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $this->clock = new MockClock(self::NOW);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([
+            ['salesChannelId' => 'salesChannelId', 'themeId' => 'themeId'],
         ]);
 
-        $themeFileSystem = $this->createMock(FilesystemOperator::class);
-        $themeFileSystem->expects($this->exactly(5))->method('listContents')
-            ->willReturnMap([
-                [
-                    'theme',
-                    FilesystemReader::LIST_SHALLOW,
-                    new DirectoryListing([
-                        new DirectoryAttributes('theme/themeId1'),
-                        new DirectoryAttributes('theme/themeOldId'),
-                        new DirectoryAttributes('theme/usedThemePath'),
-                        new DirectoryAttributes('theme/unusedThemePathWithoutFiles'),
-                        new DirectoryAttributes('theme/unusedThemePathOlderThanOneDay'),
-                        new DirectoryAttributes('theme/unusedThemePathNewerThanOneDay'),
-                    ]),
-                ],
-                [
-                    'theme/unusedThemePathWithoutFiles',
-                    FilesystemReader::LIST_DEEP,
-                    new DirectoryListing([
-                        new DirectoryAttributes('theme/unusedThemePathWithoutFiles/foo'),
-                    ]),
-                ],
-                [
-                    'theme/unusedThemePathOlderThanOneDay',
-                    FilesystemReader::LIST_DEEP,
-                    new DirectoryListing([
-                        new DirectoryAttributes('theme/unusedThemePathOlderThanOneDay/foo'),
-                        new FileAttributes('theme/unusedThemePathOlderThanOneDay/fileWithoutTimestamp.txt'),
-                        new FileAttributes(
-                            'theme/unusedThemePathOlderThanOneDay/file1.txt',
-                            lastModified: (new \DateTimeImmutable())->modify('-25 hours')->getTimestamp()
-                        ),
-                    ]),
-                ],
-                [
-                    'theme/unusedThemePathNewerThanOneDay',
-                    FilesystemReader::LIST_DEEP,
-                    new DirectoryListing([
-                        new FileAttributes(
-                            'theme/unusedThemePathNewerThanOneDay/file2.txt',
-                            lastModified: (new \DateTimeImmutable())->modify('-23 hours')->getTimestamp()
-                        ),
-                    ]),
-                ],
-                [
-                    'theme/themeOldId',
-                    FilesystemReader::LIST_DEEP,
-                    new DirectoryListing([
-                        new FileAttributes(
-                            'theme/themeOldId/assets/file1.txt',
-                            lastModified: (new \DateTimeImmutable())->modify('-25 hours')->getTimestamp()
-                        ),
-                    ]),
-                ],
-            ]);
-        $themeFileSystem->expects($this->exactly(3))->method('deleteDirectory')->willReturnMap([
-            ['theme/unusedThemePathWithoutFiles'],
-            ['theme/unusedThemePathOlderThanOneDay'],
-            ['theme/themeOldId'],
-        ]);
+        $themePathBuilder = static::createStub(AbstractThemePathBuilder::class);
+        $themePathBuilder->method('assemblePath')->willReturn('usedPrefix');
 
-        $themePathBuilder = $this->createMock(AbstractThemePathBuilder::class);
-        $themePathBuilder->expects($this->exactly(2))->method('assemblePath')->willReturnMap([
-            ['salesChannelId1', 'themeId1', 'usedThemePath'],
-            ['salesChannelId2', 'themeId1', 'differentThemePrefix'],
-        ]);
-
-        $deleter = new UnusedThemeDirectoryDeleter(
+        $this->deleter = new UnusedThemeDirectoryDeleter(
             $connection,
-            $themeFileSystem,
+            $this->filesystem,
             $themePathBuilder,
-            new NativeClock()
+            $this->clock
         );
+    }
 
-        static::assertSame(3, $deleter->deleteUnusedDirectories());
+    public function testUsedDirectoriesAreKept(): void
+    {
+        $this->filesystem->write('theme/usedPrefix/css/all.css', 'css');
+        $this->filesystem->write('theme/themeId/assets/logo.png', 'png');
+
+        static::assertSame(0, $this->deleter->deleteUnusedDirectories());
+
+        static::assertTrue($this->filesystem->fileExists('theme/usedPrefix/css/all.css'));
+        static::assertTrue($this->filesystem->fileExists('theme/themeId/assets/logo.png'));
+        static::assertFalse($this->filesystem->fileExists('theme/usedPrefix/.retired'));
+    }
+
+    public function testRetiredMarkerIsRemovedWhenDirectoryIsUsedAgain(): void
+    {
+        $this->filesystem->write('theme/usedPrefix/css/all.css', 'css');
+        $this->filesystem->write('theme/usedPrefix/.retired', (string) $this->timestamp('-48 hours'));
+
+        static::assertSame(0, $this->deleter->deleteUnusedDirectories());
+
+        static::assertTrue($this->filesystem->fileExists('theme/usedPrefix/css/all.css'));
+        static::assertFalse($this->filesystem->fileExists('theme/usedPrefix/.retired'));
+    }
+
+    public function testUnusedDirectoryWithOldFilesIsMarkedAsRetiredInsteadOfBeingDeleted(): void
+    {
+        $this->filesystem->write('theme/oldPrefix/css/all.css', 'css', ['timestamp' => $this->timestamp('-25 hours')]);
+
+        static::assertSame(0, $this->deleter->deleteUnusedDirectories());
+
+        static::assertTrue($this->filesystem->fileExists('theme/oldPrefix/css/all.css'));
+        static::assertSame((string) $this->timestamp(), $this->filesystem->read('theme/oldPrefix/.retired'));
+    }
+
+    public function testDirectoryStillBeingWrittenIsNotMarked(): void
+    {
+        $this->filesystem->write('theme/inProgressPrefix/css/all.css', 'css', ['timestamp' => $this->timestamp('-25 hours')]);
+        $this->filesystem->write('theme/inProgressPrefix/js/all.js', 'js', ['timestamp' => $this->timestamp('-1 minute')]);
+
+        static::assertSame(0, $this->deleter->deleteUnusedDirectories());
+
+        static::assertFalse($this->filesystem->fileExists('theme/inProgressPrefix/.retired'));
+    }
+
+    public function testEmptyDirectoryIsMarkedAsRetired(): void
+    {
+        $this->filesystem->createDirectory('theme/emptyPrefix');
+
+        static::assertSame(0, $this->deleter->deleteUnusedDirectories());
+
+        static::assertSame((string) $this->timestamp(), $this->filesystem->read('theme/emptyPrefix/.retired'));
+    }
+
+    public function testUnusedDirectoryIsKeptWithinGracePeriod(): void
+    {
+        $this->filesystem->write('theme/oldPrefix/css/all.css', 'css');
+        $this->filesystem->write('theme/oldPrefix/.retired', (string) $this->timestamp('-23 hours'));
+
+        static::assertSame(0, $this->deleter->deleteUnusedDirectories());
+
+        static::assertTrue($this->filesystem->fileExists('theme/oldPrefix/css/all.css'));
+        static::assertSame((string) $this->timestamp('-23 hours'), $this->filesystem->read('theme/oldPrefix/.retired'));
+    }
+
+    public function testUnusedDirectoryIsDeletedAfterGracePeriod(): void
+    {
+        $this->filesystem->write('theme/oldPrefix/css/all.css', 'css');
+        $this->filesystem->write('theme/oldPrefix/.retired', (string) $this->timestamp('-25 hours'));
+        $this->filesystem->write('theme/olderPrefix/js/all.js', 'js');
+        $this->filesystem->write('theme/olderPrefix/.retired', (string) $this->timestamp('-3 days'));
+
+        static::assertSame(2, $this->deleter->deleteUnusedDirectories());
+
+        static::assertFalse($this->filesystem->directoryExists('theme/oldPrefix'));
+        static::assertFalse($this->filesystem->directoryExists('theme/olderPrefix'));
+    }
+
+    public function testUnreadableMarkerIsRewritten(): void
+    {
+        $this->filesystem->write('theme/oldPrefix/css/all.css', 'css', ['timestamp' => $this->timestamp('-25 hours')]);
+        $this->filesystem->write('theme/oldPrefix/.retired', 'not-a-timestamp', ['timestamp' => $this->timestamp('-25 hours')]);
+
+        static::assertSame(0, $this->deleter->deleteUnusedDirectories());
+
+        static::assertTrue($this->filesystem->fileExists('theme/oldPrefix/css/all.css'));
+        static::assertSame((string) $this->timestamp(), $this->filesystem->read('theme/oldPrefix/.retired'));
+    }
+
+    public function testMarkedDirectoryIsDeletedOnceTheGracePeriodHasPassed(): void
+    {
+        $this->filesystem->write('theme/oldPrefix/css/all.css', 'css', ['timestamp' => $this->timestamp('-25 hours')]);
+
+        static::assertSame(0, $this->deleter->deleteUnusedDirectories());
+        static::assertTrue($this->filesystem->directoryExists('theme/oldPrefix'));
+
+        $this->clock->modify('+24 hours');
+
+        static::assertSame(1, $this->deleter->deleteUnusedDirectories());
+        static::assertFalse($this->filesystem->directoryExists('theme/oldPrefix'));
+    }
+
+    private function timestamp(string $modifier = 'now'): int
+    {
+        return (new \DateTimeImmutable(self::NOW))->modify($modifier)->getTimestamp();
     }
 }

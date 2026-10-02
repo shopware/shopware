@@ -154,8 +154,8 @@ final class RenderedDocument extends Struct
 
     public function getApiAlias(): string
     {
-        /** @deprecated tag:v6.8.0 - Remove the override, the API alias then follows the class name: `shopware_core_checkout_document_v2_struct_rendered_document` */
-        if (!Feature::isActive('v6.8.0.0')) {
+        /** @deprecated tag:v6.9.0 - Remove the override, the API alias then follows the class name: `shopware_core_checkout_document_v2_struct_rendered_document` */
+        if (!Feature::isActive('v6.9.0.0')) {
             return 'shopware_core_checkout_document_renderer_rendered_document';
         }
 

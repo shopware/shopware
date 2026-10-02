@@ -80,6 +80,10 @@ The public properties of the returned DTO are available in the document template
 
 Implement `Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer` and register it with the `shopware.document_v2.renderer` tag. One renderer produces exactly one format and receives the shared, provider-prepared `RenderInput`.
 
+## Changed API alias of `RenderedDocument`
+
+`Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument::getApiAlias()` returned `shopware_core_checkout_document_v2_struct_rendered_document` instead of `shopware_core_checkout_document_renderer_rendered_document`. Consumers that matched serialized data on the previous alias had to switch to the new one.
+
 # Administration
 
 ## Legacy document components removed

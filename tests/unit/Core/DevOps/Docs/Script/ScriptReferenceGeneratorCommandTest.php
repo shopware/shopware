@@ -48,7 +48,7 @@ class ScriptReferenceGeneratorCommandTest extends TestCase
         $generator->expects($this->once())
             ->method('generate')
             ->willReturn([
-                $this->testFile => 'test content',
+                $this->testFile => "test content\n\n\n",
             ]);
 
         $command = new ScriptReferenceGeneratorCommand([$generator]);
@@ -58,7 +58,7 @@ class ScriptReferenceGeneratorCommandTest extends TestCase
 
         static::assertSame(Command::SUCCESS, $exitCode);
         static::assertFileExists($this->testFile);
-        static::assertSame('test content', file_get_contents($this->testFile));
+        static::assertSame("test content\n", file_get_contents($this->testFile));
         static::assertStringContainsString('Reference documentation was generated successfully', $tester->getDisplay());
     }
 }

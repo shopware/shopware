@@ -617,8 +617,7 @@ class DefinitionValidatorTest extends TestCase
         $definition = new DefinitionWithInheritedAssociationsStub();
         $validator = $this->createValidatorWithColumns(
             $definition,
-            ['id', 'foo', 'parent_id', 'optional_id', 'children', 'parent', 'optional', 'created_at', 'updated_at'],
-            ['id']
+            ['id', 'foo', 'parent_id', 'optional_id', 'children', 'parent', 'optional', 'created_at', 'updated_at']
         );
 
         static::assertSame([], $this->filterInheritanceViolations($validator, $definition));
@@ -629,8 +628,7 @@ class DefinitionValidatorTest extends TestCase
         $definition = new DefinitionWithInheritedAssociationsStub();
         $validator = $this->createValidatorWithColumns(
             $definition,
-            ['id', 'foo', 'parent_id', 'optional_id', 'created_at', 'updated_at'],
-            ['id']
+            ['id', 'foo', 'parent_id', 'optional_id', 'created_at', 'updated_at']
         );
 
         $inheritanceViolations = $this->filterInheritanceViolations($validator, $definition);
@@ -649,8 +647,7 @@ class DefinitionValidatorTest extends TestCase
         $definition = new DefinitionWithInheritedFlagWithoutInheritanceStub();
         $validator = $this->createValidatorWithColumns(
             $definition,
-            ['id', 'foo', 'parent_id', 'optional_id', 'children', 'parent', 'optional', 'created_at', 'updated_at'],
-            ['id']
+            ['id', 'foo', 'parent_id', 'optional_id', 'children', 'parent', 'optional', 'created_at', 'updated_at']
         );
 
         $inheritanceViolations = $this->filterInheritanceViolations($validator, $definition);
@@ -738,26 +735,14 @@ class DefinitionValidatorTest extends TestCase
     }
 
     /**
-     * @param list<string> $columnNames
-     * @param list<string> $dbPrimaryKeys
+     * @param list<non-empty-string> $columnNames
      */
-    private function createValidatorWithColumns(EntityDefinition $definition, array $columnNames, array $dbPrimaryKeys): DefinitionValidator
+    private function createValidatorWithColumns(EntityDefinition $definition, array $columnNames): DefinitionValidator
     {
-        $pkConstraint = null;
-        if ($dbPrimaryKeys !== []) {
-            $pkColumns = array_map(
-                static function (string $col): UnqualifiedName {
-                    static::assertNotEmpty($col);
-
-                    return new UnqualifiedName(Identifier::unquoted($col));
-                },
-                $dbPrimaryKeys
-            );
-            $pkConstraint = new PrimaryKeyConstraint(null, $pkColumns, false);
-        }
+        $pkConstraint = new PrimaryKeyConstraint(null, [new UnqualifiedName(Identifier::unquoted('id'))], false);
 
         $columns = array_map(
-            static fn (string $name): Column => new Column($name, Type::getType(Types::BINARY)),
+            static fn (string $name): Column => Column::editor()->setUnquotedName($name)->setTypeName(Types::BINARY)->create(),
             $columnNames
         );
 

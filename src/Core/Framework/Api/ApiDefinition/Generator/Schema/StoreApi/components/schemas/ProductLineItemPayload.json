@@ -1,0 +1,144 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "ProductLineItemPayload": {
+                "description": "Payload of a `product` line item: a snapshot of the product taken when the line item was calculated. Extensions can add further keys.",
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                    "categoryIds": {
+                        "type": ["array", "null"],
+                        "items": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        },
+                        "readOnly": true
+                    },
+                    "createdAt": {
+                        "type": ["string", "null"],
+                        "description": "Date in the storage format `Y-m-d H:i:s.v`, not RFC 3339.",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}$",
+                        "readOnly": true
+                    },
+                    "customFields": {
+                        "anyOf": [
+                            {
+                                "type": "object"
+                            },
+                            {
+                                "type": "array",
+                                "maxItems": 0
+                            }
+                        ]
+                    },
+                    "features": {
+                        "description": "Essential characteristics of the product's feature set, in display order.",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "label": {
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "description": "Depends on `type`, for example a string, a price or a list of property options."
+                                },
+                                "type": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["label", "value", "type"]
+                        }
+                    },
+                    "isCloseout": {
+                        "type": "boolean"
+                    },
+                    "isNew": {
+                        "type": "boolean"
+                    },
+                    "manufacturerId": {
+                        "type": ["string", "null"],
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "markAsTopseller": {
+                        "type": "boolean"
+                    },
+                    "optionIds": {
+                        "type": ["array", "null"],
+                        "items": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        },
+                        "readOnly": true
+                    },
+                    "options": {
+                        "description": "Variant options of the product as group and option name pairs.",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "group": {
+                                    "type": "string"
+                                },
+                                "option": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["group", "option"]
+                        }
+                    },
+                    "parentId": {
+                        "type": ["string", "null"],
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "productNumber": {
+                        "type": "string"
+                    },
+                    "propertyIds": {
+                        "type": ["array", "null"],
+                        "items": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        },
+                        "readOnly": true
+                    },
+                    "releaseDate": {
+                        "type": ["string", "null"],
+                        "description": "Date in the storage format `Y-m-d H:i:s.v`, not RFC 3339.",
+                        "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}$"
+                    },
+                    "stock": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "streamIds": {
+                        "type": ["array", "null"],
+                        "items": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        },
+                        "readOnly": true
+                    },
+                    "tagIds": {
+                        "type": ["array", "null"],
+                        "items": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        },
+                        "readOnly": true
+                    },
+                    "taxId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "productType": {
+                        "$ref": "#/components/schemas/Product/properties/type"
+                    }
+                }
+            }
+        }
+    }
+}

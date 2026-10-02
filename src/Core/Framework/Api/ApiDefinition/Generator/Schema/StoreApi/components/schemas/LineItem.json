@@ -42,7 +42,7 @@
                         "type": "boolean"
                     },
                     "payload": {
-                        "$ref": "#/components/schemas/ProductJsonApi"
+                        "$ref": "#/components/schemas/OrderLineItem/properties/payload"
                     },
                     "price": {
                         "type": "object",
@@ -180,7 +180,6 @@
                         "type": "boolean"
                     },
                     "states": {
-                        "deprecated": true,
                         "type": "array",
                         "deprecated": true,
                         "items": {
@@ -198,6 +197,42 @@
                 "required": [
                     "id",
                     "type"
+                ],
+                "allOf": [
+                    {
+                        "if": {
+                            "required": ["type"],
+                            "properties": {
+                                "type": {
+                                    "const": "product"
+                                }
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "payload": {
+                                    "$ref": "#/components/schemas/ProductLineItemPayload"
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "if": {
+                            "required": ["type"],
+                            "properties": {
+                                "type": {
+                                    "const": "promotion"
+                                }
+                            }
+                        },
+                        "then": {
+                            "properties": {
+                                "payload": {
+                                    "$ref": "#/components/schemas/PromotionLineItemPayload"
+                                }
+                            }
+                        }
+                    }
                 ]
             }
         }

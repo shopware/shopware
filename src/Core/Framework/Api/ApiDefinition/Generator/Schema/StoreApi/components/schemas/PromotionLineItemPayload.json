@@ -1,0 +1,149 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "PromotionLineItemPayload": {
+                "description": "Payload of a `promotion` line item: the discount it applies and the promotion it belongs to. Extensions can add further keys.",
+                "type": "object",
+                "additionalProperties": true,
+                "properties": {
+                    "code": {
+                        "description": "Code the promotion was redeemed with. Empty for promotions without a code.",
+                        "type": "string"
+                    },
+                    "promotionId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "discountId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "discountType": {
+                        "type": "string",
+                        "enum": ["absolute", "percentage", "fixed", "fixed_unit"]
+                    },
+                    "discountScope": {
+                        "type": "string",
+                        "enum": ["cart", "delivery", "set", "setgroup"]
+                    },
+                    "value": {
+                        "description": "Configured discount value as a numeric string.",
+                        "type": "string"
+                    },
+                    "maxValue": {
+                        "description": "Maximum discount of a percentage discount in the cart currency as a numeric string. Empty if there is no maximum.",
+                        "type": "string"
+                    },
+                    "priority": {
+                        "type": "integer"
+                    },
+                    "promotionCodeType": {
+                        "type": "string",
+                        "enum": ["fixed", "individual", "global"]
+                    },
+                    "preventCombination": {
+                        "type": "boolean"
+                    },
+                    "exclusions": {
+                        "description": "IDs of promotions that cannot be combined with this one.",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    "limitedRedemptions": {
+                        "type": "boolean"
+                    },
+                    "hasGlobalRedemptionLimit": {
+                        "type": "boolean"
+                    },
+                    "hasPersonaRestriction": {
+                        "type": "boolean"
+                    },
+                    "conditionRuleIds": {
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    "groupId": {
+                        "description": "Set group the discount applies to. Empty unless `discountScope` is `setgroup`.",
+                        "type": "string"
+                    },
+                    "setGroups": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "groupId": {
+                                    "type": "string",
+                                    "pattern": "^[0-9a-f]{32}$"
+                                },
+                                "packagerKey": {
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "type": "number"
+                                },
+                                "sorterKey": {
+                                    "type": "string"
+                                },
+                                "rules": {
+                                    "type": ["array", "null"],
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "filter": {
+                        "type": "object",
+                        "properties": {
+                            "considerAdvancedRules": {
+                                "type": "boolean"
+                            },
+                            "sorterKey": {
+                                "type": ["string", "null"]
+                            },
+                            "applierKey": {
+                                "type": ["string", "null"]
+                            },
+                            "usageKey": {
+                                "type": ["string", "null"]
+                            },
+                            "pickerKey": {
+                                "type": ["string", "null"]
+                            }
+                        }
+                    },
+                    "composition": {
+                        "description": "Line items the discount was spread over, with the discount amount each one received.",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "quantity": {
+                                    "type": "integer"
+                                },
+                                "discount": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": ["id", "quantity", "discount"]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

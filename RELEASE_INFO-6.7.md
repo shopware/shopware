@@ -215,6 +215,12 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
+### Store API schema describes line item payloads per type
+
+The Store API schema no longer restricts the line item `type` to the core values, because extensions add their own types such as `customized-products` or `subscriptionDiscount`. `payload` is an open object whose keys depend on `type`. The new `ProductLineItemPayload` and `PromotionLineItemPayload` schemas describe the payloads of `product` and `promotion` line items, and `LineItem` and `OrderLineItem` apply them through `if`/`then` conditions on `type`. The cart `LineItem.payload` no longer references `ProductJsonApi`. That schema was removed, along with the JSON:API resource and relationship schemas that only it used.
+
+If you generate types from the schema, cast `payload` to `ProductLineItemPayload` or `PromotionLineItemPayload` after checking `type`. Extensions that add a line item type can describe its payload the same way by adding an `if`/`then` entry to `allOf` of `LineItem` and `OrderLineItem` in their own Store API schema files. Keys an extension adds to a core payload go into the `properties` of `ProductLineItemPayload` or `PromotionLineItemPayload` in those files.
+
 ## Administration
 
 ### [Internal] Native `<sw-block>` names are isolated per component

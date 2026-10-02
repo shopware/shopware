@@ -551,6 +551,33 @@ class CacheClearerTest extends TestCase
         $cacheClearer->clearHttpCache();
     }
 
+    public function testClearHttpCacheWithRegisteredButDisabledReverseProxy(): void
+    {
+        $cacheClearer = new CacheClearer(
+            $this->adapters,
+            $this->symfonyCache,
+            $this->reverseProxyCache,
+            $this->invalidator,
+            $this->filesystem,
+            $this->cacheDir,
+            'test',
+            false,
+            false,
+            $this->messageBus,
+            $this->logger,
+            $this->lock
+        );
+
+        $this->appAdapter->expects($this->never())->method('clear');
+        $this->httpAdapter->expects($this->once())->method('clear');
+
+        $this->invalidator->expects($this->never())->method('invalidateExpired');
+        $this->symfonyCache->expects($this->never())->method('clear');
+        $this->reverseProxyCache->expects($this->never())->method('banAll');
+
+        $cacheClearer->clearHttpCache();
+    }
+
     public function testClearWithReverseHttpCacheDisabled(): void
     {
         // Create twig cache directory

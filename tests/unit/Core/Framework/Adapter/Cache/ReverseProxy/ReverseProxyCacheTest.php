@@ -38,7 +38,8 @@ class ReverseProxyCacheTest extends TestCase
             new CacheTagCollector(
                 static::createStub(RequestStack::class),
                 static::createStub(EventDispatcherInterface::class),
-            )
+            ),
+            reverseProxyEnabled: true,
         );
 
         // this is the only way to call the destructor
@@ -60,7 +61,8 @@ class ReverseProxyCacheTest extends TestCase
             new CacheTagCollector(
                 static::createStub(RequestStack::class),
                 static::createStub(EventDispatcherInterface::class),
-            )
+            ),
+            reverseProxyEnabled: true,
         );
 
         $response = new Response();
@@ -83,7 +85,8 @@ class ReverseProxyCacheTest extends TestCase
             new CacheTagCollector(
                 static::createStub(RequestStack::class),
                 static::createStub(EventDispatcherInterface::class),
-            )
+            ),
+            reverseProxyEnabled: true,
         );
 
         static::assertNull($store->lookup(new Request()));
@@ -105,7 +108,8 @@ class ReverseProxyCacheTest extends TestCase
             new CacheTagCollector(
                 static::createStub(RequestStack::class),
                 static::createStub(EventDispatcherInterface::class),
-            )
+            ),
+            reverseProxyEnabled: true,
         );
 
         $request = new Request();
@@ -127,7 +131,8 @@ class ReverseProxyCacheTest extends TestCase
             new CacheTagCollector(
                 static::createStub(RequestStack::class),
                 static::createStub(EventDispatcherInterface::class),
-            )
+            ),
+            reverseProxyEnabled: true,
         );
 
         $store->purge('/foo');
@@ -143,7 +148,8 @@ class ReverseProxyCacheTest extends TestCase
             new CacheTagCollector(
                 static::createStub(RequestStack::class),
                 static::createStub(EventDispatcherInterface::class),
-            )
+            ),
+            reverseProxyEnabled: true,
         );
         $store->invalidate(new Request());
     }
@@ -156,7 +162,7 @@ class ReverseProxyCacheTest extends TestCase
         $collector = $this->createMock(CacheTagCollector::class);
         $collector->expects($this->once())->method('get')->willReturn(['product-1', 'category-1']);
 
-        $store = new ReverseProxyCache($gateway, [], $collector);
+        $store = new ReverseProxyCache($gateway, [], $collector, reverseProxyEnabled: true);
 
         $request = new Request();
         $store->write($request, new Response());
@@ -169,7 +175,23 @@ class ReverseProxyCacheTest extends TestCase
         $store = new ReverseProxyCache($gateway, [], new CacheTagCollector(
             static::createStub(RequestStack::class),
             static::createStub(EventDispatcherInterface::class)
-        ));
+        ), reverseProxyEnabled: true);
         $store(new InvalidateCacheEvent(['foo']));
+    }
+
+    public function testDisabledReverseProxyIgnoresInvalidationsAndDoesNotFlush(): void
+    {
+        $gateway = $this->createMock(AbstractReverseProxyGateway::class);
+        $gateway->expects($this->never())->method('invalidate');
+        $gateway->expects($this->never())->method('flush');
+
+        $store = new ReverseProxyCache($gateway, [], new CacheTagCollector(
+            static::createStub(RequestStack::class),
+            static::createStub(EventDispatcherInterface::class)
+        ), reverseProxyEnabled: false);
+        $store(new InvalidateCacheEvent(['foo']));
+
+        // this is the only way to call the destructor
+        unset($store);
     }
 }

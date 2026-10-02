@@ -164,12 +164,14 @@ class CacheClearer
 
     public function clearHttpCache(): void
     {
-        $this->reverseProxyCache?->banAll();
+        if ($this->reverseHttpCacheEnabled && $this->reverseProxyCache !== null) {
+            $this->reverseProxyCache->banAll();
+
+            return;
+        }
 
         // if reverse proxy is not enabled, clear the http pool
-        if ($this->reverseProxyCache === null) {
-            $this->adapters['http']->clear();
-        }
+        $this->adapters['http']->clear();
     }
 
     /**

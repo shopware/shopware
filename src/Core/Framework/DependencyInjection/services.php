@@ -41,6 +41,7 @@ use Shopware\Core\Framework\Adapter\Twig\Extension\PhpSyntaxExtension;
 use Shopware\Core\Framework\Adapter\Twig\Filter\CurrencyFilter;
 use Shopware\Core\Framework\Adapter\Twig\Filter\EmailIdnTwigFilter;
 use Shopware\Core\Framework\Adapter\Twig\Filter\LeadingSpacesFilter;
+use Shopware\Core\Framework\Adapter\Twig\Filter\PlainTextFilter;
 use Shopware\Core\Framework\Adapter\Twig\Filter\ReplaceRecursiveFilter;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\BundleHierarchyBuilder;
 use Shopware\Core\Framework\Adapter\Twig\NamespaceHierarchy\NamespaceHierarchyBuilder;
@@ -645,6 +646,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('twig.extension');
 
     $services->set(LeadingSpacesFilter::class)
+        ->tag('twig.extension');
+
+    $services->set(PlainTextFilter::class)
         ->tag('twig.extension');
 
     $services->set(SlugifyExtension::class)

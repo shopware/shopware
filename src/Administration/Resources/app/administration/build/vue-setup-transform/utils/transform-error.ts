@@ -9,6 +9,11 @@
 type ShopwareSetupErrorPosition = { index: number; endIndex: number };
 
 /**
+ * Original SFC coordinates for Vite/Rollup: 1-based line and 0-based column.
+ */
+type ShopwareSetupErrorLocation = { file: string; line: number; column: number };
+
+/**
  * Error type used by Shopware setup transform diagnostics.
  *
  * `index` is an absolute SFC source offset, letting build integrations and editor tooling point at the
@@ -24,6 +29,11 @@ class ShopwareSetupTransformError extends Error {
     readonly index: number | null;
 
     readonly endIndex: number | null;
+
+    /** Resolved at the transform boundary, where the original SFC source is available. */
+    loc: ShopwareSetupErrorLocation | null = null;
+
+    frame: string | null = null;
 
     /**
      * Carries a source position so build, lint, and editor adapters can report the same error.

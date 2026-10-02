@@ -174,12 +174,15 @@ function assertOverrideTemplateTopLevel(children: TemplateChildNode[], templateO
             return;
         }
 
+        // Text-node ranges include leading whitespace; point at the content the author must move.
+        const contentOffset = node.type === NodeTypes.TEXT ? node.loc.source.search(/\S/) : 0;
+
         throw new ShopwareSetupTransformError(
             'An override template may only contain <sw-block extends="..."> blocks at its top level. An override ' +
                 'component renders only inside the blocks it extends, so any other top-level markup would never render ' +
                 'and its setup references would resolve against the hidden override component. Move it into a ' +
                 '<sw-block extends> block.',
-            templateOffset + node.loc.start.offset,
+            templateOffset + node.loc.start.offset + contentOffset,
         );
     });
 }

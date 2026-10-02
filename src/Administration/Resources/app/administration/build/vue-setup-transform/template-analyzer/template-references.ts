@@ -30,7 +30,7 @@ import {
 type TemplateReferences = {
     references: Set<string>;
     /**
-     * Write targets mapped to the template offset of the expression that writes them, so a rejection can
+     * Write targets mapped to their original identifier offset in the template, so a rejection can
      * point at the author's `@click="count = 1"` rather than at the enclosing block.
      */
     writeTargets: Map<string, number>;
@@ -230,13 +230,16 @@ function collectTemplateReferences(children: TemplateChildNode[], initialScope: 
 
             collectDirectiveReferences(directive, childScope).forEach((name) => references.add(name));
 
-            // Assignment/update targets in a directive expression (e.g. `@click="count = count + 1"`).
+            // Explicit assignments/updates and the implicit assignment performed by v-model.
             if (directive.exp?.content) {
-                const expressionOffset = directive.exp.loc.start.offset;
+                const { content, loc } = directive.exp;
+                // Babel offsets are relative to the decoded value; with entities they no longer map onto
+                // the raw attribute, so the whole expression is pointed at instead.
+                const decoded = loc.source.includes('&');
 
-                collectExpressionWriteTargets(directive.exp.content, childScope).forEach((name) => {
+                collectExpressionWriteTargets(content, childScope, directive.name === 'model').forEach((offset, name) => {
                     if (!writeTargets.has(name)) {
-                        writeTargets.set(name, expressionOffset);
+                        writeTargets.set(name, loc.start.offset + (decoded ? 0 : offset));
                     }
                 });
             }

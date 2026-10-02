@@ -91,6 +91,9 @@
                         }
                     },
                     {
+                        "$ref": "#/components/parameters/CompressedCriteria"
+                    },
+                    {
                         "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],

@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Api\ResponseFields;
 use Shopware\Core\System\SalesChannel\SalesChannelException;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @internal
@@ -59,5 +60,53 @@ class ResponseFieldsTest extends TestCase
     {
         $responseFields = new ResponseFields(['alias' => ['otherprefix.property']]);
         static::assertFalse($responseFields->hasNested('alias', 'prefix'));
+    }
+
+    public function testFromRequestReadsTheQueryOfAGetRequest(): void
+    {
+        $request = new Request([
+            'includes' => ['product' => ['id', 'name']],
+            'excludes' => ['product' => ['name']],
+        ]);
+
+        $responseFields = ResponseFields::fromRequest($request);
+
+        static::assertTrue($responseFields->isAllowed('product', 'id'));
+        static::assertFalse($responseFields->isAllowed('product', 'name'));
+        static::assertFalse($responseFields->isAllowed('product', 'description'));
+    }
+
+    public function testFromRequestReadsTheBodyOfAPostRequest(): void
+    {
+        $request = new Request(request: ['includes' => ['product' => ['id']]]);
+        $request->setMethod(Request::METHOD_POST);
+
+        $responseFields = ResponseFields::fromRequest($request);
+
+        static::assertTrue($responseFields->isAllowed('product', 'id'));
+        static::assertFalse($responseFields->isAllowed('product', 'name'));
+    }
+
+    public function testFromRequestAllowsEverythingWithoutParameters(): void
+    {
+        $request = new Request(request: ['includes' => null, 'excludes' => null]);
+        $request->setMethod(Request::METHOD_POST);
+
+        static::assertTrue(ResponseFields::fromRequest($request)->isAllowed('product', 'id'));
+        static::assertTrue(ResponseFields::fromRequest(new Request())->isAllowed('product', 'id'));
+    }
+
+    public function testFromRequestRejectsIncludesThatAreNotAnArray(): void
+    {
+        $this->expectExceptionObject(SalesChannelException::invalidType('The includes must be of the type array, string given'));
+
+        ResponseFields::fromRequest(new Request(['includes' => '{"product":["id"]}']));
+    }
+
+    public function testFromRequestRejectsExcludesThatAreNotAnArray(): void
+    {
+        $this->expectExceptionObject(SalesChannelException::invalidType('The excludes must be of the type array, string given'));
+
+        ResponseFields::fromRequest(new Request(['excludes' => 'name']));
     }
 }

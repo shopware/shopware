@@ -107,4 +107,13 @@ class SalesChannelExceptionTest extends TestCase
             'message' => 'The context token is not accessible in Twig rendering context, as the token should never be leaked in HTML content.',
         ];
     }
+
+    public function testWrongTypeInTheRequestIsAClientError(): void
+    {
+        $exception = SalesChannelException::invalidType('The includes must be of the type array, string given');
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
+        static::assertSame(SalesChannelException::INVALID_TYPE, $exception->getErrorCode());
+        static::assertSame('The includes must be of the type array, string given', $exception->getMessage());
+    }
 }

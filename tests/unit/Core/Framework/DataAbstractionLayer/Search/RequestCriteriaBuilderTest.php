@@ -1053,6 +1053,25 @@ class RequestCriteriaBuilderTest extends TestCase
         ];
     }
 
+    public function testIncludeSearchInfoHeaderIsReadWithCompressedCriteria(): void
+    {
+        $request = new Request([
+            '_criteria' => self::gzipAndBase64UrlEncode(json_encode(['limit' => 5], \JSON_THROW_ON_ERROR)),
+        ]);
+        $request->setMethod(Request::METHOD_GET);
+        $request->headers->set(PlatformRequest::HEADER_INCLUDE_SEARCH_INFO, '0');
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame(5, $criteria->getLimit());
+        static::assertTrue($criteria->hasState(Criteria::STATE_DISABLE_SEARCH_INFO));
+    }
+
     public function testCompressedCriteriaParameter(): void
     {
         $criteriaData = [
@@ -1128,6 +1147,61 @@ class RequestCriteriaBuilderTest extends TestCase
         // Verify the filter is from _criteria, not individual parameter
         $filter = $criteria->getFilters()[0];
         static::assertSame(['product.active'], $filter->getFields());
+    }
+
+    public function testIndividualParametersAreKeptNextToCompressedCriteria(): void
+    {
+        $encodedCriteria = self::gzipAndBase64UrlEncode(json_encode([
+            'filter' => [
+                ['type' => 'equals', 'field' => 'active', 'value' => true],
+            ],
+        ], \JSON_THROW_ON_ERROR));
+
+        $request = new Request([
+            '_criteria' => $encodedCriteria,
+            'limit' => '10',
+            'page' => '2',
+        ]);
+        $request->setMethod(Request::METHOD_GET);
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame(10, $criteria->getLimit());
+        static::assertSame(10, $criteria->getOffset());
+        static::assertCount(1, $criteria->getFilters());
+    }
+
+    public function testCompressedCriteriaFieldReplacesTheIndividualParameterAsAWhole(): void
+    {
+        $encodedCriteria = self::gzipAndBase64UrlEncode(json_encode([
+            'filter' => [
+                ['type' => 'equals', 'field' => 'active', 'value' => true],
+            ],
+        ], \JSON_THROW_ON_ERROR));
+
+        $request = new Request([
+            '_criteria' => $encodedCriteria,
+            'filter' => [
+                ['type' => 'equals', 'field' => 'name', 'value' => 'test'],
+                ['type' => 'equals', 'field' => 'stock', 'value' => '1'],
+            ],
+        ]);
+        $request->setMethod(Request::METHOD_GET);
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        static::assertCount(1, $criteria->getFilters(), 'The filters of both sources must not be mixed');
+        static::assertSame(['product.active'], $criteria->getFilters()[0]->getFields());
     }
 
     #[WithoutErrorHandler]

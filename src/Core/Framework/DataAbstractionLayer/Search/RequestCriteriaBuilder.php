@@ -75,17 +75,7 @@ class RequestCriteriaBuilder
 
     public function handleRequest(Request $request, Criteria $criteria, EntityDefinition $definition, Context $context): Criteria
     {
-        if ($request->isMethod(Request::METHOD_GET)) {
-            // Check for _criteria parameter first
-            if ($request->query->has('_criteria')) {
-                $payload = $this->compressedCriteriaDecoder->decode((string) $request->query->get('_criteria'));
-
-                return $this->fromArray($payload, $criteria, $definition, $context);
-            }
-            $criteria = $this->fromArray($request->query->all(), $criteria, $definition, $context);
-        } else {
-            $criteria = $this->fromArray($request->request->all(), $criteria, $definition, $context);
-        }
+        $criteria = $this->fromArray($this->getPayload($request), $criteria, $definition, $context);
 
         // @deprecated tag:v6.8.0 - switch the default to 0
         if ($request->headers->get(PlatformRequest::HEADER_INCLUDE_SEARCH_INFO, '1') === '0') {
@@ -123,6 +113,32 @@ class RequestCriteriaBuilder
         } else {
             $criteria->setTotalCountMode(self::TOTAL_COUNT_MODE_MAPPING[$totalCountMode] ?? Criteria::TOTAL_COUNT_MODE_NONE);
         }
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function getPayload(Request $request): array
+    {
+        if (!$request->isMethod(Request::METHOD_GET)) {
+            return $request->request->all();
+        }
+
+        $payload = $request->query->all();
+
+        if (!$request->query->has('_criteria')) {
+            return $payload;
+        }
+
+        // a field of the _criteria parameter replaces the individual query parameter of the same name as a whole,
+        // individual query parameters that are not part of it are kept
+        $payload = array_replace(
+            $payload,
+            $this->compressedCriteriaDecoder->decode((string) $request->query->get('_criteria'))
+        );
+        unset($payload['_criteria']);
+
+        return $payload;
     }
 
     /**

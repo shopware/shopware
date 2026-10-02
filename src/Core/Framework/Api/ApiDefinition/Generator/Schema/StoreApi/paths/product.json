@@ -86,6 +86,9 @@
                         }
                     },
                     {
+                        "$ref": "#/components/parameters/CompressedCriteria"
+                    },
+                    {
                         "$ref": "#/components/parameters/swLanguageId"
                     }
                 ],
@@ -840,6 +843,9 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "$ref": "#/components/parameters/CompressedCriteria"
                     },
                     {
                         "$ref": "#/components/parameters/swLanguageId"

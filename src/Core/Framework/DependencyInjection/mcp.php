@@ -59,6 +59,8 @@ use Shopware\Core\Framework\Mcp\Resource\LanguageListResource;
 use Shopware\Core\Framework\Mcp\Resource\SalesChannelListResource;
 use Shopware\Core\Framework\Mcp\Resource\StateMachineResource;
 use Shopware\Core\Framework\Mcp\Resource\ToolResultResource;
+use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolResultCacheCleanupTask;
+use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolResultCacheCleanupTaskHandler;
 use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTask;
 use Shopware\Core\Framework\Mcp\ScheduledTask\McpToolsetSessionCleanupTaskHandler;
 use Shopware\Core\Framework\Mcp\Session\McpSessionCleanupSubscriber;
@@ -336,6 +338,18 @@ return static function (ContainerConfigurator $container): void {
             service(McpToolsetSessionStorage::class),
             service('mcp.server.admin.session.store')->nullOnInvalid(),
             service('mcp.server.store_api.session.store')->nullOnInvalid(),
+        ])
+        ->tag('messenger.message_handler');
+
+    $services->set(McpToolResultCacheCleanupTask::class)
+        ->tag('shopware.scheduled.task');
+
+    $services->set(McpToolResultCacheCleanupTaskHandler::class)
+        ->args([
+            service('scheduled_task.repository'),
+            service('logger'),
+            service(ToolResultCacheStorage::class),
+            service(ClockInterface::class),
         ])
         ->tag('messenger.message_handler');
 

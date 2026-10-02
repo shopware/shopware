@@ -262,6 +262,8 @@ class EntityWriter implements EntityWriterInterface
         foreach ($cascades as $affectedDefinitionClass => $keys) {
             $affectedDefinition = $this->registry->getByEntityName($affectedDefinitionClass);
 
+            $this->addSetNullOnDeletesCommands($queue, $affectedDefinition, $writeContext, $keys);
+
             foreach ($keys as $key) {
                 if (!\is_array($key)) {
                     $key = [($affectedDefinition->getPrimaryKeys()->first()?->getPropertyName() ?? 'id') => $key];
@@ -288,7 +290,7 @@ class EntityWriter implements EntityWriterInterface
     }
 
     /**
-     * @param array<array<string, string>> $resolved
+     * @param array<string>|array<array<string, string>> $resolved
      */
     private function addSetNullOnDeletesCommands(WriteCommandQueue $queue, EntityDefinition $definition, WriteContext $writeContext, array $resolved): void
     {

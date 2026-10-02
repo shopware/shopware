@@ -23,25 +23,13 @@ use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * A PCRE pattern whose body ends with an unescaped `$` (or `\Z`) and whose modifiers contain neither `D` nor `m`
- * also matches right before a trailing newline, so `"foo\n"` passes a `/^foo$/` check. The rule reports such
- * patterns at every `preg_*` call inside the enabled namespaces.
+ * Reports `preg_*` patterns whose body ends with an unescaped `$` or `\Z` while the modifiers carry neither `D`
+ * nor `m`: such a pattern also matches before a trailing newline. Patterns are read from constant strings, inline
+ * `sprintf()` formats, concatenations, interpolated strings and the last local assignment in the enclosing
+ * function. A call whose pattern stays unreadable is reported as unresolved, to be restructured or allowlisted
+ * per file with the reason.
  *
- * Pattern resolution, in order:
- *  1. compile-time constant strings via the scope (literals, class constants, folded concatenations, variables
- *     PHPStan narrowed to a literal),
- *  2. `sprintf()` calls: the constant format string serves as the template, conversion specifications are
- *     treated as runtime parts,
- *  3. concatenations and interpolated strings: the literal parts are kept, runtime parts become placeholders,
- *  4. a variable assigned within the enclosing function body: the last assignment before the call is resolved
- *     with the steps above (requires the analysis parser).
- *
- * A call whose pattern none of these steps can read is reported as unresolved. Such a call is either restructured
- * so the pattern becomes visible at the call, or allowlisted per file with the reason.
- *
- * Known gaps: a `$` that ends the pattern inside a trailing group (`/(a|b$)/`) or alternation is not detected,
- * array patterns are only inspected when the array literal or its constant value is visible, and a runtime
- * modifier part is assumed not to carry `D` or `m`.
+ * Not detected: an anchor inside a trailing group or alternation, and a runtime modifier part carrying `D` or `m`.
  *
  * @internal
  *

@@ -163,6 +163,23 @@ describe('plugin/google-analytics/list-attribution.helper', () => {
             expect(ListAttributionHelper.consume('SW10000')).toEqual({ item_list_id: 'search' });
         });
 
+        test('keeps the same product opened from two lists of one page, in the order it was opened', () => {
+            ListAttributionHelper.handOver('SW10000', { item_list_id: 'cross-selling-1' }, 'product-1');
+            ListAttributionHelper.handOver('SW10000', { item_list_id: 'cross-selling-2' }, 'product-1');
+            openedFrom(window.location.href);
+
+            expect(ListAttributionHelper.consume('SW10000')).toEqual({ item_list_id: 'cross-selling-1' });
+            expect(ListAttributionHelper.consume('SW10000')).toEqual({ item_list_id: 'cross-selling-2' });
+        });
+
+        test('replaces the handover of a product opened from the same list again', () => {
+            ListAttributionHelper.handOver('SW10000', list, 'product-1');
+            ListAttributionHelper.handOver('SW10000', list, 'product-1');
+            openedFrom(window.location.href);
+
+            expect(JSON.parse(window.localStorage.getItem('swGaSelectedItemListHandover'))).toHaveLength(1);
+        });
+
         test('keeps the handovers of several products opened at once', () => {
             ListAttributionHelper.handOver('SW10000', list, 'product-1');
             ListAttributionHelper.handOver('SW10001', { item_list_id: 'search' }, 'product-2');

@@ -26,7 +26,7 @@ class SchemaUpdaterTest extends TestCase
         $schema = Schema::editor()->create();
 
         $updater = new SchemaUpdater(new CustomEntityNameValidator());
-        $updater->applyCustomEntities($schema, [[
+        $schema = $updater->applyCustomEntities($schema, [[
             'name' => 'custom_entity_empty_entity',
             'fields' => '[]',
         ]]);
@@ -39,7 +39,7 @@ class SchemaUpdaterTest extends TestCase
         $schema = Schema::editor()->create();
 
         $updater = new SchemaUpdater(new CustomEntityNameValidator());
-        $updater->applyCustomEntities($schema, [[
+        $schema = $updater->applyCustomEntities($schema, [[
             'name' => 'ce_empty_entity',
             'fields' => '[]',
         ]]);
@@ -74,7 +74,7 @@ class SchemaUpdaterTest extends TestCase
         ];
 
         $updater = new SchemaUpdater(new CustomEntityNameValidator());
-        $updater->applyCustomEntities($schema, [$customEntity]);
+        $schema = $updater->applyCustomEntities($schema, [$customEntity]);
 
         $this->assertColumns($schema, 'product', ['customentityextensionproduct']);
 
@@ -105,7 +105,7 @@ class SchemaUpdaterTest extends TestCase
         )->create();
 
         $updater = new SchemaUpdater(new CustomEntityNameValidator());
-        $updater->applyCustomEntities($schema, $entities);
+        $schema = $updater->applyCustomEntities($schema, $entities);
 
         $this->assertColumns($schema, 'custom_entity_blog', ['id', 'top_seller_id', 'author_id', 'created_at', 'updated_at', 'position', 'rating']);
         $this->assertColumns($schema, 'custom_entity_blog_comment', ['id', 'created_at', 'updated_at']);
@@ -121,7 +121,7 @@ class SchemaUpdaterTest extends TestCase
         $schema = Schema::editor()->create();
 
         $updater = new SchemaUpdater(new CustomEntityNameValidator());
-        $updater->applyCustomEntities($schema, $entities);
+        $schema = $updater->applyCustomEntities($schema, $entities);
 
         foreach ($expectedSchema as $tableName => $columns) {
             $this->assertColumns($schema, $tableName, $columns);
@@ -209,7 +209,7 @@ class SchemaUpdaterTest extends TestCase
         $schema = Schema::editor()->create();
 
         $updater = new SchemaUpdater(new CustomEntityNameValidator());
-        $updater->applyCustomEntities($schema, $entities);
+        $schema = $updater->applyCustomEntities($schema, $entities);
 
         foreach ($expectedNonExistTableNames as $nonExistTableName) {
             // the reference table should not be created if the ignoreMissingReference attribute is true

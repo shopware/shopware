@@ -13,7 +13,18 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 /**
  * @internal
  *
- * @phpstan-type CustomEntityField array{name: string, type: string, required?: bool, translatable?: bool, reference: string, inherited?: bool, onDelete: string, storeApiAware?: bool, ignoreMissingReference?: bool, default?: mixed}
+ * @phpstan-type CustomEntityField array{
+ *     name: non-empty-string,
+ *     type: string,
+ *     required?: bool,
+ *     translatable?: bool,
+ *     reference: string,
+ *     inherited?: bool,
+ *     onDelete: string,
+ *     storeApiAware?: bool,
+ *     ignoreMissingReference?: bool,
+ *     default?: mixed
+ * }
  */
 #[Package('framework')]
 class SchemaUpdater
@@ -31,7 +42,7 @@ class SchemaUpdater
     /**
      * @param list<array{name: string, fields: string}> $customEntities
      */
-    public function applyCustomEntities(Schema $schema, array $customEntities): void
+    public function applyCustomEntities(Schema $schema, array $customEntities): Schema
     {
         $tables = [];
 
@@ -60,6 +71,8 @@ class SchemaUpdater
         foreach ($tables as $name => $fields) {
             $this->addAssociationFields($schema, $name, $fields);
         }
+
+        return $schema;
     }
 
     /**

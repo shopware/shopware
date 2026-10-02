@@ -42,7 +42,7 @@ class CustomEntitySchemaUpdater
 
             $schema = $this->cleanup($schema);
 
-            $this->schemaUpdater->applyCustomEntities($schema, $tables);
+            $schema = $this->schemaUpdater->applyCustomEntities($schema, $tables);
 
             $this->applyNewSchema($schema);
         });

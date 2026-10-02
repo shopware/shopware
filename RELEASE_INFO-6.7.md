@@ -194,6 +194,10 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
+### Large variant families no longer exhaust memory when several variants are read at once
+
+The `cheapest_price` container of a product family is stored on the parent and inherited by every variant, so a read that hydrates many variants of the same family carried and unserialized the same payload once per row. For families with thousands of variants the payload is several megabytes, and reading a few dozen variants in one request (cart recalculation, Store API `product` reads without `fields`, cross-selling by assignment) exhausted the PHP memory limit. `PHPUnserializeFieldSerializer` now unserializes an identical payload only once per request and shares the resulting container between the rows. The memo is bounded and cleared on kernel reset; behaviour and API output are unchanged.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation

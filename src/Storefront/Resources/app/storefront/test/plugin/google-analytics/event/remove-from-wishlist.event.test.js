@@ -1,3 +1,4 @@
+import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 import RemoveFromWishlistEvent from 'src/plugin/google-analytics/events/remove-from-wishlist.event';
 
 describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
@@ -21,11 +22,11 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
         jest.clearAllMocks();
     });
 
-    test('supports returns true', () => {
+    test('supports returns true', async () => {
         expect(removeFromWishlistEvent.supports()).toBe(true);
     });
 
-    test('fires remove_from_wishlist event with product page data', () => {
+    test('fires remove_from_wishlist event with product page data', async () => {
         document.body.innerHTML = `
             <h1 class="product-detail-name">Test Product</h1>
             <div itemprop="brand"><meta itemprop="name" content="Test Brand"></div>
@@ -33,7 +34,7 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
             <meta property="product:price:amount" content="99.99">
         `;
 
-        removeFromWishlistEvent._sendEvent('product-123');
+        await removeFromWishlistEvent._sendEvent('product-123');
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'remove_from_wishlist', {
             'currency': 'EUR',
@@ -47,7 +48,7 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
         });
     });
 
-    test('fires remove_from_wishlist event with line item data on checkout pages', () => {
+    test('fires remove_from_wishlist event with line item data on checkout pages', async () => {
         document.body.innerHTML = `
             <div class="hidden-line-items-information" data-currency="EUR" data-value="199.98">
                 <span class="hidden-line-item"
@@ -62,7 +63,7 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
             </div>
         `;
 
-        removeFromWishlistEvent._sendEvent('product-456');
+        await removeFromWishlistEvent._sendEvent('product-456');
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'remove_from_wishlist', {
             'currency': 'EUR',
@@ -78,37 +79,37 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
         });
     });
 
-    test('does not fire event on form submit when not active', () => {
+    test('does not fire event on form submit when not active', async () => {
         removeFromWishlistEvent.active = false;
 
         const form = document.createElement('form');
         form.classList.add('product-wishlist-form');
         form.setAttribute('action', '/wishlist/product/delete/product-123');
 
-        removeFromWishlistEvent._onFormSubmit({ target: form });
+        await removeFromWishlistEvent._onFormSubmit({ target: form });
 
         expect(window.gtag).not.toHaveBeenCalled();
     });
 
-    test('does not fire event on product removed when not active', () => {
+    test('does not fire event on product removed when not active', async () => {
         removeFromWishlistEvent.active = false;
 
-        removeFromWishlistEvent._onProductRemoved({
+        await removeFromWishlistEvent._onProductRemoved({
             detail: { productId: 'product-123' },
         });
 
         expect(window.gtag).not.toHaveBeenCalled();
     });
 
-    test('does not fire event when productId is missing from event', () => {
-        removeFromWishlistEvent._onProductRemoved({
+    test('does not fire event when productId is missing from event', async () => {
+        await removeFromWishlistEvent._onProductRemoved({
             detail: {},
         });
 
         expect(window.gtag).not.toHaveBeenCalled();
     });
 
-    test('extracts product ID from form action URL', () => {
+    test('extracts product ID from form action URL', async () => {
         const form = document.createElement('form');
         form.setAttribute('action', '/wishlist/product/delete/abc123-def456');
 
@@ -117,7 +118,7 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
         expect(productId).toBe('abc123-def456');
     });
 
-    test('returns null when form action does not match pattern', () => {
+    test('returns null when form action does not match pattern', async () => {
         const form = document.createElement('form');
         form.setAttribute('action', '/some/other/url');
 
@@ -126,10 +127,10 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
         expect(productId).toBeNull();
     });
 
-    test('omits unavailable optional values', () => {
+    test('omits unavailable optional values', async () => {
         document.body.innerHTML = '';
 
-        removeFromWishlistEvent._sendEvent('product-unknown');
+        await removeFromWishlistEvent._sendEvent('product-unknown');
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'remove_from_wishlist', {
             'items': [{
@@ -138,7 +139,7 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
         });
     });
 
-    test('prefers product page data over line item data', () => {
+    test('prefers product page data over line item data', async () => {
         document.body.innerHTML = `
             <h1 class="product-detail-name">Product Page Name</h1>
             <div itemprop="brand"><meta itemprop="name" content="Product Page Brand"></div>
@@ -154,7 +155,7 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
             </div>
         `;
 
-        removeFromWishlistEvent._sendEvent('product-789');
+        await removeFromWishlistEvent._sendEvent('product-789');
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'remove_from_wishlist', {
             'currency': 'EUR',
@@ -168,7 +169,7 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
         });
     });
 
-    test('falls back to line item data when product page data has no name', () => {
+    test('falls back to line item data when product page data has no name', async () => {
         document.body.innerHTML = `
             <meta property="product:price:currency" content="EUR">
             <div class="hidden-line-items-information" data-currency="USD" data-value="100.00">
@@ -181,7 +182,7 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
             </div>
         `;
 
-        removeFromWishlistEvent._sendEvent('product-fallback');
+        await removeFromWishlistEvent._sendEvent('product-fallback');
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'remove_from_wishlist', {
             'currency': 'USD',
@@ -195,7 +196,7 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
         });
     });
 
-    test('fires event on form submit for wishlist form', () => {
+    test('fires event on form submit for wishlist form', async () => {
         document.body.innerHTML = `
             <h1 class="product-detail-name">Test Product</h1>
             <meta property="product:price:currency" content="EUR">
@@ -206,7 +207,10 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
         form.classList.add('product-wishlist-form');
         form.setAttribute('action', '/wishlist/product/delete/abc123-def456-789');
 
-        removeFromWishlistEvent._onFormSubmit({ target: form });
+        form.submit = jest.fn();
+        const submitEvent = { target: form, defaultPrevented: false, preventDefault: jest.fn() };
+
+        await removeFromWishlistEvent._onFormSubmit(submitEvent);
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'remove_from_wishlist', expect.objectContaining({
             'items': [{
@@ -215,14 +219,74 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
                 'price': 99.99,
             }],
         }));
+        // the removal is held back until the event is sent, then submitted
+        expect(submitEvent.preventDefault).toHaveBeenCalled();
+        expect(form.submit).toHaveBeenCalledTimes(1);
     });
 
-    test('does not fire event on form submit for non-wishlist form', () => {
+    test('submits the removal after a second when the category lookup hangs', async () => {
+        jest.useFakeTimers();
+        document.body.innerHTML = '<h1 class="product-detail-name">Test Product</h1>';
+
+        const resolveCategories = jest.spyOn(ProductPageHelper, 'resolveCategories')
+            .mockReturnValue(new Promise(() => {}));
+
+        const form = document.createElement('form');
+        form.classList.add('product-wishlist-form');
+        form.setAttribute('action', '/wishlist/product/delete/abc123-def456-789');
+        form.submit = jest.fn();
+
+        const submitted = removeFromWishlistEvent._onFormSubmit({ target: form, defaultPrevented: false, preventDefault: jest.fn() });
+        expect(form.submit).not.toHaveBeenCalled();
+
+        await jest.advanceTimersByTimeAsync(1000);
+        await submitted;
+
+        expect(form.submit).toHaveBeenCalledTimes(1);
+
+        resolveCategories.mockRestore();
+        jest.useRealTimers();
+    });
+
+    test('does not take over a submit another handler already handles', async () => {
+        document.body.innerHTML = '<h1 class="product-detail-name">Test Product</h1>';
+
+        const form = document.createElement('form');
+        form.classList.add('product-wishlist-form');
+        form.setAttribute('action', '/wishlist/product/delete/abc123-def456-789');
+        form.submit = jest.fn();
+        const submitEvent = { target: form, defaultPrevented: true, preventDefault: jest.fn() };
+
+        await removeFromWishlistEvent._onFormSubmit(submitEvent);
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'remove_from_wishlist', expect.anything());
+        expect(submitEvent.preventDefault).not.toHaveBeenCalled();
+        expect(form.submit).not.toHaveBeenCalled();
+    });
+
+    test('does not fire event on form submit for non-wishlist form', async () => {
         const form = document.createElement('form');
         form.classList.add('some-other-form');
 
-        removeFromWishlistEvent._onFormSubmit({ target: form });
+        await removeFromWishlistEvent._onFormSubmit({ target: form });
 
         expect(window.gtag).not.toHaveBeenCalled();
+    });
+
+    test('does not report the product when the consent was revoked during the category request', async () => {
+        document.body.innerHTML = '<h1 class="product-detail-name">Test Product</h1>';
+
+        let answer;
+        const resolveCategories = jest.spyOn(ProductPageHelper, 'resolveCategories')
+            .mockReturnValue(new Promise(resolve => { answer = resolve; }));
+
+        const sent = removeFromWishlistEvent._onProductRemoved({ detail: { productId: 'product-123' } });
+        removeFromWishlistEvent.disable();
+        answer({ item_category: 'Clothing' });
+        await sent;
+
+        expect(window.gtag).not.toHaveBeenCalled();
+
+        resolveCategories.mockRestore();
     });
 });

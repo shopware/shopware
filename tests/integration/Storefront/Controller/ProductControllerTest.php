@@ -331,6 +331,40 @@ class ProductControllerTest extends TestCase
         static::assertArrayHasKey('product-page-loaded', $traces);
     }
 
+    public function testBuyWidgetIncludesCategoryNames(): void
+    {
+        $salesChannel = static::getContainer()->get('sales_channel.repository')
+            ->search(new Criteria([$this->getSalesChannelId()]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
+
+        $categoryId = Uuid::randomHex();
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $categoryId,
+            'name' => 'Dresses',
+            'parentId' => $salesChannel->getNavigationCategoryId(),
+        ]], Context::createDefaultContext());
+
+        $productId = $this->createProduct([
+            'categories' => [['id' => $categoryId]],
+            'mainCategories' => [[
+                'id' => Uuid::randomHex(),
+                'categoryId' => $categoryId,
+                'salesChannelId' => $this->getSalesChannelId(),
+            ]],
+        ]);
+
+        $response = $this->request('GET', '/my-product/' . $productId, []);
+        $this->checkStatusCode($response);
+
+        $crawler = new Crawler((string) $response->getContent());
+        $categoryName = $crawler->filter(\sprintf('input[name="lineItems[%s][payload][categoryNames][%s]"]', $productId, $categoryId));
+
+        static::assertCount(1, $categoryName);
+        static::assertSame('Dresses', $categoryName->attr('value'));
+    }
+
     public function testProductManufacturerRelativeLinkIsNotNormalizedAsExternalUrl(): void
     {
         $productId = $this->createProduct(['manufacturer' => ['name' => 'linked-manufacturer', 'link' => '/manufacturer-test/']]);

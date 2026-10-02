@@ -85,4 +85,41 @@ class KernelTest extends TestCase
             $kernel->shutdown();
         }
     }
+
+    public function testMajorFeatureToggleBootsSeparateDefaultBuildDirs(): void
+    {
+        $this->setEnvVars([
+            'APP_BUILD_DIR' => null,
+            'FEATURE_ALL' => 'false',
+            'V6_8_0_0' => 'false',
+        ]);
+        $inactiveKernel = KernelLifecycleManager::createKernel();
+
+        try {
+            $inactiveKernel->boot();
+            $inactiveCacheDir = $inactiveKernel->getCacheDir();
+            $inactiveBuildDir = $inactiveKernel->getBuildDir();
+            static::assertSame($inactiveCacheDir, $inactiveBuildDir);
+            static::assertDirectoryExists($inactiveCacheDir);
+            static::assertDirectoryExists($inactiveBuildDir);
+        } finally {
+            $inactiveKernel->shutdown();
+        }
+
+        $this->setEnvVars(['V6_8_0_0' => 'true']);
+        $activeKernel = KernelLifecycleManager::createKernel();
+
+        try {
+            $activeKernel->boot();
+            static::assertNotSame($inactiveCacheDir, $activeKernel->getCacheDir());
+            static::assertNotSame($inactiveBuildDir, $activeKernel->getBuildDir());
+            static::assertSame($activeKernel->getCacheDir(), $activeKernel->getBuildDir());
+            static::assertDirectoryExists($activeKernel->getCacheDir());
+            static::assertDirectoryExists($activeKernel->getBuildDir());
+            static::assertDirectoryExists($inactiveCacheDir);
+            static::assertDirectoryExists($inactiveBuildDir);
+        } finally {
+            $activeKernel->shutdown();
+        }
+    }
 }

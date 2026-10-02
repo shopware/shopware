@@ -25,6 +25,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Cart\Transaction\Struct\Transaction;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
@@ -399,6 +400,28 @@ class OrderConverterTest extends TestCase
         static::assertEquals(CartOrderConversionStub::getExpectedConvertToCart(), $result);
     }
 
+    public function testConvertToCartPutsThePrimaryTransactionFirst(): void
+    {
+        $order = $this->getOrder();
+        $order->setPrimaryOrderTransactionId('order-transaction-id');
+
+        $cart = $this->orderConverter->convertToCart($order, Context::createDefaultContext());
+
+        static::assertSame(
+            ['order-transaction-id', 'order-transaction-cancelled-id', 'order-transaction-failed-id'],
+            array_values($cart->getTransactions()->map(
+                static fn (Transaction $transaction) => $transaction->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId()
+            ))
+        );
+    }
+
+    public function testConvertToCartWithoutLoadedTransactions(): void
+    {
+        $cart = $this->orderConverter->convertToCart($this->getOrder('order-no-transactions'), Context::createDefaultContext());
+
+        static::assertCount(0, $cart->getTransactions());
+    }
+
     #[DataProvider('convertToCartManipulatedOrderData')]
     public function testConvertToCartManipulatedOrder(string $manipulateOrder = ''): void
     {
@@ -761,6 +784,7 @@ class OrderConverterTest extends TestCase
         $orderTransaction = new OrderTransactionEntity();
         $orderTransaction->setId('order-transaction-id');
         $orderTransaction->setPaymentMethodId('order-transaction-payment-method-id');
+        $orderTransaction->setAmount(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $stateMachineState = new StateMachineStateEntity();
         $stateMachineState->setId('state-machine-state-id');
         $stateMachineState->setTechnicalName('state-machine-state-technical-name');
@@ -769,6 +793,7 @@ class OrderConverterTest extends TestCase
         $orderTransactionCancelled = new OrderTransactionEntity();
         $orderTransactionCancelled->setId('order-transaction-cancelled-id');
         $orderTransactionCancelled->setPaymentMethodId('order-transaction-cancelled-payment-method-id');
+        $orderTransactionCancelled->setAmount(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $stateMachineStateCancelled = new StateMachineStateEntity();
         $stateMachineStateCancelled->setId('state-machine-cancelled-state-id');
         $stateMachineStateCancelled->setTechnicalName('cancelled');
@@ -777,6 +802,7 @@ class OrderConverterTest extends TestCase
         $orderTransactionFailed = new OrderTransactionEntity();
         $orderTransactionFailed->setId('order-transaction-failed-id');
         $orderTransactionFailed->setPaymentMethodId('order-transaction-failed-payment-method-id');
+        $orderTransactionFailed->setAmount(new CalculatedPrice(1, 1, new CalculatedTaxCollection(), new TaxRuleCollection()));
         $stateMachineStateFailed = new StateMachineStateEntity();
         $stateMachineStateFailed->setId('state-machine-failed-state-id');
         $stateMachineStateFailed->setTechnicalName('failed');

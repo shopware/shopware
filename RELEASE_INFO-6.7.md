@@ -160,6 +160,9 @@ This will allow async payment methods to leave the order transaction in "unconfi
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
 
+### MCP session registry follows the session store
+
+Each MCP server keeps a registry of its active sessions, which `tools/list_changed` broadcasts go to. It no longer uses `cache.system`. When a server stores its sessions in a cache pool (`session: {store: cache, cache_pool: ...}`), for example Redis, the registry uses the same pool, so broadcasts reach sessions on every server. With the default file store, the registry is a file cache next to the session files. If you overrode `shopware.mcp.session_registry_cache` or `mcp.store_api.session_registry_cache` to share the registry, you can remove that override. In multi-server setups, also configure `framework.lock` with a shared store, so concurrent registry updates on different servers don't lose sessions.
 ### `dal:validate` checks attribute entities
 
 `bin/console dal:validate` no longer skips attribute entities. They are held to the same rules as `EntityDefinition` classes, for example that a many-to-one must not cascade deletes, and violations name them by their entity class instead of `AttributeEntityDefinition`, also when another definition's check mentions them. If your CI fails on `dal:validate`, or ignores messages that contain `AttributeEntityDefinition`, run it against your extension before updating.

@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\FrameworkMigrationR
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\HttpCacheConfigCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpDebugCommandCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpSessionRegistryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolAnalysisCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\MessengerMiddlewareCompilerPass;
@@ -155,6 +156,7 @@ class Framework extends Bundle
         $container->addCompilerPass(new McpToolDiscoveryCompilerPass(), priority: 20);
         $container->addCompilerPass(new McpToolAnalysisCompilerPass());
         $container->addCompilerPass(new McpServerBuilderCompilerPass());
+        $container->addCompilerPass(new McpSessionRegistryCompilerPass());
         $container->addCompilerPass(new McpDebugCommandCompilerPass());
 
         $container->addCompilerPass(new DemodataCompilerPass());

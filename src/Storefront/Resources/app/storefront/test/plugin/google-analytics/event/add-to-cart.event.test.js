@@ -283,6 +283,37 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         }));
     });
 
+    test.each([
+        ['a line an API client added under its own id', 'data-id="product-123" data-line-item-id="custom-line"', 10],
+        ['a theme markup without the line item id', 'data-id="product-123"', 8],
+    ])('only counts the cart line the add stacks onto, not %s', (label, attributes, price) => {
+        document.body.innerHTML = `
+            <div class="product-detail-buy"
+                 data-product-prices='[{"quantity":10,"price":10},{"quantity":11,"price":8}]'>
+                <form class="buy-widget"></form>
+            </div>
+            <div class="hidden-line-items-information">
+                <span class="hidden-line-item" ${attributes} data-quantity="9"></span>
+            </div>
+        `;
+
+        const form = document.querySelector('.buy-widget');
+        const addToCartInstance = { el: form, $emitter: new NativeEventEmitter(form) };
+        addToCartInstances.push(addToCartInstance);
+
+        new AddToCartEvent().execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][id]', 'product-123');
+        formData.append('lineItems[product-123][quantity]', '2');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
+            'items': [expect.objectContaining({ 'price': price })],
+        }));
+    });
+
     describe('hands brand and category to the cart', () => {
         const breadcrumb = `
             <nav aria-label="breadcrumb">

@@ -15,7 +15,15 @@ async function createWrapper(privileges = [], fieldType = null, conditionType = 
         'sw-entity-multi-id-select': true,
         'sw-product-variant-info': true,
         'sw-select-result': true,
-        'sw-tagged-field': true,
+        'sw-multi-tag-select': {
+            name: 'sw-multi-tag-select',
+            props: [
+                'value',
+                'disabled',
+            ],
+            emits: ['update:value'],
+            template: '<div class="sw-multi-tag-select"></div>',
+        },
         'sw-inheritance-switch': true,
         'sw-loader': true,
         'sw-ai-copilot-badge': true,
@@ -397,5 +405,37 @@ describe('src/module/sw-product-stream/component/sw-product-stream-value', () =>
 
         const entitySingleSelect = wrapper.find('sw-entity-multi-id-select-stub');
         expect(entitySingleSelect.exists()).toBe(true);
+    });
+
+    it('should render a multi tag select for equalsAny on scalar fields', async () => {
+        const wrapper = await createWrapper(['product_stream.editor'], 'string', 'equalsAny');
+
+        await wrapper.setProps({
+            condition: {
+                type: 'equalsAny',
+                value: 'foo|bar',
+            },
+        });
+
+        const multiTagSelect = wrapper.getComponent({ name: 'sw-multi-tag-select' });
+        expect(multiTagSelect.props('value')).toEqual([
+            'foo',
+            'bar',
+        ]);
+
+        multiTagSelect.vm.$emit('update:value', [
+            'foo',
+            'bar',
+            'baz',
+        ]);
+
+        expect(wrapper.vm.actualCondition.value).toBe('foo|bar|baz');
+    });
+
+    it('should disable the multi tag select', async () => {
+        const wrapper = await createWrapper(['product_stream.viewer'], 'string', 'equalsAny');
+        await wrapper.setProps({ disabled: true });
+
+        expect(wrapper.getComponent({ name: 'sw-multi-tag-select' }).props('disabled')).toBe(true);
     });
 });

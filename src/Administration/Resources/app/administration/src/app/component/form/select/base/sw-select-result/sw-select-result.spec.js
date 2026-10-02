@@ -95,6 +95,22 @@ describe('src/app/component/form/select/base/sw-select-result', () => {
         wrapper.unmount();
     });
 
+    it('should only take over the active item when the mouse moves over it', async () => {
+        const setActiveItemIndex = jest.fn();
+        const result = mount(await wrapTestComponent('sw-select-result', { sync: true }), {
+            props: { index: 3, item: { id: 'item' } },
+            global: { provide: { setActiveItemIndex } },
+        });
+
+        await result.trigger('mouseenter');
+        expect(setActiveItemIndex).not.toHaveBeenCalled();
+
+        await result.trigger('mousemove');
+        expect(setActiveItemIndex).toHaveBeenCalledWith(3);
+
+        result.unmount();
+    });
+
     it('should react on $parent.$parent event', async () => {
         const swSelectResultWrapper = wrapper.findComponent('.sw-select-result').vm;
         expect(swSelectResult.methods.checkIfSelected).toHaveBeenCalledTimes(0);

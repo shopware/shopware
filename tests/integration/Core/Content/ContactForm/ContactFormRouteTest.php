@@ -43,18 +43,8 @@ class ContactFormRouteTest extends TestCase
 
     public function testContactFormSendMail(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
-            $eventDidRun = true;
-            $htmlText = $event->getContents()['text/html'];
-            self::assertIsString($htmlText);
-            static::assertStringContainsString('Contact email address: test@shopware.com', $htmlText);
-            static::assertStringContainsString('essage: Lorem ipsum dolor sit amet', $htmlText);
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->browser->request(
             'POST',
@@ -75,29 +65,19 @@ class ContactFormRouteTest extends TestCase
         static::assertArrayHasKey('individualSuccessMessage', $response);
         static::assertEmpty($response['individualSuccessMessage']);
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail);
+        $html = $mail->getContents()['text/html'];
+        static::assertIsString($html);
+        static::assertStringContainsString('Contact email address: test@xn--shpware-6wa.com', $html);
+        static::assertStringContainsString('Lorem ipsum dolor sit amet', $html);
     }
 
     public function testContactFormSendMailWithLandingPageContext(): void
     {
         [$navigationId, $slotId] = $this->createLandingPageData();
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $eventDidRun = false;
-        $recipients = [];
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, &$recipients): void {
-            $eventDidRun = true;
-            $recipients = $event->getRecipients();
-            $htmlText = $event->getContents()['text/html'];
-            self::assertIsString($htmlText);
-            static::assertStringContainsString('Contact email address: test@shopware.com', $htmlText);
-            static::assertStringContainsString('essage: Lorem ipsum dolor sit amet', $htmlText);
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->browser->request(
             'POST',
@@ -121,10 +101,12 @@ class ContactFormRouteTest extends TestCase
         static::assertArrayHasKey('individualSuccessMessage', $response);
         static::assertEmpty($response['individualSuccessMessage']);
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
-        static::assertArrayHasKey('h.mac@example.com', $recipients);
+        static::assertInstanceOf(MailSentEvent::class, $mail);
+        static::assertArrayHasKey('h.mac@example.com', $mail->getRecipients());
+        $html = $mail->getContents()['text/html'];
+        static::assertIsString($html);
+        static::assertStringContainsString('Contact email address: test@shopware.com', $html);
+        static::assertStringContainsString('Lorem ipsum dolor sit amet', $html);
     }
 
     #[DataProvider('contactFormWithDomainProvider')]

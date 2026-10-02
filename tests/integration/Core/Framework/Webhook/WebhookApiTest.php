@@ -46,7 +46,7 @@ class WebhookApiTest extends TestCase
             'appId' => Uuid::randomHex(),
         ]);
 
-        $this->assertWriteProtected('appId');
+        $this->assertApiErrors([['code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', 'field' => 'appId']]);
     }
 
     public function testAWebhookCannotBeCreatedForSomeoneElse(): void
@@ -58,7 +58,7 @@ class WebhookApiTest extends TestCase
             'ownerUserId' => Uuid::randomHex(),
         ]);
 
-        $this->assertWriteProtected('ownerUserId');
+        $this->assertApiErrors([['code' => 'FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', 'field' => 'ownerUserId']]);
     }
 
     public function testTheUserCreatingAWebhookOwnsIt(): void
@@ -114,19 +114,5 @@ class WebhookApiTest extends TestCase
         static::assertInstanceOf(WebhookEntity::class, $webhook);
 
         return $webhook;
-    }
-
-    private function assertWriteProtected(string $field): void
-    {
-        $response = $this->getBrowser()->getResponse();
-        $content = (string) $response->getContent();
-
-        static::assertSame(400, $response->getStatusCode(), $content);
-
-        $errors = json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['errors'];
-
-        static::assertCount(1, $errors, $content);
-        static::assertSame('FRAMEWORK__WRITE_CONSTRAINT_VIOLATION', $errors[0]['code'], $content);
-        static::assertStringContainsString($field, $errors[0]['source']['pointer'], $content);
     }
 }

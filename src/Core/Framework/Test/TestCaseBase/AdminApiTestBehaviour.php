@@ -122,6 +122,32 @@ trait AdminApiTestBehaviour
     }
 
     /**
+     * @param list<array{code: string, field?: non-empty-string, detail?: string}> $expected
+     */
+    public function assertApiErrors(array $expected): void
+    {
+        $response = $this->getBrowser()->getResponse();
+        $content = (string) $response->getContent();
+
+        TestCase::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), $content);
+
+        $errors = json_decode($content, true, 512, \JSON_THROW_ON_ERROR)['errors'];
+        TestCase::assertCount(\count($expected), $errors, $content);
+
+        foreach ($expected as $i => $error) {
+            TestCase::assertSame($error['code'], $errors[$i]['code'], $content);
+
+            if (isset($error['field'])) {
+                TestCase::assertStringEndsWith($error['field'], $errors[$i]['source']['pointer'], $content);
+            }
+
+            if (isset($error['detail'])) {
+                TestCase::assertSame($error['detail'], $errors[$i]['detail'], $content);
+            }
+        }
+    }
+
+    /**
      * @param string[] $scopes
      * @param string[]|null $aclPermissions
      */

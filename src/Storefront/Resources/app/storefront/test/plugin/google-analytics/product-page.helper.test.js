@@ -261,5 +261,63 @@ describe('plugin/google-analytics/product-page.helper', () => {
 
             await expect(ProductPageHelper.resolveCategories('product-123')).resolves.toEqual({ item_category: 'Listing' });
         });
+
+        test('requests the path of a product box on the product detail page', async () => {
+            window.activeRoute = 'frontend.detail.page';
+            document.body.innerHTML = `${breadcrumb}
+                <div class="product-box" data-product-information='{ "id": "slider-id" }'>
+                    <button class="product-wishlist-slider-id"></button>
+                </div>
+            `;
+            global.fetch = jest.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(['Damen']) });
+
+            await expect(ProductPageHelper.resolveCategories('slider-id')).resolves.toEqual({ item_category: 'Damen' });
+            expect(global.fetch).toHaveBeenCalled();
+        });
+    });
+
+    describe('on a product detail page with a product box', () => {
+        beforeEach(() => {
+            document.body.innerHTML = `
+                <h1 class="product-detail-name">Main Product</h1>
+                <span itemprop="sku">SW-MAIN</span>
+                <meta property="product:price:currency" content="EUR">
+                <meta property="product:price:amount" content="50">
+                <div class="product-detail-buy">
+                    <form class="buy-widget"></form>
+                    <button class="product-wishlist-main-id"></button>
+                </div>
+                <div class="product-box" data-product-information='{ "id": "slider-id", "name": "Slider Product", "price": 9.99, "sku": "SW-SLIDER" }'>
+                    <button class="product-wishlist-slider-id"></button>
+                    <form class="buy-widget"></form>
+                </div>
+            `;
+        });
+
+        test('reports the product of a cross selling box instead of the page product', () => {
+            expect(ProductPageHelper.getProductData('slider-id')).toEqual(expect.objectContaining({
+                id: 'SW-SLIDER',
+                name: 'Slider Product',
+                value: 9.99,
+                currency: 'EUR',
+            }));
+        });
+
+        test('finds the box through the element the interaction started from', () => {
+            const form = document.querySelector('.product-box form');
+
+            expect(ProductPageHelper.getProductData('unknown-id', form)).toEqual(expect.objectContaining({
+                id: 'SW-SLIDER',
+            }));
+        });
+
+        test('keeps reporting the page product for the buy widget', () => {
+            const form = document.querySelector('.product-detail-buy form');
+
+            expect(ProductPageHelper.getProductData('main-id', form)).toEqual(expect.objectContaining({
+                id: 'SW-MAIN',
+                name: 'Main Product',
+            }));
+        });
     });
 });

@@ -92,7 +92,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onBeforeMount } from 'vue';
 
 const createdComponent = function () {
     ready.value = true;
@@ -100,9 +100,9 @@ const createdComponent = function () {
 
 const ready = ref(false);
 
-void (function () {
+onBeforeMount(function () {
     createdComponent();
-})();
+});
 
 swDefinePublic({
     ready,
@@ -342,7 +342,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onBeforeUnmount, onBeforeMount } from 'vue';
 
 const fetchEntries = async function () {
     entries.value = [];
@@ -351,6 +351,10 @@ const fetchEntries = async function () {
 const observer = ref(null);
 const entries = ref([]);
 
+onBeforeMount(async function () {
+    await fetchEntries();
+});
+
 onMounted(function () {
     observer.value = 'attached';
 });
@@ -358,10 +362,6 @@ onMounted(function () {
 onBeforeUnmount(function () {
     observer.value = null;
 });
-
-void (async function () {
-    await fetchEntries();
-})();
 
 swDefinePublic({
     observer,
@@ -534,7 +534,7 @@ exports[`scripts/codemods/sfc-migration fixture snapshots (outcome, reasons and 
 // - the defaults are merged at the point in the lifecycle the component expects them
 // - useCmsElementDeprecated is a stopover: useCmsElement routes the same writes through the cmsPage store
 
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onBeforeMount } from 'vue';
 import useCmsElementDeprecated from 'src/app/composables/use-cms-element-deprecated';
 
 const props = defineProps({
@@ -592,9 +592,9 @@ watch(
     },
 );
 
-void (function () {
+onBeforeMount(function () {
     createdComponent();
-})();
+});
 
 swDefinePublic({
     cmsPageState,

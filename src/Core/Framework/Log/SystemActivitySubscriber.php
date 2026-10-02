@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Log;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -86,11 +87,14 @@ final class SystemActivitySubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return array{userId?: string|null, username?: string|null, integrationAccessKey?: string|null}
+     * @return array{actorType?: string, userId?: string|null, username?: string|null, integrationAccessKey?: string|null}
      */
     private function actor(Context $context): array
     {
         $source = $context->getSource();
+        if ($source instanceof SystemSource) {
+            return ['actorType' => 'system'];
+        }
         if (!$source instanceof AdminApiSource) {
             return [];
         }

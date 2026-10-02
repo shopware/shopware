@@ -129,6 +129,7 @@ class SystemActivitySubscriberTest extends TestCase
         $logger->expects($this->once())->method('info')->with('plugin:' . $action, [
             'pluginName' => 'ExamplePlugin',
             'pluginVersion' => '1.2.3',
+            'actorType' => 'system',
         ]);
         $dispatcher = new EventDispatcher();
         $dispatcher->addSubscriber(new SystemActivitySubscriber($logger, $this->connection));
@@ -142,6 +143,25 @@ class SystemActivitySubscriberTest extends TestCase
         yield 'plugin disabled' => [PluginPostDeactivateEvent::class, 'disable'];
         yield 'plugin installed' => [PluginPostInstallEvent::class, 'install'];
         yield 'plugin uninstalled' => [PluginPostUninstallEvent::class, 'uninstall'];
+    }
+
+    public function testLogsPluginInstallationFromCliAsSystemActivity(): void
+    {
+        $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
+        $plugin = new PluginEntity();
+        $plugin->setName('ExamplePlugin');
+        $plugin->setVersion('1.2.3');
+        $context = static::createStub(InstallContext::class);
+        $context->method('getContext')->willReturn(Context::createCLIContext());
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('info')->with('plugin:install', [
+            'pluginName' => 'ExamplePlugin', 'pluginVersion' => '1.2.3', 'actorType' => 'system',
+        ]);
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addSubscriber(new SystemActivitySubscriber($logger, $connection));
+
+        $dispatcher->dispatch(new PluginPostInstallEvent($plugin, $context));
+        $connection->close();
     }
 
     public function testLogsUpgradeFromPreviousVersionToNewVersion(): void
@@ -158,6 +178,7 @@ class SystemActivitySubscriberTest extends TestCase
             'pluginName' => 'ExamplePlugin',
             'pluginVersion' => '2.0.0',
             'previousPluginVersion' => '1.2.3',
+            'actorType' => 'system',
         ]);
         $dispatcher = new EventDispatcher();
         $dispatcher->addSubscriber(new SystemActivitySubscriber($logger, $this->connection));
@@ -188,7 +209,7 @@ class SystemActivitySubscriberTest extends TestCase
     {
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('info')->with('plugin:upload', [
-            'filename' => 'plugin.zip', 'pluginName' => '',
+            'filename' => 'plugin.zip', 'pluginName' => '', 'actorType' => 'system',
         ]);
         $subscriber = new SystemActivitySubscriber($logger, $this->connection);
 

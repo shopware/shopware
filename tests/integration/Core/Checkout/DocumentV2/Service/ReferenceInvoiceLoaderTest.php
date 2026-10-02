@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Integration\Core\Checkout\Document\Service;
+namespace Shopware\Tests\Integration\Core\Checkout\DocumentV2\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdEmbeddedRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
-use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
+use Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;

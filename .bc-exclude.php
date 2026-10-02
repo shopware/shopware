@@ -132,5 +132,6 @@ return [
 
         // Not released yet, so safe to be removed again
         preg_quote('REMOVED: Class Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\Extension\DocumentRouteExtension has been deleted', '/'),
     ],
 ];

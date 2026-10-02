@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Document;
+namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\DocumentDefinition;
+use Shopware\Core\Checkout\DocumentV2\DocumentDefinition;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\EntityWriteGateway;
 use Shopware\Core\Framework\Log\Package;

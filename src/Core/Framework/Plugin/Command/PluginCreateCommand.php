@@ -267,9 +267,8 @@ class PluginCreateCommand extends Command
             $io->writeln("<fg=green;options=bold>✔ Successfully generated Plugin</>\n");
 
             $io->section('What\'s next?');
-            $io->writeln('1) run plugin:install');
-            $io->writeln('2) run build admin');
-            $io->writeln('3) add storefront javascript code');
+            $io->writeln('1) run bin/console plugin:refresh');
+            $io->writeln('2) run bin/console plugin:install');
 
             return Command::SUCCESS;
         } catch (\Throwable $exception) {

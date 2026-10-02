@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
 /**
@@ -32,7 +32,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Group('rules')]
 class GoodsCountRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
     use DatabaseTransactionBehaviour;
     use KernelTestBehaviour;
 
@@ -148,33 +147,33 @@ class GoodsCountRuleTest extends TestCase
 
     public function testFilter(): void
     {
-        $item = $this->createLineItemWithPrice('test', 40);
+        $item = CartRuleFixture::createLineItemWithPrice('test', 40);
         $item->setGood(true);
 
-        $item2 = $this->createLineItemWithPrice('test', 100);
+        $item2 = CartRuleFixture::createLineItemWithPrice('test', 100);
         $item2->setGood(true);
 
-        $item3 = $this->createLineItemWithPrice('test-not-matching', 30);
+        $item3 = CartRuleFixture::createLineItemWithPrice('test-not-matching', 30);
         $item3->setGood(true);
 
-        $cart = $this->createCart(new LineItemCollection([$item, $item2, $item3]));
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$item, $item2, $item3]));
 
         $this->assertRuleMatches($cart);
     }
 
     public function testFilterNested(): void
     {
-        $item = $this->createLineItemWithPrice('test', 40);
+        $item = CartRuleFixture::createLineItemWithPrice('test', 40);
         $item->setGood(true);
 
-        $item2 = $this->createLineItemWithPrice('test', 100);
+        $item2 = CartRuleFixture::createLineItemWithPrice('test', 100);
         $item2->setGood(true);
 
-        $item3 = $this->createLineItemWithPrice('test-not-matching', 30);
+        $item3 = CartRuleFixture::createLineItemWithPrice('test-not-matching', 30);
         $item3->setGood(true);
 
-        $containerLineItem = $this->createContainerLineItem(new LineItemCollection([$item, $item2, $item3]));
-        $cart = $this->createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = CartRuleFixture::createContainerLineItem(new LineItemCollection([$item, $item2, $item3]));
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $this->assertRuleMatches($cart);
     }

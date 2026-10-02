@@ -36,6 +36,10 @@ class LineItemPromotedRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('markAsTopseller', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->isItemMatching($lineItem)) {
                 return true;
             }
@@ -61,10 +65,6 @@ class LineItemPromotedRule extends Rule
 
     private function isItemMatching(LineItem $lineItem): bool
     {
-        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-            return false;
-        }
-
         return (bool) $lineItem->getPayloadValue('markAsTopseller') === $this->isPromoted;
     }
 }

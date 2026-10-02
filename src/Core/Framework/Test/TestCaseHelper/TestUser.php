@@ -16,7 +16,8 @@ class TestUser
     private function __construct(
         private readonly string $password,
         private readonly string $name,
-        private readonly string $userId
+        private readonly string $userId,
+        private readonly ?string $aclRoleId = null,
     ) {
     }
 
@@ -70,7 +71,7 @@ class TestUser
             );
         }
 
-        return new TestUser('shopware', $username, Uuid::fromBytesToHex($userId));
+        return new TestUser('shopware', $username, Uuid::fromBytesToHex($userId), $roleId === null ? null : Uuid::fromBytesToHex($roleId));
     }
 
     public static function createNewAdminTestUser(Connection $connection): TestUser
@@ -128,6 +129,11 @@ class TestUser
     public function getUserId(): string
     {
         return $this->userId;
+    }
+
+    public function getAclRoleId(): ?string
+    {
+        return $this->aclRoleId;
     }
 
     private static function getLocaleOfSystemLanguage(Connection $connection): string

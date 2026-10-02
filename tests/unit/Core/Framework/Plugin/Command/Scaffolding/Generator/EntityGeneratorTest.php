@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfigurati
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -25,194 +25,131 @@ class EntityGeneratorTest extends TestCase
     {
         $generator = new EntityGenerator(new MockClock());
 
-        $option = $generator->getCommandOption();
-
-        static::assertSame(EntityGenerator::OPTION_NAME, $option->getName());
-        static::assertNotSame('', $option->getDescription());
-        static::assertTrue($option->isValueRequired());
+        static::assertTrue($generator->hasCommandOption());
+        static::assertNotEmpty($generator->getCommandOptionName());
+        static::assertNotEmpty($generator->getCommandOptionDescription());
+        static::assertSame('Custom Entities', $generator->getCommandOptionTitle());
+        static::assertNotEmpty($generator->getCommandOptionDescriptionLong());
     }
 
     /**
-     * @param array<int, string>|null $expectedEntities
+     * @param list<string> $expectedEntities
      */
-    #[DataProvider('addScaffoldConfigProvider')]
-    #[DataProvider('provideEntities')]
-    #[DataProvider('provideEmptyEntities')]
-    public function testAddScaffoldConfig(
-        mixed $getOptionResponse,
-        bool $confirmResponse,
-        mixed $entitiesAnswerInput,
-        bool $expectedHasOption,
-        ?array $expectedEntities = []
-    ): void {
+    #[DataProvider('cliEntitiesProvider')]
+    public function testParsesEntitiesFromTheCliOption(string $entities, array $expectedEntities): void
+    {
         $configuration = $this->getConfig();
 
         $input = static::createStub(InputInterface::class);
-        $input->method('getOption')->willReturn($getOptionResponse);
+        $input->method('getOption')->willReturn($entities);
 
-        $io = static::createStub(SymfonyStyle::class);
-        $io->method('confirm')->willReturn($confirmResponse);
-        $io->method('ask')->willReturn($entitiesAnswerInput);
+        (new EntityGenerator(new MockClock()))->addScaffoldConfig(
+            $configuration,
+            $input,
+            static::createStub(OutputInterface::class),
+        );
 
-        (new EntityGenerator(new MockClock()))
-            ->addScaffoldConfig($configuration, $input, $io);
-
-        static::assertSame($expectedHasOption, $configuration->hasOption(EntityGenerator::OPTION_NAME));
         static::assertSame($expectedEntities, $configuration->getOption(EntityGenerator::OPTION_NAME));
     }
 
-    public static function addScaffoldConfigProvider(): \Generator
-    {
-        yield 'with command option and with confirm' => [
-            'getOptionResponse' => 'TestEntity,TestEntity2',
-            'confirmResponse' => true,
-            'entitiesAnswerInput' => '',
-            'expectedHasOption' => true,
-            'expectedEntities' => [
-                'TestEntity',
-                'TestEntity2',
-            ],
-        ];
-
-        yield 'with command option and without confirm' => [
-            'getOptionResponse' => 'TestEntity,TestEntity2',
-            'confirmResponse' => false,
-            'entitiesAnswerInput' => '',
-            'expectedHasOption' => true,
-            'expectedEntities' => [
-                'TestEntity',
-                'TestEntity2',
-            ],
-        ];
-
-        yield 'without command option and with confirm' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'entitiesAnswerInput' => 'TestEntity,TestEntity2',
-            'expectedHasOption' => true,
-            'expectedEntities' => [
-                'TestEntity',
-                'TestEntity2',
-            ],
-        ];
-
-        yield 'without command option and without confirm' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => false,
-            'entitiesAnswerInput' => 'TestEntity,TestEntity2',
-            'expectedHasOption' => false,
-            'expectedEntities' => null,
-        ];
-    }
-
-    public static function provideEntities(): \Generator
+    public static function cliEntitiesProvider(): \Generator
     {
         yield 'single entity' => [
-            'getOptionResponse' => 'TestEntity',
-            'confirmResponse' => false,
-            'entitiesAnswerInput' => '',
-            'expectedHasOption' => true,
-            'expectedEntities' => [
-                'TestEntity',
-            ],
+            'entities' => 'TestEntity',
+            'expectedEntities' => ['TestEntity'],
         ];
 
-        yield 'multiple entities with comma' => [
-            'getOptionResponse' => 'TestEntity,TestEntity2',
-            'confirmResponse' => false,
-            'entitiesAnswerInput' => '',
-            'expectedHasOption' => true,
-            'expectedEntities' => [
-                'TestEntity',
-                'TestEntity2',
-            ],
+        yield 'several entities separated by commas' => [
+            'entities' => 'TestEntity,TestEntity2',
+            'expectedEntities' => ['TestEntity', 'TestEntity2'],
         ];
 
-        yield 'multiple entities with comma and spaces' => [
-            'getOptionResponse' => 'TestEntity, TestEntity2',
-            'confirmResponse' => false,
-            'entitiesAnswerInput' => '',
-            'expectedHasOption' => true,
-            'expectedEntities' => [
-                'TestEntity',
-                'TestEntity2',
-            ],
+        yield 'spaces around names are ignored' => [
+            'entities' => 'TestEntity, TestEntity2',
+            'expectedEntities' => ['TestEntity', 'TestEntity2'],
         ];
 
-        yield 'multiple entities with comma and spaces and backslash' => [
-            'getOptionResponse' => 'TestEntity, \TestEntity2',
-            'confirmResponse' => false,
-            'entitiesAnswerInput' => '',
-            'expectedHasOption' => true,
-            'expectedEntities' => [
-                'TestEntity',
-                'TestEntity2',
-            ],
+        yield 'backslashes around names are ignored' => [
+            'entities' => 'TestEntity, \TestEntity2',
+            'expectedEntities' => ['TestEntity', 'TestEntity2'],
         ];
 
-        yield 'multiple entities with comma and spaces and backslash and quotes and double quotes' => [
-            'getOptionResponse' => 'TestEntity, \TestEntity2, "TestEntity3", \'TestEntity4\'',
-            'confirmResponse' => false,
-            'entitiesAnswerInput' => '',
-            'expectedHasOption' => true,
-            'expectedEntities' => [
-                'TestEntity',
-                'TestEntity2',
-                'TestEntity3',
-                'TestEntity4',
-            ],
+        yield 'quotes around names are ignored' => [
+            'entities' => 'TestEntity, \TestEntity2, "TestEntity3", \'TestEntity4\'',
+            'expectedEntities' => ['TestEntity', 'TestEntity2', 'TestEntity3', 'TestEntity4'],
         ];
     }
 
-    public static function provideEmptyEntities(): \Generator
+    public function testSkipsEntitiesWhenTheUserDeclines(): void
     {
-        yield 'empty string' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'entitiesAnswerInput' => '',
-            'expectedHasOption' => false,
-            'expectedEntities' => null,
-        ];
+        $configuration = $this->getConfig();
 
-        yield 'null' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'entitiesAnswerInput' => null,
-            'expectedHasOption' => false,
-            'expectedEntities' => null,
-        ];
+        (new EntityGenerator(new MockClock()))->addScaffoldConfig(
+            $configuration,
+            ScaffoldConsole::input(option: false, answer: 'n'),
+            ScaffoldConsole::output(),
+        );
 
-        yield 'only comma' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'entitiesAnswerInput' => ',,,,',
-            'expectedHasOption' => false,
-            'expectedEntities' => null,
-        ];
+        static::assertFalse($configuration->hasOption(EntityGenerator::OPTION_NAME));
+    }
 
-        yield 'only comma and spaces' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'entitiesAnswerInput' => ', , , ,',
-            'expectedHasOption' => false,
-            'expectedEntities' => null,
-        ];
+    public function testStoresEntitiesWhenTheUserProvidesThem(): void
+    {
+        $configuration = $this->getConfig();
 
-        yield 'only comma and backslash' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'entitiesAnswerInput' => ',\,\,\,',
-            'expectedHasOption' => false,
-            'expectedEntities' => null,
-        ];
+        (new EntityGenerator(new MockClock()))->addScaffoldConfig(
+            $configuration,
+            ScaffoldConsole::input(option: false, answer: "y\nTestEntity, TestEntity2"),
+            ScaffoldConsole::output(),
+        );
 
-        yield 'only comma and quotes' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'entitiesAnswerInput' => ',"",\'\'',
-            'expectedHasOption' => false,
-            'expectedEntities' => null,
-        ];
+        static::assertSame(
+            ['TestEntity', 'TestEntity2'],
+            $configuration->getOption(EntityGenerator::OPTION_NAME),
+        );
+    }
+
+    #[DataProvider('emptyEntityAnswerProvider')]
+    public function testSkipsEntitiesWhenTheAnswerIsEmpty(string $answer): void
+    {
+        $configuration = $this->getConfig();
+
+        (new EntityGenerator(new MockClock()))->addScaffoldConfig(
+            $configuration,
+            ScaffoldConsole::input(option: false, answer: "y\n" . $answer),
+            ScaffoldConsole::output(),
+        );
+
+        static::assertFalse($configuration->hasOption(EntityGenerator::OPTION_NAME));
+    }
+
+    public static function emptyEntityAnswerProvider(): \Generator
+    {
+        yield 'empty answer' => ['answer' => ''];
+
+        yield 'only commas' => ['answer' => ',,,,'];
+
+        yield 'commas and spaces' => ['answer' => ', , , ,'];
+
+        yield 'commas and backslashes' => ['answer' => ',\\,\\,\\,'];
+
+        yield 'commas and quotes' => ['answer' => ',"",\'\''];
+    }
+
+    public function testAddScaffoldConfigRejectsOutputThatIsNotAConsole(): void
+    {
+        $input = static::createStub(InputInterface::class);
+        $input->method('getOption')->willReturn(false);
+
+        $this->expectExceptionObject(new \InvalidArgumentException(
+            'This command accepts only an instance of "ConsoleOutputInterface".'
+        ));
+
+        (new EntityGenerator(new MockClock()))->addScaffoldConfig(
+            $this->getConfig(),
+            $input,
+            static::createStub(OutputInterface::class),
+        );
     }
 
     /**

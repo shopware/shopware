@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\CustomFieldsetGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * @internal
@@ -23,56 +21,44 @@ class CustomFieldsetGeneratorTest extends TestCase
     {
         $generator = new CustomFieldsetGenerator();
 
-        $option = $generator->getCommandOption();
-
-        static::assertNotSame('', $option->getName());
-        static::assertNotSame('', $option->getDescription());
-        static::assertFalse($option->acceptValue());
+        static::assertTrue($generator->hasCommandOption());
+        static::assertNotEmpty($generator->getCommandOptionName());
+        static::assertNotEmpty($generator->getCommandOptionDescription());
+        static::assertSame('Custom Fieldset', $generator->getCommandOptionTitle());
+        static::assertNotEmpty($generator->getCommandOptionDescriptionLong());
     }
 
     #[DataProvider('addScaffoldConfigProvider')]
-    public function testAddScaffoldConfig(
-        bool $getOptionResponse,
-        bool $confirmResponse,
-        bool $expectedHasOption
-    ): void {
+    public function testAddScaffoldConfig(bool $optionAlreadySet, string $answer, bool $expectedHasOption): void
+    {
         $configuration = $this->getConfig();
 
-        $input = static::createStub(InputInterface::class);
-        $input->method('getOption')->willReturn($getOptionResponse);
-
-        $io = static::createStub(SymfonyStyle::class);
-        $io->method('confirm')->willReturn($confirmResponse);
-
-        (new CustomFieldsetGenerator())
-            ->addScaffoldConfig($configuration, $input, $io);
+        (new CustomFieldsetGenerator())->addScaffoldConfig(
+            $configuration,
+            ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
+            ScaffoldConsole::output(),
+        );
 
         static::assertSame($expectedHasOption, $configuration->hasOption(CustomFieldsetGenerator::OPTION_NAME));
     }
 
     public static function addScaffoldConfigProvider(): \Generator
     {
-        yield 'with command option and with confirm' => [
-            'getOptionResponse' => true,
-            'confirmResponse' => true,
+        yield 'cli option stores the scaffold option' => [
+            'optionAlreadySet' => true,
+            'answer' => '',
             'expectedHasOption' => true,
         ];
 
-        yield 'with command option and without confirm' => [
-            'getOptionResponse' => true,
-            'confirmResponse' => false,
+        yield 'answering yes stores the scaffold option' => [
+            'optionAlreadySet' => false,
+            'answer' => 'y',
             'expectedHasOption' => true,
         ];
 
-        yield 'without command option and with confirm' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => true,
-            'expectedHasOption' => true,
-        ];
-
-        yield 'without command option and without confirm' => [
-            'getOptionResponse' => false,
-            'confirmResponse' => false,
+        yield 'answering no skips the scaffold option' => [
+            'optionAlreadySet' => false,
+            'answer' => 'n',
             'expectedHasOption' => false,
         ];
     }

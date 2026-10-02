@@ -12,8 +12,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGene
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 
@@ -78,12 +77,32 @@ class CreateGeneratorScaffoldingCommandPassTest extends TestCase
  */
 class DemoScaffoldingGenerator implements ScaffoldingGenerator
 {
-    public function getCommandOption(): ?InputOption
+    public function hasCommandOption(): bool
     {
-        return null;
+        return true;
     }
 
-    public function addScaffoldConfig(PluginScaffoldConfiguration $config, InputInterface $input, SymfonyStyle $io): void
+    public function getCommandOptionName(): string
+    {
+        return '';
+    }
+
+    public function getCommandOptionDescription(): string
+    {
+        return '';
+    }
+
+    public function getCommandOptionTitle(): string
+    {
+        return '';
+    }
+
+    public function getCommandOptionDescriptionLong(): string
+    {
+        return '';
+    }
+
+    public function addScaffoldConfig(PluginScaffoldConfiguration $config, InputInterface $input, OutputInterface $output): void
     {
     }
 

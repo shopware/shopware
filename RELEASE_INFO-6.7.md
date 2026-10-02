@@ -167,6 +167,19 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### Company accounts can register without a contact person
+
+`Settings > Login & Registration` gains `showNameFieldsForCompanyAccounts` and `nameFieldsRequiredForCompanyAccounts`. They decide per sales channel whether a commercial customer has to name a contact person. Both default to on, so nothing changes until a shop turns one off.
+
+The `firstName` and `lastName` fields of `customer`, `customer_address`, `order_customer` and `order_address` carry the `AllowEmptyString` flag.
+
+`customer` and `order_customer` gain a runtime field `displayName`. It holds the person name, or the company when there is no contact person. `CustomerEntity::getDisplayName()` and `OrderCustomerEntity::getDisplayName()` return it once the entity is loaded. Read the name through it instead of joining `firstName` and `lastName`:
+
+```twig
+{{ customer.displayName }}
+{{ order.orderCustomer.displayName }}
+```
+
 ### Sales-channel scoped limits for `system_config` rate limiters
 
 The cart setting "Maximum addable products to cart per minute through API" can be set per sales channel, but only the global value took effect.

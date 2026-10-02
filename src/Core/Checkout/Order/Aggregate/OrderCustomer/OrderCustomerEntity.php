@@ -52,6 +52,8 @@ class OrderCustomerEntity extends Entity
 
     protected string $orderVersionId;
 
+    protected string $displayName = '';
+
     public function getEmail(): string
     {
         return $this->email;
@@ -186,6 +188,16 @@ class OrderCustomerEntity extends Entity
     public function setCompany(?string $company): void
     {
         $this->company = $company;
+    }
+
+    public function getDisplayName(): string
+    {
+        return $this->displayName;
+    }
+
+    public function setDisplayName(string $displayName): void
+    {
+        $this->displayName = $displayName;
     }
 
     public function getRemoteAddress(): ?string

@@ -13,11 +13,13 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryD
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerTag\CustomerTagDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistDefinition;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlistProduct\CustomerWishlistProductDefinition;
+use Shopware\Core\Checkout\Customer\Api\CompanyAccountNameFieldsController;
 use Shopware\Core\Checkout\Customer\Api\ConvertGuestController;
 use Shopware\Core\Checkout\Customer\Api\CustomerGroupRegistrationActionController;
 use Shopware\Core\Checkout\Customer\CleanupCustomerRecoveryTask;
 use Shopware\Core\Checkout\Customer\CleanupCustomerRecoveryTaskHandler;
 use Shopware\Core\Checkout\Customer\Command\DeleteUnusedGuestCustomersCommand;
+use Shopware\Core\Checkout\Customer\CompanyAccountNameFields;
 use Shopware\Core\Checkout\Customer\Cookie\WishlistCookieCollectListener;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
@@ -66,6 +68,9 @@ use Shopware\Core\Checkout\Customer\Subscriber\AddressHashSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerAddressSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerBeforeDeleteSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerChangePasswordSubscriber;
+use Shopware\Core\Checkout\Customer\Subscriber\CustomerContactPersonRowReader;
+use Shopware\Core\Checkout\Customer\Subscriber\CustomerContactPersonSubscriber;
+use Shopware\Core\Checkout\Customer\Subscriber\CustomerDisplayNameSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerEmailUniqueSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerFlowEventsSubscriber;
 use Shopware\Core\Checkout\Customer\Subscriber\CustomerLanguageSalesChannelSubscriber;
@@ -228,6 +233,25 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(AddressHashSubscriber::class)
         ->tag('kernel.event_subscriber');
 
+    $services->set(CustomerDisplayNameSubscriber::class)
+        ->tag('kernel.event_subscriber');
+
+    $services->set(CustomerContactPersonRowReader::class)
+        ->args([
+            service(Connection::class),
+        ]);
+
+    $services->set(CustomerContactPersonSubscriber::class)
+        ->args([
+            service(CustomerContactPersonRowReader::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(CompanyAccountNameFields::class)
+        ->args([
+            service(SystemConfigService::class),
+        ]);
+
     $services->set(CustomerMetaFieldSubscriber::class)
         ->args([
             service(Connection::class),
@@ -349,6 +373,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CustomerProfileValidationFactory::class),
             service(StoreApiCustomFieldMapper::class),
             service('salutation.repository'),
+            service(CompanyAccountNameFields::class),
             service(ExtensionDispatcher::class),
         ]);
 
@@ -427,6 +452,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DoubleOptInService::class),
             service(CustomerNewsletterSalesChannelsUpdater::class),
             service(ClockInterface::class),
+            service(CompanyAccountNameFields::class),
             service(ExtensionDispatcher::class),
         ]);
 
@@ -461,6 +487,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service(StoreApiCustomFieldMapper::class),
             service('salutation.repository'),
+            service(CompanyAccountNameFields::class),
             service(ExtensionDispatcher::class),
         ]);
 
@@ -499,6 +526,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
         ])
         ->tag('shopware.entity_indexer', ['priority' => 100]);
+
+    $services->set(CompanyAccountNameFieldsController::class)
+        ->public()
+        ->args([
+            service(CompanyAccountNameFields::class),
+        ]);
 
     $services->set(ConvertGuestController::class)
         ->public()

@@ -238,4 +238,17 @@ class UrlEncoderTest extends TestCase
             UrlEncoder::encodePathSegments('media/foo/my file.jpg')
         );
     }
+
+    public function testEncodePathSegmentsTreatsPercentSignsAsLiteralStorageCharacters(): void
+    {
+        static::assertSame(
+            'media/ab/cd/50%2520off.jpg',
+            UrlEncoder::encodePathSegments('media/ab/cd/50%20off.jpg')
+        );
+
+        static::assertSame(
+            'media/ab/cd/50%252Foff.jpg',
+            UrlEncoder::encodePathSegments('media/ab/cd/50%2Foff.jpg')
+        );
+    }
 }

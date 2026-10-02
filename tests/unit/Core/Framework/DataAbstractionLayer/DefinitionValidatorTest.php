@@ -5,12 +5,15 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
+use Doctrine\DBAL\Schema\Index\IndexType;
 use Doctrine\DBAL\Schema\Name\Identifier;
 use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Schema\TableEditor;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -203,9 +206,9 @@ class DefinitionValidatorTest extends TestCase
     {
         $parent = $this->createTable('parent', ['id', 'version_id', 'code', 'name'], ['id', 'version_id']);
         $child = $this->createTable('child', ['id', 'parent_id', 'parent_version_id']);
-        $child->addForeignKeyConstraint('parent', ['parent_id', 'parent_version_id'], ['id', 'version_id'], [], 'fk_child_parent_id');
+        $child->addForeignKeyConstraint($this->createForeignKey('parent', ['parent_id', 'parent_version_id'], ['id', 'version_id'], 'fk_child_parent_id'));
 
-        static::assertSame([], $this->getForeignKeyViolations(new Schema([$parent, $child])));
+        static::assertSame([], $this->getForeignKeyViolations(Schema::editor()->setTables($parent->create(), $child->create())->create()));
     }
 
     public function testForeignKeyReferencingCompositePrimaryKeyInWrongOrderReportsViolation(): void
@@ -213,9 +216,9 @@ class DefinitionValidatorTest extends TestCase
         $parent = $this->createTable('parent', ['id', 'version_id', 'code', 'name'], ['id', 'version_id']);
         $child = $this->createTable('child', ['id', 'parent_version_id', 'parent_id']);
         // FK references (version_id, id) but PK is (id, version_id) — column order mismatch
-        $child->addForeignKeyConstraint('parent', ['parent_version_id', 'parent_id'], ['version_id', 'id'], [], 'fk_child_parent_wrong_order');
+        $child->addForeignKeyConstraint($this->createForeignKey('parent', ['parent_version_id', 'parent_id'], ['version_id', 'id'], 'fk_child_parent_wrong_order'));
 
-        $violations = $this->getForeignKeyViolations(new Schema([$parent, $child]));
+        $violations = $this->getForeignKeyViolations(Schema::editor()->setTables($parent->create(), $child->create())->create());
 
         static::assertCount(1, $violations);
         static::assertStringContainsString('fk_child_parent_wrong_order', $violations[0]);
@@ -225,9 +228,9 @@ class DefinitionValidatorTest extends TestCase
     {
         $parent = $this->createTable('parent', ['id', 'version_id', 'code', 'name'], ['id', 'version_id']);
         $child = $this->createTable('child', ['id', 'parent_id']);
-        $child->addForeignKeyConstraint('parent', ['parent_id'], ['id'], [], 'fk_child_parent_id');
+        $child->addForeignKeyConstraint($this->createForeignKey('parent', ['parent_id'], ['id'], 'fk_child_parent_id'));
 
-        $violations = $this->getForeignKeyViolations(new Schema([$parent, $child]));
+        $violations = $this->getForeignKeyViolations(Schema::editor()->setTables($parent->create(), $child->create())->create());
 
         static::assertCount(1, $violations);
         static::assertStringContainsString('Foreign key "fk_child_parent_id" on table "child" references parent(id)', $violations[0]);
@@ -238,28 +241,28 @@ class DefinitionValidatorTest extends TestCase
     {
         $parent = $this->createTable('parent', ['id', 'name'], ['id']);
         $child = $this->createTable('child', ['id', 'parent_id']);
-        $child->addForeignKeyConstraint('parent', ['parent_id'], ['id'], [], 'fk_child_parent_id');
+        $child->addForeignKeyConstraint($this->createForeignKey('parent', ['parent_id'], ['id'], 'fk_child_parent_id'));
 
-        static::assertSame([], $this->getForeignKeyViolations(new Schema([$parent, $child])));
+        static::assertSame([], $this->getForeignKeyViolations(Schema::editor()->setTables($parent->create(), $child->create())->create()));
     }
 
     public function testForeignKeyReferencingUniqueIndexReportsNoViolation(): void
     {
         $parent = $this->createTable('parent', ['id', 'code'], ['id']);
-        $parent->addUniqueIndex(['code'], 'uniq_parent_code');
+        $parent->addIndex($this->createUniqueIndex());
         $child = $this->createTable('child', ['id', 'parent_code']);
-        $child->addForeignKeyConstraint('parent', ['parent_code'], ['code'], [], 'fk_child_parent_code');
+        $child->addForeignKeyConstraint($this->createForeignKey('parent', ['parent_code'], ['code'], 'fk_child_parent_code'));
 
-        static::assertSame([], $this->getForeignKeyViolations(new Schema([$parent, $child])));
+        static::assertSame([], $this->getForeignKeyViolations(Schema::editor()->setTables($parent->create(), $child->create())->create()));
     }
 
     public function testForeignKeyReferencingNonKeyColumnReportsViolation(): void
     {
         $parent = $this->createTable('parent', ['id', 'name'], ['id']);
         $child = $this->createTable('child', ['id', 'parent_name']);
-        $child->addForeignKeyConstraint('parent', ['parent_name'], ['name'], [], 'fk_child_parent_name');
+        $child->addForeignKeyConstraint($this->createForeignKey('parent', ['parent_name'], ['name'], 'fk_child_parent_name'));
 
-        $violations = $this->getForeignKeyViolations(new Schema([$parent, $child]));
+        $violations = $this->getForeignKeyViolations(Schema::editor()->setTables($parent->create(), $child->create())->create());
 
         static::assertCount(1, $violations);
         static::assertStringContainsString('references parent(name)', $violations[0]);
@@ -268,20 +271,20 @@ class DefinitionValidatorTest extends TestCase
     public function testSelfReferencingForeignKeyToOwnPrimaryKeyReportsNoViolation(): void
     {
         $table = $this->createTable('tree', ['id', 'parent_id'], ['id']);
-        $table->addForeignKeyConstraint('tree', ['parent_id'], ['id'], [], 'fk_tree_parent_id');
+        $table->addForeignKeyConstraint($this->createForeignKey('tree', ['parent_id'], ['id'], 'fk_tree_parent_id'));
 
-        static::assertSame([], $this->getForeignKeyViolations(new Schema([$table])));
+        static::assertSame([], $this->getForeignKeyViolations(Schema::editor()->addTable($table->create())->create()));
     }
 
     public function testForeignKeyReferencingPrefixUniqueIndexReportsViolation(): void
     {
         $parent = $this->createTable('parent', ['id', 'code'], ['id']);
         // A unique index on a column prefix cannot back a foreign key.
-        $parent->addUniqueIndex(['code'], 'uniq_parent_code', ['lengths' => [191]]);
+        $parent->addIndex($this->createUniqueIndex(191));
         $child = $this->createTable('child', ['id', 'parent_code']);
-        $child->addForeignKeyConstraint('parent', ['parent_code'], ['code'], [], 'fk_child_parent_code');
+        $child->addForeignKeyConstraint($this->createForeignKey('parent', ['parent_code'], ['code'], 'fk_child_parent_code'));
 
-        $violations = $this->getForeignKeyViolations(new Schema([$parent, $child]));
+        $violations = $this->getForeignKeyViolations(Schema::editor()->setTables($parent->create(), $child->create())->create());
 
         static::assertCount(1, $violations);
         static::assertStringContainsString('references parent(code)', $violations[0]);
@@ -291,11 +294,11 @@ class DefinitionValidatorTest extends TestCase
     {
         $parent = $this->createTable('parent', ['id', 'code'], ['id']);
         // A partial (predicate) unique index cannot back a foreign key.
-        $parent->addUniqueIndex(['code'], 'uniq_parent_code', ['where' => 'code IS NOT NULL']);
+        $parent->addIndex($this->createUniqueIndex(predicate: 'code IS NOT NULL'));
         $child = $this->createTable('child', ['id', 'parent_code']);
-        $child->addForeignKeyConstraint('parent', ['parent_code'], ['code'], [], 'fk_child_parent_code');
+        $child->addForeignKeyConstraint($this->createForeignKey('parent', ['parent_code'], ['code'], 'fk_child_parent_code'));
 
-        $violations = $this->getForeignKeyViolations(new Schema([$parent, $child]));
+        $violations = $this->getForeignKeyViolations(Schema::editor()->setTables($parent->create(), $child->create())->create());
 
         static::assertCount(1, $violations);
         static::assertStringContainsString('references parent(code)', $violations[0]);
@@ -304,20 +307,20 @@ class DefinitionValidatorTest extends TestCase
     public function testForeignKeyReferencingTableOutsideSchemaReportsNoViolation(): void
     {
         $child = $this->createTable('child', ['id', 'parent_id'], ['id']);
-        $child->addForeignKeyConstraint('parent', ['parent_id'], ['id'], [], 'fk_child_parent_id');
+        $child->addForeignKeyConstraint($this->createForeignKey('parent', ['parent_id'], ['id'], 'fk_child_parent_id'));
 
-        static::assertSame([], $this->getForeignKeyViolations(new Schema([$child])));
+        static::assertSame([], $this->getForeignKeyViolations(Schema::editor()->addTable($child->create())->create()));
     }
 
     public function testToleratedForeignKeyReportsNoViolation(): void
     {
         $parent = $this->createTable('parent', ['id', 'version_id', 'name'], ['id', 'version_id']);
         $child = $this->createTable('child', ['id', 'parent_id']);
-        $child->addForeignKeyConstraint('parent', ['parent_id'], ['id'], [], 'fk_child_parent_id');
+        $child->addForeignKeyConstraint($this->createForeignKey('parent', ['parent_id'], ['id'], 'fk_child_parent_id'));
 
         static::assertSame(
             [],
-            $this->getForeignKeyViolations(new Schema([$parent, $child]), ['fk_child_parent_id'])
+            $this->getForeignKeyViolations(Schema::editor()->setTables($parent->create(), $child->create())->create(), ['fk_child_parent_id'])
         );
     }
 
@@ -329,6 +332,7 @@ class DefinitionValidatorTest extends TestCase
     {
         [$entityName, $fieldName] = explode('.', $key);
         static::assertNotEmpty($entityName);
+        static::assertNotEmpty($fieldName);
 
         Feature::fake([], function () use ($entityName, $fieldName): void {
             static::assertSame([], $this->getUnmappedColumnViolations($entityName, $fieldName));
@@ -371,10 +375,10 @@ class DefinitionValidatorTest extends TestCase
     {
         $parent = $this->createTable('parent', ['id', 'version_id'], ['id', 'version_id']);
         $child = $this->createTable('child', ['id', 'parent_id']);
-        $child->addForeignKeyConstraint('parent', ['parent_id'], ['id'], [], 'fk_child_parent_id');
+        $child->addForeignKeyConstraint($this->createForeignKey('parent', ['parent_id'], ['id'], 'fk_child_parent_id'));
 
         $schemaManager = static::createStub(AbstractSchemaManager::class);
-        $schemaManager->method('introspectSchema')->willReturn(new Schema([$parent, $child]));
+        $schemaManager->method('introspectSchema')->willReturn(Schema::editor()->setTables($parent->create(), $child->create())->create());
 
         $connection = static::createStub(Connection::class);
         $connection->method('createSchemaManager')->willReturn($schemaManager);
@@ -613,8 +617,7 @@ class DefinitionValidatorTest extends TestCase
         $definition = new DefinitionWithInheritedAssociationsStub();
         $validator = $this->createValidatorWithColumns(
             $definition,
-            ['id', 'foo', 'parent_id', 'optional_id', 'children', 'parent', 'optional', 'created_at', 'updated_at'],
-            ['id']
+            ['id', 'foo', 'parent_id', 'optional_id', 'children', 'parent', 'optional', 'created_at', 'updated_at']
         );
 
         static::assertSame([], $this->filterInheritanceViolations($validator, $definition));
@@ -625,8 +628,7 @@ class DefinitionValidatorTest extends TestCase
         $definition = new DefinitionWithInheritedAssociationsStub();
         $validator = $this->createValidatorWithColumns(
             $definition,
-            ['id', 'foo', 'parent_id', 'optional_id', 'created_at', 'updated_at'],
-            ['id']
+            ['id', 'foo', 'parent_id', 'optional_id', 'created_at', 'updated_at']
         );
 
         $inheritanceViolations = $this->filterInheritanceViolations($validator, $definition);
@@ -645,8 +647,7 @@ class DefinitionValidatorTest extends TestCase
         $definition = new DefinitionWithInheritedFlagWithoutInheritanceStub();
         $validator = $this->createValidatorWithColumns(
             $definition,
-            ['id', 'foo', 'parent_id', 'optional_id', 'children', 'parent', 'optional', 'created_at', 'updated_at'],
-            ['id']
+            ['id', 'foo', 'parent_id', 'optional_id', 'children', 'parent', 'optional', 'created_at', 'updated_at']
         );
 
         $inheritanceViolations = $this->filterInheritanceViolations($validator, $definition);
@@ -664,6 +665,7 @@ class DefinitionValidatorTest extends TestCase
      * ignored. The reported violations are therefore the observable behaviour of the ignore lists.
      *
      * @param non-empty-string $entityName
+     * @param non-empty-string $columnName
      *
      * @return list<string>
      */
@@ -692,7 +694,7 @@ class DefinitionValidatorTest extends TestCase
 
         $table = static::createStub(Table::class);
         $table->method('getName')->willReturn($entityName);
-        $table->method('getColumns')->willReturn([new Column($columnName, Type::getType(Types::BINARY))]);
+        $table->method('getColumns')->willReturn([Column::editor()->setUnquotedName($columnName)->setTypeName(Types::BINARY)->create()]);
 
         $schema = static::createStub(Schema::class);
         $schema->method('hasTable')->willReturn(true);
@@ -733,26 +735,14 @@ class DefinitionValidatorTest extends TestCase
     }
 
     /**
-     * @param list<string> $columnNames
-     * @param list<string> $dbPrimaryKeys
+     * @param list<non-empty-string> $columnNames
      */
-    private function createValidatorWithColumns(EntityDefinition $definition, array $columnNames, array $dbPrimaryKeys): DefinitionValidator
+    private function createValidatorWithColumns(EntityDefinition $definition, array $columnNames): DefinitionValidator
     {
-        $pkConstraint = null;
-        if ($dbPrimaryKeys !== []) {
-            $pkColumns = array_map(
-                static function (string $col): UnqualifiedName {
-                    static::assertNotEmpty($col);
-
-                    return new UnqualifiedName(Identifier::unquoted($col));
-                },
-                $dbPrimaryKeys
-            );
-            $pkConstraint = new PrimaryKeyConstraint(null, $pkColumns, false);
-        }
+        $pkConstraint = new PrimaryKeyConstraint(null, [new UnqualifiedName(Identifier::unquoted('id'))], false);
 
         $columns = array_map(
-            static fn (string $name): Column => new Column($name, Type::getType(Types::BINARY)),
+            static fn (string $name): Column => Column::editor()->setUnquotedName($name)->setTypeName(Types::BINARY)->create(),
             $columnNames
         );
 
@@ -807,14 +797,14 @@ class DefinitionValidatorTest extends TestCase
                 },
                 $dbPrimaryKeys
             );
-            $pkConstraint = new PrimaryKeyConstraint(null, $pkColumns, false);
+            $pkConstraint = PrimaryKeyConstraint::editor()->setColumnNames(...$pkColumns)->setIsClustered(false)->create();
         }
 
         $columns = [
-            new Column('id', Type::getType(Types::BINARY)),
-            new Column('foo', Type::getType(Types::INTEGER)),
-            new Column('created_at', Type::getType(Types::DATETIME_MUTABLE)),
-            new Column('updated_at', Type::getType(Types::DATETIME_MUTABLE)),
+            Column::editor()->setUnquotedName('id')->setTypeName(Types::BINARY)->create(),
+            Column::editor()->setUnquotedName('foo')->setTypeName(Types::INTEGER)->create(),
+            Column::editor()->setUnquotedName('created_at')->setTypeName(Types::DATETIME_MUTABLE)->create(),
+            Column::editor()->setUnquotedName('updated_at')->setTypeName(Types::DATETIME_MUTABLE)->create(),
         ];
 
         $table = static::createStub(Table::class);
@@ -967,31 +957,61 @@ class DefinitionValidatorTest extends TestCase
     }
 
     /**
-     * @param list<string> $columnNames
-     * @param list<string> $primaryKeyColumns
+     * @param non-empty-string $name
+     * @param non-empty-list<non-empty-string> $columnNames
+     * @param list<non-empty-string> $primaryKeyColumns
      */
-    private function createTable(string $name, array $columnNames, array $primaryKeyColumns = []): Table
+    private function createTable(string $name, array $columnNames, array $primaryKeyColumns = []): TableEditor
     {
         $columns = array_map(
-            static fn (string $columnName): Column => new Column($columnName, Type::getType(Types::BINARY)),
+            static fn (string $columnName): Column => Column::editor()->setUnquotedName($columnName)->setTypeName(Types::BINARY)->create(),
             $columnNames
         );
 
-        $table = new Table($name, $columns);
+        $table = Table::editor()->setUnquotedName($name)->setColumns(...$columns);
 
         if ($primaryKeyColumns !== []) {
             $pkColumns = array_map(
-                static function (string $columnName): UnqualifiedName {
-                    static::assertNotEmpty($columnName);
-
-                    return new UnqualifiedName(Identifier::unquoted($columnName));
-                },
+                static fn (string $columnName): UnqualifiedName => new UnqualifiedName(Identifier::unquoted($columnName)),
                 $primaryKeyColumns
             );
-            $table->addPrimaryKeyConstraint(new PrimaryKeyConstraint(null, $pkColumns, false));
+            $table->addPrimaryKeyConstraint(PrimaryKeyConstraint::editor()
+                ->setColumnNames(...$pkColumns)
+                ->setIsClustered(false)
+                ->create());
         }
 
         return $table;
+    }
+
+    /**
+     * @param non-empty-string $foreignTable
+     * @param non-empty-list<non-empty-string> $localColumns
+     * @param non-empty-list<non-empty-string> $foreignColumns
+     * @param non-empty-string $name
+     */
+    private function createForeignKey(string $foreignTable, array $localColumns, array $foreignColumns, string $name): ForeignKeyConstraint
+    {
+        return ForeignKeyConstraint::editor()
+            ->setUnquotedName($name)
+            ->setUnquotedReferencingColumnNames(...$localColumns)
+            ->setUnquotedReferencedTableName($foreignTable)
+            ->setUnquotedReferencedColumnNames(...$foreignColumns)
+            ->create();
+    }
+
+    /**
+     * @param ?positive-int $length
+     * @param ?non-empty-string $predicate
+     */
+    private function createUniqueIndex(?int $length = null, ?string $predicate = null): Index
+    {
+        return Index::editor()
+            ->setType(IndexType::UNIQUE)
+            ->setUnquotedName('uniq_parent_code')
+            ->addUnquotedColumnName('code', $length)
+            ->setPredicate($predicate)
+            ->create();
     }
 
     /**

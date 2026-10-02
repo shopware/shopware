@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Table;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
 use Shopware\Core\Framework\Log\Package;
@@ -46,13 +47,17 @@ class MigrationQueryGenerator
         $originalTableSchema = $schemaManager->introspectTableByUnquotedName($definition->getEntityName());
 
         // Indexes are not supported, so we remove them from both tables
-        $this->dropIndexes($originalTableSchema);
+        $originalTableSchema = $this->dropIndexes($originalTableSchema);
 
         $tableSchema = $this->schemaBuilder->buildSchemaOfDefinition($definition);
 
-        $this->dropIndexes($tableSchema);
+        $tableSchema = $this->dropIndexes($tableSchema);
 
-        return $this->getPlatform()->getAlterTableSQL($schemaManager->createComparator()->compareTables($originalTableSchema, $tableSchema));
+        $comparatorConfig = (new ComparatorConfig())->withReportModifiedIndexes(false);
+
+        return $this->getPlatform()->getAlterTableSQL(
+            $schemaManager->createComparator($comparatorConfig)->compareTables($originalTableSchema, $tableSchema)
+        );
     }
 
     /**
@@ -62,7 +67,7 @@ class MigrationQueryGenerator
     {
         $tableSchema = $this->schemaBuilder->buildSchemaOfDefinition($definition);
 
-        $this->dropIndexes($tableSchema);
+        $tableSchema = $this->dropIndexes($tableSchema);
 
         return $this->getPlatform()->getCreateTableSQL($tableSchema);
     }
@@ -72,15 +77,18 @@ class MigrationQueryGenerator
         return $this->connection->getDatabasePlatform();
     }
 
-    private function dropIndexes(Table $table): void
+    private function dropIndexes(Table $table): Table
     {
+        $tableEditor = $table->edit();
         foreach ($table->getIndexes() as $index) {
             /** @phpstan-ignore method.deprecated (if can be removed with DBAL 5.0 as primaries won't be inlcuded anymore) */
             if ($index->isPrimary()) {
                 continue;
             }
 
-            $table->dropIndex($index->getObjectName()->toString());
+            $tableEditor->dropIndex($index->getObjectName());
         }
+
+        return $tableEditor->create();
     }
 }

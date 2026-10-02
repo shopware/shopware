@@ -34,7 +34,7 @@
     "require": {
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
         "cocur/slugify": "^4.7.0",
-        "doctrine/dbal": "~4.4.0",
+        "doctrine/dbal": "~4.5.0",
         "guzzlehttp/guzzle": "^7.5.0",
         "guzzlehttp/psr7": "^2.4",
         "league/flysystem": "^3.13.0",

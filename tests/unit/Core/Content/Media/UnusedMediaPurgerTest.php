@@ -31,6 +31,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -64,9 +65,7 @@ class UnusedMediaPurgerTest extends TestCase
             MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
-                    $filters = $criteria->getFilters();
-
-                    self::assertCount(0, $filters);
+                    self::assertCount(0, $criteria->getFilters());
 
                     return [$id1, $id2];
                 },
@@ -108,9 +107,8 @@ class UnusedMediaPurgerTest extends TestCase
             MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
-                    $filters = $criteria->getFilters();
+                    self::assertCount(0, $criteria->getFilters());
 
-                    self::assertCount(0, $filters);
                     self::assertSame(50, $criteria->getLimit());
 
                     return [$id1, $id2];
@@ -121,9 +119,8 @@ class UnusedMediaPurgerTest extends TestCase
                     return new MediaCollection([$media1, $media2]);
                 },
                 static function (Criteria $criteria, Context $context) use ($id3, $id4) {
-                    $filters = $criteria->getFilters();
+                    self::assertCount(0, $criteria->getFilters());
 
-                    self::assertCount(0, $filters);
                     self::assertSame(50, $criteria->getLimit());
 
                     return [$id3, $id4];
@@ -166,9 +163,7 @@ class UnusedMediaPurgerTest extends TestCase
             MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2, $id3, $id4) {
-                    $filters = $criteria->getFilters();
-
-                    self::assertCount(0, $filters);
+                    self::assertCount(0, $criteria->getFilters());
 
                     return [$id1, $id2, $id3, $id4];
                 },
@@ -207,6 +202,13 @@ class UnusedMediaPurgerTest extends TestCase
             MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertCount(0, $criteria->getFilters());
+
+                    return [$id1, $id2];
+                },
+                static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertSame([$id1, $id2], $criteria->getIds());
+
                     $filters = $criteria->getFilters();
 
                     self::assertCount(1, $filters);
@@ -252,6 +254,13 @@ class UnusedMediaPurgerTest extends TestCase
             MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertCount(0, $criteria->getFilters());
+
+                    return [$id1, $id2];
+                },
+                static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertSame([$id1, $id2], $criteria->getIds());
+
                     $filters = $criteria->getFilters();
 
                     self::assertCount(1, $filters);
@@ -304,6 +313,13 @@ class UnusedMediaPurgerTest extends TestCase
             MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertCount(0, $criteria->getFilters());
+
+                    return [$id1, $id2];
+                },
+                static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertSame([$id1, $id2], $criteria->getIds());
+
                     $filters = $criteria->getFilters();
 
                     self::assertCount(1, $filters);
@@ -349,9 +365,7 @@ class UnusedMediaPurgerTest extends TestCase
             MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
-                    $filters = $criteria->getFilters();
-
-                    self::assertCount(0, $filters);
+                    self::assertCount(0, $criteria->getFilters());
 
                     return [$id1, $id2];
                 },
@@ -392,7 +406,7 @@ class UnusedMediaPurgerTest extends TestCase
                     self::assertCount(1, $filters);
 
                     self::assertInstanceOf(EqualsAnyFilter::class, $filters[0]);
-                    self::assertSame('media.mediaFolder.id', $filters[0]->getField());
+                    self::assertSame('media.mediaFolderId', $filters[0]->getField());
                     self::assertSame(['id1', 'id2', 'id3', 'id4'], $filters[0]->getValue());
 
                     return [$id1, $id2];
@@ -429,6 +443,166 @@ class UnusedMediaPurgerTest extends TestCase
         static::assertSame([$media1, $media2], $media);
     }
 
+    public function testGetNotUsedMediaChecksEachAssociationInItsOwnQuery(): void
+    {
+        $this->configureRegistry([
+            'Media' => $mediaDefinition = $this->getMediaDefinition([
+                (new FkField('meta_id', 'metaId', 'Meta'))->addFlags(new Required()),
+                new OneToOneAssociationField('meta', 'meta_id', 'id', 'Meta', false),
+                new OneToManyAssociationField('productMedia', 'ProductMedia', 'media_id', 'id'),
+            ]),
+            'Meta' => $this->getMetaDefinition(),
+            'ProductMedia' => $this->getProductMediaDefinition(),
+        ]);
+
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+
+        $media1 = $this->createMedia($id1);
+
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
+            [
+                static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertCount(0, $criteria->getFilters());
+
+                    return [$id1, $id2];
+                },
+                static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    // one association per query: a single criteria carrying every association join is what
+                    // exceeds MySQL's max_join_size, however few ids drive it
+                    self::assertSame([$id1, $id2], $criteria->getIds());
+
+                    $filters = $criteria->getFilters();
+
+                    self::assertCount(1, $filters);
+                    self::assertInstanceOf(EqualsFilter::class, $filters[0]);
+                    self::assertSame('media.meta.id', $filters[0]->getField());
+                    self::assertNull($filters[0]->getValue());
+
+                    // $id2 is referenced here, so the next association is never asked about it
+                    return [$id1];
+                },
+                static function (Criteria $criteria, Context $context) use ($id1) {
+                    self::assertSame([$id1], $criteria->getIds());
+
+                    $filters = $criteria->getFilters();
+
+                    self::assertCount(1, $filters);
+                    self::assertInstanceOf(EqualsFilter::class, $filters[0]);
+                    self::assertSame('media.productMedia.mediaId', $filters[0]->getField());
+                    self::assertNull($filters[0]->getValue());
+
+                    return [$id1];
+                },
+                static function (Criteria $criteria, Context $context) use ($id1, $media1) {
+                    static::assertSame([$id1], $criteria->getIds());
+
+                    return new MediaCollection([$media1]);
+                },
+                [],
+            ],
+            $mediaDefinition
+        );
+
+        $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
+        $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia()));
+
+        static::assertSame([$media1], $media);
+    }
+
+    public function testGetNotUsedMediaStopsQueryingOnceEveryCandidateIsReferenced(): void
+    {
+        $this->configureRegistry([
+            'Media' => $mediaDefinition = $this->getMediaDefinition([
+                (new FkField('meta_id', 'metaId', 'Meta'))->addFlags(new Required()),
+                new OneToOneAssociationField('meta', 'meta_id', 'id', 'Meta', false),
+                new OneToManyAssociationField('productMedia', 'ProductMedia', 'media_id', 'id'),
+            ]),
+            'Meta' => $this->getMetaDefinition(),
+            'ProductMedia' => $this->getProductMediaDefinition(),
+        ]);
+
+        $id1 = Uuid::randomHex();
+
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
+            [
+                static fn (Criteria $criteria, Context $context) => [$id1],
+                // the whole batch is referenced, so the remaining associations are not queried at all
+                static fn (Criteria $criteria, Context $context) => [],
+                [],
+            ],
+            $mediaDefinition
+        );
+
+        $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
+        $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia()));
+
+        static::assertSame([], $media);
+    }
+
+    public function testGetNotUsedMediaStillChecksEveryAssociationWhenFolderRestrictionIsPresent(): void
+    {
+        $this->configureRegistry([
+            'Media' => $mediaDefinition = $this->getMediaDefinition([
+                new OneToManyAssociationField('productMedia', 'ProductMedia', 'media_id', 'id'),
+            ]),
+            'ProductMedia' => $this->getProductMediaDefinition(),
+        ]);
+
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+
+        $media1 = $this->createMedia($id1);
+
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
+            [
+                static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    $filters = $criteria->getFilters();
+
+                    // the folder restriction scopes which media is scanned
+                    self::assertCount(1, $filters);
+                    self::assertInstanceOf(EqualsAnyFilter::class, $filters[0]);
+                    self::assertSame('media.mediaFolderId', $filters[0]->getField());
+
+                    return [$id1, $id2];
+                },
+                static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertSame([$id1, $id2], $criteria->getIds());
+
+                    $filters = $criteria->getFilters();
+
+                    // folder membership says where a media file is placed, never whether something
+                    // still references it, so the association is checked even for a folder run
+                    self::assertCount(1, $filters);
+                    self::assertInstanceOf(EqualsFilter::class, $filters[0]);
+                    self::assertSame('media.productMedia.mediaId', $filters[0]->getField());
+                    self::assertNull($filters[0]->getValue());
+
+                    return [$id1];
+                },
+                static function (Criteria $criteria, Context $context) use ($id1, $media1) {
+                    static::assertSame([$id1], $criteria->getIds());
+
+                    return new MediaCollection([$media1]);
+                },
+                [],
+            ],
+            $mediaDefinition
+        );
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn('id1');
+        $connection->method('fetchAllAssociativeIndexed')->willReturn([]);
+
+        $purger = new UnusedMediaPurger($repo, $connection, new EventDispatcher(), new NativeClock());
+        $media = array_merge([], ...iterator_to_array($purger->getNotUsedMedia(null, null, null, 'media_gallery')));
+
+        static::assertSame([$media1], $media);
+    }
+
     public function testGetNotUsedMediaSkipsAssociationIfNoFkeyFound(): void
     {
         $this->configureRegistry([
@@ -448,9 +622,7 @@ class UnusedMediaPurgerTest extends TestCase
             MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
-                    $filters = $criteria->getFilters();
-
-                    self::assertCount(0, $filters);
+                    self::assertCount(0, $criteria->getFilters());
 
                     return [$id1, $id2];
                 },
@@ -488,9 +660,7 @@ class UnusedMediaPurgerTest extends TestCase
             MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
-                    $filters = $criteria->getFilters();
-
-                    self::assertCount(0, $filters);
+                    self::assertCount(0, $criteria->getFilters());
 
                     return [$id1, $id2];
                 },
@@ -530,9 +700,7 @@ class UnusedMediaPurgerTest extends TestCase
             MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
-                    $filters = $criteria->getFilters();
-
-                    self::assertCount(0, $filters);
+                    self::assertCount(0, $criteria->getFilters());
 
                     return [$id1, $id2];
                 },
@@ -567,9 +735,7 @@ class UnusedMediaPurgerTest extends TestCase
             MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
-                    $filters = $criteria->getFilters();
-
-                    self::assertCount(0, $filters);
+                    self::assertCount(0, $criteria->getFilters());
 
                     return [$id1, $id2];
                 },
@@ -607,9 +773,7 @@ class UnusedMediaPurgerTest extends TestCase
             MediaCollection::class,
             [
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
-                    $filters = $criteria->getFilters();
-
-                    self::assertCount(0, $filters);
+                    self::assertCount(0, $criteria->getFilters());
 
                     return [$id1, $id2];
                 },
@@ -693,9 +857,8 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
 
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
-                    $filters = $criteria->getFilters();
+                    self::assertCount(0, $criteria->getFilters());
 
-                    self::assertCount(0, $filters);
                     self::assertSame(50, $criteria->getLimit());
 
                     return [$id1, $id2];
@@ -703,7 +866,11 @@ class UnusedMediaPurgerTest extends TestCase
                 static function (Criteria $criteria, Context $context) use ($id3, $id4) {
                     $filters = $criteria->getFilters();
 
+                    // the cursor moves the candidate query forward, the reference check stays unfiltered
                     self::assertCount(1, $filters);
+                    self::assertInstanceOf(RangeFilter::class, $filters[0]);
+                    self::assertSame('id', $filters[0]->getField());
+
                     self::assertSame(50, $criteria->getLimit());
 
                     return [$id3, $id4];
@@ -731,6 +898,70 @@ class UnusedMediaPurgerTest extends TestCase
         );
     }
 
+    public function testDeleteNotUsedMediaAdvancesTheCursorOverCandidatesNotOverTheUnusedSubset(): void
+    {
+        $this->configureRegistry([
+            'Media' => $mediaDefinition = $this->getMediaDefinition([
+                new OneToManyAssociationField('productMedia', 'ProductMedia', 'media_id', 'id'),
+            ]),
+            'ProductMedia' => $this->getProductMediaDefinition(),
+        ]);
+
+        $id1 = Uuid::randomHex();
+        $id2 = Uuid::randomHex();
+        $id3 = Uuid::randomHex();
+        $id4 = Uuid::randomHex();
+
+        $repo = StaticEntityRepository::of(
+            MediaCollection::class,
+            [
+                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
+                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 4, new MediaCollection(), null, $criteria, $context), // purgable media count query
+
+                static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertCount(0, $criteria->getFilters());
+
+                    return [$id1, $id2];
+                },
+                static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertSame([$id1, $id2], $criteria->getIds());
+
+                    // every candidate in this batch is referenced, so the batch yields nothing to delete
+                    return [];
+                },
+                static function (Criteria $criteria, Context $context) use ($id2, $id3, $id4) {
+                    $filters = $criteria->getFilters();
+
+                    self::assertCount(1, $filters);
+                    self::assertInstanceOf(RangeFilter::class, $filters[0]);
+                    self::assertSame('id', $filters[0]->getField());
+
+                    // the cursor has to carry the last *candidate* of the previous batch. Advancing it over
+                    // the unused subset instead would read `end([])`, which is false, and end the iteration
+                    // here with $id3 and $id4 never scanned
+                    self::assertSame(
+                        Uuid::fromHexToBytes($id2),
+                        $filters[0]->getParameter(RangeFilter::GT)
+                    );
+
+                    return [$id3, $id4];
+                },
+                static function (Criteria $criteria, Context $context) use ($id3, $id4) {
+                    self::assertSame([$id3, $id4], $criteria->getIds());
+
+                    return [$id3];
+                },
+                [],
+            ],
+            $mediaDefinition
+        );
+
+        $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
+        $purger->deleteNotUsedMedia();
+
+        static::assertSame([[['id' => $id3]]], $repo->deletes);
+    }
+
     public function testDeleteNotUsedMediaOnlyDeletesSingleResultSetIfLimitAndOffsetSupplied(): void
     {
         $this->configureRegistry([
@@ -749,9 +980,7 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
 
                 static function (Criteria $criteria, Context $context) use ($id1, $id2, $id3, $id4) {
-                    $filters = $criteria->getFilters();
-
-                    self::assertCount(0, $filters);
+                    self::assertCount(0, $criteria->getFilters());
 
                     return [$id1, $id2, $id3, $id4];
                 },
@@ -797,6 +1026,13 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertCount(0, $criteria->getFilters());
+
+                    return [$id1, $id2];
+                },
+                static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertSame([$id1, $id2], $criteria->getIds());
+
                     $filters = $criteria->getFilters();
 
                     self::assertCount(1, $filters);
@@ -846,6 +1082,13 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertCount(0, $criteria->getFilters());
+
+                    return [$id1, $id2];
+                },
+                static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertSame([$id1, $id2], $criteria->getIds());
+
                     $filters = $criteria->getFilters();
 
                     self::assertCount(1, $filters);
@@ -902,6 +1145,13 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertCount(0, $criteria->getFilters());
+
+                    return [$id1, $id2];
+                },
+                static function (Criteria $criteria, Context $context) use ($id1, $id2) {
+                    self::assertSame([$id1, $id2], $criteria->getIds());
+
                     $filters = $criteria->getFilters();
 
                     self::assertCount(1, $filters);
@@ -951,9 +1201,7 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
-                    $filters = $criteria->getFilters();
-
-                    self::assertCount(0, $filters);
+                    self::assertCount(0, $criteria->getFilters());
 
                     return [$id1, $id2];
                 },
@@ -1024,7 +1272,7 @@ class UnusedMediaPurgerTest extends TestCase
                     self::assertCount(1, $filters);
 
                     self::assertInstanceOf(EqualsAnyFilter::class, $filters[0]);
-                    self::assertSame('media.mediaFolder.id', $filters[0]->getField());
+                    self::assertSame('media.mediaFolderId', $filters[0]->getField());
                     self::assertSame(['id1', 'id2', 'id3', 'id4'], $filters[0]->getValue());
 
                     return [$id1, $id2];
@@ -1084,9 +1332,7 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
-                    $filters = $criteria->getFilters();
-
-                    self::assertCount(0, $filters);
+                    self::assertCount(0, $criteria->getFilters());
 
                     return [$id1, $id2];
                 },
@@ -1128,9 +1374,7 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
-                    $filters = $criteria->getFilters();
-
-                    self::assertCount(0, $filters);
+                    self::assertCount(0, $criteria->getFilters());
 
                     return [$id1, $id2];
                 },
@@ -1170,9 +1414,7 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
-                    $filters = $criteria->getFilters();
-
-                    self::assertCount(0, $filters);
+                    self::assertCount(0, $criteria->getFilters());
 
                     return [$id1, $id2];
                 },
@@ -1216,9 +1458,7 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
-                    $filters = $criteria->getFilters();
-
-                    self::assertCount(0, $filters);
+                    self::assertCount(0, $criteria->getFilters());
 
                     return [$id1, $id2];
                 },
@@ -1260,6 +1500,7 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
                 static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
                 [$id1, $id2],
+                // the grace period query, the only one left now that the fixture has no association
                 static function (Criteria $criteria) use ($id1, $id2) {
                     static::assertSame([$id1, $id2], $criteria->getIds());
 

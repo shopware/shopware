@@ -62,7 +62,7 @@ class UnusedMediaPurger
 
         $context = Context::createDefaultContext();
 
-        $criteria = $this->createFilterForNotUsedMedia($folderEntity);
+        $criteria = $this->createCandidateCriteria($folderEntity);
         $criteria->addSorting(new FieldSorting('media.createdAt', FieldSorting::ASCENDING));
         $criteria->setLimit($limit);
 
@@ -71,6 +71,7 @@ class UnusedMediaPurger
             $criteria->setOffset($offset);
 
             $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
+            $ids = $this->filterOutUsedMedia($ids, $context);
             $ids = $this->filterOutNewMedia($ids, $gracePeriodDays, $context);
             $ids = $this->dispatchEvent($ids, $context);
 
@@ -81,6 +82,7 @@ class UnusedMediaPurger
         $iterator = new RepositoryIterator($this->mediaRepo, $context, $criteria);
         while (($ids = $iterator->fetchIds()) !== null) {
             /** @phpstan-ignore argument.type (we can't narrow down argument type to list<string> in while loop) */
+            $ids = $this->filterOutUsedMedia($ids, $context);
             $ids = $this->filterOutNewMedia($ids, $gracePeriodDays, $context);
             $unusedIds = $this->dispatchEvent($ids, $context);
 
@@ -104,7 +106,10 @@ class UnusedMediaPurger
         $context = Context::createDefaultContext();
 
         $totalMedia = $this->getTotal(new Criteria(), $context);
-        $totalCandidates = $this->getTotal($this->createFilterForNotUsedMedia($folderEntity), $context);
+        // counts the media that will be scanned, not the media that turns out to be unused: an exact
+        // count cannot be bound to a single batch of ids, and counting across every media association
+        // is the query that exceeds MySQL's MAX_JOIN_SIZE on large datasets
+        $totalCandidates = $this->getTotal($this->createCandidateCriteria($folderEntity), $context);
 
         $this->eventDispatcher->dispatch(new UnusedMediaSearchStartEvent($totalMedia, $totalCandidates));
 
@@ -174,7 +179,7 @@ class UnusedMediaPurger
      */
     private function getUnusedMediaIds(Context $context, int $limit, ?int $offset = null, ?string $folderEntity = null): \Generator
     {
-        $criteria = $this->createFilterForNotUsedMedia($folderEntity);
+        $criteria = $this->createCandidateCriteria($folderEntity);
         $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));
         $criteria->setLimit($limit);
 
@@ -184,7 +189,7 @@ class UnusedMediaPurger
 
             $ids = $this->mediaRepo->searchIds($criteria, $context)->getIds();
 
-            return yield $this->dispatchEvent($ids, $context);
+            return yield $this->dispatchEvent($this->filterOutUsedMedia($ids, $context), $context);
         }
 
         // Use last ID instead of offset for cursor-based pagination, which allows deletion of records between batches
@@ -200,8 +205,10 @@ class UnusedMediaPurger
                 break;
             }
 
+            // the cursor advances over the candidates, not over the unused subset, otherwise a batch
+            // without any unused media would restart the iteration from the same id
             $lastId = end($ids);
-            $unusedIds = $this->dispatchEvent($ids, $context);
+            $unusedIds = $this->dispatchEvent($this->filterOutUsedMedia($ids, $context), $context);
 
             yield $unusedIds;
         }
@@ -238,10 +245,87 @@ class UnusedMediaPurger
         return $this->isInsideTopLevelDomain($domain, $definition->getParentDefinition());
     }
 
-    private function createFilterForNotUsedMedia(?string $folderEntity = null): Criteria
+    /**
+     * Restricts the media that is scanned, without touching any media association: the candidate query
+     * has to stay cheap, because the reference check below is what makes the query expensive.
+     */
+    private function createCandidateCriteria(?string $folderEntity = null): Criteria
     {
         $criteria = new Criteria();
 
+        if ($folderEntity === null) {
+            return $criteria;
+        }
+
+        $rootMediaFolderId = $this->connection->fetchOne(
+            <<<'SQL'
+            SELECT HEX(media_folder.id) FROM media_default_folder
+            INNER JOIN media_folder ON (media_default_folder.id = media_folder.default_folder_id)
+            WHERE entity = :entity
+            SQL,
+            ['entity' => $folderEntity]
+        );
+
+        if (!$rootMediaFolderId) {
+            throw MediaException::defaultMediaFolderWithEntityNotFound($folderEntity);
+        }
+
+        /** @var array<string, array{id: string, parent_id: string}> $folders */
+        $folders = $this->connection->fetchAllAssociativeIndexed(
+            'SELECT HEX(id), HEX(id) as id, HEX(parent_id) as parent_id, name FROM media_folder WHERE id != :id',
+            ['id' => $rootMediaFolderId],
+        );
+
+        $ids = [$rootMediaFolderId, ...$this->getChildFolderIds($rootMediaFolderId, $folders)];
+
+        // filters on the foreign key that media already carries, traversing the association instead
+        // would join media_folder onto every candidate row for no gain
+        $criteria->addFilter(new EqualsAnyFilter('media.mediaFolderId', $ids));
+
+        return $criteria;
+    }
+
+    /**
+     * Keeps the media that nothing references. Every media association is checked, folder membership says
+     * where a media file is placed and never whether something still points at it.
+     *
+     * Each association is checked by its own query rather than as one criteria carrying every join.
+     * `max_join_size` is enforced against the optimizer's estimate for the whole plan, which is the product
+     * of the per-table estimates, so pinning the driving set to one batch of ids caps the first factor only:
+     * a single query joining all ~25 media associations exceeds the limit however few ids drive it. One
+     * association per query keeps every plan to two or three tables, resolved by the foreign key index.
+     *
+     * @param list<string> $mediaIds
+     *
+     * @return list<string>
+     */
+    private function filterOutUsedMedia(array $mediaIds, Context $context): array
+    {
+        foreach ($this->getUsageFilters() as $filter) {
+            // every association narrows the input of the next one, and media referenced anywhere is out
+            // for good, so there is nothing left to ask about once the batch is empty
+            if ($mediaIds === []) {
+                break;
+            }
+
+            $criteria = new Criteria($mediaIds);
+            $criteria->addFilter($filter);
+
+            $mediaIds = $this->mediaRepo->searchIds($criteria, $context)->getIds();
+        }
+
+        return $mediaIds;
+    }
+
+    /**
+     * One filter per association that can reference media, in definition order. Staying definition-driven
+     * is what keeps associations added through an `EntityExtension` covered and keeps
+     * `IgnoreInUnusedMediaSearch` the single explicit way to exclude one.
+     *
+     * @return \Generator<EqualsFilter>
+     */
+    private function getUsageFilters(): \Generator
+    {
         foreach ($this->mediaRepo->getDefinition()->getFields() as $field) {
             if (!$field instanceof AssociationField) {
                 continue;
@@ -271,40 +355,8 @@ class UnusedMediaPurger
                 continue;
             }
 
-            $criteria->addFilter(
-                new EqualsFilter(\sprintf('media.%s.%s', $field->getPropertyName(), $fkey->getPropertyName()), null)
-            );
+            yield new EqualsFilter(\sprintf('media.%s.%s', $field->getPropertyName(), $fkey->getPropertyName()), null);
         }
-
-        if ($folderEntity) {
-            $rootMediaFolderId = $this->connection->fetchOne(
-                <<<'SQL'
-                SELECT HEX(media_folder.id) FROM media_default_folder
-                INNER JOIN media_folder ON (media_default_folder.id = media_folder.default_folder_id)
-                WHERE entity = :entity
-                SQL,
-                ['entity' => $folderEntity]
-            )
-            ;
-
-            if (!$rootMediaFolderId) {
-                throw MediaException::defaultMediaFolderWithEntityNotFound($folderEntity);
-            }
-
-            /** @var array<string, array{id: string, parent_id: string}> $folders */
-            $folders = $this->connection->fetchAllAssociativeIndexed(
-                'SELECT HEX(id), HEX(id) as id, HEX(parent_id) as parent_id, name FROM media_folder WHERE id != :id',
-                ['id' => $rootMediaFolderId],
-            );
-
-            $ids = [$rootMediaFolderId, ...$this->getChildFolderIds($rootMediaFolderId, $folders)];
-
-            $criteria->addFilter(
-                new EqualsAnyFilter('media.mediaFolder.id', $ids)
-            );
-        }
-
-        return $criteria;
     }
 
     /**

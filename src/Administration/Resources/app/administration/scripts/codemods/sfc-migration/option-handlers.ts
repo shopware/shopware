@@ -82,6 +82,8 @@ type Collected = {
     methods: CollectedMember[];
     watchEntries: { key: string; prop: t.ObjectProperty | t.ObjectMethod }[];
     hooks: { hook: string; fn: FnLike }[];
+    /** `provide()` entries, as the key and the value node each `provide()` call gets. */
+    provided: { key: string; valueNode: t.Node }[];
     rewriteFns: FnLike[];
     foreignNodes: t.Node[];
     createdFn: FnLike | null;
@@ -129,6 +131,7 @@ function createCollected(): Collected {
         methods: [],
         watchEntries: [],
         hooks: [],
+        provided: [],
         rewriteFns: [],
         foreignNodes: [],
         createdFn: null,
@@ -324,6 +327,32 @@ const OPTION_HANDLERS: Record<string, OptionHandler> = sourceKeyed<OptionHandler
             }
         } else {
             report(ctx, 'todo', 'unsupported inject declaration (only the array form is migrated)', prop);
+        }
+    },
+
+    /**
+     * The Options API called `provide()` once with the instance and used its returned object as one
+     * flat set of keys, which is exactly a run of `provide(key, value)` calls. Value expressions go
+     * through the same `this` rewrite as any other option, so a data read still resolves to the
+     * snapshot the injector used to get rather than to the ref behind it.
+     */
+    provide: (prop, ctx, collected) => {
+        const returned = dataObject(prop);
+
+        if (!returned) {
+            report(ctx, 'todo', 'provide() does not directly return an object literal', prop);
+            return;
+        }
+
+        for (const entry of returned.properties) {
+            const entryKey = entry.type === 'SpreadElement' ? null : keyName(entry);
+
+            if (entry.type !== 'ObjectProperty' || !entryKey) {
+                report(ctx, 'todo', 'unsupported provide() entry', entry);
+                continue;
+            }
+
+            collected.provided.push({ key: entryKey, valueNode: entry.value });
         }
     },
 

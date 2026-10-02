@@ -83,7 +83,7 @@ class LineItemDimensionHeightRuleTest extends TestCase
 
         $lineItem = $this->createLineItemWithHeight($lineItemHeight);
         if ($lineItemWithoutDeliveryInfo) {
-            $lineItem = CartRuleFixture::createLineItem();
+            $lineItem = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $match = $this->rule->match(new LineItemScope(
@@ -148,12 +148,12 @@ class LineItemDimensionHeightRuleTest extends TestCase
 
         $lineItem1 = $this->createLineItemWithHeight($lineItemHeight1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = CartRuleFixture::createLineItem();
+            $lineItem1 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItem2 = $this->createLineItemWithHeight($lineItemHeight2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = CartRuleFixture::createLineItem();
+            $lineItem2 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
@@ -188,12 +188,12 @@ class LineItemDimensionHeightRuleTest extends TestCase
 
         $lineItem1 = $this->createLineItemWithHeight($lineItemHeight1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = CartRuleFixture::createLineItem();
+            $lineItem1 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItem2 = $this->createLineItemWithHeight($lineItemHeight2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = CartRuleFixture::createLineItem();
+            $lineItem2 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([

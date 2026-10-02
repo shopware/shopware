@@ -58,11 +58,11 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ### Filtered listings show the main variant only if it matches the active filters
 
-Filtered product listings show a variant product's main variant only if it matches all active filters, such as property, price or manufacturer filters. Otherwise, a matching variant is shown. Products configured to display their parent always show the parent.
+Filtered product listings show a variant product's main variant only if it matches all active filters, such as property, price or manufacturer filters. Otherwise, a matching variant is shown. The same applies to the conditions of a dynamic product group in category listings and cross-sellings. Products configured to display their parent always show the parent.
 
 `core.listing.findBestVariant` now only affects search results. With it enabled, filtered listings show a matching main variant or the parent instead of another matching variant.
 
-Extensions that replace the preview resolution via `LoadPreviewExtension` can read the active post filters from the new `postFilters` property to apply the same rule.
+Extensions that replace the preview resolution via `LoadPreviewExtension` can read the active post filters and the listing's filters from the new `postFilters` and `filters` properties to apply the same rule.
 
 ### Feature flags can remove legacy service definitions
 

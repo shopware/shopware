@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -197,9 +198,14 @@ class ProductListingRouteTest extends TestCase
         static::assertContains($response['elements'][0]['id'], [$this->variantIds['redL'], $this->variantIds['redXl']]);
     }
 
-    public function testLoadProductsUsingDynamicGroupWithProductStreamAndMainVariant(): void
+    /**
+     * @param list<string> $expectedVariantKeys
+     */
+    #[DataProvider('dynamicGroupMainVariantProvider')]
+    public function testLoadProductsUsingDynamicGroupWithProductStreamAndMainVariant(string $mainVariant, array $expectedVariantKeys): void
     {
-        $this->createData('product_stream', $this->ids->create('productStream'), 'greenL');
+        // the dynamic product group only contains the red variants
+        $this->createData('product_stream', $this->ids->create('productStream'), $mainVariant);
 
         $this->browser->request(
             'POST',
@@ -212,7 +218,64 @@ class ProductListingRouteTest extends TestCase
         static::assertSame('product_listing', $response['apiAlias']);
         static::assertCount(1, $response['elements']);
         static::assertSame('product', $response['elements'][0]['apiAlias']);
-        static::assertSame($this->variantIds['greenL'], $response['elements'][0]['id']);
+
+        $expectedVariants = array_map(fn (string $key) => $this->variantIds[$key], $expectedVariantKeys);
+        static::assertContains($response['elements'][0]['id'], $expectedVariants);
+    }
+
+    public static function dynamicGroupMainVariantProvider(): \Generator
+    {
+        yield 'main variant is part of the dynamic product group' => ['redL', ['redL']];
+        yield 'main variant is not part of the dynamic product group' => ['greenL', ['redL', 'redXl']];
+    }
+
+    #[DataProvider('findBestVariantProvider')]
+    public function testLoadProductsUsingDynamicGroupWithPropertyFilterShowsVariantOfTheGroup(bool $findBestVariant): void
+    {
+        // the dynamic product group only contains the red variants, the main variant greenL is not part of it
+        $this->createData('product_stream', $this->ids->create('productStream'), 'greenL');
+        static::getContainer()->get(SystemConfigService::class)->set('core.listing.findBestVariant', $findBestVariant, $this->ids->get('sales-channel'));
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category'),
+            ['properties' => $this->optionIds['l']]
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $response['elements']);
+        static::assertSame($this->variantIds['redL'], $response['elements'][0]['id']);
+    }
+
+    #[DataProvider('findBestVariantProvider')]
+    public function testLoadProductsUsingDynamicGroupWithPropertyFilterShowsParent(bool $findBestVariant): void
+    {
+        $this->createData('product_stream', $this->ids->create('productStream'));
+        $this->productRepository->upsert([
+            [
+                'id' => $this->productId,
+                'variantListingConfig' => ['displayParent' => true],
+            ],
+        ], Context::createDefaultContext());
+        static::getContainer()->get(SystemConfigService::class)->set('core.listing.findBestVariant', $findBestVariant, $this->ids->get('sales-channel'));
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category'),
+            ['properties' => $this->optionIds['l']]
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertCount(1, $response['elements']);
+        static::assertSame($this->productId, $response['elements'][0]['id']);
+    }
+
+    public static function findBestVariantProvider(): \Generator
+    {
+        yield 'findBestVariant off' => [false];
+        yield 'findBestVariant on' => [true];
     }
 
     public function testLoadProductsUsingDynamicGroupUpdatesAfterSeparateFilterSync(): void
@@ -837,7 +900,7 @@ class ProductListingRouteTest extends TestCase
                 [
                     'id' => $this->productId,
                     'variantListingConfig' => [
-                        'mainVariantId' => $this->variantIds['greenL'],
+                        'mainVariantId' => $this->variantIds[$mainVariant],
                     ],
                 ],
             ];

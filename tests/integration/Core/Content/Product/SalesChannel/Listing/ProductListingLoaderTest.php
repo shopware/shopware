@@ -373,24 +373,69 @@ class ProductListingLoaderTest extends TestCase
         static::assertTrue($firstVariant->hasExtension('search'));
     }
 
-    public function testMainVariantAndVariantGroupsWithFilterOnOptions(): void
+    /**
+     * Filters that are not post filters, for example the conditions of a dynamic product group
+     *
+     * @param list<string> $expectedVariantKeys
+     */
+    #[DataProvider('mainVariantFilterProvider')]
+    public function testMainVariantAndVariantGroupsWithFilterOnOptions(string $mainVariantKey, string $filterOptionKey, array $expectedVariantKeys): void
     {
-        // main variant and variant groups be set initially
         $this->createProduct(['color', 'size'], true);
+
+        $this->productRepository->update([
+            [
+                'id' => $this->productId,
+                'variantListingConfig' => [
+                    'displayParent' => null,
+                    'mainVariantId' => $this->variantIds[$mainVariantKey],
+                    'configuratorGroupConfig' => $this->getListingConfiguration(['color', 'size']),
+                ],
+            ],
+        ], $this->salesChannelContext->getContext());
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds[$filterOptionKey]));
+        $listing = $this->fetchListing($criteria);
+
+        static::assertSame(1, $listing->getTotal());
+
+        $firstVariant = $listing->getEntities()->first();
+        static::assertNotNull($firstVariant);
+
+        $expectedVariants = array_map(fn (string $key) => $this->variantIds[$key], $expectedVariantKeys);
+        static::assertContains($firstVariant->getId(), $expectedVariants);
+        static::assertTrue($firstVariant->hasExtension('search'));
+    }
+
+    public static function mainVariantFilterProvider(): \Generator
+    {
+        yield 'main variant does not match the filter' => ['redL', 'green', ['greenL', 'greenXl']];
+        // greenL is created after redL, so the listing query finds redL and only the preview resolution shows greenL
+        yield 'main variant matches the filter' => ['greenL', 'l', ['greenL']];
+    }
+
+    public function testMainProductAndVariantGroupsWithFilterOnOptionsShowsParent(): void
+    {
+        $this->createProduct(['color', 'size'], false);
+
+        $this->productRepository->update([
+            [
+                'id' => $this->productId,
+                'variantListingConfig' => [
+                    'displayParent' => true,
+                    'mainVariantId' => $this->mainVariantId,
+                    'configuratorGroupConfig' => [],
+                ],
+            ],
+        ], $this->salesChannelContext->getContext());
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('product.options.id', $this->optionIds['green']));
         $listing = $this->fetchListing($criteria);
 
-        // only the main variant should be returned
         static::assertSame(1, $listing->getTotal());
-
-        $firstVariant = $listing->getEntities()->first();
-        static::assertNotNull($firstVariant);
-        $variantId = $firstVariant->getId();
-
-        static::assertSame($this->mainVariantId, $variantId);
-        static::assertTrue($firstVariant->hasExtension('search'));
+        static::assertSame($this->productId, $listing->getEntities()->first()?->getId());
     }
 
     public function testDisplayAsGroupFalseReturnsAllMatchingVariantsFromSameDisplayGroup(): void

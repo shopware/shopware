@@ -52,6 +52,7 @@ use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTask;
 use Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler;
 use Shopware\Storefront\Theme\ScssPhpCompiler;
 use Shopware\Storefront\Theme\SeedingThemePathBuilder;
+use Shopware\Storefront\Theme\Snippet\ThemeConfigSnippetGenerator;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 use Shopware\Storefront\Theme\Subscriber\FirstRunWizardSubscriber;
@@ -169,6 +170,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StorefrontPluginRegistry::class),
             service('theme.repository'),
         ]);
+
+    $services->set(ThemeConfigSnippetGenerator::class);
 
     $services->set(ThemeService::class)
         ->args([

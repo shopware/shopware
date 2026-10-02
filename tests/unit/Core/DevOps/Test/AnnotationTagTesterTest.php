@@ -51,6 +51,13 @@ class AnnotationTagTesterTest extends TestCase
         static::assertNull($version);
     }
 
+    public function testGetVersionFromGitTagsDoesNotCaptureVersionsWithTrailingNewline(): void
+    {
+        $version = AnnotationTagTester::getPlatformVersionFromGitTag("v6.4.0.0\n");
+
+        static::assertNull($version);
+    }
+
     public function testGetVersionFromGitTagsDoesNotCaptureVersionsWithSuffix(): void
     {
         $version = AnnotationTagTester::getPlatformVersionFromGitTag('v6.4.0.0-RC');

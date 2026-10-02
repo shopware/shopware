@@ -247,7 +247,7 @@ class AssetService
      */
     private function getTargetDirectory(string $name): string
     {
-        $assetDir = (string) preg_replace('/bundle$/', '', mb_strtolower($name));
+        $assetDir = (string) preg_replace('/bundle$/D', '', mb_strtolower($name));
 
         return Path::join('bundles', $assetDir);
     }

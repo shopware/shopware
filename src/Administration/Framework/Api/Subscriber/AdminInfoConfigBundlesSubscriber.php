@@ -121,7 +121,7 @@ readonly class AdminInfoConfigBundlesSubscriber implements EventSubscriberInterf
                      *
                      * @see Adapter\Asset\AssetService::getTargetDirectory
                      */
-                    'pluginName' => preg_replace('/bundle$/', '', mb_strtolower($bundle->getName())),
+                    'pluginName' => preg_replace('/bundle$/D', '', mb_strtolower($bundle->getName())),
                 ],
                 UrlGeneratorInterface::ABSOLUTE_URL
             );

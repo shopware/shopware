@@ -291,6 +291,13 @@ class CreateAppCommandTest extends TestCase
             'The app name is too short (min 4 characters), contains invalid characters',
         ];
 
+        yield 'name with trailing newline' => [
+            [
+                'name' => "TestApp\n",
+            ],
+            'The app name is too short (min 4 characters), contains invalid characters',
+        ];
+
         yield [
             [
                 'name' => 'my_app',

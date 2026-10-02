@@ -335,7 +335,7 @@ class Kernel extends HttpKernel
             $config = Yaml::parseFile(__DIR__ . '/Framework/Resources/config/packages/feature.yaml');
             $majorVersionFlagNames = [];
             foreach ($config['shopware']['feature']['flags'] as $flag) {
-                if (!$flag['major'] || \preg_match('/^v\d+(?:\.\d+){1,3}$/i', $flag['name']) !== 1) {
+                if (!$flag['major'] || \preg_match('/^v\d+(?:\.\d+){1,3}$/Di', $flag['name']) !== 1) {
                     continue;
                 }
 

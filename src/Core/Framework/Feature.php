@@ -504,7 +504,7 @@ class Feature
      */
     private static function majorVersion(string $value): ?string
     {
-        if (!\preg_match('/^V?(\d+(?:_\d+){1,3})$/', self::normalizeName($value), $matches)) {
+        if (!\preg_match('/^V?(\d+(?:_\d+){1,3})$/D', self::normalizeName($value), $matches)) {
             return null;
         }
 

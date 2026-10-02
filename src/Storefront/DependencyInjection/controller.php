@@ -164,7 +164,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SetPaymentOrderRoute::class),
             service(HandlePaymentMethodRoute::class),
             service('event_dispatcher'),
-            service(AccountOrderDetailPageLoader::class),
+            service(AccountOrderDetailPageLoader::class)->nullOnInvalid(),
             service(OrderRoute::class),
             service(SalesChannelContextService::class),
             service(SystemConfigService::class),

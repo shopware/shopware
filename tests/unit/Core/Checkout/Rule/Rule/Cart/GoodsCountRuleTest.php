@@ -7,14 +7,17 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
 use Shopware\Core\Checkout\Cart\Rule\GoodsCountRule;
+use Shopware\Core\Checkout\Cart\Rule\LineItemOfManufacturerRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemScope;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
 use Shopware\Core\Framework\Rule\SimpleRule;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Checkout\CartRuleFixture;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -153,6 +156,28 @@ class GoodsCountRuleTest extends TestCase
         static::assertFalse(
             $rule->match(new CartRuleScope($cart, $context))
         );
+    }
+
+    public function testFilterEvaluatesGoodsWithoutProductDataLikeTheAllMatchMode(): void
+    {
+        $manufacturerId = Uuid::randomHex();
+
+        $product = CartRuleFixture::createLineItem()->setPayloadValue('manufacturerId', $manufacturerId);
+        $option = CartRuleFixture::createLineItem('customized-products-option')
+            ->setChildren(new LineItemCollection([CartRuleFixture::createLineItem('option-values')]));
+        $customizedProduct = CartRuleFixture::createLineItem('customized-products')
+            ->setGood(false)
+            ->setChildren(new LineItemCollection([$product, $option]));
+
+        $rule = new GoodsCountRule(Rule::OPERATOR_EQ, 2);
+        $rule->addRule(new LineItemOfManufacturerRule(Rule::OPERATOR_NEQ, [$manufacturerId]));
+
+        $scope = new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$customizedProduct])),
+            static::createStub(SalesChannelContext::class),
+        );
+
+        static::assertTrue($rule->match($scope));
     }
 
     public function testMatchWithWrongScopeShouldReturnFalse(): void

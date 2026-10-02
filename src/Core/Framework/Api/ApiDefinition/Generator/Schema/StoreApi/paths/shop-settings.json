@@ -342,7 +342,7 @@
                         },
                         "findBestVariant": {
                           "type": "boolean",
-                          "description": "Whether the best matching variant is previewed in search results and filtered listings"
+                          "description": "Whether the best matching variant is previewed in search results"
                         },
                         "autoplayVideoInListing": {
                           "type": "boolean",

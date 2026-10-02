@@ -1,22 +1,49 @@
 {% block sw_order_state_select_v2 %}
 <div
     class="sw-order-state-select-v2"
-    :class="`sw-order-state-select-v2__${stateType}`"
+    :class="[`sw-order-state-select-v2__${stateType}`, { 'sw-order-state-select-v2--without-state': !stateName }]"
 >
     {% block sw_order_state_select_v2_field %}
-    <sw-single-select
+    <mt-select
         id="state"
-        v-model:value="selectedActionName"
-        :class="`${selectStyle} ${backgroundStyle}`"
-        :disabled="!selectable || undefined"
+        :model-value="selectValue"
+        :disabled="!selectable"
         label-property="name"
         value-property="id"
         :placeholder="selectPlaceholder"
-        :label="label"
+        always-show-placeholder
+        :label="label ?? undefined"
         :options="transitionOptions"
-        size="small"
-        :show-clearable-button="false"
-    />
+        small
+        hide-clearable-button
+        @update:model-value="onSelectValueChange"
+    >
+        <template #prefix>
+            <mt-status-dot
+                v-if="stateName"
+                class="sw-order-state-select-v2__status-dot"
+                :variant="getStateVariant(stateName)"
+            />
+        </template>
+
+        <template
+            v-if="stateName"
+            #result-label-property="{ item }"
+        >
+            <span class="sw-order-state-select-v2__state">
+                <mt-status-dot :variant="getStateVariant(item.stateName)" />
+
+                <span>{{ item.name }}</span>
+            </span>
+        </template>
+
+        <template
+            v-if="$slots.hint"
+            #hint
+        >
+            <slot name="hint"></slot>
+        </template>
+    </mt-select>
     {% endblock %}
 </div>
 {% endblock %}

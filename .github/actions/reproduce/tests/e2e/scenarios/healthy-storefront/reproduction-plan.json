@@ -1,0 +1,8 @@
+{
+  "executor": "playwright",
+  "layer": "storefront-ui",
+  "issue": 0,
+  "version": "e2e",
+  "confidence": 1,
+  "viewport": { "width": 1280, "height": 800 }
+}

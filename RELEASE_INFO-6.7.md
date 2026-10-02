@@ -378,6 +378,9 @@ GLB files are now validated on upload. A file is rejected with `CONTENT__MEDIA_I
 ### Generated document number in the V2 creation response
 
 The `POST /api/_action/order/document-v2/create` response now includes `documentNumber`, allowing clients to compare the assigned number with a previously displayed preview.
+### Sync API reports missing references as a client error
+
+Sync API writes that reference an entity or version that does not exist now return HTTP 400 instead of an internal server error. Check referenced IDs and version IDs when handling failed sync requests.
 
 ### HTML in customer name and address fields is rejected with a dedicated violation
 

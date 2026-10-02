@@ -124,6 +124,7 @@
       "labelWeight": "Weight",
       "labelMinPurchase": "Min. order quantity",
       "labelMaxPurchase": "Max. order quantity",
+      "helpTextMaxPurchaseDigital": "New digital products start with 1, so customers can buy one unit per order. Enter a higher value or leave it empty to allow more.",
       "labelEan": "GTIN/EAN",
       "labelManufacturerNumber": "Manufacturer product number",
       "labelGuaranteeDescription": "This label represents a commercial guarantee of durability expressed in years. The guarantee is offered by the producer at no additional costs, covering the entire good and with a duration of more than two years.",

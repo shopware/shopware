@@ -124,6 +124,7 @@
       "labelWeight": "Gewicht",
       "labelMinPurchase": "Mindestabnahme",
       "labelMaxPurchase": "Maximalabnahme",
+      "helpTextMaxPurchaseDigital": "Neue digitale Produkte starten mit 1, sodass Kunden ein Stück pro Bestellung kaufen können. Trage einen höheren Wert ein oder lass das Feld leer, um mehr zu erlauben.",
       "labelEan": "GTIN/EAN",
       "labelManufacturerNumber": "Hersteller-Produktnummer",
       "labelGuaranteeDescription": "Die Kennzeichnung steht für eine gewerbliche Haltbarkeitsgarantie, dargestellt in Jahren. Diese Garantie gewährt Ihnen der Hersteller ohne Zusatzkosten für die gesamte Ware und für eine Dauer von mehr als zwei Jahren.",

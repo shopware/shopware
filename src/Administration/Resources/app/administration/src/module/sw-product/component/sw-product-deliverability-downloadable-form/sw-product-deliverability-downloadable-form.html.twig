@@ -77,5 +77,99 @@
             />
         </template>
     </sw-inherit-wrapper>
+
+    <sw-container
+        columns="1fr 1fr 1fr"
+        gap="0 var(--scale-size-30)"
+    >
+        {% block sw_product_deliverability_downloadable_form_min_purchase_field %}
+        <sw-inherit-wrapper
+            v-if="showModeSetting"
+            v-model:value="product.minPurchase"
+            class="product-deliverability-downloadable-form__min-purchase"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.minPurchase"
+        >
+            <template #content="props">
+
+                <mt-number-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
+                    number-type="int"
+                    :min="1"
+                    :error="productMinPurchaseError"
+                    :label="$t('sw-product.settingsForm.labelMinPurchase')"
+                    :placeholder="$t('sw-product.settingsForm.placeholderMinPurchase')"
+                    :disabled="props.isInherited || disabled"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_product_deliverability_downloadable_form_purchase_steps_field %}
+        <sw-inherit-wrapper
+            v-if="showModeSetting"
+            v-model:value="product.purchaseSteps"
+            class="product-deliverability-downloadable-form__purchase-steps"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.purchaseSteps"
+        >
+            <template #content="props">
+
+                <mt-number-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
+                    number-type="int"
+                    :min="1"
+                    :error="productPurchaseStepsError"
+                    :label="$t('sw-product.settingsForm.labelPurchaseSteps')"
+                    :placeholder="$t('sw-product.settingsForm.placeholderPurchaseSteps')"
+                    :disabled="props.isInherited || disabled"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+
+        {% block sw_product_deliverability_downloadable_form_max_purchase_field %}
+        <sw-inherit-wrapper
+            v-if="showModeSetting"
+            v-model:value="product.maxPurchase"
+            class="product-deliverability-downloadable-form__max-purchase"
+            :has-parent="!!parentProduct.id"
+            :inherited-value="parentProduct.maxPurchase"
+        >
+            <template #content="props">
+
+                <mt-number-field
+                    :is-inheritance-field="props.isInheritField"
+                    :is-inherited="props.isInherited"
+                    number-type="int"
+                    :allow-empty="true"
+                    :min="1"
+                    :error="productMaxPurchaseError"
+                    :label="$t('sw-product.settingsForm.labelMaxPurchase')"
+                    :placeholder="$t('sw-product.settingsForm.placeholderMaxPurchase')"
+                    :help-text="$t('sw-product.settingsForm.helpTextMaxPurchaseDigital')"
+                    :disabled="props.isInherited || disabled"
+                    :model-value="props.currentValue"
+                    @update:model-value="props.updateCurrentValue"
+                    @inheritance-restore="props.restoreInheritance"
+                    @inheritance-remove="props.removeInheritance"
+                />
+
+            </template>
+        </sw-inherit-wrapper>
+        {% endblock %}
+    </sw-container>
 </sw-container>
 {% endblock %}

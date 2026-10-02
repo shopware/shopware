@@ -1229,8 +1229,12 @@ describe('src/module/sw-bulk-edit/page/sw-bulk-edit-product', () => {
 
         await flushPromises();
 
-        expect(wrapper.vm.deliverabilityFormFields).toHaveLength(1);
-        expect(wrapper.vm.deliverabilityFormFields[0].name).toBe('deliveryTimeId');
+        expect(wrapper.vm.deliverabilityFormFields.map((field) => field.name)).toEqual([
+            'deliveryTimeId',
+            'minPurchase',
+            'purchaseSteps',
+            'maxPurchase',
+        ]);
     });
 
     it('should set route meta module when component created', async () => {

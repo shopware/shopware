@@ -89,7 +89,12 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
         wrapper = await createWrapper();
         await flushPromises();
 
-        const deliveryFieldsClassName = ['.product-deliverability-downloadable-form__delivery-time'];
+        const deliveryFieldsClassName = [
+            '.product-deliverability-downloadable-form__delivery-time',
+            '.product-deliverability-downloadable-form__min-purchase',
+            '.product-deliverability-downloadable-form__purchase-steps',
+            '.product-deliverability-downloadable-form__max-purchase',
+        ];
 
         deliveryFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBe(true);
@@ -112,13 +117,31 @@ describe('module/sw-product/component/sw-product-deliverability-downloadable-for
             },
         };
 
-        const deliveryFieldsClassName = ['.product-deliverability-downloadable-form__delivery-time'];
+        const deliveryFieldsClassName = [
+            '.product-deliverability-downloadable-form__delivery-time',
+            '.product-deliverability-downloadable-form__min-purchase',
+            '.product-deliverability-downloadable-form__purchase-steps',
+            '.product-deliverability-downloadable-form__max-purchase',
+        ];
 
         await nextTick();
 
         deliveryFieldsClassName.forEach((item) => {
             expect(wrapper.find(item).exists()).toBeFalsy();
         });
+    });
+
+    it('should store a max purchase above one so customers can choose the quantity', async () => {
+        wrapper = await createWrapper({
+            maxPurchase: 1,
+        });
+        await flushPromises();
+
+        const maxPurchaseInput = wrapper.find('.product-deliverability-downloadable-form__max-purchase input');
+        await maxPurchaseInput.setValue('5');
+        await maxPurchaseInput.trigger('change');
+
+        expect(Shopware.Store.get('swProductDetail').product.maxPurchase).toBe(5);
     });
 
     it('should pre-fill stock value', async () => {

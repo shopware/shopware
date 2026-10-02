@@ -32,6 +32,7 @@ use Shopware\Core\Checkout\Customer\Password\LegacyEncoder\Md5;
 use Shopware\Core\Checkout\Customer\Password\LegacyEncoder\Sha256;
 use Shopware\Core\Checkout\Customer\Password\LegacyPasswordVerifier;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientRoute;
+use Shopware\Core\Checkout\Customer\SalesChannel\AccountNewsletterRecipientV2Route;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\AddWishlistProductRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\ChangeCustomerProfileRoute;
@@ -580,6 +581,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->tag('controller.argument_value_resolver', ['priority' => 1002]);
 
     $services->set(AccountNewsletterRecipientRoute::class)
+        ->public()
+        ->args([
+            service('sales_channel.newsletter_recipient.repository'),
+            service(ExtensionDispatcher::class),
+        ]);
+
+    $services->set(AccountNewsletterRecipientV2Route::class)
         ->public()
         ->args([
             service('sales_channel.newsletter_recipient.repository'),

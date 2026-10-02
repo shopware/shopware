@@ -1,15 +1,14 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Storefront\Controller\Stub;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\Controller\ProductController;
+use Shopware\Storefront\Controller\CookieController;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Tests\Unit\Storefront\Controller\StorefrontControllerRecorder;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -19,8 +18,13 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * @internal
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
-class ProductControllerStub extends ProductController
+class CookieControllerStub extends CookieController
 {
+    /**
+     * @var callable|null
+     */
+    public $jsonCallback;
+
     private ?StorefrontControllerRecorder $recorder = null;
 
     public function recorder(): StorefrontControllerRecorder
@@ -86,5 +90,22 @@ class ProductControllerStub extends ProductController
     protected function generateUrl(string $route, array $parameters = [], int $referenceType = UrlGeneratorInterface::ABSOLUTE_PATH): string
     {
         return $this->recorder()->generateUrl($route);
+    }
+
+    /**
+     * @param array<string, string> $headers
+     * @param array<string, mixed> $context
+     */
+    protected function json(mixed $data, int $status = 200, array $headers = [], array $context = []): JsonResponse
+    {
+        if ($this->jsonCallback !== null) {
+            if (\is_object($data) && method_exists($data, 'all')) {
+                $data = $data->all();
+            }
+
+            return ($this->jsonCallback)($data);
+        }
+
+        return new JsonResponse($data, $status, $headers);
     }
 }

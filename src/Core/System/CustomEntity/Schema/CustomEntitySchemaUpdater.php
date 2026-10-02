@@ -5,6 +5,7 @@ namespace Shopware\Core\System\CustomEntity\Schema;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\DBAL\Schema\ComparatorConfig;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\TableEditor;
 use Shopware\Core\Framework\Log\Package;
@@ -62,7 +63,8 @@ class CustomEntitySchemaUpdater
     {
         $schemaManager = $this->connection->createSchemaManager();
         $baseSchema = $schemaManager->introspectSchema();
-        $queries = $this->getPlatform()->getAlterSchemaSQL($schemaManager->createComparator()->compareSchemas($baseSchema, $update));
+        $comparatorConfig = (new ComparatorConfig())->withReportModifiedIndexes(false);
+        $queries = $this->getPlatform()->getAlterSchemaSQL($schemaManager->createComparator($comparatorConfig)->compareSchemas($baseSchema, $update));
 
         // Store the current value of foreign key checks and disable them
         // This is a temporary fix until there is answer for https://github.com/doctrine/dbal/issues/6706

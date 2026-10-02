@@ -54,6 +54,7 @@ class MigrationQueryGenerator
         $tableSchema = $this->dropIndexes($tableSchema);
 
         $comparatorConfig = (new ComparatorConfig())->withReportModifiedIndexes(false);
+
         return $this->getPlatform()->getAlterTableSQL(
             $schemaManager->createComparator($comparatorConfig)->compareTables($originalTableSchema, $tableSchema)
         );

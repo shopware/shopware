@@ -272,4 +272,21 @@ describe('plugin/google-analytics/events/remove-from-wishlist.event', () => {
 
         expect(window.gtag).not.toHaveBeenCalled();
     });
+
+    test('does not report the product when the consent was revoked during the category request', async () => {
+        document.body.innerHTML = '<h1 class="product-detail-name">Test Product</h1>';
+
+        let answer;
+        const resolveCategories = jest.spyOn(ProductPageHelper, 'resolveCategories')
+            .mockReturnValue(new Promise(resolve => { answer = resolve; }));
+
+        const sent = removeFromWishlistEvent._onProductRemoved({ detail: { productId: 'product-123' } });
+        removeFromWishlistEvent.disable();
+        answer({ item_category: 'Clothing' });
+        await sent;
+
+        expect(window.gtag).not.toHaveBeenCalled();
+
+        resolveCategories.mockRestore();
+    });
 });

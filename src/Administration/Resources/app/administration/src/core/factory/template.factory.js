@@ -274,8 +274,6 @@ function resolveTemplates() {
     return normalizedTemplateRegistry;
 }
 
-const SLOT_TEMPLATE_START = /^<template\s+(#|v-slot)/;
-
 /** Whitespace between tags carries no content and never decides where the wrapper goes. */
 function isContentToken(token) {
     return token.type !== 'raw' || token.value.trim().length > 0;
@@ -310,7 +308,14 @@ function firstRawText(output) {
     return nestedOutput ? firstRawText(nestedOutput) : '';
 }
 
-const SLOT_TEMPLATE_ATTRIBUTE = /\s(#|v-slot)/;
+/**
+ * Markup that starts with a named slot template.
+ *
+ * The slot directive need not be the first attribute: `<template v-if="!isLoading" #smart-bar-header>`
+ * is a slot template as well. Quoted attribute values are skipped as a whole, so a `>` in them does not
+ * end the tag early and a `#` in them is not taken for a slot.
+ */
+const SLOT_TEMPLATE_START = /^<template(?=[\s>])(?:[^>"']|"[^"]*"|'[^']*')*?\s(#|v-slot)/;
 
 /** HTML elements that never have a closing tag, so they must not open a nesting level. */
 const VOID_ELEMENTS = new Set([
@@ -373,7 +378,7 @@ function hasTopLevelSlotTemplate(text) {
         const tagName = match[2].toLowerCase();
         const isClosing = match[1] === '/';
 
-        if (!isClosing && depth === 0 && tagName === 'template' && SLOT_TEMPLATE_ATTRIBUTE.test(tag)) {
+        if (!isClosing && depth === 0 && tagName === 'template' && SLOT_TEMPLATE_START.test(tag)) {
             return true;
         }
 

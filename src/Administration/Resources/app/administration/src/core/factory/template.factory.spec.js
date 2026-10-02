@@ -236,4 +236,50 @@ describe('core/factory/template.factory.js - native block extension points', () 
             '<sw-card><template #header :show="a > 1"><sw-block name="tf_angle_block" :data="$dataScope" :sw-internal-legacy-shim="false"><b>h</b></sw-block></template></sw-card>',
         );
     });
+
+    it.each([
+        ['after another attribute', '<template v-if="!isLoading" #smart-bar-header>'],
+        ['on a multi-line opening tag', '<template\n    v-if="!isLoading"\n    #smart-bar-header\n>'],
+        ['as v-slot after another attribute', '<template v-if="!isLoading" v-slot:smart-bar-header>'],
+        ['after an attribute value containing an angle bracket', '<template v-if="count > 1" #smart-bar-header>'],
+    ])('moves the extension point inside a slot template whose slot directive comes %s', (_, openingTag) => {
+        registerNativeExtensionTargets({ component: 'tf-late-slot', blocks: ['tf_late_slot_block'] });
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-late-slot',
+            `<sw-page>{% block tf_late_slot_block %}${openingTag}<h2>h</h2></template>{% endblock %}</sw-page>`,
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // The slot directive is not the first attribute, the shape of sw_customer_detail_header. Missing it
+        // here would reject the block as mixed content and ignore its native override.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-late-slot').html).toBe(
+            `<sw-page>${openingTag}<sw-block name="tf_late_slot_block" sw-internal-component-name="tf-late-slot" :data="$dataScope" :sw-internal-legacy-shim="false"><h2>h</h2></sw-block></template></sw-page>`,
+        );
+        expect(warnSpy).not.toHaveBeenCalled();
+
+        warnSpy.mockRestore();
+    });
+
+    it('wraps a template whose attribute value merely contains a "#" from the outside', () => {
+        registerNativeExtensionTargets({ component: 'tf-hash-value', blocks: ['tf_hash_value_block'] });
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-hash-value',
+            '<div>{% block tf_hash_value_block %}<template title="a #b"><p>p</p></template>{% endblock %}</div>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // The "#" sits inside a quoted value, so this is a plain template and no slot is at stake.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-hash-value').html).toBe(
+            '<div><sw-block name="tf_hash_value_block" sw-internal-component-name="tf-hash-value" :data="$dataScope" :sw-internal-legacy-shim="false"><template title="a #b"><p>p</p></template></sw-block></div>',
+        );
+        expect(warnSpy).not.toHaveBeenCalled();
+
+        warnSpy.mockRestore();
+    });
 });

@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PregDollarWithoutDRule;
 use Shopware\Core\DevOps\Test\AnnotationTagVersionSchema;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Unit\Core\DevOps\Test\AnnotationTagTesterTest;
 use Shopware\Tests\Unit\Core\Framework\App\Command\CreateAppCommandTest;
 
 /**
@@ -38,7 +37,6 @@ class PregDollarWithoutDAllowlistTest extends TestCase
                 [AnnotationTagVersionSchema::PLATFORM_MAJOR_SCHEMA, 'v6.8.0.0'],
                 [AnnotationTagVersionSchema::MANIFEST_VERSION_SCHEMA, 'v1.0'],
             ],
-            'coveredBy' => [AnnotationTagTesterTest::class, 'testGetVersionFromGitTagsDoesNotCaptureVersionsWithTrailingNewline'],
         ],
         'src/Core/Framework/Adapter/Twig/Extension/PcreExtension.php' => [
             'reason' => 'the pattern is written by the template author',

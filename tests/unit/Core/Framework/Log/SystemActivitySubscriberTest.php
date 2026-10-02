@@ -117,7 +117,6 @@ class SystemActivitySubscriberTest extends TestCase
         $plugin = new PluginEntity();
         $plugin->setId('plugin-id');
         $plugin->setName('ExamplePlugin');
-        $plugin->setVersion('1.2.3');
         $event = match ($eventClass) {
             PluginPostActivateEvent::class => new PluginPostActivateEvent($plugin, $this->createLifecycleContext(ActivateContext::class)),
             PluginPostDeactivateEvent::class => new PluginPostDeactivateEvent($plugin, $this->createLifecycleContext(DeactivateContext::class)),
@@ -151,9 +150,9 @@ class SystemActivitySubscriberTest extends TestCase
         $connection = DriverManager::getConnection(['driver' => 'pdo_sqlite', 'memory' => true]);
         $plugin = new PluginEntity();
         $plugin->setName('ExamplePlugin');
-        $plugin->setVersion('1.2.3');
         $context = static::createStub(InstallContext::class);
         $context->method('getContext')->willReturn(Context::createCLIContext());
+        $context->method('getCurrentPluginVersion')->willReturn('1.2.3');
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('info')->with('plugin:install', [
             'pluginName' => 'ExamplePlugin', 'pluginVersion' => '1.2.3', 'actorType' => 'system',
@@ -172,7 +171,6 @@ class SystemActivitySubscriberTest extends TestCase
         // The lifecycle service has already updated the entity before dispatching the post-update event.
         $plugin->setVersion('2.0.0');
         $context = $this->createLifecycleContext(UpdateContext::class);
-        $context->method('getCurrentPluginVersion')->willReturn('1.2.3');
         $context->method('getUpdatePluginVersion')->willReturn('2.0.0');
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('info')->with('plugin:update', [
@@ -297,6 +295,7 @@ class SystemActivitySubscriberTest extends TestCase
     {
         $context = static::createStub($contextClass);
         $context->method('getContext')->willReturn(Context::createDefaultContext());
+        $context->method('getCurrentPluginVersion')->willReturn('1.2.3');
 
         return $context;
     }

@@ -80,7 +80,7 @@ final class SystemActivitySubscriber implements EventSubscriberInterface
 
         $this->logger->info('plugin:' . $action, array_filter([
             'pluginName' => $event->getPlugin()->getName(),
-            'pluginVersion' => $event instanceof PluginPostUpdateEvent ? $event->getContext()->getUpdatePluginVersion() : $event->getPlugin()->getVersion(),
+            'pluginVersion' => $event instanceof PluginPostUpdateEvent ? $event->getContext()->getUpdatePluginVersion() : $event->getContext()->getCurrentPluginVersion(),
             ...($event instanceof PluginPostUpdateEvent ? ['previousPluginVersion' => $event->getContext()->getCurrentPluginVersion()] : []),
             ...$this->actor($event->getContext()->getContext()),
         ], static fn (mixed $value): bool => $value !== null));

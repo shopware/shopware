@@ -311,6 +311,17 @@ describe('plugin/google-analytics/product-page.helper', () => {
             }));
         });
 
+        test('reports no breadcrumb categories for the product of a box', () => {
+            window.activeRoute = 'frontend.detail.page';
+            document.body.insertAdjacentHTML('beforeend', '<nav aria-label="breadcrumb"><span class="breadcrumb-title">Main Category</span></nav>');
+
+            expect(ProductPageHelper.getCategoriesFor('slider-id')).toEqual({});
+            expect(ProductPageHelper.getCategoriesFor('main-id', document.querySelector('.product-detail-buy form')))
+                .toEqual({ item_category: 'Main Category' });
+
+            delete window.activeRoute;
+        });
+
         test('keeps reporting the page product for the buy widget', () => {
             const form = document.querySelector('.product-detail-buy form');
 

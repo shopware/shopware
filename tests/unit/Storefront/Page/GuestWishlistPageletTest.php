@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Storefront\Page;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
@@ -14,7 +13,6 @@ use Shopware\Core\Content\Product\SalesChannel\ProductListResponse;
 use Shopware\Core\Content\Product\SalesChannel\ProductListRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
@@ -143,14 +141,7 @@ class GuestWishlistPageletTest extends TestCase
             $expectedCriteria->setIds([$productId]);
             $expectedCriteria->addAssociation('manufacturer')
                 ->addAssociation('options.group')
-                ->addAssociation('categories')
-                ->addAssociation('mainCategories.category')
                 ->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
-            $expectedCriteria->addAssociation('streams.categories');
-            $expectedCriteria->getAssociation('streams.categories')->addFilter(
-                new EqualsFilter('productAssignmentType', CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM),
-                new EqualsFilter('active', true),
-            );
 
             $filter = $this->productCloseoutFilterFactory->create($context);
             $expectedCriteria->addFilter($filter);

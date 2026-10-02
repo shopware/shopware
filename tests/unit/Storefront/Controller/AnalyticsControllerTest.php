@@ -10,7 +10,9 @@ use Shopware\Core\Content\Breadcrumb\SalesChannel\BreadcrumbRouteResponse;
 use Shopware\Core\Content\Breadcrumb\Struct\Breadcrumb;
 use Shopware\Core\Content\Breadcrumb\Struct\BreadcrumbCollection;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\AnalyticsController;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -26,7 +28,7 @@ class AnalyticsControllerTest extends TestCase
     public function testReturnsTheBreadcrumbNamesOfTheProduct(): void
     {
         $productId = Uuid::randomHex();
-        $context = Generator::generateSalesChannelContext();
+        $context = $this->contextWithAnalytics();
 
         $route = $this->createMock(AbstractBreadcrumbRoute::class);
         $route->expects($this->once())
@@ -53,10 +55,34 @@ class AnalyticsControllerTest extends TestCase
 
         $response = $this->controller($route)->productCategories(
             new Request(['productId' => Uuid::randomHex()]),
-            Generator::generateSalesChannelContext()
+            $this->contextWithAnalytics()
         );
 
+        static::assertSame(200, $response->getStatusCode());
         static::assertSame('[]', $response->getContent());
+    }
+
+    public function testLetsOtherErrorsThrough(): void
+    {
+        $route = static::createStub(AbstractBreadcrumbRoute::class);
+        $route->method('load')->willThrowException(BreadcrumbException::categoryNotFound(Uuid::randomHex()));
+
+        $this->expectException(ShopwareHttpException::class);
+
+        $this->controller($route)->productCategories(new Request(['productId' => Uuid::randomHex()]), $this->contextWithAnalytics());
+    }
+
+    public function testAnswers404ForASalesChannelWithoutAnalytics(): void
+    {
+        $route = $this->createMock(AbstractBreadcrumbRoute::class);
+        $route->expects($this->never())->method('load');
+
+        $context = Generator::generateSalesChannelContext();
+        $context->getSalesChannel()->setAnalyticsId(null);
+
+        $response = $this->controller($route)->productCategories(new Request(['productId' => Uuid::randomHex()]), $context);
+
+        static::assertSame(404, $response->getStatusCode());
     }
 
     public function testDoesNotCallTheRouteWithoutAValidProductId(): void
@@ -66,10 +92,18 @@ class AnalyticsControllerTest extends TestCase
 
         $response = $this->controller($route)->productCategories(
             new Request(['productId' => 'not-an-id']),
-            Generator::generateSalesChannelContext()
+            $this->contextWithAnalytics()
         );
 
-        static::assertSame('[]', $response->getContent());
+        static::assertSame(400, $response->getStatusCode());
+    }
+
+    private function contextWithAnalytics(): SalesChannelContext
+    {
+        $context = Generator::generateSalesChannelContext();
+        $context->getSalesChannel()->setAnalyticsId(Uuid::randomHex());
+
+        return $context;
     }
 
     private function controller(AbstractBreadcrumbRoute $route): AnalyticsController

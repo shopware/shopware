@@ -1,3 +1,4 @@
+import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 import AddToWishlistEvent from 'src/plugin/google-analytics/events/add-to-wishlist.event';
 
 describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
@@ -53,20 +54,24 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
         });
     });
 
-    test('reports the categories of the product card instead of the page breadcrumb', async () => {
+    test('resolves the categories of a product box through the analytics route', async () => {
         document.body.innerHTML = `
             <nav aria-label="breadcrumb">
                 <span class="breadcrumb-title">Wishlist</span>
             </nav>
-            <div class="product-box" data-product-information='{ "id": "product-123", "name": "Test Product", "price": 99.99, "sku": "SW10000", "categories": ["Clothing", "Shirts"] }'>
+            <div class="product-box" data-product-information='{ "id": "product-123", "name": "Test Product", "price": 99.99, "sku": "SW10000" }'>
                 <div class="product-wishlist-product-123"></div>
             </div>
         `;
+
+        const resolveCategories = jest.spyOn(ProductPageHelper, 'resolveCategories')
+            .mockResolvedValue({ item_category: 'Clothing', item_category2: 'Shirts' });
 
         await addToWishlistEvent._onProductAdded({
             detail: { productId: 'product-123' },
         });
 
+        expect(resolveCategories).toHaveBeenCalledWith('product-123');
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', expect.objectContaining({
             'items': [expect.objectContaining({
                 'item_id': 'SW10000',
@@ -74,6 +79,8 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
                 'item_category2': 'Shirts',
             })],
         }));
+
+        resolveCategories.mockRestore();
     });
 
     test('falls back to the breadcrumb when the card carries no categories', async () => {

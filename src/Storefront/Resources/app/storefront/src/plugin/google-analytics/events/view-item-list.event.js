@@ -64,9 +64,8 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
             return lineItems;
         }
 
-        // The breadcrumb describes the listing rather than the product, so it is only the fallback
-        // for product boxes whose page did not load the category associations.
-        const breadcrumbCategories = ProductPageHelper.getCategories();
+        // Get category from breadcrumbs (same for all items on this page)
+        const categories = ProductPageHelper.getCategories();
 
         productBoxes.forEach(item => {
             if (!item.dataset.productInformation) {
@@ -83,15 +82,13 @@ export default class ViewItemListEvent extends EventAwareAnalyticsEvent
                 return;
             }
 
-            const categories = ProductPageHelper.mapCategories(productData.categories);
-
             lineItems.push({
                 item_id: productData.sku ?? productData.id,
                 item_name: productData.name,
                 item_brand: productData.brand,
                 item_variant: productData.variant,
                 price: productData.price,
-                ...(Object.keys(categories).length > 0 ? categories : breadcrumbCategories),
+                ...categories,
             });
         });
 

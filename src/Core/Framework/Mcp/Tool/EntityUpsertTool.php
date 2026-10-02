@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 #[McpTool(
     name: 'shopware-entity-upsert',
     title: 'Entity Upsert',
-    description: 'Create or update Shopware entity data. Always use dryRun=true (default) first to validate, then set dryRun=false to persist. If you don\'t already know the required fields, shopware-entity-schema will tell you. Returns validation result in dryRun mode, or the written entity data on commit.'
+    description: 'Create or update Shopware entity data. Always use dryRun=true (default) first to validate, then set dryRun=false to persist. If you don\'t already know the required fields, shopware-entity-schema will tell you. Returns validation result in dryRun mode, or the written entity data on commit. Many-to-many links (e.g. product categories) can only be added here. To remove one, use shopware-entity-delete on the mapping entity; a "remove" flag inside "categories" would be written to the category itself.'
 )]
 #[McpToolDependsOn('shopware-entity-schema')]
 #[McpToolGroup('entity')]

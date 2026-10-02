@@ -42,6 +42,7 @@ import {
     resolveMixins,
 } from './option-handlers';
 import { rewriteMemberFn, rewriteThis } from './rewrite-this';
+import { PUBLISHED_COMPOSABLES } from './composables';
 
 type ScriptResult = {
     script: string | null;
@@ -135,6 +136,22 @@ function propsArgument(ctx: Ctx, collected: Collected, usesProps: boolean): stri
 }
 
 /**
+ * The import lines of the composables replacing the mixins. The Administration and extensions import them
+ * the same way, from `shopware:composables`. Only an unpublished one, which resolveMixins refuses for an
+ * extension, falls back to its Administration file.
+ */
+function composableImports(composables: ResolvedComposable[]): string[] {
+    const imports = composables.map(({ descriptor }) => descriptor.import);
+    const published = imports.filter(({ name }) => PUBLISHED_COMPOSABLES.has(name)).map(({ name }) => name);
+    const unpublished = imports.filter(({ name }) => !PUBLISHED_COMPOSABLES.has(name));
+
+    return [
+        ...(published.length > 0 ? [`import { ${published.join(', ')} } from 'shopware:composables';`] : []),
+        ...unpublished.map(({ name, source }) => `import ${name} from '${source}';`),
+    ];
+}
+
+/**
  * The render phase: collected descriptors plus the rewritten MagicString become the `<script setup>`
  * body. Every `snip()` below reads text the rewrite pass already touched, so this must run last.
  */
@@ -171,7 +188,7 @@ function renderScript(
         vueImports.length > 0 ? `import { ${vueImports.join(', ')} } from 'vue';` : null,
         ctx.helpers.has('t') ? "import { useI18n } from 'vue-i18n';" : null,
         routerImports.length > 0 ? `import { ${routerImports.join(', ')} } from 'vue-router';` : null,
-        ...composables.map(({ descriptor }) => `import ${descriptor.import.name} from '${descriptor.import.source}';`),
+        ...composableImports(composables),
     ]
         .filter(Boolean)
         .join('\n');
@@ -274,6 +291,7 @@ function transformScript(
         templateImportRange: { start: number; end: number };
         templateIdentifiers: ReadonlySet<string>;
         templateComponentTags: ReadonlySet<string>;
+        extensionTarget?: boolean;
     },
 ): ScriptResult {
     const ctx: Ctx = {
@@ -289,6 +307,7 @@ function transformScript(
         helpers: new Set(),
         inferredEmits: [],
         reports: [],
+        extensionTarget: transformOptions.extensionTarget ?? false,
     };
 
     const reasonsOf = (kind: ReportKind): string[] =>

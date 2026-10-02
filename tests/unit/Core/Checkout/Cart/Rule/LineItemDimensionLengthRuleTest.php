@@ -4,8 +4,10 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Delivery\Struct\DeliveryInformation;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Rule\CartRuleScope;
@@ -63,7 +65,7 @@ class LineItemDimensionLengthRuleTest extends TestCase
 
         $lineItem = $this->createLineItemWithLength($lineItemAmount);
         if ($lineItemWithoutDeliveryInfo) {
-            $lineItem = CartRuleFixture::createLineItem();
+            $lineItem = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $match = $this->rule->match(new LineItemScope(
@@ -128,12 +130,12 @@ class LineItemDimensionLengthRuleTest extends TestCase
 
         $lineItem1 = $this->createLineItemWithLength($lineItemAmount1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = CartRuleFixture::createLineItem();
+            $lineItem1 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItem2 = $this->createLineItemWithLength($lineItemAmount2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = CartRuleFixture::createLineItem();
+            $lineItem2 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
@@ -169,12 +171,12 @@ class LineItemDimensionLengthRuleTest extends TestCase
 
         $lineItem1 = $this->createLineItemWithLength($lineItemAmount1);
         if ($lineItem1WithoutDeliveryInfo) {
-            $lineItem1 = CartRuleFixture::createLineItem();
+            $lineItem1 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItem2 = $this->createLineItemWithLength($lineItemAmount2);
         if ($lineItem2WithoutDeliveryInfo) {
-            $lineItem2 = CartRuleFixture::createLineItem();
+            $lineItem2 = CartRuleFixture::createDigitalProductLineItem();
         }
 
         $lineItemCollection = new LineItemCollection([
@@ -469,8 +471,8 @@ class LineItemDimensionLengthRuleTest extends TestCase
         static::assertSame(RuleConfig::UNIT_DIMENSION, $result->getData()['fields']['amount']['config']['unit']);
     }
 
-    #[DataProvider('lineItemTypeProvider')]
-    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemWithoutProductDataProvider')]
+    public function testLineItemWithoutProductData(string $type, bool $lineItemScope, bool $expected): void
     {
         $rule = new LineItemDimensionLengthRule(Rule::OPERATOR_NEQ, 5.0);
 
@@ -484,15 +486,30 @@ class LineItemDimensionLengthRuleTest extends TestCase
         static::assertSame($expected, $rule->match($scope));
     }
 
-    /**
-     * @return \Generator<string, array{non-empty-string, bool, bool}>
-     */
-    public static function lineItemTypeProvider(): \Generator
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
+    public function testLineItemWithDeliveryInformationIsEvaluated(string $type, bool $lineItemScope): void
     {
-        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
-        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
-        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
-        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
+        $rule = new LineItemDimensionLengthRule(Rule::OPERATOR_EQ, 5.0);
+        $lineItem = CartRuleFixture::createLineItem($type)->setDeliveryInformation(CartRuleFixture::createLineItemWithDeliveryInfo(false, 1, 50.0, null, null, 5.0)->getDeliveryInformation());
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertTrue($rule->match($scope));
+    }
+
+    public function testCustomLineItemWithDeliveryInformationIsEvaluatedInCart(): void
+    {
+        $rule = new LineItemDimensionLengthRule(Rule::OPERATOR_NEQ, 5.0);
+        $lineItem = CartRuleFixture::createLineItem(LineItem::CUSTOM_LINE_ITEM_TYPE)->setDeliveryInformation(new DeliveryInformation(1, 0, false));
+        $scope = new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$lineItem])),
+            static::createStub(SalesChannelContext::class),
+        );
+
+        static::assertTrue($rule->match($scope));
     }
 
     private function createLineItemWithLength(?float $length): LineItem

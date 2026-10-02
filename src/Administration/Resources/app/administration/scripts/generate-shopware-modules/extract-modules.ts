@@ -3,7 +3,7 @@
  *
  * Extracts the `shopware:*` registry from the sources that define each global branch.
  *
- * The four branches are written down in three different shapes, so each needs its own matcher.
+ * The five branches are written down in three different shapes, so each needs its own matcher.
  *
  * `Shopware.Utils` — src/core/service/util.service.ts
  * Every namespace is a top-level exported const, and a default-export literal re-lists them by shorthand:
@@ -25,6 +25,14 @@
  *
  *     → shopware:data           named exports { ChangesetGenerator, Criteria, Entity, … }
  *       shopware:data/Criteria  default only, like every class subpath
+ *
+ * `Shopware.Composables` — src/app/composables/index.ts
+ * The same literal shape and output as the data branch:
+ *
+ *     export default { useCmsElement, useListing, … };
+ *
+ *     → shopware:composables             named exports { useCmsElement, useListing, … }
+ *       shopware:composables/useListing  default only, like every composable file
  *
  * `Shopware.Mixin` — src/global.types.ts, `interface MixinContainer`
  * A runtime registry, so there is no literal to read and the declared contract is the type itself:
@@ -64,6 +72,7 @@ import type { ModuleRegistry } from '../../build/vite-plugins/virtual-shopware-m
 
 const UTILS_SOURCE = 'src/core/service/util.service.ts';
 const DATA_SOURCE = 'src/core/data/index.js';
+const COMPOSABLES_SOURCE = 'src/app/composables/index.ts';
 const GLOBAL_TYPES_SOURCE = 'src/global.types.ts';
 
 /**
@@ -345,6 +354,9 @@ export function extractModuleRegistry(administrationRoot: string): ModuleRegistr
     const dataSource = parse(administrationRoot, DATA_SOURCE);
     const dataKeys = objectLiteralKeys(defaultExportLiteral(dataSource, DATA_SOURCE));
 
+    const composablesSource = parse(administrationRoot, COMPOSABLES_SOURCE);
+    const composableKeys = objectLiteralKeys(defaultExportLiteral(composablesSource, COMPOSABLES_SOURCE));
+
     const globalTypes = parse(administrationRoot, GLOBAL_TYPES_SOURCE);
 
     return {
@@ -360,6 +372,10 @@ export function extractModuleRegistry(administrationRoot: string): ModuleRegistr
         'shopware:data': {
             exports: dataKeys,
             subpaths: defaultOnlySubpaths(dataKeys),
+        },
+        'shopware:composables': {
+            exports: composableKeys,
+            subpaths: defaultOnlySubpaths(composableKeys),
         },
         'shopware:mixins': {
             exports: [],

@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Webhook\Hookable;
 use Symfony\Contracts\EventDispatcher\Event;
 
 #[Package('framework')]
-class AppPermissionsUpdated extends Event implements ShopwareEvent, Hookable
+class AppPermissionsUpdated extends Event implements ShopwareEvent, Hookable, AppLifecycleEvent
 {
     final public const NAME = 'app.permissions.updated';
 

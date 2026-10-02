@@ -115,6 +115,10 @@ describe('extension tooling shared type surface (e2e)', () => {
                     "import VueHelper from 'shopware:utils/VueHelper';",
                     "import swFormFieldMixin from 'shopware:mixins/sw-form-field';",
                     "import useNotificationStore from 'shopware:stores/notification';",
+                    "import { useListing } from 'shopware:composables';",
+                    "import useCmsState from 'shopware:composables/useCmsState';",
+                    '// @ts-expect-error A composable subpath is default-only.',
+                    "import { cmsPageState } from 'shopware:composables/useCmsState';",
                     '// @ts-expect-error Criteria is a default-only subpath.',
                     "import { equals } from 'shopware:data/Criteria';",
                     '// @ts-expect-error EventBus is a default-only subpath.',
@@ -128,6 +132,7 @@ describe('extension tooling shared type surface (e2e)', () => {
                     'void on;',
                     'void getCompatChildren;',
                     'void props;',
+                    'void cmsPageState;',
                     '',
                     'export const id: string = createId();',
                     'export const criteria = new Criteria(1, 25);',
@@ -138,6 +143,9 @@ describe('extension tooling shared type surface (e2e)', () => {
                     'export const mixins = [swFormFieldMixin];',
                     'export const notifications = useNotificationStore();',
                     "export const log = () => warn('Plug', id);",
+                    'export const deviceView = () => useCmsState().currentDeviceView.value;',
+                    'export const listing = () => useListing({ getList: () => undefined }).page.value;',
+                    'export const globalListing = () => Shopware.Composables.useListing({ getList: () => undefined });',
                 ]);
 
                 const check = await checkExtensions({ projectRoot, administrationRoot, only: 'Plug' });

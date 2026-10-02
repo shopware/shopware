@@ -66,6 +66,7 @@ use Shopware\Core\System\SalesChannel\SalesChannel\ContextSwitchRoute;
 use Shopware\Core\System\Salutation\AbstractSalutationsSorter;
 use Shopware\Core\System\Salutation\SalesChannel\SalutationRoute;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Storefront\Checkout\Cart\AnalyticsLineItemPriceCalculator;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Checkout\Customer\CustomerGroupSubscriber;
 use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
@@ -391,8 +392,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(UrlEncodingTwigFilter::class)
         ->tag('twig.extension');
 
+    $services->set(AnalyticsLineItemPriceCalculator::class)
+        ->args([service(CashRounding::class)]);
+
     $services->set(AnalyticsLineItemPriceExtension::class)
-        ->args([service(CashRounding::class)])
+        ->args([service(AnalyticsLineItemPriceCalculator::class)])
         ->tag('twig.extension');
 
     $services->set(IconCacheTwigFilter::class)

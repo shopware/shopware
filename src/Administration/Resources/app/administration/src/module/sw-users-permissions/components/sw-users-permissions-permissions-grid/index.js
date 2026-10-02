@@ -70,12 +70,7 @@ export default {
 
                     return [...parents, privilege.parent];
                 }, [])
-                .sort((a, b) => {
-                    const labelA = this.$t(`sw-privileges.permissions.parents.${a || 'other'}`);
-                    const labelB = this.$t(`sw-privileges.permissions.parents.${b || 'other'}`);
-
-                    return labelA.localeCompare(labelB);
-                });
+                .sort((a, b) => this.compareParents(a, b));
         },
 
         usedDependencies() {
@@ -104,9 +99,57 @@ export default {
                 'deleter',
             ];
         },
+
+        // Mirrors the order of the main navigation; unknown parents follow alphabetically, "other" is last.
+        parentOrder() {
+            return [
+                'catalogues',
+                'orders',
+                'customers',
+                'content',
+                'marketing',
+                'settings',
+            ];
+        },
+
+        // Parents whose label lives under a snippet key that differs from the privilege parent itself.
+        parentSnippetKeys() {
+            return {
+                catalogues: 'products',
+            };
+        },
     },
 
     methods: {
+        parentLabel(parentValue) {
+            const key = parentValue || 'other';
+            const snippetKey = Object.hasOwn(this.parentSnippetKeys, key) ? this.parentSnippetKeys[key] : key;
+
+            return this.$t(`sw-privileges.permissions.parents.${snippetKey}`);
+        },
+
+        compareParents(a, b) {
+            const keyA = a || 'other';
+            const keyB = b || 'other';
+
+            const rank = (key) => {
+                if (key === 'other') {
+                    return this.parentOrder.length + 1;
+                }
+
+                const index = this.parentOrder.indexOf(key);
+
+                return index === -1 ? this.parentOrder.length : index;
+            };
+
+            const rankDiff = rank(keyA) - rank(keyB);
+            if (rankDiff !== 0) {
+                return rankDiff;
+            }
+
+            return this.parentLabel(a).localeCompare(this.parentLabel(b));
+        },
+
         changePermission(permissionKey, permissionRole) {
             const identifier = `${permissionKey}.${permissionRole}`;
 
@@ -168,7 +211,7 @@ export default {
         parentRoleTooltip(parentValue, role) {
             return this.$t('sw-users-permissions.roles.grid.tooltipParentRole', {
                 role: this.$t(`sw-privileges.roles.${role}`),
-                parent: this.$t(`sw-privileges.permissions.parents.${parentValue || 'other'}`),
+                parent: this.parentLabel(parentValue),
             });
         },
 
@@ -178,7 +221,7 @@ export default {
 
         parentAllTooltip(parentValue) {
             return this.$t('sw-users-permissions.roles.grid.tooltipParentAll', {
-                parent: this.$t(`sw-privileges.permissions.parents.${parentValue || 'other'}`),
+                parent: this.parentLabel(parentValue),
                 roles: this.allRolesLabel(),
             });
         },

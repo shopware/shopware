@@ -36,9 +36,9 @@ class SystemConfigControllerTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $result = $controller->checkConfiguration($request, $context);
+        $this->expectExceptionObject(SystemConfigException::missingRequestParameter('domain'));
 
-        static::assertSame('false', $result->getContent());
+        $controller->checkConfiguration($request, $context);
     }
 
     public function testCheckConfiguration(): void
@@ -64,6 +64,33 @@ class SystemConfigControllerTest extends TestCase
         static::assertSame('true', $result->getContent());
     }
 
+    public function testGetSchema(): void
+    {
+        $configurationService = static::createStub(ConfigurationService::class);
+        $configurationService
+            ->method('getSystemConfigDefinition')
+            ->willReturn(['foo' => 'bar']);
+
+        $controller = new SystemConfigController(
+            $configurationService,
+            static::createStub(SystemConfigService::class),
+            static::createStub(SystemConfigValidator::class)
+        );
+
+        $request = new Request();
+        $request->query->set('domain', 'foo');
+
+        $context = Context::createDefaultContext();
+
+        $result = $controller->getSchema($request, $context);
+
+        static::assertSame('{"foo":"bar"}', $result->getContent());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed. testGetSchema will cover the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetConfiguration(): void
     {
         $configurationService = static::createStub(ConfigurationService::class);
@@ -87,6 +114,32 @@ class SystemConfigControllerTest extends TestCase
         static::assertSame('{"foo":"bar"}', $result->getContent());
     }
 
+    public function testGetSchemaWithName(): void
+    {
+        $configurationService = static::createStub(ConfigurationService::class);
+        $configurationService
+            ->method('getSystemConfigDefinition')
+            ->willReturn(['foo' => 'bar']);
+
+        $controller = new SystemConfigController(
+            $configurationService,
+            static::createStub(SystemConfigService::class),
+            static::createStub(SystemConfigValidator::class)
+        );
+
+        $request = new Request();
+        $request->query->set('domain', '');
+
+        $context = Context::createDefaultContext();
+
+        $this->expectExceptionObject(SystemConfigException::missingRequestParameter('domain'));
+        $controller->getSchema($request, $context);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - will be removed. testGetSchemaWithName will cover the new behavior
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetConfigurationWithName(): void
     {
         $configurationService = static::createStub(ConfigurationService::class);
@@ -239,8 +292,6 @@ class SystemConfigControllerTest extends TestCase
     #[DataProvider('batchSaveConfigurationProvider')]
     public function testBatchSaveConfiguration(Request $request, ?string $expectedSalesChannelId, ?bool $expectedSilent): void
     {
-        $configurationServiceMock = static::createStub(ConfigurationService::class);
-
         $systemConfigServiceMock = $this->createMock(SystemConfigService::class);
         $setMultiple = $systemConfigServiceMock->expects($this->once())
             ->method('setMultiple');
@@ -255,7 +306,7 @@ class SystemConfigControllerTest extends TestCase
         $systemConfigValidatorMock->method('validate');
 
         $systemConfigController = new SystemConfigController(
-            $configurationServiceMock,
+            static::createStub(ConfigurationService::class),
             $systemConfigServiceMock,
             $systemConfigValidatorMock
         );

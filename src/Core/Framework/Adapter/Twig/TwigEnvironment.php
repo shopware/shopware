@@ -47,16 +47,18 @@ class TwigEnvironment extends Environment implements ResetInterface
     }
 
     /**
-     * Resets CachedEscaperRuntime static caches between requests.
+     * Resets per-request state between requests.
      *
      * This is essential for long runner environments (RoadRunner, FrankenPHP, Swoole)
      * where the same PHP process handles multiple requests. Without reset,
      * the escape filter cache in CachedEscaperRuntime would grow unbounded,
-     * causing memory leaks.
+     * causing memory leaks, and the globals Twig resolves once per environment
+     * (e.g. the request-dependent Storefront globals) would be served to every later request.
      */
     public function reset(): void
     {
         CachedEscaperRuntime::resetEscapeCache();
+        $this->resetGlobals();
     }
 
     /**

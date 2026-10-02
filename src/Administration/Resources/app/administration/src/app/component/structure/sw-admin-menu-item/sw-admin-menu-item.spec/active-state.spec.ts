@@ -186,7 +186,7 @@ describe('src/app/component/structure/sw-admin-menu-item: active state', () => {
             props: {
                 entry: {
                     id: 'sw-catalogue',
-                    label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
+                    label: 'global.sw-admin-menu.navigation.mainMenuItemProducts',
                     icon: 'regular-products',
                     level: 1,
                     children: [

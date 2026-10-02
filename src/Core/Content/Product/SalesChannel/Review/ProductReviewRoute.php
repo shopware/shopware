@@ -4,13 +4,17 @@ namespace Shopware\Core\Content\Product\SalesChannel\Review;
 
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewDefinition;
+use Shopware\Core\Content\Product\Extension\ProductReviewRouteExtension;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Cache\EntityCacheKeyGenerator;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -24,6 +28,8 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class ProductReviewRoute extends AbstractProductReviewRoute
 {
+    public const DEFAULT_MAX_LIMIT = 100;
+
     /**
      * @internal
      *
@@ -32,7 +38,10 @@ class ProductReviewRoute extends AbstractProductReviewRoute
     public function __construct(
         private readonly EntityRepository $productReviewRepository,
         private readonly SystemConfigService $systemConfigService,
-        private readonly CacheTagCollector $cacheTagCollector
+        private readonly CacheTagCollector $cacheTagCollector,
+        private readonly ExtensionDispatcher $extensions,
+        private readonly int $maxLimit = self::DEFAULT_MAX_LIMIT,
+        private readonly CompressedCriteriaDecoder $compressedCriteriaDecoder = new CompressedCriteriaDecoder(),
     ) {
     }
 
@@ -53,6 +62,20 @@ class ProductReviewRoute extends AbstractProductReviewRoute
         defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ProductReviewDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
+    {
+        return $this->extensions->publish(
+            name: ProductReviewRouteExtension::NAME,
+            extension: new ProductReviewRouteExtension(
+                $productId,
+                $request,
+                $context,
+                $this->applyConfiguredLimit($criteria, $context->getSalesChannelId(), $request),
+            ),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductReviewRouteResponse
     {
         $salesChannelId = $context->getSalesChannelId();
         if (!$this->systemConfigService->getBool('core.listing.showReview', $salesChannelId)) {
@@ -80,5 +103,49 @@ class ProductReviewRoute extends AbstractProductReviewRoute
         $result = $this->productReviewRepository->search($criteria, $context->getContext());
 
         return new ProductReviewRouteResponse($result);
+    }
+
+    private function applyConfiguredLimit(Criteria $criteria, string $salesChannelId, Request $request): Criteria
+    {
+        if (!$criteria->hasState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST)) {
+            return $criteria;
+        }
+
+        $reviewsPerPage = $this->systemConfigService->getInt('core.listing.reviewsPerPage', $salesChannelId);
+        $reviewsPerPage = min($reviewsPerPage, $this->maxLimit);
+        if ($reviewsPerPage <= 0) {
+            return $criteria;
+        }
+
+        // The offset was derived from the max limit while resolving the page, so
+        // recompute it for the configured page size to keep pagination consistent.
+        $currentLimit = $criteria->getLimit();
+        $currentOffset = $criteria->getOffset();
+        if ($currentLimit && $currentOffset) {
+            $page = intdiv($currentOffset, $currentLimit) + 1;
+            $criteria->setOffset($reviewsPerPage * ($page - 1));
+        }
+
+        $criteria->setLimit($reviewsPerPage);
+        if (!$this->hasExplicitTotalCountMode($request)) {
+            $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        }
+
+        $criteria->removeState(RequestCriteriaBuilder::STATE_NO_EXPLICIT_LIMIT_IN_REQUEST);
+
+        return $criteria;
+    }
+
+    private function hasExplicitTotalCountMode(Request $request): bool
+    {
+        if ($request->isMethod(Request::METHOD_GET)) {
+            $payload = $request->query->has('_criteria')
+                ? $this->compressedCriteriaDecoder->decode((string) $request->query->get('_criteria'))
+                : $request->query->all();
+        } else {
+            $payload = $request->request->all();
+        }
+
+        return isset($payload['total-count-mode']);
     }
 }

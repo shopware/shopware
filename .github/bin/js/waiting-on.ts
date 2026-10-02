@@ -1,8 +1,8 @@
 /**
  * Decide who an open pull request is waiting for: its author, us, or nobody.
  *
- * This module only reports. It writes no labels and posts no comments — the point is to
- * agree on the rule before anything acts on it.
+ * The verdict is written back as one `waiting-on/*` label per pull request, so it can be
+ * filtered on in the GitHub UI. Nothing else is written: no comments, no closing.
  *
  * ## Why not `updated_at`
  *
@@ -109,7 +109,8 @@ export type WaitingOnReason =
     | 'author-turn'
     | 'our-turn';
 
-/** What stage 3 would set. Defined here so the report shows the label it would apply; nothing writes it yet. */
+export const WAITING_ON_LABEL_PREFIX = 'waiting-on/';
+
 export const WAITING_ON_LABEL: Record<WaitingOn, string> = {
     author: 'waiting-on/author',
     shopware: 'waiting-on/shopware',
@@ -505,9 +506,19 @@ type GraphqlClient = {
     graphql<T>(query: string, variables: Record<string, unknown>): Promise<T>;
 };
 
+type IssuesClient = {
+    rest: {
+        issues: {
+            addLabels(options: { owner: string; repo: string; issue_number: number; labels: string[] }): Promise<unknown>;
+            removeLabel(options: { owner: string; repo: string; issue_number: number; name: string }): Promise<unknown>;
+        };
+    };
+};
+
 type Core = {
     info(message: string): void;
     warning(message: string): void;
+    error(message: string): void;
     setOutput(name: string, value: string): void;
     summary: {
         addRaw(text: string, addEOL?: boolean): unknown;
@@ -643,11 +654,78 @@ export function renderReport(rows: Row[]): string {
     return lines.join('\n');
 }
 
+export type LabelChange = {
+    number: number;
+    add?: string;
+    remove: string[];
+};
+
 /**
- * Nothing here is labelled, commented on or closed. The `rows` output carries the verdicts
- * as JSON so a later stage can consume them without this having to change.
+ * The label edits that bring every open pull request in line with its verdict. A pull
+ * request without a row — one a bot opened — loses any `waiting-on/*` label it carries.
  */
-export async function reportWaitingOn({ github, core, context }: { github: GraphqlClient; core: Core; context: Context }): Promise<void> {
+export function planLabelChanges(nodes: PullRequestNode[], rows: Row[]): LabelChange[] {
+    const targets = new Map(rows.map((row) => [row.number, row.label]));
+    const changes: LabelChange[] = [];
+
+    for (const node of nodes) {
+        const target = targets.get(node.number);
+        const current = node.labels.nodes.map((label) => label.name).filter((name) => name.startsWith(WAITING_ON_LABEL_PREFIX));
+
+        const add = target !== undefined && !current.includes(target) ? target : undefined;
+        const remove = current.filter((name) => name !== target);
+
+        if (add !== undefined || remove.length > 0) {
+            changes.push({ number: node.number, add, remove });
+        }
+    }
+
+    return changes;
+}
+
+const sleep = (milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+/**
+ * The first run touches every open pull request, so writes are spaced out to stay clear of
+ * GitHub's secondary rate limit on mutating requests.
+ */
+export async function applyLabelChanges(
+    github: IssuesClient,
+    core: Core,
+    repo: Context['repo'],
+    changes: LabelChange[],
+    pauseMilliseconds = 1000,
+): Promise<number[]> {
+    const failed: number[] = [];
+
+    for (const change of changes) {
+        // One pull request failing must not hide the rest.
+        try {
+            if (change.add !== undefined) {
+                await github.rest.issues.addLabels({ ...repo, issue_number: change.number, labels: [change.add] });
+                core.info(`Set \`${change.add}\` on #${change.number}`);
+                await sleep(pauseMilliseconds);
+            }
+
+            for (const stale of change.remove) {
+                await github.rest.issues.removeLabel({ ...repo, issue_number: change.number, name: stale });
+                core.info(`Removed \`${stale}\` from #${change.number}`);
+                await sleep(pauseMilliseconds);
+            }
+        } catch (error) {
+            failed.push(change.number);
+            core.error(`Failed to update the waiting-on label on #${change.number}: ${error instanceof Error ? error.message : String(error)}`);
+        }
+    }
+
+    return failed;
+}
+
+/**
+ * Labels every open pull request with its verdict unless `dryRun` is set. The `rows` output
+ * carries the verdicts as JSON so a later stage can consume them without this having to change.
+ */
+export async function reportWaitingOn({ github, core, context }: { github: GraphqlClient & IssuesClient; core: Core; context: Context }, dryRun = false): Promise<void> {
     const nodes = await fetchOpenPullRequests(github, context.repo);
     core.info(`Read ${nodes.length} open pull request(s).`);
 
@@ -668,7 +746,15 @@ export async function reportWaitingOn({ github, core, context }: { github: Graph
     }
     core.info(`Counted as human: ${[...humans].sort().join(', ')}`);
 
+    const changes = planLabelChanges(nodes, rows);
+    const failed = dryRun ? [] : await applyLabelChanges(github, core, context.repo, changes);
+
     core.summary.addRaw(renderReport(rows));
+    core.summary.addRaw(`\n${changes.length} pull request(s) ${dryRun ? 'would have had their label changed (dry run)' : 'had their label changed'}.\n`);
     await core.summary.write();
     core.setOutput('rows', JSON.stringify(rows));
+
+    if (failed.length > 0) {
+        throw new Error(`Failed to update the waiting-on label on ${failed.length} pull request(s): ${failed.map((number) => `#${number}`).join(', ')}`);
+    }
 }

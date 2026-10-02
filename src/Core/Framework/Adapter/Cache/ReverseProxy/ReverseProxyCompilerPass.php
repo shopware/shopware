@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\Adapter\Cache\ReverseProxy;
 
 use Shopware\Core\Framework\Adapter\Cache\Http\CacheStore;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class ReverseProxyCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

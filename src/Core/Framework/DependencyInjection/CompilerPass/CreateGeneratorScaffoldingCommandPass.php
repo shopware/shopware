@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\MakerCommand;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
@@ -13,6 +14,7 @@ use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class CreateGeneratorScaffoldingCommandPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

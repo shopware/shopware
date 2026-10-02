@@ -2,11 +2,13 @@
 
 namespace Shopware\Storefront\DependencyInjection;
 
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 #[Package('discovery')]
+#[BecomesInternal(version: 'v6.8.0')]
 class DisableTemplateCachePass implements CompilerPassInterface
 {
     /**

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\AbstractRouteScope;
 use Shopware\Core\Framework\Routing\ApiContextRouteScopeDependant;
@@ -9,6 +10,7 @@ use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class RouteScopeCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

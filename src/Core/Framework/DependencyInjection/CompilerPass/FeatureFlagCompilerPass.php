@@ -3,12 +3,14 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class FeatureFlagCompilerPass implements CompilerPassInterface
 {
     public const ALIASES_TO_REMOVE = [

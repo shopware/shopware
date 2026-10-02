@@ -3,11 +3,13 @@
 namespace Shopware\Core\Framework\Adapter\Cache;
 
 use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class CacheCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

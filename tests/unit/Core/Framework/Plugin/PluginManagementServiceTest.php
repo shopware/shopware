@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\App\Event\AppUploadedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Event\PluginUploadedEvent;
@@ -62,11 +63,18 @@ class PluginManagementServiceTest extends TestCase
             $this->expectExceptionObject(new \RuntimeException('Extraction failed'));
         }
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
-        if ($type === PluginManagementService::PLUGIN && !$fails) {
-            $dispatcher->expects($this->once())->method('dispatch')->with(static::callback(static function (PluginUploadedEvent $event) use ($context, $pluginName, $pluginVersion): bool {
+        if (!$fails) {
+            $dispatcher->expects($this->once())->method('dispatch')->with(static::callback(static function (PluginUploadedEvent|AppUploadedEvent $event) use ($context, $pluginName, $pluginVersion, $type): bool {
                 static::assertSame('example.zip', $event->filename);
-                static::assertSame($pluginName, $event->pluginName);
-                static::assertSame($pluginVersion, $event->pluginVersion);
+                if ($type === PluginManagementService::PLUGIN) {
+                    static::assertInstanceOf(PluginUploadedEvent::class, $event);
+                    static::assertSame($pluginName, $event->pluginName);
+                    static::assertSame($pluginVersion, $event->pluginVersion);
+                } else {
+                    static::assertInstanceOf(AppUploadedEvent::class, $event);
+                    static::assertSame($pluginName, $event->appName);
+                    static::assertSame($pluginVersion, $event->appVersion);
+                }
                 static::assertSame($context, $event->context);
 
                 return true;
@@ -74,11 +82,14 @@ class PluginManagementServiceTest extends TestCase
         } else {
             $dispatcher->expects($this->never())->method('dispatch');
         }
+        $pluginService = $this->createMock(PluginService::class);
+        $pluginService->expects($type === PluginManagementService::PLUGIN && !$fails ? $this->once() : $this->never())
+            ->method('refreshPlugins');
         $service = new PluginManagementService(
             '',
             $detector,
             $extractor,
-            static::createStub(PluginService::class),
+            $pluginService,
             new Filesystem(),
             static::createStub(CacheClearer::class),
             $this->createClient([]),
@@ -129,7 +140,8 @@ class PluginManagementServiceTest extends TestCase
         yield 'successful plugin upload' => [PluginManagementService::PLUGIN, false];
         yield 'plugin class differs from directory and uploaded filename' => [PluginManagementService::PLUGIN, false, 'UploadedPlugin.zip', 'ActualPlugin', '2.0.0'];
         yield 'plugin version is optional' => [PluginManagementService::PLUGIN, false, 'UploadedPluginWithoutVersion.zip', 'ActualPlugin', null];
-        yield 'app upload is not logged as a plugin' => [PluginManagementService::APP, false];
+        yield 'app upload logs manifest metadata instead of directory name' => [PluginManagementService::APP, false, 'App.zip', 'SwagApp', '1.0.0'];
+        yield 'failed app extraction is not logged' => [PluginManagementService::APP, true, 'App.zip', 'SwagApp', '1.0.0'];
         yield 'failed plugin extraction is not logged' => [PluginManagementService::PLUGIN, true];
     }
 

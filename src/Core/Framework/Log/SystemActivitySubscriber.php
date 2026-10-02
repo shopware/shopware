@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
+use Shopware\Core\Framework\App\Event\AppUploadedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -36,6 +37,7 @@ final class SystemActivitySubscriber implements EventSubscriberInterface
             'user.written' => 'onEntityWritten',
             'integration.written' => 'onEntityWritten',
             PluginUploadedEvent::class => 'onPluginUploaded',
+            AppUploadedEvent::class => 'onAppUploaded',
             PluginPostActivateEvent::class => 'onPluginLifecycle',
             PluginPostDeactivateEvent::class => 'onPluginLifecycle',
             PluginPostInstallEvent::class => 'onPluginLifecycle',
@@ -64,6 +66,16 @@ final class SystemActivitySubscriber implements EventSubscriberInterface
             'filename' => $event->filename,
             'pluginName' => $event->pluginName,
             'pluginVersion' => $event->pluginVersion,
+            ...$this->actor($event->context),
+        ], static fn (mixed $value): bool => $value !== null));
+    }
+
+    public function onAppUploaded(AppUploadedEvent $event): void
+    {
+        $this->logger->info('app:upload', array_filter([
+            'filename' => $event->filename,
+            'appName' => $event->appName,
+            'appVersion' => $event->appVersion,
             ...$this->actor($event->context),
         ], static fn (mixed $value): bool => $value !== null));
     }

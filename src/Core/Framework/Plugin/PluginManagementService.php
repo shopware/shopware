@@ -5,6 +5,8 @@ namespace Shopware\Core\Framework\Plugin;
 use Composer\IO\NullIO;
 use GuzzleHttp\Client;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
+use Shopware\Core\Framework\App\Event\AppUploadedEvent;
+use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Event\PluginUploadedEvent;
@@ -70,13 +72,14 @@ class PluginManagementService
         $tempFile = $file->move($tempDirectory, $tempFileName);
 
         $type = $this->pluginZipDetector->detect($tempFile->getPathname());
-        $metadata = $type === self::PLUGIN ? $this->readUploadMetadata($tempFile->getPathname()) : null;
+        $metadata = $this->readUploadMetadata($tempFile->getPathname(), $type);
         $this->extractPluginZip($tempFile->getPathname(), storeType: $type);
 
         if ($type === self::PLUGIN) {
-            \assert($metadata !== null);
             $this->pluginService->refreshPlugins($context, new NullIO());
-            $this->eventDispatcher->dispatch(new PluginUploadedEvent($file->getClientOriginalName(), $context, $metadata['pluginName'], $metadata['pluginVersion']));
+            $this->eventDispatcher->dispatch(new PluginUploadedEvent($file->getClientOriginalName(), $context, $metadata['name'], $metadata['version']));
+        } else {
+            $this->eventDispatcher->dispatch(new AppUploadedEvent($file->getClientOriginalName(), $context, $metadata['name'], $metadata['version']));
         }
     }
 
@@ -119,15 +122,23 @@ class PluginManagementService
     }
 
     /**
-     * @return array{pluginName: string, pluginVersion: string|null}
+     * @return array{name: string, version: string|null}
      */
-    private function readUploadMetadata(string $path): array
+    private function readUploadMetadata(string $path, string $type): array
     {
         $archive = ZipUtils::openZip($path);
         try {
             $entry = $archive->statIndex(0);
             \assert($entry !== false);
             $directory = explode('/', (string) $entry['name'])[0];
+            if ($type === self::APP) {
+                $manifestXml = $archive->getFromName($directory . '/manifest.xml');
+                \assert(\is_string($manifestXml));
+                $metadata = Manifest::createFromXml($manifestXml)->getMetadata();
+
+                return ['name' => $metadata->getName(), 'version' => $metadata->getVersion()];
+            }
+
             $composerJson = $archive->getFromName($directory . '/composer.json');
             $composer = \is_string($composerJson) ? json_decode($composerJson, true, flags: \JSON_THROW_ON_ERROR) : null;
             $extra = \is_array($composer) ? ($composer['extra'] ?? null) : null;
@@ -135,8 +146,8 @@ class PluginManagementService
             $version = \is_array($composer) ? ($composer['version'] ?? null) : null;
 
             return [
-                'pluginName' => \is_string($class) && $class !== '' ? basename(str_replace('\\', '/', $class)) : $directory,
-                'pluginVersion' => \is_string($version) ? $version : null,
+                'name' => \is_string($class) && $class !== '' ? basename(str_replace('\\', '/', $class)) : $directory,
+                'version' => \is_string($version) ? $version : null,
             ];
         } finally {
             $archive->close();

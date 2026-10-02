@@ -10,6 +10,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
+use Shopware\Core\Framework\App\Event\AppUploadedEvent;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -93,6 +94,20 @@ class SystemActivitySubscriberTest extends TestCase
             ], Context::createDefaultContext());
             $dispatcher->dispatch($event, $event->getName());
         }
+    }
+
+    public function testLogsAppUploadWithAppMetadataAndActor(): void
+    {
+        $userId = Uuid::randomHex();
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('info')->with('app:upload', [
+            'filename' => 'extension.zip', 'appName' => 'ExampleApp', 'appVersion' => '1.0.0',
+            'actorType' => 'user', 'userId' => $userId, 'username' => 'admin',
+        ]);
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addSubscriber(new SystemActivitySubscriber($logger, $this->connection));
+
+        $dispatcher->dispatch(new AppUploadedEvent('extension.zip', new Context(new AdminApiSource($userId)), 'ExampleApp', '1.0.0'));
     }
 
     public function testLogsSuccessfulUpload(): void

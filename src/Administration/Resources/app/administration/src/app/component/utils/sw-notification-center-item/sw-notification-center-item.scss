@@ -79,6 +79,7 @@
     .sw-notification-center-item__message {
         font-size: var(--font-size-xs);
         width: 100%;
+        overflow-wrap: anywhere;
     }
 
     .sw-notification-center-item__loader {

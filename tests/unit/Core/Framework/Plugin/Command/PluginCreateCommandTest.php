@@ -65,9 +65,8 @@ class PluginCreateCommandTest extends TestCase
         static::assertSame(Command::SUCCESS, $status);
         $display = $this->display($tester);
         static::assertStringContainsString('Successfully generated Plugin', $display);
-        static::assertStringContainsString('1) run plugin:install', $display);
-        static::assertStringContainsString('2) run build admin', $display);
-        static::assertStringContainsString('3) add storefront javascript code', $display);
+        static::assertStringContainsString('1) run bin/console plugin:refresh', $display);
+        static::assertStringContainsString('2) run bin/console plugin:install', $display);
     }
 
     public function testCreatesPluginInStaticPluginsDirectory(): void
@@ -211,7 +210,7 @@ class PluginCreateCommandTest extends TestCase
         $filesystem->method('exists')->willReturnOnConsecutiveCalls(false, true);
         $filesystem->expects($this->once())->method('remove')->with($directory);
 
-        $writer = $this->createMock(ScaffoldingWriter::class);
+        $writer = static::createStub(ScaffoldingWriter::class);
         $writer->method('write')->willThrowException(new \RuntimeException('Could not write plugin'));
 
         $tester = $this->commandTester(filesystem: $filesystem, writer: $writer);

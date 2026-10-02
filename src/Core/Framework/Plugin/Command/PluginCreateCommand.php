@@ -235,8 +235,8 @@ class PluginCreateCommand extends Command
                     $summarySection?->clear();
                     $summarySection?->writeln('<options=bold>Adding the following scaffolding:</>');
 
-                    foreach ($addedScaffolding as $optionTitle) {
-                        $summarySection?->writeln(' - ' . $optionTitle);
+                    foreach ($addedScaffolding as $addedTitle) {
+                        $summarySection?->writeln(' - ' . $addedTitle);
                     }
                     $summarySection?->writeln('');
                 }

@@ -23,9 +23,9 @@ class ConfigGeneratorTest extends TestCase
     {
         $generator = new ConfigGenerator();
 
-        static::assertTrue($generator->hasCommandOption());
-        static::assertNotEmpty($generator->getCommandOptionName());
-        static::assertNotEmpty($generator->getCommandOptionDescription());
+        $option = $generator->getCommandOption();
+        static::assertNotEmpty($option->getName());
+        static::assertNotEmpty($option->getDescription());
         static::assertSame('Plugin Config', $generator->getCommandOptionTitle());
         static::assertNotEmpty($generator->getCommandOptionDescriptionLong());
     }
@@ -37,8 +37,8 @@ class ConfigGeneratorTest extends TestCase
 
         (new ConfigGenerator())->addScaffoldConfig(
             $configuration,
-            ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
-            ScaffoldConsole::output(),
+            $input = ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
+            ScaffoldConsole::style($input),
         );
 
         static::assertSame($expectedHasOption, $configuration->hasOption(ConfigGenerator::OPTION_NAME));

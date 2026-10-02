@@ -25,9 +25,9 @@ class EntityGeneratorTest extends TestCase
     {
         $generator = new EntityGenerator(new MockClock());
 
-        static::assertTrue($generator->hasCommandOption());
-        static::assertNotEmpty($generator->getCommandOptionName());
-        static::assertNotEmpty($generator->getCommandOptionDescription());
+        $option = $generator->getCommandOption();
+        static::assertNotEmpty($option->getName());
+        static::assertNotEmpty($option->getDescription());
         static::assertSame('Custom Entities', $generator->getCommandOptionTitle());
         static::assertNotEmpty($generator->getCommandOptionDescriptionLong());
     }
@@ -86,8 +86,8 @@ class EntityGeneratorTest extends TestCase
 
         (new EntityGenerator(new MockClock()))->addScaffoldConfig(
             $configuration,
-            ScaffoldConsole::input(option: false, answer: 'n'),
-            ScaffoldConsole::output(),
+            $input = ScaffoldConsole::input(option: false, answer: 'n'),
+            ScaffoldConsole::style($input),
         );
 
         static::assertFalse($configuration->hasOption(EntityGenerator::OPTION_NAME));
@@ -99,8 +99,8 @@ class EntityGeneratorTest extends TestCase
 
         (new EntityGenerator(new MockClock()))->addScaffoldConfig(
             $configuration,
-            ScaffoldConsole::input(option: false, answer: "y\nTestEntity, TestEntity2"),
-            ScaffoldConsole::output(),
+            $input = ScaffoldConsole::input(option: false, answer: "y\nTestEntity, TestEntity2"),
+            ScaffoldConsole::style($input),
         );
 
         static::assertSame(
@@ -116,8 +116,8 @@ class EntityGeneratorTest extends TestCase
 
         (new EntityGenerator(new MockClock()))->addScaffoldConfig(
             $configuration,
-            ScaffoldConsole::input(option: false, answer: "y\n" . $answer),
-            ScaffoldConsole::output(),
+            $input = ScaffoldConsole::input(option: false, answer: "y\n" . $answer),
+            ScaffoldConsole::style($input),
         );
 
         static::assertFalse($configuration->hasOption(EntityGenerator::OPTION_NAME));
@@ -247,6 +247,7 @@ PHP;
                     $stubs,
                 );
 
+            static::assertCount(3, $stubs);
             static::assertCount(3, $stubs);
             static::assertTrue($stubs->has('src/Core/Content/Test/TestEntity.php'));
             static::assertFalse($stubs->has('src/Migration/Migration' . $timestamp . 'CreateTestTable.php'));

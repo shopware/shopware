@@ -21,9 +21,9 @@ class EventSubscriberGeneratorTest extends TestCase
     {
         $generator = new EventSubscriberGenerator();
 
-        static::assertTrue($generator->hasCommandOption());
-        static::assertNotEmpty($generator->getCommandOptionName());
-        static::assertNotEmpty($generator->getCommandOptionDescription());
+        $option = $generator->getCommandOption();
+        static::assertNotEmpty($option->getName());
+        static::assertNotEmpty($option->getDescription());
         static::assertSame('Event Subscriber', $generator->getCommandOptionTitle());
         static::assertNotEmpty($generator->getCommandOptionDescriptionLong());
     }
@@ -35,8 +35,8 @@ class EventSubscriberGeneratorTest extends TestCase
 
         (new EventSubscriberGenerator())->addScaffoldConfig(
             $configuration,
-            ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
-            ScaffoldConsole::output(),
+            $input = ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
+            ScaffoldConsole::style($input),
         );
 
         static::assertSame($expectedHasOption, $configuration->hasOption(EventSubscriberGenerator::OPTION_NAME));

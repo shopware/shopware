@@ -21,9 +21,9 @@ class StoreApiRouteGeneratorTest extends TestCase
     {
         $generator = new StoreApiRouteGenerator();
 
-        static::assertTrue($generator->hasCommandOption());
-        static::assertNotEmpty($generator->getCommandOptionName());
-        static::assertNotEmpty($generator->getCommandOptionDescription());
+        $option = $generator->getCommandOption();
+        static::assertNotEmpty($option->getName());
+        static::assertNotEmpty($option->getDescription());
         static::assertSame('Store API Route', $generator->getCommandOptionTitle());
         static::assertNotEmpty($generator->getCommandOptionDescriptionLong());
     }
@@ -35,8 +35,8 @@ class StoreApiRouteGeneratorTest extends TestCase
 
         (new StoreApiRouteGenerator())->addScaffoldConfig(
             $configuration,
-            ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
-            ScaffoldConsole::output(),
+            $input = ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
+            ScaffoldConsole::style($input),
         );
 
         static::assertSame($expectedHasOption, $configuration->hasOption(StoreApiRouteGenerator::OPTION_NAME));

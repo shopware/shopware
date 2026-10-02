@@ -21,9 +21,9 @@ class StorefrontControllerGeneratorTest extends TestCase
     {
         $generator = new StorefrontControllerGenerator();
 
-        static::assertTrue($generator->hasCommandOption());
-        static::assertNotEmpty($generator->getCommandOptionName());
-        static::assertNotEmpty($generator->getCommandOptionDescription());
+        $option = $generator->getCommandOption();
+        static::assertNotEmpty($option->getName());
+        static::assertNotEmpty($option->getDescription());
         static::assertSame('Storefront Controller', $generator->getCommandOptionTitle());
         static::assertNotEmpty($generator->getCommandOptionDescriptionLong());
     }
@@ -35,8 +35,8 @@ class StorefrontControllerGeneratorTest extends TestCase
 
         (new StorefrontControllerGenerator())->addScaffoldConfig(
             $configuration,
-            ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
-            ScaffoldConsole::output(),
+            $input = ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
+            ScaffoldConsole::style($input),
         );
 
         static::assertSame($expectedHasOption, $configuration->hasOption(StorefrontControllerGenerator::OPTION_NAME));

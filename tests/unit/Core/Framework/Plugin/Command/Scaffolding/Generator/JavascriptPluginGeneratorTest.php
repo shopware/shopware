@@ -21,9 +21,9 @@ class JavascriptPluginGeneratorTest extends TestCase
     {
         $generator = new JavascriptPluginGenerator();
 
-        static::assertTrue($generator->hasCommandOption());
-        static::assertNotEmpty($generator->getCommandOptionName());
-        static::assertNotEmpty($generator->getCommandOptionDescription());
+        $option = $generator->getCommandOption();
+        static::assertNotEmpty($option->getName());
+        static::assertNotEmpty($option->getDescription());
         static::assertSame('Javascript Plugin', $generator->getCommandOptionTitle());
         static::assertNotEmpty($generator->getCommandOptionDescriptionLong());
     }
@@ -35,8 +35,8 @@ class JavascriptPluginGeneratorTest extends TestCase
 
         (new JavascriptPluginGenerator())->addScaffoldConfig(
             $configuration,
-            ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
-            ScaffoldConsole::output(),
+            $input = ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
+            ScaffoldConsole::style($input),
         );
 
         static::assertSame($expectedHasOption, $configuration->hasOption(JavascriptPluginGenerator::OPTION_NAME));

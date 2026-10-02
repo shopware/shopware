@@ -328,7 +328,7 @@ Previously, these routes could return unrelated records or fail because the unde
 
 ## `ReverseProxyCompilerPass` removed
 
-`Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass` was removed without replacement. The http cache store and the reverse proxy gateway are selected at runtime from `shopware.http_cache.reverse_proxy.enabled` and `shopware.http_cache.reverse_proxy.fastly.enabled`. Remove any manual registration of the compiler pass, and do not rely on reverse proxy services being absent from the container when the reverse proxy is disabled.
+`Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass` was removed without replacement. Remove any manual registration of the compiler pass, and do not rely on reverse proxy services being absent from the container when the reverse proxy is disabled.
 ## Removal of legacy `ConfigurationService` getters
 
 The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` have been removed.

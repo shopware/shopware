@@ -223,6 +223,21 @@ the store. The codemod never emits the clean one; that migration is a human's ca
 the CMS editor state through it. Its descriptor therefore answers those members as well, which is why
 both descriptors share one member list.
 
+## Route guards
+
+`beforeRouteLeave` and `beforeRouteUpdate` become `onBeforeRouteLeave()` and
+`onBeforeRouteUpdate()`. Both take the same guard signature the option had, so the body converts
+like a lifecycle hook's.
+
+The two are not interchangeable for a component the router does not render itself: the option is
+only read off route components, while the composable registers against the matched route record and
+therefore also fires for a nested component. Every component in the Administration that declares one
+is a page, so the conversion is exact where it applies — but a nested declaration would start firing
+a guard that never ran before.
+
+`beforeRouteEnter` stays a TODO. It runs before the instance exists, so there is nothing for a
+composable to register against.
+
 ## What is skipped on purpose
 
 `Component.extend` children, `Component.override` registrations, `this.$super`/`this.$parent`,

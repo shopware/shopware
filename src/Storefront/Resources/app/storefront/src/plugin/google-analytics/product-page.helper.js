@@ -14,7 +14,9 @@ export default class ProductPageHelper {
     static getProductData(productId, fallbackElement = null) {
         const detailData = ProductPageHelper.getProductDetailData();
 
-        if (detailData.name) {
+        // A product box on the detail page, such as cross selling or a product slider, shows
+        // another product than the page, so only the product the page is about uses its data.
+        if (detailData.name && !ProductPageHelper.getProductCard(productId, fallbackElement)) {
             return detailData;
         }
 
@@ -60,18 +62,28 @@ export default class ProductPageHelper {
     }
 
     /**
+     * The product box a product is shown in, found through its wishlist button or the element the
+     * interaction started from, such as the buy form of the box. The buy widget of the detail page
+     * is not a product box.
+     *
+     * @param {string} productId
+     * @param {HTMLElement|null} fallbackElement
+     * @returns {HTMLElement|null}
+     */
+    static getProductCard(productId, fallbackElement = null) {
+        return fallbackElement?.closest('.product-box')
+            ?? document.querySelector(`.product-wishlist-${productId}`)?.closest('.product-box')
+            ?? null;
+    }
+
+    /**
      * Gets product data from product card (listing page)
      * @param {string} productId
      * @param {HTMLElement|null} fallbackElement - Optional element to search for product card
      * @returns {{id: string|undefined, name: string|undefined, brand: string|undefined, variant: string|undefined, value: string|undefined}}
      */
     static getProductCardData(productId, fallbackElement = null) {
-        let productCard = document.querySelector(`.product-wishlist-${productId}`)?.closest('.product-box');
-
-        // Fallback: find product card from provided element (e.g., form on wishlist page)
-        if (!productCard && fallbackElement) {
-            productCard = fallbackElement.closest('.product-box');
-        }
+        const productCard = ProductPageHelper.getProductCard(productId, fallbackElement);
 
         if (!productCard?.dataset.productInformation) {
             return {};
@@ -95,19 +107,23 @@ export default class ProductPageHelper {
      * The GA4 category properties of a product the page does not carry a path for.
      *
      * On the product detail page the breadcrumb is the path of the product itself. Anywhere else,
-     * such as a listing, a slider or a Shopping Experience page, the breadcrumb describes the page,
+     * such as a listing, a slider or a Shopping Experience page, and for a product box on the
+     * detail page, such as cross selling, the breadcrumb describes the page,
      * so the path is requested from the storefront, which resolves it through the Store API
      * breadcrumb route. Product boxes do not carry it, because loading every category of every
      * product would slow down each render for an event that only fires on a click. The
      * breadcrumb is only used as a fallback when that request fails.
      *
      * @param {string} productId
+     * @param {HTMLElement|null} element the element the interaction started from, if any
      * @returns {Promise<Object>}
      */
-    static async resolveCategories(productId) {
+    static async resolveCategories(productId, element = null) {
         const url = window.router?.['frontend.analytics.product-categories'];
+        const isPageProduct = window.activeRoute === 'frontend.detail.page'
+            && !ProductPageHelper.getProductCard(productId, element);
 
-        if (window.activeRoute === 'frontend.detail.page' || !url || !productId) {
+        if (isPageProduct || !url || !productId) {
             return ProductPageHelper.getCategories();
         }
 

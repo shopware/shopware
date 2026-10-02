@@ -106,7 +106,7 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
 
         // a product box on a listing, a slider or a Shopping Experience page carries no path
         if (Object.keys(categories).length === 0) {
-            categories = await ProductPageHelper.resolveCategories(productId);
+            categories = await ProductPageHelper.resolveCategories(productId, form);
         }
 
         // the shopper can revoke the tracking consent while the categories are requested

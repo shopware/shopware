@@ -391,13 +391,17 @@ Google Tag Manager configurations that remap parameters from `eventModel` should
 
 `remove_from_cart` is no longer reported for line items that are not products, such as a removed discount. Those reported the line item id as `item_id`, where every other event reports a product number.
 
+`remove_from_cart` matches the removed line item by its id, which the hidden line item now carries as `data-line-item-id`. A product that a Store API client or an extension added under its own line item id was not reported before.
+
+A product box on the product detail page, such as cross selling or a product slider, now reports its own product for `add_to_cart` instead of the product of the page.
+
 The container `.hidden-line-items-information` no longer carries `data-value`. The event value is derived from the reported items instead, so it always matches them. Themes and plugins that read the attribute should sum `data-price` times `data-quantity` of the `.hidden-line-item` elements. The container and the `data-product-variant` / `data-product-prices` attributes of the buy widget are only rendered for a sales channel with analytics, because only the analytics script reads them.
 
 Variant products report their selected options as `item_variant`, for example `Red, L`. `item_id` keeps the variant's product number, because that is the sellable unit and matches product feeds. The value comes from the line item payload in the cart, checkout, and purchase events, and from the product itself on the detail page and in product listings. Products without variant options do not report the property.
 
 `begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped. Note that `value` is still the sum of the undiscounted item prices.
 
-`add_to_wishlist` and `remove_from_wishlist` report the category path of the product. Both events previously fell back to the page breadcrumb, which describes the wishlist on the wishlist page and the listing category on a listing, so the reported categories were wrong or missing. On the product detail page the breadcrumb is still used, because it is the path of the product there.
+`add_to_wishlist` and `remove_from_wishlist` report the category path of the product. Both events previously fell back to the page breadcrumb, which describes the wishlist on the wishlist page and the listing category on a listing, so the reported categories were wrong or missing. For the product of a product detail page the breadcrumb is still used, because it is the path of that product. A product box on that page, such as cross selling, is handled like any other product box.
 
 Everywhere else the events request the path when the heart is clicked, from the new storefront route `frontend.analytics.product-categories` (`GET /widgets/analytics/product-categories?productId=`). It resolves the path through the Store API breadcrumb route and is HTTP cached. No page loads additional associations for it, so listings, sliders, Shopping Experience pages, and the wishlist pages keep their query count. The route is only linked for a sales channel with analytics, only requested by the analytics script after consent, and answers `404` for a sales channel without analytics and `400` for an invalid product ID. The events are sent once the request has answered and fall back to the page breadcrumb when it fails. Removing a product on the wishlist page waits for the event at most one second before the form is submitted.
 

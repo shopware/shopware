@@ -69,3 +69,95 @@ diff --git a/src/DetectChanges/BCBreak/ClassBased/AncestorRemoved.php b/src/Dete
 +        return $canonicalAncestors;
 +    }
  }
+diff --git a/src/DetectChanges/BCBreak/FunctionBased/ParameterTypeChanged.php b/src/DetectChanges/BCBreak/FunctionBased/ParameterTypeChanged.php
+--- a/src/DetectChanges/BCBreak/FunctionBased/ParameterTypeChanged.php
++++ b/src/DetectChanges/BCBreak/FunctionBased/ParameterTypeChanged.php
+@@ -58,7 +58,7 @@
+         $fromType = $this->typeToString($fromParameter->getType());
+         $toType   = $this->typeToString($toParameter->getType());
+ 
+-        if ($fromType === $toType) {
++        if ($this->canonicalize($fromType) === $this->canonicalize($toType)) {
+             return;
+         }
+ 
+@@ -81,4 +81,15 @@
+ 
+         return $type->__toString();
+     }
++    private function canonicalize(string $type): string
++    {
++        require_once dirname(__DIR__, 9) . '/vendor/autoload.php';
++        $classAliases = array_change_key_case(\Shopware\Core\Framework\Deprecation\ClassAliasRegistry::aliases(), CASE_LOWER);
++
++        return (string) preg_replace_callback(
++            '/[A-Za-z_\\\\][A-Za-z0-9_\\\\]*/',
++            static fn (array $match): string => $classAliases[strtolower($match[0])] ?? $match[0],
++            $type,
++        );
++    }
+ }
+diff --git a/src/DetectChanges/BCBreak/FunctionBased/ReturnTypeChanged.php b/src/DetectChanges/BCBreak/FunctionBased/ReturnTypeChanged.php
+--- a/src/DetectChanges/BCBreak/FunctionBased/ReturnTypeChanged.php
++++ b/src/DetectChanges/BCBreak/FunctionBased/ReturnTypeChanged.php
+@@ -33,7 +33,7 @@
+         $fromReturnType = $this->typeToString($fromFunction->getReturnType());
+         $toReturnType   = $this->typeToString($toFunction->getReturnType());
+ 
+-        if ($fromReturnType === $toReturnType) {
++        if ($this->canonicalize($fromReturnType) === $this->canonicalize($toReturnType)) {
+             return Changes::empty();
+         }
+ 
+@@ -55,4 +55,15 @@
+ 
+         return $type->__toString();
+     }
++    private function canonicalize(string $type): string
++    {
++        require_once dirname(__DIR__, 9) . '/vendor/autoload.php';
++        $classAliases = array_change_key_case(\Shopware\Core\Framework\Deprecation\ClassAliasRegistry::aliases(), CASE_LOWER);
++
++        return (string) preg_replace_callback(
++            '/[A-Za-z_\\\\][A-Za-z0-9_\\\\]*/',
++            static fn (array $match): string => $classAliases[strtolower($match[0])] ?? $match[0],
++            $type,
++        );
++    }
+ }
+diff --git a/src/DetectChanges/Variance/TypeIsContravariant.php b/src/DetectChanges/Variance/TypeIsContravariant.php
+--- a/src/DetectChanges/Variance/TypeIsContravariant.php
++++ b/src/DetectChanges/Variance/TypeIsContravariant.php
+@@ -74,7 +74,13 @@
+         $typeAsString         = $type->getName();
+         $comparedTypeAsString = $comparedType->getName();
+ 
+-        if (Str\lowercase($typeAsString) === Str\lowercase($comparedTypeAsString)) {
++        require_once dirname(__DIR__, 8) . '/vendor/autoload.php';
++        $classAliases = array_change_key_case(\Shopware\Core\Framework\Deprecation\ClassAliasRegistry::aliases(), CASE_LOWER);
++
++        if (
++            Str\lowercase($classAliases[Str\lowercase($typeAsString)] ?? $typeAsString)
++            === Str\lowercase($classAliases[Str\lowercase($comparedTypeAsString)] ?? $comparedTypeAsString)
++        ) {
+             return true;
+         }
+ 
+diff --git a/src/DetectChanges/Variance/TypeIsCovariant.php b/src/DetectChanges/Variance/TypeIsCovariant.php
+--- a/src/DetectChanges/Variance/TypeIsCovariant.php
++++ b/src/DetectChanges/Variance/TypeIsCovariant.php
+@@ -69,7 +69,13 @@
+         $typeAsString         = $type->getName();
+         $comparedTypeAsString = $comparedType->getName();
+ 
+-        if (Str\lowercase($typeAsString) === Str\lowercase($comparedTypeAsString)) {
++        require_once dirname(__DIR__, 8) . '/vendor/autoload.php';
++        $classAliases = array_change_key_case(\Shopware\Core\Framework\Deprecation\ClassAliasRegistry::aliases(), CASE_LOWER);
++
++        if (
++            Str\lowercase($classAliases[Str\lowercase($typeAsString)] ?? $typeAsString)
++            === Str\lowercase($classAliases[Str\lowercase($comparedTypeAsString)] ?? $comparedTypeAsString)
++        ) {
+             return true;
+         }
+ 

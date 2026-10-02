@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Media\ScheduledTask;
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaType\FilelessMediaTypeInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -51,15 +52,42 @@ final class CleanupCorruptedMediaHandler extends ScheduledTaskHandler
             $criteria = $this->buildCleanupCriteria($lastId);
             $criteria->setLimit(self::CORRUPTED_MEDIA_BATCH_SIZE);
 
-            $ids = $this->mediaRepository->searchIds($criteria, $context)->getPrimaryKeyData();
-            if ($ids === []) {
+            $media = $this->mediaRepository->search($criteria, $context)->getEntities();
+            if ($media->count() === 0) {
                 return;
             }
 
-            $lastId = array_last($ids)['id'];
+            $lastId = $media->last()?->getId();
 
-            $this->mediaRepository->delete($ids, $context);
+            $ids = $this->deletableIds($media);
+
+            // A batch can hold nothing but media that is meant to have no file. Paging has to go on
+            // regardless, or the task would stop at the first such batch and never reach the rest.
+            if ($ids !== []) {
+                $this->mediaRepository->delete($ids, $context);
+            }
         }
+    }
+
+    /**
+     * Media whose type says a file is optional is not an unfinished upload, however long it has
+     * been sitting there without one, so it is kept.
+     *
+     * @return list<array{id: string}>
+     */
+    private function deletableIds(MediaCollection $media): array
+    {
+        $ids = [];
+
+        foreach ($media as $entity) {
+            if ($entity->getMediaType() instanceof FilelessMediaTypeInterface) {
+                continue;
+            }
+
+            $ids[] = ['id' => $entity->getId()];
+        }
+
+        return $ids;
     }
 
     private function buildCleanupCriteria(?string $lastId = null): Criteria

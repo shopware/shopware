@@ -7,12 +7,14 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\MediaCollection;
+use Shopware\Core\Content\Media\MediaEntity;
+use Shopware\Core\Content\Media\MediaType\FilelessMediaTypeInterface;
+use Shopware\Core\Content\Media\MediaType\ImageType;
+use Shopware\Core\Content\Media\MediaType\MediaType;
 use Shopware\Core\Content\Media\ScheduledTask\CleanupCorruptedMediaHandler;
-use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
@@ -51,23 +53,21 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
 
     public function testRunCleanupCorruptedMediaSuccessfully(): void
     {
-        $data = [
-            $this->ids->get('media-1') => ['primaryKey' => $this->ids->get('media-1'), 'data' => []],
-            $this->ids->get('media-2') => ['primaryKey' => $this->ids->get('media-2'), 'data' => []],
-        ];
-
-        $this->mediaRepository = StaticEntityRepository::of(MediaCollection::class, [
-            function (Criteria $criteria, Context $context) use ($data): IdSearchResult {
+        $this->mediaRepository = new StaticEntityRepository([
+            function (Criteria $criteria): MediaCollection {
                 $this->assertCleanupFilters($criteria);
                 static::assertSame(500, $criteria->getLimit());
 
-                return new IdSearchResult(2, $data, $criteria, $context);
+                return new MediaCollection([
+                    $this->media('media-1', new ImageType()),
+                    $this->media('media-2', new ImageType()),
+                ]);
             },
-            function (Criteria $criteria, Context $context): IdSearchResult {
+            function (Criteria $criteria): MediaCollection {
                 $this->assertCleanupFilters($criteria, $this->ids->get('media-2'));
                 static::assertSame(500, $criteria->getLimit());
 
-                return new IdSearchResult(0, [], $criteria, $context);
+                return new MediaCollection();
             },
         ]);
 
@@ -86,12 +86,12 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
 
     public function testRunCleansNothingUpIfNoCorruptedMediaExists(): void
     {
-        $this->mediaRepository = StaticEntityRepository::of(MediaCollection::class, [
-            function (Criteria $criteria, Context $context): IdSearchResult {
+        $this->mediaRepository = new StaticEntityRepository([
+            function (Criteria $criteria): MediaCollection {
                 $this->assertCleanupFilters($criteria);
                 static::assertSame(500, $criteria->getLimit());
 
-                return new IdSearchResult(0, [], $criteria, $context);
+                return new MediaCollection();
             },
         ]);
 
@@ -99,6 +99,68 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
         $handler->run();
 
         static::assertEmpty($this->mediaRepository->deletes);
+    }
+
+    public function testMediaThatIsMeantToHaveNoFileIsKept(): void
+    {
+        $this->mediaRepository = new StaticEntityRepository([
+            fn (): MediaCollection => new MediaCollection([
+                $this->media('carrier', $this->filelessType()),
+                $this->media('broken', new ImageType()),
+            ]),
+            fn (): MediaCollection => new MediaCollection(),
+        ]);
+
+        $handler = $this->createHandler();
+        $handler->run();
+
+        $deletes = $this->mediaRepository->deletes[0];
+        static::assertIsArray($deletes);
+        static::assertSame([['id' => $this->ids->get('broken')]], $deletes);
+    }
+
+    public function testPagingGoesOnWhenAWholeBatchIsKept(): void
+    {
+        $searches = 0;
+
+        $this->mediaRepository = new StaticEntityRepository([
+            function (Criteria $criteria) use (&$searches): MediaCollection {
+                ++$searches;
+                $this->assertCleanupFilters($criteria);
+
+                return new MediaCollection([$this->media('carrier', $this->filelessType())]);
+            },
+            function (Criteria $criteria) use (&$searches): MediaCollection {
+                ++$searches;
+                // Without an id to page past, the same batch would come back for ever.
+                $this->assertCleanupFilters($criteria, $this->ids->get('carrier'));
+
+                return new MediaCollection();
+            },
+        ]);
+
+        $handler = $this->createHandler();
+        $handler->run();
+
+        static::assertSame(2, $searches);
+        static::assertEmpty($this->mediaRepository->deletes);
+    }
+
+    private function media(string $key, MediaType $type): MediaEntity
+    {
+        $media = new MediaEntity();
+        $media->setId($this->ids->get($key));
+        $media->setUniqueIdentifier($this->ids->get($key));
+        $media->setMediaType($type);
+
+        return $media;
+    }
+
+    private function filelessType(): MediaType
+    {
+        return new class extends MediaType implements FilelessMediaTypeInterface {
+            protected string $name = 'FILE_OPTIONAL';
+        };
     }
 
     private function createHandler(): CleanupCorruptedMediaHandler

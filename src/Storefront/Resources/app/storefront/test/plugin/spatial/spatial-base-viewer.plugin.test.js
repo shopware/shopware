@@ -520,3 +520,65 @@ describe('SpatialBaseViewerPlugin animation tests', () => {
         expect(window.DIVEAnimationPlugin.AnimationSystem).toHaveBeenCalled();
     });
 });
+
+describe('SpatialBaseViewerPlugin viewer creation', () => {
+    let canvas;
+
+    function createPlugin(options) {
+        const initSpy = jest.spyOn(SpatialBaseViewerPlugin.prototype, 'init').mockResolvedValue(undefined);
+        const plugin = new SpatialBaseViewerPlugin(canvas, options);
+        initSpy.mockRestore();
+
+        return plugin;
+    }
+
+    beforeEach(() => {
+        document.body.innerHTML = `
+            <div id="parentDiv">
+                <canvas id="canvasEl"></canvas>
+            </div>
+        `;
+        canvas = document.getElementById('canvasEl');
+
+        window.DIVEQuickViewPlugin = {
+            QuickView: jest.fn().mockResolvedValue({
+                model: null,
+                clock: { addTicker: jest.fn() },
+                startAsync: jest.fn(),
+                stop: jest.fn(),
+            }),
+        };
+    });
+
+    test('builds the viewer from the model url', async () => {
+        const plugin = createPlugin({ modelUrl: 'http://test/file.glb', sliderPosition: 0 });
+
+        await plugin.initViewer();
+
+        expect(window.DIVEQuickViewPlugin.QuickView).toHaveBeenCalledWith(
+            'http://test/file.glb',
+            expect.objectContaining({ canvas }),
+        );
+    });
+
+    test('uses whatever viewer an overriding plugin builds', async () => {
+        const ownViewer = { model: null, clock: { addTicker: jest.fn() }, startAsync: jest.fn(), stop: jest.fn() };
+        const plugin = createPlugin({ modelUrl: 'http://test/stand-in.png', sliderPosition: 0 });
+        plugin.createQuickView = jest.fn().mockResolvedValue(ownViewer);
+
+        await plugin.initViewer();
+
+        expect(plugin.createQuickView).toHaveBeenCalledWith('http://test/stand-in.png');
+        expect(window.DIVEQuickViewPlugin.QuickView).not.toHaveBeenCalled();
+        expect(plugin.dive).toBe(ownViewer);
+    });
+
+    test('leaves the canvas empty when no viewer could be built', async () => {
+        const plugin = createPlugin({ modelUrl: '', sliderPosition: 0 });
+        plugin.createQuickView = jest.fn().mockResolvedValue(null);
+
+        await plugin.initViewer();
+
+        expect(plugin.dive).toBeUndefined();
+    });
+});

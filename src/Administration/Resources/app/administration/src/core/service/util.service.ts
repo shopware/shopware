@@ -41,6 +41,7 @@ import EventBus from './utils/eventBus.utils';
 import genericRuleConditionUtils from './utils/generic-rule-condition.utils';
 import unitConversionUtils from './utils/unit-conversion.utils';
 import { mapInheritanceSlotPropsToMeteorProps } from './utils/meteor-inheritance.utils';
+import mediaTypeUtils from './utils/media-type.utils';
 import { telemetry as MeteorTelemetry } from '@shopware-ag/meteor-admin-sdk';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
@@ -153,6 +154,18 @@ export const unitConversion = {
 };
 
 /**
+ * Media types an extension brings along, and the questions the media surfaces ask about them.
+ *
+ * Reachable as `Shopware.Utils.mediaType`, because an extension builds on its own and cannot
+ * import from the platform's sources.
+ *
+ * @private
+ *
+ * @experimental stableVersion:v6.8.0 feature:SPATIAL_BASES
+ */
+export const mediaType = mediaTypeUtils;
+
+/**
  * @private
  */
 export const extension = {
@@ -181,6 +194,7 @@ export default {
     genericRuleCondition,
     unitConversion,
     extension,
+    mediaType,
     mapInheritanceSlotPropsToMeteorProps,
 };
 

@@ -167,6 +167,13 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 ### Creating a language no longer fails on a drifted Elasticsearch/OpenSearch mapping
 
 Creating a language could return an uncaught `500` when an Elasticsearch/OpenSearch-indexed entity's live index mapping had drifted from its current definition, for example a sales channel created after the last full reindex. `LanguageSubscriber` now catches the same known-unresolvable mapping conflicts `IndexMappingUpdater` already handles elsewhere, schedules the affected entity for a reindex instead of throwing, and only logs unexpected errors. The language is created successfully; the delayed reindex is picked up by the next indexing run or a manual `es:index`.
+### Media can represent a spatial scene
+
+`Shopware\Core\Content\Media\MediaType\SpatialSceneType` marks a media entity that stands for a spatial scene, and `MediaEntity::isSpatialScene()` tells it apart in PHP and in Twig.
+
+Media of this type carries no file of its own, so no `TypeDetectorInterface` ever assigns it — those only run on uploads. Set the type explicitly when you write such a media.
+
+Both are experimental and become stable with 6.8.0.
 
 ### Every Store API route publishes an extension event
 
@@ -410,6 +417,13 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 ### App requests keep body and signature across redirects
 
 Shopware now follows a `301` or `302` from an app endpoint without dropping the `POST` method, the request body or the `shopware-shop-signature` header, so the redirect target receives the same signed request.
+### Media without a file no longer looks broken
+
+A media type that never carries a file, such as a spatial scene, used to be presented as a failed upload: `sw-media-preview-v2` showed the broken-file icon, `sw-media-quickinfo` showed the missing-file banner, and the item tooltip read `null.null`.
+
+Those surfaces now render the media by its type instead. If your own components make the same distinction, use `isFilelessMediaType()` and `isRepresentativeMediaType()` from `src/core/service/utils/media-type.utils.ts` rather than checking for a file name.
+
+These utilities are experimental and become stable with 6.8.0.
 
 ### App events are only delivered to the app they are about
 

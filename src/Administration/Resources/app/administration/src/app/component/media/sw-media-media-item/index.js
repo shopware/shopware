@@ -1,3 +1,4 @@
+import { isFilelessMediaType } from 'src/core/service/utils/media-type.utils';
 import template from './sw-media-media-item.html.twig';
 import './sw-media-media-item.scss';
 import 'src/module/sw-media/mixin/video-cover.mixin';
@@ -107,6 +108,21 @@ export default {
     },
 
     methods: {
+        /**
+         * Media that never carries a file has no file name to display, so it falls back to its title.
+         */
+        mediaItemName(item) {
+            if (item.hasFile) {
+                return this.mediaNameFilter(item);
+            }
+
+            if (!isFilelessMediaType(item)) {
+                return '';
+            }
+
+            return item.translated?.title ?? item.title ?? '';
+        },
+
         async onChangeName(updatedName, item, endInlineEdit) {
             if (!updatedName || !updatedName.trim()) {
                 this.rejectRenaming(endInlineEdit);

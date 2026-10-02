@@ -1,7 +1,12 @@
 /**
  * @sw-package discovery
  */
+import { registerFilelessMediaType } from 'src/core/service/utils/media-type.utils';
+
 import { mount } from '@vue/test-utils';
+
+// The platform has no fileless media type of its own; extensions register theirs.
+registerFilelessMediaType('FILE_OPTIONAL');
 
 async function createWrapper(mediaServiceFunctions = {}, props = {}) {
     return mount(await wrapTestComponent('sw-media-media-item', { sync: true }), {
@@ -273,5 +278,29 @@ describe('components/media/sw-media-media-item', () => {
             mimeType: 'image/png',
             fileSize: 12345,
         });
+    });
+
+    it('should build the item name from the file name when a file is present', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.mediaItemName({ hasFile: true, fileName: 'demo', fileExtension: 'jpg' })).toBe('demo.jpg');
+    });
+
+    it('should fall back to the title for media that never carries a file', async () => {
+        const wrapper = await createWrapper();
+
+        expect(
+            wrapper.vm.mediaItemName({
+                hasFile: false,
+                mediaType: { name: 'FILE_OPTIONAL' },
+                translated: { title: 'Living room' },
+            }),
+        ).toBe('Living room');
+    });
+
+    it('should stay empty for media whose file is actually missing', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.mediaItemName({ hasFile: false, translated: { title: 'Broken' } })).toBe('');
     });
 });

@@ -33,15 +33,12 @@
             v-else
             ref="itemName"
             class="sw-media-base-item__name"
-            :title="`${item.fileName}.${item.fileExtension}`"
+            :title="mediaItemName(item)"
             role="menuitem"
             tabindex="0"
             @dblclick="startInlineEdit"
         >
-
-            <template v-if="item.hasFile">
-                {{ mediaNameFilter(item) }}
-            </template>
+            {{ mediaItemName(item) }}
         </div>
     </template>
     {% endblock %}

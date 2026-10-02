@@ -42,6 +42,36 @@ class ElasticsearchOutdatedIndexDetector
     }
 
     /**
+     * Restricts the result to indices that were created before the given point in time. An index that is currently
+     * being built carries no alias either, so an age threshold is what separates a leftover from a running indexing
+     * run for unattended callers.
+     *
+     * @return array<string>
+     */
+    public function getOutdated(\DateTimeInterface $createdBefore): array
+    {
+        $indicesToBeDeleted = [];
+
+        foreach ($this->getAllIndices() as $index) {
+            if (\count($index['aliases']) > 0) {
+                continue;
+            }
+
+            $creationDate = (int) ($index['settings']['index']['creation_date'] ?? 0);
+
+            // creation_date is epoch milliseconds. A missing value is treated as "too young to touch" so an index we
+            // cannot date is never deleted unattended.
+            if ($creationDate === 0 || $creationDate >= $createdBefore->getTimestamp() * 1000) {
+                continue;
+            }
+
+            $indicesToBeDeleted[] = $index['settings']['index']['provided_name'];
+        }
+
+        return $indicesToBeDeleted;
+    }
+
+    /**
      * @return array<string>
      */
     public function getAllUsedIndices(): array

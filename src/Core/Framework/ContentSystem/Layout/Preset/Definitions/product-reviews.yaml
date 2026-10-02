@@ -1,0 +1,47 @@
+name: "Product reviews"
+description: "Rating summary, review list, sort and language filters and the submission form for a product, arranged in a grid."
+icon: "regular-star"
+layout:
+  - component: Sw:Grid:Container
+    properties:
+      mode: explicit
+      columns: 3
+      justify: stretch
+    slots:
+      content:
+        - component: Sw:Product:ReviewFilters
+          style:
+            col-span:
+              xs: 3
+              sm: 3
+              md: 3
+              lg: 3
+              xl: 3
+              xxl: 3
+        - component: Sw:Product:ReviewSummary
+          style:
+            row-span:
+              xs: 1
+              sm: 1
+              md: 1
+              lg: 2
+              xl: 2
+              xxl: 2
+        - component: Sw:Product:Reviews
+          style:
+            col-span:
+              xs: 3
+              sm: 3
+              md: 3
+              lg: 2
+              xl: 2
+              xxl: 2
+        - component: Sw:Product:ReviewForm
+          style:
+            col-span:
+              xs: 3
+              sm: 3
+              md: 3
+              lg: 2
+              xl: 2
+              xxl: 2

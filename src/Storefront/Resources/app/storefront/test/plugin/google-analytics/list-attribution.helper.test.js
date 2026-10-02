@@ -172,12 +172,14 @@ describe('plugin/google-analytics/list-attribution.helper', () => {
             expect(ListAttributionHelper.consume('SW10000')).toEqual({ item_list_id: 'cross-selling-2' });
         });
 
-        test('replaces the handover of a product opened from the same list again', () => {
+        test('keeps a handover for every tab the same product of the same list is opened in', () => {
             ListAttributionHelper.handOver('SW10000', list, 'product-1');
             ListAttributionHelper.handOver('SW10000', list, 'product-1');
             openedFrom(window.location.href);
 
-            expect(JSON.parse(window.localStorage.getItem('swGaSelectedItemListHandover'))).toHaveLength(1);
+            expect(ListAttributionHelper.consume('SW10000')).toEqual(list);
+            expect(ListAttributionHelper.consume('SW10000')).toEqual(list);
+            expect(ListAttributionHelper.consume('SW10000')).toEqual({});
         });
 
         test('keeps the handovers of several products opened at once', () => {

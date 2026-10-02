@@ -388,6 +388,7 @@
  "sw_category_tree",
  "sw_category_tree_field",
  "sw_category_tree_field_input",
+ "sw_category_tree_field_input_expand_indicator",
  "sw_category_tree_field_input_field",
  "sw_category_tree_field_input_labels",
  "sw_category_tree_field_input_labels_dismiss_icon",

@@ -62,6 +62,10 @@ class LineItemCreationDateRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('createdAt', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchesCreationDate($lineItem, $ruleValue)) {
                 return true;
             }
@@ -84,10 +88,6 @@ class LineItemCreationDateRule extends Rule
      */
     private function matchesCreationDate(LineItem $lineItem, string|array $ruleValue): bool
     {
-        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-            return false;
-        }
-
         /** @var string|null $itemCreatedString */
         $itemCreatedString = $lineItem->getPayloadValue('createdAt');
 

@@ -1,3 +1,4 @@
+import CheckoutStepHelper from 'src/plugin/google-analytics/checkout-step.helper';
 import EventAwareAnalyticsEvent from 'src/plugin/google-analytics/event-aware-analytics-event';
 import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 
@@ -42,11 +43,15 @@ export default class BeginCheckoutEvent extends EventAwareAnalyticsEvent
             return;
         }
 
+        // a new checkout starts, so its shipping and payment steps are reported again
+        CheckoutStepHelper.reset();
+
         const additionalProperties = LineItemHelper.getAdditionalProperties();
 
-        gtag('event', 'begin_checkout', {
+        this.pushEvent('begin_checkout', {
             'currency': additionalProperties.currency,
             'value': additionalProperties.value,
+            'coupon': additionalProperties.coupon,
             'items': LineItemHelper.getLineItems(),
         });
     }

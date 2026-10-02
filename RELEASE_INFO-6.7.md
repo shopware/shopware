@@ -375,6 +375,33 @@ migrate it to `useCmsElement` by hand.
 
 ## Storefront
 
+### Google Tag Manager events use the GA4 ecommerce data layer format
+
+Storefront analytics now emit GA4-compliant ecommerce payloads. Item properties use the documented `item_id`, `item_name`, and `item_brand` names, numeric ecommerce values are sent as numbers, and unavailable optional properties are omitted. Event values are derived from the emitted product items, item prices represent unit prices, and non-product discount or shipping line items are not emitted as products.
+
+With a `GTM-` tracking ID, ecommerce events are pushed under the top-level `ecommerce` key and the previous ecommerce object is cleared before every event. Non-ecommerce events such as `login`, `sign_up`, `search`, and `view_search_results` expose their parameters at the top level.
+
+`item_brand` and `item_category1` to `item_category5` are now reported for products added from a product box, not only from the product detail page. The analytics script adds the brand of the box and the category the shopper is browsing to the line item payload as `manufacturerName` and `categoryNames` when the product is added, and the cart, checkout and purchase events read them from there, as they already did for the buy widget. Nothing is loaded for this, and only a sales channel with analytics, after consent, sends them. A box on a page without breadcrumb, such as the homepage or the search, reports the brand without category, and so does a box on a product detail page, whose breadcrumb belongs to the other product. Adding a product by its product number reports neither. Reordering from the order history keeps the values of the original order.
+
+Google Tag Manager configurations that remap parameters from `eventModel` should remove that workaround and use the standard `ecommerce` data layer variable. Configurations that consume the previous `id`, `name`, or `brand` item properties should switch to their `item_*` equivalents. Storefront analytics configured with a Google tag ID continue to use `gtag('event', ...)`, with the same GA4-compliant parameter normalization.
+
+`add_to_cart` on the product detail page reports the unit price of the graduated price that applies to the added quantity. It used the `product:price:amount` meta tag, which carries the cheapest tier. When the page rendered the cart, for example after an earlier add, the tier is selected for the quantity the cart line will hold, as the cart prices it. Without the cart markup the added quantity is used, because nothing is requested for it. The buy widget exposes the tiers as `data-product-prices`.
+
+`add_shipping_info` and `add_payment_info` are now reported once per selected method instead of on every load of the confirm page. Because the shipping and payment forms auto-submit, selecting a method reloaded the page and reported the event again. A reload that keeps the method stays silent, while switching the method reports the new one, so the counts drop without losing the method the customer actually chose.
+
+`remove_from_cart` is no longer reported for line items that are not products, such as a removed discount. Those reported the line item id as `item_id`, where every other event reports a product number.
+
+`remove_from_cart` matches the removed line item by its id, which the hidden line item now carries as `data-line-item-id`. A product that a Store API client or an extension added under its own line item id was not reported before.
+
+A product box on the product detail page, such as cross selling or a product slider, now reports its own product for `add_to_cart` instead of the product of the page. It reports no breadcrumb categories, because the breadcrumb of the page is the path of the page product.
+
+The container `.hidden-line-items-information` no longer carries `data-value`. The event value is derived from the reported items instead, so it always matches them. Themes and plugins that read the attribute should sum `data-price` times `data-quantity` of the `.hidden-line-item` elements. The container and the `data-product-variant` / `data-product-prices` attributes of the buy widget are only rendered for a sales channel with analytics, because only the analytics script reads them.
+
+Variant products report their selected options as `item_variant`, for example `Red, L`. `item_id` keeps the variant's product number, because that is the sellable unit and matches product feeds. The value comes from the line item payload in the cart, checkout, and purchase events, and from the product itself on the detail page and in product listings. Products without variant options do not report the property.
+
+`begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped. Note that `value` is still the sum of the undiscounted item prices.
+
+`view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. With `JSON_LD_DATA` active it reads the product from the JSON-LD script, and without it from `.product-detail-ordernumber` and the `product:brand` meta tag, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
 ### Display the complete legal guarantee notice at checkout
 
 Cart settings now offer `core.cart.showLegalGuaranteeNoticeInline` to display the complete localized legal guarantee notice below the checkout terms and conditions. The setting is disabled by default and requires `core.cart.showLegalGuaranteeNotice` to be enabled. Themes can customize its placement through the `page_checkout_confirm_legal_guarantee_notice_inline` and `page_checkout_confirm_legal_guarantee_notice_inline_bottom` blocks.

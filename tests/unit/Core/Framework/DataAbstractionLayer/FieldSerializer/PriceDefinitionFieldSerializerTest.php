@@ -142,6 +142,41 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         static::assertEquals($definition, $decoded);
     }
 
+    /**
+     * @param array<string, string|int> $filter
+     */
+    #[DataProvider('removedRulePayloads')]
+    public function testRemovedRulePriceFiltersRemainWritable(array $filter): void
+    {
+        $field = new PriceDefinitionField('test', 'test');
+        $decoded = $this->fieldSerializer->decode($field, json_encode([
+            'type' => PercentagePriceDefinition::TYPE,
+            'percentage' => -20,
+            'filter' => $filter,
+        ], \JSON_THROW_ON_ERROR));
+
+        static::assertInstanceOf(PercentagePriceDefinition::class, $decoded);
+        static::assertInstanceOf(UnknownConditionRule::class, $decoded->getFilter());
+
+        $encoded = iterator_to_array($this->fieldSerializer->encode(
+            $field,
+            new EntityExistence('', [], false, false, false, []),
+            new KeyValuePair('test', $decoded, true),
+            new WriteParameterBag(static::createStub(CurrencyDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue())
+        ));
+
+        static::assertSame($filter, json_decode($encoded['test'], true, flags: \JSON_THROW_ON_ERROR)['filter']);
+    }
+
+    /**
+     * @return iterable<string, array{array<string, string|int>}>
+     */
+    public static function removedRulePayloads(): iterable
+    {
+        yield 'stock filter survives removal' => [['_name' => 'cartLineItemStock', 'operator' => Rule::OPERATOR_EQ, 'stock' => 5]];
+        yield 'product states filter survives removal' => [['_name' => 'cartLineItemProductStates', 'operator' => Rule::OPERATOR_EQ, 'productState' => 'is-download']];
+    }
+
     public function testDecodePercentagePriceDefinitionWithMissingRuleConditionUsesNonMatchingPlaceholder(): void
     {
         $encoded = json_encode([

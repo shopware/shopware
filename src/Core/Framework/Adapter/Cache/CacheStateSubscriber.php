@@ -17,7 +17,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 /**
  * @internal
  *
- * @deprecated tag:v6.8.0 - reason:remove-subscriber - Cache states will be removed, use cache keys instead
+ * @deprecated tag:v6.8.0 - Cache states will be removed, use cache keys instead
  */
 #[Package('framework')]
 class CacheStateSubscriber implements EventSubscriberInterface
@@ -59,7 +59,9 @@ class CacheStateSubscriber implements EventSubscriberInterface
 
     public function login(CustomerLoginEvent $event): void
     {
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+
+        if (Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
             return;
         }
 
@@ -68,7 +70,9 @@ class CacheStateSubscriber implements EventSubscriberInterface
 
     public function cartChanged(CartChangedEvent $event): void
     {
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+
+        if (Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
             return;
         }
 
@@ -81,7 +85,9 @@ class CacheStateSubscriber implements EventSubscriberInterface
 
     public function setStates(ControllerEvent $event): void
     {
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+
+        if (Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('CACHE_REWORK')) {
             return;
         }
 

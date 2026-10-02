@@ -11,7 +11,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  *
- * @deprecated tag:v6.8.0 - reason:remove-subscriber - Will be removed without replacement
+ * @deprecated tag:v6.8.0 - Will be removed without replacement
  */
 #[Package('framework')]
 readonly class CacheControlListener
@@ -28,13 +28,15 @@ readonly class CacheControlListener
      */
     public function __invoke(BeforeSendResponseEvent $event): void
     {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+
         if ($this->reverseProxyEnabled) {
             return;
         }
 
         // With the cache rework the cache-control headers should be delivered to the user,
         // so this listener must not touch them anymore. It is removed with 6.8.0.
-        if (Feature::isActive('CACHE_REWORK') || Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             return;
         }
 

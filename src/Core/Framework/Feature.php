@@ -286,6 +286,13 @@ class Feature
         }
     }
 
+    public static function throwIfActive(string $majorFlag, string $message): void
+    {
+        if ((self::$registeredFeatures === [] || self::has($majorFlag)) && self::isActive($majorFlag)) {
+            throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
+        }
+    }
+
     public static function triggerDeprecationOrThrow(string $majorFlag, string $message, ?string $introducedIn = null, ?string $silentUntil = null): void
     {
         if ($silentUntil !== null && !self::isActive($silentUntil)) {

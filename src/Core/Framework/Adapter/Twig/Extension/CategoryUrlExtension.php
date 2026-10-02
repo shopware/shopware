@@ -13,7 +13,7 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
- * @deprecated tag:v6.8.0 - reason:remove-subscriber - Will be removed, use CategoryEntity directly
+ * @deprecated tag:v6.8.0 - Will be removed, use CategoryEntity directly
  */
 #[Package('framework')]
 class CategoryUrlExtension extends AbstractExtension

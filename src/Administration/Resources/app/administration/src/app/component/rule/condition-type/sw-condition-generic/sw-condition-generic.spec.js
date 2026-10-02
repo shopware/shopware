@@ -7,6 +7,19 @@ import ruleConditionsConfig from '../_mocks/ruleConditionsConfig.json';
 
 const responses = global.repositoryFactoryMock.responses;
 
+const categories = [
+    { name: 'Jackets', breadcrumb: { parent: 'Ladies', child: 'Jackets' } },
+    { name: 'Jackets', breadcrumb: { parent: 'Gents', child: 'Jackets' } },
+    { name: 'Jackets', breadcrumb: { parent: 'Kids', child: 'Jackets' } },
+    { name: 'Without breadcrumb' },
+    { name: 'Empty breadcrumb', breadcrumb: {} },
+    {
+        name: 'Jacken',
+        breadcrumb: { parent: 'Damen', child: 'Jacken' },
+        translated: { name: 'Jackets', breadcrumb: { parent: 'Ladies', child: 'Jackets' } },
+    },
+];
+
 responses.addResponse({
     method: 'Post',
     url: '/search/currency',
@@ -368,101 +381,83 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
 
         expect(unitInput.element.value).toBe('10000');
     });
-});
 
-describe('generic rule category descriptions', () => {
-    const categories = [
-        { name: 'Jackets', breadcrumb: { parent: 'Ladies', child: 'Jackets' } },
-        { name: 'Jackets', breadcrumb: { parent: 'Gents', child: 'Jackets' } },
-        { name: 'Jackets', breadcrumb: { parent: 'Kids', child: 'Jackets' } },
-        { name: 'Without breadcrumb' },
-        { name: 'Empty breadcrumb', breadcrumb: {} },
-        {
-            name: 'Jacken',
-            breadcrumb: { parent: 'Damen', child: 'Jacken' },
-            translated: { name: 'Jackets', breadcrumb: { parent: 'Ladies', child: 'Jackets' } },
-        },
-    ];
+    describe('generic rule category descriptions', () => {
+        let wrapper;
 
-    async function createCategoryWrapper(component, entity = 'category') {
-        const condition = {
-            type: 'cartLineItemInCategory',
-            value: { operator: '=', categoryIds: [] },
-            getEntityName: () => 'rule_condition',
-        };
-        Shopware.Store.get('ruleConditionsConfig').config = {
-            [condition.type]: {
-                operatorSet: { operators: ['=', '!=', 'empty'], isMatchAny: true },
-                fields: [{ name: 'categoryIds', type: 'multi-entity-id-select', config: { entity } }],
-            },
-        };
-        responses.addResponse({
-            method: 'Post',
-            url: `/search/${entity.replaceAll('_', '-')}`,
-            status: 200,
-            response: {
-                data: categories.map((attributes, index) => ({
-                    id: `category-${index}`,
-                    type: entity,
-                    attributes,
-                    relationships: [],
-                })),
-                meta: { total: categories.length },
-            },
+        beforeEach(() => {
+            Shopware.Store.get('ruleConditionsConfig').config = {
+                ...ruleConditionsConfig,
+                cartLineItemInCategory: {
+                    operatorSet: { operators: ['=', '!=', 'empty'], isMatchAny: true },
+                    fields: [{ name: 'categoryIds', type: 'multi-entity-id-select', config: { entity: 'category' } }],
+                },
+            };
+            responses.addResponse({
+                method: 'Post',
+                url: '/search/category',
+                status: 200,
+                response: {
+                    data: categories.map((attributes, index) => ({
+                        id: `category-${index}`,
+                        type: 'category',
+                        attributes,
+                        relationships: [],
+                    })),
+                    meta: { total: categories.length },
+                },
+            });
         });
 
-        const wrapper = await createWrapper(condition, component, {
-            'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+        afterEach(() => {
+            wrapper?.unmount();
         });
 
-        return { wrapper, condition };
-    }
+        it.each(['sw-condition-generic', 'sw-condition-generic-line-item'])(
+            '%s distinguishes categories by breadcrumb and preserves category selection',
+            async (component) => {
+                const condition = {
+                    type: 'cartLineItemInCategory',
+                    value: { operator: '=', categoryIds: [] },
+                };
+                wrapper = await createWrapper(condition, component, {
+                    'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
+                });
+                await flushPromises();
+                await wrapper.get('.sw-entity-multi-select .sw-select__selection').trigger('click');
+                await flushPromises();
 
-    let wrapper;
+                const results = wrapper.findAll('.sw-select-result');
+                expect(results).toHaveLength(categories.length);
+                expect(results.map((result) => result.get('.sw-select-result__result-item-description').text())).toEqual([
+                    'Ladies / Jackets',
+                    'Gents / Jackets',
+                    'Kids / Jackets',
+                    'Without breadcrumb',
+                    'Empty breadcrumb',
+                    'Ladies / Jackets',
+                ]);
+                results.forEach((result) => {
+                    expect(result.classes()).toContain('is--description-bottom');
+                });
 
-    afterEach(() => {
-        wrapper?.unmount();
-    });
+                await results[0].trigger('click');
+                await results[1].trigger('click');
+                expect([...condition.value.categoryIds]).toEqual(['category-0', 'category-1']);
+            },
+        );
 
-    it.each(['sw-condition-generic', 'sw-condition-generic-line-item'])(
-        '%s distinguishes categories by breadcrumb and preserves category selection',
-        async (component) => {
-            const mounted = await createCategoryWrapper(component);
-            wrapper = mounted.wrapper;
+        it('does not add category descriptions to other entity fields', async () => {
+            wrapper = await createWrapper({ type: 'customerCustomerGroup' });
             await flushPromises();
             await wrapper.get('.sw-entity-multi-select .sw-select__selection').trigger('click');
             await flushPromises();
 
-            const results = wrapper.findAll('.sw-select-result');
-            expect(results).toHaveLength(categories.length);
-            expect(results.map((result) => result.get('.sw-select-result__result-item-description').text())).toEqual([
-                'Ladies / Jackets',
-                'Gents / Jackets',
-                'Kids / Jackets',
-                'Without breadcrumb',
-                'Empty breadcrumb',
-                'Ladies / Jackets',
-            ]);
-            results.forEach((result) => {
-                expect(result.classes()).toContain('is--description-bottom');
+            expect(wrapper.findAll('.sw-select-result')).toHaveLength(2);
+            wrapper.findAll('.sw-select-result').forEach((result) => {
+                expect(result.get('.sw-select-result__result-item-description').text()).toBe('');
+                expect(result.classes()).not.toContain('is--description-bottom');
             });
-
-            await results[0].trigger('click');
-            await results[1].trigger('click');
-            expect([...mounted.condition.value.categoryIds]).toEqual(['category-0', 'category-1']);
-        },
-    );
-
-    it('does not add category descriptions to other entity fields', async () => {
-        ({ wrapper } = await createCategoryWrapper('sw-condition-generic', 'customer_group'));
-        await flushPromises();
-        await wrapper.get('.sw-entity-multi-select .sw-select__selection').trigger('click');
-        await flushPromises();
-
-        expect(wrapper.findAll('.sw-select-result')).toHaveLength(categories.length);
-        wrapper.findAll('.sw-select-result').forEach((result) => {
-            expect(result.get('.sw-select-result__result-item-description').text()).toBe('');
-            expect(result.classes()).not.toContain('is--description-bottom');
         });
     });
 });

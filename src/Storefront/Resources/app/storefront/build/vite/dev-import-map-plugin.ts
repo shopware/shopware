@@ -32,7 +32,7 @@ const COMP_CSS_PREFIX = '/__sw-comp-css/';
  *   'Wusel/Counter.ts' (+ ns)  → 'ComponentTestApp:Wusel:Counter'
  */
 function fileToTag(relPath: string, namespace: string | undefined): string {
-    const withoutExt = relPath.replace(/\.(ts|js)$/, '');
+    const withoutExt = relPath.replace(/\.(ts|js)$/, '').replace(/\/index$/, '');
     const colonPath = withoutExt.split('/').join(':');
     return namespace ? `${namespace}:${colonPath}` : colonPath;
 }

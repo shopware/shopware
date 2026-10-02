@@ -64,6 +64,44 @@ class ThemeCompilerImportMapTest extends TestCase
         );
     }
 
+    public function testBuildComponentImportMapNormalizesAnonymousIndexEntries(): void
+    {
+        $this->writeJson(
+            'bundles/myextension/storefront/components/.vite/build-meta.json',
+            [
+                'manifest' => [
+                    'MyExtension/Search/Action/index.js' => [
+                        'file' => 'MyExtension/Search/Action/index-HASH.js',
+                        'name' => 'MyExtension/Search/Action/index',
+                        'isEntry' => true,
+                    ],
+                    'MyExtension/Search/Action/index.scss' => [
+                        'file' => 'MyExtension/Search/Action/index-HASH.css',
+                        'name' => 'MyExtension/Search/Action/index.scss',
+                        'isEntry' => true,
+                    ],
+                ],
+                'vendorMap' => [],
+            ]
+        );
+        $collection = new StorefrontPluginConfigurationCollection([
+            new StorefrontPluginConfiguration('Storefront'),
+            new StorefrontPluginConfiguration('MyExtension'),
+        ]);
+
+        $result = $this->assertImportMap($this->compiler->buildComponentImportMap($collection));
+
+        static::assertSame(
+            '/bundles/myextension/storefront/components/MyExtension/Search/Action/index-HASH.js',
+            $result['imports']['MyExtension:Search:Action']
+        );
+        static::assertArrayNotHasKey('MyExtension:Search:Action:index', $result['imports']);
+        static::assertSame(
+            ['/bundles/myextension/storefront/components/MyExtension/Search/Action/index-HASH.css'],
+            $result['styles'] ?? []
+        );
+    }
+
     public function testBuildComponentImportMapUsesBundleVendorMapForScopes(): void
     {
         $this->writeJson(

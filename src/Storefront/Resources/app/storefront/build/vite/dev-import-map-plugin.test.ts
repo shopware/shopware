@@ -96,10 +96,12 @@ describe('devImportMapPlugin', () => {
         const varRoot = path.join(fixtureRoot, 'var');
         fs.mkdirSync(path.join(viteRoot, 'src'), { recursive: true });
         fs.mkdirSync(path.join(componentsRoot, 'Sw/Header'), { recursive: true });
+        fs.mkdirSync(path.join(componentsRoot, 'Sw/Search/Action'), { recursive: true });
         fs.mkdirSync(varRoot, { recursive: true });
 
         fs.writeFileSync(path.join(viteRoot, 'src/shopware.ts'), 'export const test = true;');
         fs.writeFileSync(path.join(componentsRoot, 'Sw/Header/Navbar.ts'), 'export default class Navbar {}');
+        fs.writeFileSync(path.join(componentsRoot, 'Sw/Search/Action/index.js'), 'export default class SearchAction {}');
         fs.writeFileSync(path.join(componentsRoot, 'Sw/Header/Navbar.css'), '.navbar { color: red; }');
         fs.writeFileSync(path.join(varRoot, 'plugins.json'), JSON.stringify({
             Storefront: {
@@ -128,6 +130,8 @@ describe('devImportMapPlugin', () => {
 
         expect(devMap.imports['shopware']).toBe('http://localhost:5180/src/shopware.ts');
         expect(devMap.imports['Sw:Header:Navbar']).toContain('/@fs');
+        expect(devMap.imports['Sw:Search:Action']).toContain('/@fs');
+        expect(devMap.imports['Sw:Search:Action:index']).toBeUndefined();
         expect(devMap.styles).toContain('http://localhost:5180/theme-scss/all.css');
         expect(devMap.styles).toContain('http://localhost:5180/__sw-comp-css/Sw/Header/Navbar.css');
         expect(devMap.themeId).toBeUndefined();

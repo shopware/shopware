@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Listing;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -26,7 +25,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -165,50 +163,22 @@ class ProductListingRouteTest extends TestCase
         );
     }
 
-    #[DataProvider('productStreamWithoutUsableFiltersProvider')]
-    public function testProductStreamWithoutUsableFiltersListsNoProducts(ShopwareHttpException $exception): void
+    public function testBrokenProductStreamListsNoProducts(): void
     {
-        $categoryId = 'categoryId';
-        $streamId = 'streamId';
-        $categoryRepository = StaticEntityRepository::of(CategoryCollection::class, [new EntityCollection([
-            new PartialEntity(
-                [
-                    'id' => $categoryId,
-                    'productStreamId' => $streamId,
-                    'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
-                ]
-            )])]);
-
-        $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
-        $productStreamBuilder->method('enrichCriteria')->willThrowException($exception);
-
-        $controller = new ProductListingRoute(
-            static::createStub(ProductListingLoader::class),
-            $categoryRepository,
-            $productStreamBuilder,
-            static::createStub(CacheTagCollector::class),
-            new ExtensionDispatcher(new EventDispatcher()),
-        );
-
-        $criteria = new Criteria();
-        $result = $controller->load(
-            $categoryId,
-            new Request(),
-            static::createStub(SalesChannelContext::class),
-            $criteria
-        )->getResult();
+        $criteria = $this->loadProductStreamListing(ProductStreamException::noFilters('streamId'));
 
         static::assertContainsEquals(new EqualsAnyFilter('product.id', []), $criteria->getFilters());
-        static::assertSame($streamId, $result->getStreamId());
     }
 
-    /**
-     * @return \Generator<string, array{ShopwareHttpException}>
-     */
-    public static function productStreamWithoutUsableFiltersProvider(): \Generator
+    public function testEmptyProductStreamListsAllProducts(): void
     {
-        yield 'stream that is invalid or not indexed yet' => [ProductStreamException::noFilters('streamId')];
-        yield 'stream whose conditions are all empty' => [ProductStreamException::emptyProductStream('streamId')];
+        $criteria = $this->loadProductStreamListing(ProductStreamException::emptyProductStream('streamId'));
+
+        static::assertSame([
+            'product.visibilities.visibility',
+            'product.visibilities.salesChannelId',
+            'product.active',
+        ], $criteria->getFilterFields());
     }
 
     public function testClassIsBaseOfDecorationChain(): void
@@ -374,5 +344,33 @@ class ProductListingRouteTest extends TestCase
         );
 
         static::assertSame($response, $route->load($categoryId, $request, $context, $criteria));
+    }
+
+    private function loadProductStreamListing(\Throwable $streamException): Criteria
+    {
+        $categoryRepository = StaticEntityRepository::of(CategoryCollection::class, [new EntityCollection([
+            new PartialEntity(
+                [
+                    'id' => 'categoryId',
+                    'productStreamId' => 'streamId',
+                    'productAssignmentType' => CategoryDefinition::PRODUCT_ASSIGNMENT_TYPE_PRODUCT_STREAM,
+                ]
+            )])]);
+
+        $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
+        $productStreamBuilder->method('enrichCriteria')->willThrowException($streamException);
+
+        $route = new ProductListingRoute(
+            static::createStub(ProductListingLoader::class),
+            $categoryRepository,
+            $productStreamBuilder,
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher(new EventDispatcher()),
+        );
+
+        $criteria = new Criteria();
+        $route->load('categoryId', new Request(), static::createStub(SalesChannelContext::class), $criteria);
+
+        return $criteria;
     }
 }

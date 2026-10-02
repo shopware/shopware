@@ -10,6 +10,7 @@ use Shopware\Core\Content\Product\Extension\ProductListingRouteExtension;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
+use Shopware\Core\Content\ProductStream\Exception\EmptyProductStreamException;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
@@ -130,6 +131,8 @@ class ProductListingRoute extends AbstractProductListingRoute
                 } else {
                     $criteria->addFilter(...$productStreamBuilder->buildFilters($productStreamId, $salesChannelContext->getContext()));
                 }
+            } catch (EmptyProductStreamException) {
+                // An empty group selects all products, as in the product export
             } catch (NoFilterException) {
                 $criteria->addFilter(new EqualsAnyFilter('product.id', []));
             }

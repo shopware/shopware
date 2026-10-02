@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\Cms\ProductSlider;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Rule\InvocationOrder;
 use PHPUnit\Framework\TestCase;
@@ -35,7 +34,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
@@ -283,14 +281,15 @@ class ProductStreamProcessorTest extends TestCase
         static::assertNull($this->getProcessor()->collect($slot, $this->config, $resolverContext));
     }
 
-    #[DataProvider('productStreamWithoutUsableFiltersProvider')]
-    public function testCollectReturnsNullWhenProductStreamHasNoUsableFilters(ShopwareHttpException $exception): void
+    public function testCollectReturnsNullWhenProductStreamIsBroken(): void
     {
         $slot = ProductSliderFixture::getSlot($this->config);
         $resolverContext = ProductSliderFixture::getResolverContext();
 
         $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-id');
         $this->config->add($config);
+
+        $exception = ProductStreamException::noFilters('product-stream-id');
 
         $this->productRepository->expects($this->never())->method('search');
 
@@ -316,13 +315,32 @@ class ProductStreamProcessorTest extends TestCase
         static::assertNull($this->getProcessor()->collect($slot, $this->config, $resolverContext));
     }
 
-    /**
-     * @return \Generator<string, array{ShopwareHttpException}>
-     */
-    public static function productStreamWithoutUsableFiltersProvider(): \Generator
+    public function testCollectSelectsAllProductsWhenProductStreamIsEmpty(): void
     {
-        yield 'stream that is invalid or not indexed yet' => [ProductStreamException::noFilters('product-stream-id')];
-        yield 'stream whose conditions are all empty' => [ProductStreamException::emptyProductStream('product-stream-id')];
+        $slot = ProductSliderFixture::getSlot($this->config);
+        $resolverContext = ProductSliderFixture::getResolverContext();
+
+        $config = new FieldConfig('products', FieldConfig::SOURCE_PRODUCT_STREAM, 'product-stream-id');
+        $this->config->add($config);
+
+        $this->productStreamBuilder = $this->createMock(ProductStreamBuilder::class);
+        $this->productStreamBuilder->expects($this->once())
+            ->method('enrichCriteria')
+            ->willThrowException(ProductStreamException::emptyProductStream('product-stream-id'));
+
+        $this->productRepository->expects($this->never())->method('search');
+        $this->logger->expects($this->never())->method('warning');
+
+        $this->eventDispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with(static::isInstanceOf(ProductSliderStreamCriteriaEvent::class));
+
+        $collection = $this->getProcessor()->collect($slot, $this->config, $resolverContext);
+        static::assertInstanceOf(CriteriaCollection::class, $collection);
+
+        $criteria = $collection->all()[ProductDefinition::class]['product-slider-entity-fallback_id'] ?? null;
+        static::assertInstanceOf(Criteria::class, $criteria);
+        static::assertEquals([new NotEqualsFilter('displayGroup', null)], $criteria->getFilters());
     }
 
     public function testCollectDoesNotSwallowDeprecationFromBuildFiltersFallback(): void

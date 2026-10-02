@@ -803,6 +803,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheTagCollector::class),
             service(Connection::class),
             service(ExtensionDispatcher::class),
+            service('logger'),
         ]);
 
     $services->set(ProductReviewSaveRoute::class)

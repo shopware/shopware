@@ -4,9 +4,9 @@ namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\CrossSelling;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingEntity;
@@ -39,7 +39,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -289,7 +288,8 @@ class ProductCrossSellingRouteTest extends TestCase
             static::createStub(AbstractProductCloseoutFilterFactory::class),
             $this->cacheTagCollector,
             $this->connection,
-            new ExtensionDispatcher(new EventDispatcher())
+            new ExtensionDispatcher(new EventDispatcher()),
+            static::createStub(LoggerInterface::class),
         );
 
         $element = $route
@@ -494,43 +494,36 @@ class ProductCrossSellingRouteTest extends TestCase
             static::createStub(AbstractProductCloseoutFilterFactory::class),
             $this->cacheTagCollector,
             $this->connection,
-            new ExtensionDispatcher(new EventDispatcher())
+            new ExtensionDispatcher(new EventDispatcher()),
+            static::createStub(LoggerInterface::class),
         );
 
         $route->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria());
     }
 
-    #[DataProvider('streamWithoutUsableFiltersProvider')]
-    public function testLoadByStreamReturnsAnEmptyElementForAStreamWithoutUsableFilters(ShopwareHttpException $exception): void
+    public function testLoadByStreamReturnsAnEmptyElementAndLogsAWarningForABrokenStream(): void
     {
         $productId = Uuid::randomHex();
         $streamId = Uuid::randomHex();
+        $crossSelling = $this->stubStreamCrossSelling($productId, $streamId);
 
-        $crossSelling = new ProductCrossSellingEntity();
-        $crossSelling->setUniqueIdentifier(Uuid::randomHex());
-        $crossSelling->setType(ProductCrossSellingDefinition::TYPE_PRODUCT_STREAM);
-        $crossSelling->setProductStreamId($streamId);
-        $crossSelling->setProductId($productId);
-        $crossSelling->setLimit(10);
-        $crossSelling->setSortBy('name');
-        $crossSelling->setSortDirection('ASC');
-
-        $this->crossSellingRepository->method('search')->willReturn(
-            new EntitySearchResult(
-                'product_cross_selling',
-                1,
-                new ProductCrossSellingCollection([$crossSelling]),
-                null,
-                new Criteria(),
-                Context::createDefaultContext()
-            )
-        );
-
+        $exception = ProductStreamException::noFilters($streamId);
         $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
         $productStreamBuilder->method('enrichCriteria')->willThrowException($exception);
 
         $listingLoader = $this->createMock(ProductListingLoader::class);
         $listingLoader->expects($this->never())->method('load');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('warning')
+            ->with(
+                'Product stream configured for cross-selling has no usable filters.',
+                [
+                    'productStreamId' => $streamId,
+                    'exception' => $exception,
+                ]
+            );
 
         $observedTags = [];
         $this->cacheTagCollector
@@ -541,13 +534,11 @@ class ProductCrossSellingRouteTest extends TestCase
                 }
             });
 
-        $result = $this->createRoute(listingLoader: $listingLoader, productStreamBuilder: $productStreamBuilder)
+        $element = $this->createRoute(listingLoader: $listingLoader, productStreamBuilder: $productStreamBuilder, logger: $logger)
             ->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria())
-            ->getResult();
+            ->getResult()
+            ->first();
 
-        static::assertCount(1, $result);
-
-        $element = $result->first();
         static::assertNotNull($element);
         static::assertSame($crossSelling, $element->getCrossSelling());
         static::assertSame($streamId, $element->getStreamId());
@@ -560,13 +551,54 @@ class ProductCrossSellingRouteTest extends TestCase
         );
     }
 
-    /**
-     * @return \Generator<string, array{ShopwareHttpException}>
-     */
-    public static function streamWithoutUsableFiltersProvider(): \Generator
+    public function testLoadByStreamSelectsAllProductsForAnEmptyStream(): void
     {
-        yield 'stream that is invalid or not indexed yet' => [ProductStreamException::noFilters('product-stream-id')];
-        yield 'stream whose conditions are all empty' => [ProductStreamException::emptyProductStream('product-stream-id')];
+        $productId = Uuid::randomHex();
+        $streamId = Uuid::randomHex();
+        $this->stubStreamCrossSelling($productId, $streamId);
+
+        $productStreamBuilder = static::createStub(ProductStreamBuilder::class);
+        $productStreamBuilder->method('enrichCriteria')->willThrowException(ProductStreamException::emptyProductStream($streamId));
+
+        $crossSellingProduct = new ProductEntity();
+        $crossSellingProduct->setId(Uuid::randomHex());
+        $crossSellingProduct->setUniqueIdentifier($crossSellingProduct->getId());
+
+        $listingLoader = $this->createMock(ProductListingLoader::class);
+        $listingLoader->expects($this->once())
+            ->method('load')
+            ->willReturnCallback(static function (Criteria $criteria) use ($productId, $crossSellingProduct): EntitySearchResult {
+                static::assertEquals(
+                    [
+                        new NotFilter(NotFilter::CONNECTION_OR, [
+                            new EqualsFilter('product.id', $productId),
+                            new EqualsFilter('product.parentId', $productId),
+                        ]),
+                    ],
+                    $criteria->getFilters()
+                );
+
+                return new EntitySearchResult(
+                    'product',
+                    1,
+                    new ProductCollection([$crossSellingProduct]),
+                    null,
+                    $criteria,
+                    Context::createDefaultContext()
+                );
+            });
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->never())->method('warning');
+
+        $element = $this->createRoute(listingLoader: $listingLoader, productStreamBuilder: $productStreamBuilder, logger: $logger)
+            ->load($productId, new Request(), Generator::generateSalesChannelContext(), new Criteria())
+            ->getResult()
+            ->first();
+
+        static::assertNotNull($element);
+        static::assertSame([$crossSellingProduct], array_values($element->getProducts()->getElements()));
+        static::assertSame(1, $element->getTotal());
     }
 
     public function testPublishesExtension(): void
@@ -596,6 +628,7 @@ class ProductCrossSellingRouteTest extends TestCase
             static::createStub(CacheTagCollector::class),
             static::createStub(Connection::class),
             new ExtensionDispatcher($dispatcher),
+            static::createStub(LoggerInterface::class),
         );
 
         static::assertSame($response, $route->load($productId, $request, $context, $criteria));
@@ -699,6 +732,7 @@ class ProductCrossSellingRouteTest extends TestCase
         ?SalesChannelRepository $productRepository = null,
         ?Connection $connection = null,
         ?ProductStreamBuilder $productStreamBuilder = null,
+        ?LoggerInterface $logger = null,
     ): ProductCrossSellingRoute {
         return new ProductCrossSellingRoute(
             $this->crossSellingRepository,
@@ -710,7 +744,33 @@ class ProductCrossSellingRouteTest extends TestCase
             static::createStub(AbstractProductCloseoutFilterFactory::class),
             $cacheTagCollector ?? $this->cacheTagCollector,
             $connection ?? $this->connection,
-            new ExtensionDispatcher(new EventDispatcher())
+            new ExtensionDispatcher(new EventDispatcher()),
+            $logger ?? static::createStub(LoggerInterface::class),
         );
+    }
+
+    private function stubStreamCrossSelling(string $productId, string $streamId): ProductCrossSellingEntity
+    {
+        $crossSelling = new ProductCrossSellingEntity();
+        $crossSelling->setUniqueIdentifier(Uuid::randomHex());
+        $crossSelling->setType(ProductCrossSellingDefinition::TYPE_PRODUCT_STREAM);
+        $crossSelling->setProductStreamId($streamId);
+        $crossSelling->setProductId($productId);
+        $crossSelling->setLimit(10);
+        $crossSelling->setSortBy('name');
+        $crossSelling->setSortDirection('ASC');
+
+        $this->crossSellingRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                'product_cross_selling',
+                1,
+                new ProductCrossSellingCollection([$crossSelling]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        return $crossSelling;
     }
 }

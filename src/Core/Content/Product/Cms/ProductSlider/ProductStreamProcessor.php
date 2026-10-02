@@ -15,6 +15,7 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
+use Shopware\Core\Content\ProductStream\Exception\EmptyProductStreamException;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
@@ -152,6 +153,8 @@ class ProductStreamProcessor extends AbstractProductSliderProcessor
             );
 
             return null;
+        } catch (EmptyProductStreamException) {
+            // An empty group selects all products, as in the product export
         } catch (NoFilterException $exception) {
             $this->logger->warning(
                 'Product stream configured for CMS product slider has no usable filters.',

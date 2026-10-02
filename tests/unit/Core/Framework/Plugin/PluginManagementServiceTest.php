@@ -21,6 +21,7 @@ use Shopware\Core\Framework\Plugin\PluginService;
 use Shopware\Core\Framework\Plugin\PluginZipDetector;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -31,36 +32,19 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(PluginManagementService::class)]
 class PluginManagementServiceTest extends TestCase
 {
-    /**
-     * @var list<string>
-     */
-    private array $temporaryFiles = [];
-
-    protected function tearDown(): void
-    {
-        (new Filesystem())->remove($this->temporaryFiles);
-    }
-
     #[DataProvider('uploadProvider')]
     public function testDispatchesUploadEventOnlyForSuccessfulPluginUploads(string $type, bool $fails, string $archive = 'SwagFashionTheme.zip', string $pluginName = 'SwagFashionTheme', ?string $pluginVersion = 'v1.0.0'): void
     {
         $context = Context::createDefaultContext();
-        $filesystem = new Filesystem();
-        $uploadPath = $filesystem->tempnam(sys_get_temp_dir(), 'plugin-upload-test-');
-        $this->temporaryFiles[] = $uploadPath;
-        $filesystem->copy(__DIR__ . '/_fixtures/archives/' . $archive, $uploadPath, overwriteNewerFiles: true);
-        $file = new UploadedFile($uploadPath, 'example.zip', test: true);
+        $file = $this->createUploadedFile($archive, 'example.zip');
         $detector = static::createStub(PluginZipDetector::class);
         $detector->method('detect')->willReturn($type);
         $extractor = $this->createMock(ExtensionExtractor::class);
-        $extractor->expects($this->once())->method('extract')->willReturnCallback(function (string $path) use ($fails): void {
-            $this->temporaryFiles[] = $path;
-            if ($fails) {
-                throw new \RuntimeException('Extraction failed');
-            }
-        });
         if ($fails) {
+            $extractor->expects($this->once())->method('extract')->willThrowException(new \RuntimeException('Extraction failed'));
             $this->expectExceptionObject(new \RuntimeException('Extraction failed'));
+        } else {
+            $extractor->expects($this->once())->method('extract');
         }
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
         if (!$fails) {
@@ -101,21 +85,9 @@ class PluginManagementServiceTest extends TestCase
 
     public function testInvalidComposerJsonFailsBeforeExtractionAndLogging(): void
     {
-        $filesystem = new Filesystem();
-        $uploadPath = $filesystem->tempnam(sys_get_temp_dir(), 'plugin-upload-invalid-json-');
-        $this->temporaryFiles[] = $uploadPath;
-        $filesystem->copy(__DIR__ . '/_fixtures/archives/UploadedPlugin.zip', $uploadPath, overwriteNewerFiles: true);
-        $archive = new \ZipArchive();
-        static::assertTrue($archive->open($uploadPath));
-        $archive->addFromString('DifferentDirectory/composer.json', '{invalid json');
-        $archive->close();
-        $file = new UploadedFile($uploadPath, 'invalid.zip', test: true);
-        $detector = $this->createMock(PluginZipDetector::class);
-        $detector->expects($this->once())->method('detect')->willReturnCallback(function (string $path): string {
-            $this->temporaryFiles[] = $path;
-
-            return PluginManagementService::PLUGIN;
-        });
+        $file = $this->createUploadedFile('UploadedPluginInvalidJson.zip', 'invalid.zip');
+        $detector = static::createStub(PluginZipDetector::class);
+        $detector->method('detect')->willReturn(PluginManagementService::PLUGIN);
         $extractor = $this->createMock(ExtensionExtractor::class);
         $extractor->expects($this->never())->method('extract');
         $dispatcher = $this->createMock(EventDispatcherInterface::class);
@@ -125,7 +97,7 @@ class PluginManagementServiceTest extends TestCase
             $detector,
             $extractor,
             static::createStub(PluginService::class),
-            $filesystem,
+            static::createStub(Filesystem::class),
             static::createStub(CacheClearer::class),
             $this->createClient([]),
             $dispatcher
@@ -340,6 +312,20 @@ class PluginManagementServiceTest extends TestCase
         $plugin->setName('Test');
 
         $pluginManagementService->deletePlugin($plugin, Context::createDefaultContext());
+    }
+
+    private function createUploadedFile(string $archive, string $filename): UploadedFile
+    {
+        $file = $this->createMock(UploadedFile::class);
+        $file->method('getClientOriginalName')->willReturn($filename);
+        $file->expects($this->once())->method('move')->willReturnCallback(static function (string $directory, string $name) use ($archive): File {
+            // Remove the temporary file created by uploadPlugin; read the committed ZIP instead.
+            (new Filesystem())->remove($directory . '/' . $name);
+
+            return new File(__DIR__ . '/_fixtures/archives/' . $archive);
+        });
+
+        return $file;
     }
 
     /**

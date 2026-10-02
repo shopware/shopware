@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\TableEditor;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Lock\LockFactory;
 
@@ -38,7 +39,7 @@ class CustomEntitySchemaUpdater
 
             $schema = $this->connection->createSchemaManager()->introspectSchema();
 
-            $this->cleanup($schema);
+            $schema = $this->cleanup($schema);
 
             $this->schemaUpdater->applyCustomEntities($schema, $tables);
 
@@ -91,30 +92,36 @@ class CustomEntitySchemaUpdater
         return $this->connection->getDatabasePlatform();
     }
 
-    private function cleanup(Schema $schema): void
+    private function cleanup(Schema $schema): Schema
     {
+        $schemaEditor = $schema->edit();
+
         foreach ($schema->getTables() as $table) {
             if ($table->getComment() === self::COMMENT) {
-                $schema->dropTable($table->getObjectName()->getUnqualifiedName()->getValue());
+                $schemaEditor->dropTable($table->getObjectName());
 
                 continue;
             }
 
-            foreach ($table->getForeignKeys() as $foreignKey) {
-                $foreignKeyName = $foreignKey->getObjectName()?->getIdentifier()->getValue();
-                if ($foreignKeyName === null) {
-                    continue;
+            $schemaEditor->modifyTable($table->getObjectName(), function (TableEditor $tableEditor) use ($table): void {
+                foreach ($table->getForeignKeys() as $foreignKey) {
+                    $foreignKeyName = $foreignKey->getObjectName();
+                    if ($foreignKeyName === null) {
+                        continue;
+                    }
+                    if (\str_starts_with($foreignKeyName->getIdentifier()->getValue(), 'fk_ce_')) {
+                        $tableEditor->dropForeignKeyConstraint($foreignKeyName);
+                    }
                 }
-                if (\str_starts_with($foreignKeyName, 'fk_ce_')) {
-                    $table->dropForeignKey($foreignKeyName);
-                }
-            }
 
-            foreach ($table->getColumns() as $column) {
-                if ($column->getComment() === self::COMMENT) {
-                    $table->dropColumn($column->getObjectName()->getIdentifier()->getValue());
+                foreach ($table->getColumns() as $column) {
+                    if ($column->getComment() === self::COMMENT) {
+                        $tableEditor->dropColumn($column->getObjectName());
+                    }
                 }
-            }
+            });
         }
+
+        return $schemaEditor->create();
     }
 }

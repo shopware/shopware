@@ -35,7 +35,7 @@ Description {{ lineItem.label|u.wordwrap(80) }},
 {% endif %}
 {% endif %}
 {% if lineItem.productId is defined and lineItem.productId %}
-{% set garanLabel = lineItem.productId|sw_garan_label_mail(context) %}
+{% set garanLabel = garanLabels[lineItem.productId] ?? null %}
 {% if garanLabel %}
 Commercial guarantee of durability (GARAN) {{ garanLabel.duration|replace({',': '.'}) }} years,
 {% endif %}

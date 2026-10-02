@@ -188,9 +188,6 @@ Registration and address routes now reject HTML in `firstName`, `lastName`, `tit
 
 Input that only looks like markup, for example `I <3 you` or `5 > 3`, still passes. The check is available as the reusable constraint `Shopware\Core\Framework\Validation\Constraint\NoHtml` for your own validation definitions.
 
-### Product reviews require a rating
-
-`POST /store-api/product/{productId}/review` now rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Previously such a review was saved without a rating. Headless frontends that let customers skip the rating must send `points` between 1 and 5.
 ### A required birthday is enforced by the Store API
 
 When `core.loginRegistration.birthdayFieldRequired` is active, `POST /store-api/account/register` and `POST /store-api/account/change-profile` now reject a request without `birthdayDay`, `birthdayMonth` or `birthdayYear` with a `VIOLATION::IS_BLANK_ERROR` on the missing field. Previously the customer was saved without a birthday. Headless frontends must send the birthday when the setting is active.

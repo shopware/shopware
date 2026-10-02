@@ -131,6 +131,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(AbstractNumberRangeValueGenerator::class),
+            service('number_range.repository'),
         ])
         ->call('setContainer', [
             service('service_container'),

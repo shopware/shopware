@@ -96,6 +96,33 @@ class NumberRangeApiService extends ApiService {
                 return ApiService.handleResponse(response);
             });
     }
+
+    /**
+     * list the other document number ranges of a type that use the same pattern
+     *
+     * @param {string} typeId
+     * @param {string} pattern
+     * @param {string|null} [numberRangeId] number range to exclude, e.g. the one being edited
+     * @param {Object} [additionalHeaders = {}]
+     * @returns {Promise<{ collisions: Array<{ id: string, name: string }> }>}
+     */
+    patternCollisions(typeId, pattern, numberRangeId = null, additionalHeaders = {}) {
+        const headers = this.getBasicHeaders(additionalHeaders);
+        const params = { typeId, pattern };
+
+        if (numberRangeId) {
+            params.numberRangeId = numberRangeId;
+        }
+
+        return this.httpClient
+            .get('_action/number-range/pattern-collisions', {
+                params,
+                headers,
+            })
+            .then((response) => {
+                return ApiService.handleResponse(response);
+            });
+    }
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

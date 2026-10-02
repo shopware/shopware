@@ -34,24 +34,26 @@ describe('build/vue-setup-transform override transforms', () => {
             </script>
         `;
 
-        // The one end-to-end assertion for override lowering, covering the three generated constructs that
-        // only co-occur on the <sw-block extends> path: the module-root Symbol() namespace, the
-        // `__swOverride` payload keyed by it, and the `#default` slot scope that forwards the
-        // override-local `suffix` into the block content. Imports are lifted out of the callback; the
-        // author body is preserved inside it.
+        // The one end-to-end assertion for override lowering, covering the four generated constructs that
+        // only co-occur on the <sw-block extends> path: the module-root Symbol() namespace and its accessor, the
+        // `__swOverride` payload keyed by it, the `#default` slot scope that binds the base component's
+        // data scope, and the rewrite of each reference in the block content into that scope - the
+        // declared `headline` directly, the override-local `suffix` under the namespace. Imports are
+        // lifted out of the callback; the author body is preserved inside it.
         //
         // Whitespace-insensitive on both sides - the transform does not beautify its output, so its
         // blank-line residue is not behaviour. The Vue round-trip below guards the token sequence.
         const expected = stripWhitespace`
             <template>
-                <sw-block sw-internal-component-name='sw-example' extends="sw_example_headline" #default="{ __swOverride: { [__swSetupNamespace]: { suffix } }, headline }">
-                    <h1>{{ headline }} - {{ suffix }}</h1>
+                <sw-block sw-internal-component-name='sw-example' extends="sw_example_headline" #default="__swSetupScope">
+                    <h1>{{ __swSetupScope.headline }} - {{ __swSetupOverrideScope(__swSetupScope).suffix }}</h1>
                 </sw-block>
             </template>
             <script setup lang="ts">
             import { computed } from 'vue';
 
             const __swSetupNamespace = Symbol('sw-example.override');
+            const __swSetupOverrideScope = (scope) => scope.__swOverride[__swSetupNamespace];
 
             Shopware.Component.overrideComponentSetup()('sw-example', (__swSetupPreviousState, __swSetupProps, __swSetupContext) => {
             const useSwPreviousState = () => __swSetupPreviousState;

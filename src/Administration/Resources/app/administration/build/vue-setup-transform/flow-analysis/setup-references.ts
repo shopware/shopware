@@ -25,7 +25,7 @@
 import type { Identifier, JSXIdentifier, Node as BabelNode, Statement } from '@babel/types';
 import { forEachPatternIdentifier } from '../utils/babel-patterns';
 import { childBabelEntries, childBabelNodes, isFunctionLikeNode, isTypeKey } from '../utils/ast-traversal';
-import { isValueReadPosition } from './identifier-position';
+import { isShorthandPropertyValue, isValueReadPosition } from './identifier-position';
 
 /**
  * Returns the leftmost identifier of a type **entity name** (`A` in `A`, `A.B`, or `A.B.C`).
@@ -133,19 +133,11 @@ type SetupRenameTarget = {
     expansion: SetupRenameExpansion;
 };
 
-/**
- * Whether an identifier is the value of a shorthand object property without a default (`{ foo }`).
- *
- * The property key and value share one source range, so a plain rename would rewrite the key too; the
- * replacement must expand the shorthand to `key: alias`.
- *
- * The defaulted form (`{ foo = 1 }`) shares that range too, but Babel nests the identifier as an
- * `AssignmentPattern`'s `left`, so the leaf cannot recognise it from its parent alone. It is handled
- * by the dedicated branch in `collectSetupRenameTargets`, which reports the same expansion.
- */
-function isShorthandPropertyValue(node: Identifier, parent: BabelNode | null): boolean {
-    return parent?.type === 'ObjectProperty' && parent.shorthand === true && parent.value === node;
-}
+// The plain shorthand form (`{ foo }`) is recognised by `isShorthandPropertyValue`, shared with the
+// template-expression pass. The defaulted form (`{ foo = 1 }`) shares the same source range but nests
+// the identifier as an `AssignmentPattern`'s `left`, so the leaf cannot recognise it from its parent
+// alone; it is handled by the dedicated branch in `collectSetupRenameTargets`, which reports the same
+// expansion.
 
 /**
  * Whether an identifier is the local side of a shorthand type export (`export type { C }`).

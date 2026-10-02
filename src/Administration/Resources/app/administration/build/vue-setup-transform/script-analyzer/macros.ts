@@ -27,6 +27,17 @@ const SHOPWARE_SETUP_INTERNAL_PREFIX = '__swSetup';
 // value, not the name, is what makes it unique across overrides.
 const OVERRIDE_NAMESPACE_BINDING = '__swSetupNamespace';
 
+// Slot-scope binding an override's `<sw-block extends>` content receives: the base component's data
+// scope, which every forwarded reference in that content is rewritten to read through. One name for the
+// whole object rather than a destructure, so a template write reaches the real ref instead of a local.
+const OVERRIDE_SCOPE_BINDING = '__swSetupScope';
+
+// Module-root accessor that resolves an override file's own state - its entry under the `__swOverride`
+// namespace - out of the slot scope. The path through it (`__swSetupOverrideScope(__swSetupScope).x`)
+// carries no `]`, so it also fits a dynamic directive argument (`@[eventName]`), which Vue's tokenizer
+// ends at the first closing bracket.
+const OVERRIDE_SCOPE_ACCESSOR = '__swSetupOverrideScope';
+
 /**
  * Enforces the single object-literal shape of `swDefinePublic({...})`.
  */
@@ -126,6 +137,8 @@ export {
     type ShopwareSetupEntryType,
     type ShopwareSetupMacroName,
     OVERRIDE_NAMESPACE_BINDING,
+    OVERRIDE_SCOPE_ACCESSOR,
+    OVERRIDE_SCOPE_BINDING,
     RESERVED_OVERRIDE_STATE_NAME,
     SHOPWARE_SETUP_INTERNAL_PREFIX,
     extractStaticObjectMarker,

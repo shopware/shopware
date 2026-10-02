@@ -62,7 +62,6 @@ type SharedScriptAnalysis = {
     // provable to the type system without an unreachable branch, and every consumer splices it anyway.
     markerStatements: SourceRange[];
     runtimeBindings: RuntimeBinding[];
-    runtimeBindingNames: Set<string>;
     importedBindings: Set<string>;
 };
 
@@ -304,7 +303,6 @@ function buildSharedAnalysis(script: string, classified: ClassifiedStatements): 
         source: script,
         markerStatements: collectMarkerStatements(classified),
         runtimeBindings: classified.bindings.bindings,
-        runtimeBindingNames: classified.bindings.names,
         importedBindings: new Set(classified.importedBindings.map((binding) => binding.name)),
     };
 }

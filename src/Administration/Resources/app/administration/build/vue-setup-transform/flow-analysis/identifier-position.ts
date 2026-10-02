@@ -20,7 +20,7 @@
  * - break/continue/label target
  */
 
-import type { Node as BabelNode } from '@babel/types';
+import type { Identifier, Node as BabelNode } from '@babel/types';
 
 /**
  * Whether an identifier sits in a value-read position on its parent.
@@ -106,6 +106,17 @@ function isValueReadPosition(node: BabelNode, parent: BabelNode | null): boolean
 }
 
 /**
+ * Whether an identifier is the value of a shorthand object property without a default (`{ foo }`).
+ *
+ * The property key and value share one source range, so replacing the identifier in place would rewrite
+ * the key as well. Every pass that rewrites such an occurrence has to expand the shorthand to
+ * `key: <replacement>` instead, which is why the judgement lives next to `isValueReadPosition`.
+ */
+function isShorthandPropertyValue(node: Identifier, parent: BabelNode | null): boolean {
+    return parent?.type === 'ObjectProperty' && parent.shorthand === true && parent.value === node;
+}
+
+/**
  * @private
  */
-export { isValueReadPosition };
+export { isShorthandPropertyValue, isValueReadPosition };

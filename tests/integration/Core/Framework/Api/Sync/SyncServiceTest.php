@@ -20,6 +20,7 @@ use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * @internal
@@ -295,6 +296,22 @@ class SyncServiceTest extends TestCase
         /** @var WriteConstraintViolationException $first */
         static::assertInstanceOf(WriteConstraintViolationException::class, $first);
         static::assertStringStartsWith('/manufacturers/1/translations', $first->getPath());
+    }
+
+    public function testInvalidProductCategoryReferenceIsAClientError(): void
+    {
+        $ids = new IdsCollection();
+        static::getContainer()->get('product.repository')->create([
+            (new ProductBuilder($ids, 'product'))->price(100)->build(),
+        ], Context::createDefaultContext());
+
+        $operation = new SyncOperation('mapping', 'product_category', SyncOperation::ACTION_UPSERT, [[
+            'productId' => $ids->get('product'),
+            'categoryId' => Uuid::randomHex(),
+        ]]);
+
+        static::expectException(BadRequestHttpException::class);
+        $this->service->sync([$operation], Context::createDefaultContext(), new SyncBehavior());
     }
 
     public function testDeleteWithWildCards(): void

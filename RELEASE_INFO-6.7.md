@@ -224,6 +224,10 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 ## API
 
+### Sync API reports missing references as a client error
+
+Sync API writes that reference an entity or version that does not exist now return HTTP 400 instead of an internal server error. Check referenced IDs and version IDs when handling failed sync requests.
+
 ### HTML in customer name and address fields is rejected with a dedicated violation
 
 Registration and address routes now reject HTML in `firstName`, `lastName`, `title`, `company`, `department`, `street`, `additionalAddressLine1`, `additionalAddressLine2` and `city` with the violation code `VIOLATION::CONTAINS_HTML_ERROR` and a source pointer to the offending field. Previously such input was emptied while being sanitized and then surfaced as a generic error that the storefront could not attach to a field, so a first name like `<John` failed registration with "Something went wrong".

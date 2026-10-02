@@ -252,6 +252,62 @@ class ProductListingRouteTest extends TestCase
         static::assertContains($response['elements'][0]['id'], [$this->variantIds['greenL'], $this->variantIds['greenXl']]);
     }
 
+    public function testLoadProductsUsingDynamicGroupWithOnlyAnEmptyCondition(): void
+    {
+        $this->createData('product_stream', $this->ids->create('productStream'));
+
+        $filterId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM product_stream_filter WHERE product_stream_id = :streamId',
+            ['streamId' => Uuid::fromHexToBytes($this->ids->get('productStream'))]
+        );
+        static::assertIsString($filterId);
+
+        // "Product" "is equal to any of" without a product
+        $this->productStreamFilterRepository->update([[
+            'id' => $filterId,
+            'type' => 'equalsAny',
+            'field' => 'id',
+            'value' => null,
+        ]], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category')
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame('product_listing', $response['apiAlias']);
+        static::assertCount(6, $response['elements']);
+    }
+
+    public function testLoadProductsUsingInvalidDynamicGroup(): void
+    {
+        $this->createData('product_stream', $this->ids->create('productStream'));
+
+        $filterId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(id)) FROM product_stream_filter WHERE product_stream_id = :streamId',
+            ['streamId' => Uuid::fromHexToBytes($this->ids->get('productStream'))]
+        );
+        static::assertIsString($filterId);
+
+        // A dynamic product group without any condition is invalid
+        $this->productStreamFilterRepository->delete([['id' => $filterId]], Context::createDefaultContext());
+
+        $this->browser->request(
+            'POST',
+            '/store-api/product-listing/' . $this->ids->get('category')
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode());
+        static::assertSame('product_listing', $response['apiAlias']);
+        static::assertSame(0, $response['total']);
+        static::assertCount(0, $response['elements']);
+    }
+
     public function testIncludes(): void
     {
         $this->createData();

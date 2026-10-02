@@ -663,6 +663,7 @@ class CrossSellingRouteTest extends TestCase
             static::createStub(CacheTagCollector::class),
             static::getContainer()->get(Connection::class),
             new ExtensionDispatcher(new EventDispatcher()),
+            static::getContainer()->get('logger'),
         );
 
         $productId = Uuid::randomHex();
@@ -716,6 +717,82 @@ class CrossSellingRouteTest extends TestCase
         static::assertNotNull($element);
         static::assertCount(5, $element->getProducts());
         static::assertNotContains($productId, $element->getProducts()->getIds());
+    }
+
+    public function testLoadSelectsAllProductsForADynamicProductGroupWithOnlyAnEmptyCondition(): void
+    {
+        $productId = Uuid::randomHex();
+        $streamId = Uuid::randomHex();
+        $orContainerId = Uuid::randomHex();
+        $andContainerId = Uuid::randomHex();
+        $otherProductIds = array_column($this->createProducts(), 'id');
+
+        // "Product" "is equal to any of" without a product, as saved by the Administration
+        static::getContainer()->get('product_stream.repository')->create([
+            [
+                'id' => $streamId,
+                'name' => 'Empty dynamic product group',
+                'filters' => [
+                    ['id' => $orContainerId, 'type' => 'multi', 'operator' => 'OR', 'position' => 0],
+                    ['id' => $andContainerId, 'parentId' => $orContainerId, 'type' => 'multi', 'operator' => 'AND', 'position' => 0],
+                    ['parentId' => $andContainerId, 'type' => 'equalsAny', 'field' => 'id', 'position' => 0],
+                ],
+            ],
+        ], $this->salesChannelContext->getContext());
+
+        $productData = $this->getProductData($productId);
+        $productData['crossSellings'] = [[
+            'name' => 'Empty Cross Selling',
+            'sortBy' => ProductCrossSellingDefinition::SORT_BY_PRICE,
+            'sortDirection' => FieldSorting::ASCENDING,
+            'active' => true,
+            'limit' => 100,
+            'productStreamId' => $streamId,
+        ]];
+
+        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+
+        $element = $this->route->load($productId, new Request(), $this->salesChannelContext, new Criteria())
+            ->getResult()
+            ->first();
+
+        static::assertNotNull($element);
+
+        $crossSellingProductIds = $element->getProducts()->getIds();
+        foreach ($otherProductIds as $otherProductId) {
+            static::assertContains($otherProductId, $crossSellingProductIds);
+        }
+        static::assertNotContains($productId, $crossSellingProductIds);
+    }
+
+    public function testLoadShowsNoProductsForAnInvalidDynamicProductGroup(): void
+    {
+        $productId = Uuid::randomHex();
+        $streamId = Uuid::randomHex();
+        $this->createProducts();
+
+        static::getContainer()->get('product_stream.repository')->create([
+            ['id' => $streamId, 'name' => 'Dynamic product group without conditions'],
+        ], $this->salesChannelContext->getContext());
+
+        $productData = $this->getProductData($productId);
+        $productData['crossSellings'] = [[
+            'name' => 'Invalid Cross Selling',
+            'sortBy' => ProductCrossSellingDefinition::SORT_BY_PRICE,
+            'sortDirection' => FieldSorting::ASCENDING,
+            'active' => true,
+            'productStreamId' => $streamId,
+        ]];
+
+        $this->productRepository->create([$productData], $this->salesChannelContext->getContext());
+
+        $element = $this->route->load($productId, new Request(), $this->salesChannelContext, new Criteria())
+            ->getResult()
+            ->first();
+
+        static::assertNotNull($element);
+        static::assertSame(0, $element->getTotal());
+        static::assertCount(0, $element->getProducts());
     }
 
     public function testCrossSellingUsingDynamicGroupUpdatesAfterSeparateFilterSync(): void

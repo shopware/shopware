@@ -34,6 +34,10 @@ use Shopware\Core\Checkout\Cart\RuleLoaderResult;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressCollection;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressCollection;
+use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
@@ -852,6 +856,65 @@ class RecalculationServiceTest extends TestCase
         );
 
         $recalculationService->addCustomLineItem($order->getId(), new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE), $this->context);
+    }
+
+    public function testReplaceOrderAddressWithCustomerAddressResetsEmptyOptionalFields(): void
+    {
+        $orderAddress = new OrderAddressEntity();
+        $orderAddress->setId(Uuid::randomHex());
+        $orderAddress->setVersionId(Uuid::randomHex());
+        $orderAddress->setCompany('Old company');
+        $orderAddress->setDepartment('Old department');
+
+        $customerAddress = new CustomerAddressEntity();
+        $customerAddress->setId(Uuid::randomHex());
+        $customerAddress->setFirstName('Max');
+        $customerAddress->setLastName('Mustermann');
+        $customerAddress->setStreet('Musterstreet 1');
+        $customerAddress->setCity('Musterstadt');
+        $customerAddress->setCountryId(Uuid::randomHex());
+
+        $upserts = [];
+        $orderAddressRepository = $this->createMock(EntityRepository::class);
+        $orderAddressRepository->method('search')->willReturn(
+            new EntitySearchResult('order_address', 1, new OrderAddressCollection([$orderAddress]), null, new Criteria(), $this->context)
+        );
+        $orderAddressRepository
+            ->expects($this->once())
+            ->method('upsert')
+            ->willReturnCallback(function (array $data) use (&$upserts): EntityWrittenContainerEvent {
+                $upserts = $data;
+
+                return static::createStub(EntityWrittenContainerEvent::class);
+            });
+
+        $customerAddressRepository = new StaticEntityRepository([new CustomerAddressCollection([$customerAddress])]);
+
+        $recalculationService = new RecalculationService(
+            static::createStub(EntityRepository::class),
+            $this->orderConverter,
+            static::createStub(CartService::class),
+            static::createStub(EntityRepository::class),
+            $orderAddressRepository,
+            $customerAddressRepository,
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(Processor::class),
+            $this->cartRuleLoader,
+            static::createStub(PromotionItemBuilder::class),
+            $this->lineItemFactoryRegistry()
+        );
+
+        $recalculationService->replaceOrderAddressWithCustomerAddress($orderAddress->getId(), $customerAddress->getId(), $this->context);
+
+        static::assertCount(1, $upserts);
+        static::assertSame($orderAddress->getId(), $upserts[0]['id']);
+        static::assertSame('Musterstreet 1', $upserts[0]['street']);
+        // the values of the previous order address must not be kept
+        static::assertArrayHasKey('company', $upserts[0]);
+        static::assertNull($upserts[0]['company']);
+        static::assertArrayHasKey('department', $upserts[0]);
+        static::assertNull($upserts[0]['department']);
     }
 
     /**

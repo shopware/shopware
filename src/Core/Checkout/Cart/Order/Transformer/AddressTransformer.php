@@ -31,6 +31,22 @@ use Shopware\Core\Framework\Uuid\Uuid;
 class AddressTransformer
 {
     /**
+     * Optional order address fields, which have to be reset explicitly when an existing order address is overwritten
+     */
+    private const NULLABLE_FIELDS = [
+        'company' => null,
+        'department' => null,
+        'salutationId' => null,
+        'title' => null,
+        'zipcode' => null,
+        'phoneNumber' => null,
+        'additionalAddressLine1' => null,
+        'additionalAddressLine2' => null,
+        'countryStateId' => null,
+        'customFields' => null,
+    ];
+
+    /**
      * @return ($useIdAsKey is false ? list<TransformedAddressArray>: array<string, TransformedAddressArray>)
      */
     public static function transformCollection(CustomerAddressCollection $addresses, bool $useIdAsKey = false): array
@@ -82,5 +98,17 @@ class AddressTransformer
         }
 
         return $addressArray;
+    }
+
+    /**
+     * Transforms the customer address into a payload, which completely replaces the data of an existing order address.
+     * Unlike `transform()`, empty optional fields are explicitly set to `null`, otherwise an upsert would keep
+     * the previous values of the order address (e.g. the company of the old address).
+     *
+     * @return array<string, mixed>
+     */
+    public static function transformForUpdate(CustomerAddressEntity $address): array
+    {
+        return array_merge(self::NULLABLE_FIELDS, self::transform($address));
     }
 }

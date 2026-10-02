@@ -121,7 +121,19 @@ class OrderAddressServiceTest extends TestCase
         $customerAddress->setCity('Musterstadt');
         $customerAddress->setCountryId(Uuid::randomHex());
 
-        $addressArray = array_filter($customerAddress->getVars());
+        // empty optional fields have to be sent as null, otherwise the values of the previous order address are kept
+        $addressArray = array_merge([
+            'company' => null,
+            'department' => null,
+            'salutationId' => null,
+            'title' => null,
+            'zipcode' => null,
+            'phoneNumber' => null,
+            'additionalAddressLine1' => null,
+            'additionalAddressLine2' => null,
+            'countryStateId' => null,
+            'customFields' => null,
+        ], array_filter($customerAddress->getVars()));
         $customerAddress->setId(Uuid::randomHex());
 
         $mapping = [

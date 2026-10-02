@@ -209,7 +209,7 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 
 The new route `GET /api/_action/number-range/pattern-collisions?typeId=…&pattern=…&numberRangeId=…` returns the other number ranges of the same document type that use the given pattern, as `{"collisions": [{"id": "…", "name": "…"}]}`. Such ranges, for example two `document_invoice` ranges assigned to different sales channels, generate the same document numbers and document generation fails once they meet. `numberRangeId` is optional and excludes the number range being edited. Non-document number range types never collide and return an empty list. The route requires the `number_range:read` privilege.
 
-The number range detail and create pages in the Administration use it to show a warning while a colliding pattern is configured. Saving is not blocked.
+The number range detail page in the Administration uses it to show a warning when it loads or saves a number range with a colliding pattern. Saving is not blocked.
 
 ## Administration
 

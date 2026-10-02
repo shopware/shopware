@@ -3,7 +3,7 @@
  */
 import { mount } from '@vue/test-utils';
 
-async function createWrapper(patternCollisions = () => Promise.resolve({ collisions: [] })) {
+async function createWrapper(patternCollisions = () => Promise.resolve({ collisions: [] }), numberRange = {}) {
     return mount(
         await wrapTestComponent('sw-settings-number-range-detail', {
             sync: true,
@@ -44,6 +44,7 @@ async function createWrapper(patternCollisions = () => Promise.resolve({ collisi
                                         technicalName: 'document_delivery_note',
                                     },
                                     typeId: '72ea130130404f67a426332f7a8c7277',
+                                    ...numberRange,
                                 }),
                             search: () => Promise.resolve([]),
                         }),
@@ -249,131 +250,60 @@ describe('src/module/sw-settings-number-range/page/sw-settings-number-range-deta
         expect(numberRangeType.props('disabled')).toBe(true);
     });
 
-    it('should warn when the pattern is already used by another number range of the same document type', async () => {
-        const wrapper = await createWrapper(() =>
+    it('should warn when the loaded pattern is already used by another number range of the same document type', async () => {
+        const patternCollisions = jest.fn(() =>
             Promise.resolve({ collisions: [{ id: 'other-id', name: 'Invoices (Shop B)' }] }),
         );
+        const wrapper = await createWrapper(patternCollisions, { pattern: 'INV{n}' });
         await flushPromises();
 
-        await wrapper.setData({
-            isLoading: false,
-            numberRange: {
-                id: 'id',
-                typeId: 'type-id',
-                pattern: 'INV{n}',
-            },
-        });
-        await flushPromises();
-
+        expect(patternCollisions).toHaveBeenCalledWith('72ea130130404f67a426332f7a8c7277', 'INV{n}', 'id');
         expect(wrapper.vm.collidingNumberRangeNames).toEqual(['Invoices (Shop B)']);
         expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(true);
     });
 
     it('should not warn when no other number range uses the pattern', async () => {
-        const wrapper = await createWrapper();
-        await flushPromises();
-
-        await wrapper.setData({
-            isLoading: false,
-            numberRange: {
-                id: 'id',
-                typeId: 'type-id',
-                pattern: 'INV{n}',
-            },
-        });
+        const wrapper = await createWrapper(undefined, { pattern: 'INV{n}' });
         await flushPromises();
 
         expect(wrapper.vm.collidingNumberRangeNames).toEqual([]);
         expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(false);
     });
 
-    it('should ask the pattern collisions route with the type, the pattern and its own id', async () => {
+    it('should not look for collisions while the pattern is being edited', async () => {
         const patternCollisions = jest.fn(() => Promise.resolve({ collisions: [] }));
-        const wrapper = await createWrapper(patternCollisions);
+        const wrapper = await createWrapper(patternCollisions, { pattern: 'INV{n}' });
         await flushPromises();
 
         patternCollisions.mockClear();
 
-        await wrapper.setData({
-            isLoading: false,
-            numberRange: {
-                id: 'id',
-                typeId: 'type-id',
-                pattern: 'INV{n}',
-            },
-        });
+        await wrapper.setData({ numberRange: { id: 'id', typeId: 'type-id', pattern: 'INV-B-{n}' } });
         await flushPromises();
 
-        expect(patternCollisions).toHaveBeenCalledTimes(1);
-        expect(patternCollisions).toHaveBeenCalledWith('type-id', 'INV{n}', 'id');
+        expect(patternCollisions).not.toHaveBeenCalled();
     });
 
-    it('should drop the collision warning when the pattern no longer collides', async () => {
+    it('should look for collisions again when the number range is reloaded after saving', async () => {
         const patternCollisions = jest
             .fn()
             .mockResolvedValueOnce({ collisions: [{ id: 'other-id', name: 'Invoices (Shop B)' }] })
             .mockResolvedValue({ collisions: [] });
-
-        const wrapper = await createWrapper(patternCollisions);
-        await flushPromises();
-
-        await wrapper.setData({
-            isLoading: false,
-            numberRange: {
-                id: 'id',
-                typeId: 'type-id',
-                pattern: 'INV{n}',
-            },
-        });
+        const wrapper = await createWrapper(patternCollisions, { pattern: 'INV{n}' });
         await flushPromises();
 
         expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(true);
 
-        await wrapper.setData({ numberRange: { id: 'id', typeId: 'type-id', pattern: 'INV-B-{n}' } });
-        await flushPromises();
-
-        expect(wrapper.vm.collidingNumberRangeNames).toEqual([]);
-        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(false);
-    });
-
-    it('should ignore a collision response for a pattern that has been edited since', async () => {
-        let resolveStale;
-        const patternCollisions = jest
-            .fn()
-            .mockReturnValueOnce(
-                new Promise((resolve) => {
-                    resolveStale = resolve;
-                }),
-            )
-            .mockResolvedValue({ collisions: [] });
-
-        const wrapper = await createWrapper(patternCollisions);
-        await flushPromises();
-
-        await wrapper.setData({ isLoading: false, numberRange: { id: 'id', typeId: 'type-id', pattern: 'INV{n}' } });
-        await flushPromises();
-        await wrapper.setData({ numberRange: { id: 'id', typeId: 'type-id', pattern: 'INV-B-{n}' } });
+        await wrapper.vm.loadEntityData();
         await flushPromises();
 
         expect(patternCollisions).toHaveBeenCalledTimes(2);
-
-        resolveStale({ collisions: [{ id: 'other-id', name: 'Invoices (Shop B)' }] });
-        await flushPromises();
-
         expect(wrapper.vm.collidingNumberRangeNames).toEqual([]);
+        expect(wrapper.find('.sw-settings-number-range-detail__pattern-collision-warning').exists()).toBe(false);
     });
 
     it('should not look for collisions while the type or the pattern is still unset', async () => {
         const patternCollisions = jest.fn(() => Promise.resolve({ collisions: [] }));
         const wrapper = await createWrapper(patternCollisions);
-        await flushPromises();
-
-        patternCollisions.mockClear();
-
-        await wrapper.setData({
-            isLoading: false,
-            numberRange: { id: 'id', typeId: 'type-id', pattern: '' },
-        });
         await flushPromises();
 
         expect(patternCollisions).not.toHaveBeenCalled();

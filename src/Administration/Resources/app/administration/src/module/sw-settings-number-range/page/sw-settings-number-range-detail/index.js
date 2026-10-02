@@ -178,14 +178,6 @@ export default {
             return this.collidingNumberRangeNames.length > 0;
         },
 
-        patternCollisionParameters() {
-            return {
-                typeId: this.numberRange.typeId,
-                pattern: this.numberRange.pattern,
-                numberRangeId: this.numberRange.id,
-            };
-        },
-
         ...mapPropertyErrors('numberRange', ['name', 'typeId']),
 
         stateInput: {
@@ -216,9 +208,6 @@ export default {
         'numberRange.start'() {
             this.getPreview();
         },
-        patternCollisionParameters() {
-            this.checkPatternCollision();
-        },
     },
 
     created() {
@@ -246,7 +235,7 @@ export default {
 
             this.getState();
             this.splitPattern();
-            await this.loadSalesChannels();
+            await Promise.all([this.loadSalesChannels(), this.checkPatternCollision()]);
         },
 
         loadCustomFieldSets() {
@@ -292,21 +281,14 @@ export default {
         checkPatternCollision() {
             this.collidingNumberRangeNames = [];
 
-            const parameters = this.patternCollisionParameters;
-            if (!parameters.typeId || !parameters.pattern) {
+            const { typeId, pattern, id } = this.numberRange;
+            if (!typeId || !pattern) {
                 return Promise.resolve();
             }
 
-            return this.numberRangeService
-                .patternCollisions(parameters.typeId, parameters.pattern, parameters.numberRangeId)
-                .then(({ collisions }) => {
-                    // a response for a pattern that has been edited since must not overwrite the current state
-                    if (parameters !== this.patternCollisionParameters) {
-                        return;
-                    }
-
-                    this.collidingNumberRangeNames = collisions.map((collision) => collision.name);
-                });
+            return this.numberRangeService.patternCollisions(typeId, pattern, id).then(({ collisions }) => {
+                this.collidingNumberRangeNames = collisions.map((collision) => collision.name);
+            });
         },
 
         getState() {

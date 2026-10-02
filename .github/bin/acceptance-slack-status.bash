@@ -69,4 +69,4 @@ while IFS=';' read -r job_id job_name job_conclusion; do
 done <<<"$acceptance_jobs"
 
 payload=$(jq --null-input --arg message "$(printf '%b' "$message")" '{"message": $message}')
-curl --silent --request POST --url "${SLACK_ATS_WORKFLOW_URL}" --header "Content-Type: application/json" --data "${payload}"
+curl --fail-with-body --silent --show-error --request POST --url "${SLACK_ATS_WORKFLOW_URL}" --header "Content-Type: application/json" --data "${payload}"

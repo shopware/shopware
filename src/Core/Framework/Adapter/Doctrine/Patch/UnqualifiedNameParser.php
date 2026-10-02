@@ -67,13 +67,6 @@ final readonly class UnqualifiedNameParser implements Parser
             return $identifiers;
         }
 
-        /**
-         * Only fix the identifier if it starts with a prefix defined by Shopware convention
-         */
-        if (!\in_array($identifiers[0]->getValue(), ['fk', 'uniq', 'idx', 'uidx'], true)) {
-            return $identifiers;
-        }
-
         $identifierValues = array_map(static fn (Identifier $identifier): string => $identifier->getValue(), $identifiers);
         $joinedIdentifier = implode('.', $identifierValues);
 

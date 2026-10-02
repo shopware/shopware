@@ -77,9 +77,6 @@ class SeoResolver extends AbstractSeoResolver
         $query->setParameter('language_id', Uuid::fromHexToBytes($context->languageId))
             ->setParameter('sales_channel_id', Uuid::fromHexToBytes($context->salesChannelId));
 
-        // The request path stays percent-encoded (e.g. "Baby%C3%B6l"), while manually entered SEO paths
-        // may be stored with raw non-ASCII characters (e.g. "Babyöl"), so the decoded path is matched as well.
-        // Only non-ASCII bytes are decoded: "%2F" or "%3F" must not turn into a path or query separator.
         $pathCandidates = [$seoPathInfo];
         $decodedSeoPathInfo = (string) preg_replace_callback(
             '/(?:%[89A-Fa-f][0-9A-Fa-f])+/',
@@ -95,24 +92,13 @@ class SeoResolver extends AbstractSeoResolver
             static fn (?string $query): bool => $query !== null && $query !== ''
         )));
 
-        $literalSeoPaths = [$seoPathInfo, $seoPathInfo . '/'];
-        foreach ($queryCandidates as $candidate) {
-            $literalSeoPaths[] = $seoPathInfo . '?' . $candidate;
-            $literalSeoPaths[] = $seoPathInfo . '/?' . $candidate;
-        }
+        $literalSeoPaths = $this->buildSeoPathVariants($seoPathInfo, $queryCandidates);
 
         $seoPathConditions = [];
         foreach ($pathCandidates as $pathIndex => $pathCandidate) {
-            $seoPathConditions[] = "seo_path_info = :seoPath{$pathIndex}";
-            $seoPathConditions[] = "seo_path_info = :seoPathWithSlash{$pathIndex}";
-            $query->setParameter("seoPath{$pathIndex}", $pathCandidate)
-                ->setParameter("seoPathWithSlash{$pathIndex}", $pathCandidate . '/');
-
-            foreach ($queryCandidates as $index => $candidate) {
-                $seoPathConditions[] = "seo_path_info = :seoPathWithQuery{$pathIndex}_{$index}";
-                $seoPathConditions[] = "seo_path_info = :seoPathWithSlashAndQuery{$pathIndex}_{$index}";
-                $query->setParameter("seoPathWithQuery{$pathIndex}_{$index}", $pathCandidate . '?' . $candidate)
-                    ->setParameter("seoPathWithSlashAndQuery{$pathIndex}_{$index}", $pathCandidate . '/?' . $candidate);
+            foreach ($this->buildSeoPathVariants($pathCandidate, $queryCandidates) as $variantIndex => $variant) {
+                $seoPathConditions[] = "seo_path_info = :seoPath{$pathIndex}_{$variantIndex}";
+                $query->setParameter("seoPath{$pathIndex}_{$variantIndex}", $variant);
             }
         }
 
@@ -147,7 +133,6 @@ class SeoResolver extends AbstractSeoResolver
                 }
             }
 
-            // prefer an exact match of the requested (still encoded) path over a match of its decoded form
             $aIsLiteral = \in_array($a['seoPathInfo'], $literalSeoPaths, true);
             $bIsLiteral = \in_array($b['seoPathInfo'], $literalSeoPaths, true);
             if ($aIsLiteral !== $bIsLiteral) {
@@ -203,6 +188,22 @@ class SeoResolver extends AbstractSeoResolver
             canonicalPathInfo: $seoPath['canonicalPathInfo'] ?? null,
             seoPathInfo: $seoPath['seoPathInfo'] ?? null,
         );
+    }
+
+    /**
+     * @param list<string> $queryCandidates
+     *
+     * @return list<string>
+     */
+    private function buildSeoPathVariants(string $seoPath, array $queryCandidates): array
+    {
+        $variants = [$seoPath, $seoPath . '/'];
+        foreach ($queryCandidates as $candidate) {
+            $variants[] = $seoPath . '?' . $candidate;
+            $variants[] = $seoPath . '/?' . $candidate;
+        }
+
+        return $variants;
     }
 
     private function normalizeQueryString(?string $queryString): ?string

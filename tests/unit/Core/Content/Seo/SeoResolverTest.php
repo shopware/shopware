@@ -412,8 +412,6 @@ class SeoResolverTest extends TestCase
     {
         $salesChannelId = Uuid::randomHex();
 
-        // The decoded row is returned FIRST, so only the usort tie-break (not the database order)
-        // can make the exact match of the still-encoded request path win.
         $connection = static::createStub(Connection::class);
         $firstResult = FakeResultFactory::createResult([
             [

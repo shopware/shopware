@@ -243,6 +243,12 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
+### OpenAPI builders are deprecated for extension use
+
+The Admin API and Store API specifications are assembled as plain PHP arrays. The generated documents are unchanged.
+
+The public methods of `OpenApiSchemaBuilder`, `OpenApiPathBuilder` and `OpenApiDefinitionSchemaBuilder` in `Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi` that return `zircote/swagger-php` annotation objects (`enrich()`, `getPathActions()`, `getTag()`, `getSchemaByDefinition()`, `getExtensionSchemaByDefinition()`) are deprecated. They are removed with 6.8 together with the `zircote/swagger-php` dependency, and the three classes become internal. Extensions should contribute API schema through the bundle schema JSON files instead of calling the builders; extensions relying on `zircote/swagger-php` being installed through Shopware must require it themselves.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation

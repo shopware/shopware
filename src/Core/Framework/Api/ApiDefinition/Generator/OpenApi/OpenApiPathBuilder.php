@@ -4,22 +4,33 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi;
 
 use OpenApi\Annotations\Delete;
 use OpenApi\Annotations\Get;
-use OpenApi\Annotations\Parameter;
+use OpenApi\Annotations\Operation;
 use OpenApi\Annotations\Patch;
 use OpenApi\Annotations\PathItem;
 use OpenApi\Annotations\Post;
 use OpenApi\Annotations\Response as OpenApiResponse;
 use OpenApi\Annotations\Tag;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
+/**
+ * Builds the CRUD path items of the Admin API for an entity definition.
+ *
+ * @phpstan-type OpenApiOperation array{tags: list<string>, summary: string, description: string, operationId: string, parameters?: list<array<string, mixed>>, requestBody?: array<string, mixed>, responses: array<int, array<string, mixed>>}
+ * @phpstan-type OpenApiPathItem array<'get'|'post'|'patch'|'delete', OpenApiOperation>
+ */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class OpenApiPathBuilder
 {
     private const EXPERIMENTAL_ANNOTATION_NAME = 'experimental';
+
+    private const EXPERIMENTAL_SUMMARY = ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.';
 
     private readonly CamelCaseToSnakeCaseNameConverter $converter;
 
@@ -32,67 +43,123 @@ class OpenApiPathBuilder
     }
 
     /**
+     * @internal
+     *
+     * @return array<string, OpenApiPathItem> path items keyed by their path
+     */
+    public function createPathItems(EntityDefinition $definition, string $path): array
+    {
+        $pathItems = [
+            $path => ['get' => $this->getListingPath($definition, $path)],
+            '/search' . $path => ['post' => $this->getSearchPath($definition)],
+            $path . '/{id}' => ['get' => $this->getDetailPath($definition)],
+            '/aggregate' . $path => ['post' => $this->getAggregatePath($definition)],
+        ];
+
+        if (is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
+            return $pathItems;
+        }
+
+        $pathItems[$path]['post'] = $this->getCreatePath($definition);
+        $pathItems[$path . '/{id}']['delete'] = $this->getDeletePath($definition);
+        $pathItems[$path . '/{id}']['patch'] = $this->getUpdatePath($definition);
+
+        return $pathItems;
+    }
+
+    /**
+     * @internal
+     *
+     * @return array{name: string, description: string}
+     */
+    public function createTag(EntityDefinition $definition): array
+    {
+        $humanReadableName = $this->convertToHumanReadable($definition->getEntityName());
+
+        return ['name' => $humanReadableName, 'description' => 'The endpoint for operations on ' . $humanReadableName];
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, the class becomes internal
+     *
      * @return PathItem[]
      */
     public function getPathActions(EntityDefinition $definition, string $path): array
     {
-        $paths = [];
-        $paths[$path] = new PathItem([
-            'path' => $path,
-        ]);
-        $paths[$path]->get = $this->getListingPath($definition, $path);
-        $paths['/search' . $path] = new PathItem([
-            'path' => '/search' . $path,
-        ]);
-        $paths['/search' . $path]->post = $this->getSearchPath($definition);
-        $paths[$path . '/{id}'] = new PathItem([
-            'path' => $path . '/{id}',
-        ]);
-        $paths[$path . '/{id}']->get = $this->getDetailPath($definition);
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
 
-        $paths['/aggregate' . $path] = new PathItem([
-            'path' => '/aggregate' . $path,
-        ]);
-        $paths['/aggregate' . $path]->post = $this->getAggregatePath($definition);
+        $pathItems = [];
 
-        if (is_subclass_of($definition, SalesChannelDefinitionInterface::class)) {
-            return $paths;
+        foreach ($this->createPathItems($definition, $path) as $itemPath => $operations) {
+            $annotations = [];
+
+            foreach ($operations as $method => $operation) {
+                $annotations[$method] = $this->createOperationAnnotation($method, $operation);
+            }
+
+            $pathItems[$itemPath] = new PathItem(['path' => $itemPath] + $annotations);
         }
 
-        $paths[$path]->post = $this->getCreatePath($definition);
-        $paths[$path . '/{id}']->patch = $this->getUpdatePath($definition);
-        $paths[$path . '/{id}']->delete = $this->getDeletePath($definition);
-
-        return $paths;
+        return $pathItems;
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, the class becomes internal
+     */
     public function getTag(EntityDefinition $definition): Tag
     {
-        $humanReadableName = $this->convertToHumanReadable($definition->getEntityName());
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
 
-        return new Tag(['name' => $humanReadableName, 'description' => 'The endpoint for operations on ' . $humanReadableName]);
+        return new Tag($this->createTag($definition));
     }
 
-    private function getListingPath(EntityDefinition $definition, string $path): Get
+    /**
+     * @param 'get'|'post'|'patch'|'delete' $method
+     * @param OpenApiOperation $operation
+     */
+    private function createOperationAnnotation(string $method, array $operation): Operation
     {
-        $humanReadableName = $this->convertToHumanReadable($definition->getEntityName());
-        $tags = [$humanReadableName];
+        $responses = [];
+        foreach ($operation['responses'] as $statusCode => $response) {
+            if (isset($response['$ref'])) {
+                $response = ['ref' => $response['$ref']];
+            }
 
-        if ($experimental = $this->isExperimental($definition)) {
-            $tags[] = 'Experimental';
+            $responses[] = new OpenApiResponse(['response' => $statusCode] + $response);
         }
 
+        $operation['responses'] = $responses;
+
+        return match ($method) {
+            'get' => new Get($operation),
+            'post' => new Post($operation),
+            'patch' => new Patch($operation),
+            'delete' => new Delete($operation),
+        };
+    }
+
+    /**
+     * @return OpenApiOperation
+     */
+    private function getListingPath(EntityDefinition $definition, string $path): array
+    {
+        $humanReadableName = $this->convertToHumanReadable($definition->getEntityName());
         $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
 
-        return new Get([
-            'summary' => 'List with basic information of ' . $humanReadableName . ' resources.' . ($experimental ? ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.' : ''),
-            'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
-            'tags' => $tags,
-            'parameters' => $this->getDefaultListingParameter(),
+        return [
+            'tags' => $this->getTags($definition),
+            'summary' => 'List with basic information of ' . $humanReadableName . ' resources.' . $this->getExperimentalSummary($definition),
+            'description' => $this->getSinceDescription($definition),
             'operationId' => 'get' . $this->convertToOperationId($definition->getEntityName()) . 'List',
+            'parameters' => $this->getDefaultListingParameter(),
             'responses' => [
-                Response::HTTP_OK => new OpenApiResponse([
-                    'response' => Response::HTTP_OK,
+                Response::HTTP_OK => [
                     'description' => 'List of ' . $humanReadableName . ' resources.',
                     'content' => [
                         'application/vnd.api+json' => [
@@ -147,94 +214,54 @@ class OpenApiPathBuilder
                             ],
                         ],
                     ],
-                ]),
-                Response::HTTP_UNAUTHORIZED => $this->getResponseRef((string) Response::HTTP_UNAUTHORIZED),
+                ],
+                Response::HTTP_UNAUTHORIZED => $this->getResponseRef(Response::HTTP_UNAUTHORIZED),
             ],
-        ]);
+        ];
     }
 
-    private function getDetailPath(EntityDefinition $definition): Get
+    /**
+     * @return OpenApiOperation
+     */
+    private function getDetailPath(EntityDefinition $definition): array
     {
         $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
 
-        $tags = [$this->convertToHumanReadable($definition->getEntityName())];
-
-        if ($experimental = $this->isExperimental($definition)) {
-            $tags[] = 'Experimental';
-        }
-
-        return new Get([
-            'summary' => 'Detailed information about a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource.' . ($experimental ? ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.' : ''),
-            'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
+        return [
+            'tags' => $this->getTags($definition),
+            'summary' => 'Detailed information about a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource.' . $this->getExperimentalSummary($definition),
+            'description' => $this->getSinceDescription($definition),
             'operationId' => 'get' . $this->convertToOperationId($definition->getEntityName()),
-            'tags' => $tags,
             'parameters' => [$this->getIdParameter($definition)],
             'responses' => [
                 Response::HTTP_OK => $this->getDetailResponse($schemaName),
-                Response::HTTP_NOT_FOUND => $this->getResponseRef((string) Response::HTTP_NOT_FOUND),
-                Response::HTTP_UNAUTHORIZED => $this->getResponseRef((string) Response::HTTP_UNAUTHORIZED),
+                Response::HTTP_NOT_FOUND => $this->getResponseRef(Response::HTTP_NOT_FOUND),
+                Response::HTTP_UNAUTHORIZED => $this->getResponseRef(Response::HTTP_UNAUTHORIZED),
             ],
-        ]);
+        ];
     }
 
-    private function getCreatePath(EntityDefinition $definition): Post
+    /**
+     * @return OpenApiOperation
+     */
+    private function getCreatePath(EntityDefinition $definition): array
     {
         $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
 
-        $tags = [$this->convertToHumanReadable($definition->getEntityName())];
-
-        if ($experimental = $this->isExperimental($definition)) {
-            $tags[] = 'Experimental';
-        }
-
-        return new Post([
-            'summary' => 'Create a new ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resources.' . ($experimental ? ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.' : ''),
-            'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
-            'tags' => $tags,
+        return [
+            'tags' => $this->getTags($definition),
+            'summary' => 'Create a new ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resources.' . $this->getExperimentalSummary($definition),
+            'description' => $this->getSinceDescription($definition),
             'operationId' => 'create' . $this->convertToOperationId($definition->getEntityName()),
             'parameters' => [
-                new Parameter([
+                [
                     'name' => '_response',
                     'in' => 'query',
-                    'schema' => ['type' => 'string', 'enum' => ['basic', 'detail']],
                     'description' => 'Data format for response. Empty if none is provided.',
-                ]),
-            ],
-            'requestBody' => [
-                'content' => [
-                    'application/json' => [
-                        'schema' => [
-                            '$ref' => '#/components/schemas/' . $schemaName,
-                        ],
-                    ],
+                    'schema' => ['type' => 'string', 'enum' => ['basic', 'detail']],
                 ],
             ],
-            'responses' => [
-                Response::HTTP_CREATED => $this->getDetailResponse($schemaName),
-                Response::HTTP_BAD_REQUEST => $this->getResponseRef((string) Response::HTTP_BAD_REQUEST),
-                Response::HTTP_UNAUTHORIZED => $this->getResponseRef((string) Response::HTTP_UNAUTHORIZED),
-            ],
-        ]);
-    }
-
-    private function getUpdatePath(EntityDefinition $definition): Patch
-    {
-        $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
-
-        $tags = [$this->convertToHumanReadable($definition->getEntityName())];
-
-        if ($experimental = $this->isExperimental($definition)) {
-            $tags[] = 'Experimental';
-        }
-
-        return new Patch([
-            'summary' => 'Partially update information about a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource.' . ($experimental ? ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.' : ''),
-            'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
-            'operationId' => 'update' . $this->convertToOperationId($definition->getEntityName()),
-            'tags' => $tags,
-            'parameters' => [$this->getIdParameter($definition), $this->getResponseDataParameter()],
             'requestBody' => [
-                'description' => 'Partially update information about a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource.',
                 'content' => [
                     'application/json' => [
                         'schema' => [
@@ -245,61 +272,87 @@ class OpenApiPathBuilder
             ],
             'responses' => [
                 Response::HTTP_OK => $this->getDetailResponse($schemaName),
-                Response::HTTP_BAD_REQUEST => $this->getResponseRef((string) Response::HTTP_BAD_REQUEST),
-                Response::HTTP_NOT_FOUND => $this->getResponseRef((string) Response::HTTP_NOT_FOUND),
-                Response::HTTP_UNAUTHORIZED => $this->getResponseRef((string) Response::HTTP_UNAUTHORIZED),
+                Response::HTTP_BAD_REQUEST => $this->getResponseRef(Response::HTTP_BAD_REQUEST),
+                Response::HTTP_UNAUTHORIZED => $this->getResponseRef(Response::HTTP_UNAUTHORIZED),
             ],
-        ]);
+        ];
     }
 
-    private function getDeletePath(EntityDefinition $definition): Delete
+    /**
+     * @return OpenApiOperation
+     */
+    private function getUpdatePath(EntityDefinition $definition): array
     {
-        $tags = [$this->convertToHumanReadable($definition->getEntityName())];
+        $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
+        $humanReadableName = $this->convertToHumanReadable($definition->getEntityName());
 
-        if ($experimental = $this->isExperimental($definition)) {
-            $tags[] = 'Experimental';
-        }
+        return [
+            'tags' => $this->getTags($definition),
+            'summary' => 'Partially update information about a ' . $humanReadableName . ' resource.' . $this->getExperimentalSummary($definition),
+            'description' => $this->getSinceDescription($definition),
+            'operationId' => 'update' . $this->convertToOperationId($definition->getEntityName()),
+            'parameters' => [$this->getIdParameter($definition), $this->getResponseDataParameter()],
+            'requestBody' => [
+                'description' => 'Partially update information about a ' . $humanReadableName . ' resource.',
+                'content' => [
+                    'application/json' => [
+                        'schema' => [
+                            '$ref' => '#/components/schemas/' . $schemaName,
+                        ],
+                    ],
+                ],
+            ],
+            'responses' => [
+                Response::HTTP_OK => $this->getDetailResponse($schemaName),
+                Response::HTTP_BAD_REQUEST => $this->getResponseRef(Response::HTTP_BAD_REQUEST),
+                Response::HTTP_NOT_FOUND => $this->getResponseRef(Response::HTTP_NOT_FOUND),
+                Response::HTTP_UNAUTHORIZED => $this->getResponseRef(Response::HTTP_UNAUTHORIZED),
+            ],
+        ];
+    }
 
-        return new Delete([
+    /**
+     * @return OpenApiOperation
+     */
+    private function getDeletePath(EntityDefinition $definition): array
+    {
+        return [
+            'tags' => $this->getTags($definition),
+            'summary' => 'Delete a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource.' . $this->getExperimentalSummary($definition),
+            'description' => $this->getSinceDescription($definition),
             'operationId' => 'delete' . $this->convertToOperationId($definition->getEntityName()),
-            'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
-            'summary' => 'Delete a ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resource.' . ($experimental ? ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.' : ''),
-            'tags' => $tags,
             'parameters' => [$this->getIdParameter($definition), $this->getResponseDataParameter()],
             'responses' => [
-                Response::HTTP_NO_CONTENT => $this->getResponseRef((string) Response::HTTP_NO_CONTENT),
-                Response::HTTP_NOT_FOUND => $this->getResponseRef((string) Response::HTTP_NOT_FOUND),
-                Response::HTTP_UNAUTHORIZED => $this->getResponseRef((string) Response::HTTP_UNAUTHORIZED),
+                Response::HTTP_NO_CONTENT => $this->getResponseRef(Response::HTTP_NO_CONTENT),
+                Response::HTTP_NOT_FOUND => $this->getResponseRef(Response::HTTP_NOT_FOUND),
+                Response::HTTP_UNAUTHORIZED => $this->getResponseRef(Response::HTTP_UNAUTHORIZED),
             ],
-        ]);
+        ];
     }
 
-    private function getSearchPath(EntityDefinition $definition): Post
+    /**
+     * @return OpenApiOperation
+     */
+    private function getSearchPath(EntityDefinition $definition): array
     {
         $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
 
-        $tags = [$this->convertToHumanReadable($definition->getEntityName())];
-
-        if ($experimental = $this->isExperimental($definition)) {
-            $tags[] = 'Experimental';
-        }
-
-        return new Post([
-            'summary' => 'Search for the ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resources.' . ($experimental ? ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.' : ''),
-            'description' => $definition->since() ? 'Available since: ' . $definition->since() : '',
-            'tags' => $tags,
+        return [
+            'tags' => $this->getTags($definition),
+            'summary' => 'Search for the ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resources.' . $this->getExperimentalSummary($definition),
+            'description' => $this->getSinceDescription($definition),
             'operationId' => 'search' . $this->convertToOperationId($definition->getEntityName()),
             'parameters' => [
-                new Parameter([
+                [
                     'name' => 'sw-include-search-info',
                     'in' => 'header',
+                    'description' => 'Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.',
                     'schema' => [
                         'type' => 'string',
                         'enum' => ['0', '1'],
                         'default' => '1',
                     ],
-                    'description' => 'Controls whether API search information is included in the response. Default is 1 (enabled), will be 0 (disabled) in the next major version.',
-                ]),
+                ],
             ],
             'requestBody' => [
                 'required' => true,
@@ -313,21 +366,18 @@ class OpenApiPathBuilder
             ],
             'responses' => [
                 Response::HTTP_OK => $this->getListResponse($schemaName),
-                Response::HTTP_BAD_REQUEST => $this->getResponseRef((string) Response::HTTP_BAD_REQUEST),
-                Response::HTTP_UNAUTHORIZED => $this->getResponseRef((string) Response::HTTP_UNAUTHORIZED),
+                Response::HTTP_BAD_REQUEST => $this->getResponseRef(Response::HTTP_BAD_REQUEST),
+                Response::HTTP_UNAUTHORIZED => $this->getResponseRef(Response::HTTP_UNAUTHORIZED),
             ],
-        ]);
+        ];
     }
 
-    private function getAggregatePath(EntityDefinition $definition): Post
+    /**
+     * @return OpenApiOperation
+     */
+    private function getAggregatePath(EntityDefinition $definition): array
     {
         $schemaName = $this->snakeCaseToCamelCase($definition->getEntityName());
-
-        $tags = [$this->convertToHumanReadable($definition->getEntityName())];
-
-        if ($experimental = $this->isExperimental($definition)) {
-            $tags[] = 'Experimental';
-        }
 
         $since = $definition->since();
 
@@ -336,10 +386,10 @@ class OpenApiPathBuilder
             $since = '6.6.10.0';
         }
 
-        return new Post([
-            'summary' => 'Aggregate for the ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resources.' . ($experimental ? ' Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.' : ''),
+        return [
+            'tags' => $this->getTags($definition),
+            'summary' => 'Aggregate for the ' . $this->convertToHumanReadable($definition->getEntityName()) . ' resources.' . $this->getExperimentalSummary($definition),
             'description' => 'Available since: ' . $since,
-            'tags' => $tags,
             'operationId' => 'aggregate' . $this->convertToOperationId($definition->getEntityName()),
             'requestBody' => [
                 'required' => true,
@@ -362,10 +412,34 @@ class OpenApiPathBuilder
             ],
             'responses' => [
                 Response::HTTP_OK => $this->getListResponse($schemaName),
-                Response::HTTP_BAD_REQUEST => $this->getResponseRef((string) Response::HTTP_BAD_REQUEST),
-                Response::HTTP_UNAUTHORIZED => $this->getResponseRef((string) Response::HTTP_UNAUTHORIZED),
+                Response::HTTP_BAD_REQUEST => $this->getResponseRef(Response::HTTP_BAD_REQUEST),
+                Response::HTTP_UNAUTHORIZED => $this->getResponseRef(Response::HTTP_UNAUTHORIZED),
             ],
-        ]);
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getTags(EntityDefinition $definition): array
+    {
+        $tags = [$this->convertToHumanReadable($definition->getEntityName())];
+
+        if ($this->isExperimental($definition)) {
+            $tags[] = 'Experimental';
+        }
+
+        return $tags;
+    }
+
+    private function getExperimentalSummary(EntityDefinition $definition): string
+    {
+        return $this->isExperimental($definition) ? self::EXPERIMENTAL_SUMMARY : '';
+    }
+
+    private function getSinceDescription(EntityDefinition $definition): string
+    {
+        return $definition->since() ? 'Available since: ' . $definition->since() : '';
     }
 
     private function convertToHumanReadable(string $name): string
@@ -383,42 +457,44 @@ class OpenApiPathBuilder
     }
 
     /**
-     * @return list<Parameter>
+     * @return list<array<string, mixed>>
      */
     private function getDefaultListingParameter(): array
     {
         return [
-            new Parameter([
+            [
                 'name' => 'limit',
                 'in' => 'query',
+                'description' => 'Max amount of resources to be returned in a page',
                 'schema' => [
                     'type' => 'integer',
                 ],
-                'description' => 'Max amount of resources to be returned in a page',
-            ]),
-            new Parameter([
+            ],
+            [
                 'name' => 'page',
                 'in' => 'query',
+                'description' => 'The page to be returned',
                 'schema' => [
                     'type' => 'integer',
                 ],
-                'description' => 'The page to be returned',
-            ]),
-            new Parameter([
+            ],
+            [
                 'name' => 'query',
                 'in' => 'query',
+                'description' => 'Encoded SwagQL in JSON',
                 'schema' => [
                     'type' => 'string',
                 ],
-                'description' => 'Encoded SwagQL in JSON',
-            ]),
+            ],
         ];
     }
 
-    private function getDetailResponse(string $schemaName): OpenApiResponse
+    /**
+     * @return array<string, mixed>
+     */
+    private function getDetailResponse(string $schemaName): array
     {
-        return new OpenApiResponse([
-            'response' => Response::HTTP_OK,
+        return [
             'description' => 'Detail of ' . $schemaName,
             'content' => [
                 'application/vnd.api+json' => [
@@ -448,13 +524,15 @@ class OpenApiPathBuilder
                     ],
                 ],
             ],
-        ]);
+        ];
     }
 
-    private function getListResponse(string $schemaName): OpenApiResponse
+    /**
+     * @return array<string, mixed>
+     */
+    private function getListResponse(string $schemaName): array
     {
-        return new OpenApiResponse([
-            'response' => Response::HTTP_OK,
+        return [
             'description' => 'List of ' . $schemaName,
             'content' => [
                 'application/vnd.api+json' => [
@@ -490,39 +568,45 @@ class OpenApiPathBuilder
                     ],
                 ],
             ],
-        ]);
+        ];
     }
 
-    private function getResponseRef(string $responseName): OpenApiResponse
+    /**
+     * @return array{'$ref': string}
+     */
+    private function getResponseRef(int $statusCode): array
     {
-        return new OpenApiResponse([
-            'response' => $responseName,
-            'ref' => '#/components/responses/' . $responseName,
-        ]);
+        return ['$ref' => '#/components/responses/' . $statusCode];
     }
 
-    private function getResponseDataParameter(): Parameter
+    /**
+     * @return array<string, mixed>
+     */
+    private function getResponseDataParameter(): array
     {
-        return new Parameter([
+        return [
             'name' => '_response',
             'in' => 'query',
+            'description' => 'Data format for response. Empty if none is provided.',
+            'allowEmptyValue' => true,
             'schema' => [
                 'type' => 'string',
             ],
-            'allowEmptyValue' => true,
-            'description' => 'Data format for response. Empty if none is provided.',
-        ]);
+        ];
     }
 
-    private function getIdParameter(EntityDefinition $definition): Parameter
+    /**
+     * @return array<string, mixed>
+     */
+    private function getIdParameter(EntityDefinition $definition): array
     {
-        return new Parameter([
+        return [
             'name' => 'id',
             'in' => 'path',
-            'schema' => ['type' => 'string', 'pattern' => '^[0-9a-f]{32}$'],
             'description' => 'Identifier for the ' . $definition->getEntityName(),
             'required' => true,
-        ]);
+            'schema' => ['type' => 'string', 'pattern' => '^[0-9a-f]{32}$'],
+        ];
     }
 
     private function snakeCaseToCamelCase(string $input): string

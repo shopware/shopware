@@ -1195,6 +1195,18 @@ use `Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFac
 {# @var services.response \Shopware\Storefront\Framework\Script\Api\StorefrontScriptResponseFactoryFacade #}
 ```
 
+## OpenAPI generators no longer use `zircote/swagger-php`
+
+The OpenAPI specifications of the Admin API and the Store API are assembled as plain PHP arrays. The `zircote/swagger-php` package was removed from the Shopware dependencies, and the following methods that returned its annotation objects were removed without replacement:
+
+- `OpenApiSchemaBuilder::enrich()`
+- `OpenApiPathBuilder::getPathActions()` and `getTag()`
+- `OpenApiDefinitionSchemaBuilder::getSchemaByDefinition()` and `getExtensionSchemaByDefinition()`
+
+The classes `OpenApiSchemaBuilder`, `OpenApiPathBuilder` and `OpenApiDefinitionSchemaBuilder` in `Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi` are internal, and `DeactivateValidationAnalysis` was removed. Extensions contribute API schema through the bundle schema JSON files under `Resources/Schema/`, which did not change.
+
+Extensions that used `zircote/swagger-php` through the Shopware installation must require the package in their own `composer.json`. The generated specifications themselves did not change.
+
 </details>
 
 ## Moved `UnmappedFieldException`

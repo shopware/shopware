@@ -117,6 +117,12 @@ class ProductIndexer extends EntityIndexer
         });
 
         $stocks = $event->getPrimaryKeysWithPropertyChange(ProductDefinition::ENTITY_NAME, ['stock', 'isCloseout', 'minPurchase']);
+
+        // Variants inherit `isCloseout` and `minPurchase`, so a change on the parent changes their availability as well
+        if ($stocks !== []) {
+            $stocks = \array_unique([...$stocks, ...$this->getChildrenIds($stocks)]);
+        }
+
         Profiler::trace('product:indexer:stock', function () use ($stocks, $event): void {
             $this->stockStorage->index(array_values($stocks), $event->getContext());
         });

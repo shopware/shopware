@@ -10,8 +10,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestExceptio
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Util\Json;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -85,7 +87,7 @@ abstract class McpToolResponse
             $request = $this->requestStack->getCurrentRequest();
             $sessionId = $request?->headers->get('Mcp-Session-Id') ?? '';
 
-            if ($sessionId !== '' && $request !== null) {
+            if ($sessionId !== '' && $request !== null && self::canServeStoredResults($request)) {
                 $uuid = $this->toolResultCache->store($sessionId, $json);
                 $resourceUri = 'shopware://tool-result/' . $uuid;
 
@@ -275,5 +277,17 @@ abstract class McpToolResponse
         }
 
         return ['tool' => $tool, 'arguments' => $arguments];
+    }
+
+    /**
+     * Only the Admin API MCP server registers the tool-result resource (`ToolResultResource`), so a
+     * result stored during a Store API call could never be read back. Those calls keep the inline
+     * fallback until the Store endpoint gets its own tool-result resource.
+     */
+    private static function canServeStoredResults(Request $request): bool
+    {
+        $scopes = $request->attributes->get(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE);
+
+        return \is_array($scopes) && \in_array(ApiRouteScope::ID, $scopes, true);
     }
 }

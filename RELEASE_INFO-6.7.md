@@ -160,6 +160,9 @@ This will allow async payment methods to leave the order transaction in "unconfi
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
 
+### Large MCP tool results from extensions are offloaded like core results
+
+MCP tools from plugins and bundles that extend `McpToolResponse` now store results larger than 100 KB in the tool-result cache on the Admin API endpoint, like core tools already did. The response then contains `_meta.resourceUri` instead of the full data, and the model reads the data with `resources/read`. Before, these results were always returned inline. On the Store API endpoint, results always stay inline, because it has no tool-result resource yet.
 ### `dal:validate` checks attribute entities
 
 `bin/console dal:validate` no longer skips attribute entities. They are held to the same rules as `EntityDefinition` classes, for example that a many-to-one must not cascade deletes, and violations name them by their entity class instead of `AttributeEntityDefinition`, also when another definition's check mentions them. If your CI fails on `dal:validate`, or ignores messages that contain `AttributeEntityDefinition`, run it against your extension before updating.

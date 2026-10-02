@@ -21,7 +21,10 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\Framework\ShopwareHttpException;
+use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -71,8 +74,7 @@ class McpToolResponseTest extends TestCase
             ->with('session-abc', static::isString())
             ->willReturn('cached-uuid-123');
 
-        $request = new Request();
-        $request->headers->set('Mcp-Session-Id', 'session-abc');
+        $request = $this->adminMcpRequest('session-abc');
 
         $requestStack = new RequestStack();
         $requestStack->push($request);
@@ -96,8 +98,7 @@ class McpToolResponseTest extends TestCase
         $cache = static::createStub(ToolResultCacheStorage::class);
         $cache->method('store')->willReturn('cached-uuid');
 
-        $request = new Request();
-        $request->headers->set('Mcp-Session-Id', 'session-abc');
+        $request = $this->adminMcpRequest('session-abc');
         $request->attributes->set(McpServerController::ATTRIBUTE_JSONRPC_BODY, [
             'method' => 'tools/call',
             'params' => [
@@ -133,6 +134,27 @@ class McpToolResponseTest extends TestCase
         $data = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertTrue($data['success']);
+        static::assertIsArray($data['data']['items']);
+        static::assertArrayNotHasKey('resourceUri', $data['_meta'] ?? []);
+    }
+
+    public function testOversizedPayloadOnTheStoreApiStaysInline(): void
+    {
+        // The Store API server has no tool-result resource, so a stored result could not be read back.
+        $cache = $this->createMock(ToolResultCacheStorage::class);
+        $cache->expects($this->never())->method('store');
+
+        $request = $this->adminMcpRequest('session-abc');
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
+
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $tool = new TestTool();
+        $tool->setToolResultCache($cache, $requestStack, new NullLogger());
+
+        $data = json_decode($tool->callSuccess(['items' => array_fill(0, 5_000, str_repeat('x', 30))]), true, 512, \JSON_THROW_ON_ERROR);
+
         static::assertIsArray($data['data']['items']);
         static::assertArrayNotHasKey('resourceUri', $data['_meta'] ?? []);
     }
@@ -196,8 +218,7 @@ class McpToolResponseTest extends TestCase
         $cache = static::createStub(ToolResultCacheStorage::class);
         $cache->method('store')->willReturn('cached-uuid');
 
-        $request = new Request();
-        $request->headers->set('Mcp-Session-Id', 'session-abc');
+        $request = $this->adminMcpRequest('session-abc');
         if ($body !== null) {
             $request->attributes->set(McpServerController::ATTRIBUTE_JSONRPC_BODY, $body);
         }
@@ -367,6 +388,15 @@ class McpToolResponseTest extends TestCase
     private function createContext(): Context
     {
         return new Context(new AdminApiSource(null, null), [], Defaults::CURRENCY, [Defaults::LANGUAGE_SYSTEM]);
+    }
+
+    private function adminMcpRequest(string $sessionId): Request
+    {
+        $request = new Request();
+        $request->headers->set('Mcp-Session-Id', $sessionId);
+        $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [ApiRouteScope::ID]);
+
+        return $request;
     }
 }
 

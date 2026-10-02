@@ -48,18 +48,6 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
-### Reverse proxy services are selected at runtime
-
-`shopware.http_cache.reverse_proxy.enabled` and `shopware.http_cache.reverse_proxy.fastly.enabled` are evaluated when the services are created instead of while the container is compiled, so both can be set via environment variables:
-
-```yaml
-shopware:
-    http_cache:
-        reverse_proxy:
-            enabled: '%env(bool:SHOPWARE_HTTP_CACHE_REVERSE_PROXY_ENABLED)%'
-```
-
-`ReverseProxyCache`, `VarnishReverseProxyGateway`, `FastlyReverseProxyGateway` and `AbstractReverseProxyGateway` are now always registered in the container. Decorators of `CacheStore` and `AbstractReverseProxyGateway` keep wrapping the store and gateway selected by the configuration. `Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass` is deprecated and no longer registered.
 ### Filtered listings show the main variant only if it matches the active filters
 
 Filtered product listings show a variant product's main variant only if it matches all active filters, such as property, price or manufacturer filters. Otherwise, a matching variant is shown. Products configured to display their parent always show the parent.

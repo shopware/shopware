@@ -137,6 +137,7 @@ export default Shopware.Component.wrapComponentConfig({
         layoutTypeLoadError: string | null;
         createWizardName: string;
         createWizardSelectedType: string | null;
+        isAssignmentModalOpen: boolean;
     } {
         return {
             layout: null,
@@ -158,6 +159,7 @@ export default Shopware.Component.wrapComponentConfig({
             layoutTypeLoadError: null,
             createWizardName: '',
             createWizardSelectedType: null,
+            isAssignmentModalOpen: false,
         };
     },
 
@@ -210,6 +212,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         isCreateMode(): boolean {
             return this.$route.name === 'sw.experience.studio.create';
+        },
+
+        canManageAssignments(): boolean {
+            return !this.isCreateMode && (this.layoutRootSource === 'product' || this.layoutRootSource === 'category');
         },
 
         showCreateWizard(): boolean {
@@ -375,6 +381,14 @@ export default Shopware.Component.wrapComponentConfig({
 
         onViewportChange(viewport: Viewport): void {
             this.currentViewport = viewport;
+        },
+
+        onOpenAssignmentModal(): void {
+            this.isAssignmentModalOpen = true;
+        },
+
+        onCloseAssignmentModal(): void {
+            this.isAssignmentModalOpen = false;
         },
 
         async loadDefaultPreviewSalesChannel(): Promise<void> {

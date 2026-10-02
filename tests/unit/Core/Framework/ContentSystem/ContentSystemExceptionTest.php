@@ -473,6 +473,13 @@ class ContentSystemExceptionTest extends TestCase
             'CONTENT_SYSTEM__BINDING_TYPE_MISMATCH',
             'Sw:Media:Image',
         ];
+
+        yield 'default content layout deletion' => [
+            ContentSystemException::defaultContentLayoutDeletion(['layout-a', 'layout-b']),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__DEFAULT_CONTENT_LAYOUT_DELETION',
+            'layout-a, layout-b',
+        ];
     }
 
     /**

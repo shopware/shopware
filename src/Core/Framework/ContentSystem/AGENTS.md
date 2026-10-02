@@ -14,9 +14,9 @@
 - **Entity Specification Sources**: `Content/{Product,Category,LandingPage}/Aggregate/*ContentLayout/*SpecificationSource`; header and footer live in `Storefront/ContentSystem/`
 - **Assignment-free resolution**: `RenderingSpecificationResolver::resolveWithoutLayout()` selects by `supportsEntityType()`; `RenderingSpecificationFactory::createWithoutLayout()` builds a specification with no layout id
 - **Resolution & Diagnostics**: `Resolution/ElementResolver`, `Resolution/AvailableContextResolver`, `Diagnostics/LayoutDiagnostics`, `Diagnostics/RootContextMapper`, `Diagnostics/ViolationCode` — see [Diagnostics/AGENTS.md](Diagnostics/AGENTS.md)
-- **Write gates**: `Validation/ContentLayoutWriteValidator`, `Validation/ContentLayoutAssignmentWriteValidator`, `Validation/LayoutGate` — see [Validation/AGENTS.md](Validation/AGENTS.md)
+- **Write gates**: `Validation/ContentLayoutWriteValidator`, `Validation/ContentLayoutAssignmentWriteValidator`, `Validation/ContentLayoutDefaultValidator` (product/category default layout in system config), `Validation/LayoutGate` — see [Validation/AGENTS.md](Validation/AGENTS.md)
 - **Write boundary**: `Layout/LayoutWriteBoundary` with `Layout/LayoutDefaultSeeder`, reached from `Layout/Field/StoredElementListFieldSerializer::normalize` — see [Layout/README.md](Layout/README.md)
-- **Delete protection**: `RestrictDelete` on the five `content_layout` assignment associations — see [Layout/Entity/AGENTS.md](Layout/Entity/AGENTS.md)
+- **Delete protection**: `RestrictDelete` on the five `content_layout` assignment associations, plus `Validation/ContentLayoutDefaultValidator` for a layout that is a product or category default — see [Layout/Entity/AGENTS.md](Layout/Entity/AGENTS.md)
 - **Draft Check**: `DraftLayoutChecker` (module root) — the preview action's draft check, an intrinsic-subset diagnostics run
 - **Admin API**: `Api/` — preview, resolve-and-diagnose, draft and persisted mutation routes; see [Api/AGENTS.md](Api/AGENTS.md)
 - **Layout mutation**: `Mutation/MutationPipeline` over the `Mutation/Op` operations, and `Mutation/PersistedLayoutMutator` for the committed counterpart — see [Mutation/AGENTS.md](Mutation/AGENTS.md)

@@ -58,9 +58,10 @@ class SystemActivitySubscriberTest extends TestCase
         $logger->expects($this->exactly(2))->method('info')->willReturnCallback(static function (string $message, array $data) use ($entityName): void {
             static::assertSame($entityName . ':create', $message);
             static::assertContains($data['entityId'], ['first', 'second']);
-            static::assertSame(['entityId', 'userId', 'integrationAccessKey', 'username'], array_keys($data));
+            static::assertSame(['entityId', 'actorType', 'userId', 'integrationAccessKey', 'username'], array_keys($data));
             static::assertSame('0123456789abcdef0123456789abcdef', $data['userId']);
             static::assertSame('admin', $data['username']);
+            static::assertSame('user', $data['actorType']);
             static::assertSame('admin', $data['integrationAccessKey']);
         });
         $dispatcher = new EventDispatcher();
@@ -99,7 +100,7 @@ class SystemActivitySubscriberTest extends TestCase
         $context = new Context(new AdminApiSource('0123456789abcdef0123456789abcdef'));
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('info')->with('plugin:upload', [
-            'filename' => 'plugin.zip', 'pluginName' => 'ExamplePlugin', 'pluginVersion' => '2.0.0', 'userId' => '0123456789abcdef0123456789abcdef', 'username' => 'admin',
+            'filename' => 'plugin.zip', 'pluginName' => 'ExamplePlugin', 'pluginVersion' => '2.0.0', 'actorType' => 'user', 'userId' => '0123456789abcdef0123456789abcdef', 'username' => 'admin',
         ]);
         $dispatcher = new EventDispatcher();
         $dispatcher->addSubscriber(new SystemActivitySubscriber($logger, $this->connection));
@@ -224,7 +225,7 @@ class SystemActivitySubscriberTest extends TestCase
         $connection->insert('user', ['id' => Uuid::fromHexToBytes($userId), 'username' => 'shop-admin']);
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('info')->with('plugin:upload', [
-            'filename' => 'plugin.zip', 'pluginName' => 'ExamplePlugin', 'pluginVersion' => '2.0.0', 'userId' => $userId, 'username' => 'shop-admin',
+            'filename' => 'plugin.zip', 'pluginName' => 'ExamplePlugin', 'pluginVersion' => '2.0.0', 'actorType' => 'user', 'userId' => $userId, 'username' => 'shop-admin',
         ]);
         $subscriber = new SystemActivitySubscriber($logger, $connection);
 
@@ -239,7 +240,7 @@ class SystemActivitySubscriberTest extends TestCase
         $userId = Uuid::randomHex();
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('info')->with('plugin:upload', [
-            'filename' => 'plugin.zip', 'pluginName' => 'ExamplePlugin', 'pluginVersion' => '2.0.0', 'userId' => $userId,
+            'filename' => 'plugin.zip', 'pluginName' => 'ExamplePlugin', 'pluginVersion' => '2.0.0', 'actorType' => 'user', 'userId' => $userId,
         ]);
         $subscriber = new SystemActivitySubscriber($logger, $this->connection);
 
@@ -255,12 +256,21 @@ class SystemActivitySubscriberTest extends TestCase
         $connection->insert('integration', ['id' => Uuid::fromHexToBytes($integrationId), 'access_key' => 'SWIAEXAMPLE', 'secret_access_key' => 'secret']);
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('info')->with('plugin:upload', [
-            'filename' => 'plugin.zip', 'pluginName' => 'ExamplePlugin', 'pluginVersion' => '2.0.0', 'integrationAccessKey' => 'SWIAEXAMPLE',
+            'filename' => 'plugin.zip', 'pluginName' => 'ExamplePlugin', 'pluginVersion' => '2.0.0', 'actorType' => 'integration', 'integrationAccessKey' => 'SWIAEXAMPLE',
         ]);
         $subscriber = new SystemActivitySubscriber($logger, $connection);
 
         $subscriber->onPluginUploaded(new PluginUploadedEvent('plugin.zip', new Context(new AdminApiSource(null, $integrationId)), 'ExamplePlugin', '2.0.0'));
         $connection->close();
+    }
+
+    public function testAdminContextWithoutIdentityOmitsActorType(): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('info')->with('plugin:upload', ['filename' => 'plugin.zip']);
+        $subscriber = new SystemActivitySubscriber($logger, $this->connection);
+
+        $subscriber->onPluginUploaded(new PluginUploadedEvent('plugin.zip', new Context(new AdminApiSource(null))));
     }
 
     public function testMissingIntegrationOmitsAccessKey(): void
@@ -269,7 +279,7 @@ class SystemActivitySubscriberTest extends TestCase
         $connection->method('fetchOne')->willReturn(false);
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('info')->with('plugin:upload', [
-            'filename' => 'plugin.zip', 'pluginName' => 'ExamplePlugin', 'pluginVersion' => '2.0.0',
+            'filename' => 'plugin.zip', 'pluginName' => 'ExamplePlugin', 'pluginVersion' => '2.0.0', 'actorType' => 'integration',
         ]);
         $subscriber = new SystemActivitySubscriber($logger, $connection);
 

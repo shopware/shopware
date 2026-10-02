@@ -87,7 +87,7 @@ final class SystemActivitySubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return array{actorType?: string, userId?: string|null, username?: string|null, integrationAccessKey?: string|null}
+     * @return array{actorType?: string|null, userId?: string|null, username?: string|null, integrationAccessKey?: string|null}
      */
     private function actor(Context $context): array
     {
@@ -99,7 +99,15 @@ final class SystemActivitySubscriber implements EventSubscriberInterface
             return [];
         }
 
-        $actor = ['userId' => $source->getUserId(), 'integrationAccessKey' => null];
+        $actor = [
+            'actorType' => match (true) {
+                $source->getUserId() !== null => 'user',
+                $source->getIntegrationId() !== null => 'integration',
+                default => null,
+            },
+            'userId' => $source->getUserId(),
+            'integrationAccessKey' => null,
+        ];
         if ($source->getUserId() !== null) {
             $username = $this->connection->fetchOne(
                 'SELECT username FROM `user` WHERE id = :id',

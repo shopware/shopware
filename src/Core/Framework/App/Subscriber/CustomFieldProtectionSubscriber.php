@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Subscriber;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
@@ -56,12 +57,15 @@ class CustomFieldProtectionSubscriber implements EventSubscriberInterface
         $integrationId = $this->getIntegrationId($context);
         $violationList = new ConstraintViolationList();
 
-        foreach ($event->getCommandsForEntity(CustomFieldSetDefinition::ENTITY_NAME) as $command) {
-            if ($command instanceof InsertCommand) {
-                continue;
-            }
+        $commands = array_values(array_filter(
+            $event->getCommandsForEntity(CustomFieldSetDefinition::ENTITY_NAME),
+            static fn (WriteCommand $command): bool => !$command instanceof InsertCommand
+        ));
 
-            $appIntegrationId = $this->fetchIntegrationIdOfAssociatedApp($command);
+        $appIntegrationIds = $this->fetchIntegrationIdsOfAssociatedApps($commands);
+
+        foreach ($commands as $command) {
+            $appIntegrationId = $appIntegrationIds[Uuid::fromBytesToHex($command->getPrimaryKey()['id'])] ?? null;
             if (!$appIntegrationId) {
                 continue;
             }
@@ -85,21 +89,25 @@ class CustomFieldProtectionSubscriber implements EventSubscriberInterface
         return $source->getIntegrationId();
     }
 
-    private function fetchIntegrationIdOfAssociatedApp(WriteCommand $command): ?string
+    /**
+     * @param list<WriteCommand> $commands
+     *
+     * @return array<string, string> custom field set id to the integration id of its app, both hex
+     */
+    private function fetchIntegrationIdsOfAssociatedApps(array $commands): array
     {
-        $id = $command->getPrimaryKey()['id'];
-        $integrationId = $this->connection->executeQuery('
-            SELECT `app`.`integration_id`
-            FROM `app`
-            INNER JOIN `custom_field_set` ON `custom_field_set`.`app_id` = `app`.`id`
-            WHERE `custom_field_set`.`id` = :customFieldSetId
-        ', ['customFieldSetId' => $id])->fetchOne();
-
-        if (!$integrationId) {
-            return null;
+        if ($commands === []) {
+            return [];
         }
 
-        return Uuid::fromBytesToHex($integrationId);
+        $ids = array_map(static fn (WriteCommand $command): string => $command->getPrimaryKey()['id'], $commands);
+
+        return $this->connection->fetchAllKeyValue('
+            SELECT LOWER(HEX(`custom_field_set`.`id`)), LOWER(HEX(`app`.`integration_id`))
+            FROM `app`
+            INNER JOIN `custom_field_set` ON `custom_field_set`.`app_id` = `app`.`id`
+            WHERE `custom_field_set`.`id` IN (:customFieldSetIds)
+        ', ['customFieldSetIds' => $ids], ['customFieldSetIds' => ArrayParameterType::BINARY]);
     }
 
     private function addViolation(ConstraintViolationList $violationList, WriteCommand $command): void

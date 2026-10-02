@@ -22,6 +22,7 @@ $sw-notifications-transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     .mt-banner__message {
         width: 100%;
         color: var(--color-text-primary-default);
+        overflow-wrap: anywhere;
     }
 
     .mt-banner .mt-banner__close {

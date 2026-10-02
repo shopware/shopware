@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
+use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 use Shopware\Core\Framework\Mcp\Tool\McpToolResponse;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -166,6 +167,26 @@ class McpToolAnalysisCompilerPassTest extends TestCase
         ], $container->getParameter('shopware.mcp.tool_groups'));
     }
 
+    public function testToolClaimingTheReservedDiscoveryGroupFallsBackToTheCatchAllToolset(): void
+    {
+        $container = $this->createContainer();
+
+        $claiming = new Definition(McpAnalysisTestClaimingDiscoveryTool::class);
+        $claiming->addTag('mcp.tool');
+        $container->setDefinition('tool.claiming', $claiming);
+
+        $meta = new Definition(McpAnalysisTestDiscoveryMetaTool::class);
+        $meta->addTag('mcp.tool');
+        $container->setDefinition('tool.meta', $meta);
+
+        (new McpToolAnalysisCompilerPass())->process($container);
+
+        static::assertSame([
+            'swag-analysis-claims-discovery' => McpToolsetRegistry::FALLBACK_GROUP,
+            McpToolsetRegistry::ENABLE_TOOLSET_TOOL => McpToolsetRegistry::DISCOVERY_GROUP,
+        ], $container->getParameter('shopware.mcp.tool_groups'));
+    }
+
     public function testToolWithMissingClassIsSkippedAndWarns(): void
     {
         $container = $this->createContainer();
@@ -259,6 +280,33 @@ class McpAnalysisTestStaticPrivilegeTool extends McpToolResponse
 #[McpToolRequires(entityParam: 'entity', operations: ['read'])]
 #[McpToolRequires(entityParam: 'entity', operations: ['update'])]
 class McpAnalysisTestDynamicPrivilegeTool extends McpToolResponse
+{
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+// @phpstan-ignore shopware.mcpReservedToolGroup (claims the reserved group on purpose, to test the fallback)
+#[McpTool(name: 'swag-analysis-claims-discovery', description: 'extension tool claiming the reserved group')]
+#[McpToolGroup(McpToolsetRegistry::DISCOVERY_GROUP)]
+class McpAnalysisTestClaimingDiscoveryTool extends McpToolResponse
+{
+    public function __invoke(): string
+    {
+        return '';
+    }
+}
+
+/**
+ * @internal
+ */
+#[McpTool(name: McpToolsetRegistry::ENABLE_TOOLSET_TOOL, description: 'the core enable meta-tool')]
+#[McpToolGroup(McpToolsetRegistry::DISCOVERY_GROUP)]
+class McpAnalysisTestDiscoveryMetaTool extends McpToolResponse
 {
     public function __invoke(): string
     {

@@ -15,13 +15,35 @@ class McpToolsetRegistry
 
     final public const ENABLE_TOOLSET_TOOL = 'shopware-toolset-enable';
 
+    final public const TOOL_SEARCH_TOOL = 'shopware-tool-search';
+
     /**
      * The always-advertised discovery interface (tool-search + toolsets-list/-enable). It is the
      * single source of truth for what is visible on a fresh session: tools in this group are the
      * only ones advertised up front, and it is never itself an enable-able toolset. Every other
      * tool is deferred and reachable only after its toolset is enabled.
+     *
+     * The group is reserved for {@see self::DISCOVERY_META_TOOLS}. Any other tool that claims it is
+     * moved to {@see self::FALLBACK_GROUP} at compile time and reported by `debug:mcp`, so an
+     * extension cannot put domain tools on the default surface of every connection. The supported
+     * way to make tools visible on the first `tools/list` is connect-time selection (`?toolsets=`).
      */
     final public const DISCOVERY_GROUP = 'discovery';
+
+    /**
+     * The only tools allowed in {@see self::DISCOVERY_GROUP}. Both endpoints use the same names.
+     */
+    final public const DISCOVERY_META_TOOLS = [
+        self::TOOL_SEARCH_TOOL,
+        self::LIST_TOOLSETS_TOOL,
+        self::ENABLE_TOOLSET_TOOL,
+    ];
+
+    /**
+     * The catch-all toolset for tools without a group, and for tools that claimed the reserved
+     * discovery group.
+     */
+    final public const FALLBACK_GROUP = 'other';
 
     /**
      * Spelled out rather than "*" so it survives being pasted into clients that escape wildcards.

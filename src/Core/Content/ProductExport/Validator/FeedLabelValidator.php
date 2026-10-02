@@ -18,7 +18,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[Package('discovery')]
 class FeedLabelValidator implements EventSubscriberInterface
 {
-    private const FEED_LABEL_PATTERN = '/^[A-Z0-9_-]{1,20}$/';
+    private const FEED_LABEL_PATTERN = '/^[A-Z0-9_-]{1,20}$/D';
 
     private const ERROR_CODE = 'PRODUCT_EXPORT__INVALID_FEED_LABEL_FORMAT';
 

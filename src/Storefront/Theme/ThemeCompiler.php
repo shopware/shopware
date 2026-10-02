@@ -348,7 +348,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            $entryName = preg_replace('/\.(scss|css)$/', '', $entry['name']) ?? $entry['name'];
+            $entryName = preg_replace('/\.(scss|css)$/D', '', $entry['name']) ?? $entry['name'];
             $outputFile = $entry['file'];
             $tag = str_replace('/', ':', $entryName);
 
@@ -514,7 +514,7 @@ class ThemeCompiler implements ThemeCompilerInterface
 
     private function toAssetDirectory(string $bundleName): string
     {
-        return preg_replace('/bundle$/', '', strtolower($bundleName)) ?? strtolower($bundleName);
+        return preg_replace('/bundle$/D', '', strtolower($bundleName)) ?? strtolower($bundleName);
     }
 
     /**

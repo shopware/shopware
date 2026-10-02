@@ -62,7 +62,7 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
         // regular expression template that can be used for filtering or matching path parts
         $translationPathRegexpTemplate = '#^/?'
             . Path::join($localesBasePath, '(?P<locale>[a-zA-Z-0-9-_]+)', '(?P<component>%s)', '(?P<plugin>%s)')
-            . '.*$#';
+            . '.*$#D';
 
         $excludedPathsRegexp = array_map(
             static fn (string $path) => \sprintf($translationPathRegexpTemplate, self::SCOPE_PLUGINS, $path),
@@ -263,6 +263,6 @@ class SnippetFileLoader implements SnippetFileLoaderInterface
 
         $localePattern = implode('|', $excludedLocales);
 
-        return '#^/?' . Path::join($path, '(' . $localePattern . ')', '*') . '.*$#';
+        return '#^/?' . Path::join($path, '(' . $localePattern . ')', '*') . '.*$#D';
     }
 }

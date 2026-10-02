@@ -3,12 +3,14 @@
 namespace Shopware\Tests\Unit\Storefront\Checkout\Cart;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
@@ -150,6 +152,52 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
         // 20.00 / 3 = 6.666…, rounded to the two decimals the currency uses; 6.67 * 3 would report
         // 20.01, so the paid line total is carried separately for the event value
         static::assertSame(['price' => 6.67, 'discount' => 3.33, 'total' => 20.0], $prices['product-1']);
+    }
+
+    /**
+     * The net price calculator only cash rounds when the currency rounds net prices, so a 0.05 cash
+     * interval must not lift a net line of 0.03 to 0.05, which would report more than the cart.
+     *
+     * @return iterable<string, array{string, bool, float}>
+     */
+    public static function netRoundingProvider(): iterable
+    {
+        yield 'net prices without net rounding keep the decimals' => [CartPrice::TAX_STATE_NET, false, 0.03];
+        yield 'tax free prices without net rounding keep the decimals' => [CartPrice::TAX_STATE_FREE, false, 0.03];
+        yield 'net prices with net rounding are cash rounded' => [CartPrice::TAX_STATE_NET, true, 0.05];
+        yield 'gross prices are always cash rounded' => [CartPrice::TAX_STATE_GROSS, false, 0.05];
+    }
+
+    #[DataProvider('netRoundingProvider')]
+    public function testRoundsLikeTheCartForTheTaxState(string $taxState, bool $roundForNet, float $expected): void
+    {
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 0.03, 1),
+        ]);
+
+        $prices = $this->calculator->calculate($lineItems, $this->context(new CashRoundingConfig(2, 0.05, $roundForNet), $taxState));
+
+        static::assertSame(['price' => $expected, 'discount' => 0.0, 'total' => $expected], $prices['product-1']);
+    }
+
+    public function testNetLineTotalsAddUpWithoutNetRounding(): void
+    {
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 10.0, 1),
+            $this->product('product-2', 10.0, 1),
+            $this->product('product-3', 10.0, 1),
+            $this->promotion([
+                ['id' => 'product-1', 'quantity' => 1, 'discount' => 3.3333333],
+                ['id' => 'product-2', 'quantity' => 1, 'discount' => 3.3333333],
+                ['id' => 'product-3', 'quantity' => 1, 'discount' => 3.3333334],
+            ], 10.0),
+        ]);
+
+        $totals = array_column($this->calculator->calculate($lineItems, $this->context(new CashRoundingConfig(2, 0.05, false), CartPrice::TAX_STATE_NET)), 'total');
+
+        // rounded per cent, not per 0.05: two lines of 6.67 and one of 6.66
+        static::assertEqualsWithDelta(20.0, array_sum($totals), 0.0001);
+        static::assertEqualsCanonicalizing([6.67, 6.67, 6.66], $totals);
     }
 
     public function testHonoursACurrencyWithoutDecimals(): void
@@ -295,11 +343,14 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
         static::assertEqualsWithDelta(29.0, array_sum($totals), 0.00001);
     }
 
-    private function context(?CashRoundingConfig $itemRounding = null): SalesChannelContext
+    private function context(?CashRoundingConfig $itemRounding = null, string $taxState = CartPrice::TAX_STATE_GROSS): SalesChannelContext
     {
-        return Generator::generateSalesChannelContext(
+        $context = Generator::generateSalesChannelContext(
             itemRounding: $itemRounding ?? new CashRoundingConfig(2, 0.01, true),
         );
+        $context->setTaxState($taxState);
+
+        return $context;
     }
 
     private function product(string $id, float $unitPrice, int $quantity): LineItem

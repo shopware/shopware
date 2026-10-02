@@ -4,6 +4,7 @@ namespace Shopware\Storefront\Checkout\Cart;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
@@ -57,6 +58,9 @@ class AnalyticsLineItemPriceCalculator
 
         $discounts = $this->collectDiscounts($lineItems);
         $rounding = $context->getItemRounding();
+        // the same rounding the cart applied to the line prices: gross prices are cash rounded, net
+        // and tax free prices only when the currency rounds net prices, otherwise to the decimals
+        $cash = $context->getTaxState() === CartPrice::TAX_STATE_GROSS || $rounding->roundForNet();
 
         $lines = [];
 
@@ -80,14 +84,14 @@ class AnalyticsLineItemPriceCalculator
         }
 
         $lines = $this->allocate($lines);
-        $totals = $this->roundTotals($lines, $rounding);
+        $totals = $this->roundTotals($lines, $rounding, $cash);
 
         $prices = [];
 
         foreach ($lines as $id => $line) {
             $prices[$id] = [
-                'price' => $this->rounding->cashRound(($line['total'] - $line['discount']) / $line['quantity'], $rounding),
-                'discount' => $this->rounding->cashRound($line['discount'] / $line['quantity'], $rounding),
+                'price' => $this->round(($line['total'] - $line['discount']) / $line['quantity'], $rounding, $cash),
+                'discount' => $this->round($line['discount'] / $line['quantity'], $rounding, $cash),
                 // The rounded unit price times the quantity can miss the paid line total by a cent,
                 // 20.00 split over three units reports 6.67, so the event value uses this instead.
                 'total' => $totals[$id],
@@ -153,20 +157,21 @@ class AnalyticsLineItemPriceCalculator
      *
      * @return array<string, float>
      */
-    private function roundTotals(array $lines, CashRoundingConfig $rounding): array
+    private function roundTotals(array $lines, CashRoundingConfig $rounding, bool $cash): array
     {
         $exact = array_map(static fn (array $line) => $line['total'] - $line['discount'], $lines);
-        $totals = array_map(fn (float $total) => $this->rounding->cashRound($total, $rounding), $exact);
+        $totals = array_map(fn (float $total) => $this->round($total, $rounding, $cash), $exact);
 
         if ($totals === []) {
             return [];
         }
 
-        // cash rounding ignores the interval above two decimals and rounds to the decimals only
-        $step = $rounding->getDecimals() > 2
+        // cash rounding ignores the interval above two decimals and rounds to the decimals only, as
+        // does the math rounding of net prices
+        $step = !$cash || $rounding->getDecimals() > 2
             ? 10 ** -$rounding->getDecimals()
             : max($rounding->getInterval(), 10 ** -$rounding->getDecimals());
-        $difference = $this->rounding->cashRound(array_sum($exact), $rounding) - array_sum($totals);
+        $difference = $this->round(array_sum($exact), $rounding, $cash) - array_sum($totals);
         $steps = (int) round($difference / $step);
 
         // lines rounded down the most are raised first, lines rounded up the most are lowered first
@@ -239,6 +244,11 @@ class AnalyticsLineItemPriceCalculator
         }
 
         return $discounts;
+    }
+
+    private function round(float $price, CashRoundingConfig $rounding, bool $cash): float
+    {
+        return $cash ? $this->rounding->cashRound($price, $rounding) : $this->rounding->mathRound($price, $rounding);
     }
 
     /**

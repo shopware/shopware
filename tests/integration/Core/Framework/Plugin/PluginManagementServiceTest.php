@@ -23,6 +23,7 @@ use Shopware\Core\Kernel;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -178,7 +179,8 @@ class PluginManagementServiceTest extends TestCase
             $this->getPluginService(),
             $this->filesystem,
             $this->getCacheClearer(),
-            static::getContainer()->get('shopware.store_download_client')
+            static::getContainer()->get('shopware.store_download_client'),
+            static::createStub(EventDispatcherInterface::class)
         );
     }
 

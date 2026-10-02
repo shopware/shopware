@@ -7,10 +7,13 @@ use GuzzleHttp\Client;
 use Shopware\Core\Framework\Adapter\Cache\CacheClearer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Plugin\Event\PluginUploadedEvent;
+use Shopware\Core\Framework\Plugin\Util\ZipUtils;
 use Shopware\Core\Framework\Store\Struct\PluginDownloadDataStruct;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -28,7 +31,8 @@ class PluginManagementService
         private readonly PluginService $pluginService,
         private readonly Filesystem $filesystem,
         private readonly CacheClearer $cacheClearer,
-        private readonly Client $client
+        private readonly Client $client,
+        private readonly EventDispatcherInterface $eventDispatcher
     ) {
     }
 
@@ -65,10 +69,14 @@ class PluginManagementService
 
         $tempFile = $file->move($tempDirectory, $tempFileName);
 
-        $type = $this->extractPluginZip($tempFile->getPathname());
+        $type = $this->pluginZipDetector->detect($tempFile->getPathname());
+        $metadata = $type === self::PLUGIN ? $this->readUploadMetadata($tempFile->getPathname()) : null;
+        $this->extractPluginZip($tempFile->getPathname(), storeType: $type);
 
         if ($type === self::PLUGIN) {
+            \assert($metadata !== null);
             $this->pluginService->refreshPlugins($context, new NullIO());
+            $this->eventDispatcher->dispatch(new PluginUploadedEvent($file->getClientOriginalName(), $context, $metadata['pluginName'], $metadata['pluginVersion']));
         }
     }
 
@@ -108,6 +116,31 @@ class PluginManagementService
         $this->filesystem->remove($path);
 
         $this->pluginService->refreshPlugins($context, new NullIO());
+    }
+
+    /**
+     * @return array{pluginName: string, pluginVersion: string|null}
+     */
+    private function readUploadMetadata(string $path): array
+    {
+        $archive = ZipUtils::openZip($path);
+        try {
+            $entry = $archive->statIndex(0);
+            \assert($entry !== false);
+            $directory = explode('/', (string) $entry['name'])[0];
+            $composerJson = $archive->getFromName($directory . '/composer.json');
+            $composer = \is_string($composerJson) ? json_decode($composerJson, true, flags: \JSON_THROW_ON_ERROR) : null;
+            $extra = \is_array($composer) ? ($composer['extra'] ?? null) : null;
+            $class = \is_array($extra) ? ($extra['shopware-plugin-class'] ?? null) : null;
+            $version = \is_array($composer) ? ($composer['version'] ?? null) : null;
+
+            return [
+                'pluginName' => \is_string($class) && $class !== '' ? basename(str_replace('\\', '/', $class)) : $directory,
+                'pluginVersion' => \is_string($version) ? $version : null,
+            ];
+        } finally {
+            $archive->close();
+        }
     }
 
     private function extractPlugin(string $fileName, bool $delete): void

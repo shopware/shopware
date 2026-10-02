@@ -56,6 +56,27 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### System activity logging
+
+User and integration creation and successful plugin uploads, activation, deactivation, installation, uninstallation, and updates now produce Monolog records at the `info` level on the `system_activity` channel. Records include entity identifiers and the acting Administration user ID and username or integration access key (`integrationAccessKey`) where available. Upload records include the plugin name and version read from the ZIP (the version is omitted when absent from `composer.json`). Plugin lifecycle records include `pluginName` and `pluginVersion`; update records also include `previousPluginVersion` to show the version transition. Fields with `null` values are omitted. Passwords and secret access keys are excluded.
+
+These records are stored in the `log_entry` database table by the existing buffered business-event handler by default.
+
+Additionally, route these records to a separate file or another Monolog handler by configuring the channel in `config/packages/monolog.yaml`, for example:
+
+```yaml
+monolog:
+    handlers:
+        system_activity:
+            type: rotating_file
+            path: '%kernel.logs_dir%/system_activity.log'
+            level: info
+            max_files: 30
+            channels: ['system_activity']
+```
+
+To keep these records out of other handlers, add `!system_activity` to those handlers' channel filters, preserving any existing exclusions. To disable database storage for system activities, override `business_event_handler_buffer.channels` with `[business_events]`.
+
 ### Filtered listings show the main variant only if it matches the active filters
 
 Filtered product listings show a variant product's main variant only if it matches all active filters, such as property, price or manufacturer filters. Otherwise, a matching variant is shown. Products configured to display their parent always show the parent.

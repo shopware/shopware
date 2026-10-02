@@ -36,9 +36,17 @@ class McpToolResultLinkTest extends TestCase
             'arguments' => ['entity' => 'country', 'criteria' => '{"associations":{"states":{}}}', 'limit' => 500],
         ]);
 
-        $link = $result['content'][1] ?? null;
-        static::assertIsArray($link, 'expected a resource_link after the text block: ' . json_encode($result));
-        static::assertSame('resource_link', $link['type']);
+        // The link follows the text blocks, whose number depends on the format: the legacy envelope is
+        // one block, the 6.8 format adds the summary and the metadata as blocks of their own.
+        $content = $result['content'] ?? [];
+        static::assertIsArray($content);
+        $links = array_values(array_filter(
+            $content,
+            static fn (mixed $block): bool => \is_array($block) && ($block['type'] ?? null) === 'resource_link',
+        ));
+        $link = $links[0] ?? null;
+        static::assertIsArray($link, 'expected a resource_link after the text blocks: ' . json_encode($result));
+        static::assertCount(1, $links);
         static::assertStringStartsWith('shopware://tool-result/', $link['uri']);
         static::assertArrayHasKey('shopware/expiresAt', $result['_meta'] ?? []);
 

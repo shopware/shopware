@@ -20,6 +20,7 @@ use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\Cache\CacheInterface;
 
 /**
  * Records cookie consent decisions of visitors so shop operators can demonstrate
@@ -37,6 +38,7 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
 {
     private const MAX_ACCEPTED_COOKIES = 500;
     private const MAX_STRING_LENGTH = 255;
+    private const SNAPSHOT_CACHE_KEY_PREFIX = 'cookie-consent-snapshot-';
 
     /**
      * @internal
@@ -46,6 +48,7 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
         private readonly AbstractCookieConsentLogStorage $storage,
         private readonly ClockInterface $clock,
         private readonly RateLimiter $rateLimiter,
+        private readonly CacheInterface $cache,
     ) {
     }
 
@@ -77,12 +80,17 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
             createdAt: $now,
         );
 
-        // The snapshot goes first, so a stored decision always resolves to the banner it was given on
-        $this->storage->snapshot(new CookieConsentConfigSnapshot(
-            configHash: $configuration->getHash(),
-            cookieGroups: array_values($cookieGroups->getElements()),
-            createdAt: $now,
-        ));
+        // The snapshot goes first, so a stored decision always resolves to the banner it was given on.
+        // A known banner already has its snapshot, so the storage is only asked once per hash.
+        $this->cache->get(self::SNAPSHOT_CACHE_KEY_PREFIX . $configuration->getHash(), function () use ($configuration, $cookieGroups, $now): bool {
+            $this->storage->snapshot(new CookieConsentConfigSnapshot(
+                configHash: $configuration->getHash(),
+                cookieGroups: array_values($cookieGroups->getElements()),
+                createdAt: $now,
+            ));
+
+            return true;
+        });
         $this->storage->log($record);
 
         return new NoContentResponse();

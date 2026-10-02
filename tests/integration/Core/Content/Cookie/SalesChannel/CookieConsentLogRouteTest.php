@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,6 +47,7 @@ class CookieConsentLogRouteTest extends TestCase
             new DatabaseCookieConsentLogStorage($this->connection),
             new NativeClock(),
             static::createStub(RateLimiter::class),
+            new ArrayAdapter(),
         );
 
         $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)

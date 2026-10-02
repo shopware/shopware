@@ -77,6 +77,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AbstractCookieConsentLogStorage::class),
             service(ClockInterface::class),
             service(RateLimiter::class),
+            service('cache.object'),
         ]);
 
     $services->set(CleanupCookieConsentLogTask::class)

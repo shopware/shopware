@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterException;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -174,6 +175,30 @@ class CookieConsentLogRouteTest extends TestCase
         static::assertSame('2026-07-13 12:00:00', $snapshot->createdAt->format('Y-m-d H:i:s'));
     }
 
+    public function testAKnownBannerIsOnlySnapshottedOnce(): void
+    {
+        $this->log(['consentAction' => 'accept_all']);
+        $this->log(['consentAction' => 'accept_required']);
+
+        static::assertSame(['snapshot', 'log', 'log'], $this->storage->calls);
+    }
+
+    public function testAFailedSnapshotIsTriedAgainWithTheNextDecision(): void
+    {
+        $this->storage->failNextSnapshot = new \RuntimeException('storage unavailable');
+
+        try {
+            $this->log(['consentAction' => 'accept_all']);
+            static::fail('The failed snapshot must stop the decision');
+        } catch (\RuntimeException) {
+        }
+
+        $this->log(['consentAction' => 'accept_all']);
+
+        static::assertSame(['snapshot', 'snapshot', 'log'], $this->storage->calls);
+        static::assertCount(1, $this->storage->snapshots);
+    }
+
     public function testAWithdrawalIsRecordedUnderTheSameConsentId(): void
     {
         $this->log(['consentAction' => 'accept_all']);
@@ -313,6 +338,7 @@ class CookieConsentLogRouteTest extends TestCase
             $this->storage,
             new MockClock('2026-07-13 12:00:00'),
             $rateLimiter,
+            new ArrayAdapter(),
         );
     }
 
@@ -383,6 +409,8 @@ class InMemoryCookieConsentLogStorage extends AbstractCookieConsentLogStorage
      */
     public array $calls = [];
 
+    public ?\Throwable $failNextSnapshot = null;
+
     public function log(CookieConsentRecord $record): void
     {
         $this->calls[] = 'log';
@@ -392,6 +420,14 @@ class InMemoryCookieConsentLogStorage extends AbstractCookieConsentLogStorage
     public function snapshot(CookieConsentConfigSnapshot $snapshot): void
     {
         $this->calls[] = 'snapshot';
+
+        if ($this->failNextSnapshot !== null) {
+            $failure = $this->failNextSnapshot;
+            $this->failNextSnapshot = null;
+
+            throw $failure;
+        }
+
         $this->snapshots[] = $snapshot;
     }
 

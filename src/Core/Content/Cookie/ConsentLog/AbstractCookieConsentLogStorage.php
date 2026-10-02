@@ -23,8 +23,9 @@ abstract class AbstractCookieConsentLogStorage
     abstract public function log(CookieConsentRecord $record): void;
 
     /**
-     * Persists the banner configuration a decision refers to. Called before every
-     * `log()`, so it has to be cheap when the hash is already known.
+     * Persists the banner configuration a decision refers to. Called before the first `log()`
+     * of a banner configuration. Known hashes are cached, but the call repeats when the cache
+     * entry expires or is cleared, so a known hash has to keep its first snapshot.
      */
     abstract public function snapshot(CookieConsentConfigSnapshot $snapshot): void;
 

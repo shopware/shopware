@@ -1,3 +1,4 @@
+import ProductPageHelper from 'src/plugin/google-analytics/product-page.helper';
 import AddToWishlistEvent from 'src/plugin/google-analytics/events/add-to-wishlist.event';
 
 describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
@@ -21,15 +22,15 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
         jest.clearAllMocks();
     });
 
-    test('supports returns true', () => {
+    test('supports returns true', async () => {
         expect(addToWishlistEvent.supports()).toBe(true);
     });
 
-    test('getPluginName returns WishlistStorage', () => {
+    test('getPluginName returns WishlistStorage', async () => {
         expect(addToWishlistEvent.getPluginName()).toBe('WishlistStorage');
     });
 
-    test('fires add_to_wishlist event with product page data', () => {
+    test('fires add_to_wishlist event with product page data', async () => {
         document.body.innerHTML = `
             <h1 class="product-detail-name">Test Product</h1>
             <div itemprop="brand"><meta itemprop="name" content="Test Brand"></div>
@@ -37,22 +38,97 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
             <meta property="product:price:amount" content="99.99">
         `;
 
-        addToWishlistEvent._onProductAdded({
+        await addToWishlistEvent._onProductAdded({
             detail: { productId: 'product-123' },
         });
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', {
             'currency': 'EUR',
-            'value': '99.99',
+            'value': 99.99,
             'items': [{
-                'id': 'product-123',
-                'name': 'Test Product',
-                'brand': 'Test Brand',
+                'item_id': 'product-123',
+                'item_name': 'Test Product',
+                'item_brand': 'Test Brand',
+                'price': 99.99,
             }],
         });
     });
 
-    test('fires add_to_wishlist event with line item data on checkout pages', () => {
+    test('resolves the categories of a product box through the analytics route', async () => {
+        document.body.innerHTML = `
+            <nav aria-label="breadcrumb">
+                <span class="breadcrumb-title">Wishlist</span>
+            </nav>
+            <div class="product-box" data-product-information='{ "id": "product-123", "name": "Test Product", "price": 99.99, "sku": "SW10000" }'>
+                <div class="product-wishlist-product-123"></div>
+            </div>
+        `;
+
+        const resolveCategories = jest.spyOn(ProductPageHelper, 'resolveCategories')
+            .mockResolvedValue({ item_category: 'Clothing', item_category2: 'Shirts' });
+
+        await addToWishlistEvent._onProductAdded({
+            detail: { productId: 'product-123' },
+        });
+
+        expect(resolveCategories).toHaveBeenCalledWith('product-123');
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', expect.objectContaining({
+            'items': [expect.objectContaining({
+                'item_id': 'SW10000',
+                'item_category': 'Clothing',
+                'item_category2': 'Shirts',
+            })],
+        }));
+
+        resolveCategories.mockRestore();
+    });
+
+    test('falls back to the breadcrumb when the card carries no categories', async () => {
+        document.body.innerHTML = `
+            <h1 class="product-detail-name">Test Product</h1>
+            <nav aria-label="breadcrumb">
+                <span class="breadcrumb-title">Clothing</span>
+                <span class="breadcrumb-title">Shirts</span>
+            </nav>
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="99.99">
+        `;
+
+        await addToWishlistEvent._onProductAdded({
+            detail: { productId: 'product-123' },
+        });
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', expect.objectContaining({
+            'items': [expect.objectContaining({
+                'item_category': 'Clothing',
+                'item_category2': 'Shirts',
+            })],
+        }));
+    });
+
+    test('reports the variant options of the product detail page', async () => {
+        document.body.innerHTML = `
+            <h1 class="product-detail-name">Test Product</h1>
+            <div class="product-detail-buy" data-product-variant="Red, L">
+                <span class="product-detail-ordernumber">SW10000.1</span>
+            </div>
+            <meta property="product:price:currency" content="EUR">
+            <meta property="product:price:amount" content="99.99">
+        `;
+
+        await addToWishlistEvent._onProductAdded({
+            detail: { productId: 'product-123' },
+        });
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', expect.objectContaining({
+            'items': [expect.objectContaining({
+                'item_id': 'SW10000.1',
+                'item_variant': 'Red, L',
+            })],
+        }));
+    });
+
+    test('fires add_to_wishlist event with line item data on checkout pages', async () => {
         document.body.innerHTML = `
             <div class="hidden-line-items-information" data-currency="EUR" data-value="199.98">
                 <span class="hidden-line-item"
@@ -67,60 +143,57 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
             </div>
         `;
 
-        addToWishlistEvent._onProductAdded({
+        await addToWishlistEvent._onProductAdded({
             detail: { productId: 'product-456' },
         });
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', {
             'currency': 'EUR',
-            'value': '49.99',
+            'value': 49.99,
             'items': [{
-                'id': 'product-456',
-                'name': 'Line Item Product',
-                'brand': 'Line Item Brand',
+                'item_id': 'product-456',
+                'item_name': 'Line Item Product',
+                'item_brand': 'Line Item Brand',
+                'price': 49.99,
                 'item_category': 'Category 1',
                 'item_category2': 'Category 2',
             }],
         });
     });
 
-    test('does not fire event when not active', () => {
+    test('does not fire event when not active', async () => {
         addToWishlistEvent.active = false;
 
-        addToWishlistEvent._onProductAdded({
+        await addToWishlistEvent._onProductAdded({
             detail: { productId: 'product-123' },
         });
 
         expect(window.gtag).not.toHaveBeenCalled();
     });
 
-    test('does not fire event when productId is missing', () => {
-        addToWishlistEvent._onProductAdded({
+    test('does not fire event when productId is missing', async () => {
+        await addToWishlistEvent._onProductAdded({
             detail: {},
         });
 
         expect(window.gtag).not.toHaveBeenCalled();
     });
 
-    test('fires event with undefined values when no product data available', () => {
+    test('omits unavailable optional values', async () => {
         document.body.innerHTML = '';
 
-        addToWishlistEvent._onProductAdded({
+        await addToWishlistEvent._onProductAdded({
             detail: { productId: 'product-unknown' },
         });
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', {
-            'currency': undefined,
-            'value': undefined,
             'items': [{
-                'id': 'product-unknown',
-                'name': undefined,
-                'brand': undefined,
+                'item_id': 'product-unknown',
             }],
         });
     });
 
-    test('prefers product page data over line item data', () => {
+    test('prefers product page data over line item data', async () => {
         document.body.innerHTML = `
             <h1 class="product-detail-name">Product Page Name</h1>
             <div itemprop="brand"><meta itemprop="name" content="Product Page Brand"></div>
@@ -136,22 +209,23 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
             </div>
         `;
 
-        addToWishlistEvent._onProductAdded({
+        await addToWishlistEvent._onProductAdded({
             detail: { productId: 'product-789' },
         });
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', {
             'currency': 'EUR',
-            'value': '79.99',
+            'value': 79.99,
             'items': [{
-                'id': 'product-789',
-                'name': 'Product Page Name',
-                'brand': 'Product Page Brand',
+                'item_id': 'product-789',
+                'item_name': 'Product Page Name',
+                'item_brand': 'Product Page Brand',
+                'price': 79.99,
             }],
         });
     });
 
-    test('falls back to line item data when product page data has no name', () => {
+    test('falls back to line item data when product page data has no name', async () => {
         document.body.innerHTML = `
             <meta property="product:price:currency" content="EUR">
             <div class="hidden-line-items-information" data-currency="USD" data-value="100.00">
@@ -164,18 +238,40 @@ describe('plugin/google-analytics/events/add-to-wishlist.event', () => {
             </div>
         `;
 
-        addToWishlistEvent._onProductAdded({
+        await addToWishlistEvent._onProductAdded({
             detail: { productId: 'product-fallback' },
         });
 
         expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_wishlist', {
             'currency': 'USD',
-            'value': '25.00',
+            'value': 25.00,
             'items': [{
-                'id': 'product-fallback',
-                'name': 'Fallback Name',
-                'brand': 'Fallback Brand',
+                'item_id': 'product-fallback',
+                'item_name': 'Fallback Name',
+                'item_brand': 'Fallback Brand',
+                'price': 25,
             }],
         });
+    });
+
+    test('does not report the product when the consent was revoked during the category request', async () => {
+        document.body.innerHTML = `
+            <div class="product-box" data-product-information='{ "id": "product-123", "name": "Test Product", "price": 99.99, "sku": "SW10000" }'>
+                <div class="product-wishlist-product-123"></div>
+            </div>
+        `;
+
+        let answer;
+        const resolveCategories = jest.spyOn(ProductPageHelper, 'resolveCategories')
+            .mockReturnValue(new Promise(resolve => { answer = resolve; }));
+
+        const sent = addToWishlistEvent._onProductAdded({ detail: { productId: 'product-123' } });
+        addToWishlistEvent.disable();
+        answer({ item_category: 'Clothing' });
+        await sent;
+
+        expect(window.gtag).not.toHaveBeenCalled();
+
+        resolveCategories.mockRestore();
     });
 });

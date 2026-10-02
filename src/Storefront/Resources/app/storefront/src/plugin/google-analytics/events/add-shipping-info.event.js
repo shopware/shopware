@@ -1,4 +1,5 @@
 import AnalyticsEvent from 'src/plugin/google-analytics/analytics-event';
+import CheckoutStepHelper from 'src/plugin/google-analytics/checkout-step.helper';
 import LineItemHelper from 'src/plugin/google-analytics/line-item.helper';
 
 export default class AddShippingInfoEvent extends AnalyticsEvent
@@ -19,6 +20,11 @@ export default class AddShippingInfoEvent extends AnalyticsEvent
      * auto-submit (data-form-auto-submit), which reloads the page after selection.
      * Listening to both change and page load would result in duplicate events.
      *
+     * The auto-submit reload runs this route again, so the event is reported once per shipping
+     * method of a checkout: a reload that keeps the method stays silent, selecting a different
+     * one reports it. Reporting every load would push the count above `begin_checkout`, while
+     * reporting only the first load would report the preselected method and never the chosen one.
+     *
      * This event only fires when shipping is available (physical products).
      * For digital-only orders, no shipping form exists and the event is skipped.
      */
@@ -32,20 +38,27 @@ export default class AddShippingInfoEvent extends AnalyticsEvent
             return;
         }
 
+        const shippingTier = this._getShippingTier();
+        if (CheckoutStepHelper.hasReported('add_shipping_info', shippingTier)) {
+            return;
+        }
+
         const lineItems = LineItemHelper.getLineItems();
         if (lineItems.length === 0) {
             return;
         }
 
-        const shippingTier = this._getShippingTier();
         const additionalProperties = LineItemHelper.getAdditionalProperties();
 
-        gtag('event', 'add_shipping_info', {
+        this.pushEvent('add_shipping_info', {
             'currency': additionalProperties.currency,
             'value': additionalProperties.value,
+            'coupon': additionalProperties.coupon,
             'shipping_tier': shippingTier,
             'items': lineItems,
         });
+
+        CheckoutStepHelper.markReported('add_shipping_info', shippingTier);
     }
 
     /**

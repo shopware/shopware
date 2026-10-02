@@ -20,9 +20,6 @@ parameters:
         - .github/bin/lib/feature-flags.php
 
     excludePaths:
-        # vendor patches over autoload files
-        - src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php
-
         # Code copied and adapted from twig
         - src/Core/Framework/Adapter/Twig/TokenParser/SwMacroFunctionTokenParser.php
 
@@ -217,3 +214,13 @@ parameters:
         -
             message: '#Method .* should return Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*> but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*>#'
             identifier: return.type
+
+        # Patches for upstream DBAL classes. Changes should be as few as possible, so PHPStan issues are not fixed
+        - identifier: shopware.namespace
+          path: src/Core/Framework/Adapter/Doctrine/Patch
+        - identifier: shopware.deprecatedMethod
+          path: src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php
+        - identifier: method.deprecated
+          path: src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php
+        - identifier: symplify.forbiddenArrayMethodCall
+          path: src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php

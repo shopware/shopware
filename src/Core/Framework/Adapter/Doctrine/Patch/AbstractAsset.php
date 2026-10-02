@@ -4,10 +4,11 @@
  * Doctrine breaks all FK fields due namespacing with dots in the name.
  * Patch can be removed once DBAL v5 is required.
  *
- * Have a look at {@see AbstractAsset::_setName()} for the patch
+ * Have a look at {@see AbstractAsset::_setName()} for the patch.
+ *
+ * Namespace must match upstream to override Doctrine's class via autoload.files (excluded from classmap in composer.json)
  */
 
-/** @phpstan-ignore shopware.namespace (intentional: namespace must match upstream to override Doctrine's class via autoload.files (excluded from classmap in composer.json)) */
 namespace Doctrine\DBAL\Schema;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;

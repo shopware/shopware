@@ -306,6 +306,23 @@ export default class ProductPageHelper {
     }
 
     /**
+     * The breadcrumb categories for a product, if the breadcrumb is about it. On the product
+     * detail page the breadcrumb is the path of the page product, so a product box there, such as
+     * cross selling, reports none rather than the path of another product.
+     *
+     * @param {string} productId
+     * @param {HTMLElement|null} element the element the interaction started from, if any
+     * @returns {Object}
+     */
+    static getCategoriesFor(productId, element = null) {
+        if (window.activeRoute === 'frontend.detail.page' && ProductPageHelper.getProductCard(productId, element)) {
+            return {};
+        }
+
+        return ProductPageHelper.getCategories();
+    }
+
+    /**
      * Gets category hierarchy from breadcrumbs (GA4 supports up to 5 levels)
      * @returns {Object}
      */

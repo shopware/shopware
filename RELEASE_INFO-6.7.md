@@ -393,7 +393,7 @@ Google Tag Manager configurations that remap parameters from `eventModel` should
 
 `remove_from_cart` matches the removed line item by its id, which the hidden line item now carries as `data-line-item-id`. A product that a Store API client or an extension added under its own line item id was not reported before.
 
-A product box on the product detail page, such as cross selling or a product slider, now reports its own product for `add_to_cart` instead of the product of the page.
+A product box on the product detail page, such as cross selling or a product slider, now reports its own product for `add_to_cart` instead of the product of the page. It reports no breadcrumb categories, because the breadcrumb of the page is the path of the page product.
 
 The container `.hidden-line-items-information` no longer carries `data-value`. The event value is derived from the reported items instead, so it always matches them. Themes and plugins that read the attribute should sum `data-price` times `data-quantity` of the `.hidden-line-item` elements. The container and the `data-product-variant` / `data-product-prices` attributes of the buy widget are only rendered for a sales channel with analytics, because only the analytics script reads them.
 

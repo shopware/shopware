@@ -84,8 +84,13 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
      * @private
      */
     _getQuantityInCart(productId) {
+        // The cart only stacks onto the line with the same id, which the storefront sets to the
+        // product id. A line an API client added under its own id is a separate line, so the product
+        // id is only compared for a theme's markup that carries no line item id.
         const lineItem = [...document.querySelectorAll('.hidden-line-item')].find(element => {
-            return element.getAttribute('data-line-item-id') === productId || element.getAttribute('data-id') === productId;
+            return element.hasAttribute('data-line-item-id')
+                ? element.getAttribute('data-line-item-id') === productId
+                : element.getAttribute('data-id') === productId;
         });
 
         return parseInt(lineItem?.getAttribute('data-quantity'), 10) || 0;

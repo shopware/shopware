@@ -97,8 +97,8 @@ export default class ListAttributionHelper
 
     /**
      * Hands the attribution over to a product opened in another tab. Several products can be opened
-     * at once, also the same product from several lists, so each is kept until a tab consumes it or
-     * it expires.
+     * at once, also the same product several times, so every opened tab keeps its own handover
+     * until a tab consumes it or it expires.
      *
      * A new tab cannot be told which of two handovers of the same product on the same page is its
      * own without changing the address of the product, so they are consumed in the order they were
@@ -115,11 +115,7 @@ export default class ListAttributionHelper
 
         // a referrer never carries the fragment of the page
         const source = window.location.href.split('#')[0];
-        const handovers = ListAttributionHelper._readHandovers()
-            .filter(handover => handover.itemId !== itemId
-                || handover.source !== source
-                || handover.list?.item_list_id !== list.item_list_id)
-            .slice(-(HANDOVER_LIMIT - 1));
+        const handovers = ListAttributionHelper._readHandovers().slice(-(HANDOVER_LIMIT - 1));
 
         handovers.push({ itemId, productId, list, source, expires: Date.now() + HANDOVER_TTL });
 

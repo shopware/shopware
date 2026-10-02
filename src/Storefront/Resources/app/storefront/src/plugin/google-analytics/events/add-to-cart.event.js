@@ -51,8 +51,11 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
         this._addPayload(formData, productId, formElement);
 
         const quantity = formData.get(`lineItems[${productId}][quantity]`);
-        // the meta price is the cheapest tier, so a graduated price is resolved from the quantity
-        const price = ProductPageHelper.getGraduatedPrice(formElement, quantity)
+        // The meta price is the cheapest tier, so a graduated price is resolved from the quantity.
+        // The cart adds the quantity to a line that already holds the product and prices the sum,
+        // which the page knows when it rendered the cart, for example after an earlier add.
+        const tierQuantity = (Number(quantity) || 1) + this._getQuantityInCart(productId);
+        const price = ProductPageHelper.getGraduatedPrice(formElement, tierQuantity)
             ?? productData.value
             ?? ProductPageHelper.getValue();
         const value = price === undefined ? undefined : Number(price) * (Number(quantity) || 1);
@@ -70,6 +73,22 @@ export default class AddToCartEvent extends EventAwareAnalyticsEvent
                 ...ProductPageHelper.getCategories(),
             }],
         });
+    }
+
+    /**
+     * The quantity of the product in the cart, if the page rendered the cart. Nothing is requested
+     * for it, an add on a page without the cart markup prices the added quantity only.
+     *
+     * @param {string} productId
+     * @returns {number}
+     * @private
+     */
+    _getQuantityInCart(productId) {
+        const lineItem = [...document.querySelectorAll('.hidden-line-item')].find(element => {
+            return element.getAttribute('data-line-item-id') === productId || element.getAttribute('data-id') === productId;
+        });
+
+        return parseInt(lineItem?.getAttribute('data-quantity'), 10) || 0;
     }
 
     /**

@@ -48,11 +48,6 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
-### Product line items expose the manufacturer and category names in their payload
-
-Product line items now carry `payload.manufacturerName` and `payload.categoryNames` next to the existing `payload.manufacturerId` and `payload.categoryIds`. `manufacturerName` is the translated manufacturer name, or `null` without a manufacturer. `categoryNames` is the translated category path ordered from the top level down, starting below the sales channel navigation root, and is empty when the product has no category available in the sales channel. Both are also written to `order_line_item.payload` when a cart is converted to an order; existing orders are not backfilled.
-
-Both keys were previously only present when a client posted them as part of the line item payload, which only the Storefront product detail page did. Core now resolves them during cart enrichment for every add-to-cart path and overwrites any client supplied value, so clients that post them can stop doing so.
 ### Filtered listings show the main variant only if it matches the active filters
 
 Filtered product listings show a variant product's main variant only if it matches all active filters, such as property, price or manufacturer filters. Otherwise, a matching variant is shown. Products configured to display their parent always show the parent.
@@ -346,7 +341,7 @@ Storefront analytics now emit GA4-compliant ecommerce payloads. Item properties 
 
 With a `GTM-` tracking ID, ecommerce events are pushed under the top-level `ecommerce` key and the previous ecommerce object is cleared before every event. Non-ecommerce events such as `login`, `sign_up`, `search`, and `view_search_results` expose their parameters at the top level.
 
-`item_brand` and `item_category1` to `item_category5` are now reported for every product in the cart, checkout, and purchase events, not only for products added from the product detail page. The values come from the product line item payload instead of the buy widget's hidden `manufacturerName` and `categoryNames` inputs, which are deprecated and removed with Shopware 6.8. Themes that extend the `buy_widget_buy_product_buy_info` block and read those inputs should switch to the payload.
+`item_brand` and `item_category1` to `item_category5` are now reported for products added from a product box, not only from the product detail page. The analytics script adds the brand of the box and the category the shopper is browsing to the line item payload as `manufacturerName` and `categoryNames` when the product is added, and the cart, checkout and purchase events read them from there, as they already did for the buy widget. Nothing is loaded for this, and only a sales channel with analytics, after consent, sends them. A box on a page without breadcrumb, such as the homepage or the search, reports the brand without category, and so does a box on a product detail page, whose breadcrumb belongs to the other product. Adding a product by its product number reports neither. Reordering from the order history keeps the values of the original order.
 
 Google Tag Manager configurations that remap parameters from `eventModel` should remove that workaround and use the standard `ecommerce` data layer variable. Configurations that consume the previous `id`, `name`, or `brand` item properties should switch to their `item_*` equivalents. Storefront analytics configured with a Google tag ID continue to use `gtag('event', ...)`, with the same GA4-compliant parameter normalization.
 
@@ -356,7 +351,7 @@ Google Tag Manager configurations that remap parameters from `eventModel` should
 
 `remove_from_cart` is no longer reported for line items that are not products, such as a removed discount. Those reported the line item id as `item_id`, where every other event reports a product number.
 
-The container `.hidden-line-items-information` no longer carries `data-value`. The event value is derived from the reported items instead, so it always matches them. Themes and plugins that read the attribute should sum `data-price` times `data-quantity` of the `.hidden-line-item` elements.
+The container `.hidden-line-items-information` no longer carries `data-value`. The event value is derived from the reported items instead, so it always matches them. Themes and plugins that read the attribute should sum `data-price` times `data-quantity` of the `.hidden-line-item` elements. The container and the `data-product-variant` / `data-product-prices` attributes of the buy widget are only rendered for a sales channel with analytics, because only the analytics script reads them.
 
 Variant products report their selected options as `item_variant`, for example `Red, L`. `item_id` keeps the variant's product number, because that is the sellable unit and matches product feeds. The value comes from the line item payload in the cart, checkout, and purchase events, and from the product itself on the detail page and in product listings. Products without variant options do not report the property.
 

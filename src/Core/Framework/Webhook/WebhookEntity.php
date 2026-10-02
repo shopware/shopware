@@ -43,6 +43,11 @@ class WebhookEntity extends Entity
 
     protected ?AppEntity $app = null;
 
+    /**
+     * @var list<string>|null
+     */
+    protected ?array $aclRoleIds = null;
+
     public function getName(): string
     {
         return $this->name;
@@ -157,5 +162,21 @@ class WebhookEntity extends Entity
     public function setErrorCount(int $errorCount): void
     {
         $this->errorCount = $errorCount;
+    }
+
+    /**
+     * @return list<string>|null
+     */
+    public function getAclRoleIds(): ?array
+    {
+        return $this->aclRoleIds;
+    }
+
+    /**
+     * @param list<string>|null $aclRoleIds
+     */
+    public function setAclRoleIds(?array $aclRoleIds): void
+    {
+        $this->aclRoleIds = $aclRoleIds;
     }
 }

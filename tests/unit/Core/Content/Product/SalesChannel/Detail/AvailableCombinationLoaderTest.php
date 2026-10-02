@@ -7,6 +7,7 @@ use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
+use Shopware\Core\Content\Product\SalesChannel\Detail\Event\AvailableCombinationQueryEvent;
 use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
 use Shopware\Core\Content\Product\Stock\StockData;
 use Shopware\Core\Content\Product\Stock\StockDataCollection;
@@ -17,6 +18,8 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -51,6 +54,38 @@ class AvailableCombinationLoaderTest extends TestCase
                 'green',
             ],
         ], $combinations);
+    }
+
+    public function testLoadCombinationsDispatchesQueryExtensionEventBeforeQueryExecution(): void
+    {
+        $context = Generator::generateSalesChannelContext(Context::createDefaultContext());
+        $productId = Uuid::randomHex();
+
+        $dispatchedEvent = null;
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(AvailableCombinationQueryEvent::class, static function (AvailableCombinationQueryEvent $event) use (&$dispatchedEvent): void {
+            $dispatchedEvent = $event;
+        });
+
+        $result = static::createStub(Result::class);
+        $result->method('fetchAllAssociative')->willReturn([]);
+        $queryBuilder = $this->createMock(QueryBuilder::class);
+        $queryBuilder->expects($this->once())
+            ->method('executeQuery')
+            ->willReturnCallback(static function () use (&$dispatchedEvent, $queryBuilder, $result): Result {
+                static::assertInstanceOf(AvailableCombinationQueryEvent::class, $dispatchedEvent);
+                static::assertSame($queryBuilder, $dispatchedEvent->getQueryBuilder());
+
+                return $result;
+            });
+
+        $this->getAvailableCombinationLoader(eventDispatcher: $eventDispatcher, queryBuilder: $queryBuilder)
+            ->loadCombinations($productId, $context);
+
+        static::assertInstanceOf(AvailableCombinationQueryEvent::class, $dispatchedEvent);
+        static::assertSame($productId, $dispatchedEvent->getProductId());
+        static::assertSame($context, $dispatchedEvent->getSalesChannelContext());
+        static::assertSame($context->getContext(), $dispatchedEvent->getContext());
     }
 
     public function testLoadCombinationsReturnsAvailableCombinationResultWithAvailabilityFromStockStorage(): void
@@ -114,18 +149,21 @@ class AvailableCombinationLoaderTest extends TestCase
 
     private function getAvailableCombinationLoader(
         ?AbstractStockStorage $stockStorage = null,
-        ?SystemConfigService $systemConfigService = null
+        ?SystemConfigService $systemConfigService = null,
+        ?EventDispatcherInterface $eventDispatcher = null,
+        ?QueryBuilder $queryBuilder = null,
     ): AvailableCombinationLoader {
-        $connection = $this->getMockedConnection();
+        $connection = $this->getMockedConnection($queryBuilder);
 
         return new AvailableCombinationLoader(
             $connection,
             $stockStorage ?? static::createStub(AbstractStockStorage::class),
             $systemConfigService ?? static::createStub(SystemConfigService::class),
+            $eventDispatcher ?? new EventDispatcher(),
         );
     }
 
-    private function getMockedConnection(): Connection
+    private function getMockedConnection(?QueryBuilder $queryBuilder = null): Connection
     {
         $result = static::createStub(Result::class);
         $result->method('fetchAllAssociative')->willReturn([
@@ -154,11 +192,17 @@ class AvailableCombinationLoaderTest extends TestCase
             ],
         ]);
 
-        $queryBuilder = static::createStub(QueryBuilder::class);
-        $queryBuilder->method('executeQuery')->willReturn($result);
+        if ($queryBuilder === null) {
+            $queryBuilder = static::createStub(QueryBuilder::class);
+            $queryBuilder->method('executeQuery')->willReturn($result);
+        }
 
         $connection = static::createStub(Connection::class);
-        $connection->method('createQueryBuilder')->willReturn($queryBuilder);
+        $parentResult = static::createStub(Result::class);
+        $parentResult->method('fetchAssociative')->willReturn(false);
+        $parentQueryBuilder = static::createStub(QueryBuilder::class);
+        $parentQueryBuilder->method('executeQuery')->willReturn($parentResult);
+        $connection->method('createQueryBuilder')->willReturnOnConsecutiveCalls($parentQueryBuilder, $queryBuilder);
 
         return $connection;
     }

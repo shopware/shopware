@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\SalesChannel\Detail;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
+use Shopware\Core\Content\Product\SalesChannel\Detail\Event\AvailableCombinationQueryEvent;
 use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
 use Shopware\Core\Content\Product\Stock\StockLoadRequest;
 use Shopware\Core\Framework\Context;
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[Package('inventory')]
 class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
@@ -24,6 +26,7 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
         private readonly Connection $connection,
         private readonly AbstractStockStorage $stockStorage,
         private readonly SystemConfigService $systemConfigService,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -36,8 +39,7 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
     {
         $combinations = $this->getCombinations(
             $productId,
-            $salesChannelContext->getContext(),
-            $salesChannelContext->getSalesChannelId()
+            $salesChannelContext,
         );
 
         $stocks = $this->stockStorage->load(
@@ -79,8 +81,9 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
     /**
      * @return array<string, array{options: string, productNumber: string, available: string, isCloseout: string}>
      */
-    private function getCombinations(string $productId, Context $context, string $salesChannelId): array
+    private function getCombinations(string $productId, SalesChannelContext $salesChannelContext): array
     {
+        $context = $salesChannelContext->getContext();
         $parent = $this->fetchParent($productId, $context);
 
         $query = $this->connection->createQueryBuilder();
@@ -99,7 +102,7 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
 
         $query->innerJoin('product', 'product_visibility', 'visibilities', 'product.visibilities = visibilities.product_id');
         $query->andWhere('visibilities.sales_channel_id = :salesChannelId');
-        $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelId));
+        $query->setParameter('salesChannelId', Uuid::fromHexToBytes($salesChannelContext->getSalesChannelId()));
 
         $query->select(
             'LOWER(HEX(product.id))',
@@ -108,6 +111,8 @@ class AvailableCombinationLoader extends AbstractAvailableCombinationLoader
             'product.available',
             'IFNULL(product.is_closeout, :parentIsCloseout) as isCloseout',
         );
+
+        $this->eventDispatcher->dispatch(new AvailableCombinationQueryEvent($productId, $query, $salesChannelContext));
 
         $combinations = $query->executeQuery()->fetchAllAssociative();
 

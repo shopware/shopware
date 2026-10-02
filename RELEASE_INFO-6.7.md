@@ -56,6 +56,10 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Available combination queries can be extended
+
+Extensions can subscribe to `AvailableCombinationQueryEvent` to add filters to the database query used to load product variant combinations. The event provides the product ID, the mutable query builder, and the sales channel context.
+
 ### Filtered listings show the main variant only if it matches the active filters
 
 Filtered product listings show a variant product's main variant only if it matches all active filters, such as property, price or manufacturer filters. Otherwise, a matching variant is shown. Products configured to display their parent always show the parent.

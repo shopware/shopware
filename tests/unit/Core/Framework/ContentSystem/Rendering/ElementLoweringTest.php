@@ -256,6 +256,41 @@ class ElementLoweringTest extends TestCase
     }
 
     /**
+     * The wrapper-present arm: a page-level requirement no root-scoped consumer in the forest matches is
+     * never loaded, so it runs no loader and leaves the cache context untouched. The forest carries a root
+     * consumer for a different key, so the skip is per requirement key rather than all-or-nothing.
+     */
+    #[TestDox('runs no page-level loader and leaves the cache untouched when no consumer uses the requirement')]
+    public function testFullModeSkipsAnUnconsumedPageLevelRequirement(): void
+    {
+        $loader = $this->loader();
+        $loader->expects($this->never())->method('load');
+        $cacheContext = new RenderingCacheContext();
+
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [
+                StoredElementBuilder::create('Sw:Box', 'child-1')
+                    ->withConsumer('language', ContextType::Single, scope: ConsumerScope::Root)
+                    ->build(),
+            ])
+            ->build();
+        $wrapper = $this->virtualRoot($root);
+
+        $this->lowering($loader)->lower(
+            [$wrapper],
+            RenderingMode::FULL,
+            static::createStub(SalesChannelContext::class),
+            new Request(),
+            $cacheContext,
+            [new DataRequirement('product', 'entity', new StubLoaderConfig())],
+            $wrapper,
+        );
+
+        static::assertFalse($cacheContext->isDisabled());
+        static::assertSame([], $cacheContext->getTags());
+    }
+
+    /**
      * Why the wrapper is the input source rather than an arbitrary element: a page-level requirement's
      * `propertyReference` input names a stored key, and the keys it can name are the placeholder values the
      * wrapper carries. The loader receives the placeholder's VALUE, so a run that dereferenced against
@@ -278,7 +313,10 @@ class ElementLoweringTest extends TestCase
             }
         );
 
-        $wrapper = $this->virtualRoot(StoredElementBuilder::create('Sw:Section', 'root-1')->build());
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withConsumer('product', ContextType::Single, scope: ConsumerScope::Root)
+            ->build();
+        $wrapper = $this->virtualRoot($root);
 
         // Fixture guard: the placeholder key the config references really is on the wrapper, and its value
         // is the one the assertion below expects to arrive at the loader.

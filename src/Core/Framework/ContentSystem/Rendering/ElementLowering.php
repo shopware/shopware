@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
@@ -85,19 +86,23 @@ final readonly class ElementLowering
         $ambient = [];
 
         // No wrapper or no page-level requirements: nothing ambient to resolve.
-        if ($virtualRoot !== null && $pageDataRequirements !== []) {
-            $ambient = $this->dataResolver->resolveRequirements(
-                $virtualRoot,
-                $this->indexByRequirementKey($pageDataRequirements),
-                $context,
-                $request,
-                $cacheContext,
-            );
+        if ($virtualRoot !== null) {
+            $consumed = $this->consumedRequirements($forest, $pageDataRequirements);
 
-            // Filed under the wrapper's id because that is the element these values were resolved against,
-            // which keeps the map's "loader values by element id" contract true. The wrapper carries no data
-            // requirements of its own, so this entry adds no rendered property to it and nothing loads twice.
-            $loaderValues[$virtualRoot->id] = $ambient;
+            if ($consumed !== []) {
+                $ambient = $this->dataResolver->resolveRequirements(
+                    $virtualRoot,
+                    $this->indexByRequirementKey($consumed),
+                    $context,
+                    $request,
+                    $cacheContext,
+                );
+
+                // Filed under the wrapper's id because that is the element these values were resolved against,
+                // which keeps the map's "loader values by element id" contract true. The wrapper carries no data
+                // requirements of its own, so this entry adds no rendered property to it and nothing loads twice.
+                $loaderValues[$virtualRoot->id] = $ambient;
+            }
         }
 
         // Context distribution is about dataflow, not about where a value came from, so it sees the plain
@@ -125,6 +130,49 @@ final readonly class ElementLowering
         }
 
         return $indexed;
+    }
+
+    /**
+     * @param list<StoredElement> $forest
+     * @param list<DataRequirement> $pageDataRequirements
+     *
+     * @return list<DataRequirement>
+     */
+    private function consumedRequirements(array $forest, array $pageDataRequirements): array
+    {
+        if ($pageDataRequirements === []) {
+            return [];
+        }
+
+        $rootConsumerKeys = $this->rootConsumerKeys($forest);
+
+        return array_values(array_filter(
+            $pageDataRequirements,
+            static fn (DataRequirement $requirement): bool => \in_array($requirement->key, $rootConsumerKeys, true),
+        ));
+    }
+
+    /**
+     * @param list<StoredElement> $elements
+     *
+     * @return list<string>
+     */
+    private function rootConsumerKeys(array $elements): array
+    {
+        $keys = [];
+
+        foreach ($elements as $element) {
+            $keys = array_merge(
+                $keys,
+                $element->contextDefinitions->getConsumerKeysByScope(ConsumerScope::Root),
+                ...array_map(
+                    fn (array $children): array => $this->rootConsumerKeys($children),
+                    array_values($element->slots)
+                ),
+            );
+        }
+
+        return array_values(array_unique($keys));
     }
 
     /**

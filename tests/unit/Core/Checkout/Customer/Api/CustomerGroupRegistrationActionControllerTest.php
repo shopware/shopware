@@ -26,6 +26,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
  * @internal
@@ -187,6 +188,20 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         });
 
         $this->controllerMock->decline($request, $context);
+    }
+
+    public function testRouteRequirementsNameThePlaceholdersOfTheirPath(): void
+    {
+        foreach ((new \ReflectionClass(CustomerGroupRegistrationActionController::class))->getMethods() as $method) {
+            foreach ($method->getAttributes(Route::class) as $attribute) {
+                $route = $attribute->newInstance();
+                static::assertIsString($route->path);
+
+                foreach (array_keys($route->requirements) as $placeholder) {
+                    static::assertStringContainsString('{' . $placeholder . '}', $route->path, \sprintf('Requirement "%s" of route "%s" names no placeholder.', $placeholder, $route->name));
+                }
+            }
+        }
     }
 
     private static function createCustomer(bool $requestedGroup = true): CustomerEntity

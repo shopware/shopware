@@ -79,6 +79,20 @@ class MediaUrlGeneratorTest extends TestCase
         static::assertSame(['http://localhost:8000/media/foo/3a/test%20file.jpg'], $url);
     }
 
+    public function testWithActive68MajorKeepsLiteralPercentInStoragePath(): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/ab/cd/50%20off.jpg', null);
+        $generator = new MediaUrlGenerator(
+            new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),
+        );
+
+        $url = $generator->generate([$params]);
+
+        static::assertSame(['http://localhost:8000/media/ab/cd/50%2520off.jpg'], $url);
+    }
+
     #[DisabledFeatures(['v6.8.0.0'])]
     public function testWithInactive68Major(): void
     {

@@ -16,6 +16,14 @@ The `theme.delete_files` scheduled task now works in two steps. On the first run
 
 `theme:compile` and `theme:change` no longer run that cleanup themselves; compiling and cleaning up are separate jobs again. Both commands still accept `--no-cleanup`, but the option is deprecated, has no effect and will be removed in 6.8.0.0. Drop it from deploy scripts.
 
+## Core
+
+### GARAN labels in mails come from the `garanLabels` template variable
+
+The order confirmation mail reads the GARAN label from the new `garanLabels` template variable. The `sw_garan_label_mail` Twig filter is deprecated. A migration updates the template for shops that never edited it.
+
+If you customized the order confirmation mail, replace `nestedItem.productId|sw_garan_label_mail(context)` with `garanLabels[nestedItem.productId] ?? null`, and `lineItem.productId|sw_garan_label_mail(context)` with `garanLabels[lineItem.productId] ?? null` in the plain text version. `garanLabels` is passed to every mail template that references it and has an `order` in its data.
+
 ## Storefront
 
 ### Display the complete legal guarantee notice at checkout

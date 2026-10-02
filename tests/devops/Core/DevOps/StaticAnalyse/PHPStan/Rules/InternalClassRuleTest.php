@@ -7,6 +7,10 @@ use PHPStan\Testing\RuleTestCase;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Internal\InternalClassRule;
 use Shopware\Core\Framework\Log\Package;
 
+require_once __DIR__ . '/data/InternalClassRule/DirectCompilerPasses.php';
+require_once __DIR__ . '/data/InternalClassRule/InheritedCompilerPasses.php';
+require_once __DIR__ . '/data/InternalClassRule/BecomesInternalCompilerPasses.php';
+
 /**
  * @internal
  *
@@ -32,6 +36,14 @@ class InternalClassRuleTest extends RuleTestCase
             [self::ERROR, 18],
             [self::ERROR, 22],
             [self::ERROR, 26],
+        ]);
+    }
+
+    public function testCompilerPassesWithBecomesInternalAreAccepted(): void
+    {
+        $this->analyse([__DIR__ . '/data/InternalClassRule/BecomesInternalCompilerPasses.php'], [
+            [self::ERROR, 25],
+            [self::ERROR, 29],
         ]);
     }
 

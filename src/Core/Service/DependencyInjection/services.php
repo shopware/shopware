@@ -181,6 +181,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(TemporaryDirectoryFactory::class),
             service(AppExtractor::class),
             service(Filesystem::class),
+            service('logger'),
         ])
         ->tag('app.source_resolver', ['priority' => 100]);
 

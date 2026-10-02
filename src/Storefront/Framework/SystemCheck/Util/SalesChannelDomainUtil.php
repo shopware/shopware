@@ -89,6 +89,17 @@ readonly class SalesChannelDomainUtil
     }
 
     /**
+     * @description Records an exception that prevented a storefront page from being probed as the failed result
+     * of that page, so the check can go on with the other sales channels and still report what went wrong.
+     */
+    public function createExceptionResult(string $url, \Exception $e, float $responseTime = 0.0, ?Request $request = null): StorefrontHealthCheckResult
+    {
+        $this->logger->error(\sprintf('Error during systemcheck: "%s"', $e->getMessage()), ['exception' => $e, 'request' => $request]);
+
+        return StorefrontHealthCheckResult::create($url, Response::HTTP_BAD_REQUEST, $responseTime, $e->getMessage());
+    }
+
+    /**
      * @description Handles a request and follows redirects (e.g. for SEO) if necessary to return the final response.
      */
     public function handleRequest(Request $request): StorefrontHealthCheckResult
@@ -107,9 +118,7 @@ readonly class SalesChannelDomainUtil
             } catch (\Exception $e) {
                 $responseTime += (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $requestStart;
 
-                $this->logger->error(\sprintf('Error during systemcheck: "%s"', $e->getMessage()), ['exception' => $e, 'request' => $currentRequest]);
-
-                return StorefrontHealthCheckResult::create($currentRequest->getUri(), Response::HTTP_BAD_REQUEST, $responseTime, $e->getMessage());
+                return $this->createExceptionResult($currentRequest->getUri(), $e, $responseTime, $currentRequest);
             }
             $responseTime += (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $requestStart;
 

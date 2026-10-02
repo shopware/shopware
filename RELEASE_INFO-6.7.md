@@ -56,6 +56,12 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Services are reset between requests in long running runtimes
+
+Services tagged with `kernel.reset` are now reset between two requests handled by the same kernel instance, as in a plain Symfony application. Previously the reset never ran, so resettable services kept their state for the whole lifetime of a worker in long running runtimes (for example FrankenPHP worker mode, RoadRunner, or Swoole). Extensions that relied on state surviving across requests in such runtimes must move that state to an explicit cache or store; in PHP-FPM setups nothing changes.
+
+As part of this change Symfony's `http_cache` service is no longer registered (`framework.http_cache.enabled` is now `false`) — HTTP caching keeps being handled by Shopware's own cache layer, which decorates `http_kernel`. Projects that referenced the `http_cache` service or enabled it in their own configuration must remove those references.
+
 ### Feed sales channels are saved without a currency list again
 
 Sales channels of types other than storefront and headless, such as product comparison, Agentic Commerce and types added by extensions, are no longer rejected with `SYSTEM__NO_GIVEN_DEFAULT_CURRENCY_ID` when their default currency is missing from their currency list, as they were since 6.7.15.0. Storefront and headless sales channels still need their default currency in their currency list.

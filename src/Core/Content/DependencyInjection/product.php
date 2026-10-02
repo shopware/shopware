@@ -319,6 +319,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(GaranLabelMailSubscriber::class)
         ->args([
             service(GaranLabelInlineImage::class),
+            service('product.repository'),
+            service(GaranLabelResolver::class),
         ])
         ->tag('kernel.event_subscriber');
 

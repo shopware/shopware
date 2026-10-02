@@ -244,22 +244,7 @@ class PregDollarWithoutDRule implements Rule
         $templates = [];
         foreach ($scope->getType($expr)->getConstantArrays() as $constantArray) {
             foreach ($constantArray->getKeyTypes() as $keyType) {
-                foreach ($keyType->getConstantStrings() as $constantString) {
-                    $templates[] = $constantString->getValue();
-                }
-            }
-        }
-        if ($templates !== [] || !$expr instanceof Array_) {
-            return $templates;
-        }
-
-        foreach ($expr->items as $item) {
-            if ($item->key === null) {
-                continue;
-            }
-
-            foreach ($this->constantTemplates($scope->getType($item->key)) as $template) {
-                $templates[] = $template;
+                $templates = [...$templates, ...$this->constantTemplates($keyType)];
             }
         }
 

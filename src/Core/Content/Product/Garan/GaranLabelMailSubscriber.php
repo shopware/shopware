@@ -4,6 +4,7 @@ namespace Shopware\Core\Content\Product\Garan;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Content\Mail\Service\MailAttachmentsConfig;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeSentEvent;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailBeforeValidateEvent;
 use Shopware\Core\Content\Product\ProductCollection;
@@ -15,8 +16,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Mime\Part\DataPart;
 
 /**
- * Passes the GARAN labels of an order's products to mail templates as `garanLabels`,
- * and attaches the label PNGs the rendered mail references as inline parts.
+ * Passes the GARAN labels of an order's products to mail templates as `garanLabels`, attaches their guarantee terms
+ * documents, and attaches the label PNGs the rendered mail references as inline parts.
  * Symfony Mime links each `cid:<name>` reference to the part with that name when the mail is sent.
  *
  * @internal
@@ -70,6 +71,7 @@ class GaranLabelMailSubscriber implements EventSubscriberInterface
 
         $criteria = new Criteria($productIds);
         $criteria->addAssociation('manufacturer');
+        $criteria->addAssociation('guaranteeTermsMedia');
 
         // variants inherit the guarantee and manufacturer, admin-triggered mails do not consider inheritance by default
         $products = $event->getContext()->enableInheritance(
@@ -77,6 +79,7 @@ class GaranLabelMailSubscriber implements EventSubscriberInterface
         );
 
         $labels = [];
+        $termsMediaIds = [];
 
         foreach ($products as $product) {
             $duration = $this->resolver->resolveDuration($product);
@@ -87,14 +90,30 @@ class GaranLabelMailSubscriber implements EventSubscriberInterface
 
             // `cid` is null for durations without an image, so the template falls back to the duration text
             $name = $this->inlineImage->getName((int) $product->getGuaranteeMonths());
+            $termsMedia = $product->getGuaranteeTermsMedia();
 
             $labels[$product->getId()] = [
                 'cid' => $name !== null ? 'cid:' . $name : null,
                 'duration' => $duration,
+                // private media has an empty url
+                'termsUrl' => $product->getGuaranteeTermsUrl() ?: ($termsMedia?->getUrl() ?: null),
             ];
+
+            // attaching a media without a file fails the whole mail on send
+            if ($termsMedia !== null && $termsMedia->hasFile()) {
+                $termsMediaIds[] = $termsMedia->getId();
+            }
         }
 
         $event->addTemplateData(self::TEMPLATE_DATA_KEY, $labels);
+
+        $attachmentsConfig = $data['attachmentsConfig'] ?? null;
+
+        // § 479 (2) BGB requires the terms on a durable medium
+        if ($termsMediaIds !== [] && $attachmentsConfig instanceof MailAttachmentsConfig) {
+            $extension = $attachmentsConfig->getExtension();
+            $extension->setMediaIds(array_values(array_unique([...$extension->getMediaIds(), ...$termsMediaIds])));
+        }
     }
 
     public function embedLabelImages(MailBeforeSentEvent $event): void

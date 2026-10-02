@@ -1,13 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Checkout\Document\Service;
+namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Service;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader;
+use Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;

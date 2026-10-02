@@ -157,6 +157,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Filesystem::class),
             service(CacheClearer::class),
             service('shopware.store_download_client'),
+            service('event_dispatcher'),
         ]);
 
     $services->set(ExtensionExtractor::class)

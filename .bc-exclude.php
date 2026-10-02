@@ -111,6 +111,10 @@ return [
         preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationOnlyCompanyRegistration() changed from bool', '/'),
         preg_quote('CHANGED: The return type of Shopware\Core\Checkout\Customer\Aggregate\CustomerGroup\CustomerGroupEntity#getRegistrationSeoMetaDescription() changed from string', '/'),
 
+        // ProductEntity::$guaranteeConfirmed is null for a variant that inherits it, like every other inherited product flag.
+        preg_quote('CHANGED: Type of property Shopware\Core\Content\Product\ProductEntity#$guaranteeConfirmed changed from bool to bool|null', '/'),
+        preg_quote('CHANGED: Property Shopware\Core\Content\Product\ProductEntity#$guaranteeConfirmed changed default value from false to NULL', '/'),
+
         // parent method has no type. not really a break
         preg_quote('CHANGED: The return type of Shopware\Core\Framework\Migration\Command\RefreshMigrationCommand#configure() changed from void to ', '/'),
 
@@ -125,5 +129,9 @@ return [
 
         // Not sure why an external library is complained about
         preg_quote('CHANGED: The return type of Twig\Extension\AbstractExtension#getNodeVisitors() changed from no type to array', '/'),
+
+        // Not released yet, so safe to be removed again
+        preg_quote('REMOVED: Class Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService has been deleted', '/'),
+        preg_quote('REMOVED: Class Shopware\Core\Checkout\Document\Extension\DocumentRouteExtension has been deleted', '/'),
     ],
 ];

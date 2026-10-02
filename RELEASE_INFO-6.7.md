@@ -1,5 +1,13 @@
 # 6.7.16.0 (upcoming)
 
+## Critical Fixes
+
+### Line item conditions evaluate line items by the data they carry
+
+Since 6.7.14.0, most line item conditions of the Rule Builder evaluated only line items of the type `product`. Custom and credit line items and line items that extensions add to the cart no longer matched them, and a single custom line item could hide shipping methods or block promotions under a negated condition such as "Item with tag / All / Are none of".
+
+The conditions now evaluate a line item by the data it carries instead of by its type, so line items of any type work with the built-in conditions again, with no change needed in extensions.
+
 ## Features
 
 ### System configuration tabs
@@ -48,6 +56,31 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### System activity logging
+
+User and integration creation and successful app and plugin uploads, activation, deactivation, installation, uninstallation, and updates now produce Monolog records at the `info` level on the `system_activity` channel. Records include entity identifiers and the acting Administration user ID and username or integration access key (`integrationAccessKey`) where available. Upload records include the plugin name and version read from the ZIP (the version is omitted when absent from `composer.json`). App uploads produce `app:upload` records with `appName` and `appVersion` from `manifest.xml`. Plugin lifecycle records include `pluginName` and `pluginVersion`; update records also include `previousPluginVersion` to show the version transition. Actor types are `user` for Administration users, `integration` for integrations, and `system` for system contexts, including CLI plugin commands. CLI commands and background jobs share the same context source. Fields with `null` values are omitted. Passwords and secret access keys are excluded.
+
+These records are stored in the `log_entry` database table by the existing buffered business-event handler by default.
+
+Additionally, route these records to a separate file or another Monolog handler by configuring the channel in `config/packages/monolog.yaml`, for example:
+
+```yaml
+monolog:
+    handlers:
+        system_activity:
+            type: rotating_file
+            path: '%kernel.logs_dir%/system_activity.log'
+            level: info
+            max_files: 30
+            channels: ['system_activity']
+```
+
+To keep these records out of other handlers, add `!system_activity` to those handlers' channel filters, preserving any existing exclusions. To disable database storage for system activities, override `business_event_handler_buffer.channels` with `[business_events]`.
+
+### Feed sales channels are saved without a currency list again
+
+Sales channels of types other than storefront and headless, such as product comparison, Agentic Commerce and types added by extensions, are no longer rejected with `SYSTEM__NO_GIVEN_DEFAULT_CURRENCY_ID` when their default currency is missing from their currency list, as they were since 6.7.15.0. Storefront and headless sales channels still need their default currency in their currency list.
+
 ### Filtered listings show the main variant only if it matches the active filters
 
 Filtered product listings show a variant product's main variant only if it matches all active filters, such as property, price or manufacturer filters. Otherwise, a matching variant is shown. Products configured to display their parent always show the parent.
@@ -66,9 +99,10 @@ Deprecated service aliases with an announced removal version are removed when th
 
 The deprecated endpoint `GET /api/_action/system-config/schema` and its successor `GET /api/_action/system-config/get-schema` now require the existing `system_config:read` privilege. Integrations and API clients that call these endpoints must add this privilege to their ACL role.
 
-### Deprecation of `ConfigurationService` class
+### Deprecation of legacy `ConfigurationService` getters
 
-Due to structural data changes coming along with the new system configuration tabs feature, the `Shopware\Core\System\SystemConfig\Service\ConfigurationService` class is deprecated and will be removed in Shopware 6.8. Please use the new class `Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService` with the respective methods instead.
+The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` are deprecated and will be removed in Shopware 6.8.
+Use `getSystemConfigDefinition()` and `getResolvedSystemConfigDefinition()`, respectively.
 
 ### Array values in static system configuration
 
@@ -117,6 +151,30 @@ Update imports, type declarations, static references, and service IDs to the can
 The aliases preserve runtime class identity during the transition; they do not create compatibility subclasses.
 `NotificationController` remains internal, and `AssetService` becomes internal with 6.8.
 Neither should be introduced as a new extension dependency.
+
+### Shared document classes moved to `DocumentV2`
+
+The legacy document classes that document generation v2 keeps moved into `Shopware\Core\Checkout\DocumentV2`. Their previous names remain available as runtime class aliases throughout 6.7 and 6.8 and are removed with 6.9. The previous service IDs remain as deprecated service aliases for the same period.
+
+| Previous name | Canonical name |
+|---|---|
+| `Shopware\Core\Checkout\Document\DocumentEntity` | `Shopware\Core\Checkout\DocumentV2\DocumentEntity` |
+| `Shopware\Core\Checkout\Document\DocumentDefinition` | `Shopware\Core\Checkout\DocumentV2\DocumentDefinition` |
+| `Shopware\Core\Checkout\Document\DocumentCollection` | `Shopware\Core\Checkout\DocumentV2\DocumentCollection` |
+| `Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity` | `Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity` |
+| `Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition` | `Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition` |
+| `Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection` | `Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection` |
+| `Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity` | `Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity` |
+| `Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` | `Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` |
+| `Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` | `Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` |
+| `Shopware\Core\Checkout\Document\Renderer\RenderedDocument` | `Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument` |
+| `Shopware\Core\Checkout\Document\SalesChannel\AbstractDocumentRoute` | `Shopware\Core\Checkout\DocumentV2\SalesChannel\AbstractDocumentRoute` |
+| `Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute` | `Shopware\Core\Checkout\DocumentV2\SalesChannel\DocumentRoute` |
+| `Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader` | `Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader` |
+
+Update imports, type declarations, static references, and service IDs to the canonical names. Entity names, repositories, and the `/store-api/document/download` route are unchanged.
+
+A decorator of the route takes effect only when it decorates the canonical service ID. `RenderedDocument::getApiAlias()` keeps returning `shopware_core_checkout_document_renderer_rendered_document` until 6.9.
 
 ### Merged document downloads have a speaking file name
 
@@ -183,6 +241,11 @@ Use `onPre()` to change input objects such as the `Criteria` in place or to repl
 
 Digital products are no longer limited to one unit per order regardless of `maxPurchase`, as they were since 6.7.14.0. Digital products without a `maxPurchase`, for example created through the API, now fall back to `core.cart.maxQuantity`. Set `maxPurchase` to `1` to keep one unit per order.
 
+### GARAN labels in mails come from the `garanLabels` template variable
+
+The order confirmation mail reads the GARAN label from the new `garanLabels` template variable. The `sw_garan_label_mail` Twig filter is deprecated. A migration updates the template for shops that never edited it.
+
+If you customized the order confirmation mail, replace `nestedItem.productId|sw_garan_label_mail(context)` with `garanLabels[nestedItem.productId] ?? null`, and `lineItem.productId|sw_garan_label_mail(context)` with `garanLabels[lineItem.productId] ?? null` in the plain text version. `garanLabels` is passed to every mail template that references it and has an `order` in its data.
 ### Customer login publishes an extension event
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
@@ -340,7 +403,37 @@ when called.
 Existing `Shopware.*` access remains supported. Use `Shopware.Store.get()` and
 `Shopware.Mixin.getByName()` for registrations that an extension creates at runtime.
 
+### Use the mixin-replacing composables in extensions (experimental)
+
+The composables that replace Administration mixins, such as `useListing`, `useNotification` and
+`useValidation`, are now available to extensions through `Shopware.Composables` and the
+`shopware:composables` module:
+
+```ts
+import { useListing } from 'shopware:composables';
+import useNotification from 'shopware:composables/useNotification';
+
+const { page, limit, total } = useListing({ getList });
+```
+
+Call them in `setup()` only. They are annotated `@experimental stableVersion:v6.9.0`, so their names and
+signatures can change before Shopware 6.9.
+
+An extension that imports `shopware:composables` requires Shopware 6.7.16.0 or later, so require
+`shopware/administration` `>=6.7.16.0` in its `composer.json`. On an older Administration, the import throws
+an error that names the required and the installed version. An extension that still supports older versions
+keeps using the mixins.
+
+The SFC migration codemod now imports the composables from `shopware:composables`, so a migrated
+extension component looks like a migrated Administration one. In an extension, a component that uses
+the `cms-element` mixin is skipped, because its `useCmsElementDeprecated` replacement is not published;
+migrate it to `useCmsElement` by hand.
+
 ## Storefront
+
+### New line item reference price block
+
+A new block `component_line_item_reference_price` has been added to the template `storefront/component/line-item/element/total-price.html.twig`. This allows easier customization of the already existing reference price display for line items without having to override the entire total price value block.
 
 ### Display the complete legal guarantee notice at checkout
 
@@ -377,6 +470,10 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 ### App requests keep body and signature across redirects
 
 Shopware now follows a `301` or `302` from an app endpoint without dropping the `POST` method, the request body or the `shopware-shop-signature` header, so the redirect target receives the same signed request.
+
+### App events are only delivered to the app they are about
+
+The app events `app.installed`, `app.updated`, `app.activated`, `app.deactivated`, `app.deleted`, `app.permissions.updated` and `app.config.changed` are now only delivered to app webhooks. Webhooks created through the Admin API no longer receive them. Apps keep subscribing to them in their manifest, as before.
 
 # 6.7.15.0
 
@@ -1001,10 +1098,6 @@ The empty states of Extensions > My extensions and the Shopware Store activation
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 
 ## Storefront
-
-### New line item reference price block
-
-A new block `component_line_item_reference_price` has been added to the template `storefront/component/line-item/element/total-price.html.twig`. This allows easier customization of the already existing reference price display for line items without having to override the entire total price value block.
 
 ### Static theme compilation without a database
 

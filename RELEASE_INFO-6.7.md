@@ -322,6 +322,31 @@ In `sw-order-line-items-grid`, the `orderLineItems` computed property still retu
 
 `sw-order-state-select-v2` renders an `mt-select` instead of `sw-single-select`. The field shows the current state as its value with a status dot, and each option shows the status dot of its target state. The dot color comes from the new optional `stateName` prop, which takes the technical name of the current state. Without `stateName`, the field shows no dots and renders the placeholder as the current state in the regular text color, so pass it to get the value and the colors. The `state-select` event and the `sw_order_state_select_v2_field` block are unchanged. Styles that targeted `sw-single-select` elements inside this component no longer apply.
 
+### Runtime guards for Administration deprecations
+
+`Shopware.Feature.triggerDeprecationOrThrow(majorFlag, message)` gives Administration deprecations the lifecycle of the PHP `Feature::triggerDeprecationOrThrow()`. While the major flag is inactive it warns in development builds. Once the flag is active it throws, so a missed migration fails in next-major mode instead of after the removal:
+
+```js
+Shopware.Feature.triggerDeprecationOrThrow('V6_8_0_0', 'myService.oldMethod() is deprecated. Use newMethod() instead.');
+```
+
+The `deprecated` option of components and props follows the same lifecycle. It used to only warn; now it throws in next-major mode. A deprecated component is guarded every time it is created, a deprecated prop only when a parent supplies it:
+
+```js
+Component.register('sw-example', {
+    deprecated: { version: 'v6.8.0.0', comment: 'Use "mt-example" instead.' },
+
+    props: {
+        emptyImagePath: {
+            type: String,
+            required: false,
+            deprecated: { version: 'v6.8.0.0', comment: 'Use "emptyIcon" instead.' },
+        },
+    },
+});
+```
+
+That error is thrown while the component is created, so Vue handles it: a development build aborts the mount, a production build logs it and keeps rendering.
 ### Import the global Shopware object with `shopware:*` modules (experimental)
 
 Administration code and extensions can now import selected APIs from the global `Shopware` object:

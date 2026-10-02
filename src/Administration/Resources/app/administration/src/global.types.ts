@@ -9,6 +9,7 @@ import type { NavigationGuardNext, RouteLocationNormalized, RouteLocationNormali
 // Import explicitly global types from meteor-admin-sdk
 import '@shopware-ag/meteor-admin-sdk';
 import type FeatureService from 'src/app/service/feature.service';
+import type { Deprecation } from 'src/app/plugin/deprecation.plugin';
 import type CacheService from 'src/app/service/cache.service';
 import type { LoginService } from 'src/core/service/login.service';
 import type { HttpClient } from 'src/core/factory/http-client.types';
@@ -583,6 +584,11 @@ declare module '@vue/runtime-core' {
     interface ComponentCustomProperties extends CustomProperties {}
 
     interface ComponentCustomOptions {
+        /**
+         * Guards every creation of the component, see `src/app/plugin/deprecation.plugin.ts`.
+         */
+        deprecated?: Deprecation;
+
         shortcuts?: {
             [key: string]:
                 | string

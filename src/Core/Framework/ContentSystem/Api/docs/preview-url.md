@@ -51,3 +51,11 @@ Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`Con
 Entity resolution and hydration run at mint time as well as when the URL is opened, so `unknownEntityType` and hydration faults surface here too. A target entity that does not exist, or an unresolvable data requirement inside a loader, is no failure at all: the loader degrades that element to `notFound()` and the preview renders without it.
 
 The gate is the write's own decoder, `Layout/Codec/StoredElementCodec`, so preview and write refuse the same drafts: a scalar `slots`, `dataRequirements`, context map, `style`, or attribution list is a 400 here exactly as it is on write, rather than being emptied and then passing.
+
+## Mint-Time Admission
+
+`ContentPreviewController` delegates orchestration to `ContentPreviewPageBuilder` and admits the draft through `ContentPreviewPageBuilder::build()` — the same build the Storefront render route runs on redemption — then discards the page. A draft the builder refuses therefore never becomes a token, at the cost of one full build per mint. The gate is the write's own decoder (`Layout/Codec/StoredElementCodec` via `DraftLayoutDecoder`), so a non-array nested container is refused here exactly as it is on write.
+
+There is deliberately no direct render route. Checking a draft's well-formedness and resolvability without minting a token is what the diagnose route is for.
+
+The orchestration behind both preview paths, and the envelope behind the token, are described in [preview-internals.md](preview-internals.md).

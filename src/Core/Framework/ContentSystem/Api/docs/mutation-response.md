@@ -27,3 +27,11 @@ The response body every stateless draft mutation action ([mutation.md](mutation.
 | `droppedProperties`  | Static property values the edit could not carry to the new type (key absent, or a value the type rejects), keyed by property key, so the caller can re-apply them; encodes as `{}` when empty.     |
 
 Nothing the edit detaches or drops is silently lost: it is always returned through `orphaned`, `droppedWiring`, or `droppedProperties`.
+
+## Who Owns This Shape
+
+`MutationResponse` is a `\JsonSerializable` (`@final`, `#[Package('framework')]`) owning the response shape for all nineteen draft and persisted routes. It has a private constructor and one `fromResult(MutationResult, StoredElementCodec)` factory; the overridden `jsonSerialize()` is the single definition of the seven keys and of which encode as JSON maps versus lists.
+
+`layout` and `orphaned` are serialized through `Layout/Codec/StoredElementCodec::encode()`, `resolutions` and `diagnostics` through `LayoutDiagnosticsResultNormalizer` — all inside `fromResult()`. `resolutions` and `droppedProperties` are `(object)`-cast in `jsonSerialize()` so an empty map encodes as `{}` rather than `[]`, the same discipline `DiagnoseResponse` applies.
+
+It is built per request by both mutation controllers' `respond()` and is not a service. Output-only: serialized to the HTTP response and discarded, never cached, stored in a `SerializedField`, or run through `StructNormalizer::denormalize()`.

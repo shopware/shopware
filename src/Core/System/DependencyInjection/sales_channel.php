@@ -52,9 +52,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelType\SalesChannelTyp
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelTypeTranslation\SalesChannelTypeTranslationDefinition;
 use Shopware\Core\System\SalesChannel\Api\StoreApiResponseListener;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
-use Shopware\Core\System\SalesChannel\Capability\HeadlessSalesChannelTypeCapabilities;
 use Shopware\Core\System\SalesChannel\Capability\SalesChannelTypeCapabilityRegistry;
-use Shopware\Core\System\SalesChannel\Capability\StorefrontSalesChannelTypeCapabilities;
 use Shopware\Core\System\SalesChannel\Context\BaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedBaseSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
@@ -430,12 +428,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             tagged_iterator('shopware.sales_channel.type_capabilities'),
         ]);
-
-    $services->set(StorefrontSalesChannelTypeCapabilities::class)
-        ->tag('shopware.sales_channel.type_capabilities');
-
-    $services->set(HeadlessSalesChannelTypeCapabilities::class)
-        ->tag('shopware.sales_channel.type_capabilities');
 
     $services->set(SalesChannelTypeValidator::class)
         ->tag('kernel.event_subscriber');

@@ -17,6 +17,11 @@ readonly class SalesChannelTypeCapabilityRegistry
     {
     }
 
+    public function isTransactional(string $salesChannelTypeId): bool
+    {
+        return \in_array($salesChannelTypeId, $this->getTransactionalTypeIds(), true);
+    }
+
     /**
      * @return list<string>
      */
@@ -24,12 +29,18 @@ readonly class SalesChannelTypeCapabilityRegistry
     {
         $transactionalTypeIds = [];
 
+        foreach (CoreSalesChannelType::cases() as $coreType) {
+            if ($coreType->isTransactional()) {
+                $transactionalTypeIds[] = $coreType->value;
+            }
+        }
+
         foreach ($this->capabilities as $typeCapabilities) {
             if ($typeCapabilities->isTransactional()) {
                 $transactionalTypeIds[] = $typeCapabilities->getSalesChannelTypeId();
             }
         }
 
-        return $transactionalTypeIds;
+        return array_values(array_unique($transactionalTypeIds));
     }
 }

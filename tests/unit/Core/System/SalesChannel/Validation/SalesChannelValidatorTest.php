@@ -22,9 +22,7 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
 use Shopware\Core\System\SalesChannel\Capability\AbstractSalesChannelTypeCapabilities;
-use Shopware\Core\System\SalesChannel\Capability\HeadlessSalesChannelTypeCapabilities;
 use Shopware\Core\System\SalesChannel\Capability\SalesChannelTypeCapabilityRegistry;
-use Shopware\Core\System\SalesChannel\Capability\StorefrontSalesChannelTypeCapabilities;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\Validation\SalesChannelValidator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -49,10 +47,7 @@ class SalesChannelValidatorTest extends TestCase
             static::createStub(EntityWriteGatewayInterface::class)
         );
 
-        $this->capabilityRegistry = new SalesChannelTypeCapabilityRegistry([
-            new StorefrontSalesChannelTypeCapabilities(),
-            new HeadlessSalesChannelTypeCapabilities(),
-        ]);
+        $this->capabilityRegistry = new SalesChannelTypeCapabilityRegistry([]);
     }
 
     #[DataProvider('supportedSalesChannelTypeProvider')]

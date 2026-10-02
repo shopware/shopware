@@ -17,10 +17,13 @@ General styling for cms sections
         @extend .container;
     }
 
+    &:has(.full-width) {
+        overflow-x: hidden;
+    }
+
     .full-width {
         @include make-container();
         --#{$prefix}gutter-x: 0;
-        overflow-x: hidden;
     }
 
     .cms-section-sidebar {

@@ -163,6 +163,41 @@ Shopware.Service().register('filterService', () => {
 });
 
 describe('src/module/sw-order/page/sw-order-list', () => {
+    it('should sort the name column by the company after the person name', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.getOrderColumns().find((column) => column.property === 'orderCustomer.firstName').dataIndex).toBe(
+            'orderCustomer.lastName,orderCustomer.firstName,orderCustomer.company',
+        );
+    });
+
+    it.each([
+        [
+            'a contact person',
+            { firstName: 'Ada', lastName: 'Lovelace', displayName: 'Ada Lovelace' },
+            'Lovelace, Ada',
+        ],
+        [
+            'a company without a contact person',
+            { firstName: '', lastName: '', displayName: 'Acme GmbH' },
+            'Acme GmbH',
+        ],
+        [
+            'a company with whitespace names',
+            { firstName: ' ', lastName: '  ', displayName: 'Acme GmbH' },
+            'Acme GmbH',
+        ],
+        [
+            'a surname alone',
+            { firstName: null, lastName: 'Lovelace', displayName: 'Lovelace' },
+            'Lovelace',
+        ],
+    ])('should name %s in the list', async (_name, customer, expected) => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.orderCustomerName(customer)).toBe(expected);
+    });
+
     let wrapper;
 
     it('should have an disabled add button', async () => {

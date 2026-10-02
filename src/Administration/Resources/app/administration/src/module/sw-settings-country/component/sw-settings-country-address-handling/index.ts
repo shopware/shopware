@@ -483,7 +483,7 @@ export default Component.wrapComponentConfig({
                 return '';
             }
 
-            return `${item.firstName}, ${item.lastName}`;
+            return item.displayName || `${item.firstName}, ${item.lastName}`;
         },
 
         onChangeCustomer(customerId: EntityKey<'customer'>, customer: Entity<'customer'>): void {

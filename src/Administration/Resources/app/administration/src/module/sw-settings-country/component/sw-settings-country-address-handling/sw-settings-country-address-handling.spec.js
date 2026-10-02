@@ -204,6 +204,28 @@ describe('module/sw-settings-country/component/sw-settings-country-address-handl
         Shopware.Store.get('session').setCurrentUser({});
     });
 
+    it.each([
+        [
+            'a contact person',
+            { firstName: 'Max', lastName: 'Mustermann', displayName: 'Max Mustermann' },
+            'Max Mustermann',
+        ],
+        [
+            'a company without a contact person',
+            { firstName: '', lastName: '', displayName: 'Acme GmbH' },
+            'Acme GmbH',
+        ],
+        [
+            'a customer the display name was not loaded for',
+            { firstName: 'Max', lastName: 'Mustermann' },
+            'Max, Mustermann',
+        ],
+    ])('should label %s in the customer select', async (_name, customer, expected) => {
+        const addressHandling = await wrapTestComponent('sw-settings-country-address-handling', { sync: true });
+
+        expect(addressHandling.methods.customerLabel(customer)).toBe(expected);
+    });
+
     it('should be able to edit the address handling tab', async () => {
         wrapper = await createWrapper(['country.editor'], {
             defaultPostalCodePattern: '\\d{5}',

@@ -180,6 +180,8 @@ The `firstName` and `lastName` fields of `customer`, `customer_address`, `order_
 {{ order.orderCustomer.displayName }}
 ```
 
+The shipped customer and order mail templates, the mail recipient names, the Storefront account pages, the document buyer name and the Administration lists use the display name now. Two migrations rewrite the shipped mail templates a shop has not edited. A template of your own that greets by name needs the same change.
+
 ### Sales-channel scoped limits for `system_config` rate limiters
 
 The cart setting "Maximum addable products to cart per minute through API" can be set per sales channel, but only the global value took effect.

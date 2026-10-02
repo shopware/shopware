@@ -35,13 +35,14 @@ function mockSalesChannelDomains(domains) {
     });
 }
 
-async function createWrapper(contextStoreServiceOverrides = {}) {
+async function createWrapper(contextStoreServiceOverrides = {}, mocks = {}) {
     return mount(
         await wrapTestComponent('sw-customer-imitate-customer-modal', {
             sync: true,
         }),
         {
             global: {
+                mocks,
                 stubs: {
                     'sw-modal': await wrapTestComponent('sw-modal', {
                         sync: true,
@@ -84,6 +85,29 @@ describe('module/sw-customer-imitate-customer-modal', () => {
 
     beforeEach(() => {
         mockSalesChannelDomains([domain('sales-channel-domain-id', 'sales-channel-id', 'http://localhost:8000')]);
+    });
+
+    it('should pass the display name and the legacy name parameters to the title and description', async () => {
+        mockSalesChannelDomains([]);
+        const $t = jest.fn((key) => key);
+        const wrapper = await createWrapper({}, { $t });
+        await wrapper.setProps({
+            customer: {
+                id: 'customer-id',
+                email: null,
+                boundSalesChannelId: null,
+                firstName: 'Ada',
+                lastName: 'Lovelace',
+                displayName: 'Ada Lovelace',
+            },
+        });
+
+        expect(wrapper.vm.modalTitle).toBe('sw-customer.imitateCustomerModal.modalTitle');
+        expect(wrapper.vm.modalDescription).toBe('sw-customer.imitateCustomerModal.modalDescription');
+
+        const expectedParameters = { name: 'Ada Lovelace', firstname: 'Ada', lastname: 'Lovelace' };
+        expect($t).toHaveBeenCalledWith('sw-customer.imitateCustomerModal.modalTitle', expectedParameters);
+        expect($t).toHaveBeenCalledWith('sw-customer.imitateCustomerModal.modalDescription', expectedParameters);
     });
 
     it('should fetch all sales channel domains', async () => {

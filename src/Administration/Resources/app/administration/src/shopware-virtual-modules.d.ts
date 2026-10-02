@@ -165,6 +165,7 @@ declare module 'shopware:utils/string' {
     export const isUrl: (typeof member)['isUrl'];
     export const isValidIp: (typeof member)['isValidIp'];
     export const isValidCidr: (typeof member)['isValidCidr'];
+    export const avatarName: (typeof member)['avatarName'];
 }
 
 /** @experimental stableVersion:v6.8.0 */

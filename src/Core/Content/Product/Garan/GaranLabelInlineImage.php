@@ -18,7 +18,7 @@ class GaranLabelInlineImage
 
     private const NUMBERS_IMAGE = 'nested-label-numbers.png';
 
-    private const NAME_PATTERN = '/^garan-label-nested-(\d+)\.png$/';
+    private const NAME_PATTERN = '/^garan-label-nested-(\d+)\.png$/D';
 
     private const CID_PATTERN = '/cid:(garan-label-nested-\d+\.png)/';
 

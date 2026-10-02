@@ -24,22 +24,32 @@ class PregDollarWithoutDRuleTest extends RuleTestCase
             [$this->error('preg_match', '/^[a-z]+\Z/'), 17],
             [$this->error('preg_match', '~^[a-z]+$~i'), 19],
             [$this->error('preg_match', '{^[a-z]+$}'), 20],
-            [$this->error('preg_match_all', '#\d+$#'), 21],
-            [$this->error('preg_split', '/,$/'), 23],
-            [$this->error('preg_grep', '/x$/'), 24],
-            [$this->error('preg_filter', '/y$/'), 25],
-            [$this->error('preg_match', '/^[0-9a-f]{32}$/'), 30],
-            [$this->error('preg_match', '/^foo$/'), 36],
-            [$this->error('preg_match', '/^{…}$/i'), 41],
-            [$this->error('preg_match', '/^{…}-{…}$/'), 43],
-            [$this->error('preg_match', '/^{…}%$/'), 44],
-            [$this->error('preg_match', '/^{…}$/i'), 51],
-            [$this->error('preg_match', '/^{…}$/'), 56],
-            [$this->error('preg_match', '/^{…}$/{…}'), 59],
-            [$this->error('preg_replace', '/^a$/'), 65],
-            [$this->error('preg_replace_callback_array', '/^c$/'), 66],
-            [\sprintf(PregDollarWithoutDRule::ERROR_UNRESOLVED, 'preg_match'), 71],
-            [\sprintf(PregDollarWithoutDRule::ERROR_UNRESOLVED, 'preg_match'), 72],
+            [$this->error('preg_match', '/^[a-z]+$ /x'), 21],
+            [$this->error('preg_match_all', '#\d+$#'), 22],
+            [$this->error('preg_split', '/,$/'), 24],
+            [$this->error('preg_grep', '/x$/'), 25],
+            [$this->error('preg_filter', '/y$/'), 26],
+            [$this->error('preg_match', '/^n$/'), 27],
+            [$this->error('preg_match', '/^[0-9a-f]{32}$/'), 32],
+            [$this->error('preg_match', '/^foo$/'), 38],
+            [$this->error('preg_match', '/^{…}$/i'), 43],
+            [$this->error('preg_match', '/^{…}-{…}$/'), 45],
+            [$this->error('preg_match', '/^%s$/'), 46],
+            [$this->error('preg_match', '/^{…}$/i'), 53],
+            [$this->error('preg_match', '/^{…}$/'), 58],
+            [$this->error('preg_match', '/^{…}$/{…}'), 61],
+            [$this->unresolved('preg_match'), 63],
+            [\sprintf(PregDollarWithoutDRule::ERROR, 'preg_match', 'each of the patterns "/a$/", "/b$/", "/c$/"'), 71],
+            [$this->error('preg_replace', '/^a$/'), 76],
+            [$this->error('preg_replace', '/^{…}$/'), 77],
+            [$this->error('preg_replace_callback_array', '/^d$/'), 78],
+            [$this->error('preg_match', '/^{…}$/'), 85],
+            [$this->error('preg_match', '/^(?:{…})$/'), 89],
+            [$this->error('preg_match', '/^{…}$/'), 92],
+            [$this->error('preg_match', '/^{…}$/'), 100],
+            [$this->error('preg_match', '/^{…}$/'), 102],
+            [$this->unresolved('preg_match'), 116],
+            [$this->unresolved('preg_match'), 117],
         ]);
     }
 
@@ -58,6 +68,11 @@ class PregDollarWithoutDRuleTest extends RuleTestCase
 
     private function error(string $function, string $pattern): string
     {
-        return \sprintf(PregDollarWithoutDRule::ERROR, $function, $pattern);
+        return \sprintf(PregDollarWithoutDRule::ERROR, $function, 'pattern "' . $pattern . '"');
+    }
+
+    private function unresolved(string $function): string
+    {
+        return \sprintf(PregDollarWithoutDRule::ERROR_UNRESOLVED, $function);
     }
 }

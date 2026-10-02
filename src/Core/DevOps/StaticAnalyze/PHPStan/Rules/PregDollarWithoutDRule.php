@@ -5,8 +5,11 @@ namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\Array_;
+use PhpParser\Node\Expr\ArrowFunction;
 use PhpParser\Node\Expr\Assign;
+use PhpParser\Node\Expr\AssignOp;
 use PhpParser\Node\Expr\BinaryOp\Concat;
+use PhpParser\Node\Expr\Closure;
 use PhpParser\Node\Expr\FuncCall;
 use PhpParser\Node\Expr\Variable;
 use PhpParser\Node\FunctionLike;
@@ -14,6 +17,9 @@ use PhpParser\Node\InterpolatedStringPart;
 use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\InterpolatedString;
 use PhpParser\NodeFinder;
+use PhpParser\NodeTraverser;
+use PhpParser\NodeVisitor;
+use PhpParser\NodeVisitorAbstract;
 use PHPStan\Analyser\Scope;
 use PHPStan\Parser\Parser;
 use PHPStan\Rules\Rule;
@@ -25,8 +31,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Reports `preg_*` patterns whose body ends with an unescaped `$` or `\Z` while the modifiers carry neither `D`
  * nor `m`: such a pattern also matches before a trailing newline. Patterns are read from constant strings, inline
- * `sprintf()` formats, concatenations, interpolated strings and the last local assignment in the enclosing
- * function. A call whose pattern stays unreadable is reported as unresolved, to be restructured or allowlisted
+ * `sprintf()` formats, concatenations, interpolated strings and the assignments to a local variable that precede
+ * the call. A call whose pattern stays unreadable is reported as unresolved, to be restructured or allowlisted
  * per file with the reason.
  *
  * Not detected: an anchor inside a trailing group or alternation, and a runtime modifier part carrying `D` or `m`.
@@ -42,12 +48,12 @@ class PregDollarWithoutDRule implements Rule
 
     public const IDENTIFIER_UNRESOLVED = 'shopware.pregDollarWithoutD.unresolved';
 
-    public const ERROR = '%s(): pattern "%s" ends with an anchor that also matches before a trailing newline. Add the D modifier or anchor with \z.';
+    public const ERROR = '%s(): %s also matches before a trailing newline. Add the D modifier or anchor with \z.';
 
     public const ERROR_UNRESOLVED = '%s(): the pattern cannot be resolved statically. Make it visible at the call, or allowlist the file with the reason.';
 
     /**
-     * Functions taking the pattern (or an array of patterns) as their first argument.
+     * Functions taking the pattern (or an array of patterns) as their `pattern` argument.
      */
     private const PATTERN_ARGUMENT_FUNCTIONS = [
         'preg_match',
@@ -60,7 +66,7 @@ class PregDollarWithoutDRule implements Rule
     ];
 
     /**
-     * Functions taking the patterns as the keys of their first argument.
+     * Functions taking the patterns as the keys of their `pattern` argument.
      */
     private const PATTERN_KEY_FUNCTIONS = [
         'preg_replace_callback_array',
@@ -71,9 +77,10 @@ class PregDollarWithoutDRule implements Rule
      */
     private const RUNTIME = "\0";
 
+    /**
+     * Caps the cross product of union-typed concatenation parts.
+     */
     private const MAX_TEMPLATES = 16;
-
-    private const MAX_VARIABLE_DEPTH = 3;
 
     private const CLOSING_DELIMITERS = ['(' => ')', '[' => ']', '{' => '}', '<' => '>'];
 
@@ -100,26 +107,50 @@ class PregDollarWithoutDRule implements Rule
             return [];
         }
 
-        $functionName = strtolower(ltrim($node->name->toString(), '\\'));
+        $functionName = $node->name->toLowerString();
         $patternsAreKeys = \in_array($functionName, self::PATTERN_KEY_FUNCTIONS, true);
         if (!$patternsAreKeys && !\in_array($functionName, self::PATTERN_ARGUMENT_FUNCTIONS, true)) {
             return [];
         }
 
-        if (!$this->isEnabledFor($scope->getNamespace())) {
+        if (!$this->isEnabledNamespace($scope->getNamespace())) {
             return [];
         }
 
-        $patternArg = $node->getArgs()[0] ?? null;
-        if ($patternArg === null) {
+        $pattern = self::argument($node, 'pattern');
+        if ($pattern === null) {
             return [];
         }
 
         $templates = $patternsAreKeys
-            ? $this->resolveKeyTemplates($patternArg->value, $scope)
-            : $this->resolveTemplates($patternArg->value, $scope, $node, 0);
+            ? $this->keyTemplates($scope->getType($pattern))
+            : $this->resolveTemplates($pattern, $scope);
 
-        if ($templates === []) {
+        $offending = [];
+        $unknown = $templates === [];
+        foreach ($templates as $template) {
+            $verdict = $this->endsWithNewlineTolerantAnchor($template);
+            if ($verdict === null) {
+                $unknown = true;
+            } elseif ($verdict) {
+                $offending[] = '"' . str_replace(self::RUNTIME, '{…}', $template) . '"';
+            }
+        }
+
+        if ($offending !== []) {
+            $offending = array_values(array_unique($offending));
+            $subject = \count($offending) === 1
+                ? 'pattern ' . $offending[0]
+                : 'each of the patterns ' . implode(', ', $offending);
+
+            return [
+                RuleErrorBuilder::message(\sprintf(self::ERROR, $functionName, $subject))
+                    ->identifier(self::IDENTIFIER)
+                    ->build(),
+            ];
+        }
+
+        if ($unknown) {
             return [
                 RuleErrorBuilder::message(\sprintf(self::ERROR_UNRESOLVED, $functionName))
                     ->identifier(self::IDENTIFIER_UNRESOLVED)
@@ -127,23 +158,10 @@ class PregDollarWithoutDRule implements Rule
             ];
         }
 
-        $errors = [];
-        foreach ($templates as $template) {
-            if (!$this->endsWithNewlineTolerantAnchor($template)) {
-                continue;
-            }
-
-            $errors[] = RuleErrorBuilder::message(\sprintf(
-                self::ERROR,
-                $functionName,
-                str_replace(self::RUNTIME, '{…}', $template),
-            ))->identifier(self::IDENTIFIER)->build();
-        }
-
-        return $errors;
+        return [];
     }
 
-    private function isEnabledFor(?string $namespace): bool
+    private function isEnabledNamespace(?string $namespace): bool
     {
         if ($namespace === null) {
             return false;
@@ -159,53 +177,50 @@ class PregDollarWithoutDRule implements Rule
     }
 
     /**
+     * The named argument if the call uses one, otherwise the first positional argument.
+     */
+    private static function argument(FuncCall $call, string $name): ?Expr
+    {
+        $args = $call->getArgs();
+        foreach ($args as $arg) {
+            if ($arg->name?->toString() === $name) {
+                return $arg->value;
+            }
+        }
+
+        return isset($args[0]) && $args[0]->name === null ? $args[0]->value : null;
+    }
+
+    /**
      * @return list<string> templates with runtime placeholders
      */
-    private function resolveTemplates(Expr $expr, Scope $scope, FuncCall $call, int $depth): array
+    private function resolveTemplates(Expr $expr, Scope $scope): array
     {
+        if ($expr instanceof Array_) {
+            $templates = [];
+            foreach ($expr->items as $item) {
+                $templates = [...$templates, ...$this->resolveTemplates($item->value, $scope)];
+            }
+
+            return $templates;
+        }
+
         $templates = $this->constantTemplates($scope->getType($expr));
         if ($templates !== []) {
             return $templates;
         }
 
-        if ($expr instanceof Array_) {
-            foreach ($expr->items as $item) {
-                foreach ($this->resolveTemplates($item->value, $scope, $call, $depth) as $template) {
-                    $templates[] = $template;
-                }
-            }
+        if ($expr instanceof FuncCall && $expr->name instanceof Name && $expr->name->toLowerString() === 'sprintf') {
+            $format = self::argument($expr, 'format');
 
-            return $templates;
-        }
-
-        if ($expr instanceof FuncCall && $expr->name instanceof Name && strtolower(ltrim($expr->name->toString(), '\\')) === 'sprintf') {
-            $formatArg = $expr->getArgs()[0] ?? null;
-            if ($formatArg === null) {
-                return [];
-            }
-
-            foreach ($this->resolveTemplates($formatArg->value, $scope, $call, $depth) as $format) {
-                $templates[] = $this->formatToTemplate($format);
-            }
-
-            return $templates;
+            return $format === null ? [] : array_map($this->formatToTemplate(...), $this->resolveTemplates($format, $scope));
         }
 
         if ($expr instanceof Concat) {
-            $lefts = $this->resolveTemplates($expr->left, $scope, $call, $depth) ?: [self::RUNTIME];
-            $rights = $this->resolveTemplates($expr->right, $scope, $call, $depth) ?: [self::RUNTIME];
-
-            foreach ($lefts as $left) {
-                foreach ($rights as $right) {
-                    $templates[] = $left . $right;
-                    if (\count($templates) >= self::MAX_TEMPLATES) {
-                        break 2;
-                    }
-                }
-            }
-
-            // a concatenation of only runtime parts tells nothing
-            return array_values(array_filter($templates, static fn (string $template) => trim($template, self::RUNTIME) !== ''));
+            return self::concatTemplates(
+                $this->resolveTemplates($expr->left, $scope),
+                $this->resolveTemplates($expr->right, $scope),
+            );
         }
 
         if ($expr instanceof InterpolatedString) {
@@ -221,34 +236,14 @@ class PregDollarWithoutDRule implements Rule
                 $template .= \count($partStrings) === 1 ? $partStrings[0]->getValue() : self::RUNTIME;
             }
 
-            return trim($template, self::RUNTIME) === '' ? [] : [$template];
+            return self::withoutPureRuntime([$template]);
         }
 
-        if ($expr instanceof Variable && \is_string($expr->name) && $depth < self::MAX_VARIABLE_DEPTH) {
-            $assigned = $this->findLastAssignment($expr->name, $scope->getFile(), $call);
-            if ($assigned === null) {
-                return [];
-            }
-
-            return $this->resolveTemplates($assigned, $scope, $call, $depth + 1);
+        if ($expr instanceof Variable && \is_string($expr->name)) {
+            return $this->resolveVariable($expr, $scope);
         }
 
         return [];
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function resolveKeyTemplates(Expr $expr, Scope $scope): array
-    {
-        $templates = [];
-        foreach ($scope->getType($expr)->getConstantArrays() as $constantArray) {
-            foreach ($constantArray->getKeyTypes() as $keyType) {
-                $templates = [...$templates, ...$this->constantTemplates($keyType)];
-            }
-        }
-
-        return $templates;
     }
 
     /**
@@ -272,49 +267,177 @@ class PregDollarWithoutDRule implements Rule
     }
 
     /**
-     * Finds the last `$name = …` in the innermost function-like body enclosing the call, before the call line.
+     * @return list<string>
      */
-    private function findLastAssignment(string $name, string $file, FuncCall $call): ?Expr
+    private function keyTemplates(Type $type): array
+    {
+        $templates = [];
+        foreach ($type->getConstantArrays() as $constantArray) {
+            foreach ($constantArray->getKeyTypes() as $keyType) {
+                foreach ($keyType->getConstantStrings() as $constantString) {
+                    $templates[] = $constantString->getValue();
+                }
+            }
+        }
+
+        return $templates;
+    }
+
+    /**
+     * Replays the writes to the variable that precede its read: the last plain assignment, then every `.=` after it.
+     *
+     * @return list<string>
+     */
+    private function resolveVariable(Variable $variable, Scope $scope): array
+    {
+        \assert(\is_string($variable->name));
+
+        $writes = $this->findWrites($variable->name, $scope->getFile(), $variable);
+        if ($writes === []) {
+            return [];
+        }
+
+        $templates = [];
+        foreach ($writes as $write) {
+            $templates = $write instanceof Assign
+                ? $this->resolveTemplates($write->expr, $scope)
+                : self::concatTemplates($templates, $this->resolveTemplates($write->expr, $scope));
+        }
+
+        return $templates;
+    }
+
+    /**
+     * Writes to `$name` in the function body owning the read, in source order, nested functions excluded. A read
+     * inside an arrow function, or inside a closure that captures the variable, continues in the enclosing body.
+     * Only writes located before the read count, so a self-referencing assignment resolves to its predecessor.
+     *
+     * @return list<Assign|AssignOp\Concat>
+     */
+    private function findWrites(string $name, string $file, Expr $read): array
     {
         try {
             $stmts = $this->parser->parseFile($file);
         } catch (\Throwable) {
-            return null;
+            return [];
         }
 
-        $finder = new NodeFinder();
-        $callLine = $call->getStartLine();
+        $functions = array_values((new NodeFinder())->findInstanceOf($stmts, FunctionLike::class));
+        $before = $read;
+        while (true) {
+            $owner = self::innermostFunction($functions, $before);
+            $writes = self::writesBefore($owner ?? $stmts, $name, $before->getStartFilePos());
+            if ($writes !== [] || $owner === null) {
+                return $writes;
+            }
 
-        $enclosing = null;
-        foreach ($finder->findInstanceOf($stmts, FunctionLike::class) as $functionLike) {
-            if ($functionLike->getStartLine() > $callLine || $functionLike->getEndLine() < $callLine) {
+            $captures = $owner instanceof ArrowFunction
+                || ($owner instanceof Closure && \in_array($name, array_map(static fn ($use) => $use->var->name, $owner->uses), true));
+            if (!$captures) {
+                return [];
+            }
+
+            $before = $owner;
+        }
+    }
+
+    /**
+     * @param list<FunctionLike> $functions
+     */
+    private static function innermostFunction(array $functions, Node $node): ?FunctionLike
+    {
+        $innermost = null;
+        foreach ($functions as $function) {
+            if ($function === $node || $function->getStartFilePos() > $node->getStartFilePos() || $function->getEndFilePos() < $node->getEndFilePos()) {
                 continue;
             }
-            if ($enclosing === null || $functionLike->getStartLine() >= $enclosing->getStartLine()) {
-                $enclosing = $functionLike;
+            if ($innermost === null || $function->getStartFilePos() > $innermost->getStartFilePos()) {
+                $innermost = $function;
             }
         }
 
-        if ($enclosing === null) {
-            return null;
+        return $innermost;
+    }
+
+    /**
+     * @param Node|array<Node> $root
+     *
+     * @return list<Assign|AssignOp\Concat>
+     */
+    private static function writesBefore(Node|array $root, string $name, int $position): array
+    {
+        $visitor = new class($root, $name, $position) extends NodeVisitorAbstract {
+            /**
+             * @var list<Assign|AssignOp\Concat>
+             */
+            public array $writes = [];
+
+            /**
+             * @param Node|array<Node> $root
+             */
+            public function __construct(
+                private readonly Node|array $root,
+                private readonly string $name,
+                private readonly int $position,
+            ) {
+            }
+
+            public function enterNode(Node $node): ?int
+            {
+                if ($node instanceof FunctionLike && $node !== $this->root) {
+                    return NodeVisitor::DONT_TRAVERSE_CHILDREN;
+                }
+
+                if (($node instanceof Assign || $node instanceof AssignOp\Concat)
+                    && $node->var instanceof Variable
+                    && $node->var->name === $this->name
+                    && $node->getEndFilePos() < $this->position
+                ) {
+                    $this->writes[] = $node;
+                }
+
+                return null;
+            }
+        };
+
+        (new NodeTraverser($visitor))->traverse(\is_array($root) ? $root : [$root]);
+
+        return $visitor->writes;
+    }
+
+    /**
+     * Cross product of the two sides; a side that could not be read counts as one runtime part.
+     *
+     * @param list<string> $lefts
+     * @param list<string> $rights
+     *
+     * @return list<string>
+     */
+    private static function concatTemplates(array $lefts, array $rights): array
+    {
+        $templates = [];
+        foreach ($lefts ?: [self::RUNTIME] as $left) {
+            foreach ($rights ?: [self::RUNTIME] as $right) {
+                $templates[] = $left . $right;
+                if (\count($templates) >= self::MAX_TEMPLATES) {
+                    break 2;
+                }
+            }
         }
 
-        $assigned = null;
-        foreach ($finder->findInstanceOf($enclosing, Assign::class) as $assign) {
-            if (!$assign->var instanceof Variable || $assign->var->name !== $name) {
-                continue;
-            }
-            if ($assign->getStartLine() > $callLine) {
-                continue;
-            }
-            // the call may itself be the right-hand side of the assignment
-            if ($assign->getStartLine() === $callLine && $assign->expr === $call) {
-                continue;
-            }
-            $assigned = $assign->expr;
-        }
+        return self::withoutPureRuntime($templates);
+    }
 
-        return $assigned;
+    /**
+     * A template made of runtime parts only tells nothing.
+     *
+     * @param list<string> $templates
+     *
+     * @return list<string>
+     */
+    private static function withoutPureRuntime(array $templates): array
+    {
+        return array_values(array_filter($templates, static fn (string $template) => trim($template, self::RUNTIME) !== ''));
     }
 
     /**
@@ -322,30 +445,35 @@ class PregDollarWithoutDRule implements Rule
      */
     private function formatToTemplate(string $format): string
     {
-        $template = preg_replace('/%(?:\d+\$)?[-+ 0]*(?:\'.)?\d*(?:\.\d+)?[bcdeEfFgGhHosuxX]/', self::RUNTIME, $format) ?? $format;
-
-        return str_replace('%%', '%', $template);
+        return preg_replace_callback(
+            '/%(%|(?:\d+\$)?[-+ 0]*(?:\'.)?\d*(?:\.\d+)?[bcdeEfFgGhHosuxX])/',
+            static fn (array $match): string => $match[1] === '%' ? '%' : self::RUNTIME,
+            $format
+        ) ?? $format;
     }
 
     /**
-     * `$` and `\Z` both match before a final newline unless `D` is set; `m` turns `$` into a per-line anchor on purpose.
+     * `$` and `\Z` both match before a final newline unless `D` is set; `m` turns `$` into a per-line anchor on
+     * purpose. Returns null when the delimiters cannot be told apart from runtime parts. PHPStan ships the same
+     * delimiter parsing in its RegexExpressionHelper, which is not part of its public API.
      */
-    private function endsWithNewlineTolerantAnchor(string $template): bool
+    private function endsWithNewlineTolerantAnchor(string $template): ?bool
     {
         $template = ltrim($template);
         if ($template === '' || $template[0] === self::RUNTIME) {
-            return false;
+            return null;
         }
 
         $delimiter = $template[0];
         if (ctype_alnum($delimiter) || $delimiter === '\\') {
+            // not a valid pattern, PHPStan's own regexp rule reports it
             return false;
         }
         $closing = self::CLOSING_DELIMITERS[$delimiter] ?? $delimiter;
 
         $end = strrpos($template, $closing, 1);
-        if ($end === false || $end === 0) {
-            return false;
+        if ($end === false) {
+            return null;
         }
 
         $body = substr($template, 1, $end - 1);
@@ -355,20 +483,25 @@ class PregDollarWithoutDRule implements Rule
             return false;
         }
 
+        if (str_contains($modifiers, 'x')) {
+            // extended mode ignores unescaped whitespace
+            $body = rtrim($body);
+        }
+
         if (str_ends_with($body, '$')) {
             // an even number of backslashes before the dollar leaves it unescaped
-            return $this->countTrailingBackslashes(substr($body, 0, -1)) % 2 === 0;
+            return self::countTrailingBackslashes(substr($body, 0, -1)) % 2 === 0;
         }
 
         if (str_ends_with($body, '\\Z')) {
             // an odd number of backslashes before the Z makes it the anchor
-            return $this->countTrailingBackslashes(substr($body, 0, -1)) % 2 === 1;
+            return self::countTrailingBackslashes(substr($body, 0, -1)) % 2 === 1;
         }
 
         return false;
     }
 
-    private function countTrailingBackslashes(string $value): int
+    private static function countTrailingBackslashes(string $value): int
     {
         return \strlen($value) - \strlen(rtrim($value, '\\'));
     }

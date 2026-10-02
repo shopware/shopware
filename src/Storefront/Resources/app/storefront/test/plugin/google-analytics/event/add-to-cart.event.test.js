@@ -251,4 +251,115 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
             'items': [expect.objectContaining({ 'price': price })],
         }));
     });
+
+    describe('hands brand and category to the cart', () => {
+        const breadcrumb = `
+            <nav aria-label="breadcrumb">
+                <span class="breadcrumb-title">Damen</span>
+                <span class="breadcrumb-title">Schuhe</span>
+            </nav>
+        `;
+
+        function renderCard() {
+            return `
+                <div class="product-box" data-product-information='{"id":"product-123","name":"Boot","brand":"Acme","price":10,"sku":"SW1"}'>
+                    <form class="buy-form"></form>
+                </div>
+            `;
+        }
+
+        function submit(formData) {
+            const form = document.querySelector('.buy-form');
+            const addToCartInstance = { el: form, $emitter: new NativeEventEmitter(form) };
+            addToCartInstances.push(addToCartInstance);
+            new AddToCartEvent().execute();
+            addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+            return formData;
+        }
+
+        function formFor(productId = 'product-123') {
+            const formData = new FormData();
+            formData.append(`lineItems[${productId}][id]`, productId);
+            formData.append(`lineItems[${productId}][quantity]`, '1');
+
+            return formData;
+        }
+
+        afterEach(() => {
+            delete window.activeRoute;
+        });
+
+        test('adds the card brand and the listing breadcrumb to the payload', () => {
+            window.activeRoute = 'frontend.navigation.page';
+            document.body.innerHTML = breadcrumb + renderCard();
+
+            const formData = submit(formFor());
+
+            expect(formData.get('lineItems[product-123][payload][manufacturerName]')).toBe('Acme');
+            expect(formData.get('lineItems[product-123][payload][categoryNames][0]')).toBe('Damen');
+            expect(formData.get('lineItems[product-123][payload][categoryNames][1]')).toBe('Schuhe');
+        });
+
+        test('sends the brand but no category on a page without breadcrumb', () => {
+            window.activeRoute = 'frontend.home.page';
+            document.body.innerHTML = renderCard();
+
+            const formData = submit(formFor());
+
+            expect(formData.get('lineItems[product-123][payload][manufacturerName]')).toBe('Acme');
+            expect([...formData.keys()].some(key => key.includes('[categoryNames]'))).toBe(false);
+        });
+
+        test('sends no category for a cross selling card on a product detail page', () => {
+            // the breadcrumb of a product detail page belongs to the product of the page
+            window.activeRoute = 'frontend.detail.page';
+            document.body.innerHTML = breadcrumb + renderCard();
+
+            const formData = submit(formFor());
+
+            expect(formData.get('lineItems[product-123][payload][manufacturerName]')).toBe('Acme');
+            expect([...formData.keys()].some(key => key.includes('[categoryNames]'))).toBe(false);
+        });
+
+        test('keeps what the form already posts', () => {
+            window.activeRoute = 'frontend.navigation.page';
+            document.body.innerHTML = breadcrumb + renderCard();
+
+            const formData = formFor();
+            formData.append('lineItems[product-123][payload][manufacturerName]', 'Posted');
+            formData.append('lineItems[product-123][payload][categoryNames][0]', 'Posted category');
+            submit(formData);
+
+            expect(formData.getAll('lineItems[product-123][payload][manufacturerName]')).toEqual(['Posted']);
+            expect(formData.get('lineItems[product-123][payload][categoryNames][0]')).toBe('Posted category');
+            expect(formData.has('lineItems[product-123][payload][categoryNames][1]')).toBe(false);
+        });
+
+        test('leaves the buy widget of the product detail page alone', () => {
+            window.activeRoute = 'frontend.detail.page';
+            document.body.innerHTML = breadcrumb + '<div class="product-detail-buy"><form class="buy-form"></form></div>';
+
+            const formData = submit(formFor());
+
+            expect([...formData.keys()].some(key => key.includes('[payload]'))).toBe(false);
+        });
+
+        test('sends nothing extra when the event is disabled, for example without consent', () => {
+            window.activeRoute = 'frontend.navigation.page';
+            document.body.innerHTML = breadcrumb + renderCard();
+
+            const form = document.querySelector('.buy-form');
+            const addToCartInstance = { el: form, $emitter: new NativeEventEmitter(form) };
+            addToCartInstances.push(addToCartInstance);
+            const event = new AddToCartEvent();
+            event.execute();
+            event.disable();
+
+            const formData = formFor();
+            addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+            expect([...formData.keys()].some(key => key.includes('[payload]'))).toBe(false);
+        });
+    });
 });

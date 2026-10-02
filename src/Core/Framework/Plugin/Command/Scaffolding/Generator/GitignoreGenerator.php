@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfigurati
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -18,6 +19,11 @@ class GitignoreGenerator implements ScaffoldingGenerator
     public function hasCommandOption(): bool
     {
         return false;
+    }
+
+    public function getCommandOption(): ?InputOption
+    {
+        return null;
     }
 
     public function getCommandOptionName(): string

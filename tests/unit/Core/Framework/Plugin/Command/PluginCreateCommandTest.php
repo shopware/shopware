@@ -8,12 +8,12 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\PluginCreateCommand;
-use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\EntityGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\ScaffoldingGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingCollector;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\ScaffoldingWriter;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -433,6 +433,7 @@ class PluginCreateCommandTest extends TestCase
     {
         $generator = $this->createMock(ScaffoldingGenerator::class);
         $generator->method('hasCommandOption')->willReturn(true);
+        $generator->method('getCommandOption')->willReturn(new InputOption('test-option', null, InputOption::VALUE_NONE, 'Example option'));
         $generator->method('getCommandOptionName')->willReturn('test-option');
         $generator->method('getCommandOptionDescription')->willReturn('Example option');
         $generator->method('getCommandOptionTitle')->willReturn('Title');

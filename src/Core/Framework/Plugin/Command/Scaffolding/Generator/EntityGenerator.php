@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
@@ -21,6 +22,8 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 #[Package('framework')]
 class EntityGenerator implements ScaffoldingGenerator
 {
+    use HasCommandOption;
+
     public const OPTION_NAME = 'entities';
     private const OPTION_TITLE = 'Custom Entities';
     private const OPTION_DESCRIPTION = 'list of entities to generate (PascalCase, comma separated)';
@@ -187,9 +190,10 @@ EOL;
 
         if (!$helper->ask($input, $tempSection, $confirmation)) {
             $tempSection->clear();
+
             return null;
         }
-        
+
         $entities = $helper->ask($input, $tempSection, new Question('<fg=green>Please provide a list of entities (PascalCase, comma separated):</>'));
         $tempSection->clear();
 

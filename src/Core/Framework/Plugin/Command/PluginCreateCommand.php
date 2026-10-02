@@ -195,7 +195,7 @@ class PluginCreateCommand extends Command
                 $questionSection = $output->section();
 
                 $question = new ConfirmationQuestion(
-                    '<fg=green>Add additional scaffolding (advanced)? [y/N]:</>',
+                    '<fg=green>Add additional scaffolding files? (advanced) [y/N]:</>',
                     false,
                     '/^(y|j)/i'
                 );

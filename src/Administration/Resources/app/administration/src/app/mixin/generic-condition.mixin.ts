@@ -2,6 +2,7 @@
  * @sw-package framework
  */
 import type Criteria from '@shopware-ag/meteor-admin-sdk/es/data/Criteria';
+import type { Entity } from '@shopware-ag/meteor-admin-sdk/es/_internals/data/Entity';
 import { defineComponent } from 'vue';
 import type RuleConditionService from '../service/rule-condition.service';
 import createCriteriaFromArray from '../service/criteria-helper.service';
@@ -13,6 +14,8 @@ interface Field {
     name: string;
     type: string;
     config: {
+        entity?: string;
+        descriptionPosition?: string;
         name: string;
         criteria: Criteria;
         options: unknown[];
@@ -162,8 +165,23 @@ export default Mixin.register(
         },
 
         methods: {
+            getCategoryBreadcrumb(category: Entity<'category'>): string {
+                const breadcrumb = category.translated?.breadcrumb ?? category.breadcrumb;
+
+                if (!breadcrumb || Object.keys(breadcrumb).length === 0) {
+                    return category.translated?.name ?? category.name ?? '';
+                }
+
+                return Object.values(breadcrumb).join(' / ');
+            },
+
             getBind(field: Field) {
                 const fieldClone = Shopware.Utils.object.cloneDeep(field);
+
+                if (fieldClone.config.entity === 'category') {
+                    fieldClone.config.descriptionPosition ??= 'bottom';
+                }
+
                 const snippetBasePath = [
                     'global',
                     'sw-condition-generic',

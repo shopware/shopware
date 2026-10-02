@@ -223,6 +223,8 @@ All entity read tools use `JsonEntityEncoder` for serialization (not the Store A
 
 A many-to-many link (a product's categories, properties, tags, ...) is a row of a mapping entity such as `product_category`. MCP follows the Admin API sync endpoint here: `shopware-entity-upsert` adds links, and `shopware-entity-delete` on the mapping entity with composite key objects removes them (`[{"productId": "...", "categoryId": "..."}]`). `shopware-entity-schema` names the `mappingEntity` of every many-to-many association so the model can find it.
 
+Version fields of the composite key (`productVersionId`, `categoryVersionId`) are optional in the key objects and default to the live version. In a versioned context (a non-live `sw-version-id`) the tool refuses to guess and asks for them: the Admin API unlinks with the context version for the parent and the live version for the referenced side, a mapping row does not say which side is which, and a wrong guess matches no row and removes nothing without an error.
+
 We deliberately don't add a dedicated "unlink" tool for now. The planned Sync tool (#20520) removes links the same way, so one model covers delete, sync and the Admin API. A new tool would also stay invisible to existing integrations until operators add it to their allowlist. Revisit this if evaluations show that models don't find the delete path, and build such a tool on the same key handling.
 
 Don't add a "remove" flag to upsert payloads: the DAL writes every field sent on an associated record to that record.

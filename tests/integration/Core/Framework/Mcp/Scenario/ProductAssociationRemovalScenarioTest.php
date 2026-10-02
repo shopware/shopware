@@ -78,9 +78,21 @@ class ProductAssociationRemovalScenarioTest extends McpScenarioTestCase
             'A dry run must not remove the link',
         );
 
-        $this->decodeToolOutput(($this->entityDeleteTool)('product_category', $ids, false));
+        $output = $this->decodeToolOutput(($this->entityDeleteTool)('product_category', $ids, false));
 
         static::assertSame([$this->ids->get('keep')], $this->loadProduct()->getCategoryIds());
+
+        // The DAL also reports the product and the category, whose association changed. The result must
+        // not call them deleted: a client reading it, or its dry-run preview, would believe they are gone.
+        static::assertIsArray($output['data']);
+        $deletedEntities = [];
+        foreach ($output['data'] as $row) {
+            static::assertIsArray($row);
+            if (($row['operation'] ?? null) === 'delete') {
+                $deletedEntities[] = $row['entity'] ?? null;
+            }
+        }
+        static::assertSame(['product_category'], $deletedEntities);
         static::assertSame(
             1,
             static::getContainer()->get('category.repository')->searchIds(new Criteria([$this->ids->get('remove')]), Context::createDefaultContext())->getTotal(),

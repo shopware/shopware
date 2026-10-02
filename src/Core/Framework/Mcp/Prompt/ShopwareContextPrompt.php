@@ -106,10 +106,7 @@ Field selection: `{"includes": {"product": ["id", "name", "productNumber", "pric
 4. dryRun=true first, then dryRun=false to persist
 
 ### Add or remove a product category or property
-1. `shopware-entity-schema` on `product` shows the many-to-many association and its mapping entity (`categories` → `product_category`, `properties` → `product_property`)
-2. Add: `shopware-entity-upsert` on `product` with `{"id": "<productId>", "categories": [{"id": "<categoryId>"}]}`
-3. Remove: `shopware-entity-delete` on `product_category` with ids `[{"productId": "<productId>", "categoryId": "<categoryId>"}]` (for properties: `product_property` with `productId` and `optionId`)
-4. dryRun=true first, then dryRun=false
+Add with `shopware-entity-upsert` on `product`; remove with `shopware-entity-delete` on the mapping entity `shopware-entity-schema` names (`product_category`, `product_property`).
 
 ### Transition an order state
 1. `shopware-entity-search` on `order` to find the order and its current stateMachineState

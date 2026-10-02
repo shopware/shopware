@@ -5,9 +5,12 @@ namespace Shopware\Core\Framework\Mcp\Tool;
 use Doctrine\DBAL\Connection;
 use Mcp\Capability\Attribute\McpTool;
 use Mcp\Capability\Attribute\Schema;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeletedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\Log\Package;
@@ -15,6 +18,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -23,7 +27,7 @@ use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
 #[McpTool(
     name: 'shopware-entity-delete',
     title: 'Entity Delete',
-    description: 'Delete Shopware entities by their UUIDs. Also the way to REMOVE a many-to-many link without deleting either side: delete the mapping entity, e.g. entity "product_category" with ids [{"productId":"...","categoryId":"..."}] removes a category from a product, "product_property" with [{"productId":"...","optionId":"..."}] removes a property option. shopware-entity-upsert can only add such links. Always use dryRun=true (default) first to preview cascade effects and dependent entity deletions, then set dryRun=false to execute. Returns {success, data: {deleted, notFound}, _meta: {dryRun}}.'
+    description: 'Delete Shopware entities by their UUIDs. Also the way to REMOVE a many-to-many link without deleting either side: delete the mapping entity, e.g. entity "product_category" with ids [{"productId":"...","categoryId":"..."}] removes a category from a product, "product_property" with [{"productId":"...","optionId":"..."}] removes a property option. shopware-entity-upsert can only add such links. Always use dryRun=true (default) first to preview cascade effects, then set dryRun=false to execute. Returns each affected entity with its operation: delete, or update for the entities a removed link belonged to.'
 )]
 #[McpToolDependsOn('shopware-entity-search')]
 #[McpToolGroup('entity')]
@@ -69,20 +73,44 @@ class EntityDeleteTool extends McpToolResponse
             return $this->executeWithDryRun($this->connection, $context, function () use ($repository, $deletePayload, $context) {
                 $events = $repository->delete($deletePayload, $context);
 
-                return $this->success($this->formatWriteEvents($events, 'delete'), ['dryRun' => true]);
+                return $this->success($this->formatDeleteEvents($events), ['dryRun' => true]);
             });
         }
 
         $events = $repository->delete($deletePayload, $context);
 
-        return $this->success($this->formatWriteEvents($events, 'delete'), ['dryRun' => false]);
+        return $this->success($this->formatDeleteEvents($events), ['dryRun' => false]);
+    }
+
+    /**
+     * Like formatWriteEvents(), but with each event's own operation. A delete also reports the entities
+     * whose associations it changed: removing a `product_category` row emits written events for the
+     * product and the category next to the deleted mapping row. Labelling those "delete" tells a client,
+     * and a model reading a dry run, that the product and the category would be deleted.
+     *
+     * @return list<array{entity: string, ids: list<string>, operation: string}>
+     */
+    private function formatDeleteEvents(EntityWrittenContainerEvent $events): array
+    {
+        $result = [];
+        foreach ($events->getEvents()?->getElements() ?? [] as $event) {
+            $result[] = [
+                'entity' => $event->getEntityName(),
+                'ids' => $event->getIds(),
+                'operation' => $event instanceof EntityDeletedEvent ? 'delete' : 'update',
+            ];
+        }
+
+        return $result;
     }
 
     /**
      * Builds the DAL delete payload. Entities with a single primary key take plain UUIDs.
      * Mapping entities (for example `product_category`) have a composite primary key, so each
-     * row is named by an object holding every key field. Version fields are filled from the
-     * context, like the Admin API does for `DELETE /api/product/{id}/categories/{categoryId}`.
+     * row is named by an object holding every key field. Version fields the caller names are kept.
+     * Otherwise they default to the live version, which is only unambiguous in a live context:
+     * `DELETE /api/product/{id}/categories/{categoryId}` uses the context version for the parent and
+     * the live version for the referenced side, and a mapping row does not say which side is which.
      *
      * @return list<array<string, string>>|string the payload, or an error response
      */
@@ -140,7 +168,31 @@ class EntityDeleteTool extends McpToolResponse
             }
 
             foreach ($versionFields as $versionField) {
-                $keys[$versionField] = $context->getVersionId();
+                $version = $row[$versionField] ?? null;
+                if ($version !== null) {
+                    if (!\is_string($version) || !Uuid::isValid($version)) {
+                        return $this->error(\sprintf('"%s" must be a version UUID.', $versionField));
+                    }
+
+                    $keys[$versionField] = $version;
+
+                    continue;
+                }
+
+                // Each side of a link can be in a different version: the Admin API unlinks with the
+                // context version for the parent and the live version for the referenced entity. A
+                // row has no parent, so outside the live version the caller has to say which, or the
+                // key matches no row and nothing is removed.
+                if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
+                    return $this->error(\sprintf(
+                        'This request runs in version %s. Name every version field (%s) in each ids object, for example the live version %s for a side that is not being edited.',
+                        $context->getVersionId(),
+                        implode(', ', $versionFields),
+                        Defaults::LIVE_VERSION,
+                    ));
+                }
+
+                $keys[$versionField] = Defaults::LIVE_VERSION;
             }
 
             $payload[] = $keys;

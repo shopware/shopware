@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 #[McpTool(
     name: 'shopware-entity-schema',
     title: 'Entity Schema',
-    description: 'Get the field and association schema of a Shopware entity definition: field names, types, and associations for building shopware-entity-search criteria. Many-to-many associations also name their mappingEntity (e.g. product categories: entity "category", mappingEntity "product_category"); delete a mapping row with shopware-entity-delete to remove a link. Returns {success, data: {fields: [...], associations: [...]}}. See shopware://entities resource for all available entity names.'
+    description: 'Get the field and association schema of a Shopware entity definition: field names, types, and associations for building shopware-entity-search criteria. Many-to-many associations name their mappingEntity (e.g. "product_category"), which shopware-entity-delete uses to remove a link. Returns {success, data: {fields: [...], associations: [...]}}. See shopware://entities resource for all available entity names.'
 )]
 #[McpToolGroup('entity')]
 class EntitySchemaTool extends McpToolResponse

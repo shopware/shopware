@@ -95,6 +95,8 @@ The base component keeps writing its own state through `this.x = …`, and Vue s
 
 **Blocks that mix slot templates with other content** cannot host an extension point; see above.
 
+**Overrides do not reach components created with `Component.extend()`.** Both halves resolve overrides by the name of the component being rendered: the template factory stamps that name onto every extension point it inserts, and the setup adapter looks up `swDefineOverride` callbacks the same way. For example `sw-cms-create` extends `sw-cms-detail`, so its extension points carry `sw-internal-component-name="sw-cms-create"`, and neither the block nor the state override registered for `sw-cms-detail` applies there. A Twig override on the same block does reach the child, because Twig merges it into the template the child inherits. To cover a child, add a second override that targets the child by name.
+
 **An `immediate` watcher on an overridden key fires once with the base value.** Vue sets watchers up before any `created` hook, so the first run happens before the override exists. Every later evaluation sees the override.
 
 **The adapter relies on undocumented Vue behaviour**: that a setup result stays live and that keys added later are honoured. It is pinned to the Vue version in `package.json`, and a canary test fails loudly if an upgrade changes it.

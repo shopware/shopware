@@ -223,6 +223,23 @@ the store. The codemod never emits the clean one; that migration is a human's ca
 the CMS editor state through it. Its descriptor therefore answers those members as well, which is why
 both descriptors share one member list.
 
+## metaInfo
+
+`metaInfo` becomes a `useMetaInfo()` call taking the option's own function as a getter, so the body
+stays as authored:
+
+```js
+useMetaInfo(function () {
+    return {
+        title: createTitle(identifier.value),
+    };
+});
+```
+
+Nearly every body calls `$createTitle`, which is an Options API global property a setup component
+cannot read. It maps to a `createTitle` helper like `$t` and `$route` do — `const createTitle =
+useCreateTitle();` — so the mapping also covers the calls outside `metaInfo`.
+
 ## What is skipped on purpose
 
 `Component.extend` children, `Component.override` registrations, `this.$super`/`this.$parent`,

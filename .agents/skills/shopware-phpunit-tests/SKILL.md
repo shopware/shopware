@@ -79,3 +79,4 @@ Tests should read like executable examples.
 - Read `coding-guidelines/core/unit-tests.md` when writing or restructuring PHP unit tests.
 - Read `coding-guidelines/core/writing-code-for-static-analysis.md` when test code interacts with PHPStan-sensitive types, assertions, or generics.
 - Read `coding-guidelines/core/feature-flags.md` when testing feature-flagged current or legacy behavior.
+- When the behavior under test is better expressed as an invariant over a wide input space than as a handful of examples — a parser, serializer, validator, sanitizer, or hand-rolled string encoding are common candidates — use the `shopware-fuzz-tests` skill instead; those tests live under `tests/fuzz`, not `tests/unit`.

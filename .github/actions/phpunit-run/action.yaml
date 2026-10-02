@@ -13,7 +13,7 @@ inputs:
     default: "false"
     description: "Run with cobertura coverage (written to coverage.xml for ./.github/actions/phpunit-upload)"
 
-# Note: the caller controls feature flags via job-level env (e.g. FEATURE_ALL: major); the run steps below
+# Note: the caller controls feature flags via job-level env (e.g. V6_8_0_0: 1); the run steps below
 # inherit it, so this action stays flag-agnostic. Environment setup (PHP, database, webserver, test install)
 # lives in ./.github/actions/phpunit-prepare and the Codecov uploads in ./.github/actions/phpunit-upload,
 # so the three phases get separate timings in the job UI.

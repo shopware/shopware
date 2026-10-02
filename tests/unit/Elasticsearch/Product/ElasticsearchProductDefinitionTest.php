@@ -289,6 +289,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         ]);
 
         $connection = static::createStub(Connection::class);
+        $connection->method('fetchFirstColumn')->willReturn([Defaults::CURRENCY, 'c0d2554b0ce847cd82f3ac9bd1c0dfca']);
 
         $utils = new ElasticsearchIndexingUtils($connection, new EventDispatcher(), $parameterBag);
         $fieldBuilder = new ElasticsearchFieldBuilder($languageLoader, $utils, [
@@ -313,6 +314,24 @@ class ElasticsearchProductDefinitionTest extends TestCase
             'properties' => [
                 'id' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
                 'parentId' => AbstractElasticsearchDefinition::KEYWORD_FIELD,
+                'price' => [
+                    'type' => 'object',
+                    'dynamic' => true,
+                    'properties' => [
+                        'c_' . Defaults::CURRENCY => [
+                            'properties' => [
+                                'gross' => AbstractElasticsearchDefinition::FLOAT_FIELD,
+                                'net' => AbstractElasticsearchDefinition::FLOAT_FIELD,
+                            ],
+                        ],
+                        'c_c0d2554b0ce847cd82f3ac9bd1c0dfca' => [
+                            'properties' => [
+                                'gross' => AbstractElasticsearchDefinition::FLOAT_FIELD,
+                                'net' => AbstractElasticsearchDefinition::FLOAT_FIELD,
+                            ],
+                        ],
+                    ],
+                ],
                 'parent' => [
                     'type' => 'nested',
                     'properties' => [
@@ -517,6 +536,13 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 ],
                 ['price_percentage' => [
                     'path_match' => 'price.*.percentage.*',
+                    'mapping' => [
+                        'type' => 'double',
+                    ],
+                ],
+                ],
+                ['price_fields' => [
+                    'path_match' => 'price.*.*',
                     'mapping' => [
                         'type' => 'double',
                     ],
@@ -779,6 +805,16 @@ class ElasticsearchProductDefinitionTest extends TestCase
 
             static::assertSame($price, $document[$key]);
         }
+
+        // keyed by `c_<currencyId>` to match the accessor of the criteria parser, and the `c` prefix of the
+        // database key is only stripped once - the currency id of the second price starts with a `c` itself
+        static::assertSame(
+            [
+                'c_b7d2554b0ce847cd82f3ac9bd1c0dfca' => ['gross' => 10.0, 'net' => 8.0],
+                'c_c0d2554b0ce847cd82f3ac9bd1c0dfca' => ['gross' => 20.0, 'net' => 16.0],
+            ],
+            $document['price']
+        );
 
         static::assertSame(
             [
@@ -1108,6 +1144,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     'coverId' => null,
                     'childCount' => 0,
                     'cheapest_price_accessor' => '{"rule-1": {"b7d2554b0ce847cd82f3ac9bd1c0dfca": {"gross": 5, "net": 4}, "b7d2554b0ce847cd82f3ac9bd1c0dfc2": {"gross": 5, "net": 4, "percentage": {"gross": 1, "net": 2}}}}',
+                    'price' => '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca": {"net": 8, "gross": 10}, "cc0d2554b0ce847cd82f3ac9bd1c0dfca": {"net": 16, "gross": 20}}',
                     'visibilities' => '[{"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 20, "salesChannelId": "sc-2"}]',
                     'propertyIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
                     'optionIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',

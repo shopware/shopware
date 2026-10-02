@@ -98,6 +98,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'group' => ElasticsearchFieldBuilder::nested(),
             ]),
             'parentId' => self::KEYWORD_FIELD,
+            'price' => $this->buildPriceMapping(),
             'active' => self::BOOLEAN_FIELD,
             'available' => self::BOOLEAN_FIELD,
             'isCloseout' => self::BOOLEAN_FIELD,
@@ -158,6 +159,13 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 [
                     'price_percentage' => [
                         'path_match' => 'price.*.percentage.*',
+                        'mapping' => ['type' => 'double'],
+                    ],
+                ],
+                [
+                    // without it a price is detected as a 32 bit float, which cannot hold every price to the cent
+                    'price_fields' => [
+                        'path_match' => 'price.*.*',
                         'mapping' => ['type' => 'double'],
                     ],
                 ],
@@ -337,6 +345,7 @@ class ElasticsearchProductDefinition extends AbstractElasticsearchDefinition
                 'metaTitle' => ElasticsearchFieldMapper::translated(field: 'metaTitle', items: $translation),
                 'metaDescription' => ElasticsearchFieldMapper::translated(field: 'metaDescription', items: $translation),
                 'customSearchKeywords' => ElasticsearchFieldMapper::translated(field: 'customSearchKeywords', items: $translation),
+                'price' => $this->mapPrice(ElasticsearchIndexingUtils::parseJson($item, 'price')),
                 ...$this->mapCheapestPrice(ElasticsearchIndexingUtils::parseJson($item, 'cheapest_price_accessor')),
                 ...$visibilitiesFlatten,
             ];
@@ -401,6 +410,7 @@ SELECT
     p.auto_increment as autoIncrement,
     p.display_group as displayGroup,
     IFNULL(p.cheapest_price_accessor, pp.cheapest_price_accessor) as cheapest_price_accessor,
+    IFNULL(p.price, pp.price) as price,
     LOWER(HEX(p.parent_id)) as parentId,
     p.child_count as childCount,
     p.type#states#
@@ -599,6 +609,70 @@ SQL;
                 $key = 'cheapest_price_' . $rule . '_' . $currency . '_net_percentage';
                 $mapped[$key] = $taxes['percentage']['net'];
             }
+        }
+
+        return $mapped;
+    }
+
+    /**
+     * A price is indexed per currency, as `price.c_<currencyId>.<taxState>`. Mapping the currencies explicitly
+     * rather than leaving them to the dynamic detection keeps a price a `double`: a price that is indexed
+     * before the mapping of an existing index was updated would be detected as a 32 bit float, which cannot
+     * hold every price to the cent, and Elasticsearch keeps a field at the type it was detected as. The
+     * dynamic template of the mapping still covers a currency that is created after the index was built.
+     *
+     * @return array<string, mixed>
+     */
+    private function buildPriceMapping(): array
+    {
+        $properties = [];
+
+        /** @var list<string> $currencyIds */
+        $currencyIds = $this->connection->fetchFirstColumn('SELECT LOWER(HEX(`id`)) FROM `currency`');
+
+        foreach ($currencyIds as $currencyId) {
+            $properties['c_' . $currencyId] = [
+                'properties' => [
+                    'gross' => self::FLOAT_FIELD,
+                    'net' => self::FLOAT_FIELD,
+                ],
+            ];
+        }
+
+        $mapping = ['type' => 'object', 'dynamic' => true];
+
+        if ($properties !== []) {
+            $mapping['properties'] = $properties;
+        }
+
+        return $mapping;
+    }
+
+    /**
+     * The database keys a price by `c<currencyId>`, the index uses `c_<currencyId>`, which is the accessor
+     * {@see \Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser::buildAccessor()} builds
+     * for a price field.
+     *
+     * @param array<string, array{gross?: float|string, net?: float|string}> $price
+     *
+     * @return array<string, array{gross: float, net: float}>
+     */
+    private function mapPrice(array $price): array
+    {
+        $mapped = [];
+
+        foreach ($price as $currency => $taxes) {
+            if (!isset($taxes['gross'], $taxes['net'])) {
+                continue;
+            }
+
+            // only the single `c` prefix is stripped - a currency id is hex and may start with a `c` itself
+            $currencyId = str_starts_with($currency, 'c') ? substr($currency, 1) : $currency;
+
+            $mapped['c_' . $currencyId] = [
+                'gross' => (float) $taxes['gross'],
+                'net' => (float) $taxes['net'],
+            ];
         }
 
         return $mapped;

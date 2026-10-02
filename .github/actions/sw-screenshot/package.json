@@ -1,0 +1,24 @@
+{
+  "name": "sw-screenshot",
+  "private": true,
+  "type": "module",
+  "description": "CI toolchain for the sw-screenshot agentic workflow: seed a provisioned shop, swap its source between two refs, stage screenshots for publication.",
+  "scripts": {
+    "test": "node --experimental-strip-types --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@playwright/test": "^1.56.0",
+    "@shopware-ag/acceptance-test-suite": "12.20.0",
+    "pixelmatch": "^7.2.0",
+    "pngjs": "^7.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@types/node": "^22.20.2",
+    "@types/pngjs": "^6.0.5",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.46.0"
+  }
+}

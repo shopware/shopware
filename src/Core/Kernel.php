@@ -31,6 +31,7 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\Kernel as HttpKernel;
 use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 use Symfony\Component\Routing\Route;
+use Symfony\Component\Yaml\Yaml;
 use Symfony\UX\TwigComponent\TwigComponentBundle;
 
 #[Package('framework')]
@@ -323,12 +324,46 @@ class Kernel extends HttpKernel
             $plugins[$plugin['name']] = $plugin['version'];
         }
 
-        asort($plugins);
+        // sort by name, so the hash does not depend on the order in which the plugin loader returns the plugins
+        ksort($plugins);
+
+        // The feature registry is initialized after the container cache is selected.
+        /** @var list<string>|null $majorVersionFlagNames */
+        static $majorVersionFlagNames = null;
+        if ($majorVersionFlagNames === null) {
+            /** @var array{shopware: array{feature: array{flags: list<array{name: string, major: bool}>}}} $config */
+            $config = Yaml::parseFile(__DIR__ . '/Framework/Resources/config/packages/feature.yaml');
+            $majorVersionFlagNames = [];
+            foreach ($config['shopware']['feature']['flags'] as $flag) {
+                if (!$flag['major'] || \preg_match('/^v\d+(?:\.\d+){1,3}$/i', $flag['name']) !== 1) {
+                    continue;
+                }
+
+                $majorVersionFlagNames[] = Feature::normalizeName($flag['name']);
+            }
+        }
+
+        $majorFeatureFlags = [];
+        foreach ($majorVersionFlagNames as $name) {
+            if (!EnvironmentHelper::hasVariable($name) && !EnvironmentHelper::hasVariable(strtolower($name))) {
+                continue;
+            }
+
+            $value = EnvironmentHelper::hasVariable($name)
+                ? EnvironmentHelper::getVariable($name)
+                : EnvironmentHelper::getVariable(strtolower($name));
+            $value = (string) $value;
+            $majorFeatureFlags[$name] = (bool) $value && $value !== 'false';
+        }
+
+        ksort($majorFeatureFlags);
 
         return Hasher::hash([
             $this->cacheId,
             (string) $this->shopwareVersionRevision,
             $plugins,
+            (string) EnvironmentHelper::getVariable('FEATURE_ALL', ''),
+            $majorFeatureFlags,
         ]);
     }
 

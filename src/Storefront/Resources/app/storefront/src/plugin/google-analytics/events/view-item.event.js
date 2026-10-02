@@ -53,7 +53,9 @@ export default class ViewItemEvent extends AnalyticsEvent
      * @private
      */
     _getProductIds() {
-        const element = document.querySelector('[data-product-id]');
+        // the parent id attribute is unique to the buy widget, other elements such as the cart's remove
+        // button carry a `data-product-id` as well
+        const element = document.querySelector('[data-product-parent-id]');
 
         return [
             element?.getAttribute('data-product-id'),

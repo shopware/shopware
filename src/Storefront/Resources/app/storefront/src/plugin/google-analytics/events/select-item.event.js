@@ -19,10 +19,16 @@ export default class SelectItemEvent extends AnalyticsEvent
         this._boundOnClick = this._onClick.bind(this);
 
         document.addEventListener('click', this._boundOnClick);
+        // a middle click opens the link in another tab and only dispatches `auxclick`
+        document.addEventListener('auxclick', this._boundOnClick);
     }
 
     _onClick(event) {
         if (!this.active) {
+            return;
+        }
+
+        if (event.type === 'auxclick' && event.button !== 1) {
             return;
         }
 
@@ -54,9 +60,12 @@ export default class SelectItemEvent extends AnalyticsEvent
         const list = ListAttributionHelper.getListFromElement(productBox);
 
         // The detail page reports the same list, so both events describe one journey. A link opened
-        // in another tab never reaches `view_item` in this one, so storing it here would attribute a
-        // later direct visit of the product in this tab to the old list instead.
-        if (!this._opensInAnotherTab(event, link)) {
+        // in another tab never reaches `view_item` in this one, so it is handed over to the new tab
+        // instead of being stored here, where it would attribute a later direct visit of the product
+        // in this tab to the old list.
+        if (this._opensInAnotherTab(event, link)) {
+            ListAttributionHelper.handOver(itemId, list, information.id);
+        } else {
             ListAttributionHelper.remember(itemId, list, information.id);
         }
 
@@ -82,7 +91,11 @@ export default class SelectItemEvent extends AnalyticsEvent
     _opensInAnotherTab(event, link) {
         const target = link.getAttribute('target');
 
-        return event.ctrlKey || event.metaKey || event.shiftKey || (!!target && target !== '_self');
+        return event.type === 'auxclick'
+            || event.ctrlKey
+            || event.metaKey
+            || event.shiftKey
+            || (!!target && target !== '_self');
     }
 
     /**

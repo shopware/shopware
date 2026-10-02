@@ -1,4 +1,10 @@
 const STORAGE_KEY = 'swGaSelectedItemList';
+const HANDOVER_KEY = 'swGaSelectedItemListHandover';
+
+// a product opened in another tab loads within seconds, a longer lived entry would attribute an
+// unrelated later visit of the product
+const HANDOVER_TTL = 60000;
+const HANDOVER_LIMIT = 10;
 
 let memoryAttribution = null;
 let storageSupported = null;
@@ -35,6 +41,8 @@ function isStorageSupported() {
  *
  * Session storage is used deliberately: the shared `Storage` helper prefers `localStorage`, which
  * would keep an attribution alive across browser sessions and attribute unrelated later visits.
+ * A product opened in another tab is the exception. The new tab does not reliably start with a copy
+ * of the session storage, so the attribution is handed over through `localStorage` for a minute.
  */
 export default class ListAttributionHelper
 {
@@ -86,6 +94,28 @@ export default class ListAttributionHelper
     }
 
     /**
+     * Hands the attribution over to a product opened in another tab. Several products can be opened
+     * at once, so each is kept until its tab consumes it or it expires.
+     *
+     * @param {string} itemId the reported product number
+     * @param {Object} list
+     * @param {string|undefined} productId the id of the product the card shows
+     */
+    static handOver(itemId, list, productId = undefined) {
+        if (!itemId || !list?.item_list_id) {
+            return;
+        }
+
+        const handovers = ListAttributionHelper._readHandovers()
+            .filter(handover => handover.itemId !== itemId)
+            .slice(-(HANDOVER_LIMIT - 1));
+
+        handovers.push({ itemId, productId, list, expires: Date.now() + HANDOVER_TTL });
+
+        ListAttributionHelper._writeHandovers(handovers);
+    }
+
+    /**
      * Returns the stored attribution for a product and forgets it, so a later direct visit of the
      * same product is not attributed to a list again.
      *
@@ -98,22 +128,27 @@ export default class ListAttributionHelper
      * @returns {Object}
      */
     static consume(itemId, productIds = []) {
+        const matches = attribution => (!!itemId && attribution.itemId === itemId)
+            || (!!attribution.productId && productIds.includes(attribution.productId));
+
         const stored = ListAttributionHelper._read();
 
-        if (!stored) {
+        if (stored && matches(stored)) {
+            ListAttributionHelper.reset();
+
+            return stored.list;
+        }
+
+        const handovers = ListAttributionHelper._readHandovers();
+        const handover = handovers.find(matches);
+
+        if (!handover) {
             return {};
         }
 
-        const matchesItem = !!itemId && stored.itemId === itemId;
-        const matchesProduct = !!stored.productId && productIds.includes(stored.productId);
+        ListAttributionHelper._writeHandovers(handovers.filter(entry => entry !== handover));
 
-        if (!matchesItem && !matchesProduct) {
-            return {};
-        }
-
-        ListAttributionHelper.reset();
-
-        return stored.list;
+        return handover.list;
     }
 
     static reset() {
@@ -135,6 +170,44 @@ export default class ListAttributionHelper
             return stored?.itemId ? stored : null;
         } catch (e) {
             return null;
+        }
+    }
+
+    /**
+     * The handovers that have not expired yet. Reading and writing fail silently, as a lost
+     * handover only means the product view is reported without a list.
+     *
+     * @returns {Object[]}
+     * @private
+     */
+    static _readHandovers() {
+        try {
+            const stored = JSON.parse(window.localStorage.getItem(HANDOVER_KEY));
+            const now = Date.now();
+
+            return Array.isArray(stored)
+                ? stored.filter(handover => handover?.itemId && handover.expires > now)
+                : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    /**
+     * @param {Object[]} handovers
+     * @private
+     */
+    static _writeHandovers(handovers) {
+        try {
+            if (handovers.length === 0) {
+                window.localStorage.removeItem(HANDOVER_KEY);
+
+                return;
+            }
+
+            window.localStorage.setItem(HANDOVER_KEY, JSON.stringify(handovers));
+        } catch (e) {
+            // storage is full or disabled
         }
     }
 

@@ -29,9 +29,9 @@ readonly class SalesChannelTypeCapabilityRegistry
     {
         $transactionalTypeIds = [];
 
-        foreach (CoreSalesChannelType::cases() as $coreType) {
-            if ($coreType->isTransactional()) {
-                $transactionalTypeIds[] = $coreType->value;
+        foreach (DefaultSalesChannelType::cases() as $defaultType) {
+            if ($defaultType->isTransactional()) {
+                $transactionalTypeIds[] = $defaultType->value;
             }
         }
 

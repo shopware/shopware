@@ -30,6 +30,7 @@ use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Storefront\Controller\CmsController;
+use Shopware\Tests\Unit\Storefront\Controller\Stub\CmsControllerStub;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -47,7 +48,7 @@ class CmsControllerTest extends TestCase
 
     private Stub&ProductListingRoute $productListingRouteMock;
 
-    private CmsControllerTestClass $controller;
+    private CmsControllerStub $controller;
 
     protected function setUp(): void
     {
@@ -56,7 +57,7 @@ class CmsControllerTest extends TestCase
         $this->categoryRouteMock = static::createStub(CategoryRoute::class);
         $this->productListingRouteMock = static::createStub(ProductListingRoute::class);
 
-        $this->controller = new CmsControllerTestClass(
+        $this->controller = new CmsControllerStub(
             $this->cmsRouteMock,
             $this->categoryRouteMock,
             $this->productListingRouteMock,
@@ -86,7 +87,7 @@ class CmsControllerTest extends TestCase
 
         $this->controller->page($ids->get('page'), new Request(), static::createStub(SalesChannelContext::class));
 
-        static::assertSame($cmsRouteResponse->getCmsPage(), $this->controller->renderStorefrontParameters['cmsPage']);
+        static::assertSame($cmsRouteResponse->getCmsPage(), $this->controller->recorder()->renderStorefrontParameters['cmsPage']);
     }
 
     public function testPageFullReturn(): void
@@ -98,7 +99,7 @@ class CmsControllerTest extends TestCase
 
         $this->controller->pageFull($ids->get('page'), new Request(), static::createStub(SalesChannelContext::class));
 
-        static::assertSame($cmsRouteResponse->getCmsPage(), $this->controller->renderStorefrontParameters['page']['cmsPage']);
+        static::assertSame($cmsRouteResponse->getCmsPage(), $this->controller->recorder()->renderStorefrontParameters['page']['cmsPage']);
     }
 
     public function testCategoryNoId(): void
@@ -119,7 +120,7 @@ class CmsControllerTest extends TestCase
 
         $this->controller->category($ids->get('category'), new Request(), static::createStub(SalesChannelContext::class));
 
-        static::assertSame($categoryRouteResponse->getCategory()->getCmsPage(), $this->controller->renderStorefrontParameters['cmsPage']);
+        static::assertSame($categoryRouteResponse->getCategory()->getCmsPage(), $this->controller->recorder()->renderStorefrontParameters['cmsPage']);
     }
 
     public function testCategoryPageNotFound(): void
@@ -181,12 +182,12 @@ class CmsControllerTest extends TestCase
 
         $this->controller->switchBuyBoxVariant($ids->get('product'), $request, static::createStub(SalesChannelContext::class));
 
-        static::assertInstanceOf(SalesChannelProductEntity::class, $this->controller->renderStorefrontParameters['product']);
+        static::assertInstanceOf(SalesChannelProductEntity::class, $this->controller->recorder()->renderStorefrontParameters['product']);
 
         static::assertSame(
-            $this->controller->renderStorefrontParameters,
+            $this->controller->recorder()->renderStorefrontParameters,
             [
-                'product' => $this->controller->renderStorefrontParameters['product'],
+                'product' => $this->controller->recorder()->renderStorefrontParameters['product'],
                 'configuratorSettings' => null,
                 'totalReviews' => 0,
                 'elementId' => $ids->get('element'),
@@ -211,7 +212,7 @@ class CmsControllerTest extends TestCase
         $reviewLoader = $this->createMock(ProductReviewLoader::class);
         $reviewLoader->expects($this->never())->method('load');
 
-        $controller = new CmsControllerTestClass(
+        $controller = new CmsControllerStub(
             $this->cmsRouteMock,
             $this->categoryRouteMock,
             $this->productListingRouteMock,
@@ -239,7 +240,7 @@ class CmsControllerTest extends TestCase
         // but disabled for current sales channel
         $systemConfig->set('core.listing.showReview', false, $context->getSalesChannelId());
 
-        $controller = new CmsControllerTestClass(
+        $controller = new CmsControllerStub(
             $this->cmsRouteMock,
             $this->categoryRouteMock,
             $this->productListingRouteMock,
@@ -283,7 +284,7 @@ class CmsControllerTest extends TestCase
         // but enabled for current sales channel
         $systemConfig->set('core.listing.showReview', true, $context->getSalesChannelId());
 
-        $controller = new CmsControllerTestClass(
+        $controller = new CmsControllerStub(
             $this->cmsRouteMock,
             $this->categoryRouteMock,
             $this->productListingRouteMock,
@@ -296,12 +297,12 @@ class CmsControllerTest extends TestCase
 
         $controller->switchBuyBoxVariant($ids->get('product'), $request, $context);
 
-        static::assertInstanceOf(SalesChannelProductEntity::class, $controller->renderStorefrontParameters['product']);
+        static::assertInstanceOf(SalesChannelProductEntity::class, $controller->recorder()->renderStorefrontParameters['product']);
 
         static::assertSame(
-            $controller->renderStorefrontParameters,
+            $controller->recorder()->renderStorefrontParameters,
             [
-                'product' => $controller->renderStorefrontParameters['product'],
+                'product' => $controller->recorder()->renderStorefrontParameters['product'],
                 'configuratorSettings' => null,
                 'totalReviews' => 5,
                 'elementId' => $ids->get('element'),
@@ -328,12 +329,4 @@ class CmsControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
     }
-}
-
-/**
- * @internal
- */
-class CmsControllerTestClass extends CmsController
-{
-    use StorefrontControllerMockTrait;
 }

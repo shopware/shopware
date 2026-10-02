@@ -36,6 +36,7 @@ use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoadedHook;
 use Shopware\Storefront\Page\Checkout\Register\CheckoutRegisterPageLoader;
 use Shopware\Storefront\Pagelet\Footer\FooterPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
+use Shopware\Tests\Unit\Storefront\Controller\Stub\RegisterControllerStub;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -55,7 +56,7 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(RegisterController::class)]
 class RegisterControllerTest extends TestCase
 {
-    private RegisterControllerTestClass $controller;
+    private RegisterControllerStub $controller;
 
     private AccountLoginPageLoader&Stub $accountLoginPageLoader;
 
@@ -99,12 +100,12 @@ class RegisterControllerTest extends TestCase
 
         $controller->accountRegisterPage($request, $dataBag, $context);
 
-        static::assertSame($page, $controller->renderStorefrontParameters['page']);
-        static::assertSame($dataBag, $controller->renderStorefrontParameters['data']);
-        static::assertSame('frontend.account.home.page', $controller->renderStorefrontParameters['redirectTo'] ?? '');
-        static::assertSame('[]', $controller->renderStorefrontParameters['redirectParameters'] ?? '');
-        static::assertSame('frontend.account.register.page', $controller->renderStorefrontParameters['errorRoute'] ?? '');
-        static::assertInstanceOf(AccountRegisterPageLoadedHook::class, $controller->calledHook);
+        static::assertSame($page, $controller->recorder()->renderStorefrontParameters['page']);
+        static::assertSame($dataBag, $controller->recorder()->renderStorefrontParameters['data']);
+        static::assertSame('frontend.account.home.page', $controller->recorder()->renderStorefrontParameters['redirectTo'] ?? '');
+        static::assertSame('[]', $controller->recorder()->renderStorefrontParameters['redirectParameters'] ?? '');
+        static::assertSame('frontend.account.register.page', $controller->recorder()->renderStorefrontParameters['errorRoute'] ?? '');
+        static::assertInstanceOf(AccountRegisterPageLoadedHook::class, $controller->recorder()->calledHook);
     }
 
     public function testCheckoutRegister(): void
@@ -134,12 +135,12 @@ class RegisterControllerTest extends TestCase
 
         $controller->checkoutRegisterPage($request, $dataBag, $context);
 
-        static::assertSame($page, $controller->renderStorefrontParameters['page']);
-        static::assertSame($dataBag, $controller->renderStorefrontParameters['data']);
-        static::assertSame('frontend.checkout.confirm.page', $controller->renderStorefrontParameters['redirectTo'] ?? '');
-        static::assertSame('frontend.checkout.register.page', $controller->renderStorefrontParameters['errorRoute'] ?? '');
-        static::assertFalse($controller->renderStorefrontParameters['loginError'] ?? null);
-        static::assertInstanceOf(CheckoutRegisterPageLoadedHook::class, $controller->calledHook);
+        static::assertSame($page, $controller->recorder()->renderStorefrontParameters['page']);
+        static::assertSame($dataBag, $controller->recorder()->renderStorefrontParameters['data']);
+        static::assertSame('frontend.checkout.confirm.page', $controller->recorder()->renderStorefrontParameters['redirectTo'] ?? '');
+        static::assertSame('frontend.checkout.register.page', $controller->recorder()->renderStorefrontParameters['errorRoute'] ?? '');
+        static::assertFalse($controller->recorder()->renderStorefrontParameters['loginError'] ?? null);
+        static::assertInstanceOf(CheckoutRegisterPageLoadedHook::class, $controller->recorder()->calledHook);
     }
 
     public function testCheckoutRegisterForwardsLoginError(): void
@@ -165,8 +166,8 @@ class RegisterControllerTest extends TestCase
 
         $controller->checkoutRegisterPage($request, $dataBag, $context);
 
-        static::assertTrue($controller->renderStorefrontParameters['loginError'] ?? null);
-        static::assertSame(5, $controller->renderStorefrontParameters['waitTime'] ?? null);
+        static::assertTrue($controller->recorder()->renderStorefrontParameters['loginError'] ?? null);
+        static::assertSame(5, $controller->recorder()->renderStorefrontParameters['waitTime'] ?? null);
     }
 
     public function testCustomerGroupRegistration(): void
@@ -189,12 +190,12 @@ class RegisterControllerTest extends TestCase
 
         $controller->customerGroupRegistration($customerGroupId, $request, $dataBag, $context);
 
-        static::assertSame($page, $controller->renderStorefrontParameters['page']);
-        static::assertSame($dataBag, $controller->renderStorefrontParameters['data']);
-        static::assertSame('frontend.account.home.page', $controller->renderStorefrontParameters['redirectTo'] ?? '');
-        static::assertSame('frontend.account.customer-group-registration.page', $controller->renderStorefrontParameters['errorRoute'] ?? '');
-        static::assertSame(json_encode(['customerGroupId' => $customerGroupId], \JSON_THROW_ON_ERROR), $controller->renderStorefrontParameters['errorParameters'] ?? '');
-        static::assertInstanceOf(CustomerGroupRegistrationPageLoadedHook::class, $controller->calledHook);
+        static::assertSame($page, $controller->recorder()->renderStorefrontParameters['page']);
+        static::assertSame($dataBag, $controller->recorder()->renderStorefrontParameters['data']);
+        static::assertSame('frontend.account.home.page', $controller->recorder()->renderStorefrontParameters['redirectTo'] ?? '');
+        static::assertSame('frontend.account.customer-group-registration.page', $controller->recorder()->renderStorefrontParameters['errorRoute'] ?? '');
+        static::assertSame(json_encode(['customerGroupId' => $customerGroupId], \JSON_THROW_ON_ERROR), $controller->recorder()->renderStorefrontParameters['errorParameters'] ?? '');
+        static::assertInstanceOf(CustomerGroupRegistrationPageLoadedHook::class, $controller->recorder()->calledHook);
     }
 
     public function testRegisterSuccess(): void
@@ -265,7 +266,7 @@ class RegisterControllerTest extends TestCase
 
         $response = $controller->register($request, $dataBag, $context);
 
-        static::assertSame(['success' => ['account.optInRegistrationAlert']], $controller->flashBag);
+        static::assertSame(['success' => ['account.optInRegistrationAlert']], $controller->recorder()->flashBag);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('frontend.account.register.page', $response->getTargetUrl());
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
@@ -291,7 +292,7 @@ class RegisterControllerTest extends TestCase
 
         $response = $controller->register($request, $dataBag, $context);
 
-        static::assertSame(['success' => ['account.optInGuestAlert']], $controller->flashBag);
+        static::assertSame(['success' => ['account.optInGuestAlert']], $controller->recorder()->flashBag);
         static::assertInstanceOf(RedirectResponse::class, $response);
         static::assertSame('frontend.account.register.page', $response->getTargetUrl());
         static::assertSame(Response::HTTP_FOUND, $response->getStatusCode());
@@ -384,7 +385,7 @@ class RegisterControllerTest extends TestCase
         ?CartService $cartService = null,
         ?CheckoutRegisterPageLoader $checkoutRegisterPageLoader = null,
         ?CustomerGroupRegistrationPageLoader $customerGroupRegistrationPageLoader = null,
-    ): RegisterControllerTestClass {
+    ): RegisterControllerStub {
         $registerConfirmRoute = static::createStub(RegisterConfirmRoute::class);
         $customerRepository = static::createStub(EntityRepository::class);
         $domainRepository = static::createStub(EntityRepository::class);
@@ -395,7 +396,7 @@ class RegisterControllerTest extends TestCase
             new NullLogger(),
         );
 
-        return new RegisterControllerTestClass(
+        return new RegisterControllerStub(
             $accountLoginPageLoader ?? $this->accountLoginPageLoader,
             $registerRoute ?? $this->registerRoute,
             $registerConfirmRoute,
@@ -419,12 +420,4 @@ class RegisterControllerTest extends TestCase
 
         return $request;
     }
-}
-
-/**
- * @internal
- */
-class RegisterControllerTestClass extends RegisterController
-{
-    use StorefrontControllerMockTrait;
 }

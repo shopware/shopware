@@ -36,12 +36,12 @@ use Shopware\Storefront\Page\Account\Login\AccountLoginPage;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
 use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageLoader;
+use Shopware\Tests\Unit\Storefront\Controller\Stub\AuthControllerStub;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Validation;
-use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @internal
@@ -50,7 +50,7 @@ use Symfony\Contracts\Service\ResetInterface;
 #[CoversClass(AuthController::class)]
 class AuthControllerTest extends TestCase
 {
-    private AuthControllerTestClass $controller;
+    private AuthControllerStub $controller;
 
     private AccountLoginPageLoader&Stub $accountLoginPageLoader;
 
@@ -82,12 +82,12 @@ class AuthControllerTest extends TestCase
 
         $controller->loginPage($request, $dataBag, $context);
 
-        static::assertSame($page, $controller->renderStorefrontParameters['page']);
-        static::assertSame($dataBag, $controller->renderStorefrontParameters['data']);
-        static::assertSame('frontend.account.home.page', $controller->renderStorefrontParameters['redirectTo'] ?? '');
-        static::assertSame('[]', $controller->renderStorefrontParameters['redirectParameters'] ?? '');
-        static::assertSame('frontend.account.login.page', $controller->renderStorefrontParameters['errorRoute'] ?? '');
-        static::assertInstanceOf(AccountLoginPageLoadedHook::class, $controller->calledHook);
+        static::assertSame($page, $controller->recorder()->renderStorefrontParameters['page']);
+        static::assertSame($dataBag, $controller->recorder()->renderStorefrontParameters['data']);
+        static::assertSame('frontend.account.home.page', $controller->recorder()->renderStorefrontParameters['redirectTo'] ?? '');
+        static::assertSame('[]', $controller->recorder()->renderStorefrontParameters['redirectParameters'] ?? '');
+        static::assertSame('frontend.account.login.page', $controller->recorder()->renderStorefrontParameters['errorRoute'] ?? '');
+        static::assertInstanceOf(AccountLoginPageLoadedHook::class, $controller->recorder()->calledHook);
     }
 
     public function testGuestLoginPageWithoutRedirectParametersRedirects(): void
@@ -99,10 +99,10 @@ class AuthControllerTest extends TestCase
 
         $this->controller->guestLoginPage($request, $context);
 
-        static::assertArrayHasKey('frontend.account.login.page', $this->controller->redirected);
-        static::assertArrayHasKey('danger', $this->controller->flashBag);
-        static::assertArrayHasKey(0, $this->controller->flashBag['danger']);
-        static::assertSame('account.orderGuestLoginWrongCredentials', $this->controller->flashBag['danger'][0]);
+        static::assertArrayHasKey('frontend.account.login.page', $this->controller->recorder()->redirected);
+        static::assertArrayHasKey('danger', $this->controller->recorder()->flashBag);
+        static::assertArrayHasKey(0, $this->controller->recorder()->flashBag['danger']);
+        static::assertSame('account.orderGuestLoginWrongCredentials', $this->controller->recorder()->flashBag['danger'][0]);
     }
 
     public function testGuestLoginPageWithoutRedirectParametersRendersEmptyArray(): void
@@ -122,10 +122,10 @@ class AuthControllerTest extends TestCase
 
         $controller->guestLoginPage($request, $context);
 
-        static::assertSame('@Storefront/storefront/page/account/guest-auth.html.twig', $controller->renderStorefrontView);
-        static::assertSame([], $controller->renderStorefrontParameters['redirectParameters'] ?? null);
-        static::assertSame('frontend.account.order.single.page', $controller->renderStorefrontParameters['redirectTo'] ?? null);
-        static::assertInstanceOf(AccountGuestLoginPageLoadedHook::class, $controller->calledHook);
+        static::assertSame('@Storefront/storefront/page/account/guest-auth.html.twig', $controller->recorder()->renderStorefrontView);
+        static::assertSame([], $controller->recorder()->renderStorefrontParameters['redirectParameters'] ?? null);
+        static::assertSame('frontend.account.order.single.page', $controller->recorder()->renderStorefrontParameters['redirectTo'] ?? null);
+        static::assertInstanceOf(AccountGuestLoginPageLoadedHook::class, $controller->recorder()->calledHook);
     }
 
     public function testGuestLoginPageNormalizesNonArrayRedirectParameters(): void
@@ -141,7 +141,7 @@ class AuthControllerTest extends TestCase
 
         $this->controller->guestLoginPage($request, $context);
 
-        static::assertSame([], $this->controller->renderStorefrontParameters['redirectParameters'] ?? null);
+        static::assertSame([], $this->controller->recorder()->renderStorefrontParameters['redirectParameters'] ?? null);
     }
 
     public function testGuestLoginPageKeepsArrayRedirectParameters(): void
@@ -157,7 +157,7 @@ class AuthControllerTest extends TestCase
 
         $this->controller->guestLoginPage($request, $context);
 
-        static::assertSame(['deepLinkCode' => 'abc'], $this->controller->renderStorefrontParameters['redirectParameters'] ?? null);
+        static::assertSame(['deepLinkCode' => 'abc'], $this->controller->recorder()->renderStorefrontParameters['redirectParameters'] ?? null);
     }
 
     public function testGuestCustomerOnLoginPageShouldBeLoggedOut(): void
@@ -167,7 +167,7 @@ class AuthControllerTest extends TestCase
 
         $this->controller->loginPage(new Request(), new RequestDataBag(), $context);
 
-        static::assertArrayHasKey('frontend.account.logout.page', $this->controller->redirected);
+        static::assertArrayHasKey('frontend.account.logout.page', $this->controller->recorder()->redirected);
     }
 
     #[DataProvider('loginRedirectProvider')]
@@ -188,8 +188,8 @@ class AuthControllerTest extends TestCase
 
         $controller->login($request, new RequestDataBag(), $context);
 
-        static::assertSame($expectedRoute, $controller->forwardToRoute);
-        static::assertTrue($controller->forwardToRouteAttributes['loginError']);
+        static::assertSame($expectedRoute, $controller->recorder()->forwardToRoute);
+        static::assertTrue($controller->recorder()->forwardToRouteAttributes['loginError']);
     }
 
     /**
@@ -212,7 +212,7 @@ class AuthControllerTest extends TestCase
         $this->controller->logout($request, Generator::generateSalesChannelContext(), new RequestDataBag());
 
         static::assertTrue($request->attributes->getBoolean(PlatformRequest::ATTRIBUTE_CLEAR_SITE_DATA));
-        static::assertArrayHasKey('frontend.account.login.page', $this->controller->redirected);
+        static::assertArrayHasKey('frontend.account.login.page', $this->controller->recorder()->redirected);
     }
 
     public function testLogoutWithoutCustomerDoesNotOptIntoClearSiteData(): void
@@ -255,10 +255,10 @@ class AuthControllerTest extends TestCase
 
         $controller->generateAccountRecovery($request, $dataBag, Generator::generateSalesChannelContext());
 
-        static::assertSame('frontend.account.recover.page', $controller->forwardToRoute);
+        static::assertSame('frontend.account.recover.page', $controller->recorder()->forwardToRoute);
 
         /** @var ConstraintViolationException $formViolations */
-        $formViolations = $controller->forwardToRouteAttributes['formViolations'];
+        $formViolations = $controller->recorder()->forwardToRouteAttributes['formViolations'];
 
         static::assertSame('Caught 1 violation errors.', $formViolations->getMessage());
         static::assertSame('This value is not a valid email address.', $formViolations->getViolations()->get(1)->getMessage());
@@ -273,7 +273,7 @@ class AuthControllerTest extends TestCase
                 new RateLimitExceededException(60)
             );
 
-        $this->controller = new AuthControllerTestClass(
+        $this->controller = new AuthControllerStub(
             static::createStub(AccountLoginPageLoader::class),
             static::createStub(AbstractSendPasswordRecoveryMailRoute::class),
             static::createStub(ResetPasswordRoute::class),
@@ -298,14 +298,14 @@ class AuthControllerTest extends TestCase
 
         $this->controller->convert($data, $context);
 
-        static::assertSame('frontend.account.convert.page', $this->controller->forwardToRoute);
+        static::assertSame('frontend.account.convert.page', $this->controller->recorder()->forwardToRoute);
     }
 
     private function createController(
         ?AccountLoginPageLoader $accountLoginPageLoader = null,
         ?AbstractSendPasswordRecoveryMailRoute $passwordRecoveryPageLoader = null,
         ?AbstractLoginRoute $loginRoute = null,
-    ): AuthControllerTestClass {
+    ): AuthControllerStub {
         $resetPasswordRoute = static::createStub(AbstractResetPasswordRoute::class);
         $loginRoute ??= static::createStub(AbstractLoginRoute::class);
         $logoutRoute = static::createStub(AbstractLogoutRoute::class);
@@ -316,7 +316,7 @@ class AuthControllerTest extends TestCase
         $abstractConvertGuestRoute = static::createStub(AbstractConvertGuestRoute::class);
         $systemConfigService = static::createStub(SystemConfigService::class);
 
-        $controller = new AuthControllerTestClass(
+        $controller = new AuthControllerStub(
             $accountLoginPageLoader ?? $this->accountLoginPageLoader,
             $passwordRecoveryPageLoader ?? $this->passwordRecoveryPageLoader,
             $resetPasswordRoute,
@@ -335,12 +335,4 @@ class AuthControllerTest extends TestCase
 
         return $controller;
     }
-}
-
-/**
- * @internal
- */
-class AuthControllerTestClass extends AuthController implements ResetInterface
-{
-    use StorefrontControllerMockTrait;
 }

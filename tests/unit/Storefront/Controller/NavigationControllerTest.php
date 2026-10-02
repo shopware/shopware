@@ -33,6 +33,7 @@ use Shopware\Storefront\Pagelet\Header\HeaderPagelet;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoadedHook;
 use Shopware\Storefront\Pagelet\Header\HeaderPageletLoaderInterface;
 use Shopware\Storefront\Pagelet\Menu\Offcanvas\MenuOffcanvasPageletLoaderInterface;
+use Shopware\Tests\Unit\Storefront\Controller\Stub\NavigationControllerStub;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -47,7 +48,7 @@ class NavigationControllerTest extends TestCase
 
     private MenuOffcanvasPageletLoaderInterface&Stub $offCanvasLoader;
 
-    private NavigationControllerTestClass $controller;
+    private NavigationControllerStub $controller;
 
     private HeaderPageletLoaderInterface&Stub $headerLoader;
 
@@ -80,7 +81,7 @@ class NavigationControllerTest extends TestCase
             });
         $this->categoryUrlGenerator = new CategoryUrlGenerator($entityRouteResolver);
 
-        $this->controller = new NavigationControllerTestClass(
+        $this->controller = new NavigationControllerStub(
             $this->pageLoader,
             $this->offCanvasLoader,
             $this->headerLoader,
@@ -99,7 +100,7 @@ class NavigationControllerTest extends TestCase
         $context = Generator::generateSalesChannelContext();
 
         $this->controller->home($request, $context);
-        static::assertSame('@Storefront/storefront/page/content/index.html.twig', $this->controller->renderStorefrontView);
+        static::assertSame('@Storefront/storefront/page/content/index.html.twig', $this->controller->recorder()->renderStorefrontView);
     }
 
     public function testIndexRendersStorefront(): void
@@ -119,7 +120,7 @@ class NavigationControllerTest extends TestCase
         $context = Generator::generateSalesChannelContext();
 
         $this->controller->index($context, $request);
-        static::assertSame('@Storefront/storefront/page/content/index.html.twig', $this->controller->renderStorefrontView);
+        static::assertSame('@Storefront/storefront/page/content/index.html.twig', $this->controller->recorder()->renderStorefrontView);
     }
 
     public static function redirectOnLinkTypeDataProvider(): \Generator
@@ -233,7 +234,7 @@ class NavigationControllerTest extends TestCase
 
         $response = $this->controller->offcanvas($request, $context);
         static::assertSame('noindex', $response->headers->get('x-robots-tag'));
-        static::assertSame('@Storefront/storefront/layout/navigation/offcanvas/navigation-pagelet.html.twig', $this->controller->renderStorefrontView);
+        static::assertSame('@Storefront/storefront/layout/navigation/offcanvas/navigation-pagelet.html.twig', $this->controller->recorder()->renderStorefrontView);
     }
 
     public function testHeaderRendersStorefront(): void
@@ -247,11 +248,11 @@ class NavigationControllerTest extends TestCase
 
         $this->controller = $this->buildController(headerLoader: $headerLoader);
         $this->controller->header($request, $context);
-        static::assertSame('@Storefront/storefront/layout/header.html.twig', $this->controller->renderStorefrontView);
-        static::assertSame(['foo' => 'bar'], $this->controller->renderStorefrontParameters['headerParameters']);
+        static::assertSame('@Storefront/storefront/layout/header.html.twig', $this->controller->recorder()->renderStorefrontView);
+        static::assertSame(['foo' => 'bar'], $this->controller->recorder()->renderStorefrontParameters['headerParameters']);
 
-        static::assertInstanceOf(HeaderPageletLoadedHook::class, $this->controller->calledHook);
-        static::assertSame($headerPagelet, $this->controller->calledHook->getPage());
+        static::assertInstanceOf(HeaderPageletLoadedHook::class, $this->controller->recorder()->calledHook);
+        static::assertSame($headerPagelet, $this->controller->recorder()->calledHook->getPage());
     }
 
     public function testFooterRendersStorefront(): void
@@ -265,18 +266,18 @@ class NavigationControllerTest extends TestCase
 
         $this->controller = $this->buildController(footerLoader: $footerLoader);
         $this->controller->footer($request, $context);
-        static::assertSame('@Storefront/storefront/layout/footer.html.twig', $this->controller->renderStorefrontView);
-        static::assertSame(['foo' => 'bar'], $this->controller->renderStorefrontParameters['footerParameters']);
+        static::assertSame('@Storefront/storefront/layout/footer.html.twig', $this->controller->recorder()->renderStorefrontView);
+        static::assertSame(['foo' => 'bar'], $this->controller->recorder()->renderStorefrontParameters['footerParameters']);
 
-        static::assertInstanceOf(FooterPageletLoadedHook::class, $this->controller->calledHook);
-        static::assertSame($footerPagelet, $this->controller->calledHook->getPage());
+        static::assertInstanceOf(FooterPageletLoadedHook::class, $this->controller->recorder()->calledHook);
+        static::assertSame($footerPagelet, $this->controller->recorder()->calledHook->getPage());
     }
 
     private function buildController(
         ?HeaderPageletLoaderInterface $headerLoader = null,
         ?FooterPageletLoaderInterface $footerLoader = null,
-    ): NavigationControllerTestClass {
-        return new NavigationControllerTestClass(
+    ): NavigationControllerStub {
+        return new NavigationControllerStub(
             $this->pageLoader,
             $this->offCanvasLoader,
             $headerLoader ?? $this->headerLoader,
@@ -285,12 +286,4 @@ class NavigationControllerTest extends TestCase
             $this->seoUrlReplacer,
         );
     }
-}
-
-/**
- * @internal
- */
-class NavigationControllerTestClass extends NavigationController
-{
-    use StorefrontControllerMockTrait;
 }

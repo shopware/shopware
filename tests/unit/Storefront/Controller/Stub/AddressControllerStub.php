@@ -1,13 +1,11 @@
-<?php
-
-declare(strict_types=1);
+<?php declare(strict_types=1);
 
 namespace Shopware\Tests\Unit\Storefront\Controller\Stub;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Framework\Script\Execution\Hook;
 use Shopware\Core\PlatformRequest;
-use Shopware\Storefront\Controller\ProductController;
+use Shopware\Storefront\Controller\AddressController;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Tests\Unit\Storefront\Controller\StorefrontControllerRecorder;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -19,7 +17,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
  * @internal
  */
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StorefrontRouteScope::ID]])]
-class ProductControllerStub extends ProductController
+class AddressControllerStub extends AddressController
 {
     private ?StorefrontControllerRecorder $recorder = null;
 

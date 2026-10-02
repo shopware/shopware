@@ -102,9 +102,9 @@ class ProductControllerTest extends TestCase
         $response = $this->controller->index(static::createStub(SalesChannelContext::class), new Request());
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertInstanceOf(ProductPage::class, $this->controller->renderStorefrontParameters['page']);
-        static::assertSame('test', $this->controller->renderStorefrontParameters['page']->getProduct()->getId());
-        static::assertSame('@Storefront/storefront/page/content/product-detail.html.twig', $this->controller->renderStorefrontView);
+        static::assertInstanceOf(ProductPage::class, $this->controller->recorder()->renderStorefrontParameters['page']);
+        static::assertSame('test', $this->controller->recorder()->renderStorefrontParameters['page']->getProduct()->getId());
+        static::assertSame('@Storefront/storefront/page/content/product-detail.html.twig', $this->controller->recorder()->renderStorefrontView);
     }
 
     public function testSwitchNoVariantReturn(): void
@@ -179,8 +179,8 @@ class ProductControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertInstanceOf(MinimalQuickViewPage::class, $this->controller->renderStorefrontParameters['page']);
-        static::assertInstanceOf(ProductQuickViewWidgetLoadedHook::class, $this->controller->calledHook);
+        static::assertInstanceOf(MinimalQuickViewPage::class, $this->controller->recorder()->renderStorefrontParameters['page']);
+        static::assertInstanceOf(ProductQuickViewWidgetLoadedHook::class, $this->controller->recorder()->calledHook);
     }
 
     public function testSaveReview(): void
@@ -198,7 +198,7 @@ class ProductControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertSame('frontend.product.reviews', $this->controller->forwardToRoute);
+        static::assertSame('frontend.product.reviews', $this->controller->recorder()->forwardToRoute);
         static::assertSame(
             [
                 'productId' => $ids->get('productId'),
@@ -206,9 +206,9 @@ class ProductControllerTest extends TestCase
                 'data' => $requestBag,
                 'parentId' => null,
             ],
-            $this->controller->forwardToRouteAttributes
+            $this->controller->recorder()->forwardToRouteAttributes
         );
-        static::assertSame(['productId' => $ids->get('productId')], $this->controller->forwardToRouteParameters);
+        static::assertSame(['productId' => $ids->get('productId')], $this->controller->recorder()->forwardToRouteParameters);
 
         $requestBag->set('id', 'any');
 
@@ -219,7 +219,7 @@ class ProductControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertSame('frontend.product.reviews', $this->controller->forwardToRoute);
+        static::assertSame('frontend.product.reviews', $this->controller->recorder()->forwardToRoute);
         static::assertSame(
             [
                 'productId' => $ids->get('productId'),
@@ -227,7 +227,7 @@ class ProductControllerTest extends TestCase
                 'data' => $requestBag,
                 'parentId' => null,
             ],
-            $this->controller->forwardToRouteAttributes
+            $this->controller->recorder()->forwardToRouteAttributes
         );
     }
 
@@ -248,7 +248,7 @@ class ProductControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertSame('frontend.product.reviews', $this->controller->forwardToRoute);
+        static::assertSame('frontend.product.reviews', $this->controller->recorder()->forwardToRoute);
         static::assertEquals(
             [
                 'productId' => $ids->get('productId'),
@@ -256,9 +256,9 @@ class ProductControllerTest extends TestCase
                 'data' => $requestBag,
                 'formViolations' => $violations,
             ],
-            $this->controller->forwardToRouteAttributes
+            $this->controller->recorder()->forwardToRouteAttributes
         );
-        static::assertSame(['productId' => $ids->get('productId')], $this->controller->forwardToRouteParameters);
+        static::assertSame(['productId' => $ids->get('productId')], $this->controller->recorder()->forwardToRouteParameters);
     }
 
     public function testLoadReviewResults(): void
@@ -302,17 +302,17 @@ class ProductControllerTest extends TestCase
         );
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
-        static::assertSame('storefront/component/review/review.html.twig', $this->controller->renderStorefrontView);
+        static::assertSame('storefront/component/review/review.html.twig', $this->controller->recorder()->renderStorefrontView);
         static::assertSame(
             [
                 'reviews' => $reviewResult,
                 'ratingSuccess' => null,
                 'redirectTo' => 'frontend.product.reviews',
             ],
-            $this->controller->renderStorefrontParameters
+            $this->controller->recorder()->renderStorefrontParameters
         );
 
-        static::assertInstanceOf(ProductReviewsWidgetLoadedHook::class, $this->controller->calledHook);
+        static::assertInstanceOf(ProductReviewsWidgetLoadedHook::class, $this->controller->recorder()->calledHook);
     }
 
     public function testPurchaseLimit(): void

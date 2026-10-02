@@ -445,6 +445,21 @@ sequence is ever restructured, this must be re-validated.
 
 ---
 
+### Native overrides do not reach `Component.extend()` children
+
+A native `<sw-block extends>` override on a Twig component applies to that component only, not to
+components that inherit from it via `Shopware.Component.extend()`. A Twig override on the same block
+does reach them, because Twig merges it into the template the child inherits.
+
+The template factory stamps the extension point it wraps around a block with the name of the component
+being rendered, and native overrides resolve by `componentName + blockName`. In `sw-cms-create`, which
+extends `sw-cms-detail`, the wrapper carries `sw-internal-component-name="sw-cms-create"`, so an
+override registered for `sw-cms-detail` is not found there.
+
+To cover a child, add a second override that targets the child component by name.
+
+---
+
 ## Migration Guide for Plugin Developers
 
 When Shopware emits a deprecation warning for your block override, migrate from:

@@ -8,10 +8,12 @@ use Shopware\Core\Checkout\Cart\CartRuleLoader;
 use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
 use Shopware\Core\Content\Rule\Aggregate\RuleTag\RuleTagDefinition;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleAreaUpdater;
+use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleConfigHashUpdater;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleIndexer;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RuleIndexerSubscriber;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadSubscriber;
 use Shopware\Core\Content\Rule\DataAbstractionLayer\RulePayloadUpdater;
+use Shopware\Core\Content\Rule\RuleConfigurationNormalizer;
 use Shopware\Core\Content\Rule\RuleDefinition;
 use Shopware\Core\Content\Rule\RuleValidator;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
@@ -57,8 +59,18 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(RulePayloadUpdater::class),
             service(RuleAreaUpdater::class),
             service('event_dispatcher'),
+            service(RuleConfigHashUpdater::class),
         ])
         ->tag('shopware.entity_indexer');
+
+    $services->set(RuleConfigurationNormalizer::class)
+        ->args([service(RuleConditionRegistry::class)]);
+
+    $services->set(RuleConfigHashUpdater::class)
+        ->args([
+            service(Connection::class),
+            service(RuleConfigurationNormalizer::class),
+        ]);
 
     $services->set(RuleIndexerSubscriber::class)
         ->args([

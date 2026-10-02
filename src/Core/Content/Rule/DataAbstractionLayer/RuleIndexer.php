@@ -24,6 +24,8 @@ class RuleIndexer extends EntityIndexer
 
     final public const AREA_UPDATER = 'rule.area';
 
+    final public const CONFIG_HASH_UPDATER = 'rule.config-hash';
+
     /**
      * @internal
      *
@@ -34,7 +36,8 @@ class RuleIndexer extends EntityIndexer
         private readonly EntityRepository $repository,
         private readonly RulePayloadUpdater $payloadUpdater,
         private readonly RuleAreaUpdater $areaUpdater,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly RuleConfigHashUpdater $configHashUpdater,
     ) {
     }
 
@@ -87,6 +90,10 @@ class RuleIndexer extends EntityIndexer
 
         if ($message->allow(self::AREA_UPDATER)) {
             $this->areaUpdater->update($ids);
+        }
+
+        if ($message->allow(self::CONFIG_HASH_UPDATER)) {
+            $this->configHashUpdater->update($ids);
         }
 
         $this->eventDispatcher->dispatch(new RuleIndexerEvent($ids, $message->getContext(), array_values($message->getSkip())));

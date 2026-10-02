@@ -184,6 +184,11 @@ This will allow async payment methods to leave the order transaction in "unconfi
 
 Recounting a promotion's redemptions on order placement is faster, through a new index on `order_line_item` and a query that matches promotion line items by `promotion_id` alone.
 
+### Rules with identical conditions are detected
+
+Rules now store a checksum of their conditions in the new read-only field `configHash`. Rules with the same checksum have identical conditions. Condition order, the key order inside condition values and the order of list values such as ids are ignored. Name, description, priority and assignments are not part of the comparison. Rules without actual conditions, e.g. only empty containers, have no checksum.
+
+The field is kept up to date by the `rule.indexer` and is available in the Admin API, for example to find the rules with identical conditions via a `terms` aggregation on `configHash`. Existing rules are indexed after the update.
 ### `dal:validate` checks attribute entities
 
 `bin/console dal:validate` no longer skips attribute entities. They are held to the same rules as `EntityDefinition` classes, for example that a many-to-one must not cascade deletes, and violations name them by their entity class instead of `AttributeEntityDefinition`, also when another definition's check mentions them. If your CI fails on `dal:validate`, or ignores messages that contain `AttributeEntityDefinition`, run it against your extension before updating.
@@ -241,6 +246,9 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 
 ## Administration
 
+### Rule Builder shows rules with identical conditions
+
+The rule detail page shows an info banner listing the other rules with identical conditions. The rule list has a new "Potential duplicates" filter. Duplicates may be intended, so they are only shown as a hint.
 ### [Internal] Native `<sw-block>` names are isolated per component
 
 Native `<sw-block>` blocks are now identified by `componentName + blockName`, matching how TwigJS identifies a `{% block %}`. Previously they matched on the block name alone, so a `<sw-block extends="foo">` or a legacy Twig override of `foo` could apply to a `<sw-block name="foo">` in an unrelated component. Blocks with the same name in different components are now isolated, and a `name` / `extends` pair only resolves against each other within the same component. No action is required from core or plugin developers.

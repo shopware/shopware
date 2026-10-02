@@ -5,9 +5,9 @@ import type { QuickViewSettings } from '@shopware-ag/dive/quickview';
 import { mount } from '@vue/test-utils';
 
 // Mock QuickView from @shopware-ag/dive/quickview
-const mockQuickViewDispose = jest.fn();
+const mockQuickViewDisposeAsync = jest.fn();
 const mockQuickView = jest.fn().mockResolvedValue({
-    dispose: mockQuickViewDispose,
+    disposeAsync: mockQuickViewDisposeAsync,
 });
 jest.mock('@shopware-ag/dive/quickview', () => ({
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
@@ -49,7 +49,7 @@ describe('src/app/component/media/sw-model-viewer', () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockQuickView.mockResolvedValue({
-            dispose: mockQuickViewDispose,
+            disposeAsync: mockQuickViewDisposeAsync,
         });
     });
 

@@ -6,7 +6,9 @@ use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\Service\EmailIdnConverter;
 use Shopware\Core\Content\Cms\Service\CmsFormSlotConfigResolver;
 use Shopware\Core\Content\RevocationRequest\Event\RevocationRequestEvent;
+use Shopware\Core\Content\RevocationRequest\Extension\RevocationRequestRouteExtension;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
@@ -38,6 +40,7 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly ClockInterface $clock,
         private readonly CmsFormSlotConfigResolver $cmsFormSlotConfigResolver,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -48,6 +51,15 @@ class RevocationRequestRoute extends AbstractRevocationRequestRoute
 
     #[Route(path: '/store-api/revocation-request-form', name: 'store-api.revocation-request.form', methods: [Request::METHOD_POST])]
     public function request(RequestDataBag $dataBag, SalesChannelContext $context): RevocationRequestRouteResponse
+    {
+        return $this->extensions->publish(
+            name: RevocationRequestRouteExtension::NAME,
+            extension: new RevocationRequestRouteExtension($dataBag, $context),
+            function: $this->_request(...),
+        );
+    }
+
+    private function _request(RequestDataBag $dataBag, SalesChannelContext $context): RevocationRequestRouteResponse
     {
         if (($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {
             $this->rateLimiter->ensureAccepted(RateLimiter::REVOCATION_REQUEST_FORM, $request->getClientIp());

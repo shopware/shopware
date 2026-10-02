@@ -31,6 +31,8 @@ class StoreApiRouteExtensionRuleTest extends RuleTestCase
             ['Store API route StoreApiRouteExtensionRuleFixtures\\WrongDispatcherRoute::load must return ExtensionDispatcher::publish() with an Extension object and a private route-body method.', 161],
             ['Store API route StoreApiRouteExtensionRuleFixtures\\RepeatedRouteAttributes::load must return ExtensionDispatcher::publish() with an Extension object and a private route-body method.', 175],
             ['Store API route StoreApiRouteExtensionRuleFixtures\\InheritedContractRoute::load must use extension events instead of an abstract route/decorator contract.', 191],
+            ['Store API route StoreApiRouteExtensionRuleFixtures\\AbstractContractRoute::newEndpoint must use extension events instead of an abstract route/decorator contract.', 245],
+            ['Store API route StoreApiRouteExtensionRuleFixtures\\UnpublishedAbstractContractRoute::load must return ExtensionDispatcher::publish() with an Extension object and a private route-body method.', 265],
         ]);
     }
 
@@ -41,6 +43,12 @@ class StoreApiRouteExtensionRuleTest extends RuleTestCase
 
     protected function getRule(): Rule
     {
-        return new StoreApiRouteExtensionRule(['StoreApiRouteExtensionRuleFixtures\\LegacyRoute::load']);
+        return new StoreApiRouteExtensionRule(
+            legacyRouteMethods: ['StoreApiRouteExtensionRuleFixtures\\LegacyRoute::load'],
+            abstractContractRouteMethods: [
+                'StoreApiRouteExtensionRuleFixtures\\AbstractContractRoute::load',
+                'StoreApiRouteExtensionRuleFixtures\\UnpublishedAbstractContractRoute::load',
+            ],
+        );
     }
 }

@@ -63,6 +63,13 @@ rules:
     - Symplify\PHPStanRules\Rules\UppercaseConstantRule
 
 services:
+    - # needs the analysis parser to resolve pattern variables assigned in the enclosing function
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\PregDollarWithoutDRule
+        arguments:
+            parser: @defaultAnalysisParser
+        tags:
+            - phpstan.rules.rule
+
     - # needs the analysis parser to read inherited fixture methods from abstract test-case ancestors
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoCreateMockWithoutExpectationsRule
         arguments:

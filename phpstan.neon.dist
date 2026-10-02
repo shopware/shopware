@@ -217,3 +217,25 @@ parameters:
         -
             message: '#Method .* should return Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*> but returns Shopware\\Core\\Framework\\DataAbstractionLayer\\Search\\EntitySearchResult<.*>#'
             identifier: return.type
+
+        # PregDollarWithoutDRule: calls whose pattern is not visible at the call. Each entry names where the pattern
+        # comes from. Keep `identifier` before `path`, PregDollarWithoutDAllowlistTest reads the paths in that order
+        # and checks that every entry has a matching probe or a reason there.
+        - # the validator closure receives the pattern as a parameter, the literals at the call sites carry D
+            identifier: shopware.pregDollarWithoutD.unresolved
+            path: src/Core/Framework/App/Command/CreateAppCommand.php
+        - # the pattern comes from the AnnotationTagVersionSchema enum, whose format carries D
+            identifier: shopware.pregDollarWithoutD.unresolved
+            path: src/Core/DevOps/Test/AnnotationTagTester.php
+        - # the pattern is written by the template author
+            identifier: shopware.pregDollarWithoutD.unresolved
+            path: src/Core/Framework/Adapter/Twig/Extension/PcreExtension.php
+        - # the patterns come from the staging configuration
+            identifier: shopware.pregDollarWithoutD.unresolved
+            path: src/Core/Maintenance/Staging/Handler/StagingSalesChannelHandler.php
+        - # the patterns are built per message placeholder and are not anchored
+            identifier: shopware.pregDollarWithoutD.unresolved
+            path: src/Core/Framework/ShopwareHttpException.php
+        - # the patterns are built from a template that carries D and match filesystem paths
+            identifier: shopware.pregDollarWithoutD.unresolved
+            path: src/Core/System/Snippet/Files/SnippetFileLoader.php

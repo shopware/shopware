@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@popperjs/core": "2.11.8",
-    "@shopware-ag/dive": "2.3.4",
+    "@shopware-ag/dive": "4.0.2",
     "@swc/core": "1.10.14",
     "autoprefixer": "10.4.13",
     "bootstrap": "5.3.8",
@@ -112,7 +112,7 @@
   "overrides": {
     "@babel/plugin-transform-modules-systemjs": "7.29.4",
     "browserslist": "4.28.8",
-    "fast-uri": "3.1.7",
+    "fast-uri": "3.1.8",
     "postcss": "8.5.23",
     "postcss-selector-parser": "7.1.6",
     "tmp": "0.2.7",
@@ -120,7 +120,8 @@
     "express": "4.22.2",
     "minimatch": "10.2.5",
     "nanoid": "3.3.18",
-    "brace-expansion": "5.0.9",
+    "brace-expansion": "5.0.12",
+    "webpack-dev-middleware": "7.4.5",
     "serialize-javascript": "7.0.5",
     "test-exclude": "8.0.0",
     "@babel/runtime": "7.28.6",

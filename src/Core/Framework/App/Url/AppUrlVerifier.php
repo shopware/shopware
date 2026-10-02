@@ -10,8 +10,7 @@ use Shopware\Core\Framework\App\ShopId\Fingerprint\AppUrl;
 use Shopware\Core\Framework\App\ShopId\ShopId;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Lock\Exception\LockAcquiringException;
-use Symfony\Component\Lock\Exception\LockConflictedException;
+use Symfony\Component\Lock\Exception\ExceptionInterface as LockException;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\Lock\LockInterface;
 use Symfony\Contracts\Cache\CacheInterface;
@@ -58,21 +57,26 @@ class AppUrlVerifier
     }
 
     /**
-     * Force verification of the shops APP_URL, ignoring any previous verification attempts.
-     *
-     * Note: for non-prod environments we skip the verification entirely
-     *
-     * @param bool $skipEnvCheck Normally verification should only run in production, use this to run in any environment
+     * Verify the shops APP_URL in any environment, ignoring any previous verification attempts.
      */
-    public function forceVerify(ShopId $shopId, bool $skipEnvCheck = false): bool
+    public function forceVerify(ShopId $shopId): VerificationState
     {
-        if ($skipEnvCheck === false && $this->appEnv !== 'prod') {
-            return true;
+        $appUrl = $shopId->getFingerprint(AppUrl::IDENTIFIER);
+        \assert($appUrl !== null);
+
+        $lock = $this->lockFactory->createLock('app-url-verification-force', 10);
+
+        try {
+            $lock->acquire(true);
+        } catch (LockException $e) {
+            return $this->recordLockFailure($e);
         }
 
-        $this->cache->deleteItem(self::VERIFICATION_RESULT_CACHE_KEY);
-
-        return $this->doVerify($shopId, true);
+        try {
+            return $this->performVerification($appUrl);
+        } finally {
+            $this->releaseLock($lock);
+        }
     }
 
     /**
@@ -87,7 +91,41 @@ class AppUrlVerifier
             return true;
         }
 
-        return $this->doVerify($shopId, false);
+        $appUrl = $shopId->getFingerprint(AppUrl::IDENTIFIER);
+        \assert($appUrl !== null);
+
+        $lock = $this->lockFactory->createLock('app-url-verification', 10);
+
+        try {
+            if (!$lock->acquire()) {
+                // another verification is running, let app communications continue
+                return true;
+            }
+        } catch (LockException $e) {
+            return $this->recordLockFailure($e)->isNotHardFail();
+        }
+
+        try {
+            $state = $this->getCurrentState();
+
+            if ($state === null) {
+                // first attempt
+                $state = $this->performVerification($appUrl);
+
+                return $state->isNotHardFail();
+            }
+
+            return match ($state->status) {
+                VerificationStatus::PASS => true,
+                VerificationStatus::HARD_FAIL => false,
+                VerificationStatus::SOFT_FAIL => $this->handleSoftFail($appUrl, $state),
+            };
+        } catch (\Exception) {
+            // we should not blow up here on any account
+            return true;
+        } finally {
+            $this->releaseLock($lock);
+        }
     }
 
     /**
@@ -112,45 +150,6 @@ class AppUrlVerifier
         return hash_equals($storedToken, $token);
     }
 
-    private function doVerify(ShopId $shopId, bool $force): bool
-    {
-        $lockKey = $force ? 'app-url-verification-force' : 'app-url-verification';
-
-        $appUrl = $shopId->getFingerprint(AppUrl::IDENTIFIER);
-
-        if ($appUrl === null) {
-            return false;
-        }
-
-        $lock = $this->acquireLock($lockKey);
-        if ($lock === null) {
-            // if we can't get a lock, just return true - so app communications can continue
-            return true;
-        }
-
-        try {
-            $state = $this->getCurrentState();
-
-            if ($state === null) {
-                // first attempt
-                $state = $this->performVerification($appUrl);
-
-                return $state->isNotHardFail();
-            }
-
-            return match ($state->status) {
-                VerificationStatus::PASS => true,
-                VerificationStatus::HARD_FAIL => false,
-                VerificationStatus::SOFT_FAIL => $this->handleSoftFail($appUrl, $state),
-            };
-        } catch (\Exception) {
-            // we should not blow up here on any account
-            return true;
-        } finally {
-            $lock->release();
-        }
-    }
-
     private function handleSoftFail(string $appUrl, VerificationState $previousState): bool
     {
         $wait = $this->backoffForTry($previousState->numTries);
@@ -172,26 +171,28 @@ class AppUrlVerifier
         return min(self::MAX_SOFT_FAIL_BACKOFF, $wait);
     }
 
-    private function acquireLock(string $lockKey): ?LockInterface
+    private function recordLockFailure(LockException $e): VerificationState
     {
-        $lock = $this->lockFactory->createLock($lockKey, 10);
+        return $this->record(new VerificationState(VerificationStatus::SOFT_FAIL, 1, $this->clock->now(), 'Could not acquire the verification lock: ' . $e->getMessage()));
+    }
 
+    private function releaseLock(LockInterface $lock): void
+    {
         try {
-            if ($lock->acquire()) {
-                return $lock;
-            }
-        } catch (LockConflictedException|LockAcquiringException) {
+            $lock->release();
+        } catch (LockException) {
         }
-
-        return null;
     }
 
     private function performVerification(string $appUrl, int $tries = 1): VerificationState
     {
         [$status, $info] = $this->executeVerify($appUrl);
 
-        $state = new VerificationState($status, $tries, $this->clock->now(), $info);
+        return $this->record(new VerificationState($status, $tries, $this->clock->now(), $info));
+    }
 
+    private function record(VerificationState $state): VerificationState
+    {
         $this->persist($state);
 
         if (!$state->is(VerificationStatus::PASS)) {

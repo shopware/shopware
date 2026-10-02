@@ -83,6 +83,10 @@ Use `getSystemConfigDefinition()` and `getResolvedSystemConfigDefinition()`, res
 
 `shopware.system_config` entries in `config/packages` now accept arrays, including `[]`. An empty sales-channel value clears an array from the default scope; a more specific sales-channel key still overrides an empty default parent.
 
+### VAT ID constraints of the registration can be modified via `BuildValidationEvent`
+
+`RegisterRoute` now adds the `vatIds` constraints (`NotBlank` for countries with a required VAT ID, `Type` and `CustomerVatIdentification`) before dispatching `framework.validation.customer.create`. Subscribers of this event can now adjust or remove them, for example to make the VAT ID optional for certain business customers. Previously the constraints were added after the event and could not be changed. This matches the existing behaviour of `ChangeCustomerProfileRoute`.
+
 ### `JsonField` supports typed properties with additional extension data
 
 `JsonField` accepts the new `allowAdditionalProperties: true` constructor argument. Use it for a JSON field with stable, mapped properties whose types should be validated while extension-owned keys must remain writable:

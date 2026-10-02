@@ -368,6 +368,11 @@ An extension that imports `shopware:composables` requires Shopware 6.7.16.0 or l
 an error that names the required and the installed version. An extension that still supports older versions
 keeps using the mixins.
 
+The SFC migration codemod now imports the composables from `shopware:composables`, so a migrated
+extension component looks like a migrated Administration one. In an extension, a component that uses
+the `cms-element` mixin is skipped, because its `useCmsElementDeprecated` replacement is not published;
+migrate it to `useCmsElement` by hand.
+
 ## Storefront
 
 ### Display the complete legal guarantee notice at checkout

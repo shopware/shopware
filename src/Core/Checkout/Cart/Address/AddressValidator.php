@@ -127,14 +127,16 @@ class AddressValidator implements CartValidatorInterface, ResetInterface
 
     private function isSalesChannelCountry(string $countryId, SalesChannelContext $context): bool
     {
-        if (isset($this->available[$countryId])) {
-            return $this->available[$countryId];
+        // the assignment depends on the sales channel, a key without it would reuse the result of another sales channel
+        $key = $context->getSalesChannelId() . '-' . $countryId;
+        if (isset($this->available[$key])) {
+            return $this->available[$key];
         }
 
         $criteria = (new Criteria())
             ->addFilter(new EqualsFilter('salesChannelId', $context->getSalesChannelId()))
             ->addFilter(new EqualsFilter('countryId', $countryId));
 
-        return $this->available[$countryId] = $this->salesChannelCountryRepository->searchIds($criteria, $context->getContext())->getTotal() !== 0;
+        return $this->available[$key] = $this->salesChannelCountryRepository->searchIds($criteria, $context->getContext())->getTotal() !== 0;
     }
 }

@@ -47,8 +47,8 @@ final class InsertElement extends AbstractLayoutMutation
         $bindingSpecificationId = $this->bindingSpecificationId;
 
         $element = $bindingSpecificationId === null
-            ? $this->scaffoldWithDefault($this->type)
-            : $this->scaffoldBoundElement($bindingSpecificationId);
+            ? $this->scaffoldWithDefault($this->type, $tree->rootSource)
+            : $this->scaffoldBoundElement($bindingSpecificationId, $tree->rootSource);
 
         $this->affected = [$element->id];
         $this->created = [$element->id];
@@ -70,7 +70,7 @@ final class InsertElement extends AbstractLayoutMutation
         return $tree->insertIntoSlot($this->parentElementId, $slot, $this->index, [$element]);
     }
 
-    private function scaffoldBoundElement(string $bindingSpecificationId): StoredElement
+    private function scaffoldBoundElement(string $bindingSpecificationId, ?string $rootSource): StoredElement
     {
         $specification = $this->bindingRegistry->get($bindingSpecificationId);
 
@@ -84,19 +84,20 @@ final class InsertElement extends AbstractLayoutMutation
 
         // The explicit path scaffolds with the default underneath too, so a key the explicit specification leaves
         // unset keeps the default's wiring; apply() (overwrite) only replaces the keys they share.
-        return $this->bindingApplicator->apply($this->scaffoldWithDefault($this->type), $specification, $bindingSpecificationId);
+        return $this->bindingApplicator->apply($this->scaffoldWithDefault($this->type, $rootSource), $specification, $bindingSpecificationId, $rootSource);
     }
 
     /**
      * Scaffolds a fresh element of $type and fill-applies its default binding specification (resolved via
      * {@see AbstractLayoutMutation::resolveDefaultSpecification()}), attributed to the default's own qualified id.
      */
-    private function scaffoldWithDefault(string $type): StoredElement
+    private function scaffoldWithDefault(string $type, ?string $rootSource): StoredElement
     {
         return $this->applyDefaultBinding(
             $this->bindingRegistry,
             $this->bindingApplicator,
             $this->scaffoldElement($this->registry, $type),
+            $rootSource,
         );
     }
 }

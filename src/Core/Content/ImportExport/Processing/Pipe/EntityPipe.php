@@ -29,7 +29,21 @@ class EntityPipe extends AbstractPipe
     {
         $this->loadConfig($config);
 
+        // the serializer works on one record, not on a list of them
+        $record = \is_array($record) ? $record : iterator_to_array($record);
+
         return $this->entitySerializer->serialize($config, $this->definition, $record);
+    }
+
+    public function warmUp(Config $config, array $records): array
+    {
+        $this->loadConfig($config);
+
+        if ($this->primaryKeyResolver) {
+            $this->primaryKeyResolver->warmUp($config, $this->definition, $records);
+        }
+
+        return $records;
     }
 
     public function out(Config $config, iterable $record): iterable
@@ -43,6 +57,10 @@ class EntityPipe extends AbstractPipe
         return $this->entitySerializer->deserialize($config, $this->definition, $record);
     }
 
+    /**
+     * @phpstan-assert !null $this->definition
+     * @phpstan-assert !null $this->entitySerializer
+     */
     private function loadConfig(Config $config): void
     {
         $this->definition ??= $this->definitionInstanceRegistry->getByEntityName($config->get('sourceEntity') ?? '');

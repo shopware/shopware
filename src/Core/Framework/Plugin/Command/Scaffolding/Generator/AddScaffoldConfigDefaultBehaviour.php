@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\ConsoleOutputInterface;
@@ -46,7 +47,7 @@ trait AddScaffoldConfigDefaultBehaviour
         }
 
         if (!$output instanceof ConsoleOutputInterface) {
-            throw new \InvalidArgumentException('This command accepts only an instance of "ConsoleOutputInterface".');
+            throw PluginException::consoleOutputRequired();
         }
 
         $helper = new QuestionHelper();

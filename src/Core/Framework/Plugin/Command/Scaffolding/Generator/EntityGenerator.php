@@ -7,6 +7,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -176,7 +177,7 @@ EOL;
     private function askForEntities(InputInterface $input, OutputInterface $output): ?string
     {
         if (!$output instanceof ConsoleOutputInterface) {
-            throw new \InvalidArgumentException('This command accepts only an instance of "ConsoleOutputInterface".');
+            throw PluginException::consoleOutputRequired();
         }
 
         $tempSection = $output->section();

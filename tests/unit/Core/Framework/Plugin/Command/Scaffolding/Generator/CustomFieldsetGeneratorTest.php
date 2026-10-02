@@ -35,8 +35,8 @@ class CustomFieldsetGeneratorTest extends TestCase
 
         (new CustomFieldsetGenerator())->addScaffoldConfig(
             $configuration,
-            $input = ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
-            ScaffoldConsole::style($input),
+            ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
+            ScaffoldConsole::output(),
         );
 
         static::assertSame($expectedHasOption, $configuration->hasOption(CustomFieldsetGenerator::OPTION_NAME));

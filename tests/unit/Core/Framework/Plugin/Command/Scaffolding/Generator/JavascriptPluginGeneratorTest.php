@@ -35,8 +35,8 @@ class JavascriptPluginGeneratorTest extends TestCase
 
         (new JavascriptPluginGenerator())->addScaffoldConfig(
             $configuration,
-            $input = ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
-            ScaffoldConsole::style($input),
+            ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
+            ScaffoldConsole::output(),
         );
 
         static::assertSame($expectedHasOption, $configuration->hasOption(JavascriptPluginGenerator::OPTION_NAME));

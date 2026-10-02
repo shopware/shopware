@@ -35,8 +35,8 @@ class CommandGeneratorTest extends TestCase
 
         (new CommandGenerator())->addScaffoldConfig(
             $configuration,
-            $input = ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
-            ScaffoldConsole::style($input),
+            ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
+            ScaffoldConsole::output(),
         );
 
         static::assertSame($expectedHasOption, $configuration->hasOption(CommandGenerator::OPTION_NAME));

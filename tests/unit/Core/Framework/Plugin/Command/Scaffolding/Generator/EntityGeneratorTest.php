@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Generator\EntityGenerator;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfiguration;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
+use Shopware\Core\Framework\Plugin\PluginException;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -86,8 +87,8 @@ class EntityGeneratorTest extends TestCase
 
         (new EntityGenerator(new MockClock()))->addScaffoldConfig(
             $configuration,
-            $input = ScaffoldConsole::input(option: false, answer: 'n'),
-            ScaffoldConsole::style($input),
+            ScaffoldConsole::input(option: false, answer: 'n'),
+            ScaffoldConsole::output(),
         );
 
         static::assertFalse($configuration->hasOption(EntityGenerator::OPTION_NAME));
@@ -99,8 +100,8 @@ class EntityGeneratorTest extends TestCase
 
         (new EntityGenerator(new MockClock()))->addScaffoldConfig(
             $configuration,
-            $input = ScaffoldConsole::input(option: false, answer: "y\nTestEntity, TestEntity2"),
-            ScaffoldConsole::style($input),
+            ScaffoldConsole::input(option: false, answer: "y\nTestEntity, TestEntity2"),
+            ScaffoldConsole::output(),
         );
 
         static::assertSame(
@@ -116,8 +117,8 @@ class EntityGeneratorTest extends TestCase
 
         (new EntityGenerator(new MockClock()))->addScaffoldConfig(
             $configuration,
-            $input = ScaffoldConsole::input(option: false, answer: "y\n" . $answer),
-            ScaffoldConsole::style($input),
+            ScaffoldConsole::input(option: false, answer: "y\n" . $answer),
+            ScaffoldConsole::output(),
         );
 
         static::assertFalse($configuration->hasOption(EntityGenerator::OPTION_NAME));
@@ -141,9 +142,7 @@ class EntityGeneratorTest extends TestCase
         $input = static::createStub(InputInterface::class);
         $input->method('getOption')->willReturn(false);
 
-        $this->expectExceptionObject(new \InvalidArgumentException(
-            'This command accepts only an instance of "ConsoleOutputInterface".'
-        ));
+        $this->expectExceptionObject(PluginException::consoleOutputRequired());
 
         (new EntityGenerator(new MockClock()))->addScaffoldConfig(
             $this->getConfig(),

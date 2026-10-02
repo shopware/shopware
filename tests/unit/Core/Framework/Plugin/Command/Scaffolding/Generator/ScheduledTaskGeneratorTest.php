@@ -35,8 +35,8 @@ class ScheduledTaskGeneratorTest extends TestCase
 
         (new ScheduledTaskGenerator())->addScaffoldConfig(
             $configuration,
-            $input = ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
-            ScaffoldConsole::style($input),
+            ScaffoldConsole::input(option: $optionAlreadySet, answer: $answer),
+            ScaffoldConsole::output(),
         );
 
         static::assertSame($expectedHasOption, $configuration->hasOption(ScheduledTaskGenerator::OPTION_NAME));

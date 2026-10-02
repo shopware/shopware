@@ -88,6 +88,7 @@
             <file>src/Core/Framework/Test/TestCaseHelper/StopWorkerWhenIdleListener.php</file>
             <file>src/Core/Framework/Test/TestCaseHelper/StoreApiSessionListener.php</file>
             <file>src/Core/Framework/Test/TestCaseHelper/TestBrowser.php</file>
+            <file>src/Core/Framework/Test/TestCaseHelper/TestIntegration.php</file>
             <file>src/Core/Framework/Test/TestCaseHelper/TestUser.php</file>
             <directory suffix=".php">src/Core/Migration/Test</directory>
             <directory suffix=".php">src/Core/Migration/Traits</directory>

@@ -340,7 +340,7 @@ export default {
                 let errorMessage = payload.detail;
                 if (payload.code === 'DOCUMENT__NUMBER_ALREADY_EXISTS') {
                     const translationKey = 'sw-order.documentCard.error.DOCUMENT__NUMBER_ALREADY_EXISTS';
-                    errorMessage = this.$t(translationKey, 1, payload.meta.parameters || {});
+                    errorMessage = this.$t(translationKey, payload.meta.parameters || {});
                 }
 
                 this.createNotificationError({

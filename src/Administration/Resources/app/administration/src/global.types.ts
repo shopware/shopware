@@ -538,6 +538,9 @@ interface CustomProperties extends ServiceContainer {
     $store: Store<VuexRootState>;
     $route: RouteLocationNormalizedLoaded;
     $te: I18n<{}, {}, {}, string, true>['global']['te'];
+    /**
+     * @deprecated tag:v6.9.0 - Will be removed, use $t instead.
+     */
     $tc: I18n<{}, {}, {}, string, true>['global']['t'];
     $t: I18n<{}, {}, {}, string, true>['global']['t'];
     $sanitize: (dirtyHtml: string, config?: Record<string, unknown>) => string;

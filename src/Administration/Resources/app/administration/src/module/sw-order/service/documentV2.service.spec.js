@@ -213,7 +213,7 @@ describe('core/service/documentV2.service.ts', () => {
         const documentV2Service = new DocumentV2Service();
 
         const snippetSpy = jest.spyOn(Shopware, 'Snippet', 'get').mockReturnValue({
-            tc: (key) => key,
+            t: (key) => key,
             te: () => Object.values(DOCUMENT_TYPES).includes(documentType),
         });
 
@@ -237,13 +237,13 @@ describe('core/service/documentV2.service.ts', () => {
         const documentV2Service = new DocumentV2Service();
         const getSpy = jest.spyOn(Shopware.Store, 'get').mockReturnValue({ currentLocale: 'en-GB' });
 
-        const tc = jest.fn(() => 'translated');
-        const snippetSpy = jest.spyOn(Shopware, 'Snippet', 'get').mockReturnValue({ tc });
+        const t = jest.fn(() => 'translated');
+        const snippetSpy = jest.spyOn(Shopware, 'Snippet', 'get').mockReturnValue({ t });
 
         expect(documentV2Service.getDocumentTypeLabel('swag_warranty', { 'en-GB': 'Cost {amount} | fee' })).toBe(
             'Cost {amount} | fee',
         );
-        expect(tc).not.toHaveBeenCalled();
+        expect(t).not.toHaveBeenCalled();
 
         getSpy.mockRestore();
         snippetSpy.mockRestore();
@@ -261,7 +261,7 @@ describe('core/service/documentV2.service.ts', () => {
 
     it('returns the technical name unchanged when no app label map and no core snippet key match', () => {
         const snippetSpy = jest.spyOn(Shopware, 'Snippet', 'get').mockReturnValue({
-            tc: (key) => key,
+            t: (key) => key,
             te: () => false,
         });
 

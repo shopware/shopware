@@ -693,7 +693,7 @@ export default {
                 settingsLink: routeData.href,
             };
 
-            return this.$t(snippet, 0, data);
+            return this.$t(snippet, data);
         },
     },
 };

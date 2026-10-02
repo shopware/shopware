@@ -3,20 +3,19 @@
 namespace Shopware\Tests\Integration\Core\Framework\Webhook\Service;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Event\CustomerBeforeLoginEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestIntegration;
 use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Webhook\Authorization\Ownership\OwnerType;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -31,22 +30,26 @@ class WebhookLoaderTest extends TestCase
 
     private Connection $connection;
 
+    private string $adminId;
+
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
         $this->connection = static::getContainer()->get(Connection::class);
+
+        $adminId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM user WHERE username = :username', ['username' => 'admin']);
+        static::assertIsString($adminId);
+        $this->adminId = $adminId;
     }
 
     public function testGetWebhooksForEvent(): void
     {
-        $ownerId = $this->createUserOwner(admin: true, roleId: null);
-
         $this->connection->insert('webhook', [
             'id' => $this->ids->getBytes('wh-1'),
             'name' => 'hook1',
             'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
             'url' => 'https://test.com',
-            'owner_user_id' => $ownerId,
+            'owner_user_id' => Uuid::fromHexToBytes($this->adminId),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
@@ -55,7 +58,7 @@ class WebhookLoaderTest extends TestCase
             'name' => 'hook2',
             'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
             'url' => 'https://test2.com',
-            'owner_user_id' => $ownerId,
+            'owner_user_id' => Uuid::fromHexToBytes($this->adminId),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
@@ -195,114 +198,65 @@ class WebhookLoaderTest extends TestCase
         static::assertTrue($permissions[$aclRoleId]->isAllowed('category', 'read'));
     }
 
-    #[DataProvider('ownerTypeProvider')]
-    public function testGetWebhooksResolvesOwnerType(string $ownerKind, bool $admin, bool $withRole, OwnerType $expectedType): void
+    public function testAnAdminUserIsAnAdminOwner(): void
     {
-        $roleId = $withRole ? $this->createAclRole(['product:read']) : null;
+        $this->insertWebhook(ownerUserId: $this->adminId);
 
-        $ownerId = match ($ownerKind) {
-            'user' => $this->createUserOwner($admin, $roleId),
-            'integration' => $this->createIntegrationOwner($admin, $roleId),
-            default => throw new \LogicException('Unknown owner kind ' . $ownerKind),
-        };
+        static::assertSame(OwnerType::Admin, $this->loadWebhook()->ownerType);
+    }
 
-        $this->connection->insert('webhook', [
-            'id' => $this->ids->getBytes('wh-1'),
-            'name' => 'hook1',
-            'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
-            'url' => 'https://test.com',
-            'owner_user_id' => $ownerKind === 'user' ? $ownerId : null,
-            'owner_integration_id' => $ownerKind === 'integration' ? $ownerId : null,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
+    public function testANonAdminUserIsARestrictedOwnerWithItsRole(): void
+    {
+        $user = TestUser::createNewTestUser($this->connection, ['product:read']);
+        $this->insertWebhook(ownerUserId: $user->getUserId());
 
-        $webhooks = static::getContainer()->get(WebhookLoader::class)->getWebhooks();
+        $webhook = $this->loadWebhook();
+        static::assertSame(OwnerType::Restricted, $webhook->ownerType);
+        static::assertSame([$user->getAclRoleId()], $webhook->ownerRoleIds);
+    }
 
-        static::assertCount(1, $webhooks);
-        static::assertSame($expectedType, $webhooks[0]->ownerType);
-        static::assertSame($roleId === null ? [] : [$roleId], $webhooks[0]->ownerRoleIds);
+    public function testAnAdminIntegrationIsAnAdminOwner(): void
+    {
+        $this->insertWebhook(ownerIntegrationId: TestIntegration::createAdmin($this->connection)->getId());
+
+        static::assertSame(OwnerType::Admin, $this->loadWebhook()->ownerType);
+    }
+
+    public function testANonAdminIntegrationIsARestrictedOwnerWithItsRole(): void
+    {
+        $integration = TestIntegration::create($this->connection, ['product:read']);
+        $this->insertWebhook(ownerIntegrationId: $integration->getId());
+
+        $webhook = $this->loadWebhook();
+        static::assertSame(OwnerType::Restricted, $webhook->ownerType);
+        static::assertSame([$integration->getAclRoleId()], $webhook->ownerRoleIds);
     }
 
     public function testGetWebhooksSkipsWebhooksWithoutAnOwner(): void
     {
+        $this->insertWebhook();
+
+        static::assertSame([], static::getContainer()->get(WebhookLoader::class)->getWebhooks());
+    }
+
+    private function insertWebhook(?string $ownerUserId = null, ?string $ownerIntegrationId = null): void
+    {
         $this->connection->insert('webhook', [
             'id' => $this->ids->getBytes('wh-1'),
             'name' => 'hook1',
             'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
             'url' => 'https://test.com',
+            'owner_user_id' => $ownerUserId ? Uuid::fromHexToBytes($ownerUserId) : null,
+            'owner_integration_id' => $ownerIntegrationId ? Uuid::fromHexToBytes($ownerIntegrationId) : null,
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
-
-        static::assertSame([], static::getContainer()->get(WebhookLoader::class)->getWebhooks());
     }
 
-    /**
-     * @return \Generator<string, array{0: string, 1: bool, 2: bool, 3: OwnerType}>
-     */
-    public static function ownerTypeProvider(): \Generator
+    private function loadWebhook(): Webhook
     {
-        yield 'admin user' => ['user', true, false, OwnerType::Admin];
-        yield 'non-admin user with acl role' => ['user', false, true, OwnerType::Restricted];
-        yield 'admin integration' => ['integration', true, false, OwnerType::Admin];
-        yield 'non-admin integration with acl role' => ['integration', false, true, OwnerType::Restricted];
-    }
+        $webhooks = static::getContainer()->get(WebhookLoader::class)->getWebhooks();
+        static::assertCount(1, $webhooks);
 
-    /**
-     * @param list<string> $privileges
-     */
-    private function createAclRole(array $privileges): string
-    {
-        $roleId = Uuid::randomHex();
-
-        $this->connection->insert('acl_role', [
-            'id' => Uuid::fromHexToBytes($roleId),
-            'name' => 'webhook-owner-' . $roleId,
-            'privileges' => json_encode($privileges, \JSON_THROW_ON_ERROR),
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
-
-        return $roleId;
-    }
-
-    private function createUserOwner(bool $admin, ?string $roleId): string
-    {
-        $user = $admin
-            ? TestUser::createNewAdminTestUser($this->connection)
-            : TestUser::createNewTestUser($this->connection);
-
-        $userId = Uuid::fromHexToBytes($user->getUserId());
-
-        if ($roleId !== null) {
-            $this->connection->insert('acl_user_role', [
-                'user_id' => $userId,
-                'acl_role_id' => Uuid::fromHexToBytes($roleId),
-                'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-            ]);
-        }
-
-        return $userId;
-    }
-
-    private function createIntegrationOwner(bool $admin, ?string $roleId): string
-    {
-        $integrationId = Uuid::randomBytes();
-
-        $this->connection->insert('integration', [
-            'id' => $integrationId,
-            'access_key' => Uuid::randomHex(),
-            'secret_access_key' => TestDefaults::HASHED_PASSWORD,
-            'label' => 'webhook owner integration',
-            'admin' => $admin ? 1 : 0,
-            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
-        ]);
-
-        if ($roleId !== null) {
-            $this->connection->insert('integration_role', [
-                'integration_id' => $integrationId,
-                'acl_role_id' => Uuid::fromHexToBytes($roleId),
-            ]);
-        }
-
-        return $integrationId;
+        return $webhooks[0];
     }
 }

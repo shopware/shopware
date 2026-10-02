@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinGroup;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinGroupBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CriteriaPartInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
@@ -131,6 +132,23 @@ class JoinGroupBuilderTest extends TestCase
             ],
         ];
 
+        yield 'Single many filter, repeated primary filter, grouping required' => [
+            [
+                new MultiFilter(MultiFilter::CONNECTION_AND, [
+                    new EqualsFilter('transactions.id', 'first'),
+                    new EqualsAnyFilter('transactions.id', ['second', 'third']),
+                ]),
+            ],
+            [
+                new JoinGroup([
+                    self::primaryEqualsFilter('transactions.id', 'first'),
+                ], 'order.transactions', '_1', MultiFilter::CONNECTION_AND),
+                new JoinGroup([
+                    self::primaryEqualsAnyFilter('transactions.id', ['second', 'third']),
+                ], 'order.transactions', '_2', MultiFilter::CONNECTION_AND),
+            ],
+        ];
+
         yield 'Multiple filters, multiple many filter, no grouping' => [
             [
                 new EqualsFilter('currencyFactor', 1),
@@ -197,5 +215,24 @@ class JoinGroupBuilderTest extends TestCase
                 new EqualsFilter('lineItems.label', 'foo'),
             ],
         ];
+    }
+
+    private static function primaryEqualsFilter(string $field, string $value): EqualsFilter
+    {
+        $filter = new EqualsFilter($field, $value);
+        $filter->setIsPrimary(true);
+
+        return $filter;
+    }
+
+    /**
+     * @param list<string> $values
+     */
+    private static function primaryEqualsAnyFilter(string $field, array $values): EqualsAnyFilter
+    {
+        $filter = new EqualsAnyFilter($field, $values);
+        $filter->setIsPrimary(true);
+
+        return $filter;
     }
 }

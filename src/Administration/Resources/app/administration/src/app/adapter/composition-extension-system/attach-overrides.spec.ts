@@ -7,13 +7,12 @@
 
 import { defineComponent, ref, computed, onBeforeMount } from 'vue';
 import { mount } from '@vue/test-utils';
-import { attachOverrides, overrideComponentSetup, _overridesMap } from 'src/app/adapter/composition-extension-system';
+import { attachOverrides, overrideComponentSetup } from 'src/app/adapter/composition-extension-system';
+import resetCompositionOverrides from 'test/_helper_/reset-composition-overrides';
 
 describe('src/app/adapter/composition-extension-system attachOverrides', () => {
     beforeEach(() => {
-        Object.keys(_overridesMap).forEach((key) => {
-            delete _overridesMap[key];
-        });
+        resetCompositionOverrides();
         jest.clearAllMocks();
     });
 

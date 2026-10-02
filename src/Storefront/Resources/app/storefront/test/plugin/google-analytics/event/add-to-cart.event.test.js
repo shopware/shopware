@@ -252,6 +252,37 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         }));
     });
 
+    test('selects the price tier from the quantity the cart line will hold', () => {
+        // 9 in the cart plus 2 added are priced as 11 units by the cart
+        document.body.innerHTML = `
+            <meta property="product:price:currency" content="EUR">
+            <div class="product-detail-buy"
+                 data-product-prices='[{"quantity":10,"price":10},{"quantity":11,"price":8}]'>
+                <form class="buy-widget"></form>
+            </div>
+            <div class="hidden-line-items-information">
+                <span class="hidden-line-item" data-id="product-123" data-line-item-id="product-123" data-quantity="9"></span>
+            </div>
+        `;
+
+        const form = document.querySelector('.buy-widget');
+        const addToCartInstance = { el: form, $emitter: new NativeEventEmitter(form) };
+        addToCartInstances.push(addToCartInstance);
+
+        new AddToCartEvent().execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][id]', 'product-123');
+        formData.append('lineItems[product-123][quantity]', '2');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        expect(window.gtag).toHaveBeenCalledWith('event', 'add_to_cart', expect.objectContaining({
+            'value': 16,
+            'items': [expect.objectContaining({ 'price': 8, 'quantity': 2 })],
+        }));
+    });
+
     describe('hands brand and category to the cart', () => {
         const breadcrumb = `
             <nav aria-label="breadcrumb">

@@ -29,7 +29,8 @@ To append data to extensible structs, use the base `Struct` extension mechanism 
 Use `@final` for supported services or other public concrete classes when third party developers may use the class but must not extend it.
 If a service is intended to be exchanged via DI decoration, expose a supported abstract decorator contract instead of relying on `extends` from the concrete core service.
 
-Do not add `@final` to classes that are already marked `@internal`. `@internal` is the stronger signal: the class is an implementation detail and not a supported extension or consumption point.
+Do not add `@final` to classes that are already marked `@internal`.
+`@internal` is the stronger signal: the class is an implementation detail and not a supported extension or consumption point.
 
 ## Internal annotation
 Classes where we want to reserve a complete **refactoring** or where we only implemented them to avoid "a big master class" in a domain, we mark with the doc block `@internal`.
@@ -38,6 +39,11 @@ Classes where we want to reserve a complete **refactoring** or where we only imp
 Classes with this annotation may change completely with each release and are therefore not intended to be used, extended, decorated, or referenced by third party developers.
 
 Do not repeat `@internal` on constructors or methods inside an `@internal` class. The class-level marker is enough.
+
+## Compiler passes
+
+Mark every new class implementing `Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface` with its own class-level `@internal` PHPDoc annotation.
+This includes abstract compiler passes and subclasses inheriting the interface through a parent.
 
 ## Internal interfaces
 We declare interfaces as `@internal` when we want multiple implementations of a feature or adapter inside the core but do not want third party developers to implement or depend on that contract.

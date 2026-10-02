@@ -18,6 +18,11 @@ export default class HttpClient {
      * @returns {XMLHttpRequest}
      */
     get(url, callback, contentType = 'application/json') {
+        window.Feature.triggerDeprecationOrThrow(
+            'v6.8.0.0', 
+            'The "HttpClient" class is deprecated. It will be removed in v6.8.0.0. Please use native fetch() requests instead.'
+        );
+
         const request = this._createPreparedRequest('GET', url, contentType);
 
         return this._sendRequest(request, null, callback);
@@ -39,6 +44,11 @@ export default class HttpClient {
         callback,
         contentType = 'application/json',
     ) {
+        window.Feature.triggerDeprecationOrThrow(
+            'v6.8.0.0', 
+            'The "HttpClient" class is deprecated. It will be removed in v6.8.0.0. Please use native fetch() requests instead.'
+        );
+
         contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('POST', url, contentType);
 
@@ -62,6 +72,11 @@ export default class HttpClient {
         callback,
         contentType = 'application/json',
     ) {
+        window.Feature.triggerDeprecationOrThrow(
+            'v6.8.0.0', 
+            'The "HttpClient" class is deprecated. It will be removed in v6.8.0.0. Please use native fetch() requests instead.'
+        );
+
         contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('DELETE', url, contentType);
 
@@ -84,6 +99,11 @@ export default class HttpClient {
         callback,
         contentType = 'application/json',
     ) {
+        window.Feature.triggerDeprecationOrThrow(
+            'v6.8.0.0', 
+            'The "HttpClient" class is deprecated. It will be removed in v6.8.0.0. Please use native fetch() requests instead.'
+        );
+
         contentType = this._getContentType(data, contentType);
         const request = this._createPreparedRequest('PATCH', url, contentType);
 
@@ -96,6 +116,11 @@ export default class HttpClient {
      * @returns {*}
      */
     abort() {
+        window.Feature.triggerDeprecationOrThrow(
+            'v6.8.0.0', 
+            'The "HttpClient" class is deprecated. It will be removed in v6.8.0.0. Please use native fetch() requests instead.'
+        );
+
         if (this._request) {
             return this._request.abort();
         }
@@ -107,6 +132,11 @@ export default class HttpClient {
      * @param {boolean} errorHandlingInternal
      */
     setErrorHandlingInternal(errorHandlingInternal) {
+        window.Feature.triggerDeprecationOrThrow(
+            'v6.8.0.0', 
+            'The "HttpClient" class is deprecated. It will be removed in v6.8.0.0. Please use native fetch() requests instead.'
+        );
+
         this._errorHandlingInternal = errorHandlingInternal;
     }
 

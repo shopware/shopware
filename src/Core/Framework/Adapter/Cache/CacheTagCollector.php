@@ -61,15 +61,23 @@ class CacheTagCollector
     {
         $hash = self::uri($this->stack->getCurrentRequest());
 
-        $existingTags = $this->tags[$hash] ?? [];
+        // Deduplicate against the tags already collected for this request via O(1) key lookups, so
+        // collecting many tags over a single page render stays linear in the number of tags.
+        // The lookup reads $this->tags[$hash] directly on purpose: copying it into a local variable
+        // would keep a second reference to the growing array alive while the dispatched event writes
+        // back into it, forcing a copy-on-write of the whole array on every call.
+        $newTags = [];
+        foreach ($tags as $tag) {
+            if (!isset($this->tags[$hash][$tag])) {
+                $newTags[] = $tag;
+            }
+        }
 
-        $tags = array_diff($tags, array_keys($existingTags));
-
-        if ($tags === []) {
+        if ($newTags === []) {
             return;
         }
 
-        $this->dispatcher->dispatch(new AddCacheTagEvent(...$tags));
+        $this->dispatcher->dispatch(new AddCacheTagEvent(...$newTags));
     }
 
     public static function uri(?Request $request): string

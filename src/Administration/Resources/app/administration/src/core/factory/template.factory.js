@@ -513,7 +513,7 @@ function wrapInsideSlotTemplate(output, openTag, closeTag) {
     return result;
 }
 
-function wrapNativeBlockTargets(tokens) {
+function wrapNativeBlockTargets(tokens, componentName) {
     if (!Array.isArray(tokens)) {
         return tokens;
     }
@@ -534,7 +534,7 @@ function wrapNativeBlockTargets(tokens) {
         // Blocks can sit inside other logic tokens (if/for), so recurse first. A changed output means a
         // shallow copy of the token, never a mutation of the shared tree.
         if (token.type === 'logic' && token.token && Array.isArray(token.token.output)) {
-            const output = wrapNativeBlockTargets(token.token.output);
+            const output = wrapNativeBlockTargets(token.token.output, componentName);
 
             if (output !== token.token.output) {
                 current = {
@@ -556,7 +556,11 @@ function wrapNativeBlockTargets(tokens) {
             return acc;
         }
 
-        const openTag = `<sw-block name="${blockName}" :data="$dataScope" :sw-internal-legacy-shim="false">`;
+        // The component name scopes the block like the setup transform does for SFCs, so it resolves
+        // exactly the native overrides that target this component.
+        const openTag =
+            `<sw-block name="${blockName}" sw-internal-component-name="${componentName}" ` +
+            ':data="$dataScope" :sw-internal-legacy-shim="false">';
         const closeTag = '</sw-block>';
 
         const warnMixedContent = () => {
@@ -604,9 +608,9 @@ function wrapNativeBlockTargets(tokens) {
  * The wrapped tokens are swapped in for the render only. Components that extend this one inherit its
  * tokens, so a persisted wrapper would be inherited too and wrapped a second time.
  */
-function renderWithNativeBlocks(template, templateVars) {
+function renderWithNativeBlocks(template, templateVars, componentName) {
     const originalTokens = template.tokens;
-    const wrappedTokens = wrapNativeBlockTargets(originalTokens);
+    const wrappedTokens = wrapNativeBlockTargets(originalTokens, componentName);
 
     if (wrappedTokens === originalTokens) {
         return template.render(templateVars);
@@ -627,7 +631,7 @@ function applyTemplateOverrides(name) {
 
     if (!item.overrides.length) {
         // Render the final rendered output with all overridden blocks
-        const finalHtml = renderWithNativeBlocks(item.template, templateVars);
+        const finalHtml = renderWithNativeBlocks(item.template, templateVars, item.name);
 
         // Update item which will be written to the registry
         const updatedTemplate = {
@@ -658,7 +662,7 @@ function applyTemplateOverrides(name) {
     let updatedTemplate = normalizedTemplateRegistry.get(item.name);
 
     // Render the final rendered output with all overridden blocks
-    const finalHtml = renderWithNativeBlocks(updatedTemplate.template, templateVars);
+    const finalHtml = renderWithNativeBlocks(updatedTemplate.template, templateVars, updatedTemplate.name);
 
     // Update item which will written to the registry
     updatedTemplate = {

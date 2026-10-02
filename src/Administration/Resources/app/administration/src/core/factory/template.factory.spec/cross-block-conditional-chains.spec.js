@@ -16,7 +16,8 @@ import TemplateFactory from 'src/core/factory/template.factory';
 import { registerNativeExtensionTargets } from 'src/core/factory/native-extension-targets';
 import { compile } from '@vue/compiler-dom';
 
-const WRAP_OPEN = (name) => `<sw-block name="${name}" :data="$dataScope" :sw-internal-legacy-shim="false">`;
+const WRAP_OPEN = (componentName, blockName) =>
+    `<sw-block name="${blockName}" sw-internal-component-name="${componentName}" :data="$dataScope" :sw-internal-legacy-shim="false">`;
 const WRAP_CLOSE = '</sw-block>';
 const GUARD = '<!-- Keeps the conditional chain connected across sw-block. -->';
 
@@ -58,7 +59,7 @@ describe('core/factory/template.factory.js - v-if chains split by a native exten
         // finds its chain and the branch would silently never render.
         expect(html).toBe(
             '<div><p v-if="c1">one</p>' +
-                WRAP_OPEN('tf_et_else') +
+                WRAP_OPEN('tf-else-target', 'tf_et_else') +
                 `<template v-if="$swLegacyBlockIf('tf_et_else:0', (c1), ${START_OPTIONS})">${GUARD}</template>\n` +
                 `<p v-if="$swLegacyBlockElse('tf_et_else:0', ${ELSE_OPTIONS})">two</p>` +
                 `${WRAP_CLOSE}</div>`,
@@ -77,7 +78,7 @@ describe('core/factory/template.factory.js - v-if chains split by a native exten
         // back. Without it Vue would reject the template with "v-else has no adjacent v-if".
         expect(html).toBe(
             '<div>' +
-                WRAP_OPEN('tf_it_if') +
+                WRAP_OPEN('tf-if-target', 'tf_it_if') +
                 `<p v-if="$swLegacyBlockIf('tf_it_if:0', c1, ${START_OPTIONS})">one</p>` +
                 `${WRAP_CLOSE}<template v-if="(c1)">${GUARD}</template>\n<p v-else>two</p></div>`,
         );
@@ -98,10 +99,10 @@ describe('core/factory/template.factory.js - v-if chains split by a native exten
         // gets the guard so its v-else has a start to attach to.
         expect(html).toBe(
             '<div>' +
-                WRAP_OPEN('tf_bt_if') +
+                WRAP_OPEN('tf-both-targets', 'tf_bt_if') +
                 `<p v-if="$swLegacyBlockIf('tf_bt_if:0', c1, ${START_OPTIONS})">one</p>` +
                 WRAP_CLOSE +
-                WRAP_OPEN('tf_bt_else') +
+                WRAP_OPEN('tf-both-targets', 'tf_bt_else') +
                 `<template v-if="$swLegacyBlockIf('tf_bt_else:0', (c1), ${START_OPTIONS})">${GUARD}</template>\n` +
                 `<p v-if="$swLegacyBlockElse('tf_bt_else:0', ${ELSE_OPTIONS})">two</p>` +
                 `${WRAP_CLOSE}</div>`,
@@ -119,7 +120,7 @@ describe('core/factory/template.factory.js - v-if chains split by a native exten
         // An extension point with no content of its own still sits between the branches as an
         // element, so the v-else needs the guard just like after a filled wrapper.
         expect(html).toBe(
-            `<div><p v-if="c1">one</p>${WRAP_OPEN('tf_gt_gap')}${WRAP_CLOSE}` +
+            `<div><p v-if="c1">one</p>${WRAP_OPEN('tf-gap-target', 'tf_gt_gap')}${WRAP_CLOSE}` +
                 `<template v-if="(c1)">${GUARD}</template>\n<p v-else>two</p></div>`,
         );
         expect(compilerErrors(html)).toEqual([]);
@@ -146,7 +147,7 @@ describe('core/factory/template.factory.js - v-if chains split by a native exten
 
         expect(html).toBe(
             '<div><p v-if="c1">1</p><p v-else-if="c2">2</p>' +
-                WRAP_OPEN('tf_lt_else') +
+                WRAP_OPEN('tf-last-target', 'tf_lt_else') +
                 `<template v-if="$swLegacyBlockIf('tf_lt_else:0', (c1) || (c2), ${START_OPTIONS})">${GUARD}</template>\n` +
                 `<p v-if="$swLegacyBlockElse('tf_lt_else:0', ${ELSE_OPTIONS})">3</p>` +
                 `${WRAP_CLOSE}</div>`,

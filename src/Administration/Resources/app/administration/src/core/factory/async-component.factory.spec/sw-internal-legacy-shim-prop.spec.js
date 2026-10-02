@@ -12,7 +12,7 @@ describe('core/factory/async-component.factory.ts - sw-block sw-internal-legacy-
         const name = 'shim-prop-off';
 
         ComponentFactory.register(name, {
-            template: `<div><sw-block name="shim_prop_block" :data="$dataScope" :sw-internal-legacy-shim="false">{% block shim_prop_block %}<p>base</p>{% endblock %}</sw-block></div>`,
+            template: `<div><sw-block name="shim_prop_block" sw-internal-component-name="${name}" :data="$dataScope" :sw-internal-legacy-shim="false">{% block shim_prop_block %}<p>base</p>{% endblock %}</sw-block></div>`,
         });
         ComponentFactory.override(name, {
             template: '{% block shim_prop_block %}<p>legacy</p>{% parent %}{% endblock %}',

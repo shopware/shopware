@@ -26,7 +26,7 @@ async function mountWithOverride(componentName) {
             template: `
                 <div>
                     <inner-comp />
-                    <sw-block extends="nep_block"><sw-block-parent /><em>from override</em></sw-block>
+                    <sw-block extends="nep_block" sw-internal-component-name="${componentName}"><sw-block-parent /><em>from override</em></sw-block>
                 </div>
             `,
         },

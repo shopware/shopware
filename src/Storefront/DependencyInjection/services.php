@@ -67,6 +67,7 @@ use Shopware\Core\System\Salutation\SalesChannel\SalutationRoute;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Checkout\Customer\CustomerGroupSubscriber;
+use Shopware\Storefront\Checkout\Order\OrderProductAvailabilityResolver;
 use Shopware\Storefront\Checkout\Payment\BlockedPaymentMethodSwitcher;
 use Shopware\Storefront\Checkout\Shipping\BlockedShippingMethodSwitcher;
 use Shopware\Storefront\Controller\ScriptController;
@@ -569,6 +570,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(OrderRoute::class),
             service(Translator::class),
             service(SystemConfigService::class),
+            service(OrderProductAvailabilityResolver::class),
         ]);
 
     $services->set(CheckoutConfirmPageLoader::class)
@@ -615,6 +617,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CustomerRoute::class),
             service(NewsletterAccountPageletLoader::class),
             service(Translator::class),
+            service(OrderProductAvailabilityResolver::class),
         ]);
 
     $services->set(AccountOrderPageLoader::class)
@@ -623,6 +626,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('event_dispatcher'),
             service(OrderRoute::class),
             service(Translator::class),
+            service(OrderProductAvailabilityResolver::class),
+        ]);
+
+    $services->set(OrderProductAvailabilityResolver::class)
+        ->args([
+            service('sales_channel.product.repository'),
+            service(SystemConfigService::class),
+            service(ProductCloseoutFilterFactory::class),
         ]);
 
     $services->set(AccountOrderDetailPageLoader::class)

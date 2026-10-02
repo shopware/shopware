@@ -89,6 +89,46 @@ describe('plugin/google-analytics/events/add-to-cart.event', () => {
         }));
     });
 
+    test('stays silent for a reorder form, which posts no line items', () => {
+        const addToCartInstance = createMockPluginInstance();
+        addToCartInstances.push(addToCartInstance);
+
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+        const event = new AddToCartEvent();
+        event.execute();
+
+        const formData = new FormData();
+        formData.append('redirectTo', 'frontend.cart.offcanvas');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        expect(window.gtag).not.toHaveBeenCalled();
+        expect(warn).not.toHaveBeenCalled();
+
+        warn.mockRestore();
+    });
+
+    test('warns when a line item form carries no product id', () => {
+        const addToCartInstance = createMockPluginInstance();
+        addToCartInstances.push(addToCartInstance);
+
+        const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+        const event = new AddToCartEvent();
+        event.execute();
+
+        const formData = new FormData();
+        formData.append('lineItems[product-123][quantity]', '2');
+
+        addToCartInstance.$emitter.publish('beforeFormSubmit', formData);
+
+        expect(window.gtag).not.toHaveBeenCalled();
+        expect(warn).toHaveBeenCalled();
+
+        warn.mockRestore();
+    });
+
     test('does not fire event when AddToCart plugin is not present', () => {
         // addToCartInstances is empty
         const event = new AddToCartEvent();

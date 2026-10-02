@@ -215,6 +215,10 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
+### New Store API route to add the products of an order to the cart
+
+`POST /store-api/checkout/cart/reorder/{orderId}` adds an order's products to the cart, and the `checkout.cart.collect-reorder-line-items` extension lets you add or drop items before they reach the cart
+
 ## Administration
 
 ### [Internal] Native `<sw-block>` names are isolated per component
@@ -399,6 +403,10 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 ### Legal guarantee notice on the registration and other privacy notices
 
 `component/privacy-notice.html.twig` now shows the same legal guarantee notice paragraph and modal as the checkout confirmation, whenever `core.cart.showLegalGuaranteeNotice` is enabled and the form requires terms-of-service acceptance (for example the registration form), independent of the `core.loginRegistration.requireDataProtectionCheckbox` setting.
+
+### Reorder resolves its line items from the order
+
+The reorder form no longer posts `lineItems`, so its two hidden input blocks are empty and deprecated; add or drop reorder items with the `checkout.cart.collect-reorder-line-items` extension instead
 
 ## App system
 

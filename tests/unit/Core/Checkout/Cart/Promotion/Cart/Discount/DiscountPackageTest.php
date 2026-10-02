@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Checkout\Promotion\Cart\Discount\DiscountPackage;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\Integration\Traits\Promotion\PromotionLineItemTestFixtureBehaviour;
+use Shopware\Core\Test\Checkout\PromotionLineItemFixture;
 
 /**
  * @internal
@@ -22,8 +22,6 @@ use Shopware\Core\Test\Integration\Traits\Promotion\PromotionLineItemTestFixture
 #[CoversClass(DiscountPackage::class)]
 class DiscountPackageTest extends TestCase
 {
-    use PromotionLineItemTestFixtureBehaviour;
-
     /**
      * This test verifies that we have an empty and valid
      * list for new objects.
@@ -72,7 +70,7 @@ class DiscountPackageTest extends TestCase
     public function testCartItemsAreCorrectlyAdded(): void
     {
         $cartItems = new LineItemFlatCollection();
-        $product = $this->createProductItem(29, 19);
+        $product = PromotionLineItemFixture::createProductItem(29, 19);
         $cartItems->add($product);
 
         $package = new DiscountPackage(new LineItemQuantityCollection());
@@ -123,7 +121,7 @@ class DiscountPackageTest extends TestCase
         $items->add(new LineItemQuantity('ABC', 2));
 
         $cartItems = new LineItemFlatCollection();
-        $product = $this->createProductItem(29, 19);
+        $product = PromotionLineItemFixture::createProductItem(29, 19);
         $cartItems->add($product);
 
         $package = new DiscountPackage($items);
@@ -153,10 +151,10 @@ class DiscountPackageTest extends TestCase
     {
         $cartItems = new LineItemFlatCollection();
 
-        $product = $this->createProductItem(29, 19);
+        $product = PromotionLineItemFixture::createProductItem(29, 19);
         $cartItems->add($product);
 
-        $product = $this->createProductItem(14, 19);
+        $product = PromotionLineItemFixture::createProductItem(14, 19);
         $cartItems->add($product);
 
         $package = new DiscountPackage(new LineItemQuantityCollection());

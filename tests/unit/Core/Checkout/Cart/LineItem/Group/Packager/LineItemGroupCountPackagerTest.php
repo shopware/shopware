@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupCountPackag
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
+use Shopware\Core\Test\Checkout\LineItemFixture;
 
 /**
  * @internal
@@ -20,8 +20,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineIte
 #[CoversClass(LineItemGroupCountPackager::class)]
 class LineItemGroupCountPackagerTest extends TestCase
 {
-    use LineItemTestFixtureBehaviour;
-
     private LineItemGroupPackagerInterface $packager;
 
     private Stub&SalesChannelContext $context;
@@ -54,9 +52,9 @@ class LineItemGroupCountPackagerTest extends TestCase
     #[Group('lineitemgroup')]
     public function testPackageDoneWhenCountReached(): void
     {
-        $p1 = $this->createProductItem(50.0, 0);
-        $p2 = $this->createProductItem(23.5, 0);
-        $p3 = $this->createProductItem(150.0, 0);
+        $p1 = LineItemFixture::createProductItem(50.0, 0);
+        $p2 = LineItemFixture::createProductItem(23.5, 0);
+        $p3 = LineItemFixture::createProductItem(150.0, 0);
 
         $items = new LineItemFlatCollection();
         $items->add($p1);
@@ -81,7 +79,7 @@ class LineItemGroupCountPackagerTest extends TestCase
     public function testNoResultsIfNotEnoughtItems(): void
     {
         $items = new LineItemFlatCollection();
-        $items->add($this->createProductItem(50.0, 0));
+        $items->add(LineItemFixture::createProductItem(50.0, 0));
 
         $packageItems = $this->packager->buildGroupPackage(2, $items, $this->context);
 
@@ -143,7 +141,7 @@ class LineItemGroupCountPackagerTest extends TestCase
     {
         $items = new LineItemFlatCollection();
 
-        $product = $this->createProductItem(50.0, 0);
+        $product = LineItemFixture::createProductItem(50.0, 0);
         $product->setQuantity(3);
 
         $items->add($product);

@@ -34,7 +34,6 @@ use Twig\Environment;
 class DatabaseConfigurationControllerTest extends TestCase
 {
     use EnvTestBehaviour;
-    use InstallerControllerTestTrait;
 
     private MockObject&Environment $twig;
 
@@ -65,7 +64,7 @@ class DatabaseConfigurationControllerTest extends TestCase
             $this->setupDatabaseAdapter,
             $this->connectionFactory,
         );
-        $this->controller->setContainer($this->getInstallerContainer($this->twig, ['router' => $this->router]));
+        $this->controller->setContainer(InstallerControllerFixture::getInstallerContainer($this->twig, ['router' => $this->router]));
     }
 
     public function testDatabaseGetConfigurationRoute(): void
@@ -90,7 +89,7 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/database-configuration.html.twig',
-                array_merge($this->getDefaultViewParams(), [
+                array_merge(InstallerControllerFixture::getDefaultViewParams(), [
                     'connectionInfo' => $expectedConnectionInfo,
                     'error' => null,
                 ])
@@ -123,7 +122,7 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/database-configuration.html.twig',
-                array_merge($this->getDefaultViewParams(), [
+                array_merge(InstallerControllerFixture::getDefaultViewParams(), [
                     'connectionInfo' => new DatabaseConnectionInformation(),
                     'error' => null,
                 ])
@@ -185,7 +184,7 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/database-configuration.html.twig',
-                array_merge($this->getDefaultViewParams(), [
+                array_merge(InstallerControllerFixture::getDefaultViewParams(), [
                     'connectionInfo' => new DatabaseConnectionInformation(),
                     'error' => 'translated error',
                 ])
@@ -275,7 +274,7 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/database-configuration.html.twig',
-                array_merge($this->getDefaultViewParams(), [
+                array_merge(InstallerControllerFixture::getDefaultViewParams(), [
                     'connectionInfo' => new DatabaseConnectionInformation(),
                     'error' => 'Driver error',
                 ])
@@ -309,7 +308,7 @@ class DatabaseConfigurationControllerTest extends TestCase
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/database-configuration.html.twig',
-                array_merge($this->getDefaultViewParams(), [
+                array_merge(InstallerControllerFixture::getDefaultViewParams(), [
                     'connectionInfo' => new DatabaseConnectionInformation(),
                     'error' => 'translated error',
                 ])

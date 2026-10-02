@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\Packager\LineItemGroupUnitPriceGr
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
+use Shopware\Core\Test\Checkout\LineItemFixture;
 
 /**
  * @internal
@@ -20,8 +20,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineIte
 #[CoversClass(LineItemGroupUnitPriceGrossPackager::class)]
 class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
 {
-    use LineItemTestFixtureBehaviour;
-
     private LineItemGroupPackagerInterface $packager;
 
     private Stub&SalesChannelContext $context;
@@ -57,13 +55,13 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
     public function testPackageDoneWhenSumReached(): void
     {
         $items = new LineItemFlatCollection();
-        $items->add($this->createProductItem(49, 19));
-        $items->add($this->createProductItem(49, 19));
-        $items->add($this->createProductItem(49, 19));
-        $items->add($this->createProductItem(49, 19));
-        $items->add($this->createProductItem(49, 19));
-        $items->add($this->createProductItem(49, 19));
-        $items->add($this->createProductItem(49, 19));
+        $items->add(LineItemFixture::createProductItem(49, 19));
+        $items->add(LineItemFixture::createProductItem(49, 19));
+        $items->add(LineItemFixture::createProductItem(49, 19));
+        $items->add(LineItemFixture::createProductItem(49, 19));
+        $items->add(LineItemFixture::createProductItem(49, 19));
+        $items->add(LineItemFixture::createProductItem(49, 19));
+        $items->add(LineItemFixture::createProductItem(49, 19));
 
         $packageItems = $this->packager->buildGroupPackage(100, $items, $this->context);
 
@@ -79,10 +77,10 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
     public function testResultEmptyIfNotEnoughItems(): void
     {
         $items = new LineItemFlatCollection();
-        $items->add($this->createProductItem(20.0, 19));
-        $items->add($this->createProductItem(20.0, 19));
-        $items->add($this->createProductItem(20.0, 19));
-        $items->add($this->createProductItem(20.0, 19));
+        $items->add(LineItemFixture::createProductItem(20.0, 19));
+        $items->add(LineItemFixture::createProductItem(20.0, 19));
+        $items->add(LineItemFixture::createProductItem(20.0, 19));
+        $items->add(LineItemFixture::createProductItem(20.0, 19));
 
         $packageItems = $this->packager->buildGroupPackage(100, $items, $this->context);
 
@@ -141,11 +139,11 @@ class LineItemGroupUnitPriceGrossPackagerTest extends TestCase
     {
         $items = new LineItemFlatCollection();
 
-        $productNoPrice = $this->createProductItem(20.0, 19);
+        $productNoPrice = LineItemFixture::createProductItem(20.0, 19);
         $productNoPrice->setPrice(null);
 
         $items->add($productNoPrice);
-        $items->add($this->createProductItem(20.0, 19));
+        $items->add(LineItemFixture::createProductItem(20.0, 19));
 
         $packageItems = $this->packager->buildGroupPackage(5, $items, $this->context);
 

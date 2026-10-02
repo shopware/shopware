@@ -34,14 +34,14 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Checkout\LineItemFixture;
 use Shopware\Core\Test\Stub\Rule\FalseRule;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Fakes\FakeLineItemGroupSorter;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Fakes\FakeLineItemGroupTakeAllPackager;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Fakes\FakeSequenceSupervisor;
 use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Fakes\FakeTakeAllRuleMatcher;
-use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemGroupTestFixtureBehaviour;
-use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
-use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\RulesTestFixtureBehaviour;
+use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\LineItemGroupFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\RulesFixture;
 
 /**
  * @internal
@@ -50,10 +50,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\RulesTe
 #[CoversClass(LineItemGroupBuilder::class)]
 class LineItemGroupBuilderTest extends TestCase
 {
-    use LineItemGroupTestFixtureBehaviour;
-    use LineItemTestFixtureBehaviour;
-    use RulesTestFixtureBehaviour;
-
     private const KEY_PACKAGER_COUNT = 'COUNT';
     private const KEY_PRICE_UNIT_GROSS = 'PRICE_UNIT_GROSS';
 
@@ -104,7 +100,7 @@ class LineItemGroupBuilderTest extends TestCase
         );
 
         $cart = $this->buildCart(1);
-        $group = $this->buildGroup('FAKE-PACKAGER', 2, 'FAKE-SORTER', new RuleCollection());
+        $group = LineItemGroupFixture::buildGroup('FAKE-PACKAGER', 2, 'FAKE-SORTER', new RuleCollection());
 
         $builder->findGroupPackages([$group], $cart, $this->context);
 
@@ -117,7 +113,7 @@ class LineItemGroupBuilderTest extends TestCase
     {
         $cart = $this->buildCart(3);
 
-        $group = $this->buildGroup(self::KEY_PACKAGER_COUNT, 2, self::KEY_SORTER_PRICE_ASC, new RuleCollection());
+        $group = LineItemGroupFixture::buildGroup(self::KEY_PACKAGER_COUNT, 2, self::KEY_SORTER_PRICE_ASC, new RuleCollection());
 
         $result = $this->lineItemGroupBuilder->findGroupPackages([$group], $cart, $this->context);
 
@@ -128,7 +124,7 @@ class LineItemGroupBuilderTest extends TestCase
     {
         $cart = $this->buildCart(7);
 
-        $group = $this->buildGroup(self::KEY_PACKAGER_COUNT, 2, self::KEY_SORTER_PRICE_ASC, new RuleCollection());
+        $group = LineItemGroupFixture::buildGroup(self::KEY_PACKAGER_COUNT, 2, self::KEY_SORTER_PRICE_ASC, new RuleCollection());
 
         $result = $this->lineItemGroupBuilder->findGroupPackages([$group], $cart, $this->context);
 
@@ -139,9 +135,9 @@ class LineItemGroupBuilderTest extends TestCase
     {
         $cart = $this->buildCart(0);
 
-        $item1 = $this->createProductItem(10, 10);
-        $item2 = $this->createProductItem(20, 10);
-        $item3 = $this->createProductItem(50, 10);
+        $item1 = LineItemFixture::createProductItem(10, 10);
+        $item2 = LineItemFixture::createProductItem(20, 10);
+        $item3 = LineItemFixture::createProductItem(50, 10);
 
         $item1->setReferencedId($item1->getId());
         $item2->setReferencedId($item2->getId());
@@ -156,10 +152,10 @@ class LineItemGroupBuilderTest extends TestCase
         $ruleEntity = new RuleEntity();
         $ruleEntity->setId(Uuid::randomHex());
         $ruleEntity->setPayload(new AndRule([
-            $this->getProductsRule([$item1->getReferencedId(), $item2->getReferencedId()]),
+            RulesFixture::getProductsRule([$item1->getReferencedId(), $item2->getReferencedId()]),
         ]));
 
-        $group = $this->buildGroup(
+        $group = LineItemGroupFixture::buildGroup(
             self::KEY_PACKAGER_COUNT,
             5,
             self::KEY_SORTER_PRICE_DESC,
@@ -175,9 +171,9 @@ class LineItemGroupBuilderTest extends TestCase
     {
         $cart = $this->buildCart(0);
 
-        $item1 = $this->createProductItem(10, 10, 20);
-        $item2 = $this->createProductItem(20, 10, 30);
-        $item3 = $this->createProductItem(50, 10, 100);
+        $item1 = LineItemFixture::createProductItem(10, 10, 20);
+        $item2 = LineItemFixture::createProductItem(20, 10, 30);
+        $item3 = LineItemFixture::createProductItem(50, 10, 100);
 
         $item1->setReferencedId($item1->getId());
         $item2->setReferencedId($item2->getId());
@@ -192,10 +188,10 @@ class LineItemGroupBuilderTest extends TestCase
         $ruleEntity = new RuleEntity();
         $ruleEntity->setId(Uuid::randomHex());
         $ruleEntity->setPayload(new AndRule([
-            $this->getLineItemListPriceRule(25),
+            RulesFixture::getLineItemListPriceRule(25),
         ]));
 
-        $group = $this->buildGroup(
+        $group = LineItemGroupFixture::buildGroup(
             self::KEY_PACKAGER_COUNT,
             5,
             self::KEY_SORTER_PRICE_DESC,
@@ -211,7 +207,7 @@ class LineItemGroupBuilderTest extends TestCase
     {
         $cart = $this->buildCart(0);
 
-        $item1 = $this->createProductItem(10, 10, 20);
+        $item1 = LineItemFixture::createProductItem(10, 10, 20);
 
         $item1->setReferencedId($item1->getId());
 
@@ -224,7 +220,7 @@ class LineItemGroupBuilderTest extends TestCase
         $ruleEntity->setId(Uuid::randomHex());
         $ruleEntity->setPayload(new AndRule([new FalseRule()]));
 
-        $group = $this->buildGroup(
+        $group = LineItemGroupFixture::buildGroup(
             self::KEY_PRICE_UNIT_GROSS,
             50,
             self::KEY_SORTER_PRICE_ASC,
@@ -241,7 +237,7 @@ class LineItemGroupBuilderTest extends TestCase
     {
         $cart = $this->buildCart(0);
 
-        $item1 = $this->createProductItem(10, 10, 20);
+        $item1 = LineItemFixture::createProductItem(10, 10, 20);
 
         $item1->setReferencedId($item1->getId());
 
@@ -254,7 +250,7 @@ class LineItemGroupBuilderTest extends TestCase
         $ruleEntity->setId(Uuid::randomHex());
         $ruleEntity->setPayload(new AndRule());
 
-        $group = $this->buildGroup(
+        $group = LineItemGroupFixture::buildGroup(
             self::KEY_PRICE_UNIT_GROSS,
             50,
             self::KEY_SORTER_PRICE_ASC,
@@ -271,7 +267,7 @@ class LineItemGroupBuilderTest extends TestCase
     {
         $cart = $this->buildCart(0);
 
-        $item1 = $this->createProductItem(10, 10, 20);
+        $item1 = LineItemFixture::createProductItem(10, 10, 20);
 
         $item1->setReferencedId($item1->getId());
 
@@ -284,7 +280,7 @@ class LineItemGroupBuilderTest extends TestCase
         $ruleEntity->setId(Uuid::randomHex());
         $ruleEntity->setPayload(new AndRule());
 
-        $group = $this->buildGroup(
+        $group = LineItemGroupFixture::buildGroup(
             self::KEY_PRICE_UNIT_GROSS,
             30,
             self::KEY_SORTER_PRICE_ASC,
@@ -308,9 +304,9 @@ class LineItemGroupBuilderTest extends TestCase
     {
         $cart = $this->buildCart(0);
 
-        $item1 = $this->createProductItem(10, 10, 20);
-        $item2 = $this->createProductItem(20, 10, 30);
-        $item3 = $this->createProductItem(40, 10, 100);
+        $item1 = LineItemFixture::createProductItem(10, 10, 20);
+        $item2 = LineItemFixture::createProductItem(20, 10, 30);
+        $item3 = LineItemFixture::createProductItem(40, 10, 100);
 
         $item1->setReferencedId($item1->getId());
         $item2->setReferencedId($item2->getId());
@@ -329,7 +325,7 @@ class LineItemGroupBuilderTest extends TestCase
         $ruleEntity->setId(Uuid::randomHex());
         $ruleEntity->setPayload(new AndRule());
 
-        $group = $this->buildGroup(
+        $group = LineItemGroupFixture::buildGroup(
             self::KEY_PRICE_UNIT_GROSS,
             70,
             self::KEY_SORTER_PRICE_ASC,
@@ -380,7 +376,7 @@ class LineItemGroupBuilderTest extends TestCase
     {
         $cart = $this->buildCart(0);
 
-        $item1 = $this->createProductItem(10, 10, 20);
+        $item1 = LineItemFixture::createProductItem(10, 10, 20);
 
         $item1->setReferencedId($item1->getId());
 
@@ -392,7 +388,7 @@ class LineItemGroupBuilderTest extends TestCase
         $ruleEntity->setId(Uuid::randomHex());
         $ruleEntity->setPayload(new AndRule());
 
-        $group = $this->buildGroup(
+        $group = LineItemGroupFixture::buildGroup(
             self::KEY_PRICE_UNIT_GROSS,
             30,
             self::KEY_SORTER_PRICE_ASC,
@@ -419,7 +415,7 @@ class LineItemGroupBuilderTest extends TestCase
     public function testPackagerNotFound(): void
     {
         $cart = $this->buildCart(3);
-        $group = $this->buildGroup('UNKNOWN', 2, self::KEY_SORTER_PRICE_ASC, new RuleCollection());
+        $group = LineItemGroupFixture::buildGroup('UNKNOWN', 2, self::KEY_SORTER_PRICE_ASC, new RuleCollection());
 
         $this->expectExceptionObject(CartException::lineItemGroupPackagerNotFoundException('UNKNOWN'));
 
@@ -429,7 +425,7 @@ class LineItemGroupBuilderTest extends TestCase
     public function testSorterNotFound(): void
     {
         $cart = $this->buildCart(3);
-        $group = $this->buildGroup(self::KEY_PACKAGER_COUNT, 2, 'UNKNOWN', new RuleCollection());
+        $group = LineItemGroupFixture::buildGroup(self::KEY_PACKAGER_COUNT, 2, 'UNKNOWN', new RuleCollection());
 
         $this->expectExceptionObject(CartException::lineItemGroupSorterNotFoundException('UNKNOWN'));
 
@@ -441,7 +437,7 @@ class LineItemGroupBuilderTest extends TestCase
         $products = [];
 
         for ($i = 1; $i <= $productCount; ++$i) {
-            $products[] = $this->createProductItem(100, 0);
+            $products[] = LineItemFixture::createProductItem(100, 0);
         }
 
         $cart = new Cart('token');

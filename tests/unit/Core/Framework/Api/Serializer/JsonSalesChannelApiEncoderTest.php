@@ -17,12 +17,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\Api\Serializer\AssertValuesTrait;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\AssociationExtension;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendableDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ExtendedDefinition;
 use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ScalarRuntimeExtension;
 use Shopware\Core\System\User\UserDefinition;
+use Shopware\Core\Test\Assert\ArrayValues;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\SerializationFixture;
 use Shopware\Tests\Integration\Core\Framework\Api\Serializer\fixtures\TestBasicStruct;
@@ -39,8 +39,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(JsonApiEncoder::class)]
 class JsonSalesChannelApiEncoderTest extends TestCase
 {
-    use AssertValuesTrait;
-
     private DefinitionInstanceRegistry $definitionRegistry;
 
     protected function setUp(): void
@@ -118,7 +116,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         $actual = $this->arrayRemove($actual, 'extensions');
         $actual['included'] = $this->removeIncludedExtensions($actual['included']);
 
-        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), $actual);
+        ArrayValues::assertValues($fixture->getSalesChannelJsonApiFixtures(), $actual);
     }
 
     public function testEncodeStructWithExtension(): void
@@ -135,7 +133,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         // TODO: WTF? Why does it now have a self link
         // static::assertStringContainsString('"links":{}', $actual);
 
-        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), json_decode($actual, true, 512, \JSON_THROW_ON_ERROR));
+        ArrayValues::assertValues($fixture->getSalesChannelJsonApiFixtures(), json_decode($actual, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function testEncodeStructWithToManyExtension(): void
@@ -154,7 +152,7 @@ class JsonSalesChannelApiEncoderTest extends TestCase
         static::assertStringNotContainsString('"attributes":[]', $actual);
         static::assertStringContainsString('"attributes":{}', $actual);
 
-        $this->assertValues($fixture->getSalesChannelJsonApiFixtures(), json_decode($actual, true, 512, \JSON_THROW_ON_ERROR));
+        ArrayValues::assertValues($fixture->getSalesChannelJsonApiFixtures(), json_decode($actual, true, 512, \JSON_THROW_ON_ERROR));
     }
 
     /**

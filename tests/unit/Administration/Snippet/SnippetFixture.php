@@ -11,9 +11,9 @@ use Symfony\Component\Filesystem\Path;
  * @internal
  */
 #[Package('discovery')]
-trait SnippetFileTrait
+final class SnippetFixture
 {
-    private function createSnippetFixtures(Filesystem $filesystem, TranslationLoader $loader): void
+    public static function createSnippetFixtures(Filesystem $filesystem, TranslationLoader $loader): void
     {
         $platformPath = Path::join($loader->getLocalePath('es-ES'), 'Platform');
         $activePluginPath = Path::join($loader->getLocalePath('es-ES'), 'Plugins', 'activePlugin');

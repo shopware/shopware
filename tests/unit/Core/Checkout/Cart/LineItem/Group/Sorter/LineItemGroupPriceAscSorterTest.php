@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Cart\LineItem\Group\LineItemGroupSorterInterface;
 use Shopware\Core\Checkout\Cart\LineItem\Group\Sorter\LineItemGroupPriceAscSorter;
 use Shopware\Core\Checkout\Cart\LineItem\LineItemFlatCollection;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
+use Shopware\Core\Test\Checkout\LineItemFixture;
 
 /**
  * @internal
@@ -18,8 +18,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineIte
 #[CoversClass(LineItemGroupPriceAscSorter::class)]
 class LineItemGroupPriceAscSorterTest extends TestCase
 {
-    use LineItemTestFixtureBehaviour;
-
     private LineItemGroupSorterInterface $sorter;
 
     protected function setUp(): void
@@ -49,9 +47,9 @@ class LineItemGroupPriceAscSorterTest extends TestCase
     #[Group('lineitemgroup')]
     public function testSortPriceASC(): void
     {
-        $p1 = $this->createProductItem(50.0, 0);
-        $p2 = $this->createProductItem(23.5, 0);
-        $p3 = $this->createProductItem(150.0, 0);
+        $p1 = LineItemFixture::createProductItem(50.0, 0);
+        $p2 = LineItemFixture::createProductItem(23.5, 0);
+        $p3 = LineItemFixture::createProductItem(150.0, 0);
 
         $items = new LineItemFlatCollection();
         $items->add($p1);
@@ -73,8 +71,8 @@ class LineItemGroupPriceAscSorterTest extends TestCase
     public function testSortWithPriceNullA(): void
     {
         $items = new LineItemFlatCollection();
-        $a = $this->createProductItem(50.0, 0);
-        $b = $this->createProductItem(23.5, 0);
+        $a = LineItemFixture::createProductItem(50.0, 0);
+        $b = LineItemFixture::createProductItem(23.5, 0);
 
         $a->setPrice(null);
 
@@ -95,8 +93,8 @@ class LineItemGroupPriceAscSorterTest extends TestCase
     public function testSortWithPriceNullB(): void
     {
         $items = new LineItemFlatCollection();
-        $a = $this->createProductItem(50.0, 0);
-        $b = $this->createProductItem(23.5, 0);
+        $a = LineItemFixture::createProductItem(50.0, 0);
+        $b = LineItemFixture::createProductItem(23.5, 0);
 
         $b->setPrice(null);
 

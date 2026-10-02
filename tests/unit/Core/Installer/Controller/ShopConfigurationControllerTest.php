@@ -40,7 +40,6 @@ use Twig\Environment;
 class ShopConfigurationControllerTest extends TestCase
 {
     use EnvTestBehaviour;
-    use InstallerControllerTestTrait;
 
     private MockObject&Environment $twig;
 
@@ -102,7 +101,7 @@ class ShopConfigurationControllerTest extends TestCase
             ],
             ['EUR', 'USD', 'GBP']
         );
-        $this->controller->setContainer($this->getInstallerContainer($this->twig, ['router' => $this->router]));
+        $this->controller->setContainer(InstallerControllerFixture::getInstallerContainer($this->twig, ['router' => $this->router]));
     }
 
     #[DataProvider('shopConfigurationPresetProvider')]
@@ -141,7 +140,7 @@ class ShopConfigurationControllerTest extends TestCase
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/shop-configuration.html.twig',
-                array_merge($this->getDefaultViewParams(), [
+                array_merge(InstallerControllerFixture::getDefaultViewParams(), [
                     'error' => null,
                     'countryIsos' => [
                         ['iso3' => 'DEU', 'default' => $expectedCountryIsoDefault === 'DEU', 'translated' => 'shopware.installer.select_country_deu'],
@@ -309,7 +308,7 @@ class ShopConfigurationControllerTest extends TestCase
         $this->twig->expects($this->once())->method('render')
             ->with(
                 '@Installer/installer/shop-configuration.html.twig',
-                array_merge($this->getDefaultViewParams(), [
+                array_merge(InstallerControllerFixture::getDefaultViewParams(), [
                     'error' => 'Test Exception',
                     'countryIsos' => [
                         ['iso3' => 'DEU', 'default' => true, 'translated' => 'shopware.installer.select_country_deu'],

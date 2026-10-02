@@ -32,7 +32,7 @@ use Shopware\Core\System\Snippet\SnippetException;
 use Shopware\Core\System\Snippet\SnippetService;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Shopware\Tests\Unit\Administration\Snippet\SnippetFileTrait;
+use Shopware\Tests\Unit\Administration\Snippet\SnippetFixture;
 use Shopware\Tests\Unit\Core\System\Snippet\Mock\MockSnippetFile;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Filesystem\Filesystem;
@@ -45,8 +45,6 @@ use Symfony\Component\Translation\MessageCatalogue;
 #[CoversClass(SnippetService::class)]
 class SnippetServiceTest extends TestCase
 {
-    use SnippetFileTrait;
-
     private SnippetFileCollection $snippetCollection;
 
     private Connection&MockObject $connection;
@@ -142,7 +140,7 @@ class SnippetServiceTest extends TestCase
         );
 
         $loader = $this->getTranslationLoader($config);
-        $this->createSnippetFixtures($this->flysystem, $loader);
+        SnippetFixture::createSnippetFixtures($this->flysystem, $loader);
 
         $this->connection->expects($this->once())
             ->method('fetchOne')->willReturn('es-ES');

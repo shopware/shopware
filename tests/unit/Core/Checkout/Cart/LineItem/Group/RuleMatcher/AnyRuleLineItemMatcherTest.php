@@ -13,9 +13,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Checkout\LineItemFixture;
 use Shopware\Core\Test\Generator;
-use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
-use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\RulesTestFixtureBehaviour;
+use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\RulesFixture;
 
 /**
  * @internal
@@ -24,9 +24,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\RulesTe
 #[CoversClass(AnyRuleLineItemMatcher::class)]
 class AnyRuleLineItemMatcherTest extends TestCase
 {
-    use LineItemTestFixtureBehaviour;
-    use RulesTestFixtureBehaviour;
-
     private AbstractAnyRuleLineItemMatcher $matcher;
 
     private SalesChannelContext $context;
@@ -40,7 +37,7 @@ class AnyRuleLineItemMatcherTest extends TestCase
     #[DataProvider('lineItemProvider')]
     public function testMatching(bool $withRules, bool $diffrentId, bool $expected): void
     {
-        $lineItem = $this->createProductItem(50, 10);
+        $lineItem = LineItemFixture::createProductItem(50, 10);
         $lineItem->setReferencedId($lineItem->getId());
 
         $ruleCollection = new RuleCollection();
@@ -48,8 +45,8 @@ class AnyRuleLineItemMatcherTest extends TestCase
         if ($withRules === true) {
             $matchId = $diffrentId === true ? Uuid::randomHex() : $lineItem->getId();
 
-            $ruleCollection->add($this->buildRuleEntity(
-                $this->getProductsRule([$matchId])
+            $ruleCollection->add(RulesFixture::buildRuleEntity(
+                RulesFixture::getProductsRule([$matchId])
             ));
         }
 

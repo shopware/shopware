@@ -20,9 +20,9 @@ use Shopware\Core\Framework\Rule\Container\AndRule;
 use Shopware\Core\Framework\Rule\Container\OrRule;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemGroupTestFixtureBehaviour;
-use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\LineItemTestFixtureBehaviour;
-use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\RulesTestFixtureBehaviour;
+use Shopware\Core\Test\Checkout\LineItemFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\LineItemGroupFixture;
+use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\RulesFixture;
 
 /**
  * @internal
@@ -31,10 +31,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\LineItem\Group\Helpers\Traits\RulesTe
 #[CoversClass(AnyRuleMatcher::class)]
 class AnyRuleMatcherTest extends TestCase
 {
-    use LineItemGroupTestFixtureBehaviour;
-    use LineItemTestFixtureBehaviour;
-    use RulesTestFixtureBehaviour;
-
     private const KEY_PACKAGER_COUNT = 'PACKAGER_COUNT';
     private const KEY_SORTER_PRICE_ASC = 'PRICE_ASC';
 
@@ -58,7 +54,7 @@ class AnyRuleMatcherTest extends TestCase
     {
         $rules = new AndRule(
             [
-                $this->getMinPriceRule(50),
+                RulesFixture::getMinPriceRule(50),
             ]
         );
 
@@ -75,7 +71,7 @@ class AnyRuleMatcherTest extends TestCase
 
         // create our group with our price rule
         // and use it to match both our products
-        $group = $this->buildGroup(
+        $group = LineItemGroupFixture::buildGroup(
             self::KEY_PACKAGER_COUNT,
             1,
             self::KEY_SORTER_PRICE_ASC,
@@ -109,22 +105,22 @@ class AnyRuleMatcherTest extends TestCase
         $productLowQuantity2Id = Uuid::randomBytes();
 
         // create our test product line items
-        $productHighQuantityHighPrice = $this->createProductItem($minPrice, 0);
+        $productHighQuantityHighPrice = LineItemFixture::createProductItem($minPrice, 0);
         $productHighQuantityHighPrice->setId($productHighQuantity1Id);
         $productHighQuantityHighPrice->setReferencedId($productHighQuantity1Id);
         $productHighQuantityHighPrice->setQuantity($minQuantity);
 
-        $productHighQuantityLowPrice = $this->createProductItem($minPrice - 0.1, 0);
+        $productHighQuantityLowPrice = LineItemFixture::createProductItem($minPrice - 0.1, 0);
         $productHighQuantityLowPrice->setId($productHighQuantity2Id);
         $productHighQuantityLowPrice->setReferencedId($productHighQuantity2Id);
         $productHighQuantityLowPrice->setQuantity($minQuantity);
 
-        $productLowQuantityHighPrice = $this->createProductItem($minPrice, 0);
+        $productLowQuantityHighPrice = LineItemFixture::createProductItem($minPrice, 0);
         $productLowQuantityHighPrice->setId($productLowQuantity1Id);
         $productLowQuantityHighPrice->setReferencedId($productLowQuantity1Id);
         $productLowQuantityHighPrice->setQuantity($minQuantity - 1);
 
-        $productLowQuantityLowPrice = $this->createProductItem($minPrice - 0.1, 0);
+        $productLowQuantityLowPrice = LineItemFixture::createProductItem($minPrice - 0.1, 0);
         $productLowQuantityLowPrice->setId($productLowQuantity2Id);
         $productLowQuantityLowPrice->setReferencedId($productLowQuantity2Id);
         $productLowQuantityLowPrice->setQuantity($minQuantity - 1);
@@ -133,20 +129,20 @@ class AnyRuleMatcherTest extends TestCase
         $rulesMinPrice->setId(Uuid::randomBytes());
         $rulesMinPrice->setPayload(new OrRule(
             [
-                $this->getMinQuantityRule($productHighQuantity1Id, $minQuantity),
-                $this->getMinQuantityRule($productHighQuantity2Id, $minQuantity),
-                $this->getMinQuantityRule($productLowQuantity1Id, $minQuantity),
-                $this->getMinQuantityRule($productLowQuantity2Id, $minQuantity),
+                RulesFixture::getMinQuantityRule($productHighQuantity1Id, $minQuantity),
+                RulesFixture::getMinQuantityRule($productHighQuantity2Id, $minQuantity),
+                RulesFixture::getMinQuantityRule($productLowQuantity1Id, $minQuantity),
+                RulesFixture::getMinQuantityRule($productLowQuantity2Id, $minQuantity),
             ]
         ));
 
         $rulesMinQuantity = new RuleEntity();
         $rulesMinQuantity->setId(Uuid::randomBytes());
-        $rulesMinQuantity->setPayload(new AndRule([$this->getMinPriceRule($minPrice)]));
+        $rulesMinQuantity->setPayload(new AndRule([RulesFixture::getMinPriceRule($minPrice)]));
 
         // create our group with our price and quantity rule
         // and use it to match both our products
-        $group = $this->buildGroup(
+        $group = LineItemGroupFixture::buildGroup(
             self::KEY_PACKAGER_COUNT,
             1,
             self::KEY_SORTER_PRICE_ASC,

@@ -18,7 +18,7 @@ General styling for cms sections
     }
 
     &:has(.full-width) {
-        overflow-x: hidden;
+        overflow-x: clip;
     }
 
     .full-width {

@@ -626,6 +626,7 @@
   "detail": {
     "garanLabelShowLink": "GARAN-Kennzeichnung anzeigen",
     "garanLabelHideLink": "GARAN-Kennzeichnung ausblenden",
+    "garanTermsLink": "Garantiebedingungen",
     "ordernumberLabel": "Produktnummer:",
     "productNumberLabel": "Produktnummer:",
     "addProduct": "In den Warenkorb",

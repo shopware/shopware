@@ -12,6 +12,8 @@ The flag became an opt-out. Set it to `false` to keep running the legacy impleme
 
 The `@experimental` annotations on the v2 surface were removed. The classes listed in `UPGRADE-6.7.md` ("Document generation v2 experimental public surface", section 6.7.15.0) are now the stable public API. Everything else in the `DocumentV2` namespace stays `@internal`.
 
+The shared document classes moved into `Shopware\Core\Checkout\DocumentV2` with 6.7.16.0 (see "Shared document classes moved to `DocumentV2`" in `UPGRADE-6.7.md`). Their previous class names and service IDs remained available as aliases throughout 6.8 and were removed with 6.9.
+
 ## State machine actions enforce a single destination per source state
 
 A state machine action now maps to exactly one destination state per source state:
@@ -224,7 +226,7 @@ When no Sales Channel business timezone is configured, document rendering no lon
 
 ## Nullable order reference on `DocumentEntity`
 
-The order reference on `Shopware\Core\Checkout\Document\DocumentEntity` became nullable. `getOrderId()` and `getOrderVersionId()` returned `?string` instead of `string`; documents that are not based on an order returned `null`.
+The order reference on `Shopware\Core\Checkout\DocumentV2\DocumentEntity` became nullable. `getOrderId()` and `getOrderVersionId()` returned `?string` instead of `string`; documents that are not based on an order returned `null`.
 
 `DocumentEntity::setOrderId()` and `setOrderVersionId()` accepted `?string`. Extensions overriding these setters had to widen their parameter types accordingly.
 
@@ -239,6 +241,10 @@ The following variables in `src/Core/Framework/Resources/views/documents/include
 Extensions that rely on these variables in document template overrides must remove their usage without replacement.
 
 The variable `displayCustomerVatIdForDelivery` in `src/Core/Framework/Resources/views/documents/includes/letter_header.html.twig` was deprecated and removed without replacement. Extensions that rely on this variable in document template overrides must remove its usage without replacement.
+
+## `sw_garan_label_mail` Twig filter removed
+
+The `sw_garan_label_mail` Twig filter and `Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter::resolveMailLabel()` were removed. Mail templates read the GARAN label from the `garanLabels` template variable instead: replace `productId|sw_garan_label_mail(context)` with `garanLabels[productId] ?? null`. Order confirmation mail templates that were never edited had already been migrated.
 
 ## Shipping price matrix ranges use currency conversion
 

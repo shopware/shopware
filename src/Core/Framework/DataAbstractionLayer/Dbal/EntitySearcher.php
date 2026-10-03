@@ -233,8 +233,8 @@ class EntitySearcher implements EntitySearcherInterface
      */
     private function getTotalCount(Criteria $criteria, QueryBuilder $query, array $data): int
     {
-        if (!($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_EXACT
-            || ($criteria->getTotalCountMode() === Criteria::TOTAL_COUNT_MODE_NEXT_PAGES && $criteria->getLimit() === null))) {
+        if ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_EXACT
+            && ($criteria->getTotalCountMode() !== Criteria::TOTAL_COUNT_MODE_NEXT_PAGES || $criteria->getLimit() !== null)) {
             return \count($data);
         }
 

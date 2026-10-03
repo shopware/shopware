@@ -212,6 +212,23 @@ class ProductAdminSearchIndexerTest extends TestCase
         static::assertTrue($simpleQueryStringQuery['lenient']);
     }
 
+    public function testGlobalCriteriaDoesNotTreatATermWithATrailingNewlineAsPrefix(): void
+    {
+        $indexer = new ProductAdminSearchIndexer(
+            static::createStub(Connection::class),
+            static::createStub(IteratorFactory::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            100
+        );
+
+        $shouldQueries = $indexer->globalCriteria("test\n", new Search())->getQueries()->toArray()['bool']['should'];
+
+        $simpleQueryStringQueries = array_values(array_filter($shouldQueries, static fn (array $query): bool => isset($query['simple_query_string'])));
+        static::assertCount(1, $simpleQueryStringQueries);
+        static::assertSame("test\n", $simpleQueryStringQueries[0]['simple_query_string']['query']);
+    }
+
     public function testGlobalCriteriaDoesNotAddIdentifierPrefixes(): void
     {
         $indexer = new ProductAdminSearchIndexer(

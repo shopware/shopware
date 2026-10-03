@@ -206,9 +206,7 @@ class SCSSValidator
 
     private static function isHex(string $hexCode): bool
     {
-        preg_match('/^[a-f0-9]*$/i', $hexCode, $parsed);
-
-        return isset($parsed[0]) && $parsed[0] === $hexCode;
+        return preg_match('/^[a-f0-9]*$/iD', $hexCode) === 1;
     }
 
     /**

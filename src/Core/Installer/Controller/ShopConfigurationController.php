@@ -81,12 +81,13 @@ class ShopConfigurationController extends InstallerController
             $availableLanguages = $this->getAllAvailableLanguages();
             $selectedLanguages = array_map(static function (string $iso) use ($availableLanguages) {
                 // already a full locale like xx-XX?
-                if (preg_match('/^[a-z]{2}-[A-Z]{2}$/', $iso)) {
+                if (preg_match('/^[a-z]{2}-[A-Z]{2}$/D', $iso)) {
                     return $iso;
                 }
 
                 return $availableLanguages[$iso]['id'] ?? null;
             }, $selectedLanguages);
+            $selectedLanguages = array_values(array_filter($selectedLanguages, static fn (?string $locale): bool => $locale !== null));
 
             $schema = 'http';
             // This is for supporting Apache 2.2

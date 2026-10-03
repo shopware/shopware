@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -21,6 +22,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class AttributeEntityCompilerPass implements CompilerPassInterface
 {
     public function __construct(private readonly AttributeEntityCompiler $compiler)

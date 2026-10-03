@@ -655,6 +655,24 @@ class ConfigurationTest extends TestCase
         static::assertFalse($systemConfigs['system_config'][$salesChannelId]['core.listing.allowBuyInListing']);
     }
 
+    public function testEmptyArraySystemConfigValue(): void
+    {
+        $configuration = new Configuration();
+        $salesChannelId = Uuid::randomHex();
+
+        $config = (new Processor())->processConfiguration($configuration, [
+            'shopware' => [
+                'system_config' => [
+                    'default' => ['foo.ids' => ['global-id']],
+                    $salesChannelId => ['foo.ids' => []],
+                ],
+            ],
+        ]);
+
+        static::assertSame(['global-id'], $config['system_config']['default']['foo.ids']);
+        static::assertSame([], $config['system_config'][$salesChannelId]['foo.ids']);
+    }
+
     public function testInvalidSystemConfigKeys(): void
     {
         $this->expectExceptionObject(new InvalidConfigurationException('Invalid configuration for path "shopware.system_config": Key must be "default" or a valid UUID'));

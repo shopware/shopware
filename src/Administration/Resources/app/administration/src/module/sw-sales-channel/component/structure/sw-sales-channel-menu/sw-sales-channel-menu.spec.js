@@ -516,19 +516,29 @@ describe('src/module/sw-sales-channel/component/structure/sw-sales-channel-menu'
         expect(wrapper.vm.salesChannelRepository.search).toHaveBeenCalledTimes(1);
     });
 
-    it.each(['sw-sales-channel-detail-base-sales-channel-change', 'sw-sales-channel-list-add-new-channel'])(
-        'should show the sales channel modal when "%s" event is triggered',
-        async (eventName) => {
-            const wrapper = await createWrapper();
+    it('should show the sales channel modal when "sw-sales-channel-list-add-new-channel" event is triggered', async () => {
+        const wrapper = await createWrapper();
 
-            expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(false);
+        expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(false);
 
-            Shopware.Utils.EventBus.emit(eventName);
-            await flushPromises();
+        Shopware.Utils.EventBus.emit('sw-sales-channel-list-add-new-channel');
+        await flushPromises();
 
-            expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(true);
-        },
-    );
+        expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(true);
+    });
+
+    it('should reload the sales channels instead of showing the modal when a sales channel was deleted', async () => {
+        const wrapper = await createWrapper([headlessSalesChannel]);
+        await flushPromises();
+
+        expect(wrapper.vm.salesChannelRepository.search).toHaveBeenCalledTimes(1);
+
+        Shopware.Utils.EventBus.emit('sw-sales-channel-detail-base-sales-channel-change');
+        await flushPromises();
+
+        expect(wrapper.find('sw-sales-channel-modal-stub').exists()).toBe(false);
+        expect(wrapper.vm.salesChannelRepository.search).toHaveBeenCalledTimes(2);
+    });
 
     // The collapsed tooltip itself is rendered by sw-admin-menu-item based on this prop
     it('should pass the sidebar state down to the menu items for the collapsed tooltip', async () => {

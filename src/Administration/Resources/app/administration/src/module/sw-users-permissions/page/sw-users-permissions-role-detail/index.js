@@ -140,6 +140,7 @@ export default {
             this.role.name = '';
             this.role.description = '';
             this.role.privileges = [];
+            this.detailedPrivileges = [...this.privileges.getDefaultUserPrivileges()];
 
             this.isLoading = false;
         },
@@ -151,10 +152,9 @@ export default {
 
             const filteredPrivileges = this.privileges.filterPrivilegesRoles(this.role.privileges);
             const allGeneralPrivileges = this.privileges.getPrivilegesForAdminPrivilegeKeys(filteredPrivileges);
-            const defaultUserPrivileges = this.privileges.getDefaultUserPrivileges();
 
             this.detailedPrivileges = this.role.privileges.filter((privilege) => {
-                return ![...allGeneralPrivileges, ...defaultUserPrivileges].includes(privilege);
+                return !allGeneralPrivileges.includes(privilege);
             });
             this.role.privileges = filteredPrivileges;
         },

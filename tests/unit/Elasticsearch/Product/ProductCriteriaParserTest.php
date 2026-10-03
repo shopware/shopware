@@ -21,12 +21,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\CustomField\CustomFieldService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\Adapter\Storage\ArrayKeyValueStorage;
 use Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser;
@@ -91,10 +91,9 @@ class ProductCriteriaParserTest extends TestCase
         ], $result->toArray());
     }
 
-    public function testParseFilterShouldCallsParent(): void
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testParseFilterDelegatesToTheDecoratedParserWhileTheOptimizationIsOff(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $storage = new ArrayKeyValueStorage();
         $parser = new ProductCriteriaParser(
             $this->helper,
@@ -103,7 +102,7 @@ class ProductCriteriaParserTest extends TestCase
             $this->decoratedParser
         );
 
-        $filter = new NotFilter(NotFilter::CONNECTION_AND, [new EqualsFilter('active', true)]);
+        $filter = new ProductAvailableFilter('sales-channel-id');
         $expectedBuilder = static::createStub(BuilderInterface::class);
 
         $this->decoratedParser

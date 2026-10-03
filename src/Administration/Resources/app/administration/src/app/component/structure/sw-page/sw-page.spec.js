@@ -243,4 +243,125 @@ describe('src/app/component/structure/sw-page', () => {
 
         Shopware.Store.get('session').setCurrentUser(null);
     });
+
+    it('should not reuse the listing query after visiting another module', async () => {
+        jest.restoreAllMocks();
+        router.addRoute({
+            name: 'sw.article.list',
+            path: '/sw/article/list',
+            component: {},
+        });
+        router.addRoute({
+            name: 'sw.article.detail',
+            path: '/sw/article/detail/:id',
+            component: {},
+        });
+        router.addRoute({
+            name: 'sw.purchase.list',
+            path: '/sw/purchase/list',
+            component: {},
+        });
+        router.addRoute({
+            name: 'sw.purchase.detail',
+            path: '/sw/purchase/detail/:id',
+            component: {},
+        });
+
+        const articleListWrapper = await createWrapper({
+            name: 'sw.article.list',
+            path: '/sw/article/list',
+            fullPath: '/sw/article/list?term=shirt',
+            meta: {},
+        });
+        articleListWrapper.unmount();
+
+        const purchaseListWrapper = await createWrapper({
+            name: 'sw.purchase.list',
+            path: '/sw/purchase/list',
+            fullPath: '/sw/purchase/list',
+            meta: {},
+        });
+        purchaseListWrapper.unmount();
+
+        const purchaseDetailWrapper = await createWrapper({
+            name: 'sw.purchase.detail',
+            path: '/sw/purchase/detail/:id',
+            fullPath: '/sw/purchase/detail/1',
+            params: { id: '1' },
+            meta: {
+                parentPath: 'sw.purchase.list',
+            },
+        });
+        purchaseDetailWrapper.unmount();
+
+        await router.push({ name: 'sw.purchase.detail', params: { id: '1' } });
+        await router.push({ name: 'sw.article.detail', params: { id: '1' } });
+
+        const wrapper = await createWrapper({
+            name: 'sw.article.detail',
+            path: '/sw/article/detail/:id',
+            fullPath: '/sw/article/detail/1',
+            params: { id: '1' },
+            meta: {
+                parentPath: 'sw.article.list',
+            },
+        });
+
+        expect(wrapper.vm.routerBack).toEqual({ name: 'sw.article.list' });
+    });
+
+    it('should keep the query of a listing further up the parent chain', async () => {
+        jest.restoreAllMocks();
+        router.addRoute({
+            name: 'sw.attribute.list',
+            path: '/sw/attribute/list',
+            component: {},
+        });
+        router.addRoute({
+            name: 'sw.attribute.detail',
+            path: '/sw/attribute/detail/:id?',
+            component: {},
+            meta: {
+                parentPath: 'sw.attribute.list',
+            },
+        });
+        router.addRoute({
+            name: 'sw.attribute.option.detail',
+            path: '/sw/attribute/detail/:id/option/:optionId',
+            component: {},
+        });
+
+        const listWrapper = await createWrapper({
+            name: 'sw.attribute.list',
+            path: '/sw/attribute/list',
+            fullPath: '/sw/attribute/list?term=color',
+            meta: {},
+        });
+        listWrapper.unmount();
+
+        const optionWrapper = await createWrapper({
+            name: 'sw.attribute.option.detail',
+            path: '/sw/attribute/detail/:id/option/:optionId',
+            fullPath: '/sw/attribute/detail/1/option/2',
+            params: { id: '1', optionId: '2' },
+            meta: {
+                parentPath: 'sw.attribute.detail',
+            },
+        });
+        optionWrapper.unmount();
+
+        await router.push({ name: 'sw.attribute.detail', params: { id: '1' } });
+
+        const wrapper = await createWrapper({
+            name: 'sw.attribute.detail',
+            path: '/sw/attribute/detail/:id?',
+            fullPath: '/sw/attribute/detail/1',
+            params: { id: '1' },
+            meta: {
+                parentPath: 'sw.attribute.list',
+            },
+        });
+
+        expect(wrapper.vm.routerBack).toBe('/sw/attribute/list?term=color');
+    });
 });

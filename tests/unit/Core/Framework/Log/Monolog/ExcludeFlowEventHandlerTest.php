@@ -3,6 +3,8 @@
 namespace Shopware\Tests\Unit\Core\Framework\Log\Monolog;
 
 use Monolog\Handler\FingersCrossedHandler;
+use Monolog\Handler\HandlerInterface;
+use Monolog\Handler\TestHandler;
 use Monolog\Level;
 use Monolog\LogRecord;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -123,5 +125,26 @@ class ExcludeFlowEventHandlerTest extends TestCase
             ],
             true,
         ];
+    }
+
+    public function testResetClearsTheBufferOfTheInnerHandler(): void
+    {
+        $testHandler = new TestHandler();
+        $handler = new ExcludeFlowEventHandler(new FingersCrossedHandler($testHandler, Level::Error), []);
+
+        $handler->handle(new LogRecord(new \DateTimeImmutable(), 'app', Level::Info, 'buffered before the reset'));
+        $handler->reset();
+        $handler->handle(new LogRecord(new \DateTimeImmutable(), 'app', Level::Error, 'logged after the reset'));
+
+        static::assertSame(['logged after the reset'], array_map(static fn (LogRecord $record): string => $record->message, $testHandler->getRecords()));
+    }
+
+    public function testResetWithANonResettableInnerHandler(): void
+    {
+        $innerHandler = $this->createMock(HandlerInterface::class);
+        $innerHandler->expects($this->never())->method('close');
+
+        $handler = new ExcludeFlowEventHandler($innerHandler, []);
+        $handler->reset();
     }
 }

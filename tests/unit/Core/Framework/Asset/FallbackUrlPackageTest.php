@@ -53,8 +53,78 @@ class FallbackUrlPackageTest extends TestCase
         static::assertSame('https://test.de/test', $url);
     }
 
+    public function testFallbackUrlFollowsTheCurrentRequestWhenPackageIsReused(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('https://first.example'));
+        $package = $this->createPackage(requestStack: $requestStack);
+
+        static::assertSame('https://first.example/test', $package->getUrl('test'));
+
+        $requestStack->pop();
+        $requestStack->push(Request::create('https://second.example'));
+
+        static::assertSame('https://second.example/test', $package->getUrl('test'));
+    }
+
+    public function testExplicitAssetUrlIsPreservedWhenPackageIsReused(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('https://first.example'));
+        $package = $this->createPackage('https://cdn.example', $requestStack);
+
+        static::assertSame('https://cdn.example/test', $package->getUrl('test'));
+
+        $requestStack->pop();
+        $requestStack->push(Request::create('https://second.example'));
+
+        static::assertSame('https://cdn.example/test', $package->getUrl('test'));
+    }
+
+    public function testFallbackUrlIncludesTheBasePathOfTheCurrentRequest(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('https://shop.example/subdir/index.php/', server: [
+            'SCRIPT_FILENAME' => '/var/www/subdir/index.php',
+            'SCRIPT_NAME' => '/subdir/index.php',
+        ]));
+
+        $url = $this->createPackage(requestStack: $requestStack)->getUrl('test');
+
+        static::assertSame('https://shop.example/subdir/test', $url);
+    }
+
+    public function testOnlyEmptyBaseUrlsFallBackToTheCurrentRequest(): void
+    {
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('https://first.example'));
+        $package = new FallbackUrlPackage(['https://cdn.example', ''], new EmptyVersionStrategy(), $requestStack);
+
+        $cdnPath = $this->findPathForBaseUrl($package, 'https://cdn.example');
+        $fallbackPath = $this->findPathForBaseUrl($package, 'https://first.example');
+
+        $requestStack->pop();
+        $requestStack->push(Request::create('https://second.example'));
+
+        static::assertSame('https://cdn.example/' . $cdnPath, $package->getUrl($cdnPath));
+        static::assertSame('https://second.example/' . $fallbackPath, $package->getUrl($fallbackPath));
+    }
+
     private function createPackage(string $url = '', ?RequestStack $requestStack = null): FallbackUrlPackage
     {
         return new FallbackUrlPackage([$url], new EmptyVersionStrategy(), $requestStack);
+    }
+
+    private function findPathForBaseUrl(FallbackUrlPackage $package, string $baseUrl): string
+    {
+        for ($i = 0; $i < 100; ++$i) {
+            $path = 'file-' . $i;
+
+            if ($package->getBaseUrl($path) === $baseUrl) {
+                return $path;
+            }
+        }
+
+        static::fail(\sprintf('No path found for base URL "%s"', $baseUrl));
     }
 }

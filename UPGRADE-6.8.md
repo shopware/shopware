@@ -258,6 +258,10 @@ Enable the `SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION` feature flag in 6.7 to pre
 
 <details>
 
+## Product reviews require a rating
+
+`POST /store-api/product/{productId}/review` rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Before, such a review was saved without a rating. Headless frontends that let customers skip the rating have to send `points` between 1 and 5.
+
 ## Type-based number range preview Admin API removed
 
 The type-based Admin API number range preview route `/api/_action/number-range/preview-pattern/{type}` has been removed.

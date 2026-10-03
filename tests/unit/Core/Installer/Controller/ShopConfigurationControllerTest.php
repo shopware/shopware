@@ -294,7 +294,7 @@ class ShopConfigurationControllerTest extends TestCase
 
         $this->controller->shopConfiguration($request);
 
-        static::assertSame(['en-US', null], $session->get('SELECTED_LANGUAGES'));
+        static::assertSame(['en-US'], $session->get('SELECTED_LANGUAGES'));
     }
 
     public function testPostConfigurationRouteOnError(): void

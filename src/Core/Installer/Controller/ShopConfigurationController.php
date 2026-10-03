@@ -87,6 +87,7 @@ class ShopConfigurationController extends InstallerController
 
                 return $availableLanguages[$iso]['id'] ?? null;
             }, $selectedLanguages);
+            $selectedLanguages = array_values(array_filter($selectedLanguages, static fn (?string $locale): bool => $locale !== null));
 
             $schema = 'http';
             // This is for supporting Apache 2.2

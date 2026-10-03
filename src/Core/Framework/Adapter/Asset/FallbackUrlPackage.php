@@ -22,36 +22,26 @@ class FallbackUrlPackage extends UrlPackage
         VersionStrategyInterface $versionStrategy,
         private readonly ?RequestStack $requestStack = null
     ) {
-        if (!\is_array($baseUrls)) {
-            $baseUrls = (array) $baseUrls;
-        }
-
-        parent::__construct($this->applyFallback($baseUrls), $versionStrategy);
+        parent::__construct($baseUrls, $versionStrategy);
     }
 
     /**
-     * @param list<string> $baseUrls
-     *
-     * @return list<string>
+     * Empty base URLs are resolved per call, so a package reused across requests in long-running workers follows the current host
      */
-    private function applyFallback(array $baseUrls): array
+    public function getBaseUrl(string $path): string
     {
+        $baseUrl = parent::getBaseUrl($path);
+
+        if ($baseUrl !== '') {
+            return $baseUrl;
+        }
+
         $request = $this->requestStack?->getMainRequest() ?? new Request(server: $_SERVER);
 
         if ($request->getHost() === '') {
-            $requestUrl = (string) EnvironmentHelper::getVariable('APP_URL');
-        } else {
-            $basePath = $request->getSchemeAndHttpHost() . $request->getBasePath();
-            $requestUrl = rtrim($basePath, '/') . '/';
+            return rtrim((string) EnvironmentHelper::getVariable('APP_URL'), '/');
         }
 
-        foreach ($baseUrls as &$url) {
-            if ($url === '') {
-                $url = $requestUrl;
-            }
-        }
-        unset($url);
-
-        return $baseUrls;
+        return rtrim($request->getSchemeAndHttpHost() . $request->getBasePath(), '/');
     }
 }

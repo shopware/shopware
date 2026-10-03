@@ -150,7 +150,7 @@ export default {
                 return;
             }
 
-            if (!this.license || this.license.variant !== this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT) {
+            if (this.extension.storeLicense?.variant !== this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT) {
                 await this.deactivateExtension();
                 return;
             }

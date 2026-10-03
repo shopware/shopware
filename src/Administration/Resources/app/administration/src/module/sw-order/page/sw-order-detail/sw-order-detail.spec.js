@@ -2,6 +2,8 @@
 
 import { mount } from '@vue/test-utils';
 import { nextTick } from 'vue';
+import TemplateFactory from 'src/core/factory/template.factory';
+import template from './sw-order-detail.html.twig';
 
 /**
  * @sw-package checkout
@@ -846,3 +848,38 @@ function apiError(detail) {
         },
     };
 }
+
+describe('src/module/sw-order/page/sw-order-detail block overrides', () => {
+    const registeredTemplates = [];
+
+    function renderHeaderWithOverride(blockName, markup) {
+        const name = `sw-order-detail-override-${blockName}`;
+
+        TemplateFactory.registerComponentTemplate(name, template);
+        TemplateFactory.registerTemplateOverride(name, `{% block ${blockName} %}${markup}{% endblock %}`);
+        registeredTemplates.push(name);
+
+        const html = TemplateFactory.getRenderedTemplate(name);
+        const slotStart = html.indexOf('<template #smart-bar-header>');
+
+        return html.slice(slotStart, html.indexOf('</template>', slotStart));
+    }
+
+    afterEach(() => {
+        registeredTemplates.forEach((name) => {
+            TemplateFactory.getTemplateRegistry().delete(name);
+            TemplateFactory.getNormalizedTemplateRegistry().delete(name);
+        });
+        registeredTemplates.length = 0;
+    });
+
+    it.each([
+        'sw_order_detail_header_label_manual_order',
+        'sw_order_detail_header_title',
+    ])('keeps the header element closed when %s is overridden', (blockName) => {
+        const header = renderHeaderWithOverride(blockName, '<span class="plugin-header-content"></span>');
+
+        expect(header).toContain('plugin-header-content');
+        expect(header.match(/<div\b/g)?.length ?? 0).toBe(header.match(/<\/div>/g)?.length ?? 0);
+    });
+});

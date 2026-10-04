@@ -52,7 +52,3 @@ In code:
 - `ElementTypeNameResolver` builds the name.
 - `ContentLayoutStorefrontRenderTest` pins the render of a page root and of a slot child.
 - See [architecture.md](../../Layout/Type/docs/architecture.md#naming-alignment-with-storefront-twig-components).
-
-## Also true by construction
-
-- A storefront content component reads no parent or global state and takes what it needs as props, the rule for every Twig UX component: [components/README.md](../../../../../Storefront/Resources/views/components/README.md#data-independence-and-global-state-access)

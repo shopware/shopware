@@ -56,6 +56,22 @@ In code:
 - `StoredTreePreparer` substitutes property strings only.
 - See [applying.md](../../Binding/docs/applying.md).
 
+## An element receives a sales-channel context value only from a loader that returns that value
+
+The module never hands the `SalesChannelContext` to an element. Every loader loads with the context, so prices, translations and availability already follow the request's currency, language and rules. An element that needs a context value as data declares a data requirement whose loader returns that value, never the context object and never a customer entity. The root context carries the root entity's page data only. A `resolves` entry in the `context` form stays rejected. An element component reads no Twig global `context`, also not as a prop default.
+
+Why: An ambient context invites reads across module boundaries and widens the Store API response, whose only floor for a struct is the `ApiAware` flag. A headless client has no Twig global, so an element that reads one renders differently there. A headless client reads its own context from `/store-api/context`.
+
+Not chosen: The sales-channel context, or a selection of its values, as ambient root context for every element.
+
+In code:
+
+- `LoaderInputResolver::resolve()` dereferences element properties only.
+- `RootContextMapper::map()` builds the root context from the assignable definition's page data requirements.
+- `TypeConsistentBindingSpecificationValidator` rejects a `resolves` entry in the `context` form.
+- No test pins the rule.
+- See [Hydration/DataLoader/README.md](../../Hydration/DataLoader/README.md).
+
 ## An authoring client reads loader configuration through introspection and never parses it
 
 The introspection endpoints exist so that an authoring client never parses loader configuration or hardcodes root context. The client reads config keys, capabilities, stored keys and each root source's context from the introspection endpoints. A branched loader configuration publishes one flat union, which loses precision but still spares the client from parsing loader configuration. The published union marks a branched key as required only when every branch that declares the key requires it.

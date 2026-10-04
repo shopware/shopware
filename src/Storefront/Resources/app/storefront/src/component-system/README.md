@@ -249,7 +249,7 @@ export default class SomeOtherComponent extends ShopwareComponent {
 
 Of course, you can also register to events from anywhere else, also from outside of the component system. For example, if you just want to extend the logic of an existing component.
 
-Components communicate with each other only through this event system. Do not dispatch a DOM `CustomEvent` to reach another component. `window.Shopware` is an `EventEmitter`, so a listener registered with `window.Shopware.on()` never receives a DOM event, and nothing reports the missed event.
+Messages between components go over this event system. `window.Shopware` is an `EventEmitter`, so a listener registered with `window.Shopware.on()` never receives a DOM `CustomEvent`, and nothing reports the missed event. A DOM event remains the tool for DOM and legacy plugin interop, such as `Sw/Media/EmbedVideo.js` and the cookie consent plugin.
 
 ### Event Interception
 

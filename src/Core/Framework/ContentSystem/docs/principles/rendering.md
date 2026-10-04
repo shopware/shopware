@@ -79,7 +79,7 @@ In code:
 
 ## A template reads a rendered element through a fixed small surface
 
-An element template reads `id`, `component`, `properties`, `slots` and `style`, and nothing else. The template computes a derived value such as a class name from the stored style. The module never stores that derived value. A request-scoped toggle comes from the request. A request-scoped toggle never enters the content model. A component takes its data through the property map.
+An element template reads `id`, `component`, `properties`, `slots` and `style`, and nothing else. The template computes a derived value such as a class name from the stored style. The module never stores that derived value. The partial reads a request-scoped toggle, such as the preview marker, from the request. A request-scoped toggle never enters the content model. A component takes its data through the property map.
 
 Why: Every field that a template can reach is a contract that `RenderedElement` must keep. A toggle stored in the content model becomes content.
 

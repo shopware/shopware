@@ -320,6 +320,27 @@ class AnalyticsLineItemPriceCalculatorTest extends TestCase
     }
 
     /**
+     * The rounding correction raises the line that was rounded down the most, unless that would
+     * report more than the line costs without discount. A 0.024 line is rounded down to 0.00 on a
+     * 0.05 cash interval, and raising it to 0.05 would exceed it, so the next line is raised.
+     */
+    public function testNeverRaisesALineAboveItsUndiscountedTotal(): void
+    {
+        $lineItems = new LineItemCollection([
+            $this->product('product-1', 0.024, 1),
+            $this->product('product-2', 1.02, 1),
+            $this->promotion([
+                ['id' => 'product-2', 'quantity' => 1, 'discount' => 1.0],
+            ]),
+        ]);
+
+        $prices = $this->calculator->calculate($lineItems, $this->context(new CashRoundingConfig(2, 0.05, true)));
+
+        static::assertSame(0.0, $prices['product-1']['total']);
+        static::assertSame(0.05, $prices['product-2']['total']);
+    }
+
+    /**
      * Cash rounding ignores the interval above two decimals, so the correction steps have to use the
      * decimals, or three 9.6666… lines report 29.0001.
      */

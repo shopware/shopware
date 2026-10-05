@@ -86,7 +86,7 @@ export type ConditionDefinition = {
     label: string;
     scopes: RuleScope[];
     group: RuleGroup;
-    removedInFeature?: string; // e.g. 'v6.8.0'
+    removedInFeature?: string; // e.g. 'v6.8.0.0'
     replacement?: string; // condition type that supersedes this one
 };
 
@@ -735,7 +735,7 @@ export const CONDITIONS: ConditionDefinition[] = [
         label: 'global.sw-condition.condition.lineItemProductStates',
         scopes: [SCOPES.LINE_ITEM],
         group: GROUPS.ITEM,
-        removedInFeature: 'v6.8.0',
+        removedInFeature: 'v6.8.0.0',
         replacement: 'cartLineItemProductType',
     },
     {

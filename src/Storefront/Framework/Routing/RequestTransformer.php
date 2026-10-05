@@ -86,12 +86,14 @@ class RequestTransformer implements RequestTransformerInterface
      * @internal
      *
      * @param array<string> $registeredApiPrefixes
+     * @param array<string> $apiContextRoutePrefixes
      */
     public function __construct(
         private readonly RequestTransformerInterface $decorated,
         private readonly AbstractSeoResolver $resolver,
         private readonly array $registeredApiPrefixes,
-        private readonly AbstractDomainLoader $domainLoader
+        private readonly AbstractDomainLoader $domainLoader,
+        private readonly array $apiContextRoutePrefixes = [],
     ) {
     }
 
@@ -136,6 +138,12 @@ class RequestTransformer implements RequestTransformerInterface
             $salesChannel->languageId,
             $salesChannel->salesChannelId
         );
+
+        // Admin and Admin API routes can't be served with a sales channel context, e.g. shopware.de/de/admin,
+        // unless an SEO URL like "admin" resolved the path to a storefront route
+        if ($this->isApiContextRoute($resolved->pathInfo)) {
+            return $request;
+        }
 
         $currentRequestUri = $request->getRequestUri();
 
@@ -274,6 +282,19 @@ class RequestTransformer implements RequestTransformerInterface
         }
 
         return true;
+    }
+
+    private function isApiContextRoute(string $pathInfo): bool
+    {
+        $pathInfo = '/' . trim($pathInfo, '/') . '/';
+
+        foreach ($this->apiContextRoutePrefixes as $prefix) {
+            if (str_starts_with($pathInfo, '/' . $prefix . '/')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private function findSalesChannel(Request $request): ?DomainStruct

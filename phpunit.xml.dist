@@ -126,11 +126,9 @@
             <file>src/Core/Test/Generator.php</file>
             <file>src/Core/Test/TestBuilderTrait.php</file>
             <file>src/Core/Test/TestDefaults.php</file>
-            <!-- phpunit runtime bootstrap and outbound IO, exercised by every CI run and not unit-testable:
-                 the extensions wire subscribers before the framework is up, the gateway talks to Datadog -->
+            <!-- phpunit runtime bootstrap, exercised by every CI run and not unit-testable:
+                 the extension wires its subscribers before the framework is up -->
             <file>src/Core/Test/PHPUnit/Extension/DatabaseDiff/DatabaseDiffExtension.php</file>
-            <file>src/Core/Test/PHPUnit/Extension/Datadog/DatadogExtension.php</file>
-            <file>src/Core/Test/PHPUnit/Extension/Datadog/Gateway/DatadogGateway.php</file>
             <directory suffix=".php">src/Elasticsearch/Test</directory>
             <directory suffix=".php">src/Storefront/Test</directory>
 
@@ -232,7 +230,6 @@
     <extensions>
         <bootstrap class="Ergebnis\PHPUnit\SlowTestDetector\Extension"/>
         <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\FeatureFlagExtension"/>
-        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\Datadog\DatadogExtension"/>
         <!-- Enable to see the db side effects of the tests. -->
 <!--        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\DatabaseDiff\DatabaseDiffExtension"/>-->
     </extensions>

@@ -16,7 +16,12 @@ const { convert } = Shopware.Utils.unitConversion;
 export default {
     template,
 
-    inject: ['feature', 'bulkEditApiFactory', 'repositoryFactory'],
+    inject: [
+        'feature',
+        'bulkEditApiFactory',
+        'repositoryFactory',
+        'customFieldDataProviderService',
+    ],
 
     data() {
         return {
@@ -78,6 +83,7 @@ export default {
             return Shopware.Store.get('swBulkEdit').selectedIds;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
@@ -98,6 +104,7 @@ export default {
             return Object.values(this.bulkEditProduct).some((field) => field.isChanged) || this.bulkEditSelected.length > 0;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
             const criteria = new Criteria(1, null);
 
@@ -579,6 +586,40 @@ export default {
             ];
         },
 
+        guaranteeFormFields() {
+            return [
+                {
+                    name: 'guaranteeMonths',
+                    type: 'int',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'mt-number-field',
+                        numberType: 'int',
+                        min: 30,
+                        max: 600,
+                        step: 6,
+                        allowEmpty: true,
+                        changeLabel: this.$t('sw-bulk-edit.product.guarantee.guaranteeMonths.changeLabel'),
+                        helpText: this.$t('sw-bulk-edit.product.guarantee.guaranteeMonths.helpText'),
+                        placeholder: this.$t('sw-bulk-edit.product.guarantee.guaranteeMonths.placeholder'),
+                        disabled: this.bulkEditProduct?.guaranteeMonths?.isInherited,
+                    },
+                },
+                {
+                    name: 'guaranteeConfirmed',
+                    type: 'bool',
+                    canInherit: this.isChild,
+                    config: {
+                        type: 'switch',
+                        label: this.$t('sw-bulk-edit.product.guarantee.guaranteeConfirmed.label'),
+                        helpText: this.$t('sw-bulk-edit.product.guarantee.guaranteeConfirmed.helpText'),
+                        changeLabel: this.$t('sw-bulk-edit.product.guarantee.guaranteeConfirmed.changeLabel'),
+                        disabled: this.bulkEditProduct?.guaranteeConfirmed?.isInherited,
+                    },
+                },
+            ];
+        },
+
         seoFormFields() {
             return [
                 {
@@ -1032,6 +1073,7 @@ export default {
                 this.assignmentFormFields,
                 this.mediaFormFields,
                 this.labellingFormFields,
+                this.guaranteeFormFields,
                 this.seoFormFields,
                 this.measuresPackagingFields,
                 this.sellingPackagingFields,
@@ -1057,7 +1099,7 @@ export default {
         },
 
         loadCustomFieldSets() {
-            return this.customFieldSetRepository.search(this.customFieldSetCriteria).then((res) => {
+            return this.customFieldDataProviderService.getCustomFieldSets('product', false, null).then((res) => {
                 this.customFieldSets = res;
             });
         },

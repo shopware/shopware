@@ -55,7 +55,7 @@ class StateValidatorTest extends TestCase
         $validator = new StateValidator();
 
         $session = $this->createMock(SessionInterface::class);
-        $session->method('get')->with(StateValidator::SESSION_KEY)->willReturn(self::VALID);
+        $session->expects($this->once())->method('get')->with(StateValidator::SESSION_KEY)->willReturn(self::VALID);
         $session->expects($this->once())->method('remove')->with(StateValidator::SESSION_KEY);
 
         $request = new Request(['rdm' => self::VALID, 'code' => Uuid::randomHex()]);
@@ -69,7 +69,7 @@ class StateValidatorTest extends TestCase
         $validator = new StateValidator();
 
         $session = $this->createMock(SessionInterface::class);
-        $session->method('get')->with(StateValidator::SESSION_KEY)->willReturn(self::VALID);
+        $session->expects($this->once())->method('get')->with(StateValidator::SESSION_KEY)->willReturn(self::VALID);
         $session->expects($this->never())->method('set');
 
         $request = new Request();
@@ -85,7 +85,7 @@ class StateValidatorTest extends TestCase
         $validator = new StateValidator();
 
         $session = $this->createMock(SessionInterface::class);
-        $session->method('get')->with(StateValidator::SESSION_KEY)->willReturn(null);
+        $session->expects($this->once())->method('get')->with(StateValidator::SESSION_KEY)->willReturn(null);
         $session->expects($this->once())->method('set')->with(
             StateValidator::SESSION_KEY,
             static::callback(static fn (string $value): bool => \strlen($value) === 64),

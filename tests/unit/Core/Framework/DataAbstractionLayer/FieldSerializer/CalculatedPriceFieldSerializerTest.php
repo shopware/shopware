@@ -19,16 +19,16 @@ use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\CalculatedPrice
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteCommandQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\DataAbstractionLayerFieldTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\CalculatedPriceFieldTestDefinition;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Version\CalculatedPriceFieldTestDefinition;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
+use Symfony\Component\Validator\Validation;
 
 /**
  * @internal
@@ -37,10 +37,6 @@ use Symfony\Component\Validator\ConstraintViolationList;
 #[CoversClass(CalculatedPriceFieldSerializer::class)]
 class CalculatedPriceFieldSerializerTest extends TestCase
 {
-    use CacheTestBehaviour;
-    use DataAbstractionLayerFieldTestBehaviour;
-    use KernelTestBehaviour;
-
     private CalculatedPriceFieldSerializer $serializer;
 
     private CalculatedPriceField $field;
@@ -51,10 +47,16 @@ class CalculatedPriceFieldSerializerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->serializer = static::getContainer()->get(CalculatedPriceFieldSerializer::class);
+        $validator = Validation::createValidator();
+        $registry = new StaticDefinitionInstanceRegistry(
+            [CalculatedPriceFieldTestDefinition::class],
+            $validator,
+            static::createStub(EntityWriteGatewayInterface::class),
+        );
+        $this->serializer = new CalculatedPriceFieldSerializer($validator, $registry);
         $this->field = new CalculatedPriceField('calculatedPrice', 'calculatedPrice');
 
-        $definition = $this->registerDefinition(CalculatedPriceFieldTestDefinition::class);
+        $definition = $registry->get(CalculatedPriceFieldTestDefinition::class);
         $this->existence = new EntityExistence($definition->getEntityName(), [], false, false, false, []);
 
         $this->parameters = new WriteParameterBag(
@@ -215,6 +217,33 @@ class CalculatedPriceFieldSerializerTest extends TestCase
         static::assertNull($arrayEncoded['regulationPrice'] ?? null);
     }
 
+    public function testEncodeAcceptsTheRegulationPriceSaving(): void
+    {
+        $calculatedPrice = new CalculatedPrice(
+            75,
+            75,
+            new CalculatedTaxCollection(),
+            new TaxRuleCollection([new TaxRule(19, 100)]),
+            1,
+            null,
+            ListPrice::createFromUnitPrice(75, 100),
+            RegulationPrice::createFromUnitPrice(75, 80)
+        );
+
+        $encoded = iterator_to_array($this->serializer->encode(
+            $this->field,
+            $this->existence,
+            new KeyValuePair('calculatedPrice', $calculatedPrice, true),
+            $this->parameters
+        ));
+
+        static::assertSame([], iterator_to_array($this->parameters->getContext()->getExceptions()->getErrors(), false));
+
+        $arrayEncoded = \json_decode($encoded['calculatedPrice'], true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(['price' => 80.0, 'discount' => -5.0, 'percentage' => 6.25], $arrayEncoded['regulationPrice']);
+    }
+
     public function testDecodeRoundtrip(): void
     {
         $calculatedPrice = new CalculatedPrice(
@@ -225,7 +254,7 @@ class CalculatedPriceFieldSerializerTest extends TestCase
             1,
             new ReferencePrice(100, 100, 100, 'reference unit'),
             ListPrice::createFromUnitPrice(100, 100),
-            new RegulationPrice(100)
+            RegulationPrice::createFromUnitPrice(100, 100)
         );
 
         $encoded = iterator_to_array($this->serializer->encode(
@@ -357,5 +386,52 @@ class CalculatedPriceFieldSerializerTest extends TestCase
 
         static::assertInstanceOf(CalculatedPrice::class, $result);
         static::assertNull($result->getListPrice());
+    }
+
+    public function testDecodeWithZeroRegulationPrice(): void
+    {
+        $field = new CalculatedPriceField('price', 'price');
+
+        $data = [
+            'unitPrice' => 100,
+            'totalPrice' => 100,
+            'quantity' => 1,
+            'calculatedTaxes' => [],
+            'taxRules' => [],
+            'regulationPrice' => [
+                'price' => 0,
+            ],
+        ];
+
+        $result = $this->serializer->decode($field, json_encode($data, \JSON_THROW_ON_ERROR));
+
+        static::assertInstanceOf(CalculatedPrice::class, $result);
+        static::assertNull($result->getRegulationPrice());
+    }
+
+    public function testDecodeWithValidRegulationPrice(): void
+    {
+        $field = new CalculatedPriceField('price', 'price');
+
+        // Scenario: current price 75, lowest price of the last 30 days 80 => 6.25% saved.
+        $data = [
+            'unitPrice' => 75,
+            'totalPrice' => 75,
+            'quantity' => 1,
+            'calculatedTaxes' => [],
+            'taxRules' => [],
+            'regulationPrice' => [
+                'price' => 80,
+            ],
+        ];
+
+        $result = $this->serializer->decode($field, json_encode($data, \JSON_THROW_ON_ERROR));
+
+        static::assertInstanceOf(CalculatedPrice::class, $result);
+        $regulationPrice = $result->getRegulationPrice();
+        static::assertInstanceOf(RegulationPrice::class, $regulationPrice);
+        static::assertSame(80.0, $regulationPrice->getPrice());
+        static::assertSame(-5.0, $regulationPrice->getDiscount());
+        static::assertSame(6.25, $regulationPrice->getPercentage());
     }
 }

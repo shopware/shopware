@@ -16,7 +16,7 @@ Consumer receives context from ancestor provider using `acceptsContext`.
 ```
 
 Fields:
-- Context key (`"product"`) - Under `scope: parent`, matches the provider's context key (or its `consumerAlias`); under `scope: root`, matches a key of the layout's root-ambient context. Either way the match is the key itself or a dot path hanging below it (see [path-resolution.md](path-resolution.md))
+- Context key (`"product"`) - Under `scope: parent`, matches the provider's context key (or its `consumerAlias`); under `scope: root`, matches a key of the layout's root-ambient context. Either way the match is the key itself or a dot path below it (see [path-resolution.md](path-resolution.md))
 - `scope` (optional, default `"parent"`) - Where the consumer takes its value from:
   - `"parent"` - The context an ancestor provides, delivered one hop at a time along the tree
   - `"root"` - The layout's root-ambient context, supplied by the bound root source. Cannot be combined with `redistribute: true`. See [Context flows only between adjacent elements](../../../../docs/principles/context-wiring.md#context-flows-only-between-adjacent-elements).

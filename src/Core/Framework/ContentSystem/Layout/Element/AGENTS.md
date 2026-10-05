@@ -18,8 +18,8 @@ model set:
   components read. It lives in `Rendering/`, not here. `final readonly`, and
   deliberately not a `Struct`. Its property values are raw unwrapped PHP
   values.
-  `Rendering/RenderedElementFactory` mints one and
-  `Rendering/RenderedTreeFactory` mints the forest, both driven by
+  `Rendering/RenderedElementFactory` creates one and
+  `Rendering/RenderedTreeFactory` creates the forest, both driven by
   `Rendering/ElementLowering`. Slots are
   `array<string, list<RenderedElement>>`.
 
@@ -31,8 +31,8 @@ for the traversal contract and its slot-map constraint.
 
 - Tell a present null from an absent key: `StoredElement::property()` returns `null` only for an absent key and never throws. An authored null comes back with `isNull()` true. Check: does the change test `property($key) === null`?
 - `StoredElement::properties()` never changes on a given instance — the map is private and `withProperties()` returns a new element. Every value is wrapped in a `StoredValue`
-- `Rendering/RenderedElementFactory` decides which keys the MINT produces: declared authored properties — every declared type except a single-FQCN reference, unions and bare `object` included — carrying the stored value, skipped when that value is the null variant, `dataRequirements[$key]` keys carrying the resolved loader value, the keys context was actually delivered under, and stored keys a parent's distribution config names — that last member excluding a declared reference property. Downstream is not closed: a `RenderedTreeFinalizationEvent` listener may hand back elements changed through `withProperty()` / `withProperties()`, and `ContentPipeline` carries that replacement forward rather than the tree it dispatched
-- A rendered element's own property map draws no distinction between a static, a loaded and a context-provided value; provenance is recorded beside the mint instead, in `Rendering/ElementMintResult` and the `LoweringResult` that collects them
+- `Rendering/RenderedElementFactory` decides which keys it creates: declared authored properties — every declared type except a single-FQCN reference, unions and bare `object` included — carrying the stored value, skipped when that value is the null variant, `dataRequirements[$key]` keys carrying the resolved loader value, the keys context was actually delivered under, and stored keys a parent's distribution config names — that last member excluding a declared reference property. Downstream is not closed: a `RenderedTreeFinalizationEvent` listener may hand back elements changed through `withProperty()` / `withProperties()`, and `ContentPipeline` carries that replacement forward rather than the tree it dispatched
+- A rendered element's own property map draws no distinction between a static, a loaded and a context-provided value; provenance is recorded separately, in `Rendering/ElementMintResult` and the `LoweringResult` that collects them
 - `StoredElement::jsonSerialize()` maps each property through its own `StoredValue::jsonSerialize()`
 - Skeleton output (`ContentSkeletonElement`) strips properties entirely and keeps `id`, `component`, `slots` and `style`. Style is omitted when empty.
 - Keep the two element models apart: no wiring, data requirement or attribution on `RenderedElement`, no raw or hydrated value in a `StoredElement` property. Check: does the change put a member of one model on the other? `RenderedElementFactoryTest` pins the conversion between them.

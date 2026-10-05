@@ -56,7 +56,7 @@ The codec throws on the first wiring or shape defect in a stated order. The cons
 
 Why: Under one shared implementation the conformance test compares a rule with itself. A descriptor that accepts what the codec rejects persists payloads the codec cannot read back.
 
-Exceptions: `ConsumerBaseKeyResolver` owns the base-key split. A hand-written tree stored past both the codec and the descriptor fails on [read](wire-contract.md#structural-malformation-and-registry-drift-are-different-cases-on-read) or at [render](rendering.md#the-render-validates-the-whole-stored-forest-in-every-mode).
+Exceptions: `ConsumerBaseKeyResolver` owns the base-key split. A hand-written tree that bypasses both the codec and the descriptor fails on [read](wire-contract.md#structural-malformation-and-registry-drift-are-different-cases-on-read) or at [render](rendering.md#the-render-validates-the-whole-stored-forest-in-every-mode).
 
 In code:
 

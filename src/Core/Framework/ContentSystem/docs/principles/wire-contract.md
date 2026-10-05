@@ -39,7 +39,7 @@ Why: `StructEncoder::encode()` recurses into a `Struct` and passes every other o
 
 Not chosen: An open value domain for rendered properties.
 
-Exceptions: The skeleton format stays a struct that the framework encodes. Only `ContentSkeletonElement::fromRendered()` mints that struct.
+Exceptions: The skeleton format stays a struct that the framework encodes. Only `ContentSkeletonElement::fromRendered()` builds that struct.
 
 In code:
 
@@ -65,7 +65,7 @@ In code:
 - `ContentRouteRenderingTest` pins that a data response assigns only to element ids the skeleton response carries.
 - See [Output/README.md](../../Output/README.md).
 
-## A PHP name is wire-inert behind a module-owned encoder
+## A PHP name never sets the wire key behind a module-owned encoder
 
 On a struct that the framework encodes, a property name is a wire key. Behind a module-owned encoder, a PHP name is wire-inert.
 

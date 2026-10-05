@@ -25,15 +25,15 @@ Every action shares one envelope and adds its own operation fields, bound via `#
 | `duplicate-element` | `DuplicateElementRequest` | `elementId` (required); `index` (optional, next sibling when omitted)                                                                                                                               |
 | `wrap-elements`     | `WrapElementsRequest` | `elementIds` (required, a non-empty list of unique ids that are siblings in one slot, or all roots); `containerType` (required); `slot` (required)                                                         |
 | `unwrap-element`    | `UnwrapElementRequest` | `containerElementId` (required)                                                                                                                                                                     |
-| `attach-element`    | `AttachElementRequest` | `element` (required, a raw element subtree to splice in, decoded via `DraftLayoutDecoder::decodeOne()`; every id in it is reminted); `parentElementId` (optional, root when omitted); `slot` (required when a parent is given); `index` (optional) |
+| `attach-element`    | `AttachElementRequest` | `element` (required, a raw element subtree to splice in, decoded via `DraftLayoutDecoder::decodeOne()`; every id in it is regenerated); `parentElementId` (optional, root when omitted); `slot` (required when a parent is given); `index` (optional) |
 | `insert-preset`     | `InsertPresetRequest` | `presetId` (required, the id of a registered layout preset); `parentElementId` (optional, root when omitted); `slot` (required when a parent is given); no `index`, so the preset's root elements append in payload order |
 | `bind-element`      | `BindElementRequest` | `elementId` (required); `bindingSpecificationId` (required, source-qualified id `source:id` from the target element's type entry's [`bindingSpecifications`](../../Binding/docs/introspection.md) map on `content-system-element-types.json`)                                                                                       |
 
 `index` is clamped, never rejected: a null, negative, or out-of-range `index` appends at the end of the target list.
 
-`attach-element` is the inverse of the detachment a `replace` reports: hand its `orphaned` subtrees (or any copied subtree) back to `attach-element` to re-place them. Ids are server-minted, so the placed elements get fresh ids returned in `affectedElementIds`.
+`attach-element` is the inverse of the detachment a `replace` reports: hand its `orphaned` subtrees (or any copied subtree) back to `attach-element` to re-place them. Ids are server-generated, so the placed elements get fresh ids returned in `affectedElementIds`.
 
-`insert-preset` reads the named preset from the layout preset registry, decodes its payload through `DraftLayoutDecoder::decode()`, and places every root element the way `attach-element` places one subtree: ids are reminted and each element's type default binding is fill-applied. The preset comes from the registry, never from the request, so the client names a preset and cannot alter its content. An unregistered `presetId` is a `404` (`layoutPresetNotFound`, see [mutation-errors.md](mutation-errors.md)).
+`insert-preset` reads the named preset from the layout preset registry, decodes its payload through `DraftLayoutDecoder::decode()`, and places every root element the way `attach-element` places one subtree: ids are regenerated and each element's type default binding is fill-applied. The preset comes from the registry, never from the request, so the client names a preset and cannot alter its content. An unregistered `presetId` is a `404` (`layoutPresetNotFound`, see [mutation-errors.md](mutation-errors.md)).
 
 Example (`insert-element`):
 

@@ -36,7 +36,7 @@ The write gate checks these delivery rules: a provider's child-facing key, consu
 
 Why: A stricter gate rejects servable layouts. A looser gate accepts layouts that fail when served.
 
-Exceptions: The write gate does not guarantee a value for an optional reference or for a reference picked from a loader candidate. Resolvability inputs may drift after the write. By design, the module does not check that drift.
+Exceptions: The write gate does not guarantee a value for an optional reference or for a reference picked from a loader candidate. Resolvability inputs may change after the write. By design, the module does not check that change.
 
 In code:
 

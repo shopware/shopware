@@ -32,7 +32,7 @@ Framework-owned DI configuration: `src/Core/Framework/DependencyInjection/conten
 | `SpecificationData`       | Return type of `resolveSpecificationData()`                                            |
 | `PlaceholderValues`       | Created via `PlaceholderValues::from()`                                                |
 
-The layout value objects a source assembles and the pipeline consumes — `RenderingSpecification`, `ResolvedContentLayout`, `LayoutReference`, `RenderableLayout` — are listed in [AGENTS.md](../AGENTS.md#source-code-references).
+The layout value objects a source assembles and the pipeline consumes (`RenderingSpecification`, `ResolvedContentLayout`, `LayoutReference`, `RenderableLayout`) are described in [README.md](../README.md#key-classes).
 
 ### Enums
 

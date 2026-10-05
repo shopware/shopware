@@ -1,17 +1,17 @@
 # Preview
 
-Preview shows an editor an unsaved draft rendered against real data, from the token the Admin API mints to the page the storefront renders.
+Preview shows an editor an unsaved draft rendered against real data, from the Admin API token to the page the storefront renders.
 
 ## Preview is a second entry into the one rendering path, never a second storage path
 
-Admin and storefront preview render a decoded draft through one `ContentPreviewPageBuilder::build()` and through the `ContentPipeline::load()` that serves persisted layouts. The mint route runs that full build as its admission gate and stores only the request. A redeemed token therefore renders. A malformed stored envelope is a server fault, and the token is the credential for redeeming the preview.
+Admin and storefront preview render a decoded draft through one `ContentPreviewPageBuilder::build()` and through the `ContentPipeline::load()` that serves persisted layouts. The token route runs that full build as its gate and stores only the request. A redeemed token therefore renders. A malformed stored envelope is a server fault, and the token is the credential for redeeming the preview.
 
-Why: A validate-only mint can accept a draft that the render later fails on. Redeeming the token then returns a 500 the editor cannot act on, instead of a rejection at mint time.
+Why: A validate-only check can accept a draft that the render later fails on. Redeeming the token then returns a 500 the editor cannot act on, instead of a rejection at creation.
 
 In code:
 
 - `ContentPreviewPayloadStore::load()` throws `previewPayloadInvalid` for a malformed stored envelope.
-- Only the mint route requires `content_layout:read`.
+- Only the token route requires `content_layout:read`.
 - `ContentSystemPreviewControllerTest` pins that redemption renders through the pipeline and a malformed envelope is a server fault.
 - See [preview-url.md](../../Api/docs/preview-url.md).
 
@@ -35,7 +35,7 @@ In code:
 
 ## Preview rejects what it cannot render and reports nothing else
 
-Preview renders a draft or rejects it with a 400. Of the layout diagnostics, only intrinsic errors make preview reject a draft. Warnings and resolvability findings never surface in preview. The layout write may still reject a draft that previews, as [drafts-and-gates.md](drafts-and-gates.md#the-module-holds-a-draft-to-well-formedness) states, and the editor's save path must surface that rejection.
+Preview renders a draft or rejects it with a 400. Of the layout diagnostics, only intrinsic errors make preview reject a draft. Warnings and resolvability findings never appear in preview. The layout write may still reject a draft that previews, as [drafts-and-gates.md](drafts-and-gates.md#the-module-holds-a-draft-to-well-formedness) states, and the editor's save path must show that rejection.
 
 Why: Preview renders or rejects, so a warning would block a renderable draft. The diagnose route reports.
 

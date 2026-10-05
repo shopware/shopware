@@ -1,7 +1,7 @@
 ## Navigation
 
 - Why nothing is dropped silently, and how a defect is classified: [failure-and-loss.md](../docs/principles/failure-and-loss.md)
-- Preview action route, mint mechanics, decode gate, token contract: [docs/preview-url.md](docs/preview-url.md)
+- Preview action route, token creation, decode gate, token contract: [docs/preview-url.md](docs/preview-url.md)
 - Diagnose action route, contract, `rootSource` resolvability branch: [docs/diagnose.md](docs/diagnose.md)
 - Stateless draft mutation actions, routes and contract: [docs/mutation.md](docs/mutation.md)
 - Persisted mutation actions, routes and contract: [docs/persisted-mutation.md](docs/persisted-mutation.md)

@@ -10,7 +10,7 @@
 
 ## Key Relationship
 
-One declaration, two consumers that cannot drift:
+One declaration, two consumers that cannot diverge:
 - `StyleOptionConstraintDeriver` turns a `StyleOptionValueType` into the Symfony constraints the write boundary enforces.
 - `StyleOptionSpecification::toSchema()` turns the same declaration into the introspection schema.
 - Both read the one `AbstractContentSystemStyleOptionRegistry`, so an option that is introspected is enforced and vice versa.

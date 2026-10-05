@@ -826,8 +826,8 @@
                     {
                         "name": "options[]",
                         "in": "query",
-                        "description": "The options parameter for the variant to find. Array of option IDs.",
-                        "required": true,
+                        "description": "The options parameter for the variant to find. Array of option IDs. Can also be sent inside `_criteria`.",
+                        "required": false,
                         "schema": {
                             "type": "array",
                             "items": {

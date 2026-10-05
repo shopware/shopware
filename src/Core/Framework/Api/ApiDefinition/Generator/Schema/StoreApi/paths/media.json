@@ -80,8 +80,8 @@
                     {
                         "name": "ids[]",
                         "in": "query",
-                        "description": "Identifier (UUID) of the media entity to be fetched.",
-                        "required": true,
+                        "description": "Identifier (UUID) of the media entity to be fetched. Required unless it is sent inside `_criteria`.",
+                        "required": false,
                         "schema": {
                             "type": "array",
                             "items": {

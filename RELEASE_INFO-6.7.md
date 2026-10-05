@@ -118,33 +118,18 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 
 ### Store API reads every field of the compressed `_criteria` parameter
 
-On every Store API `GET` route, `_criteria` is now a compressed form of the query string: its fields are read like query parameters. So a `GET` request with `_criteria` reads the same fields as the `POST` request with that body. Before, `_criteria` was read only for the criteria and, on the product listing routes, for listing parameters such as `order` or `p`. Routes ignored the other fields inside it, for example:
+On every Store API `GET` route, `_criteria` is now a compressed form of the query string. A `GET` request with `_criteria` reads the same fields as the `POST` request with that body, for example `limit`, `includes`, `slots`, `depth` or `options`. Before, many routes ignored these fields inside `_criteria`. Fields that a route reads from the `POST` body only, such as the listing filter flags, are still not read.
 
-| Route | Ignored fields |
-|---|---|
-| `/category/{navigationId}`, `/cms/{id}`, `/landing-page/{landingPageId}` | `limit`, `includes`, `excludes`, `slots` |
-| `/search` | `limit` |
-| `/search-suggest` | `search` |
-| `/product/{productId}` | `slots` |
-| `/navigation/{activeId}/{rootId}` | `depth`, `buildTree` |
-| `/media` | `ids`, `includes`, `excludes` |
-| `/product/{productId}/find-variant` | `options`, `switchedGroup`, `includes`, `excludes` |
-| `/payment-method`, `/shipping-method` | `onlyAvailable` |
-| `/checkout/cart` | `includes`, `excludes` |
+If you send `_criteria`, note:
 
-A field that a route reads from the `POST` body only is not read from `_criteria`, the same as from a plain query parameter. This concerns, for example, the filter flags of the listing routes, such as `manufacturer-filter` or `property-whitelist`. The values of the fields are read as strings, as in a query string, and a field set to `null` counts as not sent. App scripts of `/store-api/script/{hook}` find them in the query as well.
+- A field in `_criteria` wins over a query parameter of the same name. Other query parameters are applied next to it, also on the Admin API.
+- Values are read as strings, as in a query string, also by listing filters of extensions. `null` counts as not sent.
+- The `sw-include-search-info` header is respected together with `_criteria`.
+- An invalid `_criteria` value is answered with `400` on every Store API `GET` route.
 
-Sending these fields as plain query parameters keeps working. If you send `_criteria`, check these changes:
+On the Store API, `includes` and `excludes` that are not an array are answered with `400` instead of `500`.
 
-- A field in `_criteria` takes precedence over a query parameter of the same name. Before, a plain `limit` took precedence on the listing routes.
-- On the product listing, search and suggest routes, listing filters of extensions got the fields of `_criteria` with their JSON types before, such as `true` or `5`. They now get strings, the same as from plain query parameters.
-- Query parameters that are not part of `_criteria` are applied next to it. Before, the criteria were built from `_criteria` alone, so a plain `filter` next to it was ignored. This also applies to the `GET` list and detail routes of the Admin API.
-- The `sw-include-search-info` header is respected together with `_criteria`, on the Admin API as well.
-- An invalid `_criteria` value is answered with `400` on every Store API `GET` route. Before, routes without criteria, such as `/media` or `/checkout/cart`, ignored it.
-
-`includes` and `excludes` that are not an array are answered with `400` instead of `500`. On the Admin API this applies to the fields of a single entity in JSON:API responses, such as `includes[product]=name`.
-
-The OpenAPI schema now also declares `_criteria` for `readCategoryGet`, `readCmsGet`, `readLandingPageGet`, `searchPageGet`, `searchSuggestGet`, `readMediaGet`, `searchProductVariantIdsGet` and `readProductCrossSellingsGet`. `GET` operations without criteria parameters, such as `readCart`, accept it without declaring it.
+The OpenAPI schema declares `_criteria` on more `GET` operations and no longer marks `search` of `searchSuggestGet`, `ids[]` of `readMediaGet` and `options[]` of `searchProductVariantIdsGet` as required.
 
 ## Administration
 

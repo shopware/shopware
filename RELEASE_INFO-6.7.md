@@ -291,6 +291,14 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
+### Shared order restoration for Store API routes
+
+`Shopware\Core\Checkout\Cart\Order\OrderRestorer::restore()` turns an order, loaded with the associations from `addRequiredAssociations()`, into a sales channel context and cart for the current request. It builds them with `OrderConverter`, so decorators of `OrderConverter` and listeners of `BeforeSalesChannelContextAssembledEvent` and `SalesChannelContextAssembledEvent` keep being invoked.
+
+Store API routes opt in with the route default `_allowOrderRestoration`; only opt in routes that don't write. When such a route receives an `orderId` (path attribute, then query, then body), the restored objects go into the request attributes `sw-effective-sales-channel-context`, `sw-effective-context` and `sw-effective-cart`, and the argument resolvers for `SalesChannelContext`, `Context`, `Cart` and `Criteria` inject them instead of the session objects. The regular context attributes and the `sw-context-token` header keep describing the session. If restoring the order fails, the request answers with `CHECKOUT__ORDER_RESTORATION_FAILED` (HTTP 400) or the more specific order error.
+
+`AccountEditOrderPageLoader` and `SetPaymentOrderRoute` use `OrderRestorer` now. They offer and accept the same payment methods as before; the restored cart they hand to the checkout gateway now carries the order's deliveries, because the order is loaded with the associations the converter needs. The loader's constructor takes `OrderRestorer` instead of `OrderConverter` and `CartService`, the route's instead of `CartService`.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation
@@ -330,6 +338,12 @@ Store API responses contain the new properties wherever they contain a regulatio
 ### REST API indexing behavior header is honored
 
 The `indexing-behavior` header now supports `use-queue-indexing` and `disable-indexing` on REST API writes, matching the existing Sync API behavior. Requests without this header retain the current synchronous indexing behavior.
+
+### Store API payment, shipping and checkout gateway routes accept an `orderId`
+
+`/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` as query parameter or in the request body. With it, they evaluate availability for that order instead of the current session, like the Storefront edit-order page does: with the order's currency, language, customer and addresses, and the rule IDs stored on the order. Rules are not re-evaluated against the current state of the shop. `POST /store-api/order/payment` validates a new payment method on the same basis.
+
+The request needs a logged-in customer or guest session that can load the order through `/store-api/order`. An unknown order and an order of another customer both fail with `CHECKOUT__ORDER_ORDER_NOT_FOUND`. Responses for an `orderId` are not cacheable.
 
 ## Administration
 

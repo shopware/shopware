@@ -55,11 +55,15 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
     /**
      * Though this is a GET route, caching was not added as the output may be altered depending on dynamic rules,
      * which is not taken into account during the cache hash calculation.
+     * Given an `orderId`, the route evaluates an existing order of the customer instead of the current session.
      */
     #[Route(
         path: '/store-api/payment-method',
         name: 'store-api.payment.method',
-        defaults: [PlatformRequest::ATTRIBUTE_ENTITY => PaymentMethodDefinition::ENTITY_NAME],
+        defaults: [
+            PlatformRequest::ATTRIBUTE_ENTITY => PaymentMethodDefinition::ENTITY_NAME,
+            PlatformRequest::ATTRIBUTE_ALLOW_ORDER_RESTORATION => true,
+        ],
         methods: [Request::METHOD_GET, Request::METHOD_POST]
     )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): PaymentMethodRouteResponse

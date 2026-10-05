@@ -46,9 +46,9 @@ class SitemapSalesChannelLoader
 
         $criteria->addAssociation('type');
         $criteria->addFilter(new OrFilter([
-            new EqualsFilter('type.id', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
+            new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
             new AndFilter([
-                new EqualsFilter('type.id', Defaults::SALES_CHANNEL_TYPE_API),
+                new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API),
                 new EqualsFilter('domains.isExternalStorefront', true),
             ]),
         ]));

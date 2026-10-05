@@ -339,7 +339,7 @@ class ProductSerializer extends EntitySerializer
 
             $criteria = new Criteria();
             $criteria->addFilter(new EqualsFilter('productId', $deserialized['id']));
-            $criteria->addFilter(new EqualsFilter('media.id', $deserializedMedia['id']));
+            $criteria->addFilter(new EqualsFilter('mediaId', $deserializedMedia['id']));
 
             $productMediaId = $this->productMediaRepository->searchIds($criteria, $context)->firstId();
 

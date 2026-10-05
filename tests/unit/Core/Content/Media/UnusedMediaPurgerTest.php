@@ -392,7 +392,7 @@ class UnusedMediaPurgerTest extends TestCase
                     self::assertCount(1, $filters);
 
                     self::assertInstanceOf(EqualsAnyFilter::class, $filters[0]);
-                    self::assertSame('media.mediaFolder.id', $filters[0]->getField());
+                    self::assertSame('media.mediaFolderId', $filters[0]->getField());
                     self::assertSame(['id1', 'id2', 'id3', 'id4'], $filters[0]->getValue());
 
                     return [$id1, $id2];
@@ -1024,7 +1024,7 @@ class UnusedMediaPurgerTest extends TestCase
                     self::assertCount(1, $filters);
 
                     self::assertInstanceOf(EqualsAnyFilter::class, $filters[0]);
-                    self::assertSame('media.mediaFolder.id', $filters[0]->getField());
+                    self::assertSame('media.mediaFolderId', $filters[0]->getField());
                     self::assertSame(['id1', 'id2', 'id3', 'id4'], $filters[0]->getValue());
 
                     return [$id1, $id2];

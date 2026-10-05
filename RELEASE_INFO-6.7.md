@@ -58,7 +58,10 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ### Unlimited DAL searches with next-pages totals
 
-Database-backed DAL searches using `Criteria::TOTAL_COUNT_MODE_NEXT_PAGES` without a limit now return all matching entities after the requested offset and report the exact total, as `TOTAL_COUNT_MODE_EXACT` does. Previously, these searches returned at most one entity. Searches with a limit continue to use bounded lookahead totals.
+Database-backed DAL searches using `Criteria::TOTAL_COUNT_MODE_NEXT_PAGES` without a limit now return all matching entities after the requested offset and report the exact total, as `TOTAL_COUNT_MODE_EXACT` does.
+Previously, these searches returned at most one entity.
+Searches with a limit continue to use bounded lookahead totals.
+
 ### System activity logging
 
 User and integration creation and successful app and plugin uploads, activation, deactivation, installation, uninstallation, and updates now produce Monolog records at the `info` level on the `system_activity` channel. Records include entity identifiers and the acting Administration user ID and username or integration access key (`integrationAccessKey`) where available. Upload records include the plugin name and version read from the ZIP (the version is omitted when absent from `composer.json`). App uploads produce `app:upload` records with `appName` and `appVersion` from `manifest.xml`. Plugin lifecycle records include `pluginName` and `pluginVersion`; update records also include `previousPluginVersion` to show the version transition. Actor types are `user` for Administration users, `integration` for integrations, and `system` for system contexts, including CLI plugin commands. CLI commands and background jobs share the same context source. Fields with `null` values are omitted. Passwords and secret access keys are excluded.

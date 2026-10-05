@@ -480,6 +480,12 @@ If you override `buy-widget-price`, `block-price`, `price-unit` or `badges`: `is
 
 Shopware now follows a `301` or `302` from an app endpoint without dropping the `POST` method, the request body or the `shopware-shop-signature` header, so the redirect target receives the same signed request.
 
+### App translations fall back to the closest language
+
+If an app doesn't provide a translation for the shop's default language, Shopware now uses the closest one the app provides: the main region of the same language (`de-DE` for `de-AT`), then any other region of that language (`en-GB` for `en-US`), then `en-GB`, then the first translation.
+
+This applies to all translated app texts, including flow actions and their configuration fields, Administration modules, custom fields, rule conditions and document types. Installing an app no longer fails when its `flow.xml` has no label in the shop's default language.
+
 ### App events are only delivered to the app they are about
 
 The app events `app.installed`, `app.updated`, `app.activated`, `app.deactivated`, `app.deleted`, `app.permissions.updated` and `app.config.changed` are now only delivered to app webhooks. Webhooks created through the Admin API no longer receive them. Apps keep subscribing to them in their manifest, as before.

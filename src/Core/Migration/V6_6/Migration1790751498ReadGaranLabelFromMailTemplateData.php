@@ -11,7 +11,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
- * Moves unedited order confirmation mails off the deprecated `sw_garan_label_mail` filter,
+ * Moves unedited order confirmation mails off the `sw_garan_label_mail` filter,
  * which `Migration1790078381EmbedGaranLabelInOrderConfirmationMail` wrote before the labels became template data.
  *
  * @internal

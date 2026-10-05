@@ -153,7 +153,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         $criteria
             ->setTitle('product-cross-selling-route')
             ->addAssociation('assignedProducts')
-            ->addFilter(new EqualsFilter('productId', $productId))
+            ->addFilter(new EqualsFilter('product.id', $productId))
             ->addFilter(new EqualsFilter('active', 1))
             ->addSorting(new FieldSorting('position', FieldSorting::ASCENDING));
 

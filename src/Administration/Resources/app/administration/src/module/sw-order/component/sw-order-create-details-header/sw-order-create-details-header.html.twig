@@ -19,8 +19,8 @@
             v-if="customer"
             size="80px"
             :color="$route.meta.$module.color"
-            :first-name="customer.firstName"
-            :last-name="customer.lastName"
+            :first-name="avatarName.firstName"
+            :last-name="avatarName.lastName"
         />
         <sw-avatar
             v-else

@@ -1,6 +1,6 @@
 <div style="font-family:arial; font-size:12px;">
 
-    {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.firstName }} {{ order.orderCustomer.lastName }},<br>
+    {% if order.orderCustomer.salutation %}{{ order.orderCustomer.salutation.translated.letterName ~ ' ' }}{% endif %}{{ order.orderCustomer.displayName }},<br>
     <br>
     Im Anhang dieser E-Mail finden Sie die Stornorechnung für Ihre Bestellung mit der Nummer: {{ order.orderNumber }}<br>
     <br>

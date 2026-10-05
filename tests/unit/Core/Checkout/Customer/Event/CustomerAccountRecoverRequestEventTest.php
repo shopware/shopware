@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\Event;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerRecovery\CustomerRecoveryEntity;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerAccountRecoverRequestEvent;
 use Shopware\Core\Content\Flow\Dispatching\StorableFlow;
 use Shopware\Core\Content\Flow\Dispatching\Storer\ScalarValuesStorer;
@@ -20,6 +21,8 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 #[CoversClass(CustomerAccountRecoverRequestEvent::class)]
 class CustomerAccountRecoverRequestEventTest extends TestCase
 {
+    use MailRecipientNameTestBehaviour;
+
     public function testRestoreScalarValuesCorrectly(): void
     {
         $salesChannel = new SalesChannelEntity();
@@ -46,5 +49,22 @@ class CustomerAccountRecoverRequestEventTest extends TestCase
         static::assertArrayHasKey('shopName', $flow->data());
         static::assertSame('my-reset-url', $flow->data()['resetUrl']);
         static::assertSame('my-shop-name', $flow->data()['shopName']);
+    }
+
+    public function testTheMailRecipientCarriesTheResolvedName(): void
+    {
+        $this->assertRecipientNames(
+            fn (CustomerEntity $customer, SalesChannelContext $context) => new CustomerAccountRecoverRequestEvent($context, $this->recovery($customer), 'https://example.com/reset')
+        );
+    }
+
+    private function recovery(CustomerEntity $customer): CustomerRecoveryEntity
+    {
+        $recovery = new CustomerRecoveryEntity();
+        $recovery->setId('recovery-id');
+        $recovery->setUniqueIdentifier('recovery-id');
+        $recovery->setCustomer($customer);
+
+        return $recovery;
     }
 }

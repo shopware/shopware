@@ -50,7 +50,7 @@ export default {
                     label: this.$t('sw-settings-custom-field.customField.entity.customer'),
                     value: 'customer',
                     config: {
-                        labelProperty: ['firstName', 'lastName'],
+                        labelProperty: 'displayName',
                     },
                 },
                 {

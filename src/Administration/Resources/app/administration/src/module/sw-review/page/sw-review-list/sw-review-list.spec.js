@@ -77,6 +77,41 @@ async function createWrapper() {
 }
 
 describe('module/sw-review/page/sw-review-list', () => {
+    it('should sort the name column by the company after the person name', async () => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.columns.find((column) => column.property === 'user').dataIndex).toBe(
+            'customer.lastName,customer.firstName,customer.company',
+        );
+    });
+
+    it.each([
+        [
+            'a contact person',
+            { firstName: 'Ada', lastName: 'Lovelace', displayName: 'Ada Lovelace' },
+            'Lovelace, Ada',
+        ],
+        [
+            'a company without a contact person',
+            { firstName: '', lastName: '', displayName: 'Acme GmbH' },
+            'Acme GmbH',
+        ],
+        [
+            'a company with whitespace names',
+            { firstName: ' ', lastName: '  ', displayName: 'Acme GmbH' },
+            'Acme GmbH',
+        ],
+        [
+            'a surname alone',
+            { firstName: null, lastName: 'Lovelace', displayName: 'Lovelace' },
+            'Lovelace',
+        ],
+    ])('should name %s in the list', async (_name, customer, expected) => {
+        const wrapper = await createWrapper();
+
+        expect(wrapper.vm.customerName(customer)).toBe(expected);
+    });
+
     it('should not be able to delete', async () => {
         const wrapper = await createWrapper();
         await wrapper.setData({ total: 2 });

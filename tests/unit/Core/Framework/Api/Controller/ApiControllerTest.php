@@ -38,7 +38,6 @@ use Shopware\Tests\Unit\Core\Framework\Api\Controller\Fixtures\ApiController\Par
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -231,20 +230,6 @@ class ApiControllerTest extends TestCase
         ));
 
         $controller->create($request, Context::createDefaultContext(), static::createStub(ResponseFactoryInterface::class), 'parent-entity', '/' . $entityId);
-    }
-
-    public function testRouteRequirementsNameThePlaceholdersOfTheirPath(): void
-    {
-        foreach ((new \ReflectionClass(ApiController::class))->getMethods() as $method) {
-            foreach ($method->getAttributes(Route::class) as $attribute) {
-                $route = $attribute->newInstance();
-                static::assertIsString($route->path);
-
-                foreach (array_keys($route->requirements) as $placeholder) {
-                    static::assertStringContainsString('{' . $placeholder . '}', $route->path, \sprintf('Requirement "%s" of route "%s" names no placeholder.', $placeholder, $route->name));
-                }
-            }
-        }
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Mcp\Capability\Attribute\McpTool;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
@@ -22,6 +23,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
  * Must run after McpToolDiscoveryCompilerPass.
  */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class McpToolAnalysisCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void

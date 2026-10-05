@@ -17,6 +17,7 @@ use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\AnalyticsController;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -68,6 +69,18 @@ class AnalyticsControllerTest extends TestCase
         $route->method('load')->willThrowException(BreadcrumbException::categoryNotFound(Uuid::randomHex()));
 
         $this->expectException(ShopwareHttpException::class);
+
+        $this->controller($route)->productCategories(new Request(['productId' => Uuid::randomHex()]), $this->contextWithAnalytics());
+    }
+
+    public function testRethrowsABreadcrumbErrorOtherThanAMissingCategory(): void
+    {
+        $error = new BreadcrumbException(Response::HTTP_INTERNAL_SERVER_ERROR, 'BREADCRUMB_OTHER_ERROR', 'Another breadcrumb error');
+
+        $route = static::createStub(AbstractBreadcrumbRoute::class);
+        $route->method('load')->willThrowException($error);
+
+        $this->expectExceptionObject($error);
 
         $this->controller($route)->productCategories(new Request(['productId' => Uuid::randomHex()]), $this->contextWithAnalytics());
     }

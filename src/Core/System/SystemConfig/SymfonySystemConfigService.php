@@ -69,11 +69,23 @@ readonly class SymfonySystemConfigService
         $specific = array_merge(...$values);
 
         if (!$nesting) {
-            return array_replace_recursive($merged, $specific);
+            $merged = array_replace_recursive($merged, $specific);
+
+            foreach ($specific as $key => $value) {
+                if ($value === []) {
+                    $merged[$key] = [];
+                }
+            }
+
+            return $merged;
         }
 
         foreach ($specific as $key => $value) {
             $keys = \explode('.', (string) $key);
+
+            if ($value === []) {
+                $merged = $this->getSubArray($merged, $keys, []);
+            }
 
             if (\count($keys) === 1) {
                 $merged[$key] = $value;
@@ -86,7 +98,9 @@ readonly class SymfonySystemConfigService
             unset($specific[$key]);
         }
 
-        return array_replace_recursive($merged, $specific);
+        $merged = array_replace_recursive($merged, $specific);
+
+        return $merged;
     }
 
     /**
@@ -105,17 +119,9 @@ readonly class SymfonySystemConfigService
         }
 
         if ($keys === []) {
-            // Configs can be overwritten with sales_channel_id
-            $inheritedValuePresent = \array_key_exists($key, $configValues);
-            $valueConsideredEmpty = !\is_bool($value) && empty($value);
-
-            if ($inheritedValuePresent && $valueConsideredEmpty) {
-                return $configValues;
-            }
-
             $configValues[$key] = $value;
         } else {
-            if (!\array_key_exists($key, $configValues)) {
+            if (!\is_array($configValues[$key] ?? null)) {
                 $configValues[$key] = [];
             }
 

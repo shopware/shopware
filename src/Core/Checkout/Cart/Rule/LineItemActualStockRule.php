@@ -43,6 +43,10 @@ class LineItemActualStockRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('stock', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchStock($lineItem)) {
                 return true;
             }
@@ -77,10 +81,6 @@ class LineItemActualStockRule extends Rule
                 throw new UnsupportedValueException(\gettype($this->stock), self::class);
             }
             throw CartException::unsupportedValue(\gettype($this->stock), self::class);
-        }
-
-        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-            return false;
         }
 
         $actualStock = $lineItem->getPayloadValue('stock');

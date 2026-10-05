@@ -13,7 +13,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\MailTemplateTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -31,8 +30,6 @@ class RevocationRequestRouteTest extends TestCase
 
     private IdsCollection $ids;
 
-    private EventDispatcherInterface $eventDispatcher;
-
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
@@ -40,19 +37,12 @@ class RevocationRequestRouteTest extends TestCase
         $this->browser = $this->createCustomSalesChannelBrowser([
             'id' => $this->ids->create('sales-channel'),
         ]);
-
-        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
     }
 
     public function testRequest(): void
     {
-        $listenerIsCalled = false;
-        $revocationRequestCallback = static function (MailSentEvent $event) use (&$listenerIsCalled): void {
-            $listenerIsCalled = true;
-            static::assertSame('Revocation request sent', $event->getSubject());
-        };
-
-        $this->addEventListener($this->eventDispatcher, MailSentEvent::class, $revocationRequestCallback);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->browser
             ->request(
@@ -71,9 +61,8 @@ class RevocationRequestRouteTest extends TestCase
 
         static::assertArrayHasKey('individualSuccessMessage', $response);
         static::assertEmpty($response['individualSuccessMessage']);
-        static::assertTrue($listenerIsCalled);
-
-        $this->eventDispatcher->removeListener(MailSentEvent::class, $revocationRequestCallback);
+        static::assertInstanceOf(MailSentEvent::class, $mail);
+        static::assertSame('Revocation request received', $mail->getSubject());
     }
 
     public function testRequestUsesEntitySpecificSlotConfig(): void
@@ -107,12 +96,8 @@ class RevocationRequestRouteTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        $recipients = [];
-        $revocationRequestCallback = static function (MailSentEvent $event) use (&$recipients): void {
-            $recipients = $event->getRecipients();
-        };
-
-        $this->addEventListener($this->eventDispatcher, MailSentEvent::class, $revocationRequestCallback);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->browser->request(
             Request::METHOD_POST,
@@ -132,20 +117,14 @@ class RevocationRequestRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame($successMessage, $response['individualSuccessMessage']);
-        static::assertArrayHasKey($recipient, $recipients);
-
-        $this->eventDispatcher->removeListener(MailSentEvent::class, $revocationRequestCallback);
+        static::assertInstanceOf(MailSentEvent::class, $mail);
+        static::assertArrayHasKey($recipient, $mail->getRecipients());
     }
 
     public function testRequestWithInvalidData(): void
     {
-        $listenerIsCalled = false;
-        $revocationRequestCallback = static function (MailSentEvent $event) use (&$listenerIsCalled): void {
-            $listenerIsCalled = true;
-            static::assertSame('Revocation request sent', $event->getSubject());
-        };
-
-        $this->addEventListener($this->eventDispatcher, MailSentEvent::class, $revocationRequestCallback);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->browser
             ->request(
@@ -165,8 +144,6 @@ class RevocationRequestRouteTest extends TestCase
         static::assertArrayHasKey('errors', $response);
 
         static::assertCount(4, $response['errors']);
-        static::assertFalse($listenerIsCalled);
-
-        $this->eventDispatcher->removeListener(MailSentEvent::class, $revocationRequestCallback);
+        static::assertNull($mail);
     }
 }

@@ -5,13 +5,18 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerException;
+use Shopware\Core\Checkout\Customer\Extension\LoginRouteExtension;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
+use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -50,7 +55,7 @@ class LoginRouteTest extends TestCase
         $requestStack = new RequestStack();
         $requestStack->push(new Request(server: ['REMOTE_ADDR' => $ip]));
 
-        $route = new LoginRoute($accountService, $requestStack, $rateLimiter);
+        $route = new LoginRoute($accountService, $requestStack, $rateLimiter, new ExtensionDispatcher(new EventDispatcher()));
         $route->login(new RequestDataBag(['email' => $email, 'password' => 'shopware']), static::createStub(SalesChannelContext::class));
 
         static::assertSame([[RateLimiter::LOGIN_ROUTE, $expectedCombinedKey]], $ensureAcceptedCalls);
@@ -84,7 +89,7 @@ class LoginRouteTest extends TestCase
         $requestStack = new RequestStack();
         $requestStack->push(new Request(server: ['REMOTE_ADDR' => $ip]));
 
-        $route = new LoginRoute($accountService, $requestStack, $rateLimiter);
+        $route = new LoginRoute($accountService, $requestStack, $rateLimiter, new ExtensionDispatcher(new EventDispatcher()));
         $route->login(new RequestDataBag(['email' => $email, 'password' => 'shopware']), static::createStub(SalesChannelContext::class));
 
         static::assertSame([
@@ -106,6 +111,7 @@ class LoginRouteTest extends TestCase
             static::createStub(AccountService::class),
             $requestStack,
             $rateLimiter,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $this->expectException(CustomerException::class);
@@ -127,7 +133,7 @@ class LoginRouteTest extends TestCase
         $accountService = $this->createMock(AccountService::class);
         $accountService->expects($this->once())->method('loginByCredentials')->willReturn('test-token');
 
-        $route = new LoginRoute($accountService, new RequestStack(), $rateLimiter);
+        $route = new LoginRoute($accountService, new RequestStack(), $rateLimiter, new ExtensionDispatcher(new EventDispatcher()));
 
         $response = $route->login(
             new RequestDataBag(['email' => 'test@example.com', 'password' => 'pw']),
@@ -135,5 +141,29 @@ class LoginRouteTest extends TestCase
         );
 
         static::assertSame('test-token', $response->getToken());
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $data = new RequestDataBag();
+        $context = Generator::generateSalesChannelContext();
+        $response = new ContextTokenResponse('token');
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('login-route.login.pre', static function (LoginRouteExtension $extension) use ($data, $context, $response): void {
+            static::assertSame(['data' => $data, 'context' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new LoginRoute(
+            static::createStub(AccountService::class),
+            static::createStub(RequestStack::class),
+            static::createStub(RateLimiter::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->login($data, $context));
     }
 }

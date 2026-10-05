@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Media\SalesChannel;
 
+use Shopware\Core\Content\Media\Extension\MediaRouteExtension;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaException;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
@@ -10,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -30,6 +32,7 @@ class MediaRoute extends AbstractMediaRoute
     public function __construct(
         private readonly EntityRepository $mediaRepository,
         private readonly CacheTagCollector $cacheTagCollector,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -50,6 +53,15 @@ class MediaRoute extends AbstractMediaRoute
         defaults: [PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
     )]
     public function load(Request $request, SalesChannelContext $context): MediaRouteResponse
+    {
+        return $this->extensions->publish(
+            name: MediaRouteExtension::NAME,
+            extension: new MediaRouteExtension($request, $context),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(Request $request, SalesChannelContext $context): MediaRouteResponse
     {
         $ids = RequestParamHelper::get($request, 'ids', []);
         if (!\is_array($ids) || $ids === []) {

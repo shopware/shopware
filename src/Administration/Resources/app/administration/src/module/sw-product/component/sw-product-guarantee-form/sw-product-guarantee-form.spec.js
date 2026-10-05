@@ -141,7 +141,12 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
                                     @click="$emit('update:value', 'selected-media-id')"
                                 ></button>
                             </div>`,
-                        props: ['value', 'disabled', 'fileAccept', 'defaultFolder'],
+                        props: [
+                            'value',
+                            'disabled',
+                            'fileAccept',
+                            'defaultFolder',
+                        ],
                     },
                     'mt-text-field': {
                         template: `
@@ -156,7 +161,12 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
                                     class="mt-text-field__error"
                                 >{{ error.code }}</span>
                             </div>`,
-                        props: ['modelValue', 'disabled', 'error', 'placeholder'],
+                        props: [
+                            'modelValue',
+                            'disabled',
+                            'error',
+                            'placeholder',
+                        ],
                     },
                 },
                 provide: {

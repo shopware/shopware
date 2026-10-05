@@ -6,7 +6,7 @@ The clients are the administration's layout editor and the storefront templates 
 
 The administration declares one element type, `ContentElementNode`, with the members that `StoredElement::jsonSerialize()` emits. A second client type for the same shape is deleted, never kept in step. No caller casts the `layout` field, which the generated entity schema types as `Array<unknown>`. One typed entry point names the `layout` field as element nodes.
 
-Why: Two client types for one wire shape drift apart. A cast at a call site asserts a shape that nothing checks.
+Why: A second type diverges when the wire gains a member. A cast compiles against any payload.
 
 Not chosen: A module-local element type beside the wire-derived type.
 

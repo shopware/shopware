@@ -23,7 +23,7 @@ In code:
 
 An edit that the operation rejects changes nothing. An operation is opaque to each element and each key that it does not name. It has no normalization, default or value rule of its own.
 
-Why: A normalizing operation sets a precedent for one operation per value shape. The client cannot hold an operation that touches unnamed keys to its request.
+Why: One normalizing operation invites another for each value shape. A client cannot predict a result that changes keys its request did not name.
 
 Exceptions: `ReplaceElement` drops a carried value that its new type cannot hold. `UnwrapElement` drops the container's own values when the operation removes the container. Both operations report each dropped value in `droppedProperties()`.
 

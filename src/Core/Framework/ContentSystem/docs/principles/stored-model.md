@@ -6,7 +6,7 @@ The stored model is `StoredElement`, the element a layout persists, and `StoredT
 
 The split applies the single responsibility principle to the element. `StoredElement`, which a layout persists, is a different type from `RenderedElement`, which a page serves. `StoredElement` carries data requirements, context wiring, attribution and property values in wrapped form. `RenderedElement` carries a flat map of raw values and no wiring. The two classes meet in the render step only. No element class plays both roles. Nothing writes into an element while the element renders. A listener replaces the tree through its event instead of editing the tree it received. A consumer that needs the content of a rendered element descends into it explicitly. Every edit of either class produces a new instance through a `with*()` method, and each class copies its fields at one private site. The module does not trade the `final readonly` immutability of the stored classes away to save a copy.
 
-Why: One element class served the storage, validation, mutation, wire and template roles, and each of those roles made a different demand on that one class. While that class was mutable, hydration events handed listeners the mutable element, and in-place mutation became an extension contract. A rebuild that copied fields by hand dropped any field added to the class later.
+Why: One mutable element class served the storage, validation, mutation, wire and template roles. Hydration events handed listeners that mutable element, and in-place mutation became an extension contract. A rebuild that copied fields by hand dropped any field added to the class later.
 
 Not chosen: One element class that storage, validation, the administration, templates and several pipeline steps all use, or an in-place write that saves a copy. A rendered element that extends `Struct`, which reopens mutable extension state and generic traversal, and which a readonly class cannot extend.
 
@@ -39,7 +39,7 @@ In code:
 
 Creation and replacement write the declared default of a primitive property in the stored shape. A binding writes the input defaults of its specification. On every write, the DAL write boundary seeds any type default that is still absent. It never seeds over a present value, including an authored null. Serving and diagnostics read only stored values. A stored value therefore satisfies a required primitive, and the declaration never does.
 
-Why: A serve-time default hides an unfilled required property behind a plausible value. A serve-time default also lets a later declaration change what renders.
+Why: A serve-time default makes an unfilled required property look filled. It also lets a later declaration change what stored layouts render.
 
 In code:
 

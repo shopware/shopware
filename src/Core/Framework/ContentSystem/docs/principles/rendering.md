@@ -14,7 +14,7 @@ The render runs a final check on the finished forest. Wiring validation and the 
 
 Only a data-dependent failure is FULL-only.
 
-Why: Checking only the surviving subtree lets one defect fail one request and pass another. The write gate runs only on DAL writes. A returned tree that the pipeline accepts without a check is the one route past every gate.
+Why: Checking only the surviving subtree lets one defect fail one request and pass another. The write gate runs only on DAL writes, so a tree stored past the DAL or returned by a listener would render unchecked.
 
 Not chosen: Checking the post-prune subtree only, trusting the tree that a listener returns, or the write gate as the final check.
 
@@ -34,7 +34,7 @@ The skeleton runs the full render path. The skeleton never takes a prune-to-targ
 | Placeholder substitution | on | off |
 | Data resolution | on | off |
 
-Why: A client caches the skeleton and fills it later. A structural difference between the skeleton and the full response must therefore be impossible by construction, not merely untested. No runtime guard can check the structural identity of the skeleton and the full response in one request.
+Why: A client caches the skeleton and fills it with data later, so a structural difference from the full response breaks that fill. No runtime guard can compare the two within one request, so the identity must hold by construction, not by test.
 
 In code:
 
@@ -48,7 +48,7 @@ In code:
 
 Rendering stages run as direct calls in an order stated once at the call site, not as priority-ordered listeners. Each stage hands the next stage a typed immutable record instead of writing into a shared mutable element. The two tree-replacement events, one over the `StoredElement` tree and one over the `RenderedElement` tree, stay the only extension points. No internal stage moves onto those two events.
 
-Why: A typed record carries a fact that only its producer established, which a tree-in, tree-out listener cannot carry. The accepted price is that no core listener exists on either event. The order that the old priority bands declared never applied.
+Why: The order that the old priority bands declared never applied. A typed record carries what only its producing stage established, which a tree-in, tree-out listener cannot pass on. The accepted price is that no core listener exists on either event.
 
 In code:
 
@@ -61,7 +61,7 @@ In code:
 
 Neither event exposes the rendering mode. The preparation event fires first, before placeholder substitution. Placeholder substitution therefore still reaches any placeholder that the listener adds. The finalization event fires after the finishing steps, in both modes. The pipeline checks each tree that an event hands back, under the [final check](#the-render-validates-the-whole-stored-forest-in-every-mode).
 
-Why: A later event would show a listener a request-specific view of content.
+Why: A later event would show a listener content already substituted or pruned.
 
 Exceptions: A returned tree that names an unregistered element type is [registry drift](wire-contract.md#structural-malformation-and-registry-drift-are-different-cases-on-read), on a returned tree as on a stored one.
 
@@ -75,7 +75,7 @@ In code:
 
 An element template reads `id`, `component`, `properties`, `slots` and `style`, and nothing else. The template computes a derived value such as a class name from the stored style. The module never stores that derived value. The partial reads a request-scoped toggle, such as the preview marker, from the request. A request-scoped toggle never enters the content model. A component takes its data through the property map.
 
-Why: Every field that a template can reach is a contract that `RenderedElement` must keep. A toggle stored in the content model becomes content.
+Why: `RenderedElement` must keep every field that a template can read. A stored toggle is saved with the layout and applies to every request.
 
 In code:
 

@@ -6,7 +6,7 @@ Data loading turns an element's data requirements into loaded values and publish
 
 Each loader degrades gracefully behind a narrow catch. The loader wraps the collaborator call it delegates to and catches `ShopwareHttpException` there. On that catch, it returns `ContentDataLoaderResult::notFound()`. Every other fault, an infrastructure fault or a type error among them, propagates. Each loader's own call chain determines what the loader wraps and whether its degradation is whole or partial.
 
-Why: A collaborator throws for ordinary domain reasons, such as a deleted category. When an exception reaches `StorefrontController::loadContentPage()`, that controller catches every `\Exception` and renders the page without its layout. A blanket catch hides the outage that a shop needs to see and blanks an element where a loader defect needs an error report.
+Why: A collaborator throws for ordinary domain reasons, such as a deleted category. When an exception reaches `StorefrontController::loadContentPage()`, that controller catches every `\Exception` and renders the page without its layout. A blanket catch in a loader turns a database outage or a type error into an empty element with no error report.
 
 Not chosen: A loader that throws on every failure, which turns one failing element into a page without its layout. Catching everything in a loader. One central wrapper for all loaders, which cannot give each loader its own code after the call, its own whole-or-partial handling and its own catch scope.
 
@@ -28,7 +28,7 @@ load() throws       the same \TypeError instance, unmodified
 
 Loader configuration follows the principle "parse, do not validate". A loader declares its configuration in `configSpecification()`. It reads every input off the `LoaderInputs` that `LoaderInputResolver` resolves from that declaration, never off the element or a stored value. A static default lives in the key's `ConfigKeySpecification`, never in `load()`. `LoaderInputResolver` applies that default centrally. `LoaderInputResolver` owns the presence and type guards. The loader owns the check for domain emptiness.
 
-Why: A loader that reads the element makes every stored key a contract. A default written in the body of `load()` drifts from the published schema.
+Why: The introspection schema lists only declared keys and defaults. A key read off the element, or a default written in `load()`, never reaches it.
 
 Exceptions: A loader declares a sales-channel fallback, such as navigation depth, without a default. The loader applies the fallback in `load()`.
 
@@ -43,7 +43,7 @@ In code:
 
 No render-time step substitutes or overrides any part of the loader configuration. At bind time, `resolvedBy` becomes a stored data requirement, and a config reference names a fixed, gate-validated stored property. A per-request value must reach loader inputs only through a declared property. No request parameter may select or override which entity a loader loads or which property the loader reads.
 
-Why: A request that picks a loader's target bypasses every gate that certified the layout. Removing the request's ability to pick that target is cheaper than guarding each case.
+Why: A request that picks a loader's target loads something no write-time gate checked. Removing that ability is cheaper than guarding each case.
 
 In code:
 
@@ -56,7 +56,7 @@ In code:
 
 The module never hands the `SalesChannelContext` to an element. Every loader loads with the context, so prices, translations and availability already follow the request's currency, language and rules. An element that needs a context value as data declares a data requirement whose loader returns that value, never the context object and never a customer entity. The root context carries the root entity's page data only. A `resolves` entry in the `context` form stays rejected. An element component reads no Twig global `context`, also not as a prop default.
 
-Why: An ambient context invites reads across module boundaries and widens the Store API response, whose only floor for a struct is the `ApiAware` flag. A headless client has no Twig global, so an element that reads one renders differently there. A headless client reads its own context from `/store-api/context`.
+Why: An ambient context invites reads across module boundaries and widens the Store API response, where the `ApiAware` flag protects entity fields only. A headless client has no Twig global, so an element that reads one renders differently there. A headless client reads its own context from `/store-api/context`.
 
 In code:
 
@@ -70,7 +70,7 @@ In code:
 
 The introspection endpoints exist so that an authoring client never parses loader configuration or hardcodes root context. The client reads config keys, capabilities, stored keys and each root source's context from the introspection endpoints. A branched loader configuration publishes one flat union, which loses precision but still spares the client from parsing loader configuration. The published union marks a branched key as required only when every branch that declares the key requires it.
 
-Why: A client that parses loader configuration depends on every loader's config grammar.
+Why: A client parsing loader configuration breaks when any loader changes its grammar.
 
 In code:
 

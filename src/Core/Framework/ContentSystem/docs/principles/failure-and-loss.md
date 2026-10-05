@@ -6,7 +6,7 @@ The rules in this area apply across the module and govern how it handles a defec
 
 Every component fails fast on invalid, unrepresentable or misconfigured data, at the point where it meets that data. No component skips, coerces or swallows invalid, unrepresentable or misconfigured data. No path degrades into an output that looks like a valid result. No change loosens a value-domain check to make a suite pass.
 
-Why: A skipped defect surfaces far from its cause, as a state that no write could produce. A degraded result that looks valid cannot be told from a correct one, so no caller can react to it.
+Why: A skipped defect appears later as a state that no write could produce. A degraded result that looks valid cannot be told from a correct one, so no caller can react to it.
 
 Exceptions: A data loader degrades to a not-found result on a collaborator's HTTP exception, under the [degradation rule](data-loading.md#a-loader-degrades-on-a-named-domain-outcome-and-lets-every-other-fault-propagate), or on an entity id that `Uuid::isValid()` rejects, so that an unsubstituted placeholder never reaches an id parser. Each database registry loader skips and logs a malformed row under the [build-time rule](#a-declaration-or-registration-defect-fails-the-build-or-the-load-never-a-request). The attribution reconciler drops a diverged attribution, as [extension-surface.md](extension-surface.md#an-app-shipped-declaration-is-validated-and-reconciled-by-the-module-never-trusted-or-patched) states. The type declaration reader reads the `meta`, `properties` and `slots` keys only and ignores every other top-level key.
 
@@ -22,7 +22,7 @@ In code:
 
 The registry load fails fast on a property-key collision, on `resolvedBy` on a primitive or on `enum` on a non-primitive. The container build fails fast on a loader with no config serializer, on an abstract loader class, on an unparseable `@extends` or on a duplicate source. Decoration is the only way to replace a data loader, and registration order never replaces one. Install and update of an app fail on a malformed row, as [extension-surface.md](extension-surface.md#an-app-shipped-declaration-is-validated-and-reconciled-by-the-module-never-trusted-or-patched) states. The production load skips and logs a malformed persisted row. It never invents a name for a malformed persisted row.
 
-Why: A request-time defect surfaces far from its cause. The registry splits when one loader rejects a row and another loader skips and logs the same row. A persisted row can drift after install, for example when a dependency is deactivated, so the production load skips it instead of failing every request.
+Why: A request-time defect fails that request. If one loader rejects a row that another skips, the same row fails the load or is left out. A persisted row can turn invalid after install, for example when a dependency is deactivated, so the production load skips it instead of failing every request.
 
 In code:
 
@@ -34,7 +34,7 @@ In code:
 
 The mutation response returns a detached child as orphaned and names every dropped property and every dropped wiring key. The server answers an undeclared field with a 400. It answers a request affordance that the route does not support with a 400. It strips neither. A request DTO accepts no extra attributes. An editor that reads the orphaned child and the dropped names from the mutation response can offer re-placement, undo or confirmation. An editor that discards them promotes silent loss.
 
-Why: A client that cannot tell applied state from ignored state builds on the ignored state. To the author, a loss that the client hides looks unreported.
+Why: A client that cannot tell applied from ignored changes keeps editing as if all were applied. The author then loses content without being told.
 
 Exceptions: A whole-subtree remove reports no orphans, because the removal is itself the request.
 
@@ -76,7 +76,7 @@ In code:
 
 Each code has one factory that new callers reuse. The module has one exception class, and its `CLIENT_DEFECT_CODES` is the one list of codes that mark a client defect. `CLIENT_DEFECT_CODES` is a public constant that only grows. A test pins its exact membership. A new code enters these places in one change: the constant, the pinned list, the documentation and the administration's own enumeration of the codes it acts on. The administration's `structuralErrorCodes` lists the structural codes of the mutation operations. A change that adds a structural code of a mutation operation extends that list and [mutation-errors.md](../../Api/docs/mutation-errors.md) together. A changed value in `CLIENT_DEFECT_CODES` is a compatibility break to report. A rejection about an element carries that element's id.
 
-Why: A client acts on codes. A server code that is missing from the client's table is a silent 400. Parallel codes split what a cross-cutting reader treats as one condition. A rejection without the element id sends the editor searching.
+Why: The administration gives a specific message only to codes it lists, and others get a generic one. Two codes for one condition make each consumer match both. Without the element id, the editor must search for the element.
 
 Not chosen: An exception class, a catalogue or a code per feature or per call site.
 

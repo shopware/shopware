@@ -62,7 +62,7 @@ slots:
 
 The default-specification synthesizer runs on every type file, whether or not it declares a `bindings:` key, so a misused `resolvedBy` — for example on a primitive property — fails app install and `manifest:validate` outright.
 
-**`slots`** (optional): Each slot has a `name`. Optional: `maxElements` (cap on child count), `allowList` (restrict allowed child component types), `description`. A slot name PHP casts to an integer, such as `12`, is unusable: a stored element rejects an integer slot key (`invalidMapKey`), so no child can be stored under it.
+**`slots`** (optional): Each slot has a `name`. Optional: `maxElements` (cap on child count), `allowList` (restrict allowed child component types), `description`. A slot name PHP casts to an integer, such as `12`, is unusable: a stored element rejects an integer slot key (`invalidMapKey`, see [stored-model.md](../../../docs/principles/stored-model.md#every-map-key-is-a-string-and-the-module-rejects-an-integer-castable-key-never-coerces-it)), so no child can be stored under it.
 
 **`bindings`** (optional): Inline binding specifications for this type. See [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md).
 

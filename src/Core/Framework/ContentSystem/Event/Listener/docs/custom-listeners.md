@@ -21,7 +21,7 @@ Both expose the same remaining properties, all readonly:
 - `salesChannelContext` — `SalesChannelContext`
 - `cacheContext` — `RenderingCacheContext`, for cache tag management (readonly reference, but methods mutate state)
 
-Neither event exposes `RenderingMode`, and both are dispatched at the same position in both modes. That is deliberate: a listener's structural output must not depend on the rendering mode. See [Structure is a function independent of rendering mode](../../../docs/principles/rendering.md#structure-is-a-function-independent-of-rendering-mode). Mode remains observable indirectly (the per-format route name on the specification's request, property emptiness, loader effects on the cache context); the bar is a contract, not something the event shape can enforce.
+Neither event exposes `RenderingMode`, and both are dispatched at the same position in both modes. See [Structure is a function independent of rendering mode](../../../docs/principles/rendering.md#structure-is-a-function-independent-of-rendering-mode). Mode remains observable indirectly (the per-format route name on the specification's request, property emptiness, loader effects on the cache context); the rule is a contract, not something the event shape can enforce.
 
 ### What a finalization listener may change
 

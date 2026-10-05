@@ -32,4 +32,4 @@ Invalid:
 
 Distribution strategy applies only to direct children.
 
-Practical implication: Place consumers as direct children of provider for strategies to work as intended. For multi-level context, intermediate elements must both accept and re-provide context.
+See [Context flows only between adjacent elements](../../../../docs/principles/context-wiring.md#context-flows-only-between-adjacent-elements).

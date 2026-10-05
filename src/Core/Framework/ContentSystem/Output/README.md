@@ -24,7 +24,7 @@ Every route goes through a format-specific `AbstractResponseFactory` implementat
 
 Extracts specific element subtree via `?elementId` parameter. `SubTreeExtractor` searches roots sequentially — first match returned. Same elementId in multiple roots returns only first occurrence. Pruning keeps context-dependent ancestors through the render step so data still flows correctly to the target; extraction then drops those ancestors and returns only the target subtree.
 
-The pruner and the extractor therefore sit on opposite sides of the render step: `ElementTreePruner` rebuilds the kept path out of `StoredElement`s through `StoredElement::withSlots()` (so a field added to the element later rides across on its own), and reports a root that does not hold the target as `null` rather than as an error — the forest has other roots to try, and `PartialRenderer::extractTarget()` is the one place a genuinely absent target becomes `elementNotFound`.
+The pruner and the extractor therefore sit on opposite sides of the render step: `ElementTreePruner` rebuilds the kept path out of `StoredElement`s through `StoredElement::withSlots()`, and reports a root that does not hold the target as `null` rather than as an error — the forest has other roots to try, and `PartialRenderer::extractTarget()` is the one place a genuinely absent target becomes `elementNotFound`.
 
 Header and footer sources never resolve a target element, so those sections never support partial rendering.
 

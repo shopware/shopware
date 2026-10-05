@@ -7,7 +7,7 @@ the same way: `replaceTree()`. Neither exposes `RenderingMode`.
 ## Key Classes
 
 - `ContentTreePreparationEvent` - Dispatched over the stored tree before every preparation step
-- `RenderedTreeFinalizationEvent` - Dispatched after the render step and the finishing steps, over the rendered forest and before the duplicate-element-id check that judges what it hands back; allows layout finalization
+- `RenderedTreeFinalizationEvent` - Dispatched after the render step and the finishing steps, over the rendered forest and before the duplicate-element-id check that judges what it hands back
 
 ## Lifecycle
 

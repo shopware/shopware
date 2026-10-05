@@ -1,6 +1,6 @@
 # Type Spec as Output Schema
 
-The type specification's `properties` describe what a **hydrated** element looks like in the API response — not what is stored in the database. This is the central design relationship between the type system and the element system.
+The type specification's `properties` describe what a **hydrated** element looks like in the API response, not what is stored in the database.
 
 A type property with a FQCN type (e.g., `SalesChannelProductEntity`) is not stored in the database as a property value. It appears in the element's `properties` map only after hydration, when a data loader or context provider fills it.
 
@@ -18,7 +18,7 @@ The property key is the connecting identifier across all systems:
 - Render step: `RenderedElementFactory` writes the resolved loader value onto the rendered element under key `product`
 - API output: `properties.product` — serialized SalesChannelProductEntity
 
-The type spec declares WHAT properties exist and their types. The element instance declares HOW each non-primitive property gets its value (via `dataRequirements` or `acceptsContext`). These are different concerns with different structures, connected by the shared property key.
+The type spec declares WHAT properties exist and their types. The element instance declares HOW each non-primitive property gets its value (via `dataRequirements` or `acceptsContext`).
 
 **Alias and path variations:** The direct key match is the common case. Two exceptions:
 - Context consumers may use `propertyAlias` to store received data under a different key than the consumer key (e.g., `acceptsContext.product` with `propertyAlias: "item"` stores data under `properties.item`).

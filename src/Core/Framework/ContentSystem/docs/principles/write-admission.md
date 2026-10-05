@@ -4,7 +4,7 @@ Write admission is the path that a layout write takes into storage through `Layo
 
 ## Every layout write passes through the write boundary, a single choke point
 
-Every route that persists a layout commits through `LayoutWriteBoundary::apply()`, including plain DAL writes, the Sync API, imports and fixtures. The write boundary runs its passes in a fixed order. No pass overwrites a value the author set. The passes reconcile attribution. No client-side sanitizer runs before the write boundary, under the [server-owned value rule](values.md#every-rule-about-a-value-is-the-servers-and-the-client-sends-the-raw-value).
+Every route that persists a layout commits through `LayoutWriteBoundary::apply()`, including plain DAL writes, the Sync API, imports and fixtures. No pass of the write boundary overwrites a value the author set. The passes reconcile attribution. No client-side sanitizer runs before the write boundary, under the [server-owned value rule](values.md#every-rule-about-a-value-is-the-servers-and-the-client-sends-the-raw-value).
 
 Why: Two write boundaries diverge.
 

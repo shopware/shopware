@@ -11,7 +11,7 @@
 
 `GET /api/_info/content-system-style-options.json`
 
-The registered universal style options — presentation attributes (alignment, span, spacing, display) settable on every element regardless of its type — keyed by their wire name. Backed by the style option registry (`Layout/Element/Style/Registry`), serialized via `StyleOptionSpecification::toSchema()`. It is a `GET`, returns JSON, requires Admin API auth, and is served by `Framework/Api/Controller/InfoController`. The same options are folded into the `styleOptions` key on each entry of [`content-system-element-types.json`](../../../Type/docs/introspection.md).
+The registered universal style options — presentation attributes (alignment, span, spacing, display) settable on every element regardless of its type — keyed by their wire name. Requires Admin API auth. The same options are folded into the `styleOptions` key on each entry of [`content-system-element-types.json`](../../../Type/docs/introspection.md).
 
 Response:
 
@@ -31,6 +31,6 @@ Response:
 }
 ```
 
-`range` bounds `integer`/`number` options, `maxLength` bounds `string` options (a string with no declared `maxLength` defaults to 255); `default` pre-fills the editor; the write boundary fills the missing breakpoints of a partial map from it, and nothing else seeds it. `breakpointAware` marks whether the option's value is set per breakpoint (`xs`, `sm`, `md`, `lg`, `xl`, `xxl`) or as a single flat scalar.
+`range` bounds `integer`/`number` options, `maxLength` bounds `string` options (a string with no declared `maxLength` defaults to 255); `default` pre-fills the editor. `breakpointAware` marks whether the option's value is set per breakpoint or as a single flat scalar.
 
 Full field-level schema: [content-system-style-options.json](../../../../../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-style-options.json).

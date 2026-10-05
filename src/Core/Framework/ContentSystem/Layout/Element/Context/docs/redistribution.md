@@ -17,7 +17,7 @@
 "acceptsContext": {"product": {"type": "single", "required": true, "redistribute": true}}
 ```
 
-Both produce identical results. The container automatically passes data to all children.
+Both produce identical results.
 
 See [../AGENTS.md](../AGENTS.md#constraints) for where each rule above is enforced.
 
@@ -38,7 +38,7 @@ You can rename the context key when redistributing. Useful when your reusable co
 }
 ```
 
-Container accepts `featuredProduct`, children receive `product`. Reuse the same product card components everywhere.
+Container accepts `featuredProduct`, children receive `product`.
 
 **Constraints:**
 
@@ -53,8 +53,6 @@ Container accepts `featuredProduct`, children receive `product`. Reuse the same 
 - `consumerAlias` (in `acceptsContext`): Redistributed context is exposed to children under this name (requires `redistribute: true`)
 - `propertyAlias` (in `acceptsContext`): Individual consumer renames context for its own use only (does NOT require `redistribute`)
 
-A `propertyAlias` renames the storage key on the consuming element; it cannot contain dots and must be unique within that element.
-
 Use `consumerAlias` when all children need the same rename. Use `propertyAlias` when individual consumers need different internal names.
 
 ## Choosing Your Approach
@@ -62,7 +60,6 @@ Use `consumerAlias` when all children need the same rename. Use `propertyAlias` 
 **Use `redistribute: true` for simple pass-through:**
 - Container elements that just pass data to children unchanged
 - All children need the same data (automatic broadcast)
-- Quick setup with minimal configuration
 
 **Use full `providesContext` configuration for advanced scenarios:**
 - Different distribution strategies (indexed, keyed, sliced, iterator) - see [Distribution Strategies](distribution-strategies.md)
@@ -73,7 +70,7 @@ Use `consumerAlias` when all children need the same rename. Use `propertyAlias` 
 
 **Real-world scenario:** You build a product card component that shows title, price, and image. This card should work whether placed directly on a page, inside a grid, within a section, or nested in a slider. Each container just needs to pass the product data through.
 
-**Build once, use anywhere:** Redistribution cascades through multiple container levels automatically. Your reusable components work in any context without reconfiguration.
+Redistribution cascades through multiple container levels automatically.
 
 **Example:** Product page > content section > product card > title element
 
@@ -96,4 +93,4 @@ Use `consumerAlias` when all children need the same rename. Use `propertyAlias` 
 }
 ```
 
-The `content-section` container automatically passes product data to nested components. Move this section to different pages - it still works.
+The `content-section` container automatically passes product data to nested components.

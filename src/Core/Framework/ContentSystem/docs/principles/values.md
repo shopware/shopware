@@ -39,7 +39,7 @@ In code:
 
 ## A present null and an absent key are different states
 
-A present null and an absent key differ as null and undefined differ in JavaScript, and PHP tells them apart with `array_key_exists`, not with isset. An authored null is a stored value. It survives mutation and blocks default seeding under the [seeding rule](stored-model.md#the-module-seeds-a-primitive-default-at-write-time-never-at-serve-time). A loader that found nothing yields a present null. An unwritten property is absent. No path collapses a present null and an absent key into one state for a property or wiring value.
+A present null and an absent key differ, and PHP tells them apart with `array_key_exists`, not with isset. An authored null is a stored value. It survives mutation and blocks default seeding under the [seeding rule](stored-model.md#the-module-seeds-a-primitive-default-at-write-time-never-at-serve-time). A loader that found nothing yields a present null. An unwritten property is absent. No path collapses a present null and an absent key into one state for a property or wiring value.
 
 Why: An absent key read as a present null blocks default seeding. A present null read as absent gets a default seeded over it.
 

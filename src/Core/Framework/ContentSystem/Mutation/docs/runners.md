@@ -1,8 +1,7 @@
 # Runners
 
 The things that run an operation: `MutationPipeline`, the stateless runner over a decoded draft tree, and
-`PersistedLayoutMutator`, which commits one operation to a stored `content_layout`. Both assemble their outcome
-through the same `MutationResult` named constructor.
+`PersistedLayoutMutator`, which commits one operation to a stored `content_layout`.
 
 ## MutationPipeline
 

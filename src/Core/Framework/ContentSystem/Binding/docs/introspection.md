@@ -1,6 +1,6 @@
 # Binding Specification Introspection
 
-The specifications for each type are folded into the `bindingSpecifications` key on each entry of `content-system-element-types.json` (`InfoController::elementTypeSchema()`), keyed by source-qualified id — the id a client passes back as `bindingSpecificationId`. A client derives the specifications applicable to an element from `bindingSpecifications[element.component]` on that catalog.
+The specifications for each type are folded into the `bindingSpecifications` key on each entry of `content-system-element-types.json` (`InfoController::elementTypeSchema()`), keyed by source-qualified id — the id a client passes back as `bindingSpecificationId`.
 
 ## Binding specifications
 

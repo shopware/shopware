@@ -52,7 +52,6 @@ Consumers can request nested properties from context using dot notation. When a 
 ```
 
 **Key points**:
-- Provider exposes full `product` entity
 - `cover-image` receives only `product.cover` (MediaEntity)
 - `manufacturer-name` receives only `product.manufacturer.name` (string)
 - Supports arbitrary nesting depth: `product.manufacturer.country.code`
@@ -63,8 +62,3 @@ Consumers can request nested properties from context using dot notation. When a 
 **Required vs Optional**:
 - `required: true` - Throws exception if path cannot be resolved (property missing, intermediate null, non-Struct value)
 - `required: false` - Returns null silently if path fails
-
-**Benefits**:
-- Reduces memory usage: elements receive only what they need
-- Cleaner element APIs: no need to extract nested data in templates
-- Type safety: path validated at runtime with clear error messages

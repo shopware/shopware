@@ -58,4 +58,4 @@ Note: The context key in `providesContext` typically matches a property name loa
 }
 ```
 
-The provider loads data as `featuredProducts`, but child components receive it as `product`. This lets you reuse the same product card in homepage (featuredProducts), categories (categoryProducts), and search (searchResults) - all expecting `product` internally.
+The provider loads data as `featuredProducts`, but child components receive it as `product`.

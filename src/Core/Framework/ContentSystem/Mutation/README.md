@@ -57,9 +57,7 @@ See [The module drops nothing silently and reports every loss](../docs/principle
 
 ## Affected-set rationale
 
-`affected` is a conservative highlight hint, never the correctness output: the diagnostics pass over the whole new
-tree is the authority. Each operation derives its affected set from how context can flow, not from what structurally
-moved:
+Each operation derives its affected set from how context can flow, not from what structurally moved:
 
 - **RemoveElement reports nothing.** Context flows strictly down the tree, so a provider inside the removed subtree
   could only feed elements that are themselves inside it. A removed subtree therefore strands no surviving element.

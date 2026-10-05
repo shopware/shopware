@@ -118,4 +118,4 @@ Reference: `../EntityLoader/`
 
 ## Discoverability
 
-A registered loader's `source` value, its declared config keys (via `configSpecification()`), and the capabilities it produces (via `producibleTypes()`) appear in `GET /api/_info/content-system-data-loaders.json`, which the Administration reads to offer the data source when authoring `dataRequirements`. Wildcard loaders (`entity`, `entity_collection`) override `producibleTypes()`/`resolveProducedType()` to enumerate the live definition registry. See [Data Loader Introspection](introspection.md).
+A registered loader's `source` value, its declared config keys (via `configSpecification()`), and the capabilities it produces (via `producibleTypes()`) appear in `GET /api/_info/content-system-data-loaders.json`, which the Administration reads to offer the data source when authoring `dataRequirements`. See [Data Loader Introspection](introspection.md).

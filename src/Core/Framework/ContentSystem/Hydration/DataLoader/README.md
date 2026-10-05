@@ -53,6 +53,6 @@ A collaborator call inside `load()` is wrapped in `catch (ShopwareHttpException)
 6. Tag with `content_system.data_loader` in the owning domain's DI — service locator uses `getRequirementType()` as key
 7. Return `ContentDataLoaderResult` with appropriate cache info — throw nothing yourself; only a collaborator's exceptions outside the `ShopwareHttpException` boundary pass through `load()` (see [AGENTS.md](AGENTS.md) Constraints)
 
-Fixed-type loaders need no override: the base `producibleTypes()` returns one `LoaderTypeCapability` derived from `@extends`, and `resolveProducedType()` returns that type ignoring config.
+Fixed-type loaders need no override: `resolveProducedType()` returns the derived type ignoring config.
 
 Wildcard loaders that serve multiple concrete types (e.g., the generic `entity`/`entity_collection` loaders) override both `producibleTypes()` and `resolveProducedType()` to enumerate the live definition registry — one capability per registered entity, each carrying the `configTemplate` (`['entity' => <name>]`) needed to produce it; each also declares a `configSpecification()` requiring `entity` and `property`, so the derived residual config key is `property`. Enumeration skips definitions that have no addressable type: `MappingEntityDefinition`s, plus the `entity` loader skips an `ArrayEntity` entity class and the `entity_collection` loader skips a bare `EntityCollection` collection class. `resolveProducedType()` throws `ContentSystemException::unknownLoaderEntity` when the configured entity name is not registered.

@@ -13,7 +13,7 @@ The compiler pass discovers YAML files automatically. No service registration ne
 
 ## Name Resolution
 
-Type names are derived from the file path relative to the types directory. Directory segments and filenames are converted from kebab-case to PascalCase and joined with colons. The source prefix is prepended automatically.
+Type names are derived from the file path relative to the types directory. Directory segments and filenames are converted from kebab-case to PascalCase and joined with colons. The source prefix is prepended automatically: `Sw` for core and bundles, the short `Plugin::getName()` value (not the FQCN) for plugins, the app name for apps.
 
 **Example:** Plugin `AcmeStore` with file `Resources/content-system/types/product/quick-view.yaml` produces type name `AcmeStore:Product:QuickView`.
 
@@ -58,7 +58,7 @@ slots:
 
 **`meta`** (required): `label`, `description` are required. `icon`, `category`, `copilot` are optional.
 
-**`properties`** (optional): Each property declares its type (`string`, `boolean`, `integer`, `number`, or a FQCN for hydrated data). Optional fields: `required`, `translatable` (string only), `enum` (primitives only), `default`, `title`, `description`, `adminUI`, `resolvedBy` (reference properties only — the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)).
+**`properties`** (optional): Each property declares its type: a primitive (`string`, `boolean`, `integer`, `number`; the set is `PropertyType::PRIMITIVE_TYPES`) or any other value, read as a `class-string<Struct>` FQCN for hydrated data. Optional fields: `required`, `translatable` (`type: string` only), `enum` (primitives only, a list whose values match the declared type), `default` (primitives only, a value matching the declared type), `title`, `description`, `adminUI`, `resolvedBy` (reference properties only; the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)).
 
 The default-specification synthesizer runs on every type file, whether or not it declares a `bindings:` key, so a misused `resolvedBy` — for example on a primitive property — fails app install and `manifest:validate` outright.
 

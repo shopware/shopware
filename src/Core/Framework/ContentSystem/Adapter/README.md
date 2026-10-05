@@ -14,7 +14,9 @@ Connects CMS-capable entities (Product, Category, Landing Page) and domain-scope
 
 **Entity-based** (Product, Category, Landing Page): Assignment tables with sales channel fallback. `EntityLayoutResolver` queries: sales channel specific → global.
 
-**Domain-aware** (Header, Footer): Three-tier fallback via `DomainAwareLayoutResolver`: domain+channel → channel → global.
+**Domain-aware** (Header, Footer): Three-tier fallback via `DomainAwareLayoutResolver`: domain+channel → channel → global. There is no domain-only tier: `domain_id = X AND sales_channel_id IS NULL` never matches. The assignment key is `UNIQUE (domain_id, sales_channel_id)`.
+
+Header and footer sources are not in the tagged iterator. Each is injected into its own `RenderingSpecificationResolver`: main (Core, tagged iterator), header and footer (Storefront, one source each). Registered in `Storefront/DependencyInjection/content-system.php`.
 
 ## Key Classes
 

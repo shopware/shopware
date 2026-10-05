@@ -33,7 +33,7 @@ Three conventions stack. The module inherits Shopware-wide idioms: a DAL entity 
 
 ## Add a new suffix only to mark a real distinction
 
-A novel suffix is justified when it encodes a behavioral difference the generic word blurs, and the justification must be stated. The subsystem separates the service that owns a decision from the one that applies it and reports the resulting violations, because collapsing both under one word hides which is which. The same test admitted `Planner` next to `Distributor` and `Lowering` next to `Codec`: in each pair the generic word would have hidden whether the class decides or acts, and whether the translation can be undone. If an existing suffix already carries the meaning, use it.
+A novel suffix is justified when it encodes a behavioral difference the generic word blurs, and the justification must be stated. The subsystem separates the service that owns a decision from the one that applies it and reports the resulting violations, because collapsing both under one word hides which is which. If an existing suffix already carries the meaning, use it.
 
 ## Rename a stale name everywhere or not at all
 
@@ -41,4 +41,4 @@ Until the module's first release, this guide is the one authority for every name
 
 ## No exceptions
 
-Every class in this module must follow these principles, with no grandfathered outliers. A name that conflicts with a principle here is a defect to correct, not a precedent to copy: the name is what changes, not the convention. An element subject with no `Stored`/`Rendered` prefix is that kind of defect. So is `Layout/Scaffolding/`, which uses "scaffolding" for a service performing a temporary structural modification — an older sense predating the two-model split, and so a name to correct rather than a second meaning to keep alongside the [`*Scaffolding`](docs/role-suffixes.md) suffix.
+Every class in this module must follow these principles, with no grandfathered outliers. A name that conflicts with a principle here is a defect to correct, not a precedent to copy: the name is what changes, not the convention. `Layout/Scaffolding/` is that kind of defect: it uses "scaffolding" for a service performing a temporary structural modification, an older sense predating the two-model split, and so a name to correct rather than a second meaning to keep alongside the [`*Scaffolding`](docs/role-suffixes.md) suffix.

@@ -6,9 +6,9 @@ At most one default exists per type, guaranteed by these mechanisms rather than 
 
 At application time — `InsertElement` fill-applying a fresh element's type default, `ReplaceElement` fill-applying the new type's default after carrying wiring over — the default set for a type (`byType(type)` filtered by `isDefault()`) is read as zero, one, or more: zero is a no-op, one is fill-applied, more than one throws `ContentSystemException::bindingSpecificationDefaultAmbiguous` (409, naming the type plus the colliding qualified ids). There is no fallback and no first-wins pick.
 
-Fill-only application wires a `resolves` entry only into a key the element carries no wiring for yet, and attributes only those wired keys — carried or already-bound wiring is left untouched (`BindingApplicator::applyFillOnly()`, the same existing-wins idiom `Layout/LayoutDefaultSeeder` uses for property seeding; see [applying.md](applying.md)). `InsertElement` fill-applies the type's default at scaffold; an explicit `bindingSpecificationId` on the same request is applied on top afterward with overwrite semantics, so the default sits underneath and the explicit choice wins the shared keys. `ReplaceElement` fill-applies the new type's default after carrying the old element's wiring over, so carried wiring is never overwritten by the default — even when the default would correct a renamed storage key.
+Fill-only application (`BindingApplicator::applyFillOnly()`) and its layering under an explicit choice: [applying.md](applying.md).
 
-Auto-application at scaffold supersedes the earlier stance that every binding application is an explicit client act; that stance now applies only to a non-default specification, applied via `bind-element` or an explicit `bindingSpecificationId`.
+A non-default specification is applied only through `bind-element` or an explicit `bindingSpecificationId`: [applying.md](applying.md).
 
 ## The core defaults
 
@@ -26,4 +26,4 @@ The first four wire the `entity` loader, their properties each being a `MediaEnt
 
 ## Overriding a core default
 
-A plugin overriding a *core* default is intentionally impossible for now: a synthesized specification's type is always its own containing file's type, and an authored `bindings:` entry can never claim the reserved id. An explicit replacement mechanism is a future item.
+A plugin cannot override a *core* default; no replacement mechanism exists.

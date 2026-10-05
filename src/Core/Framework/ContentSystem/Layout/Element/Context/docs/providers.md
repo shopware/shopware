@@ -44,6 +44,8 @@ Fields:
 
 Note: The context key in `providesContext` typically matches a property name loaded by `dataRequirements`.
 
+A child-facing delivery key is unique per element. An authored provider delivers under `distributionConfig->getConsumerAlias() ?? providerKey`; a `redistribute` consumer adds a broadcast provider under `consumerAlias ?? contextKey`. `ProviderDeliveryKeyResolver` owns the rule and the derived-key formula, indexes the authored providers first (the earlier of two colliding producers is reported as `first`) and throws `ContentSystemException::providerDeliveryCollision()`. `Rendering/WiringPlanner::plan()` (over the pre-prune forest) and `Resolution/AvailableContextResolver` (over the target and its ancestors) both call it; which elements each judges stays that site's own decision.
+
 **Consumer Alias Example:**
 
 **Use case:** You have reusable product card components that expect data as `"product"`. Your homepage loads featured products as `"featuredProducts"`, but you want to use the same product cards without modifying them.

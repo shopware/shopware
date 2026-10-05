@@ -1,6 +1,6 @@
 # Diagnostics
 
-Produces a `LayoutAnalysis` for a layout element tree: per-element property resolutions plus a `DiagnosticsReport` that classifies every defect by scope and severity. Two predicates on the report gate the two lifecycle transitions — `isWellFormed()` blocks persistence, `isResolvable()` blocks serving.
+Produces a `LayoutAnalysis` for a layout element tree: per-element property resolutions plus a `DiagnosticsReport` that classifies every defect by scope and severity. The report carries the gate predicates `isWellFormed()` and `isResolvable()`; where each applies: [drafts-and-gates.md](../docs/principles/drafts-and-gates.md).
 
 ## Key Classes
 

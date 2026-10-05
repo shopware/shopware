@@ -18,6 +18,6 @@ This subsystem does not share code with `Layout/Element/Style/` beyond the patte
 
 ## Binding Specifications
 
-Hand-assembling a data requirement means naming the right loader, the right config keys, and a property the element's type actually declares. A binding specification is a pre-validated wiring authored alongside the element type that does this in one step: applying it (via the `bind-element` action, or an `insert-element` action carrying a `bindingSpecificationId`) writes the specification's data requirements onto the element and seeds defaults for primitive properties the element does not already set.
+Applying a specification, through the `bind-element` action or an `insert-element` action carrying a `bindingSpecificationId`: [applying.md](applying.md).
 
-The available specifications for each element type are folded into `GET /api/_info/content-system-element-types.json`. Applying one records which specification wired which key in the element's `attributedSpecifications` map; the system re-derives this bookkeeping on every save and drops an entry whose wiring was later hand-edited.
+Where the specifications are listed and how attribution stays accurate across saves: [introspection.md](introspection.md), [write-boundary.md](write-boundary.md).

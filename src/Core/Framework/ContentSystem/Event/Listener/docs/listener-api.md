@@ -4,7 +4,7 @@
 
 `RenderedElement` is the tree node a `RenderedTreeFinalizationEvent` listener works against (a `ContentTreePreparationEvent` listener works against `StoredElement` instead). It is `final readonly`, so every edit returns a new instance.
 
-A `null` property value is a present property holding null, which is how a lookup that ran and found nothing differs from one that never wrote at all. Use `array_key_exists()` on `$properties` when that distinction matters.
+A `null` property is present, not absent: `array_key_exists()` on `$properties` tells the two apart ([rule](../../../docs/principles/rendering.md#a-null-in-the-rendered-map-means-a-resolution-found-nothing)).
 
 `RenderedTreeEditor::mapNodes()` applies one mapper to every node of a whole forest, rebuilding the copies down each branch, and is the idiom for anything beyond a single node.
 

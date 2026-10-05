@@ -9,7 +9,7 @@ Listeners modify elements before or after rendering: computing derived values, t
 
 `ContentPipeline::load()` calls its own preparation and finishing steps directly rather than through these events, so the tree a listener sees does not depend on its priority. A `ContentTreePreparationEvent` listener sees the raw loaded layout, before every step in [Execution Order](../README.md#execution-order). A `RenderedTreeFinalizationEvent` listener sees the finished rendered tree, after the virtual-root unwrap and the partial extract, and before the pipeline's second duplicate-element-id check, which judges the tree the listener handed back.
 
-The two carry the tree in the model of their own position, and each exposes one way to put a changed tree back:
+The two carry the tree in the model of their own position, hold it privately behind `tree()`, and each exposes one way to put a changed tree back:
 
 - `ContentTreePreparationEvent::tree()`: `list<StoredElement>`; a replacement goes back through `replaceTree()`, because a stored element is immutable and an edit produces new instances
 - `RenderedTreeFinalizationEvent::tree()`: `list<RenderedElement>`; a replacement goes back through `replaceTree()`, because a rendered element is immutable too
@@ -21,7 +21,7 @@ Both expose the same remaining properties, all readonly:
 - `salesChannelContext` — `SalesChannelContext`
 - `cacheContext` — `RenderingCacheContext`, for cache tag management (readonly reference, but methods mutate state)
 
-Neither event exposes `RenderingMode`, and both are dispatched at the same position in both modes. See [Structure is a function independent of rendering mode](../../../docs/principles/rendering.md#structure-is-a-function-independent-of-rendering-mode). Mode remains observable indirectly (the per-format route name on the specification's request, property emptiness, loader effects on the cache context); the rule is a contract, not something the event shape can enforce.
+Neither event exposes `RenderingMode`, and both are dispatched at the same position in both modes ([rule](../../../docs/principles/rendering.md#structure-is-a-function-independent-of-rendering-mode)). Mode remains observable indirectly: the per-format route name on the specification's request, property emptiness, loader effects on the cache context.
 
 ### What a finalization listener may change
 

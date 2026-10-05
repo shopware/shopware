@@ -4,7 +4,7 @@ A data-driven layout system for serving structured content through the Store API
 
 ## Design Principles
 
-The module is built on a set of written design rules, one file per area under [docs/principles/](docs/principles/README.md). Much of the code is only understandable against those rules: a check that looks redundant, a value that is never repaired, a null that is kept apart from an absent key. Read the file for the area before changing its code, and when a change needs a rule to move, change the rule, its pinning test and the code together.
+The module is built on a set of written design rules, one file per area under [docs/principles/](docs/principles/README.md). Much of the code is only understandable against those rules: a check that looks redundant, a value that is never repaired, a null that is kept apart from an absent key.
 
 ## Core Concepts
 
@@ -16,7 +16,7 @@ The module is built on a set of written design rules, one file per area under [d
 
 **Data Requirements** - Declarations of what data an element needs. The system loads this data automatically before rendering.
 
-**Context** - Mechanism for parent elements to share data with descendants. Providers expose data, consumers receive it without explicit passing through intermediate elements.
+**Context** - Mechanism for elements to share data: providers expose data and consumers receive it, within the reach rules of [context-wiring](docs/principles/context-wiring.md#context-flows-only-between-adjacent-elements).
 
 ## Content Sections
 
@@ -68,7 +68,7 @@ Domain-specific content system classes live in their owning domain module — no
 
 **Domain-owned:** Entity definitions, specification sources, data loaders, config serializers. These are co-located with the domain entity they serve (e.g., product data loader lives in the product module).
 
-**Framework-owned (stays here):** Pipeline, render step (`Rendering/`) and data loaders (`Hydration/`), field serializers, cache, events, output formats, generic loaders, tagged locator consumers, route loader, type introspection schema.
+**Framework-owned (stays here, `#[Package('framework')]`):** Pipeline, render step (`Rendering/`) and data loaders (`Hydration/`), field serializers, cache, events, output formats, generic loaders, tagged locator consumers, route loader, type introspection schema.
 
 **DI registration follows the class.** Tagged services (`content_system.data_loader`, `content_system.config_serializer`, `content_system.entity_specification_source`) are resolved via `tagged_locator`/`tagged_iterator` at compile time, regardless of which DI file defines them.
 

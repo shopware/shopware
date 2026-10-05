@@ -8,11 +8,15 @@ The storage-side element model, and the edit idiom for the rendered one. Element
 
 ## Key Classes
 
-- `StoredElement` - The storage-side node, rebuilt rather than mutated: every edit returns a new instance through a `with*()` method.
-- `StoredValue` - Wraps each property value by variant.
+- `StoredElement` - The storage-side node, rebuilt rather than mutated: every edit returns a new instance through a `with*()` method. Its slots are `array<string, list<StoredElement>>`.
+- `StoredValue` - Wraps each property value by variant; `StoredElement::jsonSerialize()` maps each property through its own `StoredValue::jsonSerialize()`.
 - `RenderedTreeEditor` - Applies one per-element transformation across a whole rendered forest.
 
 `RenderedElement`, the render-side counterpart, lives in [Rendering/](../../Rendering/README.md) with the classes that create it. What each of the two models carries, and which one a name is about, is set out in [../../docs/stored-and-rendered.md](../../docs/stored-and-rendered.md).
+
+## Rendered Element Keys
+
+`Rendering/RenderedElementFactory` decides which keys a rendered element carries: declared authored properties (every declared type except a single-FQCN reference, unions and bare `object` included) carrying the stored value and skipped when that value is the null variant; `dataRequirements[$key]` keys carrying the resolved loader value; the keys context was actually delivered under; and stored keys a parent's distribution config names, excluding a declared reference property. The rendered property map draws no distinction between a static, a loaded and a context-provided value; provenance is recorded separately in `Rendering/ElementMintResult`, collected by `LoweringResult`. A rendered element's slots are `array<string, list<RenderedElement>>`. A `RenderedTreeFinalizationEvent` listener may hand back elements changed through `withProperty()` / `withProperties()`, and `ContentPipeline` carries that replacement forward rather than the tree it dispatched.
 
 ## Editing a Rendered Forest
 
@@ -24,7 +28,7 @@ It is the whole-tree half of the rendering extension idiom, aimed at third-party
 
 ## Context and Data
 
-Elements provide/consume context via string keys matched between `ContextProvider` and `ContextConsumer`. Context flows down tree only. See Context/ for definitions and Rendering/ for distribution.
+Elements provide/consume context via string keys matched between `ContextProvider` and `ContextConsumer`; context flows only between adjacent elements ([context-wiring.md](../../docs/principles/context-wiring.md#context-flows-only-between-adjacent-elements)). See Context/ for definitions and Rendering/ for distribution.
 
 Data requirements declare external data via `DataRequirement` objects. See Hydration/DataLoader/ for loaders.
 

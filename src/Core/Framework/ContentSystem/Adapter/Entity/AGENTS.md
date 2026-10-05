@@ -1,14 +1,12 @@
 ## Constraints
 
-- Entity assignments: `UNIQUE (entity_id, sales_channel_id)` — one global + one per channel per entity
-- Header/Footer: `UNIQUE (domain_id, sales_channel_id)` — Storefront-only, registered in `Storefront/DependencyInjection/content-system.php`
-- Entity definitions registered in their owning domain's DI, not in `content-system.php`
-- Assignments are unidirectional — parent entities have no awareness of ContentSystem
-- Entity fallback: sales channel specific → global (null)
-- Header/footer fallback: domain+channel → channel → global
+- Keep assignments unidirectional: a parent entity (Product, Category, Landing Page) must not know ContentSystem. Check: does a parent entity definition or entity class reference a ContentSystem type? See [README.md](../README.md#subdirectories)
 
-## Quick Reference
+## Where to look
 
-- Repositories: `{entity}_content_layout.repository` (Core), `header_content_layout.repository` / `footer_content_layout.repository` (Storefront)
-- Resolution: see `FactoryHelper/EntityLayoutResolver` and `FactoryHelper/DomainAwareLayoutResolver`
-- Package: `#[Package('framework')]`
+- Assignment record and its unique key: [entity-rendering.md](../docs/entity-rendering.md#assignment-structure)
+- Sales-channel fallback between assignments: [entity-rendering.md](../docs/entity-rendering.md#sales-channel-resolution)
+- Assignment tables and repository service ids for entity, header and footer: [entity-rendering.md](../docs/entity-rendering.md#entity-based-rendering)
+- The assignable-entity definition a specification source receives: [custom-sources.md](../docs/custom-sources.md#example-blog-post-source)
+- Header and footer assignment key, fallback and registration: [README.md](../README.md#resolution-strategies)
+- Entity base classes and the layout resolvers in FactoryHelper: [README.md](../README.md#subdirectories)

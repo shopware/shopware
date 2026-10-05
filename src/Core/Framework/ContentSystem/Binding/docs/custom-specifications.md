@@ -4,7 +4,7 @@ A binding specification is a pre-validated data wiring for one element type: a `
 
 The simplest case needs no authored specification at all: declaring `resolvedBy` on a reference property (see [Custom Element Types](../../Layout/Type/docs/custom-types.md)) synthesizes a default specification for the type automatically, fill-applied to every freshly inserted or replaced element of that type with no client-side binding step. Plugins and apps additionally author specifications inline, in the optional top-level `bindings:` key of an element-type YAML file — for an alternative or additional wiring beyond the type's default.
 
-`resolvedBy` names the storage key the element stores the referenced id under. A typo in that key is not caught at load time (an undeclared storage key is indistinguishable from an intentional one) and instead appears later as an unfilled required input when the layout is diagnosed.
+`resolvedBy` storage key and the typo case that surfaces at diagnosis: [resolved-by.md](resolved-by.md).
 
 ## Registration
 
@@ -25,7 +25,7 @@ A `resolves` entry accepts three shapes; the first two are expanded to the canon
 | B    | `media: { entity: { property: mediaId } }` (single key names the loader)   | Name the loader explicitly; entity names are derived            |
 | C    | `media: { loader: entity, config: { entity: media, property: mediaId } }`  | Canonical form; the only shape for unusual configs              |
 
-Tier A is closed: a bare string resolves only against the reference property's declared FQCN, to the built-in `entity` or `entity_collection` loader — a subclass of `Entity` or `EntityCollection` respectively, nothing else. Sugar never resolves by precedence: an entry that cannot expand deterministically (a tier-A reference FQCN that is neither an `Entity` nor an `EntityCollection` subclass, several entities producing the same class, an unknown tier-B config key) is a load-time error whose message names the fix. `inputs` entries are synthesized automatically for every primitive property the wiring reads, and every input carries a derived `required` flag (set when the property is read through a required config key and the wired reference property is itself required). Expansion rules in detail: [authoring-sugar.md](authoring-sugar.md).
+`inputs` entries are synthesized automatically for every primitive property the wiring reads, and every input carries a derived `required` flag (set when the property is read through a required config key and the wired reference property is itself required). Tier A closure and the load-time errors: [authoring-sugar.md](authoring-sugar.md).
 
 ## Collision Detection
 
@@ -33,10 +33,10 @@ Uniqueness is per source, not global: a duplicate bare id within one source is a
 
 ## App Lifecycle
 
-App specifications are persisted to `app_content_system_binding_specification` on install/update and cascade-deleted with the app; the registry is invalidated on activate/deactivate/uninstall/delete. Because an app is inactive at install time, its own types are not yet registered; validation resolves the declared type against a type overlay built from the app's own type files. Because the type is always the containing element type, an app binding can only ever target one of the app's own types.
+App specifications are persisted to `app_content_system_binding_specification` on install/update and cascade-deleted with the app; the registry is invalidated on activate/deactivate/uninstall/delete. An app binding validates against a type overlay built from the app's own types, so it can only target one of them: [inline-bindings.md](inline-bindings.md#inline-bindings-in-an-app-the-type-overlay).
 
 ## Discoverability
 
-A registered specification appears folded under a `bindingSpecifications` key per type entry in `GET /api/_info/content-system-element-types.json`. A client derives the specifications applicable to an element from `bindingSpecifications[element.component]`. See [introspection.md](introspection.md).
+A registered specification appears folded under a `bindingSpecifications` key per type entry in `GET /api/_info/content-system-element-types.json`. See [introspection.md](introspection.md).
 
 Reference: [../README.md](../README.md), `Layout/Type/Definitions/media/image.yaml` (core `resolvedBy` example)

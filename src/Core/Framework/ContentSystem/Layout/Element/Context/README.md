@@ -20,7 +20,7 @@ Example: A product page with title, price, and images all showing the same produ
 - [docs/providers.md](docs/providers.md) - The `providesContext` entry: keys, types, distribution, and `consumerAlias`
 - [docs/consumers.md](docs/consumers.md) - The `acceptsContext` entry: keys, types, `required`, `scope`, and `propertyAlias`
 - [docs/path-resolution.md](docs/path-resolution.md) - Dot-notation access to nested properties of a provided entity
-- [docs/distribution-strategies.md](docs/distribution-strategies.md) - The distribution strategies and the ancestor-to-descendant flow rules
+- [docs/distribution-strategies.md](docs/distribution-strategies.md) - The distribution strategies and the flow rules
 - [docs/redistribution.md](docs/redistribution.md) - Passing received context through a container with `redistribute: true`
 - [docs/worked-example.md](docs/worked-example.md) - One provider feeding three consumer children end to end
 

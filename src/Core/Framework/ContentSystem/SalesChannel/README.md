@@ -4,12 +4,12 @@ Store API entry point. A single `ContentRoute` class serves all formats and cont
 
 ## Key Classes
 
-- `AbstractContentRoute` - Base class of `ContentRoute`. Route decoration is not an offered extension surface
-- `ContentRoute` - One service per section and format, parameterized via DI
+- `AbstractContentRoute` - Base class of `ContentRoute`. Route decoration is not offered ([extension surface](../docs/principles/extension-surface.md#the-extension-surface-is-a-deliberate-bounded-listed-choice))
+- `ContentRoute` - One service per section and format, parameterized via DI. Passes the format factory's `getRenderingMode()` and `collectsValueIndex()` to the pipeline. Decomposed and data render in FULL mode like full and differ only in collecting a value index
 
 ## Endpoints
 
-All endpoints use HTTP GET with cache enabled. `?elementId` partial rendering is gated per section, not per format: every main-section format accepts it, and header and footer accept it in no format, because their specification sources never resolve a target element. See [Partial Rendering](../Output/README.md#partial-rendering).
+All endpoints use HTTP GET with cache enabled. `?elementId` partial rendering is gated per section, not per format: every main-section format accepts it, header and footer accept it in no format. See [Partial Rendering](../Output/README.md#partial-rendering).
 
 **Main section:** `/store-api/content/{path}`, `/store-api/content-decomposed/{path}`, `/store-api/content-skeleton/{path}`, `/store-api/content-data/{path}`
 
@@ -17,7 +17,9 @@ All endpoints use HTTP GET with cache enabled. `?elementId` partial rendering is
 
 Field selection is not supported on any route. A request carrying an `includes` or `excludes` parameter, in the attribute, query or request bag, is rejected with HTTP 400 (`CONTENT_SYSTEM__FIELD_SELECTION_NOT_SUPPORTED`) before the pipeline runs, in every format including skeleton. The parameter is named in the error message.
 
-Routes registered programmatically via `ContentRouteLoader` in Routing/, not via PHP attributes.
+## Route Registration
+
+`ContentRouteLoader` (`routing.loader` tag) registers the routes, not PHP attributes. `ContentRouteCompilerPass` builds one `ContentRoute` service per `content_system.section_resolver` × `content_system.output_format`.
 
 ## Subdirectories
 

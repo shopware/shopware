@@ -1,12 +1,14 @@
-## Navigation
-
-- Why listener actions are listed before any guard: [extension-surface.md](../../docs/principles/extension-surface.md)
-- Why these constraints hold, and what was not chosen: [rendering.md](../../docs/principles/rendering.md)
-
 ## Constraints
 
-- Placeholders resolved in single pass, on the stored tree, after `ContentTreePreparationEvent` and in FULL mode only. A listener MUST NOT rely on the pipeline resolving anything in SKELETON mode
-- Both events carry their forest in private storage and replace it via `replaceTree()`: `ContentTreePreparationEvent` the stored one, `RenderedTreeFinalizationEvent` the rendered one. Every other event property is readonly, and neither exposes `RenderingMode`
-- Expect a check of the returned tree again. A repeated id fails after either event, under [the render's final check](../../docs/principles/rendering.md#the-render-validates-the-whole-stored-forest-in-every-mode), and invalid wiring fails after preparation. A finalization listener may still rewrite, remove, reorder and add elements.
-- Extension: `#[AsEventListener]` attribute with event class and priority
-- Before adding a guard or rule on listener output, list every action the listener contract permits with its outcome (throw, drop or a new category). Never let a permitted action throw, and document a bar no sound guard can hold. Check: can any permitted action reach the new throw?
+- Never rely on the pipeline resolving a placeholder in SKELETON mode, or one that a `RenderedTreeFinalizationEvent` listener adds; resolve it in the listener. Check: does a `{{token}}` the listener introduces reach a FULL-mode preparation step before the finalization event? Why: [rendering.md](../../docs/principles/rendering.md#the-two-tree-replacement-events-fire-at-fixed-points)
+- Return from either event a tree with no repeated element id, and from `ContentTreePreparationEvent` also valid wiring. Check: can the tree passed to `replaceTree()` repeat an element id or, after preparation, break wiring? Either fails the render under [the final check](../../docs/principles/rendering.md#the-render-validates-the-whole-stored-forest-in-every-mode).
+- Before adding a guard or rule on listener output, list every action the listener contract permits with its outcome (throw, drop or a new category). Never let a permitted action throw, and document a bar no sound guard can hold. Check: can any permitted action reach the new throw? Why: [extension-surface.md](../../docs/principles/extension-surface.md#a-guard-on-listener-output-never-throws-on-an-action-that-the-extension-contract-permits)
+
+## Where to look
+
+- The tree each event carries, `replaceTree()`, the private tree storage, the readonly event properties, the missing `RenderingMode`, and the edits a finalization listener may make: [custom-listeners.md](docs/custom-listeners.md#custom-event-listeners)
+- Editing `RenderedElement`, `RenderedTreeEditor::mapNodes()` and null properties: [listener-api.md](docs/listener-api.md#working-with-renderedelement)
+- A worked listener, registering it with `#[AsEventListener]` and the autoconfigure requirement: [listener-api.md](docs/listener-api.md#example-reading-time-listener)
+- Cache tags and disabling the cache from a listener: [listener-api.md](docs/listener-api.md#cache-context-in-subscribers)
+- Priority ordering against other extensions' listeners: [listener-api.md](docs/listener-api.md#priorities)
+- Pipeline step order and what a listener sees at each position: [README.md](README.md#execution-order)

@@ -12,10 +12,6 @@ Nothing in the Storefront's own rendering path reads these assignments. A page r
 - **Validation/** — [Validation/README.md](Validation/README.md) — DAL `PreWriteValidationEvent` gate for header/footer assignment writes (`HeaderFooterAssignmentWriteValidator`): a tree-blind type-match of the bound layout's immutable `root_source` against the section id
 - [docs/header-footer.md](docs/header-footer.md) — The Store API header and footer endpoints, the assignment record, and domain-aware resolution
 
-## Resolution
-
-Domain-aware three-tier fallback via `Core/Framework/ContentSystem/Adapter/FactoryHelper/DomainAwareLayoutResolver`: domain+channel → channel → global.
-
 ## DI Config
 
-`Storefront/DependencyInjection/content-system.php`
+`Storefront/DependencyInjection/content-system.php` registers the header and footer entity definitions, entity extensions, specification sources, section resolvers and the assignment write validator. The Core `content-system.php` does not register them.

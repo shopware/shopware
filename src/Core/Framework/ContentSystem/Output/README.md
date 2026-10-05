@@ -7,8 +7,8 @@ One exception sits ahead of the render step rather than after it: `ElementTreePr
 ## Response Formats
 
 Three formats write their own body out of the finished render, each through a page encoder of its own:
-- **full** → `Encoder/ContentPageEncoder` walks the forest and writes page keys, element keys and property values
-- **decomposed** → `Encoder/ContentDecomposedPageEncoder` projects the same node shape without property values, over the two maps of `Encoder/ResolvedValueIndexEncoder`
+- **full** → `Encoder/ContentPageEncoder` walks the forest and writes the page keys (`id`, `name`, `version`, `elements`), every element's keys (`id`, `component`, `properties`, `slots` and `style` omitted when empty, `apiAlias` last, on every node at every depth) and the property values
+- **decomposed** → `Encoder/ContentDecomposedPageEncoder` projects the same node shape without property values, repeating the `content_skeleton_element` alias as its own constant rather than building `ContentSkeletonElement`, over the two maps of `Encoder/ResolvedValueIndexEncoder` (`data`: ref → value; `assignments`: element id → property key → ref)
 - **data** → `Encoder/ContentDataPageEncoder` writes `id`, `name` and `version` alongside those two maps, carrying no element structure — the half a client fetches once it already holds a cached skeleton
 
 The decomposed and data formats are siblings over the same `Index/ResolvedValueIndex` rather than one derived from the other.
@@ -24,13 +24,15 @@ Every route goes through a format-specific `AbstractResponseFactory` implementat
 
 Extracts specific element subtree via `?elementId` parameter. `SubTreeExtractor` searches roots sequentially — first match returned. Same elementId in multiple roots returns only first occurrence. Pruning keeps context-dependent ancestors through the render step so data still flows correctly to the target; extraction then drops those ancestors and returns only the target subtree.
 
-The pruner and the extractor therefore sit on opposite sides of the render step: `ElementTreePruner` rebuilds the kept path out of `StoredElement`s through `StoredElement::withSlots()`, and reports a root that does not hold the target as `null` rather than as an error — the forest has other roots to try, and `PartialRenderer::extractTarget()` is the one place a genuinely absent target becomes `elementNotFound`.
+The pruner and the extractor therefore sit on opposite sides of the render step: `ElementTreePruner` rebuilds the kept path out of `StoredElement`s through `StoredElement::withSlots()`, never through the constructor, the same idiom as `Layout/StoredTree`'s surgery, and reports a root that does not hold the target as `null` rather than as an error, because the forest has other roots to try. `PartialRenderer::extractTarget()` is the one place a genuinely absent target becomes `elementNotFound`.
 
 Header and footer sources never resolve a target element, so those sections never support partial rendering.
+
+Partial rendering is independent of the response format. `SubTreeExtractor` returns the found instance rather than a copy: `RenderedElement` is `final readonly`, so nothing can mutate what the rest of the tree still points at.
 
 ## Subdirectories
 
 - **Struct/** - Response data structures: `ContentPage`, the page the encoded formats' responses build off the render result and expose as their struct, and `ContentSkeletonPage` / `ContentSkeletonElement` for the skeleton format, plus `EncodedContentPage`, the carrier that hands an already-encoded body and the alias it reports to the framework's response encoding
 - **Format/** - Response factory implementations (Full, Decomposed, Skeleton, Data)
-- **Encoder/** - The module's own wire shape: `ContentPageEncoder`, `ContentDecomposedPageEncoder` and `ContentDataPageEncoder`, the `ResolvedValueIndexEncoder` the latter two share, and `ContentResponseEncodingListener`, which swaps those three formats' responses for the carrier
+- **Encoder/** - The module's own wire shape: `ContentPageEncoder`, `ContentDecomposedPageEncoder` and `ContentDataPageEncoder`, the `ResolvedValueIndexEncoder` the latter two share, and `ContentResponseEncodingListener` (`kernel.response`, between `StoreApiSeoResolver` and `StoreApiResponseListener`), which swaps those three formats' responses for the carrier through an explicit `match` over the three concrete `SalesChannel/AbstractContentRouteResponse` classes, not a common encoder interface
 - **Index/** - `ResolvedValueIndex` and its factory, the value model the decomposed and data formats are built on

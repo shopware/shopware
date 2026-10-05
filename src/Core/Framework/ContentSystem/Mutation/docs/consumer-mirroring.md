@@ -2,7 +2,7 @@
 
 `ContextConsumerMirror` is the creation-time step `MutationPipeline` runs after the diagnostics pass. It mirrors
 onto the created elements the `acceptsContext` consumers their own resolutions already prove, and nothing else. It
-is `@internal`, `#[Package('framework')]` like everything else here, and absent from `InternalClassRule`'s
+is `@internal` and absent from `InternalClassRule`'s
 public-surface allowlist.
 
 ## What proves a consumer
@@ -44,13 +44,11 @@ case, behavior is unchanged, but a cross-key mirror is blocked only when the wri
 requirement or a provider, never merely because its resolved `contextKey` happens to match one that fills a
 different property.
 
-## Rebuild and the identity contract
+## Rebuild
 
 Mirroring rebuilds each element and its ancestors through its own recursion over the slots, because
 `StoredTree::locate()` carries no ancestors.
 
-Writing no consumer returns the input `StoredTree` instance itself, which is what the pipeline's re-analysis gate
-reads.
+A `ReplaceElement` target counts as `created()` ([replace-element.md](replace-element.md)).
 
-`ReplaceElement` re-scaffolds the target element under the same id, which counts as `created()` (see
-[replace-element.md](replace-element.md)). See [The draft pipeline writes derived wiring only where proved](../../docs/principles/mutation.md#the-draft-pipeline-writes-derived-wiring-only-where-proved).
+See [The draft pipeline writes derived wiring only where proved](../../docs/principles/mutation.md#the-draft-pipeline-writes-derived-wiring-only-where-proved).

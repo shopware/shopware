@@ -36,7 +36,7 @@ adminUI:
 - **`maxLength`** (optional, declarable on `string` only): caps the stored string. A `string` or `number` with no `maxLength` declared is still capped at 255, so a client cannot store an unbounded value (including a long numeric string); `integer` and `boolean` are unaffected.
 - **`default`** (optional): pre-fills the editor; the write boundary fills the missing breakpoints of a partial map from it, see [option-model.md](option-model.md).
 - **`adminUI`** (optional): an opaque block passed through verbatim to the Administration. See [Presentation hints belong to the editor, and the server never branches on them](../../../../docs/principles/type-declarations.md#presentation-hints-belong-to-the-editor-and-the-server-never-branches-on-them).
-- **`kind`** (optional): declares that the option's value gets a kind-specific canonicalisation at the write boundary. Its only defined value is `box-spacing`, which canonicalises the value into explicit four-part CSS (`top right bottom left`). Any other value is rejected at load. Omitted, the value is stored as authored.
+- **`kind`** (optional): declares that the option's value gets a kind-specific canonicalisation at the write boundary. Its only defined value is `box-spacing`, which canonicalises the value into explicit four-part CSS (`top right bottom left`). Any other value fails the declaration's `Assert\Choice`: `YamlStyleOptionLoader` fails hard and `DatabaseStyleOptionLoader` skips the row with a warning. No shipped core option declares `kind`. Omitted, the value is stored as authored.
 
 There is deliberately no `pattern` / regex: an app-supplied regex compiled from untrusted data and run on every write is a ReDoS vector, so strings are bounded by `maxLength` instead.
 

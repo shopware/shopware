@@ -1,6 +1,6 @@
 ## Navigation
 
-- Why the root source is immutable and settles at the creating write: [stored-model.md](../../../Core/Framework/ContentSystem/docs/principles/stored-model.md)
+- Why the root source is immutable and is set by the creating write: [stored-model.md](../../../Core/Framework/ContentSystem/docs/principles/stored-model.md)
 
 ## Constraints
 

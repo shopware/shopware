@@ -5,7 +5,7 @@ Connects CMS-capable entities (Product, Category, Landing Page) and domain-scope
 ## Guides
 
 - [docs/entity-rendering.md](docs/entity-rendering.md) - The main-section endpoints, the assignment record, and the sales channel fallback between assignments.
-- [docs/automatic-data-loading.md](docs/automatic-data-loading.md) - The entity an entity-based render loads before the layout runs, and how a layout takes delivery of it.
+- [docs/automatic-data-loading.md](docs/automatic-data-loading.md) - The entity an entity-based render loads before the layout runs, and how a layout receives it.
 - [docs/placeholders.md](docs/placeholders.md) - The placeholders entity-based rendering provides, and passing more via the query string.
 - [docs/custom-sources.md](docs/custom-sources.md) - The plugin-facing guide to authoring and registering a specification source.
 - [docs/introspection.md](docs/introspection.md) - The Admin API endpoint listing the entity types a layout can be assigned to.

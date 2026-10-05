@@ -45,7 +45,7 @@ binding-scope checks always run. `resolve()` is never handed an unregistered id 
 de-registered source as a clean `unknownRootSource` 400 before any commit.
 
 Content the op detaches (`orphaned`), wiring it drops (`droppedWiring`), and static property values it cannot carry
-(`droppedProperties`) ride back in the `MutationResult` so
+(`droppedProperties`) come back in the `MutationResult` so
 the caller can re-place them with `Op/AttachElement` (orphans), re-wire (dropped keys), or re-apply (dropped
 values).
 

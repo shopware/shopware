@@ -7,7 +7,7 @@ and the ops call them there.
   coordinates as objects, no rule of its own.
 - `subtreeIds()` - the node id plus every descendant id, via a throwaway one-node
   `StoredTree`.
-- `cloneWithNewIds()` - deep clone reminting every id in the subtree.
+- `cloneWithNewIds()` - deep clone replacing every id in the subtree.
 - `scaffoldElement()` -
   a fresh element seeded with the type's primitive property defaults (via `primitiveDefaults`), no wiring.
 - `primitiveDefaults()` -

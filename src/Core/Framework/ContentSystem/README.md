@@ -93,7 +93,7 @@ Admin-facing endpoints are documented in [Api/README.md](Api/README.md).
 - **Layout/** - [Layout/README.md](Layout/README.md) - Element tree, entities, field types, scaffolding, element type system, universal style options
 - **Mutation/** - [Mutation/README.md](Mutation/README.md) - Server-side structural layout edits (insert, remove, move, replace, duplicate, wrap, unwrap, attach, bind), each re-resolved through the diagnostics pass; applied either statelessly to a draft tree or committed to a stored layout
 - **Output/** - [Output/README.md](Output/README.md) - Response formatting and partial rendering
-- **Rendering/** - [Rendering/README.md](Rendering/README.md) - The pre-render wiring step on stored elements (context-wiring validation, redistribute derivation), then the render step: data loading, context distribution, and the minting of the rendered tree
+- **Rendering/** - [Rendering/README.md](Rendering/README.md) - The pre-render wiring step on stored elements (context-wiring validation, redistribute derivation), then the render step: data loading, context distribution, and building the rendered tree
 - **Resolution/** - [Resolution/README.md](Resolution/README.md) - Property-resolution kernel (element/context resolvers, resolution candidates)
 - **SalesChannel/** - [SalesChannel/README.md](SalesChannel/README.md) - Store API endpoints
 - **Schema/** - Data loader type introspection and schema generation

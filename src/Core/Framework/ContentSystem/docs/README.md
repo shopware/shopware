@@ -3,7 +3,7 @@
 The module overview is in [../README.md](../README.md).
 
 - [../NAMING.md](../NAMING.md) - How classes in this module are named, routing on to [stored-and-rendered.md](stored-and-rendered.md) (which of the two element models a class is about) and [role-suffixes.md](role-suffixes.md) (what each role suffix promises)
-- [pipeline-steps.md](pipeline-steps.md) - The order `ContentPipeline::load()` runs its steps in, and the orderings inside preparation that are load-bearing
+- [pipeline-steps.md](pipeline-steps.md) - The order `ContentPipeline::load()` runs its steps in, and the orderings inside preparation that must hold
 - [layout-write-gates.md](layout-write-gates.md) - What a `content_layout` write passes through before the DAL admits it, and what a delete is refused by
 - [layout-mutation.md](layout-mutation.md) - The two structural-edit runners and what they guarantee about content
 - [binding-specifications.md](binding-specifications.md) - What one binding specification declares, and the two modes it is applied in

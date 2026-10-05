@@ -1,6 +1,6 @@
 # Rendering
 
-Turns one stored element forest into the rendered forest it serves as: resolves each element's data, resolves what context every element received, and mints the rendered tree. The wiring step that precedes it — context-wiring validation and redistribute derivation, both still on stored elements — lives here too, in `WiringPlanner`.
+Turns one stored element forest into the rendered forest it serves as: resolves each element's data, resolves what context every element received, and creates the rendered tree. The wiring step that precedes it (context-wiring validation and redistribute derivation, both still on stored elements) lives here too, in `WiringPlanner`.
 
 ## Render Layers
 
@@ -8,9 +8,9 @@ Turns one stored element forest into the rendered forest it serves as: resolves 
 
 1. **Data resolution**: `ElementDataResolver` runs ONE element's `DataRequirement`s and returns what they resolved to, keyed by requirement key. Each loader returns `ContentDataLoaderResult` with cache info. The walk over the whole forest lives in `ElementLowering` itself — each element before the elements under it, slot by slot. See [Hydration/DataLoader/AGENTS.md](../Hydration/DataLoader/AGENTS.md).
 2. **Context delivery resolution**: `ContextDeliveryResolver` walks the whole forest top-down and returns a `ContextDeliveryIndex` recording what every element received. It takes the collected loader values as an argument rather than resolving them itself.
-3. **Tree minting**: `RenderedTreeFactory` folds `RenderedElementFactory` over the stored forest bottom-up and returns a `LoweringResult`: the rendered forest plus the provenance recorded for every property key in it.
+3. **Tree creation**: `RenderedTreeFactory` folds `RenderedElementFactory` over the stored forest bottom-up and returns a `LoweringResult`: the rendered forest plus the provenance recorded for every property key in it.
 
-In SKELETON mode no loader runs and no delivery is computed. The mint is handed an empty index and an empty loader-value map, and produces structure only. The traversal that shapes the tree is one code path in both modes.
+In SKELETON mode no loader runs and no delivery is computed. The tree factory gets an empty index and an empty loader-value map, and produces structure only. The traversal that shapes the tree is one code path in both modes.
 
 ## Distribution
 

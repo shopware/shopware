@@ -1,6 +1,6 @@
 # Preview URL
 
-The preview action that mints a short-lived, openable URL for a draft layout.
+The preview action that creates a short-lived, openable URL for a draft layout.
 
 `POST /api/_action/content-system/preview/entity/url`
 
@@ -33,7 +33,7 @@ The `ContentPreviewRequest` envelope:
 
 ## Errors
 
-Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`ContentSystemException`). Because the mint runs the one build gate, it renders against real entity data too, so a fault raised during hydration keeps its own status instead of collapsing to 400 (see the HTTP column). The store write adds one further failure:
+Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`ContentSystemException`). Because creating the URL runs the one build gate, it renders against real entity data too, so a fault raised during hydration keeps its own status instead of collapsing to 400 (see the HTTP column). The store write adds one further failure:
 
 | Condition | HTTP | Factory / source |
 |---|---|---|
@@ -48,6 +48,6 @@ Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`Con
 | Invalid sales channel id | 404 / 412 | `SalesChannelException` (not a `ContentSystemException`) |
 | The cache rejects the payload write | 500 | `ContentSystemException::previewPayloadStoreFailed` |
 
-Entity resolution and hydration run at mint time as well as when the URL is opened, so `unknownEntityType` and hydration faults surface here too. A target entity that does not exist, or an unresolvable data requirement inside a loader, is no failure at all: the loader degrades that element to `notFound()` and the preview renders without it.
+Entity resolution and hydration run when the URL is created as well as when it is opened, so `unknownEntityType` and hydration faults are raised here too. A target entity that does not exist, or an unresolvable data requirement inside a loader, is no failure at all: the loader degrades that element to `notFound()` and the preview renders without it.
 
 The gate is the write's own decoder, `Layout/Codec/StoredElementCodec`, so preview and write refuse the same drafts: a scalar `slots`, `dataRequirements`, context map, `style`, or attribution list is a 400 here exactly as it is on write, rather than being emptied and then passing.

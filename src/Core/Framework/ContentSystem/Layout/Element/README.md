@@ -12,7 +12,7 @@ The storage-side element model, and the edit idiom for the rendered one. Element
 - `StoredValue` - Wraps each property value by variant.
 - `RenderedTreeEditor` - Applies one per-element transformation across a whole rendered forest.
 
-`RenderedElement`, the render-side counterpart, lives in [Rendering/](../../Rendering/README.md) with the classes that mint it. What each of the two models carries, and which one a name is about, is set out in [../../docs/stored-and-rendered.md](../../docs/stored-and-rendered.md).
+`RenderedElement`, the render-side counterpart, lives in [Rendering/](../../Rendering/README.md) with the classes that create it. What each of the two models carries, and which one a name is about, is set out in [../../docs/stored-and-rendered.md](../../docs/stored-and-rendered.md).
 
 ## Editing a Rendered Forest
 

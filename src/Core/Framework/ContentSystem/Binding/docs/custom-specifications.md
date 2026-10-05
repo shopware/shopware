@@ -4,7 +4,7 @@ A binding specification is a pre-validated data wiring for one element type: a `
 
 The simplest case needs no authored specification at all: declaring `resolvedBy` on a reference property (see [Custom Element Types](../../Layout/Type/docs/custom-types.md)) synthesizes a default specification for the type automatically, fill-applied to every freshly inserted or replaced element of that type with no client-side binding step. Plugins and apps additionally author specifications inline, in the optional top-level `bindings:` key of an element-type YAML file — for an alternative or additional wiring beyond the type's default.
 
-`resolvedBy` names the storage key the element stores the referenced id under. A typo in that key is not caught at load time — an undeclared storage key is indistinguishable from an intentional one — and instead surfaces later as an unfilled required input when the layout is diagnosed.
+`resolvedBy` names the storage key the element stores the referenced id under. A typo in that key is not caught at load time (an undeclared storage key is indistinguishable from an intentional one) and instead appears later as an unfilled required input when the layout is diagnosed.
 
 ## Registration
 

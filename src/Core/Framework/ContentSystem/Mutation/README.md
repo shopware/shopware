@@ -35,7 +35,7 @@ itself is agnostic to whether the tree came from a request draft or a loaded `co
    tree the result carries; a tree that gained none comes back as the same instance and is diagnosed once.
 4. **Assemble** a `MutationResult`: the new layout, the resolutions restricted to the affected elements, the
    diagnostics report, the affected element ids, and the orphaned subtrees, dropped wiring, and dropped property
-   values the operation surfaced.
+   values the operation reported.
 
 ## Result Channels
 
@@ -43,7 +43,7 @@ Every operation reports these things alongside the new tree:
 
 - **affected** (`list<string>`) - element ids whose resolution may have changed. A conservative highlight hint for
   the editor, not a correctness claim; the diagnostics pass is the authority.
-- **created** (`list<string>`) - element ids whose node the operation built fresh. See [The draft pipeline writes derived wiring only where proved](../docs/principles/mutation.md#the-draft-pipeline-writes-derived-wiring-only-where-proved).
+- **created** (`list<string>`) - element ids whose node the operation created. See [The draft pipeline writes derived wiring only where proved](../docs/principles/mutation.md#the-draft-pipeline-writes-derived-wiring-only-where-proved).
 - **orphaned** (`list<StoredElement>`) - subtrees the operation detached (for example, a replace dropping the
   children of a slot the new type does not have). Returned so the caller can re-place them.
 - **droppedWiring** (`list<string>`) - wiring keys the operation could not re-home (for example, a replace to a type
@@ -60,7 +60,7 @@ See [The module drops nothing silently and reports every loss](../docs/principle
 Each operation derives its affected set from how context can flow, not from what structurally moved:
 
 - **RemoveElement reports nothing.** Context flows strictly down the tree, so a provider inside the removed subtree
-  could only feed elements that are themselves inside it. A removed subtree therefore strands no surviving element.
+  could only feed elements that are themselves inside it. A removed subtree therefore breaks no surviving element.
 - **MoveElement reports the moved subtree only when the parent changes.** Resolution is candidate selection by
   type/key, never by sibling index, so a same-parent move (a reorder, or a different slot under the same parent)
   leaves every element's available providers unchanged and re-resolves nothing. Only a parent change re-scopes the

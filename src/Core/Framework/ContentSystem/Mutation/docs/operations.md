@@ -45,19 +45,19 @@ three drop channels: [replace-element.md](replace-element.md).
 
 ## DuplicateElement
 
-Deep-clones the subtree with freshly minted ids and splices the clone as the next sibling. Target must exist
+Deep-clones the subtree with new ids and splices the clone as the next sibling. Target must exist
 (`mutationTargetNotFound`); `affected = subtreeIds($clone)` and `created` the same full clone set, never the
 original; splices at `$index ?? location.index + 1`. Context wiring is key-based and position-based, never id-based,
 so it carries over unchanged with no internal id references to rewrite.
 
 ## WrapElements
 
-Mints a container element and moves a set of sibling elements into it. `requireRegistered`; slot required
+Adds a container element and moves a set of sibling elements into it. `requireRegistered`; slot required
 (`mutationSlotRequired`); each target must exist (`mutationTargetNotFound`); the targets must all be siblings in one
 slot (or all roots), else `mutationInvalidWrapTargets`. An empty id list and a list with a repeated id both throw
 `mutationInvalidWrapTargets` too. Scaffolds the container with the targets (in original order) in `$slot`, places it
 at the lowest target index. `affected = [containerId, ...elementIds]`; `created = [containerId]` only, because the
-wrapped targets are moved, not minted.
+wrapped targets are moved, not created.
 
 ## UnwrapElement
 
@@ -73,11 +73,11 @@ The context the container *provided* is not reported, a carve-out stated with th
 
 ## AttachElement
 
-Splices a caller-supplied element subtree into a parent slot (or the root), reminting every id. The inverse of the
+Splices a caller-supplied element subtree into a parent slot (or the root), replacing every id. The inverse of the
 detachment a replace reports through `orphaned`: it re-places a detached subtree, or a copied one, without trusting
 client ids. The supplied root's component must be a registered type,
-else `mutationUnknownType`, matching the check insert/replace/wrap run. Clients never supply ids; the server-minted
-ids come back in `affected = subtreeIds($clone)`, and `created` carries the same full re-minted set, every node in
+else `mutationUnknownType`, matching the check insert/replace/wrap run. Clients never supply ids; the server-issued
+ids come back in `affected = subtreeIds($clone)`, and `created` carries the same full new-id set, every node in
 the spliced subtree being new to the layout. Placement mirrors `Op/InsertElement` (slot required with a parent →
 `mutationSlotRequired`; parent must exist → `mutationTargetNotFound`). Detaches nothing:
 `orphaned`/`droppedWiring`/`droppedProperties` stay empty.
@@ -98,4 +98,4 @@ present `StoredValue`). Every wired key's
 attribution is recorded into `attributedSpecifications`, also merged and overwriting.
 
 Keeps the same id. `affected = [elementId]`; `created` stays the empty default (the element node is wired, not
-minted); `orphaned`/`droppedWiring`/`droppedProperties` stay empty, because binding only adds wiring.
+built); `orphaned`/`droppedWiring`/`droppedProperties` stay empty, because binding only adds wiring.

@@ -12,9 +12,9 @@ Not chosen: One element class that storage, validation, the administration, temp
 
 In code:
 
-- `RenderedElementFactory` mints every rendered element from a stored one inside the render step.
-- `create()` mints in full rendering.
-- `createStructural()` mints for the skeleton.
+- `RenderedElementFactory` builds every rendered element from a stored one inside the render step.
+- `create()` builds in full rendering.
+- `createStructural()` builds for the skeleton.
 - A listener replaces the tree through `ContentTreePreparationEvent::replaceTree()`.
 - `StoredElementTest` pins the stored side's immutability.
 - See [stored-and-rendered.md](../stored-and-rendered.md).
@@ -81,6 +81,6 @@ In code:
 
 ## Also true by construction
 
-- The type declaration and the mint select a rendered element's keys, so storage alone never brings a key to a template: [output-schema.md](../../Layout/Type/docs/output-schema.md)
+- The type declaration and the conversion select a rendered element's keys, so storage alone never brings a key to a template: [output-schema.md](../../Layout/Type/docs/output-schema.md)
 - A JSON-decoded stored value is a scalar, null, list or map of stored values, and objects exist only in `RenderedElement`: [stored-and-rendered.md](../stored-and-rendered.md)
 - `RenderedElement` is a closed value object outside the framework struct hierarchy, so a walk over framework structs never enters it: [stored-and-rendered.md](../stored-and-rendered.md)

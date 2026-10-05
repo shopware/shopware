@@ -13,7 +13,7 @@ The write gate checks the value that the client sent. The write boundary never s
 
 A client check may gate an interaction. A client check must not coerce, filter or drop a value, and no client-side sanitizer runs before the write boundary.
 
-Why: A rewrite based on a guess hides the client defect. A copy of a rule in the client drifts from the server's rule or becomes a second gate that the server cannot see.
+Why: A rewrite based on a guess hides the client defect. A copy of a rule in the client diverges from the server's rule or becomes a second gate that the server cannot see.
 
 Exceptions: The passes of `LayoutWriteBoundary::apply()` seed declared defaults and normalize style. The multi-entity picker trims unresolvable ids.
 
@@ -25,7 +25,7 @@ In code:
 
 ## A rule about a stored value has one owner, and every path that needs the rule calls that owner
 
-Admissibility for a declared property, a default's shape, the nesting bound and a wire message must each have a "single source of truth", its owner. Diagnostics, the conformance validator, the codec and the mutation operations must call that owner. Those callers must keep no copy of the rule. A rule needed at mutation time and at the write boundary is one shared provider.
+Acceptance of a value for a declared property, a default's shape, the nesting bound and a wire message must each have a "single source of truth", its owner. Diagnostics, the conformance validator, the codec and the mutation operations must call that owner. Those callers must keep no copy of the rule. A rule needed at mutation time and at the write boundary is one shared provider.
 
 Why: In an earlier design, diagnostics, the conformance validator and the mutation operations each kept a private match table for the same admission rule. With three tables, the module stores or drops a value that one table accepts and another rejects, depending on the path that the value takes.
 

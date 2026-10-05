@@ -14,11 +14,11 @@ Exclusivity holds only for the discriminating members: `dataRequirements`, `cont
 
 So a contributor does not have to re-decide.
 
-- `Layout/Element/StoredElement` — one authored element.
-- `Layout/Element/StoredValue` — one wrapped property value.
-- `Layout/StoredTree` — the forest of stored roots, and the algebra over it.
-- `Rendering/RenderedElement` — one element as a response serializes it. It lives in `Rendering/`, with the classes that mint it, rather than under `Output/Struct/`, because it is not a `Struct` and does not pass through `StructEncoder`.
-- `Output/Struct/ContentPage` — a rendered page.
-- `Layout/Codec/` — the codecs between a wire shape and the stored model.
+- `Layout/Element/StoredElement`: one authored element.
+- `Layout/Element/StoredValue`: one wrapped property value.
+- `Layout/StoredTree`: the forest of stored roots, and the methods on it.
+- `Rendering/RenderedElement`: one element as a response serializes it. It lives in `Rendering/`, with the classes that create it, rather than under `Output/Struct/`, because it is not a `Struct` and does not pass through `StructEncoder`.
+- `Output/Struct/ContentPage`: a rendered page.
+- `Layout/Codec/`: the codecs between a wire shape and the stored model.
 
 The prefix belongs to the element models, not to everything near them. A page, a violation, a registry, a source: none of these has two variants to tell apart, so none of them takes a prefix. Reach for `Stored`/`Rendered` when a reader could otherwise pick the wrong model, and not otherwise.

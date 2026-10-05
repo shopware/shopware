@@ -25,12 +25,12 @@ Every action shares one envelope and adds its own operation fields, bound via `#
 | `duplicate-element` | `DuplicateElementRequest` | `elementId` (required); `index` (optional, next sibling when omitted)                                                                                                                               |
 | `wrap-elements`     | `WrapElementsRequest` | `elementIds` (required, a non-empty list of unique ids that are siblings in one slot, or all roots); `containerType` (required); `slot` (required)                                                         |
 | `unwrap-element`    | `UnwrapElementRequest` | `containerElementId` (required)                                                                                                                                                                     |
-| `attach-element`    | `AttachElementRequest` | `element` (required, a raw element subtree to splice in, decoded via `DraftLayoutDecoder::decodeOne()`; every id in it is reminted); `parentElementId` (optional, root when omitted); `slot` (required when a parent is given); `index` (optional) |
+| `attach-element`    | `AttachElementRequest` | `element` (required, a raw element subtree to splice in, decoded via `DraftLayoutDecoder::decodeOne()`; every id in it is regenerated); `parentElementId` (optional, root when omitted); `slot` (required when a parent is given); `index` (optional) |
 | `bind-element`      | `BindElementRequest` | `elementId` (required); `bindingSpecificationId` (required, source-qualified id `source:id` from the target element's type entry's [`bindingSpecifications`](../../Binding/docs/introspection.md) map on `content-system-element-types.json`)                                                                                       |
 
 `index` is clamped, never rejected: a null, negative, or out-of-range `index` appends at the end of the target list.
 
-`attach-element` is the inverse of the detachment a `replace` reports: hand its `orphaned` subtrees (or any copied subtree) back to `attach-element` to re-place them. Ids are server-minted, so the placed elements get fresh ids returned in `affectedElementIds`.
+`attach-element` is the inverse of the detachment a `replace` reports: hand its `orphaned` subtrees (or any copied subtree) back to `attach-element` to re-place them. Ids are server-generated, so the placed elements get fresh ids returned in `affectedElementIds`.
 
 Example (`insert-element`):
 

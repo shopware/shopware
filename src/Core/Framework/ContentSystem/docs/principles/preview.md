@@ -6,7 +6,7 @@ Preview shows an editor an unsaved draft rendered against real data, from the to
 
 Admin and storefront preview render a decoded draft through one `ContentPreviewPageBuilder::build()` and through the `ContentPipeline::load()` that serves persisted layouts. The mint route runs that full build as its admission gate and stores only the request. A redeemed token therefore renders. A malformed stored envelope is a server fault, and the token is the credential for redeeming the preview.
 
-Why: A validate-only mint is a second gate that can diverge from the render. A rejection at mint time is better than a 500 at redemption time. The editor cannot act on a 500 at redemption time.
+Why: A validate-only mint can accept a draft that the render later fails on. Redeeming the token then returns a 500 the editor cannot act on, instead of a rejection at mint time.
 
 In code:
 
@@ -22,7 +22,7 @@ Preview is the storefront's own render. The preview route runs `ContentPipeline:
 
 The preview builds its sales-channel context from the ids in the payload through `SalesChannelContextService`, not from the request's domain. The storefront's domain resolution maps active sales channels only, and a preview must render a sales channel before its activation. The preview therefore does not reproduce the domain-derived request state, the session's customer and cart, or the rule ids that follow from them. A customer is previewed by id, without a cart. A listener or plugin that reads the request sees the request of the administration host, and that is not a defect.
 
-Why: An admin-side approximation makes the author correct against the artifacts of that approximation, not against the page that shoppers see. A real storefront request cannot reach an inactive sales channel.
+Why: An admin-side approximation renders differently from the storefront, so authors fix what only the approximation shows, not what shoppers see. A real storefront request cannot reach an inactive sales channel.
 
 Not chosen: An admin-side approximation of the storefront render, or a real sub-request against the sales channel's domain, which an inactive channel does not have.
 
@@ -38,7 +38,7 @@ In code:
 
 Preview renders a draft or rejects it with a 400. Of the layout diagnostics, only intrinsic errors make preview reject a draft. Warnings and resolvability findings never surface in preview. The layout write may still reject a draft that previews, as [drafts-and-gates.md](drafts-and-gates.md#the-module-holds-a-draft-to-well-formedness) states, and the editor's save path must surface that rejection.
 
-Why: The preview contract is to render or reject. The diagnose route is the surface built for reporting.
+Why: Preview renders or rejects, so a warning would block a renderable draft. The diagnose route reports.
 
 In code:
 

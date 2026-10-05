@@ -19,7 +19,7 @@ In code:
 
 A public signature must name only public types. Every class in a `ContentSystem` namespace is internal unless the public-surface list names it. An omission from the list therefore cannot publish a class. The public-surface list must also name every module type that appears in the signature of a public member of a listed class.
 
-Why: A plugin must be able to reference every type that it passes to the surface or receives from the surface. A rule that marks classes internal by pattern cannot distinguish a leak from an omission.
+Why: A public member whose signature names an internal type forces a plugin to reference that type. Marking chosen classes internal publishes every class the marking misses.
 
 Not chosen: Marking chosen classes `@internal` in a public module, with public signatures free to name internal types.
 
@@ -36,7 +36,7 @@ In code:
 
 A registry must reconcile app rows under a per-app lock and in one transaction. It must invalidate its cache inside the lock. The lifecycle handler of the registry must implement every lifecycle hook. Install and update must fail on a malformed declaration and on a nameless or malformed row. Binding ids are unique per source. An uninstall locks no layout.
 
-Why: A registry that does not fail on one bad row becomes inconsistent for every app. Install and update fail because the app lifecycle handlers load the declarations and throw on a defect. A lifecycle handler without a deactivate hook still serves a deactivated app.
+Why: A malformed row that install accepts is skipped on load, so the declaration is absent from the registry. A lifecycle handler without a deactivate hook still serves a deactivated app.
 
 Exceptions: The attribution reconciler drops an attribution to a specification that no longer exists, and the drop is not a fault. A database registry loader skips and logs a malformed persisted row on load, under the [build-time rule](failure-and-loss.md#a-declaration-or-registration-defect-fails-the-build-or-the-load-never-a-request).
 
@@ -61,7 +61,7 @@ In code:
 
 The module applies the "open/closed principle" to element capabilities. An extension adds a capability as an element type, a style option or a binding specification that the module reads. An app's rows hold the declaration as raw JSON, which round-trips without a migration. The module does not add a capability that needs an edit to a core class per entity or per element. For a capability that needs a per-entity or per-element core edit, the module makes the framework change once, for every element. An extension developer can then use that framework change alone.
 
-Why: A core method that an app cannot reach is a capability that only first-party code has. Other per-entity requests follow the first one.
+Why: A capability that needs a core edit per entity is closed to apps, and each further entity needs another core edit.
 
 Not chosen: Core classes that call app code.
 
@@ -76,7 +76,7 @@ In code:
 
 The module adds no protected member, subscribed service or import to `StorefrontController` or any other platform base class that plugin controllers extend. A controller that needs the content route takes `AbstractContentRoute` as a constructor argument and keeps its own private helper.
 
-Why: A member on a base class that every plugin controller extends is an extension surface in all but name. Once such a member ships, the member is a compatibility promise.
+Why: Plugin controllers inherit every member of their base class, so plugins can call a shipped member and a change to it breaks those plugins.
 
 Exceptions: StorefrontController keeps `loadContentPage()`, the subscribed service and the imports until separate work reverses the addition. `ProductController` and `NavigationController` call `StorefrontController::loadContentPage()`.
 

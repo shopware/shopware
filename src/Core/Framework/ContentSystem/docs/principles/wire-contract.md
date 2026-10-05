@@ -6,7 +6,7 @@ The wire contract is the shape of what the module accepts and serves over the Ad
 
 The storage column and every Admin API element body share one codec with round-trip symmetry. One class holds decode and encode together, over a fixed key set in fixed order. Decode throws on an unknown key and on a loader source with no registered config serializer. Decode strips neither.
 
-Why: Two serializations for one audience drift apart. A codec that strips input instead of throwing persists what nothing reads back.
+Why: Two serializations of one element diverge. A codec that strips input instead of throwing drops it silently.
 
 Exceptions: The Store API serves `RenderedElement` to shoppers without attribution.
 
@@ -22,7 +22,7 @@ In code:
 
 The Store API serves `RenderedElement`. Authoring clients read and write the `StoredElement` shape end to end, typed by the [administration's one element type](clients.md#the-administration-declares-one-element-type-typed-from-the-wire). Shoppers receive the `RenderedElement` shape, and no API accepts a `RenderedElement` as input. The Store API schemas describe exactly what a client can call, and the module deletes any schema definition that no route reaches.
 
-Why: A client that must derive storage keys reimplements the server and drifts from it.
+Why: A client deriving storage keys duplicates server logic and diverges from it.
 
 Not chosen: One element class on both APIs, leaving storage derivation to the client.
 
@@ -35,7 +35,7 @@ In code:
 
 Every framework struct in a body passes the protection gate leaf by leaf. Module encoders write the full, decomposed and data bodies from the render result in one listener, after SEO enrichment and before framework encoding. In-process consumers read the typed page, never an encoded body. No other object may hide a framework struct.
 
-Why: The framework encoder walks only its own structs. `StructEncoder::encode()` recurses into a `Struct` and passes every other object through raw, so a non-`Struct` object that holds a `Struct` would carry it past the field filter and publish every field. If a module encoder took over field filtering, nothing would enforce that filtering.
+Why: `StructEncoder::encode()` recurses into a `Struct` and passes every other object through raw, so a non-`Struct` object that holds a `Struct` would carry it past the field filter and publish every field. If a module encoder took over field filtering, nothing would enforce that filtering.
 
 Not chosen: An open value domain for rendered properties.
 
@@ -54,7 +54,7 @@ In code:
 
 The module generates its routes as formats times section resolvers. Every full-mode response wraps one page over one forest. A cached skeleton and a later data response join on the element id, never on a ref. A ref is local to one response, and the module numbers refs in document order. The module assigns data to positions deterministically, so a client may cache the skeleton first.
 
-Why: A client outside this codebase composes the data response onto a cached skeleton. That composition works only if the skeleton and the data response never differ in structure.
+Why: A client outside this codebase composes the data response onto a cached skeleton. The client cannot place data for an element that the skeleton lacks.
 
 Exceptions: The skeleton puts the element alias on root nodes only. The decomposed format puts the element alias on every node. A skeleton node and a decomposed node are therefore not interchangeable.
 

@@ -41,7 +41,7 @@ In code:
 
 A present null and an absent key differ as null and undefined differ in JavaScript, and PHP tells them apart with `array_key_exists`, not with isset. An authored null is a stored value. It survives mutation and blocks default seeding under the [seeding rule](stored-model.md#the-module-seeds-a-primitive-default-at-write-time-never-at-serve-time). A loader that found nothing yields a present null. An unwritten property is absent. No path collapses a present null and an absent key into one state for a property or wiring value.
 
-Why: Collapsing a present null and an absent key is silent degradation. An absent text property would then pass for an authored empty text.
+Why: An absent key read as a present null blocks default seeding. A present null read as absent gets a default seeded over it.
 
 Exceptions: `RenderedElementFactory` drops an authored null and keeps a lookup's null. A template prop with a null default and a type default of null both merge a present null and an absent key.
 
@@ -54,7 +54,7 @@ In code:
 
 A stored or sent empty object decodes as the empty list. Removing the last entry of a map drops the key. The module does not emit a map-valued element member with no entries.
 
-Why: An empty map and an absent key would be two encodings of one meaning. The wire cannot distinguish an empty map from an empty list.
+Why: The wire cannot tell an empty map from an empty list, so a stored empty map comes back as a list.
 
 Exceptions: The module emits an element's `properties` even when that map is empty. The module emits the `slots` of a skeleton or decomposed node even when the node has no slots.
 

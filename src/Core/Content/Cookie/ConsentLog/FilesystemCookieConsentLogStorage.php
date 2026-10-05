@@ -19,6 +19,8 @@ use Shopware\Core\Framework\Log\Package;
  * directories make the cleanup a directory delete, accurate to one hour.
  *
  * @internal
+ *
+ * @phpstan-import-type CookieConsentRecordJson from CookieConsentRecord
  */
 #[Package('framework')]
 final class FilesystemCookieConsentLogStorage extends AbstractCookieConsentLogStorage
@@ -65,15 +67,15 @@ final class FilesystemCookieConsentLogStorage extends AbstractCookieConsentLogSt
         $this->filesystem->write($location, json_encode($snapshot, \JSON_THROW_ON_ERROR));
     }
 
-    public function cleanup(\DateTimeImmutable $before): void
+    public function cleanup(\DateTimeInterface $before): void
     {
-        $this->prune(self::PATH, [], $before->setTimezone(new \DateTimeZone('UTC')));
+        $this->prune(self::PATH, [], $this->toUtc($before));
     }
 
-    public function iterate(\DateTimeImmutable $from, \DateTimeImmutable $to, ?string $salesChannelId = null): iterable
+    public function iterate(\DateTimeInterface $from, \DateTimeInterface $to, ?string $salesChannelId = null): iterable
     {
-        $from = $from->setTimezone(new \DateTimeZone('UTC'));
-        $to = $to->setTimezone(new \DateTimeZone('UTC'));
+        $from = $this->toUtc($from);
+        $to = $this->toUtc($to);
 
         foreach ($this->hourDirectories(self::PATH, [], $from, $to) as $hourDirectory) {
             // The file names start with the timestamp, so sorting them yields chronological order
@@ -215,6 +217,14 @@ final class FilesystemCookieConsentLogStorage extends AbstractCookieConsentLogSt
     }
 
     /**
+     * Works on a copy, so a mutable `DateTime` of the caller keeps its timezone
+     */
+    private function toUtc(\DateTimeInterface $dateTime): \DateTimeImmutable
+    {
+        return \DateTimeImmutable::createFromInterface($dateTime)->setTimezone(new \DateTimeZone('UTC'));
+    }
+
+    /**
      * The consent id becomes part of a file name, so a value outside the documented
      * pattern must never reach the filesystem
      */
@@ -229,29 +239,26 @@ final class FilesystemCookieConsentLogStorage extends AbstractCookieConsentLogSt
     {
         $data = $this->readJson($location);
 
-        /** @var array<string, string> $groupDecisions */
-        $groupDecisions = (array) $data['groupDecisions'];
-        /** @var list<string> $acceptedCookies */
-        $acceptedCookies = (array) $data['acceptedCookies'];
-
         return new CookieConsentRecord(
-            consentId: (string) $data['consentId'],
-            consentAction: CookieConsentAction::from((string) $data['consentAction']),
-            groupDecisions: array_map(CookieConsentDecision::from(...), $groupDecisions),
-            acceptedCookies: $acceptedCookies,
-            configHash: (string) $data['configHash'],
-            salesChannelId: (string) $data['salesChannelId'],
-            languageId: (string) $data['languageId'],
-            createdAt: new \DateTimeImmutable((string) $data['createdAt']),
+            consentId: $data['consentId'],
+            consentAction: CookieConsentAction::from($data['consentAction']),
+            groupDecisions: array_map(CookieConsentDecision::from(...), $data['groupDecisions']),
+            acceptedCookies: $data['acceptedCookies'],
+            configHash: $data['configHash'],
+            salesChannelId: $data['salesChannelId'],
+            languageId: $data['languageId'],
+            createdAt: new \DateTimeImmutable($data['createdAt']),
         );
     }
 
     /**
-     * @return array<string, mixed>
+     * The file holds a serialized `CookieConsentRecord`, see `log()`
+     *
+     * @return CookieConsentRecordJson
      */
     private function readJson(string $location): array
     {
-        /** @var array<string, mixed> $data */
+        /** @var CookieConsentRecordJson $data */
         $data = json_decode($this->filesystem->read($location), true, 512, \JSON_THROW_ON_ERROR);
 
         return $data;

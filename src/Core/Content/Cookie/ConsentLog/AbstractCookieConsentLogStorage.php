@@ -32,12 +32,12 @@ abstract class AbstractCookieConsentLogStorage
     /**
      * Deletes decisions recorded before the given point in time
      */
-    abstract public function cleanup(\DateTimeImmutable $before): void;
+    abstract public function cleanup(\DateTimeInterface $before): void;
 
     /**
      * Decisions recorded from `$from` (inclusive) to `$to` (exclusive), oldest first
      *
      * @return iterable<CookieConsentRecord>
      */
-    abstract public function iterate(\DateTimeImmutable $from, \DateTimeImmutable $to, ?string $salesChannelId = null): iterable;
+    abstract public function iterate(\DateTimeInterface $from, \DateTimeInterface $to, ?string $salesChannelId = null): iterable;
 }

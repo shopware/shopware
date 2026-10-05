@@ -136,7 +136,7 @@ class CookieControllerTest extends TestCase
     {
         $this->browser->request('POST', $_SERVER['APP_URL'] . '/cookie/consent-log', [], [], ['CONTENT_TYPE' => 'application/json'], '{"consentId": "visitor-a", "consentAction": "invalid"}');
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_UNPROCESSABLE_ENTITY, $this->browser->getResponse()->getStatusCode());
     }
 
     public function testConsentLogRouteIsNotExposedToTheStorefrontWhileLoggingIsOff(): void

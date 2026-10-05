@@ -23,11 +23,11 @@ final class NullCookieConsentLogStorage extends AbstractCookieConsentLogStorage
     {
     }
 
-    public function cleanup(\DateTimeImmutable $before): void
+    public function cleanup(\DateTimeInterface $before): void
     {
     }
 
-    public function iterate(\DateTimeImmutable $from, \DateTimeImmutable $to, ?string $salesChannelId = null): iterable
+    public function iterate(\DateTimeInterface $from, \DateTimeInterface $to, ?string $salesChannelId = null): iterable
     {
         return [];
     }

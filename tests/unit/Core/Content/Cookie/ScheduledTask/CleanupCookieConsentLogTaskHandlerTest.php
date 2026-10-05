@@ -23,7 +23,7 @@ class CleanupCookieConsentLogTaskHandlerTest extends TestCase
         $storage = $this->createMock(AbstractCookieConsentLogStorage::class);
         $storage->expects($this->once())
             ->method('cleanup')
-            ->with(static::callback(static fn (\DateTimeImmutable $before) => $before->format('Y-m-d H:i:s') === '2026-03-15 12:00:00'));
+            ->with(static::callback(static fn (\DateTimeInterface $before) => $before->format('Y-m-d H:i:s') === '2026-03-15 12:00:00'));
 
         $handler = new CleanupCookieConsentLogTaskHandler(
             static::createStub(EntityRepository::class),

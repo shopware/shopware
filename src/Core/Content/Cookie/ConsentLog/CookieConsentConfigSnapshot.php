@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Cookie\ConsentLog;
 
+use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -13,17 +14,17 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class CookieConsentConfigSnapshot implements \JsonSerializable
 {
     /**
-     * @param list<mixed> $cookieGroups JSON-serializable cookie groups, as the banner received them
+     * @param CookieGroupCollection $cookieGroups the cookie groups as the banner received them
      */
     public function __construct(
         public string $configHash,
-        public array $cookieGroups,
+        public CookieGroupCollection $cookieGroups,
         public \DateTimeImmutable $createdAt,
     ) {
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{configHash: string, cookieGroups: CookieGroupCollection, createdAt: string}
      */
     public function jsonSerialize(): array
     {

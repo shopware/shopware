@@ -4,14 +4,13 @@ namespace Shopware\Core\Content\Cookie\ConsentLog\Command;
 
 use Shopware\Core\Content\Cookie\ConsentLog\AbstractCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
-use Shopware\Core\Framework\Adapter\Console\ShopwareStyle;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Streams the consent log to stdout for compliance exports, e.g.
@@ -31,32 +30,31 @@ class ExportCookieConsentLogCommand extends Command
 
     private const CSV_COLUMNS = ['consentId', 'createdAt', 'consentAction', 'salesChannelId', 'languageId', 'configHash', 'groupDecisions', 'acceptedCookies'];
 
+    private const CSV_FLUSH_SIZE = 1000;
+
     public function __construct(private readonly AbstractCookieConsentLogStorage $storage)
     {
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this
-            ->addOption('from', null, InputOption::VALUE_REQUIRED, 'Only decisions recorded at or after this date/time (inclusive)', '1970-01-01')
-            ->addOption('to', null, InputOption::VALUE_REQUIRED, 'Only decisions recorded before this date/time (exclusive), defaults to now')
-            ->addOption('sales-channel', null, InputOption::VALUE_REQUIRED, 'Only decisions of this sales channel id')
-            ->addOption('format', null, InputOption::VALUE_REQUIRED, 'Output format: json (one array) or csv', self::FORMAT_JSON);
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $io = new ShopwareStyle($input, $output);
-
-        $format = $input->getOption('format');
+    public function __invoke(
+        SymfonyStyle $io,
+        OutputInterface $output,
+        #[Option(description: 'Only decisions recorded at or after this date/time (inclusive)', name: 'from')]
+        string $from = '1970-01-01',
+        #[Option(description: 'Only decisions recorded before this date/time (exclusive), defaults to now', name: 'to')]
+        ?string $to = null,
+        #[Option(description: 'Only decisions of this sales channel id', name: 'sales-channel')]
+        ?string $salesChannelId = null,
+        #[Option(description: 'Output format: json (one array) or csv', name: 'format')]
+        string $format = self::FORMAT_JSON,
+    ): int {
         if (!\in_array($format, [self::FORMAT_JSON, self::FORMAT_CSV], true)) {
             $io->error(\sprintf('Unknown format "%s", expected "json" or "csv"', $format));
 
             return self::INVALID;
         }
 
-        $salesChannelId = $input->getOption('sales-channel');
         if ($salesChannelId !== null && !Uuid::isValid($salesChannelId)) {
             $io->error(\sprintf('"%s" is not a valid sales channel id', $salesChannelId));
 
@@ -64,15 +62,15 @@ class ExportCookieConsentLogCommand extends Command
         }
 
         try {
-            $from = new \DateTimeImmutable((string) $input->getOption('from'));
-            $to = new \DateTimeImmutable((string) ($input->getOption('to') ?? 'now'));
+            $fromDate = new \DateTimeImmutable($from);
+            $toDate = new \DateTimeImmutable($to ?? 'now');
         } catch (\Exception $e) {
             $io->error($e->getMessage());
 
             return self::INVALID;
         }
 
-        $records = $this->storage->iterate($from, $to, $salesChannelId);
+        $records = $this->storage->iterate($fromDate, $toDate, $salesChannelId);
 
         if ($format === self::FORMAT_CSV) {
             $this->writeCsv($output, $records);
@@ -104,30 +102,38 @@ class ExportCookieConsentLogCommand extends Command
      */
     private function writeCsv(OutputInterface $output, iterable $records): void
     {
-        $output->writeln($this->csvLine(self::CSV_COLUMNS));
+        $buffer = fopen('php://temp', 'r+');
+        \assert($buffer !== false);
 
+        fputcsv($buffer, self::CSV_COLUMNS, escape: '');
+
+        $count = 0;
         foreach ($records as $record) {
             $data = $record->jsonSerialize();
             $data['groupDecisions'] = json_encode($data['groupDecisions'], \JSON_THROW_ON_ERROR | \JSON_FORCE_OBJECT);
             $data['acceptedCookies'] = json_encode($data['acceptedCookies'], \JSON_THROW_ON_ERROR);
 
-            $output->writeln($this->csvLine(array_map(static fn (string $column) => $data[$column], self::CSV_COLUMNS)));
+            fputcsv($buffer, array_map(static fn (string $column) => $data[$column], self::CSV_COLUMNS), escape: '');
+
+            if (++$count % self::CSV_FLUSH_SIZE === 0) {
+                $this->flushCsv($output, $buffer);
+            }
         }
+
+        $this->flushCsv($output, $buffer);
+        fclose($buffer);
     }
 
     /**
-     * @param list<mixed> $fields
+     * Written raw, so the console formatter does not change values like "<info>"
+     *
+     * @param resource $buffer
      */
-    private function csvLine(array $fields): string
+    private function flushCsv(OutputInterface $output, $buffer): void
     {
-        $handle = fopen('php://memory', 'r+');
-        \assert($handle !== false);
-
-        fputcsv($handle, $fields, escape: '');
-        rewind($handle);
-        $line = (string) stream_get_contents($handle);
-        fclose($handle);
-
-        return rtrim($line, "\n");
+        rewind($buffer);
+        $output->write((string) stream_get_contents($buffer), false, OutputInterface::OUTPUT_RAW);
+        ftruncate($buffer, 0);
+        rewind($buffer);
     }
 }

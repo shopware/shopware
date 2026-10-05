@@ -11,6 +11,8 @@ use Shopware\Core\Framework\Log\Package;
  * generated and keeps in its own cookie storage. It links the decisions of one
  * visitor and lets a data subject retrieve their own records, but it is neither an
  * IP address, a session id nor a customer id.
+ *
+ * @phpstan-type CookieConsentRecordJson array{consentId: string, consentAction: string, groupDecisions: array<string, string>, acceptedCookies: list<string>, configHash: string, salesChannelId: string, languageId: string, createdAt: string}
  */
 #[Package('framework')]
 final readonly class CookieConsentRecord implements \JsonSerializable
@@ -39,7 +41,7 @@ final readonly class CookieConsentRecord implements \JsonSerializable
     }
 
     /**
-     * @return array<string, mixed>
+     * @return CookieConsentRecordJson
      */
     public function jsonSerialize(): array
     {

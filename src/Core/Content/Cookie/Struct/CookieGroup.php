@@ -31,8 +31,11 @@ class CookieGroup extends Struct
 
     protected ?CookieEntryCollection $entries;
 
+    /**
+     * @param string $technicalName identifier of the group that does not change with the translation, part of the serialized struct
+     */
     public function __construct(
-        private readonly string $technicalName,
+        protected readonly string $technicalName,
     ) {
         $this->name = $technicalName;
     }
@@ -40,21 +43,6 @@ class CookieGroup extends Struct
     public function getApiAlias(): string
     {
         return 'cookie_group';
-    }
-
-    /**
-     * The technical name is a private property and therefore not picked up by the
-     * default Struct serialization. It is exposed explicitly because clients need a
-     * translation-independent group identifier, e.g. for cookie consent logging.
-     *
-     * @return array<array-key, mixed>
-     */
-    public function jsonSerialize(): array
-    {
-        $data = parent::jsonSerialize();
-        $data['technicalName'] = $this->technicalName;
-
-        return $data;
     }
 
     public function getTechnicalName(): string

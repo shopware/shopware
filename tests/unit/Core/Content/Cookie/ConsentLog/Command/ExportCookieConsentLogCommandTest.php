@@ -12,6 +12,8 @@ use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Tester\CommandTester;
 
 /**
@@ -27,8 +29,8 @@ class ExportCookieConsentLogCommandTest extends TestCase
         $storage->expects($this->once())
             ->method('iterate')
             ->with(
-                static::callback(static fn (\DateTimeImmutable $from) => $from->format('Y-m-d H:i:s') === '2026-01-01 00:00:00'),
-                static::callback(static fn (\DateTimeImmutable $to) => $to->format('Y-m-d H:i:s') === '2026-07-01 00:00:00'),
+                static::callback(static fn (\DateTimeInterface $from) => $from->format('Y-m-d H:i:s') === '2026-01-01 00:00:00'),
+                static::callback(static fn (\DateTimeInterface $to) => $to->format('Y-m-d H:i:s') === '2026-07-01 00:00:00'),
                 TestDefaults::SALES_CHANNEL,
             )
             ->willReturn($this->records());
@@ -82,6 +84,56 @@ class ExportCookieConsentLogCommandTest extends TestCase
             $lines[1],
         );
         static::assertStringStartsWith('visitor-b,', $lines[2]);
+    }
+
+    public function testCsvValuesAreNotChangedByTheConsoleFormatter(): void
+    {
+        $storage = static::createStub(AbstractCookieConsentLogStorage::class);
+        $storage->method('iterate')->willReturn([$this->record('visitor-a', ['<info>lorem</info>'])]);
+
+        $tester = new CommandTester(new ExportCookieConsentLogCommand($storage));
+        $tester->execute(['--format' => 'csv']);
+
+        // The console formatter would strip the <info> style tag. The closing tag is JSON-escaped in the cell.
+        static::assertStringContainsString('<info>lorem', $tester->getDisplay());
+    }
+
+    public function testCsvWithMoreRowsThanOneChunkKeepsEveryRowInOrder(): void
+    {
+        $records = (function () {
+            for ($i = 0; $i < 2500; ++$i) {
+                yield $this->record('visitor-' . $i, ['lorem']);
+            }
+        })();
+
+        $storage = static::createStub(AbstractCookieConsentLogStorage::class);
+        $storage->method('iterate')->willReturn($records);
+
+        $tester = new CommandTester(new ExportCookieConsentLogCommand($storage));
+        $tester->execute(['--format' => 'csv']);
+
+        $lines = explode("\n", trim($tester->getDisplay()));
+        static::assertCount(2501, $lines);
+        static::assertStringStartsWith('visitor-999,', $lines[1000]);
+        static::assertStringStartsWith('visitor-1000,', $lines[1001]);
+        static::assertStringStartsWith('visitor-2499,', $lines[2500]);
+    }
+
+    public function testCsvIsWrittenToAnOutputWithoutAStream(): void
+    {
+        $storage = static::createStub(AbstractCookieConsentLogStorage::class);
+        $storage->method('iterate')->willReturn([$this->record('visitor-a', ['<info>lorem</info>'])]);
+
+        $output = new BufferedOutput();
+        $exitCode = (new ExportCookieConsentLogCommand($storage))->run(new ArrayInput(['--format' => 'csv']), $output);
+
+        static::assertSame(Command::SUCCESS, $exitCode);
+
+        $lines = explode("\n", trim($output->fetch()));
+        static::assertCount(2, $lines);
+        static::assertStringStartsWith('consentId,createdAt,', $lines[0]);
+        static::assertStringStartsWith('visitor-a,', $lines[1]);
+        static::assertStringContainsString('<info>lorem', $lines[1]);
     }
 
     public function testItRejectsAnUnknownFormat(): void
@@ -148,5 +200,22 @@ class ExportCookieConsentLogCommandTest extends TestCase
                 createdAt: $createdAt->modify('+1 hour'),
             ),
         ];
+    }
+
+    /**
+     * @param list<string> $acceptedCookies
+     */
+    private function record(string $consentId, array $acceptedCookies): CookieConsentRecord
+    {
+        return new CookieConsentRecord(
+            consentId: $consentId,
+            consentAction: CookieConsentAction::ACCEPT_SELECTED,
+            groupDecisions: ['cookie.groupStatistical' => CookieConsentDecision::PARTIAL],
+            acceptedCookies: $acceptedCookies,
+            configHash: 'hash',
+            salesChannelId: 'sales-channel-id',
+            languageId: 'language-id',
+            createdAt: new \DateTimeImmutable('2026-07-13 12:00:00', new \DateTimeZone('UTC')),
+        );
     }
 }

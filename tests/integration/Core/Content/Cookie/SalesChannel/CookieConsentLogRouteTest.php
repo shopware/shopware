@@ -4,7 +4,9 @@ namespace Shopware\Tests\Integration\Core\Content\Cookie\SalesChannel;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\DatabaseCookieConsentLogStorage;
+use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogPayload;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRoute;
 use Shopware\Core\Framework\Log\Package;
@@ -56,7 +58,7 @@ class CookieConsentLogRouteTest extends TestCase
 
     public function testLogPersistsDecisionAndConfigSnapshot(): void
     {
-        $this->log(['consentId' => 'visitor-a', 'consentAction' => 'accept_all']);
+        $this->log(new CookieConsentLogPayload('visitor-a', CookieConsentAction::ACCEPT_ALL));
 
         $logs = $this->connection->fetchAllAssociative('SELECT * FROM `cookie_consent_log`');
         static::assertCount(1, $logs);
@@ -75,7 +77,7 @@ class CookieConsentLogRouteTest extends TestCase
         static::assertJson((string) $snapshots[0]['cookie_groups']);
 
         // A second consent adds a log entry but no duplicate snapshot
-        $this->log(['consentId' => 'visitor-b', 'consentAction' => 'accept_all']);
+        $this->log(new CookieConsentLogPayload('visitor-b', CookieConsentAction::ACCEPT_ALL));
 
         static::assertCount(2, $this->connection->fetchAllAssociative('SELECT * FROM `cookie_consent_log`'));
         static::assertCount(1, $this->connection->fetchAllAssociative('SELECT * FROM `cookie_consent_config_snapshot`'));
@@ -83,9 +85,9 @@ class CookieConsentLogRouteTest extends TestCase
 
     public function testAWithdrawalIsRecordedAsASecondDecisionOfTheSameVisitor(): void
     {
-        $this->log(['consentId' => 'visitor-a', 'consentAction' => 'accept_all']);
+        $this->log(new CookieConsentLogPayload('visitor-a', CookieConsentAction::ACCEPT_ALL));
         // The visitor re-opens the banner and keeps only one of the two comfort cookies
-        $this->log(['consentId' => 'visitor-a', 'consentAction' => 'accept_selected', 'acceptedCookies' => ['youtube-video']]);
+        $this->log(new CookieConsentLogPayload('visitor-a', CookieConsentAction::ACCEPT_SELECTED, ['youtube-video']));
 
         $logs = $this->connection->fetchAllAssociative('SELECT * FROM `cookie_consent_log` ORDER BY `created_at`, `id`');
         static::assertCount(2, $logs);
@@ -100,12 +102,9 @@ class CookieConsentLogRouteTest extends TestCase
         static::assertSame('["youtube-video"]', $logs[1]['accepted_cookies']);
     }
 
-    /**
-     * @param array<string, mixed> $payload
-     */
-    private function log(array $payload): void
+    private function log(CookieConsentLogPayload $payload): void
     {
-        $response = $this->route->log(new Request(content: (string) json_encode($payload)), $this->salesChannelContext);
+        $response = $this->route->log($payload, new Request(), $this->salesChannelContext);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }

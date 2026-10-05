@@ -12,5 +12,5 @@ abstract class AbstractCookieConsentLogRoute
 {
     abstract public function getDecorated(): AbstractCookieConsentLogRoute;
 
-    abstract public function log(Request $request, SalesChannelContext $salesChannelContext): NoContentResponse;
+    abstract public function log(CookieConsentLogPayload $payload, Request $request, SalesChannelContext $salesChannelContext): NoContentResponse;
 }

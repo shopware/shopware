@@ -12,6 +12,8 @@ use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
 use Shopware\Core\Content\Cookie\ConsentLog\FilesystemCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\CookieException;
+use Shopware\Core\Content\Cookie\Struct\CookieGroup;
+use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -54,13 +56,17 @@ class FilesystemCookieConsentLogStorageTest extends TestCase
     public function testASnapshotIsStoredOncePerHash(): void
     {
         $createdAt = new \DateTimeImmutable('2026-07-13 12:00:00', new \DateTimeZone('UTC'));
-        $this->storage->snapshot(new CookieConsentConfigSnapshot('hash', [['technicalName' => 'cookie.groupRequired']], $createdAt));
+        $this->storage->snapshot(new CookieConsentConfigSnapshot('hash', new CookieGroupCollection([new CookieGroup('cookie.groupRequired')]), $createdAt));
         // A later call with the same hash keeps the original file
-        $this->storage->snapshot(new CookieConsentConfigSnapshot('hash', [], $createdAt->modify('+1 day')));
+        $this->storage->snapshot(new CookieConsentConfigSnapshot('hash', new CookieGroupCollection(), $createdAt->modify('+1 day')));
 
         static::assertSame(['cookie-consent/snapshots/hash.json'], $this->files('cookie-consent/snapshots'));
         static::assertSame(
-            ['configHash' => 'hash', 'cookieGroups' => [['technicalName' => 'cookie.groupRequired']], 'createdAt' => '2026-07-13T12:00:00.000+00:00'],
+            [
+                'configHash' => 'hash',
+                'cookieGroups' => [['extensions' => [], 'isRequired' => false, 'name' => 'cookie.groupRequired', 'technicalName' => 'cookie.groupRequired']],
+                'createdAt' => '2026-07-13T12:00:00.000+00:00',
+            ],
             json_decode($this->filesystem->read('cookie-consent/snapshots/hash.json'), true, 512, \JSON_THROW_ON_ERROR),
         );
     }
@@ -71,7 +77,7 @@ class FilesystemCookieConsentLogStorageTest extends TestCase
         $this->storage->log($this->record('old-hour', new \DateTimeImmutable('2026-03-14 10:59:59')));
         $this->storage->log($this->record('current-hour', new \DateTimeImmutable('2026-03-14 11:30:00')));
         $this->storage->log($this->record('future', new \DateTimeImmutable('2026-03-14 12:00:00')));
-        $this->storage->snapshot(new CookieConsentConfigSnapshot('hash', [], new \DateTimeImmutable('2025-01-01')));
+        $this->storage->snapshot(new CookieConsentConfigSnapshot('hash', new CookieGroupCollection(), new \DateTimeImmutable('2025-01-01')));
 
         // Falls inside the 11:00 hour: that directory is kept until the whole hour has expired
         $this->storage->cleanup(new \DateTimeImmutable('2026-03-14 11:45:00', new \DateTimeZone('UTC')));
@@ -97,6 +103,21 @@ class FilesystemCookieConsentLogStorageTest extends TestCase
 
         static::assertSame(['first', 'second', 'other-channel'], $this->consentIds($this->storage->iterate($from, $to)));
         static::assertSame(['first', 'second'], $this->consentIds($this->storage->iterate($from, $to, 'sales-channel-id')));
+    }
+
+    public function testMutableDatesOfTheCallerAreNotChanged(): void
+    {
+        $this->storage->log($this->record('in-range', new \DateTimeImmutable('2026-07-01 00:30:00', new \DateTimeZone('UTC'))));
+
+        // 02:00 in Berlin is 00:00 UTC
+        $from = new \DateTime('2026-07-01 02:00:00', new \DateTimeZone('Europe/Berlin'));
+        $to = new \DateTime('2026-07-01 03:00:00', new \DateTimeZone('Europe/Berlin'));
+
+        static::assertSame(['in-range'], $this->consentIds($this->storage->iterate($from, $to)));
+        $this->storage->cleanup($from);
+
+        static::assertSame('2026-07-01 02:00:00 Europe/Berlin', $from->format('Y-m-d H:i:s e'));
+        static::assertSame('2026-07-01 03:00:00 Europe/Berlin', $to->format('Y-m-d H:i:s e'));
     }
 
     /**

@@ -7,10 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
 /**
- * Creates the tables of the `database` storage for server-side cookie consent logging.
- * They are created for every shop and stay empty until that storage is selected:
- * - `cookie_consent_log`: pseudonymous, high-volume record of consent decisions
- * - `cookie_consent_config_snapshot`: one row per banner configuration, referenced by `config_hash`
+ * Creates `cookie_consent_log`, the pseudonymous, high-volume record of cookie consent decisions
+ * of the `database` storage. It is created for every shop and stays empty until that storage is selected.
  *
  * Sales channel and language are referenced by id only (no foreign keys), so consent
  * evidence survives the deletion of a sales channel or language.
@@ -18,7 +16,7 @@ use Shopware\Core\Framework\Migration\MigrationStep;
  * @internal
  */
 #[Package('framework')]
-class Migration1783936282CreateCookieConsentLogTables extends MigrationStep
+class Migration1783936282CreateCookieConsentLogTable extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
@@ -45,20 +43,6 @@ class Migration1783936282CreateCookieConsentLogTables extends MigrationStep
 
                 CONSTRAINT `json.cookie_consent_log.group_decisions` CHECK (JSON_VALID(`group_decisions`)),
                 CONSTRAINT `json.cookie_consent_log.accepted_cookies` CHECK (JSON_VALID(`accepted_cookies`))
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-        ');
-
-        $connection->executeStatement('
-            CREATE TABLE IF NOT EXISTS `cookie_consent_config_snapshot` (
-                `id` BINARY(16) NOT NULL,
-                `config_hash` VARCHAR(255) NOT NULL,
-                `cookie_groups` JSON NOT NULL,
-                `created_at` DATETIME(3) NOT NULL,
-
-                PRIMARY KEY (`id`),
-                UNIQUE KEY `uniq.cookie_consent_config_snapshot.config_hash` (`config_hash`),
-
-                CONSTRAINT `json.cookie_consent_config_snapshot.cookie_groups` CHECK (JSON_VALID(`cookie_groups`))
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
         ');
     }

@@ -8,6 +8,7 @@ use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
 use Shopware\Core\Content\Cookie\ConsentLog\NullCookieConsentLogStorage;
+use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Log\Package;
 
 /**
@@ -22,7 +23,7 @@ class NullCookieConsentLogStorageTest extends TestCase
         $storage = new NullCookieConsentLogStorage();
         $now = new \DateTimeImmutable('2026-07-13 12:00:00');
 
-        $storage->snapshot(new CookieConsentConfigSnapshot('hash', [], $now));
+        $storage->snapshot(new CookieConsentConfigSnapshot('hash', new CookieGroupCollection(), $now));
         $storage->log(new CookieConsentRecord(
             consentId: 'consent-id',
             consentAction: CookieConsentAction::ACCEPT_ALL,

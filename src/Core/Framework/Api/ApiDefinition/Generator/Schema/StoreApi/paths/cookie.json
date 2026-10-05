@@ -77,8 +77,11 @@
                   },
                   "acceptedCookies": {
                     "type": "array",
+                    "maxItems": 500,
                     "items": {
-                      "type": "string"
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 255
                     },
                     "description": "Names of the cookies the visitor accepted. Only evaluated for `accept_selected`; the other actions are fully determined by the action itself. Cookie names unknown to the current configuration are ignored. An empty or absent list means nothing beyond the technically required cookies was accepted."
                   }
@@ -93,6 +96,26 @@
           },
           "400": {
             "$ref": "#/components/responses/400"
+          },
+          "415": {
+            "description": "The request body is sent with a content type other than JSON.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/failure"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "A required field is missing or a field has an invalid value.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/failure"
+                }
+              }
+            }
           },
           "429": {
             "$ref": "#/components/responses/429",

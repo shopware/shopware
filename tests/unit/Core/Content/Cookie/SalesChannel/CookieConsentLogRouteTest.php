@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Content\Cookie\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Cookie\ConsentLog\AbstractCookieConsentLogStorage;
@@ -11,8 +10,8 @@ use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
-use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieRoute;
+use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogPayload;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRouteResponse;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
@@ -150,7 +149,7 @@ class CookieConsentLogRouteTest extends TestCase
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $this->route->log($this->request(['consentAction' => 'accept_all']), $salesChannelContext);
+        $this->route->log($this->payload(['consentAction' => 'accept_all']), new Request(), $salesChannelContext);
 
         $record = $this->storage->records[0];
         static::assertSame(self::CONSENT_ID, $record->consentId);
@@ -170,7 +169,7 @@ class CookieConsentLogRouteTest extends TestCase
         static::assertSame('server-hash', $snapshot->configHash);
         static::assertSame(
             ['cookie.groupRequired', 'cookie.groupStatistical', 'cookie.groupMarketing', 'cookie.groupComfort'],
-            array_map(static fn (CookieGroup $group) => $group->getTechnicalName(), $snapshot->cookieGroups),
+            array_values($snapshot->cookieGroups->map(static fn (CookieGroup $group) => $group->getTechnicalName())),
         );
         static::assertSame('2026-07-13 12:00:00', $snapshot->createdAt->format('Y-m-d H:i:s'));
     }
@@ -216,55 +215,10 @@ class CookieConsentLogRouteTest extends TestCase
 
     public function testLogReturnsNoContent(): void
     {
-        $response = $this->route->log($this->request(['consentAction' => 'accept_all']), Generator::generateSalesChannelContext());
+        $response = $this->route->log($this->payload(['consentAction' => 'accept_all']), new Request(), Generator::generateSalesChannelContext());
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
         static::assertCount(1, $this->storage->records);
-    }
-
-    /**
-     * @param array<string, mixed>|string $body
-     */
-    #[DataProvider('invalidPayloadProvider')]
-    public function testLogRejectsInvalidPayloads(array|string $body, string $reason): void
-    {
-        $this->expectExceptionObject(CookieException::invalidConsentLogPayload($reason));
-
-        try {
-            $this->route->log(
-                new Request(content: \is_string($body) ? $body : (string) json_encode($body)),
-                Generator::generateSalesChannelContext(),
-            );
-        } finally {
-            static::assertSame([], $this->storage->records);
-        }
-    }
-
-    /**
-     * @return iterable<string, array{array<string, mixed>|string, string}>
-     */
-    public static function invalidPayloadProvider(): iterable
-    {
-        $consentIdReason = 'consentId must be a string of 1 to 64 letters, digits, dashes or underscores';
-        $actionReason = 'consentAction must be one of: accept_all, accept_required, accept_selected';
-
-        yield 'no json' => ['no-json{', 'body must be valid JSON'];
-        yield 'no object' => ['"a-string"', 'body must be a JSON object'];
-        yield 'missing consent id' => [['consentAction' => 'accept_all'], $consentIdReason];
-        yield 'empty consent id' => [['consentId' => '', 'consentAction' => 'accept_all'], $consentIdReason];
-        yield 'consent id with forbidden characters' => [['consentId' => 'a b/c', 'consentAction' => 'accept_all'], $consentIdReason];
-        yield 'consent id too long' => [['consentId' => str_repeat('a', 65), 'consentAction' => 'accept_all'], $consentIdReason];
-        yield 'consent id no string' => [['consentId' => 42, 'consentAction' => 'accept_all'], $consentIdReason];
-        yield 'missing action' => [['consentId' => self::CONSENT_ID], $actionReason];
-        yield 'unknown action' => [['consentId' => self::CONSENT_ID, 'consentAction' => 'reject_all'], $actionReason];
-        yield 'accepted cookies no list' => [
-            ['consentId' => self::CONSENT_ID, 'consentAction' => 'accept_selected', 'acceptedCookies' => ['key' => 'value']],
-            'acceptedCookies must be a list with at most 500 entries',
-        ];
-        yield 'accepted cookies with non strings' => [
-            ['consentId' => self::CONSENT_ID, 'consentAction' => 'accept_selected', 'acceptedCookies' => ['lorem', 42]],
-            'acceptedCookies must contain non-empty strings',
-        ];
     }
 
     public function testMissingAcceptedCookiesIsAValidEmptySelection(): void
@@ -282,9 +236,7 @@ class CookieConsentLogRouteTest extends TestCase
             ->method('ensureAccepted')
             ->with(RateLimiter::COOKIE_CONSENT_LOG, '203.0.113.7');
 
-        $request = $this->request(['consentAction' => 'accept_all'], '203.0.113.7');
-
-        $this->createRoute($rateLimiter)->log($request, Generator::generateSalesChannelContext());
+        $this->createRoute($rateLimiter)->log($this->payload(['consentAction' => 'accept_all']), $this->request('203.0.113.7'), Generator::generateSalesChannelContext());
     }
 
     public function testAnExceededRateLimitStoresNothing(): void
@@ -295,23 +247,10 @@ class CookieConsentLogRouteTest extends TestCase
         $this->expectException(RateLimiterException::class);
 
         try {
-            $this->route->log($this->request(['consentAction' => 'accept_all'], '203.0.113.7'), Generator::generateSalesChannelContext());
+            $this->route->log($this->payload(['consentAction' => 'accept_all']), $this->request('203.0.113.7'), Generator::generateSalesChannelContext());
         } finally {
             static::assertSame([], $this->storage->calls);
         }
-    }
-
-    public function testTheRateLimitIsCheckedBeforeThePayloadIsParsed(): void
-    {
-        $this->rateLimiter->method('ensureAccepted')
-            ->willThrowException(RateLimiterException::limitExceeded(2_000_000_000));
-
-        // A malformed body must not buy a free request past the limiter
-        $request = new Request(server: ['REMOTE_ADDR' => '203.0.113.7'], content: 'no-json{');
-
-        $this->expectException(RateLimiterException::class);
-
-        $this->route->log($request, Generator::generateSalesChannelContext());
     }
 
     public function testRequestsWithoutAClientIpShareOneRateLimit(): void
@@ -322,7 +261,7 @@ class CookieConsentLogRouteTest extends TestCase
             ->method('ensureAccepted')
             ->with(RateLimiter::COOKIE_CONSENT_LOG, '');
 
-        $response = $this->createRoute($rateLimiter)->log($this->request(['consentAction' => 'accept_all']), Generator::generateSalesChannelContext());
+        $response = $this->createRoute($rateLimiter)->log($this->payload(['consentAction' => 'accept_all']), new Request(), Generator::generateSalesChannelContext());
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
@@ -343,11 +282,11 @@ class CookieConsentLogRouteTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $payload
+     * @param array{consentAction: string, acceptedCookies?: list<string>} $payload
      */
     private function log(array $payload): CookieConsentRecord
     {
-        $this->route->log($this->request($payload), Generator::generateSalesChannelContext());
+        $this->route->log($this->payload($payload), new Request(), Generator::generateSalesChannelContext());
 
         $record = end($this->storage->records);
         static::assertInstanceOf(CookieConsentRecord::class, $record);
@@ -356,14 +295,20 @@ class CookieConsentLogRouteTest extends TestCase
     }
 
     /**
-     * @param array<string, mixed> $payload without consentId, which is added
+     * @param array{consentAction: string, acceptedCookies?: list<string>} $payload
      */
-    private function request(array $payload, ?string $clientIp = null): Request
+    private function payload(array $payload): CookieConsentLogPayload
     {
-        return new Request(
-            server: $clientIp === null ? [] : ['REMOTE_ADDR' => $clientIp],
-            content: (string) json_encode(['consentId' => self::CONSENT_ID, ...$payload]),
+        return new CookieConsentLogPayload(
+            consentId: self::CONSENT_ID,
+            consentAction: CookieConsentAction::from($payload['consentAction']),
+            acceptedCookies: $payload['acceptedCookies'] ?? [],
         );
+    }
+
+    private function request(string $clientIp): Request
+    {
+        return new Request(server: ['REMOTE_ADDR' => $clientIp]);
     }
 
     private function cookieGroups(): CookieGroupCollection
@@ -431,12 +376,12 @@ class InMemoryCookieConsentLogStorage extends AbstractCookieConsentLogStorage
         $this->snapshots[] = $snapshot;
     }
 
-    public function cleanup(\DateTimeImmutable $before): void
+    public function cleanup(\DateTimeInterface $before): void
     {
         $this->calls[] = 'cleanup';
     }
 
-    public function iterate(\DateTimeImmutable $from, \DateTimeImmutable $to, ?string $salesChannelId = null): iterable
+    public function iterate(\DateTimeInterface $from, \DateTimeInterface $to, ?string $salesChannelId = null): iterable
     {
         return $this->records;
     }

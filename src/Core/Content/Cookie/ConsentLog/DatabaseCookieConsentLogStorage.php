@@ -80,11 +80,9 @@ final class DatabaseCookieConsentLogStorage extends AbstractCookieConsentLogStor
     /**
      * Deletes in batches so a large table does not hold locks for too long
      */
-    public function cleanup(\DateTimeImmutable $before): void
+    public function cleanup(\DateTimeInterface $before): void
     {
         do {
-            // executeStatement() is typed int|string in DBAL 4, the strict comparison
-            // below needs an int or the loop would stop after one batch
             $deleted = (int) $this->connection->executeStatement(
                 'DELETE FROM `cookie_consent_log` WHERE `created_at` < :before LIMIT ' . self::DELETE_BATCH_SIZE,
                 ['before' => $before->format(Defaults::STORAGE_DATE_TIME_FORMAT)],
@@ -96,7 +94,7 @@ final class DatabaseCookieConsentLogStorage extends AbstractCookieConsentLogStor
      * Pages by (created_at, id) instead of OFFSET, so an export of a large table does
      * not get slower with every batch.
      */
-    public function iterate(\DateTimeImmutable $from, \DateTimeImmutable $to, ?string $salesChannelId = null): iterable
+    public function iterate(\DateTimeInterface $from, \DateTimeInterface $to, ?string $salesChannelId = null): iterable
     {
         $parameters = [
             'from' => $from->format(Defaults::STORAGE_DATE_TIME_FORMAT),

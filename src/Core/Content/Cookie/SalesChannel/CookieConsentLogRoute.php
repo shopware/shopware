@@ -8,7 +8,6 @@ use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
-use Shopware\Core\Content\Cookie\CookieException;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Log\Package;
@@ -19,6 +18,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Cache\CacheInterface;
 
@@ -36,8 +36,6 @@ use Symfony\Contracts\Cache\CacheInterface;
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
 class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
 {
-    private const MAX_ACCEPTED_COOKIES = 500;
-    private const MAX_STRING_LENGTH = 255;
     private const SNAPSHOT_CACHE_KEY_PREFIX = 'cookie-consent-snapshot-';
 
     /**
@@ -58,20 +56,18 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
     }
 
     #[Route(path: '/store-api/cookie-consent-log', name: 'store-api.cookie.consent-log', methods: [Request::METHOD_POST])]
-    public function log(Request $request, SalesChannelContext $salesChannelContext): NoContentResponse
+    public function log(#[MapRequestPayload(acceptFormat: 'json')] CookieConsentLogPayload $payload, Request $request, SalesChannelContext $salesChannelContext): NoContentResponse
     {
         $this->ensureNotRateLimited($request);
 
-        $payload = $this->validatePayload($request);
-
         $configuration = $this->cookieRoute->getCookieGroups($request, $salesChannelContext);
         $cookieGroups = $configuration->getCookieGroups();
-        $decisions = $this->deriveDecisions($cookieGroups, $payload['consentAction'], $payload['acceptedCookies']);
+        $decisions = $this->deriveDecisions($cookieGroups, $payload->consentAction, $payload->acceptedCookies);
         $now = $this->clock->now();
 
         $record = new CookieConsentRecord(
-            consentId: $payload['consentId'],
-            consentAction: $payload['consentAction'],
+            consentId: $payload->consentId,
+            consentAction: $payload->consentAction,
             groupDecisions: $decisions['groupDecisions'],
             acceptedCookies: $decisions['acceptedCookies'],
             configHash: $configuration->getHash(),
@@ -85,7 +81,7 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
         $this->cache->get(self::SNAPSHOT_CACHE_KEY_PREFIX . $configuration->getHash(), function () use ($configuration, $cookieGroups, $now): bool {
             $this->storage->snapshot(new CookieConsentConfigSnapshot(
                 configHash: $configuration->getHash(),
-                cookieGroups: array_values($cookieGroups->getElements()),
+                cookieGroups: $cookieGroups,
                 createdAt: $now,
             ));
 
@@ -98,9 +94,8 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
 
     /**
      * The route is anonymous and every accepted request inserts a row, so the number of
-     * decisions a single client can write has to be capped. Checked before the payload is
-     * parsed, so malformed requests count against the limit too. The IP is only the limiter
-     * key, it is never stored with the decision. Requests without a client IP share one limit.
+     * decisions a single client can write has to be capped. The IP is only the limiter key,
+     * it is never stored with the decision. Requests without a client IP share one limit.
      */
     private function ensureNotRateLimited(Request $request): void
     {
@@ -178,66 +173,5 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
         }
 
         return $selectable;
-    }
-
-    /**
-     * The request body is parsed manually because the storefront sends it via
-     * navigator.sendBeacon, which cannot guarantee a JSON content type header.
-     *
-     * @return array{consentId: string, consentAction: CookieConsentAction, acceptedCookies: list<string>}
-     */
-    private function validatePayload(Request $request): array
-    {
-        try {
-            $data = json_decode($request->getContent(), true, 8, \JSON_THROW_ON_ERROR);
-        } catch (\JsonException) {
-            throw CookieException::invalidConsentLogPayload('body must be valid JSON');
-        }
-
-        if (!\is_array($data)) {
-            throw CookieException::invalidConsentLogPayload('body must be a JSON object');
-        }
-
-        $consentId = $data['consentId'] ?? null;
-        if (!\is_string($consentId) || preg_match(CookieConsentRecord::CONSENT_ID_PATTERN, $consentId) !== 1) {
-            throw CookieException::invalidConsentLogPayload('consentId must be a string of 1 to 64 letters, digits, dashes or underscores');
-        }
-
-        $consentAction = \is_string($data['consentAction'] ?? null) ? CookieConsentAction::tryFrom($data['consentAction']) : null;
-        if ($consentAction === null) {
-            throw CookieException::invalidConsentLogPayload(
-                \sprintf('consentAction must be one of: %s', implode(', ', array_column(CookieConsentAction::cases(), 'value'))),
-            );
-        }
-
-        return [
-            'consentId' => $consentId,
-            'consentAction' => $consentAction,
-            'acceptedCookies' => $this->validateAcceptedCookies($data['acceptedCookies'] ?? []),
-        ];
-    }
-
-    /**
-     * An absent list is a valid decision: the visitor may have unticked everything.
-     * It is only relevant for `accept_selected`, the other actions are fully
-     * determined by the action itself.
-     *
-     * @return list<string>
-     */
-    private function validateAcceptedCookies(mixed $acceptedCookies): array
-    {
-        if (!\is_array($acceptedCookies) || !array_is_list($acceptedCookies) || \count($acceptedCookies) > self::MAX_ACCEPTED_COOKIES) {
-            throw CookieException::invalidConsentLogPayload(
-                \sprintf('acceptedCookies must be a list with at most %d entries', self::MAX_ACCEPTED_COOKIES),
-            );
-        }
-
-        foreach ($acceptedCookies as $cookie) {
-            if (!\is_string($cookie) || $cookie === '' || mb_strlen($cookie) > self::MAX_STRING_LENGTH) {
-                throw CookieException::invalidConsentLogPayload('acceptedCookies must contain non-empty strings');
-            }
-        }
-
-        return $acceptedCookies;
     }
 }

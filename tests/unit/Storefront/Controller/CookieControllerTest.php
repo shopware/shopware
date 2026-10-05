@@ -4,8 +4,10 @@ namespace Shopware\Tests\Unit\Storefront\Controller;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieConsentLogRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieRoute;
+use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogPayload;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRouteResponse;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
@@ -188,18 +190,19 @@ class CookieControllerTest extends TestCase
 
     public function testLogConsentDelegatesToConsentLogRoute(): void
     {
+        $payload = new CookieConsentLogPayload('visitor-a', CookieConsentAction::ACCEPT_ALL);
         $request = new Request();
         $salesChannelContext = Generator::generateSalesChannelContext();
 
         $consentLogRoute = $this->createMock(AbstractCookieConsentLogRoute::class);
         $consentLogRoute->expects($this->once())
             ->method('log')
-            ->with($request, $salesChannelContext)
+            ->with($payload, $request, $salesChannelContext)
             ->willReturn(new NoContentResponse());
 
         $controller = new CookieControllerTestClass(static::createStub(AbstractCookieRoute::class), $consentLogRoute);
 
-        $response = $controller->logConsent($request, $salesChannelContext);
+        $response = $controller->logConsent($payload, $request, $salesChannelContext);
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }

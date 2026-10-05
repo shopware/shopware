@@ -14,7 +14,6 @@ class CookieException extends HttpException
 {
     final public const NOT_ALLOWED_PROPERTY_ASSIGNMENT = 'CONTENT__COOKIE_NOT_ALLOWED_PROPERTY_ASSIGNMENT';
     final public const HASH_GENERATION_FAILED = 'CONTENT__COOKIE_HASH_GENERATION_FAILED';
-    final public const INVALID_CONSENT_LOG_PAYLOAD = 'CONTENT__COOKIE_INVALID_CONSENT_LOG_PAYLOAD';
     final public const CONSENT_LOG_STORAGE_NOT_FOUND = 'CONTENT__COOKIE_CONSENT_LOG_STORAGE_NOT_FOUND';
     final public const INVALID_CONSENT_ID = 'CONTENT__COOKIE_INVALID_CONSENT_ID';
 
@@ -76,16 +75,6 @@ class CookieException extends HttpException
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::HASH_GENERATION_FAILED,
             'Failed to generate cookie configuration hash: {{ reason }}',
-            ['reason' => $reason],
-        );
-    }
-
-    public static function invalidConsentLogPayload(string $reason): self
-    {
-        return new self(
-            Response::HTTP_BAD_REQUEST,
-            self::INVALID_CONSENT_LOG_PAYLOAD,
-            'Invalid cookie consent log payload: {{ reason }}',
             ['reason' => $reason],
         );
     }

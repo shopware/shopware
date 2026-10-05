@@ -13,6 +13,7 @@ use Shopware\Core\Content\Cookie\ConsentLog\DatabaseCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
+use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -63,9 +64,9 @@ class DatabaseCookieConsentLogStorageTest extends TestCase
         $group->name = 'Statistics';
         $group->setEntries(new CookieEntryCollection([new CookieEntry('lorem')]));
 
-        $this->storage->snapshot(new CookieConsentConfigSnapshot('hash', [$group], new \DateTimeImmutable('2026-07-13 12:00:00')));
+        $this->storage->snapshot(new CookieConsentConfigSnapshot('hash', new CookieGroupCollection([$group]), new \DateTimeImmutable('2026-07-13 12:00:00')));
         // A later call with the same hash keeps the original row
-        $this->storage->snapshot(new CookieConsentConfigSnapshot('hash', [], new \DateTimeImmutable('2026-07-14 12:00:00')));
+        $this->storage->snapshot(new CookieConsentConfigSnapshot('hash', new CookieGroupCollection(), new \DateTimeImmutable('2026-07-14 12:00:00')));
 
         $rows = $this->connection->fetchAllAssociative('SELECT `config_hash`, `cookie_groups`, `created_at` FROM `cookie_consent_config_snapshot`');
         static::assertCount(1, $rows);
@@ -85,12 +86,12 @@ class DatabaseCookieConsentLogStorageTest extends TestCase
         // Longer than the `config_hash` column, so the database rejects it instead of treating it as a duplicate
         $this->expectException(DriverException::class);
 
-        $this->storage->snapshot(new CookieConsentConfigSnapshot(str_repeat('a', 256), [], new \DateTimeImmutable('2026-07-13 12:00:00')));
+        $this->storage->snapshot(new CookieConsentConfigSnapshot(str_repeat('a', 256), new CookieGroupCollection(), new \DateTimeImmutable('2026-07-13 12:00:00')));
     }
 
     public function testCleanupDeletesOldDecisionsButKeepsSnapshots(): void
     {
-        $this->storage->snapshot(new CookieConsentConfigSnapshot('old-hash', [], new \DateTimeImmutable('2025-01-01 12:00:00')));
+        $this->storage->snapshot(new CookieConsentConfigSnapshot('old-hash', new CookieGroupCollection(), new \DateTimeImmutable('2025-01-01 12:00:00')));
         $this->storage->log($this->record('expired', new \DateTimeImmutable('2026-03-14 11:59:59.999')));
         $this->storage->log($this->record('kept', new \DateTimeImmutable('2026-03-14 12:00:00.000')));
 

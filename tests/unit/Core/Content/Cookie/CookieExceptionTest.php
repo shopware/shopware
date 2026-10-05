@@ -36,15 +36,6 @@ class CookieExceptionTest extends TestCase
         static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
     }
 
-    public function testInvalidConsentLogPayload(): void
-    {
-        $exception = CookieException::invalidConsentLogPayload('body must be a JSON object');
-
-        static::assertSame('CONTENT__COOKIE_INVALID_CONSENT_LOG_PAYLOAD', $exception->getErrorCode());
-        static::assertSame('Invalid cookie consent log payload: body must be a JSON object', $exception->getMessage());
-        static::assertSame(Response::HTTP_BAD_REQUEST, $exception->getStatusCode());
-    }
-
     public function testConsentLogStorageNotFound(): void
     {
         $exception = CookieException::consentLogStorageNotFound('s3', ['database', 'none']);

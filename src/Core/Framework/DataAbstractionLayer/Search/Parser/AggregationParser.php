@@ -366,6 +366,7 @@ class AggregationParser
     private static function buildFieldName(EntityDefinition $definition, string $fieldName): string
     {
         $prefix = $definition->getEntityName() . '.';
+        $fieldName = AssociationIdPathNormalizer::normalize($definition, $fieldName);
 
         if (!str_contains($fieldName, $prefix)) {
             return $prefix . $fieldName;

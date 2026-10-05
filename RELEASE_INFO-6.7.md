@@ -56,6 +56,12 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Association id paths in API aggregations and sortings
+
+Admin and Store API aggregations and sortings on a to-one association id, such as `manufacturer.id`, now use the foreign key column (`manufacturerId`), as filters already did. Results are unchanged, and the request no longer needs read access to the associated entity.
+
+API filters on reverse-inherited associations, such as `product.id` on `product_price` or `product_cross_selling`, now include the rows a variant inherits from its parent again.
+
 ### Unlimited DAL searches with next-pages totals
 
 Database-backed DAL searches using `Criteria::TOTAL_COUNT_MODE_NEXT_PAGES` without a limit now return all matching entities after the requested offset and report the exact total, as `TOTAL_COUNT_MODE_EXACT` does.

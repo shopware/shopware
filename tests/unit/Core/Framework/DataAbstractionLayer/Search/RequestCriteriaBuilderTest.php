@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryExce
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPageQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -239,6 +240,38 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertCount(1, $nested->getSorting());
     }
 
+    public function testAggregationOnAssociationIdUsesForeignKeyColumn(): void
+    {
+        $request = new Request([], [
+            'aggregations' => [
+                ['name' => 'rules', 'type' => 'terms', 'field' => 'prices.rule.id'],
+            ],
+            'associations' => [
+                'prices' => [
+                    'aggregations' => [
+                        ['name' => 'products', 'type' => 'terms', 'field' => 'product.id'],
+                    ],
+                ],
+            ],
+        ]);
+        $request->setMethod(Request::METHOD_POST);
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        $rules = $criteria->getAggregation('rules');
+        static::assertInstanceOf(TermsAggregation::class, $rules);
+        static::assertSame('product.prices.ruleId', $rules->getField());
+
+        $products = $criteria->getAssociation('prices')->getAggregation('products');
+        static::assertInstanceOf(TermsAggregation::class, $products);
+        static::assertSame('product_price.product.id', $products->getField());
+    }
+
     public function testCriteriaToArray(): void
     {
         $criteria = (new Criteria())
@@ -406,6 +439,28 @@ class RequestCriteriaBuilderTest extends TestCase
                 'sort' => [],
             ],
             [],
+        ];
+
+        yield 'association id sorting uses the foreign key column' => [
+            [
+                'sort' => [
+                    [
+                        'field' => 'prices.rule.id',
+                    ],
+                ],
+            ],
+            [
+                new FieldSorting('product.prices.ruleId'),
+            ],
+        ];
+
+        yield 'simple association id sorting uses the foreign key column' => [
+            [
+                'sort' => '-prices.rule.id',
+            ],
+            [
+                new FieldSorting('product.prices.ruleId', FieldSorting::DESCENDING),
+            ],
         ];
 
         yield 'invalid order option falls back to ascending' => [

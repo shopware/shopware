@@ -37,6 +37,10 @@ jobs:
             src/Core/Framework/Resources/config/packages/feature.yaml
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
+          # Retries cover dropped connections and 5xx only; 406 is the too-large diff the
+          # script handles itself, so it joins the default exempt codes.
+          retries: 3
+          retry-exempt-status-codes: 400,401,403,404,406,422
           script: |
             const { readFileSync } = await import('node:fs')
             const { detectMajorLabels, applyMajorLabels } = await import('${{ github.workspace }}/.github/bin/js/major-label.ts')

@@ -10,11 +10,13 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Checkout\Promotion\PromotionCollection;
+use Shopware\Core\Checkout\Promotion\Rule\PromotionLineItemRule;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
@@ -98,6 +100,54 @@ class DeliveryPromotionCalculationTest extends TestCase
         static::assertSame(90.0, $cart->getShippingCosts()->getTotalPrice());
 
         static::assertCount(2, $cart->getDeliveries());
+    }
+
+    /**
+     * A delivery promotion that depends on an earlier delivery promotion must be able to exclude a later one.
+     *
+     * @throws CartException
+     */
+    #[Group('promotions')]
+    public function testDeliveryPromotionDependingOnAppliedPromotionExcludesLowerPriorityPromotion(): void
+    {
+        $this->setNewShippingPrices($this->connection, 100);
+
+        $productId = Uuid::randomHex();
+        $firstPromotionId = Uuid::randomHex();
+        $dependentPromotionId = Uuid::randomHex();
+        $excludedPromotionId = Uuid::randomHex();
+
+        $this->createTestFixtureProduct($productId, 60, 17, static::getContainer(), $this->context);
+        $this->createTestFixtureDeliveryPromotion($firstPromotionId, PromotionDiscountEntity::TYPE_ABSOLUTE, 10, static::getContainer(), $this->context, 'FIRST');
+        $this->createTestFixtureDeliveryPromotion($dependentPromotionId, PromotionDiscountEntity::TYPE_ABSOLUTE, 20, static::getContainer(), $this->context, 'DEPENDENT');
+        $this->createTestFixtureDeliveryPromotion($excludedPromotionId, PromotionDiscountEntity::TYPE_ABSOLUTE, 40, static::getContainer(), $this->context, 'EXCLUDED');
+
+        $ruleId = Uuid::randomHex();
+        static::getContainer()->get('rule.repository')->create([
+            ['id' => $ruleId, 'name' => 'Requires first promotion', 'priority' => 1],
+        ], $this->context->getContext());
+        static::getContainer()->get('rule_condition.repository')->create([
+            [
+                'id' => Uuid::randomHex(),
+                'ruleId' => $ruleId,
+                'type' => (new PromotionLineItemRule())->getName(),
+                'value' => ['operator' => Rule::OPERATOR_EQ, 'identifiers' => [$firstPromotionId]],
+            ],
+        ], $this->context->getContext());
+
+        $this->promotionRepository->update([
+            ['id' => $firstPromotionId, 'priority' => 3],
+            ['id' => $dependentPromotionId, 'priority' => 2, 'cartRules' => [['id' => $ruleId]], 'exclusionIds' => [$excludedPromotionId]],
+            ['id' => $excludedPromotionId, 'priority' => 1],
+        ], $this->context->getContext());
+
+        $cart = $this->cartService->getCart($this->token, $this->context);
+        $cart = $this->addProduct($productId, 1, $cart, $this->cartService, $this->context);
+        $cart = $this->addPromotionCode('FIRST', $cart, $this->cartService, $this->context);
+        $cart = $this->addPromotionCode('DEPENDENT', $cart, $this->cartService, $this->context);
+        $cart = $this->addPromotionCode('EXCLUDED', $cart, $this->cartService, $this->context);
+
+        static::assertSame(70.0, $cart->getShippingCosts()->getTotalPrice());
     }
 
     /**

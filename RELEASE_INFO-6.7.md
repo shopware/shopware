@@ -475,6 +475,10 @@ extension component looks like a migrated Administration one. In an extension, a
 the `cms-element` mixin is skipped, because its `useCmsElementDeprecated` replacement is not published;
 migrate it to `useCmsElement` by hand.
 
+### Mail template trigger event is preselected
+
+The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
+
 ## Storefront
 
 ### New line item reference price block

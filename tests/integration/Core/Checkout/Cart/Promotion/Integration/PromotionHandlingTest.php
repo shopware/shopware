@@ -4,7 +4,13 @@ namespace Shopware\Tests\Integration\Core\Checkout\Cart\Promotion\Integration;
 
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
+use Shopware\Core\Checkout\Promotion\Cart\Error\PromotionsOnCartPriceZeroError;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -82,5 +88,34 @@ class PromotionHandlingTest extends TestCase
         $cart = $this->cartService->remove($cart, $ids[0], $this->context);
 
         static::assertCount(0, $cart->getLineItems());
+    }
+
+    /**
+     * This test verifies that a promotion code on a cart that holds
+     * only custom items reports that there is nothing to discount,
+     * even though the cart total is not zero.
+     */
+    #[Group('promotions')]
+    public function testPromotionCodeOnCartWithOnlyCustomItemsReportsMissingProducts(): void
+    {
+        $code = 'BF19';
+
+        $this->createTestFixtureAbsolutePromotion(Uuid::randomHex(), $code, 10, static::getContainer());
+
+        $customItem = (new LineItem(Uuid::randomHex(), LineItem::CUSTOM_LINE_ITEM_TYPE))
+            ->setLabel('Custom item')
+            ->setPriceDefinition(new QuantityPriceDefinition(50, new TaxRuleCollection([new TaxRule(19)]), 1));
+
+        $cart = $this->cartService->getCart($this->context->getToken(), $this->context);
+        $cart = $this->cartService->add($cart, $customItem, $this->context);
+
+        $cart = $this->addPromotionCode($code, $cart, $this->cartService, $this->context);
+
+        static::assertSame(50.0, $cart->getPrice()->getPositionPrice());
+        static::assertCount(0, $cart->getLineItems()->filterType(PromotionProcessor::LINE_ITEM_TYPE));
+
+        $error = $cart->getErrors()->filterInstance(PromotionsOnCartPriceZeroError::class)->first();
+        static::assertInstanceOf(PromotionsOnCartPriceZeroError::class, $error);
+        static::assertSame(['Black Friday'], array_values($error->getPromotions()));
     }
 }

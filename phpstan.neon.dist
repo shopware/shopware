@@ -88,7 +88,6 @@ parameters:
         -
            message: '#.* has no route scope defined.*#'
            paths:
-            - **/*Test.php
             - src/Core/Installer
 
         -

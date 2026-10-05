@@ -14,7 +14,9 @@ use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Twig\Environment;
 
@@ -190,6 +192,19 @@ class GaranLabelTwigFilterTest extends TestCase
         static::assertStringContainsString('nested', $svg);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - remove together with the `sw_garan_label_mail` filter
+     */
+    public function testResolveMailLabelThrowsOnceTheFilterIsRemoved(): void
+    {
+        $filter = $this->createFilter([]);
+
+        $this->expectException(FeatureException::class);
+
+        $filter->resolveMailLabel('product-id', Context::createDefaultContext());
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testResolveMailLabelReturnsNullForNullProductId(): void
     {
         $filter = $this->createFilter([]);
@@ -197,6 +212,7 @@ class GaranLabelTwigFilterTest extends TestCase
         static::assertNull($filter->resolveMailLabel(null, Context::createDefaultContext()));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testResolveMailLabelReturnsNullWhenProductNotConfirmed(): void
     {
         $product = $this->createProduct(guaranteeConfirmed: false);
@@ -206,6 +222,7 @@ class GaranLabelTwigFilterTest extends TestCase
         static::assertNull($filter->resolveMailLabel($product->getId(), Context::createDefaultContext()));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testResolveMailLabelLoadsTheProductOnce(): void
     {
         $product = $this->createProduct(guaranteeConfirmed: true);
@@ -218,6 +235,7 @@ class GaranLabelTwigFilterTest extends TestCase
         static::assertNotNull($filter->resolveMailLabel($product->getId(), Context::createDefaultContext()));
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testResolveMailLabelReferencesThePreRenderedImage(): void
     {
         $product = $this->createProduct(guaranteeConfirmed: true);
@@ -230,6 +248,7 @@ class GaranLabelTwigFilterTest extends TestCase
         );
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testResolveMailLabelFormatsHalfYears(): void
     {
         $product = $this->createProduct(guaranteeConfirmed: true, guaranteeMonths: 30);
@@ -242,6 +261,7 @@ class GaranLabelTwigFilterTest extends TestCase
         );
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testResolveMailLabelKeepsTheDurationWithoutPreRenderedImage(): void
     {
         $product = $this->createProduct(guaranteeConfirmed: true, guaranteeMonths: 606);

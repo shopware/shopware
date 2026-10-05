@@ -721,6 +721,43 @@ class OrderConverterTest extends TestCase
         static::assertSame($orderShippingAddress->getCountryState(), $injectedShippingAddress->getCountryState());
     }
 
+    public function testAssembleSalesChannelContextKeepsOneIdForTheSameOrderBillingAndShippingAddress(): void
+    {
+        $customer = $this->getCustomer(true);
+        $customer->setAddresses(new CustomerAddressCollection());
+
+        $orderAddress = $this->getOrderAddress();
+        $orderAddress->setId('order-address-id');
+        $orderAddress->setHash('changed-address-hash');
+
+        $order = $this->getOrder();
+        $order->setBillingAddressId('order-address-id');
+        $delivery = $order->getDeliveries()?->first();
+        static::assertNotNull($delivery);
+        $order->setPrimaryOrderDelivery($delivery);
+        $delivery->setShippingOrderAddressId('order-address-id');
+
+        $options = [];
+        $converter = $this->getOrderConverter(
+            [$customer],
+            [$orderAddress],
+            function (string $randomId, string $salesChannelId, array $createOptions) use (&$options): SalesChannelContext {
+                $options = $createOptions;
+
+                return $this->getSalesChannelContext(true);
+            }
+        );
+
+        $converter->assembleSalesChannelContext($order, Context::createDefaultContext());
+
+        $billingAddress = $options[SalesChannelContextService::BILLING_ADDRESS] ?? null;
+        $shippingAddress = $options[SalesChannelContextService::SHIPPING_ADDRESS] ?? null;
+        static::assertInstanceOf(CustomerAddressEntity::class, $billingAddress);
+        static::assertInstanceOf(CustomerAddressEntity::class, $shippingAddress);
+        static::assertSame('order-address-id', $billingAddress->getId());
+        static::assertSame($billingAddress->getId(), $shippingAddress->getId());
+    }
+
     private function getSalesChannelContext(bool $loginCustomer, bool $customerWithoutBillingAddress = false): SalesChannelContext
     {
         $salesChannel = new SalesChannelEntity();

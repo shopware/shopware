@@ -208,6 +208,8 @@ export default [
             'scripts/**/*',
             '!scripts/extensionTooling/',
             '!scripts/extensionTooling/**/*',
+            '!scripts/generate-shopware-modules/',
+            '!scripts/generate-shopware-modules/**/*',
             '!scripts/codemods/',
             '!scripts/codemods/sfc-migration/',
             '!scripts/codemods/sfc-migration/**/*',

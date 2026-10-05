@@ -38,15 +38,16 @@ class CustomFieldSetPersister
      * When $appId is provided, existing sets are looked up by app_id (app behavior).
      * When $appId is null, existing sets are looked up by extension_name (plugin behavior),
      * which also catches sets that were removed from the XML so they can be deleted.
+     * When $defaultLocale is provided, labels, help texts, placeholders and options get a translation for it.
      */
-    public function sync(CustomFields $customFields, ?string $appId, ?string $extensionName, Context $context): void
+    public function sync(CustomFields $customFields, ?string $appId, ?string $extensionName, Context $context, ?string $defaultLocale = null): void
     {
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $innerContext) use ($customFields, $appId, $extensionName): void {
-            $this->upsertCustomFieldSets($customFields, $appId, $extensionName, $innerContext);
+        $context->scope(Context::SYSTEM_SCOPE, function (Context $innerContext) use ($customFields, $appId, $extensionName, $defaultLocale): void {
+            $this->upsertCustomFieldSets($customFields, $appId, $extensionName, $innerContext, $defaultLocale);
         });
     }
 
-    private function upsertCustomFieldSets(CustomFields $customFields, ?string $appId, ?string $extensionName, Context $context): void
+    private function upsertCustomFieldSets(CustomFields $customFields, ?string $appId, ?string $extensionName, Context $context, ?string $defaultLocale): void
     {
         $existingCustomFieldSets = $this->getExistingCustomFieldSets($appId, $extensionName, $context);
 
@@ -70,7 +71,7 @@ class CustomFieldSetPersister
         foreach ($customFields->getCustomFieldSets() as $customFieldSet) {
             if (!\array_key_exists($customFieldSet->getName(), $existingCustomFieldSets)) {
                 $existingRelations = $existingFields = [];
-                $entityData = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields);
+                $entityData = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields, defaultLocale: $defaultLocale);
                 if ($extensionName !== null) {
                     $entityData['extensionName'] = $extensionName;
                 }
@@ -94,7 +95,7 @@ class CustomFieldSetPersister
                     ['setId' => Uuid::fromHexToBytes($customFieldSetId)]
                 )
             );
-            $entityData = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields, $customFieldSetId);
+            $entityData = $customFieldSet->toEntityArray($appId, $existingRelations, $existingFields, $customFieldSetId, $defaultLocale);
             if ($extensionName !== null) {
                 $entityData['extensionName'] = $extensionName;
             }

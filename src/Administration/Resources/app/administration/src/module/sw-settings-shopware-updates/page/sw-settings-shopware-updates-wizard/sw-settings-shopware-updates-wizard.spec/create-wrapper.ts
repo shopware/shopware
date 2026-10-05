@@ -4,7 +4,7 @@
 import { mount } from '@vue/test-utils';
 
 /** @private */
-export default async function createWrapper(updateServiceOverrides = {}) {
+export default async function createWrapper(updateServiceOverrides = {}, mockOverrides = {}) {
     return mount(
         await wrapTestComponent('sw-settings-shopware-updates-wizard', {
             sync: true,
@@ -103,6 +103,7 @@ export default async function createWrapper(updateServiceOverrides = {}) {
                     $i18n: {
                         locale: 'de-De',
                     },
+                    ...mockOverrides,
                 },
                 stubs: {
                     'sw-page': await wrapTestComponent('sw-page'),

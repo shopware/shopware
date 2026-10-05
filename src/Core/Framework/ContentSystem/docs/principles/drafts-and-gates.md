@@ -13,8 +13,6 @@ The module holds a layout write to resolvability. `ContentLayoutWriteValidator` 
 
 Why: A draft under construction is legitimately unresolved. A served layout with an unfilled required property renders permanent emptiness.
 
-Not chosen: One standard for a draft and a stored layout, either full resolvability on every draft or well-formedness alone on a layout write.
-
 In code:
 
 - `DraftLayoutChecker` keeps only intrinsic errors.
@@ -26,8 +24,6 @@ In code:
 Every mutation operation has a draft route and a persisted route. The draft route is stateless, with no DAL write and no write event. Both paths decode through the one [paired codec](wire-contract.md#the-stored-elements-wire-shape-is-defined-once-by-one-paired-codec) and normalize style through one shared service. One input therefore yields one shape and meets the same codec rule on both paths. Giving one path its own component is a defect even with every test green.
 
 Why: Two decoders for one wire shape diverge silently. The divergence shows only as a draft that previews and then fails to save.
-
-Not chosen: A decoder, normalizer or validator per path.
 
 Exceptions: The default seeding and attribution reconciliation of the write boundary stay write-only.
 
@@ -45,8 +41,6 @@ A diagnose pass reports every malformed element config as a per-element violatio
 
 Why: A diagnose route that throws on the first defect hides the second defect from the editor. A write gate that rewrites the tree lets an unannounced change through.
 
-Not chosen: A fail-first diagnose route, or a write gate that corrects or re-reads the tree it checks.
-
 Exceptions: `DraftLayoutDecoder` rejects a structurally unreadable draft with a 400 before diagnostics run.
 
 In code:
@@ -61,8 +55,6 @@ In code:
 The codec throws on the first wiring or shape defect in a stated order. The constraint descriptor reports every wiring or shape defect. The codec and the constraint descriptor each keep their own copy of the rules. The write runs both with no third rule set. One change tightens the codec and the constraint descriptor together. `StoredTreeShapeConformanceTest` pins where the codec and the descriptor agree and names the descriptor-only checks. Draft and persisted request pairs repeat constraints verbatim, not through a static helper.
 
 Why: Sharing one implementation hides the divergence that the conformance test exists to catch. A codec that rejects what the descriptor accepts persists payloads that it cannot read back.
-
-Not chosen: One implementation that every site calls.
 
 Exceptions: `ConsumerBaseKeyResolver` owns the base-key split. A hand-written tree stored past both the codec and the descriptor fails on [read](wire-contract.md#structural-malformation-and-registry-drift-are-different-cases-on-read) or at [render](rendering.md#the-render-validates-the-whole-stored-forest-in-every-mode).
 

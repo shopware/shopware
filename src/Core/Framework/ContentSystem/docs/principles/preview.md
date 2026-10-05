@@ -8,8 +8,6 @@ Admin and storefront preview render a decoded draft through one `ContentPreviewP
 
 Why: A validate-only mint is a second gate that can diverge from the render. A rejection at mint time is better than a 500 at redemption time. The editor cannot act on a 500 at redemption time.
 
-Not chosen: A preview store that serves pages the mint rendered, or a validate-only mint.
-
 In code:
 
 - `ContentPreviewController::previewUrl()` builds the page first and stores the request after that.
@@ -41,8 +39,6 @@ In code:
 Preview renders a draft or rejects it with a 400. Of the layout diagnostics, only intrinsic errors make preview reject a draft. Warnings and resolvability findings never surface in preview. The layout write may still reject a draft that previews, as [drafts-and-gates.md](drafts-and-gates.md#the-module-holds-a-draft-to-well-formedness) states, and the editor's save path must surface that rejection.
 
 Why: The preview contract is to render or reject. The diagnose route is the surface built for reporting.
-
-Not chosen: A best-effort render that also reports findings, including warnings.
 
 In code:
 

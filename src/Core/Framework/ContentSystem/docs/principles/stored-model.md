@@ -26,8 +26,6 @@ Every key of a property, slot, data-requirement, wiring or placeholder map is a 
 
 Why: PHP casts the array key `"5"` to `5`. PHP also renumbers integer keys when it merges arrays. No storage layer can therefore keep an integer-castable key sound.
 
-Not chosen: Living with the key coercion of PHP.
-
 Exceptions: The ban is flat over the top-level maps. A list value keeps its integer keys. The value walk never recurses into keys.
 
 In code:
@@ -42,8 +40,6 @@ In code:
 Creation and replacement write the declared default of a primitive property in the stored shape. A binding writes the input defaults of its specification. On every write, the DAL write boundary seeds any type default that is still absent. It never seeds over a present value, including an authored null. Serving and diagnostics read only stored values. A stored value therefore satisfies a required primitive, and the declaration never does.
 
 Why: A serve-time default hides an unfilled required property behind a plausible value. A serve-time default also lets a later declaration change what renders.
-
-Not chosen: A serve-time fallback to the current default of the declaration.
 
 In code:
 
@@ -75,7 +71,7 @@ An element id carries no format. No consumer derives meaning from the shape of a
 
 Why: A format constraint invites a consumer to parse the id.
 
-Not chosen: A formatted id, such as a 32-character hex pattern, that a consumer may parse.
+Not chosen: A 32-character hex pattern for the id.
 
 In code:
 

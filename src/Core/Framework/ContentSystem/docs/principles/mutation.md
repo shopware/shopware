@@ -25,8 +25,6 @@ An edit that the operation rejects changes nothing. An operation is opaque to ea
 
 Why: A normalizing operation sets a precedent for one operation per value shape. The client cannot hold an operation that touches unnamed keys to its request.
 
-Not chosen: An operation per value kind, with value rules of its own.
-
 Exceptions: `ReplaceElement` drops a carried value that its new type cannot hold. `UnwrapElement` drops the container's own values when the operation removes the container. Both operations report each dropped value in `droppedProperties()`.
 
 In code:

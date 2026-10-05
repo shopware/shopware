@@ -8,7 +8,7 @@ The administration declares one element type, `ContentElementNode`, with the mem
 
 Why: Two client types for one wire shape drift apart. A cast at a call site asserts a shape that nothing checks.
 
-Not chosen: A module-local type beside the wire-derived type, reconciled by an adapter at each call site.
+Not chosen: A module-local element type beside the wire-derived type.
 
 In code:
 
@@ -23,8 +23,6 @@ In code:
 The presentation metadata names a control type, not a component name. The presentation metadata also names a picker's entity. The administration never derives a picker's entity from the property's type. A control's codec follows the declared contract with explicit precedence and fallback. The parent component translates storage keys. A control therefore reads and writes only the property key. The administration shows a field whose `visibleWhen` is malformed. No hint hides a field unconditionally.
 
 Why: A control guessed from the type shows raw values or nothing. A control that reads and writes storage keys couples every widget to the binding model.
-
-Not chosen: Presentation metadata that names a component, or a type-inferred control that overrides the presentation metadata.
 
 In code:
 
@@ -42,8 +40,6 @@ In code:
 A type name is a component name. Every caller renders an element through `_element.html.twig`. `ElementTypeNameResolver` builds a type name from the path of the type's declaration and from its source prefix. That type name is the component name that the partial renders. The administration renders no element, and its preview is the [storefront's render](preview.md#the-editors-preview-shows-what-the-storefront-renders) of the draft.
 
 Why: A block duplicated in two callers diverges. A name derived two ways reaches output under two spellings.
-
-Not chosen: A block in each caller, or two naming schemes that nothing checks against each other.
 
 In code:
 

@@ -24,8 +24,6 @@ Seeding and normalization run before the validation event. `ContentLayoutWriteVa
 
 Why: The pass order determines which of two defects a client sees first. The pass order also determines whether the validator reads a seeded value at all.
 
-Not chosen: An incidental order, whose first reported defect may change between releases.
-
 In code:
 
 - Inside `StoredElementListFieldSerializer::normalize()`, `LayoutWriteBoundary::apply()` seeds type defaults, normalizes style and reconciles attribution, in that order.
@@ -38,8 +36,6 @@ In code:
 The `StoredTreeConstraints` descriptor runs on every DAL write of a layout tree, whatever the skip state. Only raw SQL and migrations reach storage past the descriptor. A writer that reaches storage past the descriptor must seed required defaults itself. That writer must also write the stored shape itself.
 
 Why: A skip flag that also skipped the descriptor would let a fixture store a shape that every later render throws on.
-
-Not chosen: A skip flag that turns the descriptor off along with the checks of the validation event.
 
 In code:
 

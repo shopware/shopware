@@ -632,6 +632,8 @@ When the dev server stops, Shopware falls back to published production assets.
 
 A bundle can provide `Resources/app/storefront/vite.components.config.mts`. Use the shared Shopware factory and only override what you need:
 
+The unified component dev server loads each active bundle's config and applies its `resolve.alias` entries to component imports. Other bundle-specific build options and plugins are used by the component build only.
+
 ```ts
 import path from 'node:path';
 import { createComponentBuildConfig } from '../../../../../../src/Storefront/Resources/app/storefront/build/vite/component-config-factory';

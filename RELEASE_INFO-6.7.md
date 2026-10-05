@@ -399,6 +399,10 @@ migrate it to `useCmsElement` by hand.
 
 ## Storefront
 
+### Anonymous index components use their directory name
+
+Asset entry names for index components were not resolved correctly to the directory name and still used "index" in their names. Storefront components using an `index.js` or `index.ts` layout are now registered under their directory name, for example `Sw:Comp`. The former `Sw:Comp:index` import-map key is no longer generated, including for existing build manifests. If you used `data-component="Sw:Comp:index"` as a workaround, change it to `data-component="Sw:Comp"`.
+
 ### Display the complete legal guarantee notice at checkout
 
 Cart settings now offer `core.cart.showLegalGuaranteeNoticeInline` to display the complete localized legal guarantee notice below the checkout terms and conditions. The setting is disabled by default and requires `core.cart.showLegalGuaranteeNotice` to be enabled. Themes can customize its placement through the `page_checkout_confirm_legal_guarantee_notice_inline` and `page_checkout_confirm_legal_guarantee_notice_inline_bottom` blocks.

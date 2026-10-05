@@ -2,6 +2,7 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 import type { Plugin, UserConfig } from 'vite';
 import { glob } from 'tinyglobby';
+import { normalizeComponentEntryName, warnForDuplicateEntryNames } from './component-entry-name.cjs';
 import { componentMapPlugin } from './component-map-plugin';
 import { plainCssShimPlugin } from './plain-css-shim-plugin';
 import { scopedSubpathExportsPlugin } from './scoped-subpath-exports-plugin';
@@ -67,7 +68,7 @@ export async function createComponentBuildConfig(options: ComponentBuildConfigOp
         resolveAliases = {},
     } = options;
 
-    const isExtension = namespace !== 'Storefront';
+    const isExtensionBundle = namespace !== 'Storefront';
     const [jsFiles, scssFiles, cssFiles] = await Promise.all([
         glob('**/*.{js,ts}', {
             cwd: componentRoot,
@@ -95,19 +96,25 @@ export async function createComponentBuildConfig(options: ComponentBuildConfigOp
         }
     }
 
-    const makeJsEntryName = (file: string): string => {
-        const name = file.replace(/\.(js|ts)$/, '').replace(/\/index$/, '');
-        return isExtension ? `${namespace}/${name}` : name;
+    const makeEntryName = (file: string, preserveExtension = false): string => {
+        const name = normalizeComponentEntryName(file, preserveExtension);
+
+        return isExtensionBundle ? `${namespace}/${name}` : name;
     };
-    const makeStyleEntryName = (file: string): string => file.replace(/\/index(?=\.(scss|css)$)/, '');
-    const namespacedStyleEntryName = (file: string): string =>
-        isExtension ? `${namespace}/${makeStyleEntryName(file)}` : makeStyleEntryName(file);
+
+    warnForDuplicateEntryNames(jsFiles, makeEntryName, `[component-config-factory] ${namespace}`, 'JavaScript');
+    warnForDuplicateEntryNames(
+        [...scssFiles, ...cssFiles],
+        file => makeEntryName(file, true),
+        `[component-config-factory] ${namespace}`,
+        'Style',
+    );
 
     // Virtual module bridge for plain CSS entries so Vite emits proper manifest entries.
     const plainCssShims = new Map<string, string>();
     const plainCssEntries: Record<string, string> = {};
     for (const cssFile of cssFiles) {
-        const entryKey = namespacedStyleEntryName(cssFile);
+        const entryKey = makeEntryName(cssFile, true);
         const virtualId = `${PLAIN_CSS_SHIM_PREFIX}${entryKey}`;
         plainCssShims.set(virtualId, path.join(componentRoot, cssFile));
         plainCssEntries[entryKey] = virtualId;
@@ -115,10 +122,10 @@ export async function createComponentBuildConfig(options: ComponentBuildConfigOp
 
     const entries: Record<string, string> = {
         ...Object.fromEntries(
-            jsFiles.map(file => [makeJsEntryName(file), path.join(componentRoot, file)]),
+            jsFiles.map(file => [makeEntryName(file), path.join(componentRoot, file)]),
         ),
         ...Object.fromEntries(
-            scssFiles.map(file => [namespacedStyleEntryName(file), path.join(componentRoot, file)]),
+            scssFiles.map(file => [makeEntryName(file, true), path.join(componentRoot, file)]),
         ),
         ...plainCssEntries,
     };
@@ -165,7 +172,7 @@ export async function createComponentBuildConfig(options: ComponentBuildConfigOp
                 output: {
                     format: 'es',
                     entryFileNames: '[name]-[hash].js',
-                    chunkFileNames: isExtension
+                    chunkFileNames: isExtensionBundle
                         ? `${namespace}/vendor/[name]-[hash].js`
                         : 'vendor/[name]-[hash].js',
                     assetFileNames: info => {

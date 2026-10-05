@@ -444,9 +444,10 @@
         <!-- eslint-disable vue/valid-v-else-if -->
         <template v-else-if="actualCondition.type === 'equalsAny'">
             {% block sw_product_stream_value_multi_value %}
-            <sw-tagged-field
+            <sw-multi-tag-select
                 ref="product-stream-value-multi-value-tagged-field"
                 v-model:value="multiValue"
+                :disabled="disabled"
             />
             {% endblock %}
         </template>

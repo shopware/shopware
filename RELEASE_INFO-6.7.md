@@ -56,6 +56,69 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Unlimited DAL searches with next-pages totals
+
+Database-backed DAL searches using `Criteria::TOTAL_COUNT_MODE_NEXT_PAGES` without a limit now return all matching entities after the requested offset and report the exact total, as `TOTAL_COUNT_MODE_EXACT` does.
+Previously, these searches returned at most one entity.
+Searches with a limit continue to use bounded lookahead totals.
+
+### System activity logging
+
+System activities now produce Monolog records at the `info` level on the `system_activity` channel. By default, records are stored in the `log_entry` database table through the buffered business-event handler. You can also route the channel to a file or another logging destination.
+
+**Logged activities**
+
+| Area | Log messages | Context fields |
+| --- | --- | --- |
+| Users and integrations | `user:create`, `integration:create` | `entityId` |
+| Plugin uploads | `plugin:upload` | `filename`, `pluginName`, `pluginVersion` |
+| Plugin lifecycle | `plugin:install`, `plugin:update`, `plugin:enable`, `plugin:disable`, `plugin:uninstall` | `pluginName`, `pluginVersion`; updates also include `previousPluginVersion` |
+| App uploads | `app:upload` | `filename`, `appName`, `appVersion` |
+| App lifecycle | `app:install`, `app:update`, `app:enable`, `app:disable` | `appName`, `appVersion` |
+| App removal | `app:uninstall` | `appId`, `appName`, `appVersion`, `keepUserData` |
+
+Upload metadata comes from the ZIP's `composer.json` for plugins and `manifest.xml` for apps. App updates log the target manifest version; the previous version is not available. App deactivation and removal records follow the existing event timing and are emitted before the operation completes. If an app is already missing, its removal record omits the unavailable name and version.
+
+**Actor information**
+
+Each record includes actor details where available:
+
+| `actorType` | Actor fields |
+| --- | --- |
+| `user` | `userId`, `username` |
+| `integration` | `integrationAccessKey` |
+| `system` | No additional identity fields; includes CLI commands and background jobs |
+
+Fields with `null` values are omitted, including plugin upload versions absent from `composer.json`. Passwords and secret access keys are excluded.
+
+**Route activities to a separate file**
+
+Add a handler in `config/packages/monolog.yaml`:
+
+```yaml
+monolog:
+    handlers:
+        system_activity:
+            type: rotating_file
+            path: '%kernel.logs_dir%/system_activity.log'
+            level: info
+            max_files: 30
+            channels: ['system_activity']
+```
+
+To exclude these records from other handlers, add `!system_activity` to their channel filters while preserving existing exclusions.
+
+**Disable database storage for activities**
+
+Keep business-event database logging and remove system activities from its buffered handler:
+
+```yaml
+monolog:
+    handlers:
+        business_event_handler_buffer:
+            channels: ['business_events']
+```
+
 ### Feed sales channels are saved without a currency list again
 
 Sales channels of types other than storefront and headless, such as product comparison, Agentic Commerce and types added by extensions, are no longer rejected with `SYSTEM__NO_GIVEN_DEFAULT_CURRENCY_ID` when their default currency is missing from their currency list, as they were since 6.7.15.0. Storefront and headless sales channels still need their default currency in their currency list.
@@ -243,6 +306,17 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
+### Regulation price contains the saving
+
+`regulationPrice` of a calculated price now contains `discount` and `percentage` next to `price`, calculated against the unit price like `listPrice`. `percentage` is negative when the unit price is above the regulation price, so only show a saving when it is greater than `0`.
+
+Store API responses contain the new properties wherever they contain a regulation price: in `calculatedPrice`, `calculatedPrices` and `calculatedCheapestPrice` of products, for example in the product listing, search and detail responses, and in `price` of cart and order line items.
+
+`Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice` is created with `RegulationPrice::createFromUnitPrice($unitPrice, $regulationPrice)`, which calculates both values. Its constructor becomes private in `v6.8.0`.
+### REST API indexing behavior header is honored
+
+The `indexing-behavior` header now supports `use-queue-indexing` and `disable-indexing` on REST API writes, matching the existing Sync API behavior. Requests without this header retain the current synchronous indexing behavior.
+
 ## Administration
 
 ### [Internal] Native `<sw-block>` names are isolated per component
@@ -403,6 +477,10 @@ migrate it to `useCmsElement` by hand.
 
 ## Storefront
 
+### New line item reference price block
+
+A new block `component_line_item_reference_price` has been added to the template `storefront/component/line-item/element/total-price.html.twig`. This allows easier customization of the already existing reference price display for line items without having to override the entire total price value block.
+
 ### Display the complete legal guarantee notice at checkout
 
 Cart settings now offer `core.cart.showLegalGuaranteeNoticeInline` to display the complete localized legal guarantee notice below the checkout terms and conditions. The setting is disabled by default and requires `core.cart.showLegalGuaranteeNotice` to be enabled. Themes can customize its placement through the `page_checkout_confirm_legal_guarantee_notice_inline` and `page_checkout_confirm_legal_guarantee_notice_inline_bottom` blocks.
@@ -433,11 +511,25 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 
 `component/privacy-notice.html.twig` now shows the same legal guarantee notice paragraph and modal as the checkout confirmation, whenever `core.cart.showLegalGuaranteeNotice` is enabled and the form requires terms-of-service acceptance (for example the registration form), independent of the `core.loginRegistration.requireDataProtectionCheckbox` setting.
 
+### Savings percentage is based on the regulation price
+
+When a regulation price (lowest price of the last 30 days) is set, the storefront calculates the savings percentage against it instead of the list price and no longer renders the crossed-out list price, as required by Art. 6a of Directive 98/6/EC (CJEU C-330/23). The sale price styling and the discount badges follow the same reference, so they are only shown while the unit price is below the regulation price, also for products without a list price. Without a regulation price nothing changes.
+
+The snippet `general.listPricePreviously` now reads "Lowest price (last 30 days): %price%" instead of "previously %price%", and "Niedrigster Preis (letzte 30 Tage): %price%" instead of "vorher %price%".
+
+If you override `buy-widget-price`, `block-price`, `price-unit` or `badges`: `isListPrice` is `false` while a regulation price is set, the new `isRegulationPriceSaving` tells whether there is a saving against it, and the regulation price section renders a `list-price-percentage` element.
+
 ## App system
 
 ### App requests keep body and signature across redirects
 
 Shopware now follows a `301` or `302` from an app endpoint without dropping the `POST` method, the request body or the `shopware-shop-signature` header, so the redirect target receives the same signed request.
+
+### App translations fall back to the closest language
+
+If an app doesn't provide a translation for the shop's default language, Shopware now uses the closest one the app provides: the main region of the same language (`de-DE` for `de-AT`), then any other region of that language (`en-GB` for `en-US`), then `en-GB`, then the first translation.
+
+This applies to all translated app texts, including flow actions and their configuration fields, Administration modules, custom fields, rule conditions and document types. Installing an app no longer fails when its `flow.xml` has no label in the shop's default language.
 
 ### App events are only delivered to the app they are about
 
@@ -1066,10 +1158,6 @@ The empty states of Extensions > My extensions and the Shopware Store activation
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 
 ## Storefront
-
-### New line item reference price block
-
-A new block `component_line_item_reference_price` has been added to the template `storefront/component/line-item/element/total-price.html.twig`. This allows easier customization of the already existing reference price display for line items without having to override the entire total price value block.
 
 ### Static theme compilation without a database
 

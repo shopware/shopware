@@ -1,9 +1,8 @@
-## Navigation
-
-- Why the root source is immutable and is set by the creating write: [stored-model.md](../../../Core/Framework/ContentSystem/docs/principles/stored-model.md)
-
 ## Constraints
 
-- `SKIP_VALIDATION_STATE` suppresses assignment validation on both sections when added to the write `Context` via `Context::addState`; intended for trusted bulk importers (no in-repo path sets it); the Storefront validator checks the flag identically to the Core `ContentLayoutAssignmentWriteValidator`
-- It never decodes or resolves the layout tree. A `null` root source (layout not loadable) is left to the FK constraint
-- No Core → Storefront dependency: the Storefront validator depends on Core's `LayoutRootSourceReader`, with no callback into Storefront
+- Never reference `Shopware\Storefront` from Core. Check: does any class under `src/Core/Framework/ContentSystem` reference it? See [README.md](README.md#key-classes).
+
+## Where to look
+
+- Assignment validator, root-source read, `null` root source, skip state: [README.md](README.md#key-classes)
+- Immutable root source and the creating write: [stored-model.md](../../../Core/Framework/ContentSystem/docs/principles/stored-model.md#the-creating-write-sets-the-root-source-of-a-layout)

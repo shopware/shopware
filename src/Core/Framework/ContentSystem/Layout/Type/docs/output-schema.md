@@ -31,4 +31,4 @@ The type spec declares WHAT properties exist and their types. The element instan
 - Forward: given a loader source (e.g., `"entity"`), what types can it produce?
 - Reverse: given a FQCN (e.g., `SalesChannelProductEntity`), which loaders can produce it?
 
-`ContentSystemDataLoaderMapResolver` assembles and memoizes this bridge lazily on its first runtime lookup. `ContentSystemDataLoaderCompilerPass` builds no map and only validates each tagged loader at compile time (failure conditions in [DataLoader](../../../Hydration/DataLoader/AGENTS.md)). Currently consumed by the Schema API endpoint, designed to also serve future layout validation.
+`ContentSystemDataLoaderMapResolver` assembles and memoizes this bridge lazily on its first runtime lookup. `ContentSystemDataLoaderCompilerPass` builds no map and only validates each tagged loader at compile time (failure conditions in [DataLoader](../../../Hydration/DataLoader/README.md#build-time-validation)). Currently consumed by the Schema API endpoint, designed to also serve future layout validation.

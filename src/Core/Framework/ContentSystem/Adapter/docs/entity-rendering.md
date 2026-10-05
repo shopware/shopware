@@ -17,9 +17,6 @@ Products, Categories, and Landing Pages can render directly using ContentSystem 
 - `landing-page/{landingPageId}` - Landing pages
 
 **Example requests:**
-- `/store-api/content/product/abc123def456` - Renders product with ID abc123def456
-- `/store-api/content/category/xyz789abc012` - Renders category with ID xyz789abc012
-- `/store-api/content/landing-page/ghi345jkl678` - Renders landing page with ID ghi345jkl678
 - `/store-api/content/product/abc123def456?elementId=product-images` - Renders only the `product-images` element subtree
 - `/store-api/content-decomposed/product/abc123def456?elementId=product-images` - Same, decomposed format
 
@@ -27,6 +24,7 @@ Products, Categories, and Landing Pages can render directly using ContentSystem 
 - `product_content_layout` - Product layout assignments
 - `category_content_layout` - Category layout assignments
 - `landing_page_content_layout` - Landing page layout assignments
+- Repository service ids: `{entity}_content_layout.repository` (Core), `header_content_layout.repository` and `footer_content_layout.repository` (Storefront)
 
 ## Assignment Structure
 
@@ -43,6 +41,7 @@ Fields:
 - Entity ID (`productId`/`categoryId`/`landingPageId`) - Entity to render
 - `salesChannelId` - Sales channel scope (`null` = global)
 - `contentLayoutId` - Layout to use
+- Unique key: `UNIQUE (entity_id, sales_channel_id)`, so an entity has one global assignment and one per sales channel
 
 ## Sales Channel Resolution
 

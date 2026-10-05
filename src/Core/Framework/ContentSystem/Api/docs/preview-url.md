@@ -51,6 +51,6 @@ Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`Con
 
 Entity resolution and hydration run when the URL is created as well as when it is opened, so `unknownEntityType` and hydration faults are raised here too. A target entity that does not exist, or an unresolvable data requirement inside a loader, is no failure at all: the loader degrades that element to `notFound()` and the preview renders without it.
 
-The gate is the write's own decoder, `Layout/Codec/StoredElementCodec`, so preview and write refuse the same drafts: a scalar `slots`, `dataRequirements`, context map, `style`, or attribution list is a 400 here exactly as it is on write, rather than being emptied and then passing.
+The gate is the write's own decoder, `Layout/Codec/StoredElementCodec` ([same components](../../docs/principles/drafts-and-gates.md#draft-and-persisted-paths-decode-and-check-through-the-same-components)): a scalar `slots`, `dataRequirements`, context map, `style`, or attribution list is a 400 here exactly as on write.
 
 Runtime definition failures also include invalid filenames and binding canonicalization/type errors (500 with their specific codes). Preset-loading operations additionally expose preset load and validation errors. See [definition-load errors](../../docs/definition-load-errors.md) for the code/status mapping and app-install distinction.

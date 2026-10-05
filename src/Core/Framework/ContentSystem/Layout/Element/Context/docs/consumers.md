@@ -17,7 +17,7 @@ Consumer receives context from ancestor provider using `acceptsContext`.
 
 Fields:
 - Context key (`"product"`) - Under `scope: parent`, matches the provider's context key (or its `consumerAlias`); under `scope: root`, matches a key of the layout's root-ambient context. Either way the match is the key itself or a dot path below it (see [path-resolution.md](path-resolution.md))
-- `scope` (optional, default `"parent"`) - Where the consumer takes its value from:
+- `scope` (optional, default `"parent"`) - Where the consumer takes its value from. Absent on the wire means `parent`, and encode emits the key only for `root`. `propertyAlias` and dotted context keys are valid under either scope:
   - `"parent"` - The context an ancestor provides, delivered one hop at a time along the tree
   - `"root"` - The layout's root-ambient context, supplied by the bound root source. Cannot be combined with `redistribute: true`. See [Context flows only between adjacent elements](../../../../docs/principles/context-wiring.md#context-flows-only-between-adjacent-elements).
 - `type` - Expected context data type:
@@ -26,7 +26,7 @@ Fields:
 - `required` - Whether context is mandatory:
   - `true` - Element fails if context unavailable
   - `false` - Element works without context
-- `propertyAlias` (optional) - Renames the property key where context data is stored in this element. The consumed data is stored with this alias instead of the original context key. Cannot contain dots. Must be unique within the element (no two consumers can resolve to the same property key).
+- `propertyAlias` (optional) - Renames the property key where context data is stored in this element. The consumed data is stored with this alias instead of the original context key. Cannot contain dots. Must be unique within the element (no two consumers can resolve to the same property key). Matching and dot-path resolution run on the consumer key; `Rendering/ContextDistributor::deliverTo()` writes the value under the alias.
 
 Consumer receives context data directly as a property.
 

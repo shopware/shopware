@@ -15,7 +15,8 @@ With no parent it inserts at root; otherwise `$slot` is required (`mutationSlotR
 (`mutationTargetNotFound`), then it inserts into the slot. `affected = [newId]`; `created = [newId]`.
 
 When `$bindingSpecificationId` is also given, the named specification is resolved **first**, before any tree change
-(unregistered → `bindingSpecificationNotFound`; `type()` ≠ `$type` → `bindingTypeMismatch`; both `400`), then applied
+(unregistered → `bindingSpecificationNotFound`; `type()` ≠ `$type` → `bindingTypeMismatch`; both `400`, neither a
+client-defect code), then applied
 on top of the fill-applied default via `BindingApplicator::apply()` (overwrite), so shared keys belong to the
 explicit choice. Both steps precede insertion, so a bound insert is atomic: nothing is inserted on a `400`.
 
@@ -57,7 +58,7 @@ Adds a container element and moves a set of sibling elements into it. `requireRe
 slot (or all roots), else `mutationInvalidWrapTargets`. An empty id list and a list with a repeated id both throw
 `mutationInvalidWrapTargets` too. Scaffolds the container with the targets (in original order) in `$slot`, places it
 at the lowest target index. `affected = [containerId, ...elementIds]`; `created = [containerId]` only, because the
-wrapped targets are moved, not created.
+wrapped targets are moved, not created. The container provides no context of its own, so wrapping adds no provider.
 
 ## UnwrapElement
 
@@ -68,8 +69,9 @@ nodes.
 
 Reports the removed container's own static property values via `droppedProperties` and the wiring it consumed, its
 data requirement keys plus accepted-context keys, de-duplicated, via `droppedWiring`.
-The context the container *provided* is not reported, a carve-out stated with the other result-channel rules in
-[../AGENTS.md](../AGENTS.md).
+The context the container *provided* is ancestor context, not a wiring key, so it is never a `droppedWiring` entry;
+a hoisted descendant that depended on it gets a `ViolationCode::BrokenRequiredChain` binding violation when a source
+is bound.
 
 ## AttachElement
 

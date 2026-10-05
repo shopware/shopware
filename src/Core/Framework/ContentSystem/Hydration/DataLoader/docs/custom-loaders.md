@@ -75,7 +75,7 @@ final class WeatherLoader extends AbstractContentDataLoader
 }
 ```
 
-`LoaderInputResolver` turns the decoded config and the element's stored properties into `LoaderInputs` before the call: every declared key is already present, dereferenced, and type-checked, and reading a key the loader did not declare throws. Declare the fallback in `configSpecification()`. See [A loader consumes typed inputs resolved from its own declared specification](../../../docs/principles/data-loading.md#a-loader-consumes-typed-inputs-resolved-from-its-own-declared-specification).
+`LoaderInputResolver` turns the decoded config and the element's stored properties into `LoaderInputs` before the call: every declared key is already present, dereferenced, and type-checked, and reading a key the loader did not declare throws. See [A loader consumes typed inputs resolved from its own declared specification](../../../docs/principles/data-loading.md#a-loader-consumes-typed-inputs-resolved-from-its-own-declared-specification).
 
 **Service registration:**
 
@@ -103,7 +103,7 @@ All data loaders must return `ContentDataLoaderResult` to indicate cache behavio
 | `cachedExternally($data)` | Data loaded via delegated route that handles its own tags |
 | `uncacheable($data)`      | External APIs or data that cannot be cache-tracked        |
 
-If any loader returns uncacheable data, the entire page becomes uncacheable.
+If any loader returns uncacheable data, the entire page becomes uncacheable (`RenderingCacheContext::disable()`).
 
 For entity-based data, provide cache tags that match Shopware's existing invalidation patterns:
 

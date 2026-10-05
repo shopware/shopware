@@ -14,7 +14,7 @@ Strategy determines how provider data is distributed to direct children.
 
 ## Context Flow Rules
 
-Context flows from ancestors to descendants, never sideways or upward.
+Context flows only between adjacent elements, never sideways or upward.
 
 ```
 Valid:

@@ -1,6 +1,6 @@
 # Listener
 
-Event-driven extension points for the content rendering lifecycle. A listener replaces the stored forest via `ContentTreePreparationEvent::replaceTree()` before data loading, and replaces the rendered forest via `RenderedTreeFinalizationEvent::replaceTree()` after it. Neither event exposes its forest for mutation: both hold it privately behind `tree()`.
+Event-driven extension points for the content rendering lifecycle. The two events and what each carries: [../README.md](../README.md).
 
 ## Guides
 
@@ -9,8 +9,4 @@ Event-driven extension points for the content rendering lifecycle. A listener re
 
 ## Execution Order
 
-The step order is owned by [../../docs/pipeline-steps.md](../../docs/pipeline-steps.md). `ContentPipeline::load()` (module root) runs its preparation and finishing steps as direct calls, not through the two events. A `ContentTreePreparationEvent` listener therefore always sees the raw loaded forest, and a `RenderedTreeFinalizationEvent` listener always sees the finished rendered forest, at any priority.
-
-## Priorities
-
-Priority only orders extension listeners against each other on the same event, and core reserves no band. See [docs/listener-api.md](docs/listener-api.md#priorities).
+The step order is owned by [../../docs/pipeline-steps.md](../../docs/pipeline-steps.md). `ContentPipeline::load()` runs its steps as direct calls ([rule](../../docs/principles/rendering.md#rendering-stages-are-direct-calls-handing-each-other-typed-immutable-results)). What a listener sees at each position: [docs/custom-listeners.md](docs/custom-listeners.md).

@@ -19,7 +19,7 @@
 
 Both produce identical results.
 
-See [../AGENTS.md](../AGENTS.md#constraints) for where each rule above is enforced.
+See [Where each rule is enforced](#where-each-rule-is-enforced) for where each rule above is enforced.
 
 ## Consumer Alias with Redistribution
 
@@ -94,3 +94,15 @@ Redistribution cascades through multiple container levels automatically.
 ```
 
 The `content-section` container automatically passes product data to nested components.
+
+## Where each rule is enforced
+
+`redistribute: true` makes the redistribute derivation in `Rendering/WiringPlanner::plan()` generate a virtual provider at runtime. It is never persisted.
+
+Three sites judge wiring. The decoder `Layout/Codec/StoredElementWiringDecoder` (composed by `StoredElementCodec`) throws on decode. The descriptor `Layout/Codec/StoredTreeWiringConstraints` (composed by `StoredTreeConstraints`) reports a write-descriptor violation. `WiringPlanner::plan()` judges the pre-prune forest.
+
+- `consumerAlias` without `redistribute`: the decoder throws `ContentSystemException::consumerAliasWithoutRedistribute()`; the descriptor reports on `[consumerAlias]`.
+- `propertyAlias` with a dot: the decoder and the descriptor reject it.
+- `propertyAlias` collision (base-key uniqueness): the base key is the first segment of `propertyAlias ?? contextKey`, split by `ConsumerBaseKeyResolver` so every site calls one split. The decoder throws `ContentSystemException::propertyAliasCollision()`; the descriptor reports every colliding consumer on its own `acceptsContext` entry; the planner judges it too. On the DAL write path the decode throw in `StoredElementListFieldSerializer::normalize()` precedes the constraint pass, so the descriptor fires only where the constraints run without a prior decode.
+- `redistributeWithDottedPath` and `redistributeConflict` (the derived provider key `propertyAlias ?? contextKey` is one an authored provider already holds; a `consumerAlias` renames only what children match on and never enters that comparison): the decoder throws, the descriptor reports on `acceptsContext[<contextKey>][redistribute]`, the planner judges both.
+- `rootScopeWithRedistribute`: the decoder throws, the descriptor reports on `acceptsContext[<contextKey>][scope]`, the planner judges it. `scope: root` with a `consumerAlias` is rejected transitively, because `consumerAlias` requires `redistribute: true`.

@@ -16,9 +16,7 @@ consumer, so the common case stays at one analysis pass while a wired response n
 a pre-wiring tree.
 
 `$rootContext` is the bound source's root-ambient context (`list<ProvidedContext>`) or `null` for the
-well-formedness-only subset. Decoding the request draft is the caller's job (`Api/DraftLayoutDecoder`, the
-structural pre-gate shared with the preview and diagnose routes); the pipeline is agnostic to whether the tree came
-from a request draft or a loaded `content_layout`. Stateless: it never persists.
+well-formedness-only subset.
 
 ## PersistedLayoutMutator
 

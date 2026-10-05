@@ -10,7 +10,7 @@ Distribution strategy value objects. Each implements `DistributionConfig` with a
 - `IndexedDistributionConfig` - Position-based
 - `KeyedDistributionConfig` - Key-based matching via `data_key`
 - `SlicedDistributionConfig` - Data chunked across consumers
-- `IteratorDistributionConfig` - Sequential by position, consumer count ignored: it returns the provider's values in order, so a consumer past the last value receives nothing at all, where `IndexedDistributionConfig` pads with null and delivers to every consumer
+- `IteratorDistributionConfig` - Sequential by position, consumer count ignored
 
 See Rendering/ for how strategies are invoked during context resolution.
 

@@ -25,7 +25,7 @@ An empty array blocks a type. There is no value meaning "everything" for a princ
 
 Both routes now also require the matching entity privilege, `user:update` and `integration:update` respectively, and answer `403` without it. `users_and_permissions.editor` already grants `user:update`; a custom role carrying only the action privilege has to be extended.
 
-## Deprecated category Twig functions
+## Deprecated `category_url` and `category_linknewtab` Twig functions
 
 The `category_url` and `category_linknewtab` Twig functions are deprecated. They remain available for compatibility, with no removal version currently scheduled. Use `category.seoUrl` instead of `category_url` and `category.shouldOpenInNewTab` instead of `category_linknewtab`.
 

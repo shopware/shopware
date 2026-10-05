@@ -6,17 +6,22 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\MeasurementSystem\DataAbstractionLayer\MeasurementDisplayUnitEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductCrossSelling\ProductCrossSellingDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductManufacturer\ProductManufacturerDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
+use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Parser\AssociationIdPathNormalizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Search\Parser\_fixtures\MeasurementSystemCodeReferenceEntity;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -39,6 +44,8 @@ class AssociationIdPathNormalizerTest extends TestCase
                 CategoryDefinition::class,
                 ProductPriceDefinition::class,
                 ProductCrossSellingDefinition::class,
+                'measurement_display_unit.definition' => self::attributeDefinition(MeasurementDisplayUnitEntity::class),
+                'measurement_system_code_reference.definition' => self::attributeDefinition(MeasurementSystemCodeReferenceEntity::class),
             ],
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class)
@@ -64,5 +71,21 @@ class AssociationIdPathNormalizerTest extends TestCase
         yield 'reverse inherited cross selling product' => ['product_cross_selling', 'product.id', 'product.id'];
         yield 'price rule' => ['product_price', 'rule.id', 'ruleId'];
         yield 'nested reverse inherited' => ['product', 'prices.product.id', 'prices.product.id'];
+        yield 'attribute entity many to one id' => ['measurement_display_unit', 'measurementSystem.id', 'measurementSystemId'];
+        yield 'attribute entity many to one with custom reference' => ['measurement_system_code_reference', 'measurementSystem.id', 'measurementSystem.id'];
+    }
+
+    /**
+     * @param class-string<Entity> $entityClass
+     */
+    private static function attributeDefinition(string $entityClass): AttributeEntityDefinition
+    {
+        foreach ((new AttributeEntityCompiler())->compile($entityClass) as $meta) {
+            if ($meta['type'] === 'entity') {
+                return new AttributeEntityDefinition($meta);
+            }
+        }
+
+        static::fail('No entity definition compiled for ' . $entityClass);
     }
 }

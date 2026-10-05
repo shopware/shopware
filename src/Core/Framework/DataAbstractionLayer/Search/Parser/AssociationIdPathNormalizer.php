@@ -43,7 +43,9 @@ final class AssociationIdPathNormalizer
             return $fieldName;
         }
 
-        if ($associationField->getStorageName() !== $fkField->getStorageName() || $associationField->is(ReverseInherited::class)) {
+        if ($associationField->getStorageName() !== $fkField->getStorageName()
+            || $associationField->getReferenceField() !== 'id'
+            || $associationField->is(ReverseInherited::class)) {
             return $fieldName;
         }
 

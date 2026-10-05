@@ -42,7 +42,7 @@ Container accepts `featuredProduct`, children receive `product`.
 
 **Constraints:**
 
-- `consumerAlias` on `acceptsContext` requires `redistribute: true`. Without redistribution, a consumer alias has no effect and will cause a validation error.
+- `consumerAlias` on `acceptsContext` requires `redistribute: true`. Without redistribution, a consumer alias is rejected.
 - `redistribute: true` cannot be used with dotted context keys (e.g., `"product.cover": {"redistribute": true}` is invalid). Use full `providesContext` configuration for nested path redistribution.
 - `redistribute: true` cannot coexist with an explicit `providesContext` entry for the same key on the same element.
 - `redistribute: true` cannot be combined with `scope: "root"`: [context-wiring.md](../../../../docs/principles/context-wiring.md#context-flows-only-between-adjacent-elements).

@@ -4,7 +4,7 @@
 
 ## Constraints
 
-- Loaders MUST return `ContentDataLoaderResult` on every path and throws nothing itself
+- `load()` MUST return `ContentDataLoaderResult` on every path and throw nothing itself
 - Guard every config value a loader dereferences as an entity id with `Uuid::isValid()`, after its lowercasing or alias resolution and before first use. Take the loader's null-input path on failure.
 - Wrap each throwing collaborator call in `load()` in `catch (ShopwareHttpException)`, never an enumerated union, and return `notFound()`. Let every other exception propagate. Decide per loader what to wrap.
 - Read every loader input off `LoaderInputs`, never off the element or `$requirement->config` (kept for loaders keyed on `source`). Declare a static default in `ConfigKeySpecification`, a context-derived fallback as `hasDefault: false` applied in `load()`.

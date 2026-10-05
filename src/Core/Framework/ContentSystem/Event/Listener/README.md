@@ -13,4 +13,4 @@ The step order is owned by [../../docs/pipeline-steps.md](../../docs/pipeline-st
 
 ## Priorities
 
-Priority only orders extension listeners against each other on the same event. See [docs/listener-api.md](docs/listener-api.md) for what a plugin written against the old bands has to re-check.
+Priority only orders extension listeners against each other on the same event, and core reserves no band. See [docs/listener-api.md](docs/listener-api.md#priorities).

@@ -6,7 +6,7 @@ Element types define what content components exist, their properties, and their 
 
 | Source | Directory                        | Name Prefix       | Customizable                                 |
 |--------|----------------------------------|-------------------|----------------------------------------------|
-| Plugin | `Resources/content-system/types` | Plugin class name | Yes, via `Plugin::getContentTypeDirectory()` |
+| Plugin | `Resources/content-system/types` | Plugin name | Yes, via `Plugin::getContentTypeDirectory()` |
 | App    | `Resources/content-system/types` | App name          | No                                           |
 
 The compiler pass discovers YAML files automatically. No service registration needed.

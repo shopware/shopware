@@ -1,0 +1,127 @@
+{
+    "openapi": "3.2.0",
+    "info": [],
+    "paths": [],
+    "components": {
+        "schemas": {
+            "CustomerAddressUpdateBody": {
+                "description": "Added since version: 6.7.16.0",
+                "required": [
+                    "countryId",
+                    "zipcode",
+                    "city",
+                    "street"
+                ],
+                "properties": {
+                    "countryId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "countryStateId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "salutationId": {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{32}$"
+                    },
+                    "firstName": {
+                        "description": "Required, unless the address belongs to a commercial account in a shop that turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off. An omitted name keeps the stored value then.",
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "description": "Required, unless the address belongs to a commercial account in a shop that turned either `showNameFieldsForCompanyAccounts` or `nameFieldsRequiredForCompanyAccounts` off. An omitted name keeps the stored value then.",
+                        "type": "string"
+                    },
+                    "zipcode": {
+                        "description": "Postal code. Every country on a default installation has `postalCodeRequired` enabled. For a country without it, an empty value is accepted.",
+                        "type": "string",
+                        "maxLength": 50
+                    },
+                    "city": {
+                        "type": "string"
+                    },
+                    "accountType": {
+                        "description": "Type of the account the address belongs to, `private` or `business`. A `business` address requires `company`, which is only enforced while the `core.loginRegistration.showAccountTypeSelection` setting is enabled. The value is not stored on the address. During registration the billing address follows the top-level `accountType` instead, and the shipping address keeps its own.",
+                        "type": "string",
+                        "enum": [
+                            "private",
+                            "business"
+                        ]
+                    },
+                    "company": {
+                        "description": "Company of the address. Required when `accountType` is `business`. An omitted company keeps the stored value.",
+                        "type": "string"
+                    },
+                    "street": {
+                        "type": "string"
+                    },
+                    "department": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "phoneNumber": {
+                        "description": "Phone number. Required when the `core.loginRegistration.showPhoneNumberField` and `core.loginRegistration.phoneNumberFieldRequired` settings are both enabled. Both are off by default.",
+                        "type": "string"
+                    },
+                    "additionalAddressLine1": {
+                        "description": "Required when the `core.loginRegistration.showAdditionalAddressField1` and `core.loginRegistration.additionalAddressField1Required` settings are both enabled. Both are off by default.",
+                        "type": "string"
+                    },
+                    "additionalAddressLine2": {
+                        "description": "Required when the `core.loginRegistration.showAdditionalAddressField2` and `core.loginRegistration.additionalAddressField2Required` settings are both enabled. Both are off by default.",
+                        "type": "string"
+                    },
+                    "customFields": {
+                        "type": "object"
+                    },
+                    "country": {
+                        "$ref": "#/components/schemas/Country"
+                    },
+                    "countryState": {
+                        "$ref": "#/components/schemas/CountryState"
+                    },
+                    "salutation": {
+                        "$ref": "#/components/schemas/Salutation"
+                    }
+                },
+                "allOf": [
+                    {
+                        "anyOf": [
+                            {
+                                "properties": {
+                                    "accountType": {
+                                        "type": "string",
+                                        "enum": [
+                                            "private"
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                "required": [
+                                    "accountType",
+                                    "company"
+                                ],
+                                "properties": {
+                                    "accountType": {
+                                        "type": "string",
+                                        "enum": [
+                                            "business"
+                                        ]
+                                    },
+                                    "company": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ],
+                "type": "object"
+            }
+        }
+    }
+}

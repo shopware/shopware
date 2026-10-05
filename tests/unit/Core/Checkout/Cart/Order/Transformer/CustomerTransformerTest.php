@@ -38,6 +38,20 @@ class CustomerTransformerTest extends TestCase
         ], $customerData);
     }
 
+    public function testTransformKeepsAnEmptyContactPersonEmpty(): void
+    {
+        $customer = $this->buildCustomerEntity(Uuid::randomHex());
+        $customer->setAccountType(CustomerEntity::ACCOUNT_TYPE_BUSINESS);
+        $customer->setFirstName('');
+        $customer->setLastName('');
+
+        $transformed = CustomerTransformer::transform($customer);
+
+        static::assertSame('', $transformed['firstName']);
+        static::assertSame('', $transformed['lastName']);
+        static::assertSame('Acme Inc.', $transformed['company']);
+    }
+
     private function buildCustomerEntity(string $id): CustomerEntity
     {
         $customerEntity = new CustomerEntity();

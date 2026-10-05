@@ -75,8 +75,7 @@ The context the container *provided* is not reported, a carve-out stated with th
 
 Splices a caller-supplied element subtree into a parent slot (or the root), replacing every id. The inverse of the
 detachment a replace reports through `orphaned`: it re-places a detached subtree, or a copied one, without trusting
-client ids. The supplied root's component must be a registered type,
-else `mutationUnknownType`, matching the check insert/replace/wrap run. Clients never supply ids; the server-issued
+client ids. The supplied root's component must be a registered type, else `mutationUnknownType`, matching the check insert/replace/wrap run. Clients never supply ids; the server-issued
 ids come back in `affected = subtreeIds($clone)`, and `created` carries the same full new-id set, every node in
 the spliced subtree being new to the layout. Placement mirrors `Op/InsertElement` (slot required with a parent →
 `mutationSlotRequired`; parent must exist → `mutationTargetNotFound`). Detaches nothing:
@@ -94,8 +93,7 @@ becomes a concrete `DataRequirement`, merged into the element's existing data re
 same key, so re-applying a binding over an already-bound key replaces its wiring rather than failing. Every `inputs`
 entry with a default seeds that primitive property, but only into a key the element does not already carry
 (`StoredElement::property()` presence gate: `null` there means the key is absent, because an authored `null` is a
-present `StoredValue`). Every wired key's
-attribution is recorded into `attributedSpecifications`, also merged and overwriting.
+present `StoredValue`). Every wired key's attribution is recorded into `attributedSpecifications`, also merged and overwriting.
 
 Keeps the same id. `affected = [elementId]`; `created` stays the empty default (the element node is wired, not
 built); `orphaned`/`droppedWiring`/`droppedProperties` stay empty, because binding only adds wiring.

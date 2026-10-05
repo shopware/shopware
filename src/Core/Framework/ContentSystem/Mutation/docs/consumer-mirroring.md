@@ -21,8 +21,7 @@ while the declared property stays empty.
 
 A cross-key resolution whose written property key (`$resolution->key`) contains a dot is skipped:
 `StoredElementWiringDecoder` rejects a dotted `propertyAlias` at decode time, so mirroring one would write a tree its
-next decode throws on. An equal
-dotted key is unaffected, because a dotted consumer key with no `propertyAlias` is legal.
+next decode throws on. An equal dotted key is unaffected, because a dotted consumer key with no `propertyAlias` is legal.
 
 No redistribute, no relay up the ancestor chain. Every matching resolution on an element yields its own consumer, so
 an element consuming two keys gets two.
@@ -47,7 +46,7 @@ different property.
 
 ## Rebuild and the identity contract
 
-Element rebuild goes through
+Mirroring rebuilds each element and its ancestors through its own recursion over the slots, because
 `StoredTree::locate()` carries no ancestors.
 
 Writing no consumer returns the input `StoredTree` instance itself, which is what the pipeline's re-analysis gate

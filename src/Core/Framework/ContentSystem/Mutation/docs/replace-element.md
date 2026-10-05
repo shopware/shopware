@@ -15,15 +15,14 @@ wins). The element's `style` carries over unconditionally, being universal and t
 A stored property under one of the new type's `resolvedBy` storage keys is likewise carryable: `carryProperties()`
 maps the new type's default specification's `resolves` entries whose loader is one of the two built-in resolvedBy
 loaders (`Binding/ResolvedByLoaderBranch`) to their storage keys, and carries a value forward
-only when its shape strictly matches that branch (a string for `entity`, a list of
-strings for `entity_collection`). A shape mismatch is dropped and reported like any other uncarryable value.
+only when its shape strictly matches that branch (a string for `entity`, a list of strings for `entity_collection`). A shape mismatch is dropped and reported like any other uncarryable value.
 
 ## The default overlay
 
 After the rebuild, the new type's default binding specification, when it has exactly one
-(zero is a no-op, more than one throws `bindingSpecificationDefaultAmbiguous`
-`409`), is fill-applied after the wiring carry-over, so carried wiring is never
-overwritten by the default even when the default would correct a renamed storage key.
+(zero is a no-op, more than one throws `bindingSpecificationDefaultAmbiguous` `409`), is fill-applied after the
+wiring carry-over, so carried wiring is never overwritten by the default even when the default would correct a
+renamed storage key.
 
 ## Result channels
 

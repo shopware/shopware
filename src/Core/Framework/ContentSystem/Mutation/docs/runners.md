@@ -8,6 +8,8 @@ The things that run an operation: `MutationPipeline`, the stateless runner over 
 `@internal`, with a `@final` annotation (behaviorally final, kept mockable for tests).
 
 `run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext): MutationResult` applies the mutation to the
+already-decoded `$tree`, diagnoses the whole new tree, mirrors the proven consumers onto `$mutation->created()`,
+and re-diagnoses only when the wiring returned a different `StoredTree` instance.
 
 The instance-identity check is the whole gate: mirroring returns the input tree unchanged when it writes no
 consumer, so the common case stays at one analysis pass while a wired response never carries diagnostics describing
@@ -22,8 +24,7 @@ from a request draft or a loaded `content_layout`. Stateless: it never persists.
 
 `@internal`, `@final` annotation. The persisted counterpart to `MutationPipeline`.
 
-`mutate()`
-serializes concurrent writers for the layout id under a `lock.factory` named lock so the load → version-check →
+`mutate()` serializes concurrent writers for the layout id under a `lock.factory` named lock so the load → version-check →
 commit span is atomic, closing the lost-update window. It then loads by id
 (`ContentSystemException::contentLayoutNotFound`, 404, if absent), guards the optimistic-concurrency token against
 the row's `updatedAt` (`layoutVersionConflict`, 409, without writing on a mismatch; an unparseable token is a `400`
@@ -45,8 +46,7 @@ binding-scope checks always run. `resolve()` is never handed an unregistered id 
 de-registered source as a clean `unknownRootSource` 400 before any commit.
 
 Content the op detaches (`orphaned`), wiring it drops (`droppedWiring`), and static property values it cannot carry
-(`droppedProperties`) come back in the `MutationResult` so
-the caller can re-place them with `Op/AttachElement` (orphans), re-wire (dropped keys), or re-apply (dropped
+(`droppedProperties`) come back in the `MutationResult` so the caller can re-place them with `Op/AttachElement` (orphans), re-wire (dropped keys), or re-apply (dropped
 values).
 
 ### Interim limitations
@@ -65,9 +65,7 @@ Two known limitations are deferred to the planned layout draft/versioning system
 
 `MutationResult` is `@internal final readonly` with a private constructor, reached through named constructors:
 
-- `fromAnalyzedMutation()` is the
-  single owner of the result assembly. It restricts the analysis resolutions to the mutation's `affected()` set via
-  `orphaned`/`droppedWiring`/`droppedProperties` off the mutation. Both `MutationPipeline::run()` and `mutate()` call
-  it, so the affected-set restriction is stated once.
-- `fromParts()`
-  is the direct passthrough for a bespoke result.
+- `fromAnalyzedMutation()` is the single owner of the result assembly. It restricts the analysis resolutions to the
+  mutation's `affected()` set and reads `orphaned`/`droppedWiring`/`droppedProperties` off the mutation. Both
+  `MutationPipeline::run()` and `mutate()` call it, so the affected-set restriction is stated once.
+- `fromParts()` is the direct passthrough for a bespoke result.

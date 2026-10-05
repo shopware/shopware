@@ -5,7 +5,7 @@ Event-driven extension points for the content rendering lifecycle. A listener re
 ## Guides
 
 - [docs/custom-listeners.md](docs/custom-listeners.md) - The plugin-facing guide to writing a rendering-lifecycle listener.
-- [docs/listener-api.md](docs/listener-api.md) - The element members a listener edits, a worked listener, cache tags, and priority.
+- [docs/listener-api.md](docs/listener-api.md) - Editing `RenderedElement`, a worked listener, cache tags, and priority.
 
 ## Execution Order
 

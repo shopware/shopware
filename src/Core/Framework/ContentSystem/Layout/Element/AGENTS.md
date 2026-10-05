@@ -17,11 +17,9 @@ model set:
 - `RenderedElement` — the render model: what a response body and the Twig
   components read. It lives in `Rendering/`, not here. `final readonly`, and
   deliberately not a `Struct`. Its property values are raw unwrapped PHP
-  values.
-  `Rendering/RenderedElementFactory` creates one and
+  values. `Rendering/RenderedElementFactory` creates one and
   `Rendering/RenderedTreeFactory` creates the forest, both driven by
-  `Rendering/ElementLowering`. Slots are
-  `array<string, list<RenderedElement>>`.
+  `Rendering/ElementLowering`. Slots are `array<string, list<RenderedElement>>`.
 
 `RenderedTreeEditor` is the one class in this directory that touches the
 render model — see [Editing a Rendered Forest](README.md#editing-a-rendered-forest)

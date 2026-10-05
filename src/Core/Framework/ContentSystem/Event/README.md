@@ -1,8 +1,8 @@
 # Event
 
 Lifecycle events dispatched around content rendering. The two carry the tree in the model of their own
-position: the preparation event carries the stored forest, the finalization event the rendered one. Each event exposes exactly one way to put a changed tree back, and it is
-the same way: `replaceTree()`. Neither exposes `RenderingMode`.
+position: the preparation event carries the stored forest, the finalization event the rendered one. Each event exposes exactly one way to put a changed tree back, and it is the
+same way: `replaceTree()`. Neither exposes `RenderingMode`.
 
 ## Key Classes
 
@@ -11,8 +11,7 @@ the same way: `replaceTree()`. Neither exposes `RenderingMode`.
 
 ## Lifecycle
 
-```
-```
+The step order around the two events is owned by [../docs/pipeline-steps.md](../docs/pipeline-steps.md).
 
 The duplicate-element-id check runs twice, on the pre-prune stored forest and on the finished rendered forest, in either rendering mode. See [The render validates the whole stored forest in every mode](../docs/principles/rendering.md#the-render-validates-the-whole-stored-forest-in-every-mode).
 

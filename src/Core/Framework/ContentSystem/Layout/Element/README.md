@@ -16,15 +16,22 @@ The storage-side element model, and the edit idiom for the rendered one. Element
 
 ## Rendered Element Keys
 
-`Rendering/RenderedElementFactory` decides which keys a rendered element carries: declared authored properties (every declared type except a single-FQCN reference, unions and bare `object` included) carrying the stored value and skipped when that value is the null variant; `dataRequirements[$key]` keys carrying the resolved loader value; the keys context was actually delivered under; and stored keys a parent's distribution config names, excluding a declared reference property. The rendered property map draws no distinction between a static, a loaded and a context-provided value; provenance is recorded separately in `Rendering/ElementMintResult`, collected by `LoweringResult`. A rendered element's slots are `array<string, list<RenderedElement>>`. A `RenderedTreeFinalizationEvent` listener may hand back elements changed through `withProperty()` / `withProperties()`, and `ContentPipeline` carries that replacement forward rather than the tree it dispatched.
+`Rendering/RenderedElementFactory` decides which keys a rendered element carries:
+
+- declared authored properties (every declared type except a single-FQCN reference, unions and bare `object` included) carrying the stored value and skipped when that value is the null variant
+- `dataRequirements[$key]` keys carrying the resolved loader value
+- the keys context was actually delivered under
+- stored keys a parent's distribution config names, excluding a declared reference property
+
+The rendered property map draws no distinction between a static, a loaded and a context-provided value; provenance is recorded separately in `Rendering/ElementMintResult`, collected by `LoweringResult`. A rendered element's slots are `array<string, list<RenderedElement>>`. A `RenderedTreeFinalizationEvent` listener may hand back elements changed through `withProperty()` / `withProperties()`, and `ContentPipeline` carries that replacement forward rather than the tree it dispatched.
 
 ## Editing a Rendered Forest
 
-`RenderedTreeEditor::mapNodes()` visits every node of the forest exactly once, slot children before their parent. A node whose slot map is non-empty reaches the mapper as a copy carrying the already-mapped children; only a node whose slot map is empty is handed over as the instance itself. The branch tests the map, not the child count — an element declaring a slot that currently holds no children still has a non-empty slot map, so it is re-created like any other parent. Whatever the mapper returns is what ends up in the tree — the editor keeps it verbatim rather than rebuilding it afterwards, so a mapper may return a separately constructed replacement. Elements a mapper introduces are not themselves visited.
+`RenderedTreeEditor::mapNodes()` visits every node of the forest exactly once, slot children before their parent. A node whose slot map is non-empty reaches the mapper as a copy carrying the already-mapped children. Only a node whose slot map is empty is handed over as the instance itself. The branch tests the map, not the child count. An element declaring a slot that currently holds no children still has a non-empty slot map, so it is re-created like any other parent. Whatever the mapper returns is what ends up in the tree. The editor keeps it verbatim rather than rebuilding it afterwards, so a mapper may return a separately constructed replacement. Elements a mapper introduces are not themselves visited.
 
-Nothing is edited in place, but that is `RenderedElement`'s doing rather than the editor's: the class is `final readonly`, so a mapper has no way to mutate what it was handed.
+Nothing is edited in place. That is `RenderedElement`'s doing rather than the editor's: the class is `final readonly`, so a mapper has no way to mutate what it was handed.
 
-It is the whole-tree half of the rendering extension idiom, aimed at third-party listeners: a `RenderedTreeFinalizationEvent` listener that has a rule for a single element hands it here instead of writing the recursion itself.
+It is the whole-tree half of the rendering extension idiom, aimed at third-party listeners. A `RenderedTreeFinalizationEvent` listener that has a rule for a single element hands it here instead of writing the recursion itself.
 
 ## Context and Data
 

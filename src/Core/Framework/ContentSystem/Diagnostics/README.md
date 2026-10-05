@@ -9,7 +9,7 @@ Produces a `LayoutAnalysis` for a layout element tree: per-element property reso
 - `DiagnosticsReport` - Holds the public readonly `$violations` (`list<Violation>`, the full unfiltered defect set read directly by consumers such as `Api/ContentDiagnoseController`). Gate predicates: `isWellFormed()` (no intrinsic-scope Error violations), `isResolvable()` (no binding-scope Error violations).
 - `Violation` - A single defect. Scope and severity derive from the code.
 - `ViolationCode` - Enum, string-backed. The "single source of truth" for scope and severity.
-- `RootContextMapper` - `map()` converts a bound source's data requirements into the root-ambient context fed to `analyze()`. `resolveType()` returns the concrete FQCN a requirement's configured loader produces and throws `ContentSystemException` for an unregistered source or unknown entity; `LayoutDiagnostics` calls it inline and catches the client-defect codes to detect invalid loader config.
+- `RootContextMapper` - `map()` converts a bound source's data requirements into the root-ambient context fed to `analyze()`. `resolveType()` returns the concrete FQCN a requirement's configured loader produces. It throws `ContentSystemException` for an unregistered source or unknown entity. `LayoutDiagnostics` calls it inline and catches the client-defect codes to detect invalid loader config.
 
 ## ViolationCode Reference
 

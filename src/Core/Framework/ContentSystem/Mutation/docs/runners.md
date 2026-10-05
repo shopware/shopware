@@ -11,8 +11,8 @@ The things that run an operation: `MutationPipeline`, the stateless runner over 
 already-decoded `$tree`, diagnoses the whole new tree, mirrors the proven consumers onto `$mutation->created()`,
 and re-diagnoses only when the wiring returned a different `StoredTree` instance.
 
-The instance-identity check is the whole gate: mirroring returns the input tree unchanged when it writes no
-consumer, so the common case stays at one analysis pass while a wired response never carries diagnostics describing
+The instance-identity check is the whole gate. Mirroring returns the input tree unchanged when it writes no
+consumer, so the common case stays at one analysis pass. A wired response never carries diagnostics describing
 a pre-wiring tree.
 
 `$rootContext` is the bound source's root-ambient context (`list<ProvidedContext>`) or `null` for the
@@ -23,12 +23,12 @@ well-formedness-only subset.
 `@internal`, `@final` annotation. The persisted counterpart to `MutationPipeline`.
 
 `mutate()` serializes concurrent writers for the layout id under a `lock.factory` named lock so the load → version-check →
-commit span is atomic, closing the lost-update window. It then loads by id
+commit span is atomic, closing the lost-update window. `mutate()` loads by id
 (`ContentSystemException::contentLayoutNotFound`, 404, if absent), guards the optimistic-concurrency token against
-the row's `updatedAt` (`layoutVersionConflict`, 409, without writing on a mismatch; an unparseable token is a `400`
-`invalidVersionToken`; a `null` token matches a never-updated row), applies the op to the loaded `getLayout()` tree
-as it is (the entity and the operations speak the same stored model), then persists the mutated tree's `roots` via
-`update()`, which runs the resolvability gates and rejects a resolvability-breaking edit, and returns the
+the row's `updatedAt`. A mismatch is `layoutVersionConflict`, 409, without writing. An unparseable token is a `400`
+`invalidVersionToken`. A `null` token matches a never-updated row. `mutate()` applies the op to the loaded `getLayout()` tree
+as it is (the entity and the operations speak the same stored model) and persists the mutated tree's `roots` via
+`update()`, which runs the resolvability gates and rejects a resolvability-breaking edit. `mutate()` returns the
 `MutationResult`.
 
 The token is compared at storage precision: `content_layout.updated_at` is `DATETIME(3)`, and the Admin API
@@ -38,14 +38,14 @@ microseconds.
 It runs no consumer mirroring at all, so a persisted mutation commits without mirrored wiring.
 
 The response diagnostics are derived from the loaded layout's single `root_source`, resolved once via
-`RootSourceRegistry::resolve()`, which returns a list and never `null` (`[]` for `none` / header / footer), so the
-binding-scope checks always run. `resolve()` is never handed an unregistered id here: the preceding `update()` runs
+`RootSourceRegistry::resolve()`. It returns a list and never `null` (`[]` for `none` / header / footer), so the
+binding-scope checks always run. `resolve()` is never handed an unregistered id here. The preceding `update()` runs
 `Validation/ContentLayoutWriteValidator`, which re-checks membership of the committed root source and rejects a
 de-registered source as a clean `unknownRootSource` 400 before any commit.
 
 Content the op detaches (`orphaned`), wiring it drops (`droppedWiring`), and static property values it cannot carry
-(`droppedProperties`) come back in the `MutationResult` so the caller can re-place them with `Op/AttachElement` (orphans), re-wire (dropped keys), or re-apply (dropped
-values).
+(`droppedProperties`) come back in the `MutationResult`. The caller can then re-place orphans with `Op/AttachElement`, re-wire dropped keys, or re-apply dropped
+values.
 
 ### Interim limitations
 

@@ -1,8 +1,8 @@
 # Custom Binding Specifications
 
-A binding specification is a pre-validated data wiring for one element type: a `resolves` map wiring the type's reference properties to data loaders, plus `inputs` defaults for its primitive properties. An editor (or an agentic layout builder) applies one to an element in a single action (the `bind-element` mutation, or an `insert-element` request carrying a `bindingSpecificationId`) instead of hand-assembling loader configs.
+A binding specification is a pre-validated data wiring for one element type: a `resolves` map wiring the type's reference properties to data loaders, plus `inputs` defaults for its primitive properties. An editor or an agentic layout builder applies one to an element in a single action: the `bind-element` mutation, or an `insert-element` request carrying a `bindingSpecificationId`. This replaces hand-assembling loader configs.
 
-The simplest case needs no authored specification at all: declaring `resolvedBy` on a reference property (see [Custom Element Types](../../Layout/Type/docs/custom-types.md)) synthesizes a default specification for the type automatically, fill-applied to every freshly inserted or replaced element of that type with no client-side binding step. Plugins and apps additionally author specifications inline, in the optional top-level `bindings:` key of an element-type YAML file — for an alternative or additional wiring beyond the type's default.
+The simplest case needs no authored specification. Declaring `resolvedBy` on a reference property (see [Custom Element Types](../../Layout/Type/docs/custom-types.md)) synthesizes a default specification for the type automatically, fill-applied to every freshly inserted or replaced element of that type with no client-side binding step. Plugins and apps additionally author specifications inline, in the optional top-level `bindings:` key of an element-type YAML file, for an alternative or additional wiring beyond the type's default.
 
 `resolvedBy` storage key and the typo case that surfaces at diagnosis: [resolved-by.md](resolved-by.md).
 
@@ -25,7 +25,7 @@ A `resolves` entry accepts three shapes; the first two are expanded to the canon
 | B    | `media: { entity: { property: mediaId } }` (single key names the loader)   | Name the loader explicitly; entity names are derived            |
 | C    | `media: { loader: entity, config: { entity: media, property: mediaId } }`  | Canonical form; the only shape for unusual configs              |
 
-`inputs` entries are synthesized automatically for every primitive property the wiring reads, and every input carries a derived `required` flag (set when the property is read through a required config key and the wired reference property is itself required). Tier A closure and the load-time errors: [authoring-sugar.md](authoring-sugar.md).
+`inputs` entries are synthesized automatically for every primitive property the wiring reads. Every input carries a derived `required` flag (set when the property is read through a required config key and the wired reference property is itself required). Tier A closure and the load-time errors: [authoring-sugar.md](authoring-sugar.md).
 
 ## Collision Detection
 

@@ -4,11 +4,11 @@ The preview action that creates a short-lived, openable URL for a draft layout.
 
 `POST /api/_action/content-system/preview/entity/url`
 
-Stores an externally supplied, **unsaved** draft layout behind a short-lived token and returns a URL that renders it against **real** entity data, so a draft can be opened or embedded (for example in an editor iframe) without re-posting the layout. The layout is neither persisted nor required to have an assignment. The target entity only needs to exist. Served by `Api/ContentPreviewController::previewUrl`. Route name: `api.action.content_system.preview.entity.url`. Requires the `content_layout:read` privilege.
+Stores an externally supplied, **unsaved** draft layout behind a short-lived token and returns a URL that renders it against **real** entity data. A draft can then be opened or embedded (for example in an editor iframe) without re-posting the layout. The layout is neither persisted nor required to have an assignment. The target entity only needs to exist. Served by `Api/ContentPreviewController::previewUrl`. Route name: `api.action.content_system.preview.entity.url`. Requires the `content_layout:read` privilege.
 
-Before anything is stored, the draft is admitted through the same `Api/ContentPreviewPageBuilder::build()` that opening the returned URL runs, so a draft that gate refuses is a 400 and never becomes a token. See [Preview is a second entry into the one rendering path, never a second storage path](../../docs/principles/preview.md#preview-is-a-second-entry-into-the-one-rendering-path-never-a-second-storage-path).
+Before anything is stored, the draft is admitted through the same `Api/ContentPreviewPageBuilder::build()` that opening the returned URL runs. A draft that gate refuses is a 400 and never becomes a token. See [Preview is a second entry into the one rendering path, never a second storage path](../../docs/principles/preview.md#preview-is-a-second-entry-into-the-one-rendering-path-never-a-second-storage-path).
 
-The payload is held by `Api/ContentPreviewPayloadStore` under a 32-character token in the application cache for five minutes, never in the database. The returned URL points at the Storefront render route `GET /content-system/preview/{token}` (`frontend.content-system.preview`), which loads the payload back, builds the page through the same `ContentPreviewPageBuilder`, and serves the full-format `ContentPage` as an embeddable page (its `frame-ancestors` CSP is derived from the request `Referer`). An expired or unknown token renders a `404`. A hit that is not exactly what `ContentPreviewRequest` declares (its field set and its constraint attributes, validated against the rebuilt DTO) throws `previewPayloadInvalid` (500, `CONTENT_SYSTEM__PREVIEW_PAYLOAD_INVALID`) instead.
+The payload is held by `Api/ContentPreviewPayloadStore` under a 32-character token in the application cache for five minutes, never in the database. The returned URL points at the Storefront render route `GET /content-system/preview/{token}` (`frontend.content-system.preview`). It loads the payload back, builds the page through the same `ContentPreviewPageBuilder`, and serves the full-format `ContentPage` as an embeddable page. Its `frame-ancestors` CSP is derived from the request `Referer`. An expired or unknown token renders a `404`. A hit that is not exactly what `ContentPreviewRequest` declares (its field set and its constraint attributes, validated against the rebuilt DTO) throws `previewPayloadInvalid` (500, `CONTENT_SYSTEM__PREVIEW_PAYLOAD_INVALID`) instead.
 
 ## Request
 
@@ -33,7 +33,7 @@ The `ContentPreviewRequest` envelope:
 
 ## Errors
 
-Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`ContentSystemException`). Because creating the URL runs the one build gate, it renders against real entity data too, so a fault raised during hydration keeps its own status instead of collapsing to 400 (see the HTTP column). The store write adds one further failure:
+Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`ContentSystemException`). Creating the URL runs the one build gate, so it renders against real entity data too. A fault raised during hydration keeps its own status instead of collapsing to 400 (see the HTTP column). The store write adds one further failure:
 
 | Condition | HTTP | Factory / source |
 |---|---|---|
@@ -48,6 +48,6 @@ Envelope and intrinsic-layout failures are rejected with `400 Bad Request` (`Con
 | Invalid sales channel id | 404 / 412 | `SalesChannelException` (not a `ContentSystemException`) |
 | The cache rejects the payload write | 500 | `ContentSystemException::previewPayloadStoreFailed` |
 
-Entity resolution and hydration run when the URL is created as well as when it is opened, so `unknownEntityType` and hydration faults are raised here too. A target entity that does not exist, or an unresolvable data requirement inside a loader, is no failure at all: the loader degrades that element to `notFound()` and the preview renders without it.
+Entity resolution and hydration run when the URL is created as well as when it is opened, so `unknownEntityType` and hydration faults are raised here too. A target entity that does not exist, or an unresolvable data requirement inside a loader, is no failure at all. The loader degrades that element to `notFound()` and the preview renders without it.
 
 The gate is the write's own decoder, `Layout/Codec/StoredElementCodec` ([same components](../../docs/principles/drafts-and-gates.md#draft-and-persisted-paths-decode-and-check-through-the-same-components)): a scalar `slots`, `dataRequirements`, context map, `style`, or attribution list is a 400 here exactly as on write.

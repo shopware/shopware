@@ -1,8 +1,8 @@
 # Entity ID Guard Example
 
-The `WeatherLoaderConfig` example in [custom-loaders.md](custom-loaders.md) holds plain strings, not entity ids, so it needs no id guard; its `WeatherApiClient` signals failure by returning `null` rather than throwing, so it needs no wrap either. A loader whose `PropertyReference` config key does resolve to an entity id, and whose collaborator throws, needs both checks below.
+The `WeatherLoaderConfig` example in [custom-loaders.md](custom-loaders.md) holds plain strings, not entity ids, so it needs no id guard. Its `WeatherApiClient` signals failure by returning `null` rather than throwing, so it needs no wrap either. A loader whose `PropertyReference` config key does resolve to an entity id, and whose collaborator throws, needs both checks below.
 
-A `PropertyReference` value arrives as whatever string the stored map holds, so guard it with `Uuid::isValid()` before using it as an id, and wrap the collaborator call in a `try`/`catch (ShopwareHttpException)`:
+A `PropertyReference` value arrives as whatever string the stored map holds. Guard it with `Uuid::isValid()` before using it as an id, and wrap the collaborator call in a `try`/`catch (ShopwareHttpException)`:
 
 ```php
 /**

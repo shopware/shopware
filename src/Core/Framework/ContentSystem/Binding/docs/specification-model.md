@@ -2,11 +2,11 @@
 
 ## Not a Root Source
 
-"Binding" names a different relationship than "root source" (`Adapter/RootSourceRegistry`): a root source is the registered origin of a layout's root-ambient context (an entity type, a section, or "none"); a binding is the relationship between one reference property and the source that fills it — the sense `Diagnostics/ViolationScope::Binding` already carries. A `BindingSpecification` authors such a binding for one element type; it says nothing about what a layout's root is bound to. See [NAMING.md](../../NAMING.md).
+"Binding" names a different relationship than "root source" (`Adapter/RootSourceRegistry`). A root source is the registered origin of a layout's root-ambient context (an entity type, a section, or "none"). A binding is the relationship between one reference property and the source that fills it. `Diagnostics/ViolationScope::Binding` already carries this sense. A `BindingSpecification` authors such a binding for one element type. It says nothing about what a layout's root is bound to. See [NAMING.md](../../NAMING.md).
 
 ## The Specification Model
 
-- `BindingSpecification` — the immutable declared contract of one binding: its `id`, the element `type` it applies to, a human `label`, a `resolves` map (reference property key → `LoaderBinding`), and an `inputs` map (primitive property key → `BindingInput`).
+- `BindingSpecification`: the immutable declared contract of one binding. It carries `id`, the element `type` it applies to, a human `label`, a `resolves` map (reference property key → `LoaderBinding`), and an `inputs` map (primitive property key → `BindingInput`).
 - `LoaderBinding` — one `resolves` entry: a data loader `source` plus its `config`. Becomes a `Layout/Element/DataRequirement/DataRequirement` when applied to an element.
 - `BindingInput` — one `inputs` entry: an optional typed default for a primitive property, with presence modeled explicitly (`hasDefault()`) so "no default" is distinct from "default is null".
 
@@ -14,7 +14,7 @@ A specification's `resolves`/`inputs` keys are validated at load time against th
 
 ## Design Note: Deliberate Duplication
 
-This subsystem does not share code with `Layout/Element/Style/` beyond the pattern each class follows (loader trio, decorated registry, compiler pass, app tier). Each system's declaration validates against a different live registry and produces a different runtime artifact (a `DataRequirement` and seeded properties here, an `ElementStyle` there), so collapsing the two behind a shared abstraction would couple two independently evolving vocabularies for a structural resemblance only. Repeat the shape; do not factor it out.
+This subsystem does not share code with `Layout/Element/Style/` beyond the pattern each class follows (loader trio, decorated registry, compiler pass, app tier). Each system's declaration validates against a different live registry and produces a different runtime artifact (a `DataRequirement` and seeded properties here, an `ElementStyle` there). Collapsing the two behind a shared abstraction would therefore couple two independently evolving vocabularies for a structural resemblance only. Repeat the shape; do not factor it out.
 
 ## Binding Specifications
 

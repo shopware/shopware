@@ -139,8 +139,9 @@ describe('module/sw-product/page/sw-product-detail', () => {
                     },
                 },
                 stubs: {
+                    'sw-search-bar': true,
                     'sw-page': {
-                        template: `<div class="sw-page">
+                        template: `<div class="sw-page"><slot name="search-bar"></slot>
                             <slot name="smart-bar-actions"></slot>
                             <slot name="content">
                                 <div class="sw-tabs"></div>
@@ -1466,5 +1467,23 @@ describe('module/sw-product/page/sw-product-detail', () => {
 
         await flushPromises();
         expect(store.parentProduct).toEqual({});
+    });
+
+    it('should render the search bar only when the admin search is enabled', async () => {
+        Shopware.Context.app.adminEsEnable = true;
+        const enabledWrapper = await createWrapper();
+        await flushPromises();
+
+        const searchBar = enabledWrapper.find('sw-search-bar-stub');
+        expect(searchBar.exists()).toBe(true);
+        expect(searchBar.attributes('initial-search-type')).toBe('product');
+        enabledWrapper.unmount();
+
+        Shopware.Context.app.adminEsEnable = false;
+        const disabledWrapper = await createWrapper();
+        await flushPromises();
+
+        expect(disabledWrapper.find('sw-search-bar-stub').exists()).toBe(false);
+        disabledWrapper.unmount();
     });
 });

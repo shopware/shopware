@@ -1,5 +1,10 @@
 {% block sw_property_detail %}
 <sw-page class="sw-property-detail">
+    {% block sw_property_detail_search_bar %}
+    <template v-if="adminEsEnable" #search-bar>
+        <sw-search-bar initial-search-type="property_group" />
+    </template>
+    {% endblock %}
 
     {% block sw_property_detail_smart_bar_header %}
     <template #smart-bar-header>

@@ -1,5 +1,10 @@
 {% block sw_promotion_v2_detail %}
 <sw-page class="sw-promotion-v2-detail">
+    {% block sw_promotion_v2_detail_search_bar %}
+    <template v-if="adminEsEnable" #search-bar>
+        <sw-search-bar initial-search-type="promotion" />
+    </template>
+    {% endblock %}
 
     {% block sw_promotion_v2_detail_header %}
     <template #smart-bar-header>

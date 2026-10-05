@@ -1830,14 +1830,18 @@
         "headline": "A clearer, more streamlined navigation",
         "description": "As the Shopware Administration has grown, so has the number of features and navigation items. We redesigned the navigation to improve density and make everything easier to find, with clearer active states, smoother submenu animations, better readability and improved keyboard accessibility."
       },
-      "darkMode": {
-        "headline": "Dark appearance",
+      "appearance": {
+        "headline": "Appearance",
         "badge": "Experimental",
-        "description": "The Administration now offers a dark appearance for the user interface, for better accessibility and to match your personal preferences.",
+        "description": "The Administration now offers a appearance for the user interface, for better accessibility and to match your personal preferences.",
         "profileSettingsLink": "profile settings",
         "themeSelectLabel": "Appearance",
         "themeSelectHint": "You can change this setting at any time in your {profileSettingsLink}.",
-        "themeSaveError": "The appearance could not be saved."
+        "moduleIconColorsLabel": "Module colours",
+        "optionModuleIconColorsNeutral": "Neutral",
+        "optionModuleIconColorsColored": "Coloured",
+        "themeSaveError": "The appearance could not be saved.",
+        "moduleIconColorsSaveError": "The module colours could not be saved."
       }
     }
   }

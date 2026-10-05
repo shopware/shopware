@@ -107,7 +107,16 @@
                         v-model="userTheme"
                         name="sw-field--ui-shell-update-2026-theme"
                         class="sw-ui-shell-update-2026-modal__theme-select"
-                        :label="$t('sw-ui-shell-update-2026-modal.pages.darkMode.themeSelectLabel')"
+                        :label="$t('sw-ui-shell-update-2026-modal.pages.appearance.themeSelectLabel')"
+                    />
+
+                    <mt-select
+                        v-model="userModuleIconColors"
+                        name="sw-field--ui-shell-update-2026-module-icon-colors"
+                        class="sw-ui-shell-update-2026-modal__module-icon-colors-select"
+                        :label="$t('sw-ui-shell-update-2026-modal.pages.appearance.moduleIconColorsLabel')"
+                        :options="moduleIconColorsOptions"
+                        hide-clearable-button
                     />
 
                     <mt-text
@@ -116,7 +125,7 @@
                         color="color-text-tertiary-default"
                         class="sw-ui-shell-update-2026-modal__theme-hint"
                     >
-                        <i18n-t keypath="sw-ui-shell-update-2026-modal.pages.darkMode.themeSelectHint">
+                        <i18n-t keypath="sw-ui-shell-update-2026-modal.pages.appearance.themeSelectHint">
                             <template #profileSettingsLink>
                                 <mt-link
                                     class="sw-ui-shell-update-2026-modal__inline-link"
@@ -124,7 +133,7 @@
                                     :to="{ name: 'sw.profile.index.general' }"
                                     @click="onFinish"
                                 >
-                                    {{ $t('sw-ui-shell-update-2026-modal.pages.darkMode.profileSettingsLink') }}
+                                    {{ $t('sw-ui-shell-update-2026-modal.pages.appearance.profileSettingsLink') }}
                                 </mt-link>
                             </template>
                         </i18n-t>

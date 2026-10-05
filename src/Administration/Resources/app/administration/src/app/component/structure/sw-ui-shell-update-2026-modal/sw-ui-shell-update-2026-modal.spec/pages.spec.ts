@@ -35,7 +35,7 @@ describe('src/app/component/structure/sw-ui-shell-update-2026-modal - pages', ()
         await wrapper.get('.sw-ui-shell-update-2026-modal__footer-right button').trigger('click');
 
         expect(wrapper.find('.sw-ui-shell-update-2026-modal__headline').text()).toContain(
-            'sw-ui-shell-update-2026-modal.pages.darkMode.headline',
+            'sw-ui-shell-update-2026-modal.pages.appearance.headline',
         );
         expect(wrapper.findAll('.sw-wizard-dot-navigation__item').at(1)?.classes()).toContain('is--active');
         expect(wrapper.get('.sw-ui-shell-update-2026-modal__footer-left button').text()).toBe('global.default.back');
@@ -61,13 +61,13 @@ describe('src/app/component/structure/sw-ui-shell-update-2026-modal - pages', ()
         expect(wrapper.find('.mt-modal').exists()).toBe(false);
     });
 
-    it('shows the experimental badge only on the dark mode page', async () => {
+    it('shows the experimental badge only on the appearance page', async () => {
         expect(wrapper.find('.sw-ui-shell-update-2026-modal__headline .mt-badge').exists()).toBe(false);
 
         await wrapper.get('.sw-ui-shell-update-2026-modal__footer-right button').trigger('click');
 
         expect(wrapper.get('.sw-ui-shell-update-2026-modal__headline .mt-badge').text()).toBe(
-            'sw-ui-shell-update-2026-modal.pages.darkMode.badge',
+            'sw-ui-shell-update-2026-modal.pages.appearance.badge',
         );
     });
 

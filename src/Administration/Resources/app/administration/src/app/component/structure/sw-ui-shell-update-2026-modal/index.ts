@@ -4,6 +4,7 @@
 import { MtBadge, MtModal, MtModalRoot } from '@shopware-ag/meteor-component-library';
 import type { Theme } from '@shopware-ag/meteor-component-library';
 import useTheme from 'src/app/composables/use-theme';
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-ui-shell-update-2026-modal.html.twig';
 import './sw-ui-shell-update-2026-modal.scss';
 
@@ -95,12 +96,12 @@ export default Shopware.Component.wrapComponentConfig({
                     descriptionKey: 'sw-ui-shell-update-2026-modal.pages.adminNavigation.description',
                 },
                 {
-                    id: 'dark-mode',
-                    headline: this.$t('sw-ui-shell-update-2026-modal.pages.darkMode.headline'),
-                    descriptionKey: 'sw-ui-shell-update-2026-modal.pages.darkMode.description',
+                    id: 'appearance',
+                    headline: this.$t('sw-ui-shell-update-2026-modal.pages.appearance.headline'),
+                    descriptionKey: 'sw-ui-shell-update-2026-modal.pages.appearance.description',
                     pinnedSplit: 100,
                     hasThemeSelect: true,
-                    badge: this.$t('sw-ui-shell-update-2026-modal.pages.darkMode.badge'),
+                    badge: this.$t('sw-ui-shell-update-2026-modal.pages.appearance.badge'),
                 },
             ];
         },
@@ -132,6 +133,28 @@ export default Shopware.Component.wrapComponentConfig({
             set(theme: Theme) {
                 this.onThemeChange(theme);
             },
+        },
+
+        userModuleIconColors: {
+            get(): string {
+                return useModuleIconColors().enabled.value ? 'module' : 'neutral';
+            },
+            set(value: string) {
+                this.onModuleIconColorsChange(value === 'module');
+            },
+        },
+
+        moduleIconColorsOptions(): { value: string; label: string }[] {
+            return [
+                {
+                    value: 'neutral',
+                    label: this.$t('sw-ui-shell-update-2026-modal.pages.appearance.optionModuleIconColorsNeutral'),
+                },
+                {
+                    value: 'module',
+                    label: this.$t('sw-ui-shell-update-2026-modal.pages.appearance.optionModuleIconColorsColored'),
+                },
+            ];
         },
 
         // Only the resting position is bound; the drag writes straight to the element.
@@ -304,7 +327,17 @@ export default Shopware.Component.wrapComponentConfig({
                 .saveUserTheme(theme)
                 .catch(() => {
                     this.createNotificationError({
-                        message: this.$t('sw-ui-shell-update-2026-modal.pages.darkMode.themeSaveError'),
+                        message: this.$t('sw-ui-shell-update-2026-modal.pages.appearance.themeSaveError'),
+                    });
+                });
+        },
+
+        onModuleIconColorsChange(enabled: boolean) {
+            useModuleIconColors()
+                .saveUserModuleIconColors(enabled)
+                .catch(() => {
+                    this.createNotificationError({
+                        message: this.$t('sw-ui-shell-update-2026-modal.pages.appearance.moduleIconColorsSaveError'),
                     });
                 });
         },

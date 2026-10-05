@@ -101,7 +101,7 @@ class TemplateDataExtension extends AbstractExtension implements GlobalsInterfac
         }
 
         $matches = [];
-        preg_match('/Controller\\\\(\w+)Controller::?(\w+)$/', $controller, $matches);
+        preg_match('/Controller\\\\(\w+)Controller::?(\w+)$/D', $controller, $matches);
         if ($matches) {
             return [$matches[1], $matches[2]];
         }

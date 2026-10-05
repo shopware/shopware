@@ -166,7 +166,16 @@ export default {
                 return false;
             }
 
-            return this.$t(`global.sw-search-bar-item.shortcuts.${name}`, action ? 2 : 1);
+            const shortcut = this.$t(`global.sw-search-bar-item.shortcuts.${name}`, action ? 2 : 1);
+
+            // `&nbsp;` is used as a placeholder in the snippets when a module has no
+            // shortcut for the requested state (e.g. adding a landing page reuses the
+            // category module which has no "add" shortcut). Don't render an empty box.
+            if (shortcut.trim() === '&nbsp;') {
+                return false;
+            }
+
+            return shortcut;
         },
 
         productDisplayName() {

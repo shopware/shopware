@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -132,8 +133,8 @@ class LineItemIsNewRuleTest extends TestCase
         ];
     }
 
-    #[DataProvider('lineItemTypeProvider')]
-    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemWithoutProductDataProvider')]
+    public function testLineItemWithoutProductData(string $type, bool $lineItemScope, bool $expected): void
     {
         $rule = new LineItemIsNewRule(false);
 
@@ -147,15 +148,30 @@ class LineItemIsNewRuleTest extends TestCase
         static::assertSame($expected, $rule->match($scope));
     }
 
-    /**
-     * @return \Generator<string, array{non-empty-string, bool, bool}>
-     */
-    public static function lineItemTypeProvider(): \Generator
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
+    public function testLineItemWithDataIsEvaluated(string $type, bool $lineItemScope): void
     {
-        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
-        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
-        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
-        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
+        $rule = new LineItemIsNewRule(true);
+        $lineItem = CartRuleFixture::createLineItem($type)->setPayloadValue('isNew', true);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertTrue($rule->match($scope));
+    }
+
+    public function testLineItemWithNullValueIsEvaluatedInCart(): void
+    {
+        $rule = new LineItemIsNewRule(false);
+        $lineItem = CartRuleFixture::createLineItem()->setPayloadValue('isNew', null);
+        $scope = new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$lineItem])),
+            static::createStub(SalesChannelContext::class),
+        );
+
+        static::assertTrue($rule->match($scope));
     }
 
     private function createLineItemWithIsNewMarker(bool $isNew): LineItem

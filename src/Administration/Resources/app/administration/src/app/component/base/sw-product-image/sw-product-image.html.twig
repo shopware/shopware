@@ -49,6 +49,24 @@
 
         {% endblock %}
         <sw-context-button class="sw-product-image__context-button">
+            {% block sw_product_image_context_button %}
+            <template #button>
+                <mt-button
+                    variant="secondary"
+                    size="x-small"
+                    square
+                    :aria-label="$t('global.sw-data-grid.actionsMenu')"
+                >
+                    <template #iconFront>
+                        <mt-icon
+                            name="solid-ellipsis-h-s"
+                            :size="10"
+                        />
+                    </template>
+                </mt-button>
+            </template>
+            {% endblock %}
+
             {% block sw_product_image_context %}
             {% block sw_product_image_context_cover_action %}
             <sw-context-menu-item

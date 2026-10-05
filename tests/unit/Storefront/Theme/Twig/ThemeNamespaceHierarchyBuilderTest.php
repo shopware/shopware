@@ -262,9 +262,18 @@ class ThemeNamespaceHierarchyBuilderTest extends TestCase
      */
     private function assertThemes(array $expectation, ThemeNamespaceHierarchyBuilder $builder): void
     {
-        $refProperty = (new \ReflectionProperty(ThemeNamespaceHierarchyBuilder::class, 'themes'))->getValue($builder);
+        $bundles = ['SomeBundle' => 1];
+        $hierarchy = $builder->buildNamespaceHierarchy($bundles);
 
-        static::assertEquals($expectation, $refProperty);
+        if ($expectation === []) {
+            // Without detected themes the hierarchy is passed through untouched
+            static::assertSame($bundles, $hierarchy);
+
+            return;
+        }
+
+        // TestInheritanceBuilder maps every theme it receives to a priority
+        static::assertEquals(array_map(static fn (bool $active): int => $active ? 1 : 0, $expectation), $hierarchy);
     }
 }
 

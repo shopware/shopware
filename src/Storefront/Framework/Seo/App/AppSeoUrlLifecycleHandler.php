@@ -18,7 +18,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -54,26 +53,6 @@ class AppSeoUrlLifecycleHandler extends AbstractLifecycleHandler implements Even
         ];
     }
 
-    public function install(AppPersistContext $context): void
-    {
-        $routeNamePrefix = AppSeoUrlRoute::routeNamePrefix($context->app->getName());
-        $declared = $this->declaredEntityRoutes($context->manifest);
-
-        $staleRouteNames = [];
-
-        foreach ($this->keptTemplateEntityNames($routeNamePrefix, $context->context) as $routeName => $entityName) {
-            if (str_contains(substr($routeName, \strlen($routeNamePrefix)), '.')) {
-                continue;
-            }
-
-            if (($declared[$routeName] ?? null) !== $entityName) {
-                $staleRouteNames[] = $routeName;
-            }
-        }
-
-        $this->deleteTemplates($staleRouteNames, $context->context);
-    }
-
     public function update(AppPersistContext $context): void
     {
         $declaredStatic = $this->declaredStaticRouteNames($context->manifest);
@@ -94,7 +73,7 @@ class AppSeoUrlLifecycleHandler extends AbstractLifecycleHandler implements Even
         }
 
         $this->markSeoUrlsAsDeleted($removed, $context->context);
-        $this->deleteTemplates($removed, $context->context);
+        $this->deleteTemplates(array_values(array_diff($removed, array_keys($declaredEntity))), $context->context);
     }
 
     public function activate(AppActivationContext $context): void
@@ -205,24 +184,6 @@ class AppSeoUrlLifecycleHandler extends AbstractLifecycleHandler implements Even
         }
 
         return $routeNames;
-    }
-
-    /**
-     * @return array<string, string> route name => entity name
-     */
-    private function keptTemplateEntityNames(string $routeNamePrefix, Context $context): array
-    {
-        $criteria = new Criteria();
-        $criteria->setTitle('app-seo-url::kept-templates');
-        $criteria->addFilter(new PrefixFilter('routeName', $routeNamePrefix));
-
-        $entityNames = [];
-
-        foreach ($this->seoUrlTemplateRepository->search($criteria, $context)->getEntities() as $template) {
-            $entityNames[$template->getRouteName()] = $template->getEntityName();
-        }
-
-        return $entityNames;
     }
 
     /**

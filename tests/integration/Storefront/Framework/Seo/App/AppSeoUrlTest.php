@@ -500,21 +500,6 @@ class AppSeoUrlTest extends TestCase
         static::assertSame(['merchant/app-product-1'], $this->fetchCanonicalSeoPaths(self::PRODUCT_ROUTE));
     }
 
-    public function testReinstallingWithKeptUserDataDropsTheTemplateOfARouteTheNewVersionNoLongerDeclares(): void
-    {
-        $this->installApp('previous-version/SwagStorefrontSeoUrl');
-        $this->changeDefaultTemplate(self::PRODUCT_ROUTE, 'merchant/{{ product.productNumber }}');
-
-        static::getContainer()->get(AppManager::class)->uninstall($this->loadApp(), $this->context, keepUserData: true);
-
-        static::assertNotNull($this->fetchDefaultTemplate(self::PRODUCT_REVIEWS_ROUTE));
-
-        $this->installApp();
-
-        static::assertNull($this->fetchDefaultTemplate(self::PRODUCT_REVIEWS_ROUTE));
-        static::assertSame(['product', 'merchant/{{ product.productNumber }}'], $this->fetchDefaultTemplate(self::PRODUCT_ROUTE));
-    }
-
     public function testReinstallingWithKeptUserDataResetsEveryTemplateOfARouteTheNewVersionBindsToAnotherEntity(): void
     {
         $this->installApp('previous-version/SwagStorefrontSeoUrl');

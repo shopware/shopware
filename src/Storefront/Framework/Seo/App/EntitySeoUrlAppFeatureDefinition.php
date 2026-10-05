@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Framework\Seo\App;
 use Shopware\Core\Content\Seo\SeoException;
 use Shopware\Core\Content\Seo\SeoUrlGenerator;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
+use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateEntity;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\App\Feature\AppFeatureConfig;
@@ -183,10 +184,19 @@ final class EntitySeoUrlAppFeatureDefinition extends AppFeatureDefinition
         $criteria = new Criteria();
         $criteria->setTitle('app-seo-url::default-template');
         $criteria->addFilter(new EqualsFilter('routeName', $config->getRouteName()));
-        $criteria->addFilter(new EqualsFilter('salesChannelId', null));
 
-        if ($this->seoUrlTemplateRepository->search($criteria, $context)->getEntities()->first() !== null) {
+        $templates = $this->seoUrlTemplateRepository->search($criteria, $context)->getEntities();
+        $default = $templates->firstWhere(static fn (SeoUrlTemplateEntity $template): bool => $template->getSalesChannelId() === null);
+
+        if ($default !== null && $default->getEntityName() === $config->getEntityName()) {
             return;
+        }
+
+        if ($templates->count() > 0) {
+            $this->seoUrlTemplateRepository->delete(
+                array_values($templates->map(static fn (SeoUrlTemplateEntity $template): array => ['id' => $template->getId()])),
+                $context
+            );
         }
 
         $this->seoUrlTemplateRepository->create([[

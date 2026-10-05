@@ -50,6 +50,8 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
 
     private const TEASER_ROUTE = 'storefront.app.SwagSeoUrlApp.product-teaser';
 
+    private const SALES_CHANNEL_ID = 'ffffffffffffffffffffffffffffffff';
+
     private StaticDefinitionInstanceRegistry $definitionRegistry;
 
     private EntitySeoUrlAppFeatureDefinition $definition;
@@ -276,14 +278,11 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
         ];
     }
 
-    public function testPersistedSeedsTheSalesChannelIndependentDefaultTemplate(): void
+    public function testPersistedCreatesTheDefaultTemplateWhenTheRouteHasNone(): void
     {
         $repository = StaticEntityRepository::of(SeoUrlTemplateCollection::class, [
             static function (Criteria $criteria): SeoUrlTemplateCollection {
-                static::assertEquals(
-                    [new EqualsFilter('routeName', self::TEASER_ROUTE), new EqualsFilter('salesChannelId', null)],
-                    $criteria->getFilters()
-                );
+                static::assertEquals([new EqualsFilter('routeName', self::TEASER_ROUTE)], $criteria->getFilters());
 
                 return new SeoUrlTemplateCollection();
             },
@@ -298,19 +297,41 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
             'isValid' => true,
             'isHeadless' => false,
         ]], $repository->getPayloads(StaticEntityRepository::CREATE));
-        static::assertSame([], $repository->updates);
+        static::assertSame([], $repository->deletes);
     }
 
-    public function testPersistedKeepsAnExistingDefaultTemplate(): void
+    public function testPersistedKeepsTheDefaultAndTheOverridesForTheSameEntity(): void
     {
         $repository = new StaticEntityRepository([
-            new SeoUrlTemplateCollection([$this->template(entityName: 'product', template: 'my-teaser/{{ product.translated.name }}')]),
+            new SeoUrlTemplateCollection([
+                $this->template(entityName: 'product', template: 'shop-teaser/{{ product.productNumber }}', salesChannelId: self::SALES_CHANNEL_ID),
+                $this->template(entityName: 'product', template: 'my-teaser/{{ product.translated.name }}'),
+            ]),
         ]);
 
         $this->buildDefinition($repository)->persisted([self::config()], $this->persistContext());
 
         static::assertSame([], $repository->creates);
         static::assertSame([], $repository->updates);
+        static::assertSame([], $repository->deletes);
+    }
+
+    public function testPersistedReplacesEveryTemplateOfTheRouteWhenTheDefaultIsBoundToAnotherEntity(): void
+    {
+        $default = $this->template(entityName: 'category', template: 'teaser/{{ category.translated.name }}');
+        $override = $this->template(entityName: 'category', template: 'my-teaser/{{ category.translated.name }}', salesChannelId: self::SALES_CHANNEL_ID);
+        $repository = new StaticEntityRepository([new SeoUrlTemplateCollection([$default, $override])]);
+
+        $this->buildDefinition($repository)->persisted([self::config()], $this->persistContext());
+
+        static::assertSame([[['id' => $default->getId()], ['id' => $override->getId()]]], $repository->deletes);
+        static::assertSame([[
+            'routeName' => self::TEASER_ROUTE,
+            'entityName' => 'product',
+            'template' => 'teaser/{{ product.productNumber }}',
+            'isValid' => true,
+            'isHeadless' => false,
+        ]], $repository->getPayloads(StaticEntityRepository::CREATE));
     }
 
     public function testPersistedSeedsTheMissingTemplateOfEveryDeclaredEntitySeoUrl(): void
@@ -405,11 +426,12 @@ class EntitySeoUrlAppFeatureDefinitionTest extends TestCase
         );
     }
 
-    private function template(string $entityName, string $template): SeoUrlTemplateEntity
+    private function template(string $entityName, string $template, ?string $salesChannelId = null): SeoUrlTemplateEntity
     {
         $seoUrlTemplate = new SeoUrlTemplateEntity();
         $seoUrlTemplate->setId(Uuid::randomHex());
         $seoUrlTemplate->setRouteName(self::TEASER_ROUTE);
+        $seoUrlTemplate->setSalesChannelId($salesChannelId);
         $seoUrlTemplate->setEntityName($entityName);
         $seoUrlTemplate->setTemplate($template);
         $seoUrlTemplate->setIsValid(true);

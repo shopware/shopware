@@ -264,6 +264,32 @@ class StockStorageTest extends TestCase
         static::assertFalse($variant->getAvailable());
     }
 
+    public function testVariantWithOwnCloseoutFollowsMinPurchaseChangeOfParent(): void
+    {
+        $parentId = $this->createProduct([
+            'stock' => 0,
+            'isCloseout' => false,
+            'minPurchase' => 1,
+        ]);
+        $variantId = $this->createProduct([
+            'parentId' => $parentId,
+            'stock' => 1,
+            'isCloseout' => true,
+        ]);
+
+        $context = Context::createDefaultContext();
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertTrue($variant->getAvailable());
+
+        $this->productRepository->update([['id' => $parentId, 'minPurchase' => 2]], $context);
+
+        $variant = $this->productRepository->search(new Criteria([$variantId]), $context)->getEntities()->get($variantId);
+        static::assertInstanceOf(ProductEntity::class, $variant);
+        static::assertFalse($variant->getAvailable());
+    }
+
     public static function triggerProductNoLongerAvailableEventOnCreateProvider(): \Generator
     {
         yield 'Closeout, no stock' => [0, true, 0];

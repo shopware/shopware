@@ -119,8 +119,9 @@ class ProductIndexer extends EntityIndexer
         $stocks = $event->getPrimaryKeysWithPropertyChange(ProductDefinition::ENTITY_NAME, ['stock', 'isCloseout', 'minPurchase']);
 
         // Variants inherit `isCloseout` and `minPurchase`, so a change on the parent changes their availability as well
-        if ($stocks !== []) {
-            $stocks = \array_unique([...$stocks, ...$this->getChildrenIds($stocks)]);
+        $inheritedStocks = $event->getPrimaryKeysWithPropertyChange(ProductDefinition::ENTITY_NAME, ['isCloseout', 'minPurchase']);
+        if ($inheritedStocks !== []) {
+            $stocks = \array_unique([...$stocks, ...$this->getInheritingChildrenIds($inheritedStocks)]);
         }
 
         Profiler::trace('product:indexer:stock', function () use ($stocks, $event): void {
@@ -296,6 +297,24 @@ class ProductIndexer extends EntityIndexer
     {
         $childrenIds = $this->connection->fetchFirstColumn(
             'SELECT DISTINCT LOWER(HEX(id)) as id FROM product WHERE parent_id IN (:ids)',
+            ['ids' => Uuid::fromHexToBytesList($ids)],
+            ['ids' => ArrayParameterType::BINARY]
+        );
+
+        return array_unique(array_filter($childrenIds));
+    }
+
+    /**
+     * Variants of the given products that inherit `isCloseout` or `minPurchase`, so their availability depends on the parent
+     *
+     * @param array<string> $ids
+     *
+     * @return array<string>
+     */
+    private function getInheritingChildrenIds(array $ids): array
+    {
+        $childrenIds = $this->connection->fetchFirstColumn(
+            'SELECT DISTINCT LOWER(HEX(id)) as id FROM product WHERE parent_id IN (:ids) AND (is_closeout IS NULL OR min_purchase IS NULL)',
             ['ids' => Uuid::fromHexToBytesList($ids)],
             ['ids' => ArrayParameterType::BINARY]
         );

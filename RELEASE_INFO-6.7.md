@@ -492,6 +492,15 @@ migrate it to `useCmsElement` by hand.
 ### Mail template trigger event is preselected
 
 The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
+### Meteor Component Library updated to 5.8.0
+
+The Administration now uses Meteor Component Library `5.8.0`. `mt-divider` and `mt-help-text` are registered globally and can be used in Administration templates.
+
+The library styles are now plain CSS with design tokens, and the global font feature settings changed, so some colors and glyphs look slightly different. The time zone hint of `mt-datepicker` has a new DOM. The `.mt-datepicker__hint` class and the `data-testid="time-zone-hint"` attribute stay, but styles that target `.mt-datepicker__hint-icon` or `.mt-datepicker__hint p` need to be updated.
+
+### `sw-order-state-select-v2` can render a regular size select
+
+`sw-order-state-select-v2` has a new `small` prop. It defaults to `true`, so existing usages keep the small select. Pass `:small="false"` to render a regular size select, for example in a form next to other fields.
 
 ## Storefront
 

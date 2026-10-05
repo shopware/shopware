@@ -55,7 +55,10 @@ final class HttpRequestMetricSubscriber implements EventSubscriberInterface
     {
         return [
             KernelEvents::RESPONSE => 'onKernelResponse',
-            KernelEvents::TERMINATE => 'onKernelTerminate',
+            // Terminate listener has to run after response is sent but before any post-response work
+            // (buffered flows, telemetry flush), so the response duration metric means client-facing latency,
+            // not whole time the worker is busy.
+            KernelEvents::TERMINATE => ['onKernelTerminate', 1024],
         ];
     }
 

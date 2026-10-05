@@ -202,7 +202,7 @@ shopware:
                             policy: open
 
                 http.server.request.duration:
-                    description: 'Main HTTP request wall time'
+                    description: 'Main HTTP request wall time until the response is sent (client-facing latency). Post-response work on kernel.terminate (e.g. buffered flow execution) is excluded.'
                     type: 'histogram'
                     unit: 'ms'
                     parameters:

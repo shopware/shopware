@@ -41,7 +41,9 @@ class HttpRequestMetricSubscriberTest extends TestCase
         static::assertSame(
             [
                 KernelEvents::RESPONSE => 'onKernelResponse',
-                KernelEvents::TERMINATE => 'onKernelTerminate',
+                // should be before other terminate listeners that do post-response work, so request duration tracks
+                // client latency
+                KernelEvents::TERMINATE => ['onKernelTerminate', 1024],
             ],
             HttpRequestMetricSubscriber::getSubscribedEvents()
         );

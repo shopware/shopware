@@ -29,7 +29,8 @@ class TelemetryFlushListenerTest extends TestCase
         static::assertArrayHasKey(KernelEvents::TERMINATE, $events);
         static::assertArrayHasKey(ConsoleEvents::TERMINATE, $events);
         static::assertArrayHasKey(WorkerRunningEvent::class, $events);
-        static::assertSame('flush', $events[KernelEvents::TERMINATE]);
+        // should run after all other listeners that still emit metrics
+        static::assertSame(['flush', -1000], $events[KernelEvents::TERMINATE]);
         static::assertSame('flush', $events[ConsoleEvents::TERMINATE]);
         static::assertSame('flushIfStale', $events[WorkerRunningEvent::class]);
     }

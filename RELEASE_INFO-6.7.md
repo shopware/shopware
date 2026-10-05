@@ -294,6 +294,8 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 ### Telemetry updates
 
 - Default metrics prefix was changes from `io.opentelemetry.contrib.php.shopware` to `shopware.platform`.
+- `http.server.request.duration` now show client-facing latency without post-response processing
+- metrics are flushed after all other terminate tasks
 
 Metrics are still behind the feature flag `TELEMETRY_METRICS`.
 

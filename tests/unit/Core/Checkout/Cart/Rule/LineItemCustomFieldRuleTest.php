@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
@@ -15,7 +16,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 
 /**
  * @internal
@@ -25,8 +26,6 @@ use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTra
 #[Group('rules')]
 class LineItemCustomFieldRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private const CUSTOM_FIELD_NAME = 'custom_test';
 
     private SalesChannelContext $salesChannelContext;
@@ -111,7 +110,7 @@ class LineItemCustomFieldRuleTest extends TestCase
     public function testWithoutCustomField(): void
     {
         $rule = self::setupBoolRule(false);
-        $scope = new LineItemScope(self::createLineItem(), $this->salesChannelContext);
+        $scope = new LineItemScope(CartRuleFixture::createLineItem(), $this->salesChannelContext);
         static::assertFalse($rule->match($scope));
 
         $rule->assign(['operator' => Rule::OPERATOR_NEQ]);
@@ -174,7 +173,7 @@ class LineItemCustomFieldRuleTest extends TestCase
             $this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => $customFieldValueInLineItem]),
         ]);
 
-        $cart = self::createCart($lineItemCollection);
+        $cart = CartRuleFixture::createCart($lineItemCollection);
         $scope = new CartRuleScope($cart, $this->salesChannelContext);
         static::assertSame($result, $rule->match($scope));
     }
@@ -192,37 +191,26 @@ class LineItemCustomFieldRuleTest extends TestCase
             $this->createLineItemWithCustomFields([self::CUSTOM_FIELD_NAME => $customFieldValueInLineItem]),
         ]);
 
-        $containerLineItem = self::createContainerLineItem($lineItemCollection);
-        $cart = self::createCart(new LineItemCollection([$containerLineItem]));
+        $containerLineItem = CartRuleFixture::createContainerLineItem($lineItemCollection);
+        $cart = CartRuleFixture::createCart(new LineItemCollection([$containerLineItem]));
 
         $scope = new CartRuleScope($cart, $this->salesChannelContext);
         static::assertSame($result, $rule->match($scope));
     }
 
-    #[DataProvider('lineItemTypeProvider')]
-    public function testMatchesByLineItemType(string $type, bool $lineItemScope, bool $expected): void
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemWithoutProductDataProvider')]
+    public function testLineItemWithoutProductData(string $type, bool $lineItemScope, bool $expected): void
     {
         $rule = new LineItemCustomFieldRule(Rule::OPERATOR_NEQ);
 
-        $lineItem = self::createLineItem($type);
+        $lineItem = CartRuleFixture::createLineItem($type);
         $context = static::createStub(SalesChannelContext::class);
 
         $scope = $lineItemScope
             ? new LineItemScope($lineItem, $context)
-            : new CartRuleScope(self::createCart(new LineItemCollection([$lineItem])), $context);
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
 
         static::assertSame($expected, $rule->match($scope));
-    }
-
-    /**
-     * @return \Generator<string, array{non-empty-string, bool, bool}>
-     */
-    public static function lineItemTypeProvider(): \Generator
-    {
-        yield 'product via line item scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, true, true];
-        yield 'product via cart scope' => [LineItem::PRODUCT_LINE_ITEM_TYPE, false, true];
-        yield 'custom via line item scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, true, false];
-        yield 'custom via cart scope' => [LineItem::CUSTOM_LINE_ITEM_TYPE, false, false];
     }
 
     /**
@@ -277,12 +265,38 @@ class LineItemCustomFieldRuleTest extends TestCase
         ];
     }
 
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
+    public function testLineItemWithDataIsEvaluated(string $type, bool $lineItemScope): void
+    {
+        $rule = self::setupStringRule('my_test_value');
+        $lineItem = CartRuleFixture::createLineItem($type)->setPayloadValue('customFields', [self::CUSTOM_FIELD_NAME => 'my_test_value']);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertTrue($rule->match($scope));
+    }
+
+    public function testProductWithNullValueIsEvaluatedInCart(): void
+    {
+        $rule = new LineItemCustomFieldRule(Rule::OPERATOR_NEQ);
+        $lineItem = CartRuleFixture::createLineItem()->setPayloadValue('customFields', null);
+        $scope = new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$lineItem])),
+            static::createStub(SalesChannelContext::class),
+        );
+
+        static::assertTrue($rule->match($scope));
+    }
+
     /**
      * @param array<string, array<int>|bool|int|string|null> $customFields
      */
     private function createLineItemWithCustomFields(array $customFields = []): LineItem
     {
-        return self::createLineItem()->setPayloadValue('customFields', $customFields);
+        return CartRuleFixture::createLineItem()->setPayloadValue('customFields', $customFields);
     }
 
     private static function setupFloatRule(string|float $customFieldValue): LineItemCustomFieldRule

@@ -242,6 +242,39 @@ class SystemConfigServiceTest extends TestCase
         );
     }
 
+    /**
+     * @return iterable<string, array{int|float|string}>
+     */
+    public static function emptyScalarOverridesProvider(): iterable
+    {
+        yield 'empty string overrides global value' => [''];
+        yield 'integer zero overrides global value' => [0];
+        yield 'float zero overrides global value' => [0.0];
+        yield 'string zero overrides global value' => ['0'];
+    }
+
+    #[DataProvider('emptyScalarOverridesProvider')]
+    public function testEmptyScalarSalesChannelValueOverridesGlobalValueInAllReadMethods(int|float|string $override): void
+    {
+        $this->systemConfigService->set('foo.bar', 'global');
+        $this->systemConfigService->set('foo.bar', $override, TestDefaults::SALES_CHANNEL);
+
+        static::assertSame($override, $this->systemConfigService->get('foo.bar', TestDefaults::SALES_CHANNEL));
+        static::assertSame($override, $this->systemConfigService->all(TestDefaults::SALES_CHANNEL)['foo']['bar']);
+        static::assertSame(
+            ['foo.bar' => $override],
+            $this->systemConfigService->getDomain('foo', TestDefaults::SALES_CHANNEL, true)
+        );
+    }
+
+    public function testEmptyNestedSalesChannelValueOverridesValueFromParentConfig(): void
+    {
+        $this->systemConfigService->set('foo.bar', ['baz' => 'global']);
+        $this->systemConfigService->set('foo.bar.baz', [], TestDefaults::SALES_CHANNEL);
+
+        static::assertSame([], $this->systemConfigService->get('foo.bar.baz', TestDefaults::SALES_CHANNEL));
+    }
+
     public function testGetDomainNoData(): void
     {
         $actual = $this->systemConfigService->getDomain('foo');
@@ -411,7 +444,7 @@ class SystemConfigServiceTest extends TestCase
         $this->addEventListener($eventDispatcher, SystemConfigChangedHook::class, $listener);
 
         $this->systemConfigService->deleteExtensionConfiguration($extensionName, [
-            ['elements' => [['name' => 'testSetting1'], ['name' => 'testSetting2']]],
+            ['cards' => [['elements' => [['name' => 'testSetting1'], ['name' => 'testSetting2']]]]],
         ]);
 
         // Reset the memoized values

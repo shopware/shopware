@@ -79,8 +79,6 @@ async function createWrapper() {
                 'sw-container': await wrapTestComponent('sw-container', {
                     sync: true,
                 }),
-                'sw-card-section': await wrapTestComponent('sw-card-section', { sync: true }),
-                'sw-description-list': await wrapTestComponent('sw-description-list', { sync: true }),
                 'mt-card': {
                     template: `
                         <div class="mt-card">
@@ -147,30 +145,58 @@ describe('src/module/sw-order/view/sw-order-detail-details', () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
 
-        const shippingCostField = wrapper.find('.sw-order-detail__summary div[role="button"]');
+        const shippingCostField = wrapper.find('.sw-order-detail-general__summary div[role="button"]');
         expect(shippingCostField.attributes()['tooltip-message']).toBe(
             'sw-order.detailBase.tax<br>sw-order.detailBase.shippingCostsTax{"taxRate":10,"tax":"€1.00"}<br>sw-order.detailBase.shippingCostsTax{"taxRate":19,"tax":"€1.90"}',
         );
     });
 
+    it('should show the discount amount for additional deliveries', async () => {
+        global.activeAclRoles = [];
+        const store = Shopware.Store.get('swOrderDetail');
+        store.order = {
+            ...orderMock,
+            deliveries: [
+                ...orderMock.deliveries,
+                {
+                    id: 'discount-delivery',
+                    shippingCosts: {
+                        calculatedTaxes: [],
+                        totalPrice: -5,
+                    },
+                },
+            ],
+        };
+        wrapper = await createWrapper();
+
+        const discountRow = wrapper
+            .findAll('.sw-order-detail-general__summary-row')
+            .find((row) => row.text().includes('sw-order.detailBase.discountLabelShippingCosts'));
+
+        expect(discountRow.findAll('span')[1].text()).toBe('-€5.00');
+
+        store.order = orderMock;
+    });
+
     it('should tax description correctly if taxStatus is not tax-free', async () => {
         global.activeAclRoles = [];
         wrapper = await createWrapper();
-        const descriptionTitles = wrapper.findAll('dt');
-        const descriptionInfos = wrapper.findAll('dd');
+        const summaryRows = wrapper.findAll('.sw-order-detail-general__summary-row');
+        const [firstTaxLabel, firstTaxValue] = summaryRows[3].findAll('span');
+        const [secondTaxLabel, secondTaxValue] = summaryRows[4].findAll('span');
 
-        expect(descriptionTitles[3].text()).toBe('sw-order.detailBase.summaryLabelTaxes{"taxRate":10}');
-        expect(descriptionInfos[3].text()).toBe('€10.00');
+        expect(firstTaxLabel.text()).toBe('sw-order.detailBase.summaryLabelTaxes{"taxRate":10}');
+        expect(firstTaxValue.text()).toBe('€10.00');
 
-        expect(descriptionTitles[4].text()).toBe('sw-order.detailBase.summaryLabelTaxes{"taxRate":19}');
-        expect(descriptionInfos[4].text()).toBe('€19.00');
+        expect(secondTaxLabel.text()).toBe('sw-order.detailBase.summaryLabelTaxes{"taxRate":19}');
+        expect(secondTaxValue.text()).toBe('€19.00');
     });
 
     it('should able to edit shipping cost', async () => {
         global.activeAclRoles = ['order.editor'];
         wrapper = await createWrapper();
 
-        let button = wrapper.find('.sw-order-detail__summary div[role="button"]');
+        let button = wrapper.find('.sw-order-detail-general__summary div[role="button"]');
         await button.trigger('click');
         await flushPromises();
 

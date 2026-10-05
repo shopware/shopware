@@ -11,7 +11,6 @@ use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
 use Shopware\Core\Content\Flow\Rule\OrderCustomFieldRule;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Tests\Unit\Core\Checkout\Cart\SalesChannel\Helper\CartRuleHelperTrait;
 use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 
 /**
@@ -22,8 +21,6 @@ use Shopware\Tests\Unit\Core\Checkout\Customer\Rule\TestRuleScope;
 #[Group('rules')]
 class OrderCustomFieldRuleTest extends TestCase
 {
-    use CartRuleHelperTrait;
-
     private const CUSTOM_FIELD_NAME = 'custom_test';
 
     private OrderCustomFieldRule $rule;

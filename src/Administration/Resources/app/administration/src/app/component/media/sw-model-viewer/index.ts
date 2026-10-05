@@ -1,4 +1,4 @@
-import { markRaw } from 'vue';
+import { markRaw, type Raw } from 'vue';
 import type Repository from 'src/core/data/repository.data';
 import { QuickView } from '@shopware-ag/dive/quickview';
 import template from './sw-model-viewer.html.twig';
@@ -43,14 +43,14 @@ export default Shopware.Component.wrapComponentConfig({
             canvas: HTMLCanvasElement | null;
             isLoading: boolean;
             modelEntity: Entity<'media'> | null;
-            quickView: QuickView | null;
+            quickView: Raw<QuickView> | null;
         };
     },
 
     watch: {
         async source(): Promise<void> {
             this.modelEntity = this.source as Entity<'media'>;
-            await this.quickView?.dispose();
+            await this.quickView?.disposeAsync();
             return this.initializeQuickView();
         },
     },
@@ -129,7 +129,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         async disposeQuickView(): Promise<void> {
-            await this.quickView?.dispose();
+            await this.quickView?.disposeAsync();
         },
 
         onMediaLibraryItemUpdated(mediaId: EntityKey<'media'>): void {

@@ -323,7 +323,7 @@ export default {
             const technicalName = document.typeName;
 
             if (!technicalName) {
-                return document.documentType?.name ?? '';
+                return document.documentType?.translated?.name ?? document.documentType?.name ?? '';
             }
 
             return this.documentV2Service.getDocumentTypeLabel(

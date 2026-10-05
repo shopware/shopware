@@ -20,9 +20,7 @@ class PluginClassGeneratorTest extends TestCase
     {
         $generator = new PluginClassGenerator();
 
-        static::assertFalse($generator->hasCommandOption());
-        static::assertEmpty($generator->getCommandOptionName());
-        static::assertEmpty($generator->getCommandOptionDescription());
+        static::assertNull($generator->getCommandOption());
     }
 
     public function testGenerateStubs(): void

@@ -18,6 +18,7 @@ use Shopware\Storefront\Framework\Seo\App\AppEntitySeoUrlConfig;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlIndexer;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlIndexingMessage;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlRouteProvider;
+use Shopware\Storefront\Framework\Seo\App\AppSeoUrlSynchronizer;
 use Symfony\Component\Messenger\Envelope;
 
 /**
@@ -49,21 +50,35 @@ class AppSeoUrlIndexerTest extends TestCase
 
     private SeoUrlUpdater $seoUrlUpdater;
 
+    private AppSeoUrlSynchronizer $synchronizer;
+
     /**
      * @var list<array{routeName: string, ids: list<string>}>
      */
     private array $updatedSeoUrls = [];
 
+    /**
+     * @var list<string|null>
+     */
+    private array $staticSyncs = [];
+
     protected function setUp(): void
     {
         $this->messageBus = new CollectingMessageBus();
         $this->updatedSeoUrls = [];
+        $this->staticSyncs = [];
 
         $seoUrlUpdater = static::createStub(SeoUrlUpdater::class);
         $seoUrlUpdater->method('update')->willReturnCallback(function (string $routeName, array $ids): void {
             $this->updatedSeoUrls[] = ['routeName' => $routeName, 'ids' => array_values($ids)];
         });
         $this->seoUrlUpdater = $seoUrlUpdater;
+
+        $synchronizer = static::createStub(AppSeoUrlSynchronizer::class);
+        $synchronizer->method('syncStaticRoutes')->willReturnCallback(function (?string $appId = null): void {
+            $this->staticSyncs[] = $appId;
+        });
+        $this->synchronizer = $synchronizer;
     }
 
     public function testTheIndexerIsNamedAfterAppSeoUrls(): void
@@ -71,11 +86,21 @@ class AppSeoUrlIndexerTest extends TestCase
         static::assertSame('app_seo_url.indexer', $this->indexer()->getName());
     }
 
+    public function testAFullIndexRunStartsWithTheStaticSeoUrls(): void
+    {
+        $message = $this->indexer($this->entitySeoUrl('product-teaser', 'product'))->iterate(null);
+
+        static::assertNotNull($message);
+        static::assertNotInstanceOf(AppSeoUrlIndexingMessage::class, $message);
+        static::assertSame('static-routes', $message->getData());
+        static::assertSame(['offset' => 0], $message->getOffset());
+    }
+
     /**
-     * @param array{offset: int|null}|null $offset
+     * @param array{offset: int|null} $offset
      */
     #[DataProvider('iterationOffsets')]
-    public function testAFullIndexRunHandsOutOneEntityRoutePerMessage(?array $offset, string $expectedRouteName, int $expectedNextPosition): void
+    public function testAFullIndexRunHandsOutOneEntityRoutePerMessage(array $offset, string $expectedRouteName, int $expectedNextPosition): void
     {
         $indexer = $this->indexer(
             $this->entitySeoUrl('product-teaser', 'product'),
@@ -91,11 +116,11 @@ class AppSeoUrlIndexerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{array{offset: int|null}|null, string, int}>
+     * @return iterable<string, array{array{offset: int|null}, string, int}>
      */
     public static function iterationOffsets(): iterable
     {
-        yield 'a new run starts with the first route' => [null, self::PRODUCT_TEASER_ROUTE, 1];
+        yield 'the static SEO URLs are followed by the first route' => [['offset' => 0], self::PRODUCT_TEASER_ROUTE, 1];
         yield 'an offset without a position starts with the first route' => [['offset' => null], self::PRODUCT_TEASER_ROUTE, 1];
         yield 'the offset of the previous message continues with the next route' => [['offset' => 1], self::CATEGORY_TEASER_ROUTE, 2];
     }
@@ -107,19 +132,22 @@ class AppSeoUrlIndexerTest extends TestCase
         static::assertNull($indexer->iterate(['offset' => 1]));
     }
 
-    public function testWithoutEntityRoutesAFullIndexRunHasNothingToDo(): void
+    public function testWithoutEntityRoutesAFullIndexRunOnlySynchronisesTheStaticSeoUrls(): void
     {
-        static::assertNull($this->indexer()->iterate(null));
+        $indexer = $this->indexer();
+
+        static::assertSame('static-routes', $indexer->iterate(null)?->getData());
+        static::assertNull($indexer->iterate(['offset' => 0]));
     }
 
-    public function testTheTotalIsTheNumberOfEntityRoutes(): void
+    public function testTheTotalIsTheStaticStepPlusTheNumberOfEntityRoutes(): void
     {
         $indexer = $this->indexer(
             $this->entitySeoUrl('product-teaser', 'product'),
             $this->entitySeoUrl('category-teaser', 'category'),
         );
 
-        static::assertSame(2, $indexer->getTotal());
+        static::assertSame(3, $indexer->getTotal());
     }
 
     public function testTheWrittenIdsOfEveryBoundEntityAreCollected(): void
@@ -273,6 +301,17 @@ class AppSeoUrlIndexerTest extends TestCase
         static::assertSame([], $this->dispatchedMessages());
     }
 
+    public function testTheStaticStepOfAFullIndexRunSynchronisesTheStaticSeoUrlsOfAllApps(): void
+    {
+        $indexer = $this->indexer($this->entitySeoUrl('product-teaser', 'product'));
+
+        $indexer->handle(new EntityIndexingMessage('static-routes', ['offset' => 0]));
+
+        static::assertSame([null], $this->staticSyncs);
+        static::assertSame([], $this->dispatchedMessages());
+        static::assertSame([], $this->updatedSeoUrls);
+    }
+
     public function testAFullIndexMessageRebuildsItsRouteThroughTheTemplateIndexingChain(): void
     {
         $indexer = $this->indexer(
@@ -287,6 +326,7 @@ class AppSeoUrlIndexerTest extends TestCase
             $this->dispatchedMessages()
         );
         static::assertSame([], $this->updatedSeoUrls);
+        static::assertSame([], $this->staticSyncs);
     }
 
     public function testARouteRemovedSinceTheFullIndexRunStartedIsNotRebuilt(): void
@@ -298,7 +338,7 @@ class AppSeoUrlIndexerTest extends TestCase
         static::assertSame([], $this->dispatchedMessages());
     }
 
-    public function testAMessageWithoutAListOfRouteNamesIsIgnored(): void
+    public function testAMessageThatIsNeitherTheStaticStepNorAListOfRouteNamesIsIgnored(): void
     {
         $indexer = $this->indexer($this->entitySeoUrl('product-teaser', 'product'));
 
@@ -306,6 +346,7 @@ class AppSeoUrlIndexerTest extends TestCase
 
         static::assertSame([], $this->dispatchedMessages());
         static::assertSame([], $this->updatedSeoUrls);
+        static::assertSame([], $this->staticSyncs);
     }
 
     public function testTheSeoUrlUpdaterIsTheOnlyOptionToSkip(): void
@@ -313,7 +354,7 @@ class AppSeoUrlIndexerTest extends TestCase
         static::assertSame(['app_seo_url.seo-url'], $this->indexer()->getOptions());
     }
 
-    #[DataProvider('messagesOfBothKinds')]
+    #[DataProvider('messagesOfEveryKind')]
     public function testASkippedSeoUrlUpdaterRegeneratesNothing(EntityIndexingMessage $message): void
     {
         $indexer = $this->indexer($this->entitySeoUrl('product-teaser', 'product'));
@@ -323,18 +364,20 @@ class AppSeoUrlIndexerTest extends TestCase
 
         static::assertSame([], $this->updatedSeoUrls);
         static::assertSame([], $this->dispatchedMessages());
+        static::assertSame([], $this->staticSyncs);
     }
 
     /**
      * @return iterable<string, array{EntityIndexingMessage}>
      */
-    public static function messagesOfBothKinds(): iterable
+    public static function messagesOfEveryKind(): iterable
     {
         $writtenEntities = new AppSeoUrlIndexingMessage([self::PRODUCT_ID]);
         $writtenEntities->setIdsByEntity(['product' => [self::PRODUCT_ID]]);
 
         yield 'a message of written entities' => [$writtenEntities];
-        yield 'a message of a full index run' => [new EntityIndexingMessage([self::PRODUCT_TEASER_ROUTE], ['offset' => 1])];
+        yield 'the static step of a full index run' => [new EntityIndexingMessage('static-routes', ['offset' => 0])];
+        yield 'an entity route of a full index run' => [new EntityIndexingMessage([self::PRODUCT_TEASER_ROUTE], ['offset' => 1])];
     }
 
     public function testSkippingAnotherUpdaterStillRegeneratesTheSeoUrls(): void
@@ -361,7 +404,7 @@ class AppSeoUrlIndexerTest extends TestCase
         $routes = static::createStub(AppSeoUrlRouteProvider::class);
         $routes->method('getEntityRoutes')->willReturn($entitySeoUrls);
 
-        return new AppSeoUrlIndexer($routes, $this->seoUrlUpdater, $this->messageBus);
+        return new AppSeoUrlIndexer($routes, $this->seoUrlUpdater, $this->messageBus, $this->synchronizer);
     }
 
     private function entitySeoUrl(string $name, string $entityName): AppEntitySeoUrlConfig

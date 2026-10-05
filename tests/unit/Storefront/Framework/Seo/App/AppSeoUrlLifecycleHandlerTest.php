@@ -30,7 +30,7 @@ use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Shopware\Storefront\Framework\Seo\App\AppEntitySeoUrlConfig;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlConfig;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlLifecycleHandler;
-use Shopware\Storefront\Framework\Seo\App\Message\AppSeoUrlSyncMessage;
+use Shopware\Storefront\Framework\Seo\App\AppSeoUrlSynchronizer;
 use Shopware\Tests\Unit\Core\Framework\App\AppFixture;
 use Shopware\Tests\Unit\Core\Framework\App\Manifest\ManifestFixture;
 use Symfony\Component\Messenger\Envelope;
@@ -302,9 +302,13 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
 
     public function testUpdateLeavesTheRegenerationToTheAppUpdatedEvent(): void
     {
+        $synchronizer = $this->createMock(AppSeoUrlSynchronizer::class);
+        $synchronizer->expects($this->never())->method('syncStaticRoutes');
+
         $this->handler(
             storedSeoUrls: ['imprint'],
             storedEntitySeoUrls: ['product-teaser' => 'product'],
+            synchronizer: $synchronizer,
         )->update(self::updateContext(self::manifest(
             seoUrls: ['imprint'],
             entitySeoUrls: ['product-teaser' => 'product'],
@@ -323,14 +327,17 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
 
     public function testAnUpdatedActiveAppSynchronisesTheStaticSeoUrlsAndRebuildsEveryEntitySeoUrl(): void
     {
+        $synchronizer = $this->createMock(AppSeoUrlSynchronizer::class);
+        $synchronizer->expects($this->once())->method('syncStaticRoutes')->with(self::APP_ID);
+
         $this->handler(
             storedSeoUrls: ['imprint'],
             storedEntitySeoUrls: ['product-teaser' => 'product', 'category-teaser' => 'category'],
+            synchronizer: $synchronizer,
         )->regenerateUpdatedApp(self::appUpdatedEvent(active: true));
 
         static::assertEquals(
             [
-                new AppSeoUrlSyncMessage(self::APP_ID),
                 new SeoUrlTemplateIndexingMessage(self::PRODUCT_TEASER_ROUTE, 'product'),
                 new SeoUrlTemplateIndexingMessage(self::CATEGORY_TEASER_ROUTE, 'category'),
             ],
@@ -340,16 +347,24 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
 
     public function testAnUpdatedActiveAppWithoutEntitySeoUrlsOnlySynchronisesItsStaticSeoUrls(): void
     {
-        $this->handler(storedSeoUrls: ['imprint'])->regenerateUpdatedApp(self::appUpdatedEvent(active: true));
+        $synchronizer = $this->createMock(AppSeoUrlSynchronizer::class);
+        $synchronizer->expects($this->once())->method('syncStaticRoutes')->with(self::APP_ID);
 
-        static::assertEquals([new AppSeoUrlSyncMessage(self::APP_ID)], $this->dispatchedMessages());
+        $this->handler(storedSeoUrls: ['imprint'], synchronizer: $synchronizer)
+            ->regenerateUpdatedApp(self::appUpdatedEvent(active: true));
+
+        static::assertSame([], $this->dispatchedMessages());
     }
 
     public function testAnUpdatedInactiveAppRegeneratesNothing(): void
     {
+        $synchronizer = $this->createMock(AppSeoUrlSynchronizer::class);
+        $synchronizer->expects($this->never())->method('syncStaticRoutes');
+
         $this->handler(
             storedSeoUrls: ['imprint'],
             storedEntitySeoUrls: ['product-teaser' => 'product'],
+            synchronizer: $synchronizer,
         )->regenerateUpdatedApp(self::appUpdatedEvent(active: false));
 
         static::assertSame([], $this->dispatchedMessages());
@@ -357,14 +372,17 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
 
     public function testActivationSynchronisesTheStaticSeoUrlsAndRebuildsEveryEntitySeoUrlOfTheApp(): void
     {
+        $synchronizer = $this->createMock(AppSeoUrlSynchronizer::class);
+        $synchronizer->expects($this->once())->method('syncStaticRoutes')->with(self::APP_ID);
+
         $this->handler(
             storedSeoUrls: ['imprint'],
             storedEntitySeoUrls: ['product-teaser' => 'product', 'category-teaser' => 'category'],
+            synchronizer: $synchronizer,
         )->activate(self::activationContext());
 
         static::assertEquals(
             [
-                new AppSeoUrlSyncMessage(self::APP_ID),
                 new SeoUrlTemplateIndexingMessage(self::PRODUCT_TEASER_ROUTE, 'product'),
                 new SeoUrlTemplateIndexingMessage(self::CATEGORY_TEASER_ROUTE, 'category'),
             ],
@@ -500,8 +518,11 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
      * @param list<string> $storedSeoUrls
      * @param array<string, string> $storedEntitySeoUrls
      */
-    private function handler(array $storedSeoUrls = [], array $storedEntitySeoUrls = []): AppSeoUrlLifecycleHandler
-    {
+    private function handler(
+        array $storedSeoUrls = [],
+        array $storedEntitySeoUrls = [],
+        ?AppSeoUrlSynchronizer $synchronizer = null,
+    ): AppSeoUrlLifecycleHandler {
         $seoUrls = array_map(
             static fn (string $name): AppFeature => self::feature(new AppSeoUrlConfig(
                 name: $name,
@@ -540,6 +561,7 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
             $this->seoUrlRepository,
             $this->seoUrlTemplateRepository,
             $this->messageBus,
+            $synchronizer ?? static::createStub(AppSeoUrlSynchronizer::class),
         );
     }
 

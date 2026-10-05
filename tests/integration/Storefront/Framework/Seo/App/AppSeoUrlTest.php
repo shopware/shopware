@@ -173,11 +173,18 @@ class AppSeoUrlTest extends TestCase
             'DELETE FROM `seo_url` WHERE `route_name` = :routeName',
             ['routeName' => self::PRODUCT_ROUTE]
         );
+        $this->connection->executeStatement(
+            'UPDATE `seo_url` SET `is_deleted` = 1 WHERE `route_name` = :routeName',
+            ['routeName' => self::IMPRINT_ROUTE]
+        );
+
+        static::assertSame([], $this->fetchCanonicalSeoPaths(self::IMPRINT_ROUTE));
 
         static::getContainer()->get(EntityIndexerRegistry::class)->index(useQueue: false, only: [AppSeoUrlIndexer::NAME]);
         $this->runWorker();
 
         static::assertSame(['app-product/app-product-1'], $this->fetchCanonicalSeoPaths(self::PRODUCT_ROUTE));
+        static::assertSame(['imprint'], $this->fetchCanonicalSeoPaths(self::IMPRINT_ROUTE));
     }
 
     public function testChangingTheTemplateOfTheRouteRegeneratesTheSeoUrlWithTheNewTemplate(): void
@@ -246,7 +253,7 @@ class AppSeoUrlTest extends TestCase
         static::assertSame('imprint', $body['page'] ?? null);
     }
 
-    public function testANewSalesChannelDomainGetsTheStaticPathOfItsLocale(): void
+    public function testANewSalesChannelDomainGetsTheStaticPathOfItsLocaleOnTheNextFullIndexRun(): void
     {
         $this->installApp();
 
@@ -261,19 +268,20 @@ class AppSeoUrlTest extends TestCase
             'snippetSetId' => $this->getSnippetSetIdForLocale('de-DE'),
             'url' => 'http://localhost/swag-seo-url-app-de',
         ]], $this->context);
-
         $this->runWorker();
 
-        $rows = $this->fetchSeoUrls(self::IMPRINT_ROUTE, $salesChannelId);
-        static::assertCount(2, $rows);
+        static::assertSame(
+            [Defaults::LANGUAGE_SYSTEM => 'imprint'],
+            $this->fetchSeoPathsByLanguage(self::IMPRINT_ROUTE, $salesChannelId)
+        );
 
-        $paths = [];
-        foreach ($rows as $row) {
-            $paths[(string) $row['languageId']] = $row['seoPathInfo'];
-        }
+        static::getContainer()->get(EntityIndexerRegistry::class)->index(useQueue: false, only: [AppSeoUrlIndexer::NAME]);
+        $this->runWorker();
 
-        static::assertSame('imprint', $paths[Defaults::LANGUAGE_SYSTEM] ?? null);
-        static::assertSame('impressum', $paths[$germanId] ?? null);
+        static::assertSame(
+            [$germanId => 'impressum', Defaults::LANGUAGE_SYSTEM => 'imprint'],
+            $this->fetchSeoPathsByLanguage(self::IMPRINT_ROUTE, $salesChannelId)
+        );
     }
 
     public function testInstallingAnotherAppThatDeclaresTheSameStaticPathFails(): void
@@ -631,6 +639,20 @@ class AppSeoUrlTest extends TestCase
         );
 
         return $rows;
+    }
+
+    /**
+     * @return array<string, string> language id => SEO path
+     */
+    private function fetchSeoPathsByLanguage(string $routeName, string $salesChannelId): array
+    {
+        $paths = [];
+
+        foreach ($this->fetchSeoUrls($routeName, $salesChannelId) as $row) {
+            $paths[(string) $row['languageId']] = (string) $row['seoPathInfo'];
+        }
+
+        return $paths;
     }
 
     /**

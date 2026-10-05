@@ -15,7 +15,8 @@ use function Symfony\Component\String\u;
 
 /**
  * Keeps the SEO URLs of app entity SEO URL routes in line with the entities they are generated for. A full index
- * run rebuilds each route through the batched {@see SeoUrlTemplateIndexingMessage} chain.
+ * run synchronises the static SEO URLs of all active apps and rebuilds each entity route through the batched
+ * {@see SeoUrlTemplateIndexingMessage} chain.
  *
  * @internal
  */
@@ -26,10 +27,13 @@ class AppSeoUrlIndexer extends EntityIndexer
 
     final public const SEO_URL_UPDATER = 'app_seo_url.seo-url';
 
+    private const STATIC_ROUTES = 'static-routes';
+
     public function __construct(
         private readonly AppSeoUrlRouteProvider $routes,
         private readonly SeoUrlUpdater $seoUrlUpdater,
         private readonly MessageBusInterface $messageBus,
+        private readonly AppSeoUrlSynchronizer $synchronizer,
     ) {
     }
 
@@ -40,6 +44,10 @@ class AppSeoUrlIndexer extends EntityIndexer
 
     public function iterate(?array $offset): ?EntityIndexingMessage
     {
+        if ($offset === null) {
+            return new EntityIndexingMessage(self::STATIC_ROUTES, ['offset' => 0]);
+        }
+
         $position = $offset['offset'] ?? 0;
         $seoUrl = $this->routes->getEntityRoutes()[$position] ?? null;
 
@@ -90,6 +98,12 @@ class AppSeoUrlIndexer extends EntityIndexer
             return;
         }
 
+        if ($message->getData() === self::STATIC_ROUTES) {
+            $this->synchronizer->syncStaticRoutes();
+
+            return;
+        }
+
         $routeNames = $message->getData();
 
         if (\is_array($routeNames)) {
@@ -104,7 +118,7 @@ class AppSeoUrlIndexer extends EntityIndexer
 
     public function getTotal(): int
     {
-        return \count($this->routes->getEntityRoutes());
+        return \count($this->routes->getEntityRoutes()) + 1;
     }
 
     public function getDecorated(): EntityIndexer

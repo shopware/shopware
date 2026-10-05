@@ -18,14 +18,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Routing\Validation\RouteBlocklistService;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlClaims;
-use Shopware\Storefront\Framework\Seo\App\AppSeoUrlDomainListener;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlIndexer;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlLifecycleHandler;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlRouteLoader;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlRouteProvider;
 use Shopware\Storefront\Framework\Seo\App\AppSeoUrlSynchronizer;
 use Shopware\Storefront\Framework\Seo\App\EntitySeoUrlAppFeatureDefinition;
-use Shopware\Storefront\Framework\Seo\App\Message\AppSeoUrlSyncHandler;
 use Shopware\Storefront\Framework\Seo\App\SeoUrlAppFeatureDefinition;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\LandingPageSeoUrlRoute;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\NavigationPageSeoUrlRoute;
@@ -109,6 +107,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AppSeoUrlRouteProvider::class),
             service(SeoUrlUpdater::class),
             service(MessageBusInterface::class),
+            service(AppSeoUrlSynchronizer::class),
         ])
         ->tag('shopware.entity_indexer');
 
@@ -122,26 +121,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('request_stack'),
         ]);
 
-    $services->set(AppSeoUrlSyncHandler::class)
-        ->args([
-            service(AppSeoUrlSynchronizer::class),
-        ])
-        ->tag('messenger.message_handler');
-
     $services->set(AppSeoUrlLifecycleHandler::class)
         ->args([
             service(AppFeatureStorage::class),
             service('seo_url.repository'),
             service('seo_url_template.repository'),
             service(MessageBusInterface::class),
+            service(AppSeoUrlSynchronizer::class),
         ])
         ->tag('shopware.app_lifecycle.handler', ['priority' => -1250])
-        ->tag('kernel.event_subscriber');
-
-    $services->set(AppSeoUrlDomainListener::class)
-        ->args([
-            service(MessageBusInterface::class),
-        ])
         ->tag('kernel.event_subscriber');
 
     $services->set(SeoUrlRouteNameEnumProvider::class)

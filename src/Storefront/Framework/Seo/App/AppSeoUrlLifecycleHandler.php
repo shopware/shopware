@@ -20,7 +20,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\PrefixFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Framework\Seo\App\Message\AppSeoUrlSyncMessage;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -41,6 +40,7 @@ class AppSeoUrlLifecycleHandler extends AbstractLifecycleHandler implements Even
         private readonly EntityRepository $seoUrlRepository,
         private readonly EntityRepository $seoUrlTemplateRepository,
         private readonly MessageBusInterface $messageBus,
+        private readonly AppSeoUrlSynchronizer $synchronizer,
     ) {
     }
 
@@ -140,7 +140,7 @@ class AppSeoUrlLifecycleHandler extends AbstractLifecycleHandler implements Even
 
     private function regenerate(string $appId): void
     {
-        $this->messageBus->dispatch(new AppSeoUrlSyncMessage($appId));
+        $this->synchronizer->syncStaticRoutes($appId);
 
         foreach ($this->storedEntityRoutes($appId) as $seoUrl) {
             $this->messageBus->dispatch(new SeoUrlTemplateIndexingMessage($seoUrl->getRouteName(), $seoUrl->getEntityName()));

@@ -43,6 +43,7 @@ frame-ancestors 'none';
 
     <monolog:config>
         <monolog:channel>business_events</monolog:channel>
+        <monolog:channel>system_activity</monolog:channel>
 
         <monolog:handler
             name="business_event_handler_buffer"
@@ -50,6 +51,7 @@ frame-ancestors 'none';
             handler="business_event_handler">
             <monolog:channels>
                 <monolog:channel>business_events</monolog:channel>
+                <monolog:channel>system_activity</monolog:channel>
             </monolog:channels>
         </monolog:handler>
 
@@ -59,6 +61,7 @@ frame-ancestors 'none';
             id="Shopware\Core\Framework\Log\Monolog\DoctrineSQLHandler">
             <monolog:channels>
                 <monolog:channel>business_events</monolog:channel>
+                <monolog:channel>system_activity</monolog:channel>
             </monolog:channels>
         </monolog:handler>
     </monolog:config>
@@ -508,6 +511,14 @@ frame-ancestors 'none';
         </service>
 
         <!-- Logging -->
+        <service id="Shopware\Core\Framework\Log\SystemActivitySubscriber">
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+
+            <tag name="monolog.logger" channel="system_activity"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
         <service id="Shopware\Core\Framework\Log\LoggingService">
             <argument>%kernel.environment%</argument>
             <tag name="kernel.event_subscriber"/>

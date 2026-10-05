@@ -73,7 +73,7 @@
                             {% endif %}
                         {% endif %}
                         {% if nestedItem.productId is defined and nestedItem.productId %}
-                            {% set garanLabel = nestedItem.productId|sw_garan_label_mail(context) %}
+                            {% set garanLabel = garanLabels[nestedItem.productId] ?? null %}
                             {% if garanLabel %}
                                 <div style="padding-top: 5px;{% if nestingLevel > 0 %} padding-left: {{ (nestingLevel + 1) * 10 }}px;{% endif %}">
                                     {% if garanLabel.cid %}

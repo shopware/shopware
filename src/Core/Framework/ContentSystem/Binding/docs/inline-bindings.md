@@ -1,7 +1,5 @@
 # Inline `bindings:` in Element-Type Files
 
-Where an authored specification lives, how its type and id are derived from the containing file, and what an app needs on top.
-
 A binding specification is authored inline in its element type's YAML file, so a simple element ships as one file. The optional top-level `bindings:` key is a map of bare specification id → entry; the element-type serializer ignores unknown top-level keys, so the section is invisible to the type pipeline (no type-loader change).
 
 - The **type is implicit** — the containing file's type name, resolved from the file path plus the directory prefix by the same `Layout/Type/Loader/ElementTypeNameResolver` the type loader uses (a file `media/image.yaml` under prefix `Sw` yields type `Sw:Media:Image`). An entry declaring an explicit `type:` is a load-time error (`bindingSpecificationCanonicalizationFailed`); so is an explicit `id:` (the map key is the id, a divergent inner copy would silently drift).

@@ -1,7 +1,3 @@
-> Conceptual overview and design rationale live in [README.md](README.md), same
-> directory. The references and constraints below cover most code changes; read
-> the README when you need the mental model.
-
 ## Navigation
 
 - Why nothing is dropped silently, and how a defect is classified: [failure-and-loss.md](../docs/principles/failure-and-loss.md)

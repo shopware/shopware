@@ -1,7 +1,3 @@
-> Conceptual overview and design rationale live in the parent directory's
-> [README.md](../README.md). The references and constraints below cover most code
-> changes; read the README when you need the mental model.
-
 ## Navigation
 
 - Why these constraints hold, and what was not chosen: [stored-model.md](../../docs/principles/stored-model.md)

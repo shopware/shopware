@@ -1,7 +1,5 @@
 # Rendering Data Flow
 
-This diagram traces the same rendering pipeline the README's Rendering Pipeline section describes step by step, as a single data-flow picture.
-
 ```mermaid
 graph LR
     REQ(["GET /store-api/content/{path}"]) --> A

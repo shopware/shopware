@@ -1,7 +1,5 @@
 # Consumer Configuration
 
-Configuration reference for the `acceptsContext` entry an element declares to receive data from an ancestor, or from the layout's root-ambient context.
-
 Consumer receives context from ancestor provider using `acceptsContext`.
 
 ```json

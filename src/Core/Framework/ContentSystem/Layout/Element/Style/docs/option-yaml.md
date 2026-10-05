@@ -1,7 +1,5 @@
 # Style Option YAML
 
-The file format of one option declaration, and the breakpoint key set its values are keyed by.
-
 ## YAML Structure
 
 The declaration is **flat** — there is no `meta:` wrapper (this differs from element-type YAML):

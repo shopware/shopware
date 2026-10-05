@@ -1,7 +1,3 @@
-> Conceptual overview and design rationale live in [README.md](README.md), same
-> directory. The references and constraints below cover most code changes; read
-> the README when you need the mental model.
-
 ## Navigation
 
 - Why a draft is held to well-formedness and a gate never rewrites: [drafts-and-gates.md](../docs/principles/drafts-and-gates.md)

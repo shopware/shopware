@@ -1,7 +1,5 @@
 # Attribution and Diagnostics at the Write Boundary
 
-What happens to a binding's bookkeeping and its stored wiring once the element leaves the mutation layer.
-
 ## Attribution Honesty at the Write Boundary
 
 `AttributionReconciler` re-derives every element's `attributedSpecifications` at the single DAL write chokepoint for the `layout` field (the same seam `Layout/LayoutDefaultSeeder` occupies), so a persisted attribution is honest by construction: an entry survives a write only while the element's current wiring for that key still equals what the attributed specification's binding for that key produces (compared via `Hydration/DataLoader/ConfigCanonicalizer`, the canonicalized encoded config). It takes a stored element forest only, recursing every slot's children. Where that forest comes from depends on the payload shape: `Layout/Field/StoredElementListFieldSerializer::tree()` runs `Layout/Codec/StoredTreeCodec::decode()` over raw element arrays, but takes a payload whose every entry is already a `StoredElement` as it is, skipping the codec. A caller that hands the DAL a built forest therefore reaches the boundary without the codec ever having seen it. A key whose wiring has since diverged — or whose specification or binding no longer exists — is silently dropped; a user who hand-edits a key's wiring away from the specification simply loses that key's attribution, and every other key keeps its own independently. Attribution is bookkeeping, so a comparison that returns "no longer honest" drops the entry rather than failing the write.

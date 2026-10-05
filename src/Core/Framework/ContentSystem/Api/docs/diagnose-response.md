@@ -1,7 +1,5 @@
 # Resolve-and-Diagnose Response
 
-The response body of the diagnose endpoint ([diagnose.md](diagnose.md)): the resolutions map, the diagnostics report, and the violation codes.
-
 `DiagnoseResponse` is a sibling `\JsonSerializable` value object, built via `fromReport(array $resolutions, DiagnosticsReport $report)`, which normalizes through `LayoutDiagnosticsResultNormalizer`; `jsonSerialize()` casts `resolutions` to `{}` when empty. Same output-only discipline as [`MutationResponse`](mutation-response.md): serialized to the response and discarded, never cached or denormalized.
 
 `200 OK` with `{ resolutions, diagnostics }` — never persisted, never cached.

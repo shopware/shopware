@@ -1,7 +1,5 @@
 # Provider Configuration
 
-Configuration reference for the `providesContext` entry an element declares to expose data to its children.
-
 Provider exposes data as context for direct children using `providesContext`.
 
 ```json

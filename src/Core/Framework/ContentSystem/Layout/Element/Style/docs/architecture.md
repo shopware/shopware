@@ -1,7 +1,5 @@
 # Style Option Architecture
 
-The stages a style option declaration passes through, from immutable value object to app integration.
-
 1. **Specification Value Objects** (`Specification/`) — immutable VOs `StyleOptionSpecification` and `StyleOptionValueType`. `Specification/Dto/` carries the Symfony validation DTOs (`StyleOptionSpecificationDto`, its collection) that validate the well-formedness of a declaration at load.
 
 2. **Loading** (`Loader/`) — both loaders extend `AbstractContentSystemStyleOptionLoader`. `YamlStyleOptionLoader` handles core, bundle, and plugin options in every environment plus app options in dev; it resolves the option name from the kebab-case filename, deserializes via `StyleOptionSpecificationSerializer`, validates the DTOs, and deduplicates within and across directories. `DatabaseStyleOptionLoader` loads active app options from `app_content_system_style_option` in prod and returns empty in dev. The YAML loader validates each directory's collected definitions as a batch; the database loader validates all active-app rows together. During runtime registry loading, a collective constraint violation fails the load with `STYLE_OPTION_LOAD_FAILED` (HTTP 500) because the loaded catalog is server-side state. `StyleOptionSourceDirectory` carries source and path per directory; `ResolvedStyleOptionSpecificationDto` bridges loading and specification creation. `loadDtosFromDirectory($directory, $source)` is reused by the app persister, so installing an app validates its options through the same path that loads them.

@@ -1,7 +1,6 @@
 # Shared Primitives
 
 The element-level helpers `AbstractLayoutMutation` gives every operation, and what each one is for. The tree algebra
-itself is not here: `find`, `remove`, `insertAtRoot`, `insertIntoSlot` and `replace` belong to `Layout/StoredTree`
 and the ops call them there.
 
 - `locate(StoredTree $tree, string $id): ?ElementLocation` - the typed view of `StoredTree::locate()`: the same

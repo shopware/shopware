@@ -1,7 +1,5 @@
 # Entity-Name Derivation Stability
 
-Why an entity-name derivation can turn ambiguous after an install, and exactly when that failure surfaces.
-
 The FQCN-to-entity-name derivation (the branch-parameterized `deriveEntityName()`, walking the produced entity class or produced collection class per the reference's `ResolvedByLoaderBranch`) ranges over an open registry — the registered DAL entities — for both tier A's automatic `entity` key and a tier-B config's `entityName`-kind keys left unauthored. Installing an extension can therefore turn a previously unambiguous derivation ambiguous: a second entity producing the same class. When that happens the canonicalizer fails loudly with the explicit-`entityName` fix in the message; it never silently re-resolves. The alternative to failing would be a precedence rule between candidate entities, and precedence is exactly what this system refuses to own.
 
 Be precise about *when* that failure surfaces. The binding registry builds lazily: `Registry/CachedContentSystemBindingSpecificationRegistry::all()` populates the cache on first read, `invalidate()` only deletes the cache key, and no cache warmer populates it (its cache key is referenced only by the cached registry itself). So a fresh install that invalidated the cache does not rebuild it during `cache:warmup`; the ambiguity surfaces on the **first request or console command that reads the binding catalog after the invalidation**, not at deploy time. A pipeline that wants the failure before first traffic needs a smoke step that reads the catalog.

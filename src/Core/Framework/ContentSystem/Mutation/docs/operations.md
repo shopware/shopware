@@ -2,9 +2,7 @@
 
 <!-- size-allowance: lookup - one entry per structural operation, consulted one at a time -->
 
-One section per operation in `Op/`: what it does, its constructor, the errors it throws, and the result channels it
-fills. A channel an operation is not named for stays empty. Constructor types are named short; the binding types
-live in `Binding/`. `ReplaceElement` carries enough carry-over rules to need its own file and routes there.
+A channel an operation is not named for stays empty.
 
 ## InsertElement
 

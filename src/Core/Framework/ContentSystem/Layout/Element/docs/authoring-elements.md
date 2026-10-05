@@ -1,10 +1,6 @@
 # Authoring Content Elements
 
-The JSON shape of a content element as a layout author writes it: its fields, its slots, and how containers nest.
-
 ## Structure
-
-Each content element follows this structure:
 
 ```json
 {
@@ -85,8 +81,6 @@ Slots hold arrays of elements.
 In this example, the `header` slot contains 3 elements, while `main` has 1 and `sidebar` has 2.
 
 ## Nested Containers
-
-Containers can be nested for complex layouts:
 
 ```json
 {

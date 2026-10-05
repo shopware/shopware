@@ -1,7 +1,5 @@
 # Data Requirements
 
-How an element declares the data it needs, when to declare it, and the fields each declaration carries.
-
 Data requirements specify what data needs loading for an element:
 
 - What to load (entity, product listing, etc.)

@@ -1,7 +1,5 @@
 # Type Spec as Output Schema
 
-What a type's declared `properties` describe, and how the property key ties the declaration to an element instance and to the data loaders.
-
 The type specification's `properties` describe what a **hydrated** element looks like in the API response — not what is stored in the database. This is the central design relationship between the type system and the element system.
 
 A type property with a FQCN type (e.g., `SalesChannelProductEntity`) is not stored in the database as a property value. It appears in the element's `properties` map only after hydration, when a data loader or context provider fills it.

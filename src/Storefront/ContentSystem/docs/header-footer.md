@@ -1,7 +1,5 @@
 # Header and Footer Sections
 
-The Store API endpoints that serve the header and footer sections, the shape of an assignment record, and how one layout is picked per request.
-
 Header and footer layouts use domain-aware resolution instead of entity-based rendering. They are independent of the main content and do not require a URL path.
 
 **Header endpoints:**

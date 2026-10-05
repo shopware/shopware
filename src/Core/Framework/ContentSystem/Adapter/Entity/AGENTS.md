@@ -1,7 +1,3 @@
-> Conceptual overview and design rationale live in the parent directory's
-> [README.md](../README.md). The references and constraints below cover most code
-> changes; read the README when you need the mental model.
-
 ## Constraints
 
 - Entity assignments: `UNIQUE (entity_id, sales_channel_id)` — one global + one per channel per entity

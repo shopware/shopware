@@ -1,7 +1,5 @@
 # Mutation Errors
 
-The failure conditions that abort a stateless draft mutation action ([mutation.md](mutation.md)) instead of being reported in its diagnostics body.
-
 A resolvability problem (an unresolved required property, a broken context chain) is reported in the `diagnostics` body at HTTP 200, not as an error. Only the conditions below abort the request (`ContentSystemException`); the structural impossibilities are `400 Bad Request`:
 
 | Condition                                                                                                | HTTP | Factory                                           |

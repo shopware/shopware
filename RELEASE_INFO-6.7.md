@@ -56,6 +56,31 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### System activity logging
+
+User and integration creation and successful app and plugin uploads, activation, deactivation, installation, uninstallation, and updates now produce Monolog records at the `info` level on the `system_activity` channel. Records include entity identifiers and the acting Administration user ID and username or integration access key (`integrationAccessKey`) where available. Upload records include the plugin name and version read from the ZIP (the version is omitted when absent from `composer.json`). App uploads produce `app:upload` records with `appName` and `appVersion` from `manifest.xml`. Plugin lifecycle records include `pluginName` and `pluginVersion`; update records also include `previousPluginVersion` to show the version transition. Actor types are `user` for Administration users, `integration` for integrations, and `system` for system contexts, including CLI plugin commands. CLI commands and background jobs share the same context source. Fields with `null` values are omitted. Passwords and secret access keys are excluded.
+
+These records are stored in the `log_entry` database table by the existing buffered business-event handler by default.
+
+Additionally, route these records to a separate file or another Monolog handler by configuring the channel in `config/packages/monolog.yaml`, for example:
+
+```yaml
+monolog:
+    handlers:
+        system_activity:
+            type: rotating_file
+            path: '%kernel.logs_dir%/system_activity.log'
+            level: info
+            max_files: 30
+            channels: ['system_activity']
+```
+
+To keep these records out of other handlers, add `!system_activity` to those handlers' channel filters, preserving any existing exclusions. To disable database storage for system activities, override `business_event_handler_buffer.channels` with `[business_events]`.
+
+### Feed sales channels are saved without a currency list again
+
+Sales channels of types other than storefront and headless, such as product comparison, Agentic Commerce and types added by extensions, are no longer rejected with `SYSTEM__NO_GIVEN_DEFAULT_CURRENCY_ID` when their default currency is missing from their currency list, as they were since 6.7.15.0. Storefront and headless sales channels still need their default currency in their currency list.
+
 ### Filtered listings show the main variant only if it matches the active filters
 
 Filtered product listings show a variant product's main variant only if it matches all active filters, such as property, price or manufacturer filters. Otherwise, a matching variant is shown. Products configured to display their parent always show the parent.
@@ -126,6 +151,30 @@ Update imports, type declarations, static references, and service IDs to the can
 The aliases preserve runtime class identity during the transition; they do not create compatibility subclasses.
 `NotificationController` remains internal, and `AssetService` becomes internal with 6.8.
 Neither should be introduced as a new extension dependency.
+
+### Shared document classes moved to `DocumentV2`
+
+The legacy document classes that document generation v2 keeps moved into `Shopware\Core\Checkout\DocumentV2`. Their previous names remain available as runtime class aliases throughout 6.7 and 6.8 and are removed with 6.9. The previous service IDs remain as deprecated service aliases for the same period.
+
+| Previous name | Canonical name |
+|---|---|
+| `Shopware\Core\Checkout\Document\DocumentEntity` | `Shopware\Core\Checkout\DocumentV2\DocumentEntity` |
+| `Shopware\Core\Checkout\Document\DocumentDefinition` | `Shopware\Core\Checkout\DocumentV2\DocumentDefinition` |
+| `Shopware\Core\Checkout\Document\DocumentCollection` | `Shopware\Core\Checkout\DocumentV2\DocumentCollection` |
+| `Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity` | `Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity` |
+| `Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition` | `Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition` |
+| `Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection` | `Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection` |
+| `Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity` | `Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelEntity` |
+| `Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` | `Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelDefinition` |
+| `Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` | `Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfigSalesChannel\DocumentBaseConfigSalesChannelCollection` |
+| `Shopware\Core\Checkout\Document\Renderer\RenderedDocument` | `Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument` |
+| `Shopware\Core\Checkout\Document\SalesChannel\AbstractDocumentRoute` | `Shopware\Core\Checkout\DocumentV2\SalesChannel\AbstractDocumentRoute` |
+| `Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute` | `Shopware\Core\Checkout\DocumentV2\SalesChannel\DocumentRoute` |
+| `Shopware\Core\Checkout\Document\Service\ReferenceInvoiceLoader` | `Shopware\Core\Checkout\DocumentV2\Service\ReferenceInvoiceLoader` |
+
+Update imports, type declarations, static references, and service IDs to the canonical names. Entity names, repositories, and the `/store-api/document/download` route are unchanged.
+
+A decorator of the route takes effect only when it decorates the canonical service ID. `RenderedDocument::getApiAlias()` keeps returning `shopware_core_checkout_document_renderer_rendered_document` until 6.9.
 
 ### Merged document downloads have a speaking file name
 
@@ -368,7 +417,16 @@ An extension that imports `shopware:composables` requires Shopware 6.7.16.0 or l
 an error that names the required and the installed version. An extension that still supports older versions
 keeps using the mixins.
 
+The SFC migration codemod now imports the composables from `shopware:composables`, so a migrated
+extension component looks like a migrated Administration one. In an extension, a component that uses
+the `cms-element` mixin is skipped, because its `useCmsElementDeprecated` replacement is not published;
+migrate it to `useCmsElement` by hand.
+
 ## Storefront
+
+### New line item reference price block
+
+A new block `component_line_item_reference_price` has been added to the template `storefront/component/line-item/element/total-price.html.twig`. This allows easier customization of the already existing reference price display for line items without having to override the entire total price value block.
 
 ### Display the complete legal guarantee notice at checkout
 
@@ -1033,10 +1091,6 @@ The empty states of Extensions > My extensions and the Shopware Store activation
 The `assetFilter` computed of both components is deprecated for removal in v6.9.0; use `Shopware.Filter.getByName('asset')` instead.
 
 ## Storefront
-
-### New line item reference price block
-
-A new block `component_line_item_reference_price` has been added to the template `storefront/component/line-item/element/total-price.html.twig`. This allows easier customization of the already existing reference price display for line items without having to override the entire total price value block.
 
 ### Static theme compilation without a database
 

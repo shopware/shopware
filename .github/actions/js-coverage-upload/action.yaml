@@ -25,4 +25,5 @@ runs:
         files: ${{ inputs.file }}
         flags: ${{ inputs.flag }}
         disable_search: true
+        disable_file_fixes: true
         fail_ci_if_error: true

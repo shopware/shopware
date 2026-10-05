@@ -23,5 +23,5 @@
 - What one binding specification declares and its two apply modes: [docs/binding-specifications.md](docs/binding-specifications.md#binding-specifications)
 - Element style options, storage and serving: [docs/element-styles.md](docs/element-styles.md#element-styles)
 - A worked layout combining entity rendering, data loading and context distribution: [docs/product-detail-page.md](docs/product-detail-page.md#product-detail-page-example)
-- Admin preview API and its wire contract: [Api/docs/preview-url.md](Api/docs/preview-url.md#preview-url)
+- Admin preview API, its route constraints and its wire contract: [Api/AGENTS.md](Api/AGENTS.md#constraints), [Api/docs/preview-url.md](Api/docs/preview-url.md#preview-url)
 - Data access in this repository: [AGENTS.md](../../../../AGENTS.md#not-standard-symfonydoctrine)

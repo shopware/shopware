@@ -1,6 +1,6 @@
 # Style Option Introspection
 
-`StyleOptionSpecification::toSchema()` feeds two surfaces, both from the one registry, so introspection and validation never diverge:
+`StyleOptionSpecification::toSchema()` feeds two surfaces, both from the one registry, so introspection and validation never diverge. Both read the lenient `allResolved()` (`InfoController`), which resolves a cross-loader duplicate silently by source precedence, while the write and install paths use the strict `all()`:
 
 - a dedicated endpoint `GET /api/_info/content-system-style-options.json` (`InfoController::getContentSystemStyleOptions()`), serving the options keyed by their wire name;
 - a folded `styleOptions` key on `GET /api/_info/content-system-element-types.json`, since every option is settable on every type.

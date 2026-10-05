@@ -58,7 +58,7 @@ In code:
 
 ## An element receives a sales-channel context value only from a loader that returns that value
 
-The module never hands the `SalesChannelContext` to an element. Every loader loads with the context, so prices, translations and availability already follow the request's currency, language and rules. An element that needs a context value as data declares a data requirement whose loader returns that value, never the context object and never a customer entity. The root context carries the root entity's page data only. A `resolves` entry in the `context` form stays rejected. An element component reads no Twig global `context`, also not as a prop default.
+The module never hands the `SalesChannelContext` to an element. Every loader queries its repositories with `$context->getContext()`, so prices, translations and availability already follow the request's currency, language and rules. An element that needs a context value as data declares a data requirement whose loader returns that value, never the context object and never a customer entity. The root context carries the root entity's page data only. A `resolves` entry in the `context` form stays rejected. An element component reads no Twig global `context`, also not as a prop default.
 
 Why: An ambient context invites reads across module boundaries and widens the Store API response, where the `ApiAware` flag protects entity fields only. A headless client has no Twig global, so an element that reads one renders differently there. A headless client reads its own context from `/store-api/context`.
 

@@ -19,5 +19,5 @@
 - Scaffolding records and the virtual-root wrapper: [README.md](README.md#subdirectories)
 - How `LayoutDefaultSeeder` walks a forest: [README.md](README.md#default-seeding)
 - Multi-root layouts, and element-provided versus root-ambient context across roots: [README.md](README.md#multi-root-layouts)
-- Preparation order, placeholder resolution and the partial prune: [pipeline-steps.md](../docs/pipeline-steps.md)
+- Preparation order, placeholder resolution and the partial prune: [pipeline-steps.md](../docs/pipeline-steps.md); placeholder substitution as one pass at the property's own level, in full rendering only: [data-loading.md](../docs/principles/data-loading.md)
 - Subdirectory guides: [Element](Element/README.md), [Field](Field/README.md), [Type](Type/README.md)

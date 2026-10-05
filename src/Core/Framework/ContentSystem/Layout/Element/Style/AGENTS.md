@@ -11,7 +11,7 @@
 
 ## Where to look
 
-- The declaration file format, `kind`, and the breakpoint key set and cascade: [option-yaml.md](docs/option-yaml.md#breakpoints)
+- The declaration file format and `kind`: [option-yaml.md](docs/option-yaml.md#yaml-structure); the breakpoint key set and cascade: [option-yaml.md](docs/option-yaml.md#breakpoints)
 - Universal-not-per-type, `breakpointAware`, `Breakpoint`, `default` and the value objects of a declaration: [option-model.md](docs/option-model.md)
 - The strict write, the registry-free read, unknown-option reporting and the output formats: [write-and-read.md](docs/write-and-read.md)
 - Loaders, registry decoration, `all()` versus `allResolved()`, collision precedence and app integration: [architecture.md](docs/architecture.md)

@@ -30,5 +30,5 @@ Header and footer sources are not in the tagged iterator. Each is injected into 
 
 ## Subdirectories
 
-- **Entity/** - Abstract base classes for the assignment side: `AbstractContentLayoutAssignmentEntity` (the assignment-record entity) and `AbstractContentLayoutAssignableDefinition` (the `EntityDefinition` base for assignable entity types)
+- **Entity/** - Abstract base classes for the assignment side: `AbstractContentLayoutAssignmentEntity` (the assignment-record entity) and `AbstractContentLayoutAssignableDefinition` (the `EntityDefinition` base for assignable entity types). Assignments are unidirectional: the assignment points at the parent entity (Product, Category, Landing Page), and the parent entity has no awareness of ContentSystem.
 - **FactoryHelper/** - Shared resolution logic (EntityLayoutResolver, EntityLayoutContextFactory, DomainAwareLayoutResolver, NavigationAliasResolver). `EntityLayoutContextFactory::providedRootContext()` delegates to `Diagnostics/RootContextMapper`, and its `buildSpecificationData()` is the assignment-free assembly entry point all three entity sources call.

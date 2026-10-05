@@ -10,7 +10,7 @@
 
 ## Where to look
 
-- Controllers, request DTOs, response classes, endpoint document index: [README.md](README.md#key-classes)
+- Controllers, request DTOs, response classes, the preview build's render mode and render caching, endpoint document index: [README.md](README.md#key-classes)
 - How introspection, mutate, diagnose and preview chain: [workflow.md](docs/workflow.md)
 - Preview route, token creation, decode gate, errors: [preview-url.md](docs/preview-url.md)
 - Diagnose route, `rootSource` branch, errors: [diagnose.md](docs/diagnose.md)

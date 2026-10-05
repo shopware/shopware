@@ -58,7 +58,7 @@ slots:
 
 **`meta`** (required): `label`, `description` are required. `icon`, `category`, `copilot` are optional.
 
-**`properties`** (optional): Each property declares its type: a primitive (`string`, `boolean`, `integer`, `number`; the set is `PropertyType::PRIMITIVE_TYPES`) or any other value, read as a `class-string<Struct>` FQCN for hydrated data. Optional fields: `required`, `translatable` (`type: string` only), `enum` (primitives only, a list whose values match the declared type), `default` (primitives only, a value matching the declared type), `title`, `description`, `adminUI`, `resolvedBy` (reference properties only; the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)).
+**`properties`** (optional): Each property declares its type: a primitive (`string`, `boolean`, `integer`, `number`; the set is `PropertyType::PRIMITIVE_TYPES`) or any other value, read as a `class-string<Struct>` FQCN for hydrated data. Optional fields: `required`, `translatable` (`type: string` only), `enum` (primitives only, a list whose values match the declared type; enforced by `TypedEnumValidator`), `default` (primitives only, a value matching the declared type; enforced by `TypedDefaultValidator`), `title`, `description`, `adminUI`, `resolvedBy` (reference properties only; the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)).
 
 The default-specification synthesizer runs on every type file, whether or not it declares a `bindings:` key, so a misused `resolvedBy` — for example on a primitive property — fails app install and `manifest:validate` outright.
 

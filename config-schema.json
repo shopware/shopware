@@ -688,6 +688,15 @@
                     "default": "gzip",
                     "description": "Controls the cache compression method"
                 },
+                "serialization_method": {
+                    "type": "string",
+                    "enum": [
+                        "serialize",
+                        "igbinary"
+                    ],
+                    "default": "serialize",
+                    "description": "Controls the cache serialization method. `igbinary` requires the igbinary PHP extension and produces smaller and faster payloads; reads auto-detect the format, so no cache flush is needed when switching."
+                },
                 "disable_stampede_protection": {
                     "type": "boolean",
                     "default": false,

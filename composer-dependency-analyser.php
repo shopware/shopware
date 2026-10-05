@@ -10,6 +10,7 @@ require __DIR__ . '/vendor/symfony/dependency-injection/Loader/Configurator/Cont
 $config = new Configuration();
 
 configureImagickSupport($config);
+configureIgbinarySupport($config);
 
 return $config
     /** Scanned as prod, which might cause some false positives */
@@ -90,6 +91,17 @@ return $config
         'symfony/proxy-manager-bridge',
     ], [ErrorType::UNUSED_DEPENDENCY])
 ;
+
+function configureIgbinarySupport(Configuration $config): void
+{
+    /** Optional dependency, only used if `igbinary` serialization is configured @see \Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor */
+    if (\extension_loaded('igbinary')) {
+        /** Differentiation is needed as the CI env has this extension installed */
+        $config->ignoreErrorsOnExtension('ext-igbinary', [ErrorType::SHADOW_DEPENDENCY]);
+    } else {
+        $config->ignoreUnknownFunctions(['igbinary_serialize', 'igbinary_unserialize']);
+    }
+}
 
 function configureImagickSupport(Configuration $config): void
 {

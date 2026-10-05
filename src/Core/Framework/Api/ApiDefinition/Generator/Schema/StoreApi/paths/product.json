@@ -132,7 +132,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "pattern": "^[0-9a-f]{32}$'"
+                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {
@@ -185,7 +185,20 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/NoneFieldsCriteria"
+                                "allOf": [
+                                    {
+                                        "properties": {
+                                            "slots": {
+                                                "description": "Resolves only the given slot identifiers. The identifiers have to be separated by a `|` character.",
+                                                "type": "string"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/NoneFieldsCriteria"
+                                    }
+                                ]
                             }
                         }
                     }
@@ -235,7 +248,7 @@
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "pattern": "^[0-9a-f]{32}$'"
+                            "pattern": "^[0-9a-f]{32}$"
                         }
                     },
                     {
@@ -263,6 +276,15 @@
                         "required": false,
                         "schema": {
                             "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "slots",
+                        "in": "query",
+                        "description": "Resolves only the given slot identifiers. The identifiers have to be separated by a `|` character.",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     {
@@ -579,8 +601,7 @@
                             "schema": {
                                 "required": [
                                     "title",
-                                    "content",
-                                    "points"
+                                    "content"
                                 ],
                                 "properties": {
                                     "name": {
@@ -600,7 +621,7 @@
                                         "type": "string"
                                     },
                                     "points": {
-                                        "description": "The review rating for the product.",
+                                        "description": "The review rating for the product. When it is omitted, the review is saved without a rating.",
                                         "type": "number",
                                         "format": "double"
                                     }

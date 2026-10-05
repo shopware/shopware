@@ -50,6 +50,19 @@ class GaranLabelProductValidatorTest extends TestCase
         static::assertSame('validate', $events[PreWriteValidationEvent::class]);
     }
 
+    #[TestWith([30, true])]
+    #[TestWith([36, true])]
+    #[TestWith([600, true])]
+    #[TestWith([24, false])]
+    #[TestWith([606, false])]
+    #[TestWith([33, false])]
+    #[TestWith([0, false])]
+    #[TestWith([-36, false])]
+    public function testIsValidDuration(int $months, bool $expected): void
+    {
+        static::assertSame($expected, GaranLabelProductValidator::isValidDuration($months));
+    }
+
     public function testIgnoresNonProductEntities(): void
     {
         $id = Uuid::randomBytes();

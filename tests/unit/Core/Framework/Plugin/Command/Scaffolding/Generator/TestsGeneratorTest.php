@@ -20,9 +20,7 @@ class TestsGeneratorTest extends TestCase
     {
         $generator = new TestsGenerator();
 
-        static::assertFalse($generator->hasCommandOption());
-        static::assertEmpty($generator->getCommandOptionName());
-        static::assertEmpty($generator->getCommandOptionDescription());
+        static::assertNull($generator->getCommandOption());
     }
 
     public function testGenerateStubs(): void

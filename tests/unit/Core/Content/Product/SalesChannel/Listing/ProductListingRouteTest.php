@@ -7,8 +7,10 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
 use Shopware\Core\Content\Product\Extension\ProductListingCriteriaExtension;
+use Shopware\Core\Content\Product\Extension\ProductListingRouteExtension;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRoute;
+use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingRouteResponse;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
@@ -22,7 +24,9 @@ use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -299,5 +303,32 @@ class ProductListingRouteTest extends TestCase
 
         static::assertFalse($criteria->hasState(ProductListingLoader::STATE_SKIP_ADD_GROUPING));
         static::assertContainsEquals(new EqualsFilter('product.product_stream', $streamId), $criteria->getFilters());
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $categoryId = Uuid::randomHex();
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $criteria = new Criteria();
+        $response = static::createStub(ProductListingRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('product-listing-route.load.pre', static function (ProductListingRouteExtension $extension) use ($categoryId, $request, $context, $criteria, $response): void {
+            static::assertSame(['categoryId' => $categoryId, 'request' => $request, 'context' => $context, 'criteria' => $criteria], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ProductListingRoute(
+            static::createStub(ProductListingLoader::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(ProductStreamBuilder::class),
+            static::createStub(CacheTagCollector::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->load($categoryId, $request, $context, $criteria));
     }
 }

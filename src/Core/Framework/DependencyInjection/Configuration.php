@@ -1318,7 +1318,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
-            ->arrayPrototype()->scalarPrototype()->end()
+            ->arrayPrototype()->variablePrototype()->end()
             ->end()
             ->validate()
             ->ifFalse(

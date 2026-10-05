@@ -21,11 +21,13 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
 
     /**
      * @internal
+     *
+     * @param iterable<BundleConfigStyleFileResolver> $styleFileResolvers
      */
     public function __construct(
         private readonly Kernel $kernel,
         private readonly ActiveAppsLoader $activeAppsLoader,
-        private readonly BundleConfigStyleFileResolver $styleFileResolver
+        private readonly iterable $styleFileResolvers
     ) {
         $projectDir = $this->kernel->getContainer()->getParameter('kernel.project_dir');
         if (!\is_string($projectDir)) {
@@ -168,7 +170,12 @@ class BundleConfigGenerator implements BundleConfigGeneratorInterface
      */
     private function getStyleFiles(string $technicalName, string $basePath): array
     {
-        return $this->styleFileResolver->resolveStyleFiles($technicalName, $basePath);
+        $styleFiles = [];
+        foreach ($this->styleFileResolvers as $resolver) {
+            $styleFiles = [...$styleFiles, ...$resolver->resolveStyleFiles($technicalName, $basePath)];
+        }
+
+        return $styleFiles;
     }
 
     private function asSnakeCase(string $string): string

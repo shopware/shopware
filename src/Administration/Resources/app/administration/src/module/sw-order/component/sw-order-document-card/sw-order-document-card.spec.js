@@ -390,6 +390,26 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.emitted('document-save')).toBeTruthy();
     });
 
+    it('should leave out the empty state button area when the order already has documents', async () => {
+        global.activeAclRoles = [
+            'order.editor',
+            'document.viewer',
+        ];
+
+        wrapper = await createWrapper({
+            ...defaultProps,
+            order: {
+                ...orderFixture,
+                documents: [documentFixture],
+            },
+        });
+        await flushPromises();
+
+        // the grid holds no rows, so the empty state shows, but it has no create action to offer
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
+        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
+    });
+
     // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
     it.deprecated('DOCUMENT_GENERATION_REWORK')(
         'should show the select document type modal after clicking on the create new button',
@@ -1204,6 +1224,16 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 },
             },
         ]);
+    });
+
+    it('should label a document with the translated document type when the current language has no name', async () => {
+        const wrapper = await createWrapper();
+
+        expect(
+            wrapper.vm.documentTypeLabel({
+                documentType: { name: null, technicalName: 'invoice', translated: { name: 'Invoice' } },
+            }),
+        ).toBe('Invoice');
     });
 
     it('should exclude app-provided document types from documentTypeCriteria', async () => {

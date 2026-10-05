@@ -26,7 +26,7 @@ Fields:
 - `required` - Whether context is mandatory:
   - `true` - Element fails if context unavailable
   - `false` - Element works without context
-- `propertyAlias` (optional) - Renames the property key where context data is stored in this element. The consumed data is stored with this alias instead of the original context key. Useful for component reusability when elements expect specific property names. Cannot contain dots. Must be unique within the element (no two consumers can resolve to the same property key).
+- `propertyAlias` (optional) - Renames the property key where context data is stored in this element. The consumed data is stored with this alias instead of the original context key. Cannot contain dots. Must be unique within the element (no two consumers can resolve to the same property key).
 
 Consumer receives context data directly as a property.
 
@@ -48,4 +48,4 @@ Consumer receives context data directly as a property.
 }
 ```
 
-Element receives `product.cover` from parent context but stores it as `image` internally, matching what the renderer expects. Enables component reusability across different data sources.
+Element receives `product.cover` from parent context but stores it as `image` internally, matching what the renderer expects.

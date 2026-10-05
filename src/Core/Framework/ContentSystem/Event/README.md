@@ -16,7 +16,7 @@ child and a `RenderedElement` refuses a stored one, so a list of valid roots is 
 ## Key Classes
 
 - `ContentTreePreparationEvent` - Dispatched over the stored tree before every preparation step
-- `RenderedTreeFinalizationEvent` - Dispatched after the render step and the finishing steps, over the rendered forest and before the duplicate-element-id check that judges what it hands back; allows layout finalization
+- `RenderedTreeFinalizationEvent` - Dispatched after the render step and the finishing steps, over the rendered forest and before the duplicate-element-id check that judges what it hands back
 
 ## Lifecycle
 

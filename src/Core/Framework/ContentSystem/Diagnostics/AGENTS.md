@@ -7,7 +7,6 @@
 - Any constraint-level defect at the DAL write masks every violation this module would report, because field-serializer constraints run before `PreWriteValidationEvent` — so `Validation/ContentLayoutWriteValidator` → `Validation/LayoutGate` → `LayoutDiagnostics` never runs and the response carries the constraint error alone. Pre-existing DAL ordering, with the call chain, in [Validation/AGENTS.md](../Validation/AGENTS.md).
 - Turn a client-defect exception met during `analyze()` into an `InvalidConfig` violation and let every other code propagate. Check: `LayoutDiagnosticsTest` pins the conversion and the propagation.
 - `LayoutDiagnostics` carries `@internal` on the class.
-- What each per-violation check reports and when it fires: [docs/violation-rules.md](docs/violation-rules.md)
 - Reject a draft only on well-formedness, never on `bindingErrors()`. Enforce those only on a `content_layout` write. Check: `DraftLayoutCheckerTest` and `ContentLayoutWriteValidatorTest` pin both halves.
 - Compute every delivery rule the gate checks (child-facing key, consumer key matching, provider collision) with the code serving uses. Check: does the gate reuse `ProviderDeliveryKeyResolver` and `ContextPathResolver::matches()`?
 

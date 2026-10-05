@@ -32,11 +32,9 @@ The optional `rootSource` binds the draft to that root source's context so bindi
 | `layout`     | no       | Raw element-tree array; decoded through the same path as a stored layout (`Layout/Codec/StoredElementCodec::decode()`). Defaults to an empty tree when omitted.                                                          |
 | `rootSource` | no       | The root source whose context the draft is checked against: an entity type (`content-system-entity-types.json` value), a section id (`header`, `footer`), or `none`. Resolved through `Adapter/RootSourceRegistry`. An unknown non-empty value is rejected with 400 (`unknownRootSource`). |
 
-With `rootSource` empty or omitted, the response still reports intrinsic well-formedness; binding-scope violations are not evaluated because no root source is bound.
-
 ## Errors
 
-A malformed element **config** is reported as an `invalid_config` violation in the body (HTTP 200), not as an error — that is the point of the endpoint. Only the conditions below abort the request (`ContentSystemException`):
+A malformed element **config** is reported as an `invalid_config` violation in the body (HTTP 200), not as an error. Only the conditions below abort the request (`ContentSystemException`):
 
 | Condition                                                  | HTTP | Factory                                           |
 |------------------------------------------------------------|------|---------------------------------------------------|

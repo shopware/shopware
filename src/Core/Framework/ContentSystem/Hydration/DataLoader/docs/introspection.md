@@ -4,7 +4,7 @@ The Admin API read surface a client uses to discover which data sources a `dataR
 
 `GET /api/_info/content-system-data-loaders.json`
 
-The data sources a `dataRequirements` entry may use (`source` values such as `entity`, `entity_collection`, `product_listing`, `navigation`, …), each with its declared config keys and the capabilities it can produce. Backed by `Schema/ContentSystemDataLoaderSchemaGenerator::getSchema()`, assembled at runtime by `ContentSystemDataLoaderMapResolver` from each loader's `configSpecification()` and `producibleTypes()`.
+The response is backed by `Schema/ContentSystemDataLoaderSchemaGenerator::getSchema()`, assembled at runtime by `ContentSystemDataLoaderMapResolver` from each loader's `configSpecification()` and `producibleTypes()`.
 
 Response:
 

@@ -14,11 +14,11 @@ An inline binding's implicit type is always the containing element type — for 
 
 The app persister and app validator close this by building a **type overlay** from the app's own types (`YamlTypeLoader::loadOverlayFromDirectory()` on the app's own `Resources/content-system/types` with the app's own name as prefix, keyed by resolved type name) and passing it to both load calls. `BindingSpecificationCanonicalizer::canonicalize()` and the collection's `TypeConsistentBindingSpecification` resolve the declared type **overlay-first, then registry**. Every non-app path passes an empty overlay and is unchanged; DB-sourced rows validate with an empty overlay because the app is active by the time its rows are read.
 
-Because an inline binding's implicit type is always its own containing element type, an app binding can only ever target one of the app's own types — never another app's — so the overlay built from the app's own type files always covers it; there is no cross-app resolution gap. When an app's own type file is malformed, the two soft/hard boundaries diverge: the validator's `buildTypeOverlay` falls back to an empty overlay so the binding surfaces as `bindingSpecificationUnknownType` (a schema error, not an exception), while the persister fails the install with a wrapped `AppException` before the binding load runs.
+The overlay built from the app's own type files therefore always covers an app binding, with no cross-app resolution gap. When an app's own type file is malformed, the two soft/hard boundaries diverge: the validator's `buildTypeOverlay` falls back to an empty overlay so the binding surfaces as `bindingSpecificationUnknownType` (a schema error, not an exception), while the persister fails the install with a wrapped `AppException` before the binding load runs.
 
 ## Inline `bindings:` in a Type File
 
-A specification for a type you own lives in that type's YAML file, so a simple element ships as one file. The optional top-level `bindings:` key maps bare specification id → entry. The type is implicit (the containing file), so an entry declaring its own `type:` or `id:` is a load-time error. A type with a `resolvedBy` reference already gets its default specification synthesized (see [custom-specifications.md](custom-specifications.md)); a `bindings:` entry adds an alternative or additional wiring for the same property, for example one that also loads an association:
+A type with a `resolvedBy` reference already gets its default specification synthesized (see [custom-specifications.md](custom-specifications.md)). A `bindings:` entry adds an alternative or additional wiring for the same property, for example one that also loads an association:
 
 ```yaml
 # MyPlugin/Resources/content-system/types/product/quick-view.yaml

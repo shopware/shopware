@@ -10,7 +10,7 @@ A `Normalizer` maps a subject onto the one canonical form of that subject, so ap
 
 ## The two-model roles
 
-The two-model split adds roles for moving between the models and for the state each side accumulates. Each of these is a promise, not a flavor of "service":
+The two-model split adds roles for moving between the models and for the state each side accumulates:
 
 - **`*Codec`** owns both directions of one wire shape for one subject in one class. A class that goes only one way is a `Decoder` or an `Encoder`.
 - **`*Encoder`** turns a subject into its wire form and nothing else. **`Encoded*`** is the paired noun for that wire form held as a value: `ContentPageEncoder` produces an `EncodedContentPage`, and the pair reads as one step because the participle names the output of the verb.

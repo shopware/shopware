@@ -158,7 +158,7 @@ export default {
                 .addAssociation('documentA11yMediaFile')
                 .addAssociation('documentFiles.media');
 
-            criteria.addFilter(Criteria.equals('order.id', this.order.id));
+            criteria.addFilter(Criteria.equals('orderId', this.order.id));
 
             if (!this.term) {
                 return criteria;

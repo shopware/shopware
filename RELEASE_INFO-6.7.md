@@ -291,6 +291,12 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
+### Telemetry updates
+
+- Default metrics prefix was changes from `io.opentelemetry.contrib.php.shopware` to `shopware.platform`.
+
+Metrics are still behind the feature flag `TELEMETRY_METRICS`.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation

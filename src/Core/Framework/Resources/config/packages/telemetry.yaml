@@ -1,7 +1,11 @@
 shopware:
     telemetry:
         metrics:
-            namespace: 'io.opentelemetry.contrib.php.shopware'
+            # Transports prepend this namespace to every metric name on the wire, e.g.
+            # `shopware.platform.http.server.request.duration` (OpenTelemetry) or
+            # `shopware_platform_http_server_request_duration` (Prometheus). Do not change the default so metric
+            # naming is uniform through installations and dashboards/alerts can be copied with minimal adjustment.
+            namespace: 'shopware.platform'
 
             definitions:
                 plugin.install.count:

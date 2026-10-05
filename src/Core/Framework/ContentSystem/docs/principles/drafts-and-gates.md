@@ -1,6 +1,6 @@
 # Drafts and gates
 
-This area concerns the standard the module applies to an unsaved draft and to a layout write, and the components that both paths share.
+A draft is rejected only when not well-formed. A layout write is rejected when its tree does not resolve.
 
 ## The module holds a draft to well-formedness
 
@@ -9,13 +9,13 @@ The module holds a layout write to resolvability. `ContentLayoutWriteValidator` 
 | Gate | Input | What it rejects | Where it runs |
 |---|---|---|---|
 | Gate on a draft | an unsaved draft | only a tree that is not well-formed | a draft route, which at most reports resolvability |
-| Write gate | a `content_layout` write | a tree that does not fully resolve against the layout's root context, including a tree with an unfilled required property | `ContentLayoutWriteValidator`, on the write |
+| [Write gate](README.md#terms-that-are-easy-to-confuse) | a `content_layout` write | a tree that does not fully resolve against the layout's [root context](README.md#glossary), including a tree with an unfilled required property | `ContentLayoutWriteValidator`, on the write |
 
 Why: A draft under construction is legitimately unresolved. A served layout with an unfilled required property always renders empty.
 
 In code:
 
-- `DraftLayoutChecker` keeps only intrinsic errors.
+- `DraftLayoutChecker` keeps only well-formedness errors.
 - `ContentLayoutWriteValidator` rejects a `content_layout` write on the binding errors of `LayoutGate::resolvability()`.
 - See [Diagnostics/README.md](../../Diagnostics/README.md).
 
@@ -45,7 +45,7 @@ Exceptions: `DraftLayoutDecoder` rejects a structurally unreadable draft with a 
 
 In code:
 
-- `DraftLayoutDecoder::decodeLintable()` and `LayoutDiagnostics::analyze()` turn a client defect into an `InvalidConfig` violation.
+- `DraftLayoutDecoder::decodeLintable()` and `LayoutDiagnostics::analyze()` turn a [client defect](README.md#glossary) into an `InvalidConfig` violation.
 - `ContentLayoutWriteValidator` checks the tree that `LayoutWriteContext` holds.
 - `ContentDiagnoseControllerTest` pins that diagnose answers 200 with the violations in the verdict and throws nothing.
 - See [diagnose.md](../../Api/docs/diagnose.md).

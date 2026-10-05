@@ -16,10 +16,10 @@ Consumer receives context from ancestor provider using `acceptsContext`.
 ```
 
 Fields:
-- Context key (`"product"`) - Under `scope: parent`, matches the provider's context key (or its `consumerAlias`); under `scope: root`, matches a key of the layout's root-ambient context. Either way the match is the key itself or a dot path below it (see [path-resolution.md](path-resolution.md))
+- Context key (`"product"`) - Under `scope: parent`, matches the provider's context key (or its `consumerAlias`); under `scope: root`, matches a key of the layout's [root context](../../../../docs/principles/README.md#glossary). Either way the match is the key itself or a dot path below it (see [path-resolution.md](path-resolution.md))
 - `scope` (optional, default `"parent"`) - Where the consumer takes its value from. Absent on the wire means `parent`, and encode emits the key only for `root`. `propertyAlias` and dotted context keys are valid under either scope:
   - `"parent"` - The context an ancestor provides, delivered one hop at a time along the tree
-  - `"root"` - The layout's root-ambient context, supplied by the bound root source. Cannot be combined with `redistribute: true`. See [Context flows only between adjacent elements](../../../../docs/principles/context-wiring.md#context-flows-only-between-adjacent-elements).
+  - `"root"` - The layout's root context, supplied by the bound root source. Cannot be combined with `redistribute: true`. See [Context flows only between adjacent elements](../../../../docs/principles/context-wiring.md#context-flows-only-between-adjacent-elements).
 - `type` - Expected context data type:
   - `"single"` - Expects single entity/value
   - `"collection"` - Expects array of entities/values

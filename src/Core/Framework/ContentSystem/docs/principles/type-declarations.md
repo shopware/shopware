@@ -4,9 +4,9 @@ A type declaration describes the properties and slots of an element type, and th
 
 ## Context wiring belongs to the element, never to the type
 
-A stored element's `providesContext` and `acceptsContext` entries in the layout set which context that element provides and consumes. A type declares the properties that an instance may wire. A type declares no provider and no consumer. A reference property without `resolvedBy` therefore stays wirable in any layout.
+A stored element's `providesContext` and `acceptsContext` entries in the layout set which context that element provides and consumes. A type declares the properties that an instance may wire. A type declares no [provider](README.md#glossary) and no [consumer](README.md#glossary). A reference property without `resolvedBy` therefore stays wirable in any layout.
 
-Why: A type-level required consumer would apply at scaffold time, without ancestors or root context, and block the write where nothing supplies the key.
+Why: A type-level required consumer would apply at element creation, without ancestors or [root context](README.md#glossary), and block the write where nothing supplies the key.
 
 Exceptions: `resolvedBy` on a reference property is the one type-level offer of a default wiring. `DefaultBindingSpecificationSynthesizer` turns that `resolvedBy` offer into the type's default binding.
 
@@ -18,7 +18,7 @@ In code:
 
 ## Each type sets the required flag of a property for its own reason
 
-Where a declared property states `required`, the value comes from the declaring type's own behaviour and never from a sibling type. An omitted `required` flag reads as optional. Required means that the element has no useful rendering without the value. An unresolved required property therefore blocks the write. An unresolved optional property passes the write. `LayoutDiagnostics` warns about an unresolved optional property only when no candidate can fill it.
+Where a declared property states `required`, the value comes from the declaring type's own behaviour and never from a sibling type. An omitted `required` flag reads as optional. Required means that the element has no useful rendering without the value. An unresolved required property therefore blocks the write. An unresolved optional property passes the write. `LayoutDiagnostics` warns about an unresolved optional property only when the property has no source.
 
 Why: A wrong optional flag lets a misplaced element pass the write and render empty, with only a warning.
 
@@ -46,8 +46,6 @@ In code:
 A style option declaration has no `pattern` facet. A string value is bounded by `maxLength`, which defaults to 255.
 
 Why: An app-supplied regex compiled from untrusted data and run on every write is a ReDoS vector.
-
-Not chosen: A pattern constraint on strings.
 
 In code:
 

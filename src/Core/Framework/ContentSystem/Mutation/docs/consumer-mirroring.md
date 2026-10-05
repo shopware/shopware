@@ -21,7 +21,7 @@ A cross-key resolution whose written property key (`$resolution->key`) contains 
 `StoredElementWiringDecoder` rejects a dotted `propertyAlias` at decode time, so mirroring one would write a tree its
 next decode throws on. An equal dotted key is unaffected, because a dotted consumer key with no `propertyAlias` is legal.
 
-No redistribute, no relay up the ancestor chain. Every matching resolution on an element yields its own consumer, so
+The mirror never re-provides a value to ancestors. Every matching resolution on an element yields its own consumer, so
 an element consuming two keys gets two.
 
 ## The skips

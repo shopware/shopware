@@ -1,6 +1,6 @@
 # Mutation Errors
 
-A resolvability problem (an unresolved required property, a broken context chain) is reported in the `diagnostics` body at HTTP 200, not as an error. Only the conditions below abort the request (`ContentSystemException`); the structural impossibilities are `400 Bad Request`:
+A resolvability problem (an unresolved required property, a broken context chain) is reported in the `diagnostics` body at HTTP 200, not as an error. Only the conditions below abort the request (`ContentSystemException`). The structural impossibilities are `400 Bad Request`:
 
 | Condition                                                                                                | HTTP | Factory                                           |
 |----------------------------------------------------------------------------------------------------------|------|---------------------------------------------------|
@@ -21,4 +21,4 @@ A resolvability problem (an unresolved required property, a broken context chain
 
 Runtime definition failures also include invalid filenames and binding canonicalization/type errors (500 with their specific codes). Preset-loading operations additionally expose preset load and validation errors. See [definition-load errors](../../docs/definition-load-errors.md) for the code/status mapping and app-install distinction.
 
-The mutation-structural codes above — `mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType` — are not client defects; see [Client-Defect Error Codes](../../docs/client-defect-codes.md).
+The mutation-structural codes above (`mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType`) are not client defects. See [Client-Defect Error Codes](../../docs/client-defect-codes.md).

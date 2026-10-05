@@ -75,7 +75,7 @@ final class WeatherLoader extends AbstractContentDataLoader
 }
 ```
 
-`LoaderInputResolver` turns the decoded config and the element's stored properties into `LoaderInputs` before the call. Every declared key is already present, dereferenced, and type-checked. Reading a key the loader did not declare throws. See [A loader consumes typed inputs resolved from its own declared specification](../../../docs/principles/data-loading.md#a-loader-consumes-typed-inputs-resolved-from-its-own-declared-specification).
+`LoaderInputResolver` turns the decoded config and the element's stored properties into `LoaderInputs` before the call. Every declared key has an entry, dereferenced and type-checked. Reading a key the loader did not declare throws. See [A loader consumes typed inputs resolved from its own declared specification](../../../docs/principles/data-loading.md#a-loader-consumes-typed-inputs-resolved-from-its-own-declared-specification).
 
 **Service registration:**
 
@@ -90,7 +90,7 @@ final class WeatherLoader extends AbstractContentDataLoader
 </service>
 ```
 
-A loader whose `PropertyReference` config key resolves to an entity id, and whose collaborator throws, additionally needs an id guard and a degradation wrap: [entity-id-guard-example.md](entity-id-guard-example.md).
+A loader whose `PropertyReference` key resolves to an entity id needs a `Uuid::isValid()` guard. One whose service call throws needs a `ShopwareHttpException` catch: [entity-id-guard-example.md](entity-id-guard-example.md).
 
 ## Cache Awareness
 

@@ -8,8 +8,6 @@ The administration declares one element type, `ContentElementNode`, with the mem
 
 Why: A second type diverges when the wire gains a member. A cast compiles against any payload.
 
-Not chosen: A module-local element type beside the wire-derived type.
-
 In code:
 
 - `ContentElementNode` is the only declaration of the element type.

@@ -1,6 +1,6 @@
 ## Constraints
 
-- Before planning or making a change, read the principle file for the area the change touches ([docs/principles/README.md](docs/principles/README.md#index) routes by task and by area). Check: does the change contradict a rule, a Why line or a Not chosen line of that file?
+- Before planning or making a change, read the principle file for the area the change touches ([docs/principles/README.md](docs/principles/README.md#index) routes by task and by area). Check: does the change contradict a rule, a Why line or a Decided against line of that file?
 - Change a rule, its pinning test and the code it governs in the same commit. The pinning test is the enforcing class's test, unless the rule's In code list names another ([principle files](docs/principles/README.md#by-area)). Check: the test is in the diff.
 - Update the Store API OpenAPI schema when changing an endpoint. Check: the matching file under [`Framework/Api/ApiDefinition/Generator/Schema/StoreApi/`](../Api/ApiDefinition/Generator/Schema/StoreApi/) is in the diff.
 - Register a domain service in its owning module's DI, never in `content-system.php`. Check: [Domain Placement](README.md#domain-placement) lists the class as domain-owned.
@@ -17,7 +17,7 @@
 - Extension mechanisms and where each is authored: [docs/extending.md](docs/extending.md#extending-the-content-system)
 - DI tags, base classes, value objects, enums, events and the exception class: [docs/service-tags-and-types.md](docs/service-tags-and-types.md#service-tag-reference), [docs/service-tags-and-types.md](docs/service-tags-and-types.md#type-reference)
 - Which error codes count as a client defect: [docs/client-defect-codes.md](docs/client-defect-codes.md#client-defect-error-codes)
-- Introspection assembly and the `storageSchema` fold: [docs/introspection-endpoints.md](docs/introspection-endpoints.md#what-the-endpoints-derive-from)
+- Introspection assembly and the `storageSchema` derivation: [docs/introspection-endpoints.md](docs/introspection-endpoints.md#what-the-endpoints-derive-from)
 - Primitive property satisfaction, what each write-time gate admits and delete protection: [docs/layout-write-gates.md](docs/layout-write-gates.md#layout-write-gates)
 - The stateless and the persisted structural-edit runners: [docs/layout-mutation.md](docs/layout-mutation.md#layout-mutation)
 - What one binding specification declares and its two apply modes: [docs/binding-specifications.md](docs/binding-specifications.md#binding-specifications)

@@ -6,11 +6,11 @@ How an app's binding specifications reach storage and the registry, and what val
 
 ## The Type Overlay
 
-The app persister and validator pass a type overlay built from the app's own `Resources/content-system/types`. Every non-app path passes an empty overlay — both `YamlBindingSpecificationLoader::load()`, the compiler-pass scan, and the `DatabaseBindingSpecificationLoader` rows.
+The app persister and validator pass a type overlay built from the app's own `Resources/content-system/types`. Every non-app path passes an empty overlay: both `YamlBindingSpecificationLoader::load()`, the compiler-pass scan, and the `DatabaseBindingSpecificationLoader` rows.
 
 ## Reading Them Back
 
-`DatabaseBindingSpecificationLoader` deserializes all active-app rows and validates them together, keyed by `source:id` so equal bare ids from different apps stay distinct. A missing name, or a schema that fails to decode, deserialize or validate, aborts the whole load — the same fail-fast posture `YamlBindingSpecificationLoader` has. A collective constraint violation from either loader is reported as `BINDING_SPECIFICATION_LOAD_FAILED` (HTTP 500); see item 1 of [loading-and-apps.md](loading-and-apps.md). Exceptions thrown by the validator itself propagate out of `load()` unwrapped.
+`DatabaseBindingSpecificationLoader` deserializes all active-app rows and validates them together, keyed by `source:id` so equal bare ids from different apps stay distinct. A missing name, or a schema that fails to decode, deserialize or validate, aborts the whole load, the same fail-fast posture `YamlBindingSpecificationLoader` has. A collective constraint violation from either loader is reported as `BINDING_SPECIFICATION_LOAD_FAILED` (HTTP 500), see item 1 of [loading-and-apps.md](loading-and-apps.md). Exceptions thrown by the validator itself propagate out of `load()` unwrapped.
 
 ## Storage
 

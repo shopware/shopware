@@ -32,7 +32,7 @@ Each data requirement is an object with these fields:
 - `config` (optional) - Loader-specific configuration object
 
 > [!NOTE]
-> A missing `key` is unambiguous rather than malformed, so decode fills it from the map key instead of failing. `Layout/Element/DataRequirement/DataRequirement::jsonSerialize()` always emits `key`, so such a requirement — written by raw SQL, or in a row predating that guarantee — gains an explicit `key` the next time its layout is saved: the stored bytes change, the tree does not.
+> A missing `key` is unambiguous rather than malformed, so decode fills it from the map key instead of failing. `Layout/Element/DataRequirement/DataRequirement::jsonSerialize()` always emits `key`, so such a requirement (written by raw SQL, or in a row predating that guarantee) gains an explicit `key` the next time its layout is saved: the stored bytes change, the tree does not.
 
 ## Multiple Data Requirements
 

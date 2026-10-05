@@ -22,8 +22,8 @@ straight back into the next operation.
 ## Pipeline
 
 `MutationPipeline` is the shared runner every operation goes through, on an **already-decoded** tree. The admin
-routes decode the request draft upstream through the shared `Api/DraftLayoutDecoder`. It is the structural
-pre-gate failing a malformed or config-defective element with a `400`, so callers never see a serializer `500`.
+routes decode the request draft upstream through the shared `Api/DraftLayoutDecoder`, which rejects a malformed or
+config-defective element with a `400`, so callers never see a serializer `500`.
 The pipeline itself is agnostic to whether the tree came from a request draft or a loaded `content_layout`:
 
 1. **Apply** the operation to the decoded tree.

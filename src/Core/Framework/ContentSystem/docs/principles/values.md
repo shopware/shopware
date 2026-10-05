@@ -4,7 +4,7 @@ This area concerns the value that a layout stores under a property key and who o
 
 ## Every rule about a value is the server's, and the client sends the raw value
 
-The write gate checks the value that the client sent. The write boundary never sanitizes, repairs, coerces or substitutes that value. Bringing a value into stored shape is the client's job.
+The [write gate](README.md#terms-that-are-easy-to-confuse) checks the value that the client sent. The [write boundary](README.md#terms-that-are-easy-to-confuse) never sanitizes, repairs, coerces or substitutes that value. Bringing a value into stored shape is the client's job.
 
 - The editor keeps undo local.
 - The editor saves the whole layout as it is.
@@ -25,7 +25,7 @@ In code:
 
 ## A rule about a stored value has one owner, and every path that needs the rule calls that owner
 
-Acceptance of a value for a declared property, a default's shape, the nesting bound and a wire message must each have a "single source of truth", its owner. Diagnostics, the conformance validator, the codec and the mutation operations must call that owner. Those callers must keep no copy of the rule. A rule needed at mutation time and at the write boundary is one shared provider.
+Acceptance of a value for a declared property, a default's shape, the nesting bound and a wire message must each have a "single source of truth", its owner. Diagnostics, the conformance validator, the codec and the mutation operations must call that owner. Those callers must keep no copy of the rule. A rule needed at mutation time and at the write boundary is one shared class.
 
 Why: In an earlier design, diagnostics, the conformance validator and the mutation operations each kept a private match table for the same admission rule. With three tables, the module stores or drops a value that one table accepts and another rejects, depending on the path that the value takes.
 
@@ -56,7 +56,7 @@ A stored or sent empty object decodes as the empty list. Removing the last entry
 
 Why: The wire cannot tell an empty map from an empty list, so a stored empty map comes back as a list.
 
-Exceptions: The module emits an element's `properties` even when that map is empty. The module emits the `slots` of a skeleton or decomposed node even when the node has no slots.
+Exceptions: The module emits an element's `properties` even when that map is empty. The module emits the `slots` of a [skeleton](README.md#glossary) or decomposed node even when the node has no slots.
 
 In code:
 

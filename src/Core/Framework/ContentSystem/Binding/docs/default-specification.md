@@ -37,4 +37,4 @@ A plugin cannot override a *core* default; no replacement mechanism exists.
 
 ## Limits on a Synthesized Id
 
-`DefaultBindingSpecificationSynthesizer` enforces `MAX_ID_LENGTH = 255` on the minted id — which is the type name — and applies the storage-key collision rules as hard load errors that name the offending file.
+`DefaultBindingSpecificationSynthesizer` enforces `MAX_ID_LENGTH = 255` on the minted id, which is the type name, and applies the storage-key collision rules as hard load errors that name the offending file.

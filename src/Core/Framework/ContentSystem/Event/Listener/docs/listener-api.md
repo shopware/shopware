@@ -4,7 +4,7 @@
 
 `RenderedElement` is the tree node a `RenderedTreeFinalizationEvent` listener works against (a `ContentTreePreparationEvent` listener works against `StoredElement` instead). It is `final readonly`, so every edit returns a new instance.
 
-A `null` property is present, not absent: `array_key_exists()` on `$properties` tells the two apart ([rule](../../../docs/principles/rendering.md#a-null-in-the-rendered-map-means-a-resolution-found-nothing)).
+A `null` property is present, not absent: `array_key_exists()` on `$properties` tells the two apart ([rule](../../../docs/principles/rendering.md#a-null-in-the-properties-of-a-renderedelement-means-a-resolution-found-nothing)).
 
 `RenderedTreeEditor::mapNodes()` applies one mapper to every node of a whole forest, rebuilding the copies down each branch, and is the idiom for anything beyond a single node.
 

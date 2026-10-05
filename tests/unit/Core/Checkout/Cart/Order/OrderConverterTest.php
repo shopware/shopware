@@ -405,19 +405,36 @@ class OrderConverterTest extends TestCase
         static::assertEquals(CartOrderConversionStub::getExpectedConvertToCart(), $result);
     }
 
-    public function testConvertToCartPutsThePrimaryTransactionFirst(): void
+    /**
+     * @param list<string> $expectedTransactionIds
+     */
+    #[DataProvider('primaryTransactionProvider')]
+    public function testConvertToCartPutsThePrimaryTransactionFirstWhenLoaded(string $primaryOrderTransactionId, array $expectedTransactionIds): void
     {
         $order = $this->getOrder();
-        $order->setPrimaryOrderTransactionId('order-transaction-id');
+        $order->setPrimaryOrderTransactionId($primaryOrderTransactionId);
 
         $cart = $this->orderConverter->convertToCart($order, Context::createDefaultContext());
 
         static::assertSame(
-            ['order-transaction-id', 'order-transaction-cancelled-id', 'order-transaction-failed-id'],
+            $expectedTransactionIds,
             array_values($cart->getTransactions()->map(
                 static fn (Transaction $transaction) => $transaction->getExtensionOfType(OrderConverter::ORIGINAL_ID, IdStruct::class)?->getId()
             ))
         );
+    }
+
+    public static function primaryTransactionProvider(): \Generator
+    {
+        yield 'the primary transaction moves to the front' => [
+            'primaryOrderTransactionId' => 'order-transaction-id',
+            'expectedTransactionIds' => ['order-transaction-id', 'order-transaction-cancelled-id', 'order-transaction-failed-id'],
+        ];
+
+        yield 'a primary transaction missing from the loaded transactions leaves their order as is' => [
+            'primaryOrderTransactionId' => 'not-loaded-transaction-id',
+            'expectedTransactionIds' => ['order-transaction-cancelled-id', 'order-transaction-id', 'order-transaction-failed-id'],
+        ];
     }
 
     public function testConvertToCartWithoutLoadedTransactions(): void

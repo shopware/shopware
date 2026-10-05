@@ -10,13 +10,11 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\StorybookController;
 use Shopware\Storefront\Storybook\StorybookService;
+use Shopware\Tests\Unit\Storefront\Controller\Stub\StorybookTwigEnvironmentStub;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Twig\Environment;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use Twig\Loader\ArrayLoader;
-use Twig\TemplateWrapper;
 
 /**
  * @internal
@@ -29,13 +27,13 @@ class StorybookControllerTest extends TestCase
 
     private const STORYBOOK_ORIGIN = 'http://localhost:6006';
 
-    private StorybookTwigEnvironment $twig;
+    private StorybookTwigEnvironmentStub $twig;
 
     private StorybookService&Stub $storybookService;
 
     protected function setUp(): void
     {
-        $this->twig = new StorybookTwigEnvironment();
+        $this->twig = new StorybookTwigEnvironmentStub();
         $this->storybookService = static::createStub(StorybookService::class);
     }
 
@@ -239,72 +237,5 @@ class StorybookControllerTest extends TestCase
             $this->twig,
             $storybookService ?? $this->storybookService,
         );
-    }
-}
-
-/**
- * @internal
- *
- * A test-specific Twig Environment that avoids mocking the final TemplateWrapper class.
- */
-class StorybookTwigEnvironment extends Environment
-{
-    public string $renderOutput = '';
-
-    public ?\Throwable $renderException = null;
-
-    public ?\Throwable $createTemplateException = null;
-
-    /**
-     * @var \Closure(string|TemplateWrapper, array<string, mixed>): string|null
-     */
-    public ?\Closure $renderCallback = null;
-
-    /**
-     * @var array<string, mixed>
-     */
-    public array $globals = [];
-
-    /**
-     * @var array<string, mixed>
-     */
-    public array $renderContext = [];
-
-    public function __construct()
-    {
-        parent::__construct(new ArrayLoader([]));
-    }
-
-    public function addGlobal(string $name, mixed $value): void
-    {
-        $this->globals[$name] = $value;
-    }
-
-    public function createTemplate(string $template, ?string $name = null): TemplateWrapper
-    {
-        if ($this->createTemplateException !== null) {
-            throw $this->createTemplateException;
-        }
-
-        return parent::createTemplate('');
-    }
-
-    /**
-     * @param string|TemplateWrapper $name
-     * @param array<string, mixed> $context
-     */
-    public function render($name, array $context = []): string
-    {
-        $this->renderContext = $context;
-
-        if ($this->renderException !== null) {
-            throw $this->renderException;
-        }
-
-        if ($this->renderCallback !== null) {
-            return ($this->renderCallback)($name, $context);
-        }
-
-        return $this->renderOutput;
     }
 }

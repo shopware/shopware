@@ -441,6 +441,24 @@ describe('src/module/sw-settings-document/page/sw-settings-document-detail', () 
         expect(wrapper.find('.sw-settings-document-detail__company_card_display_return').exists()).toBe(true);
     });
 
+    it('should upload the company logo right away and assign it', async () => {
+        const wrapper = await createWrapper({
+            props: { documentConfigId: 'documentConfigWithDocumentType' },
+        });
+        await flushPromises();
+
+        const upload = wrapper.get('.sw-settings-document-detail__company_card_media');
+        const listener = wrapper.get('.sw-settings-document-detail__company_card_media-upload-listener');
+
+        expect(upload.attributes('upload-tag')).toBe('documentConfigWithDocumentType');
+        expect(listener.attributes('upload-tag')).toBe('documentConfigWithDocumentType');
+        expect(listener.attributes('auto-upload')).toBeDefined();
+
+        wrapper.vm.onCompanyLogoUploadFinish({ targetId: 'uploadedLogoId' });
+
+        expect(wrapper.vm.documentConfig.logoId).toBe('uploadedLogoId');
+    });
+
     it('should hide the moved company settings banner after closing it', async () => {
         const wrapper = await createWrapper(
             {

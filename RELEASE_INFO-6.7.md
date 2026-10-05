@@ -243,10 +243,6 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
-### Log handler decorators forward `reset()`
-
-`ExcludeExceptionHandler`, `ErrorCodeLogLevelHandler` and `ExcludeFlowEventHandler` now forward `reset()` to the handler they wrap when it is resettable. Before, the buffer of the wrapped `fingers_crossed` handler was never cleared between requests, so long-running workers such as FrankenPHP or RoadRunner kept accumulating log records from earlier requests.
-
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation

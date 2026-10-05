@@ -313,6 +313,9 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 Store API responses contain the new properties wherever they contain a regulation price: in `calculatedPrice`, `calculatedPrices` and `calculatedCheapestPrice` of products, for example in the product listing, search and detail responses, and in `price` of cart and order line items.
 
 `Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice` is created with `RegulationPrice::createFromUnitPrice($unitPrice, $regulationPrice)`, which calculates both values. Its constructor becomes private in `v6.8.0`.
+### REST API indexing behavior header is honored
+
+The `indexing-behavior` header now supports `use-queue-indexing` and `disable-indexing` on REST API writes, matching the existing Sync API behavior. Requests without this header retain the current synchronous indexing behavior.
 
 ## Administration
 

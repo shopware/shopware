@@ -46,18 +46,30 @@ class MigrationQueryGenerator
         $schemaManager = $this->connection->createSchemaManager();
         $originalTableSchema = $schemaManager->introspectTableByUnquotedName($definition->getEntityName());
 
-        // Indexes are not supported, so we remove them from both tables
-        $originalTableSchema = $this->dropIndexes($originalTableSchema);
-
         $tableSchema = $this->schemaBuilder->buildSchemaOfDefinition($definition);
 
-        $tableSchema = $this->dropIndexes($tableSchema);
+        $comparator = $schemaManager->createComparator((new ComparatorConfig())->withReportModifiedIndexes(false));
 
-        $comparatorConfig = (new ComparatorConfig())->withReportModifiedIndexes(false);
+        $foreignKeyDiff = $comparator->compareTables($originalTableSchema, $tableSchema);
 
-        return $this->getPlatform()->getAlterTableSQL(
-            $schemaManager->createComparator($comparatorConfig)->compareTables($originalTableSchema, $tableSchema)
-        );
+        $platform = $this->getPlatform();
+
+        $tableName = $tableSchema->getObjectName()->toSQL($platform);
+
+        $queries = [];
+        foreach ($foreignKeyDiff->getDroppedForeignKeyConstraintNames() as $name) {
+            $queries[] = $platform->getDropForeignKeySQL($name->toSQL($platform), $tableName);
+        }
+
+        $queries = array_merge($queries, $platform->getAlterTableSQL(
+            $comparator->compareTables($this->dropIndexes($originalTableSchema), $this->dropIndexes($tableSchema))
+        ));
+
+        foreach ($foreignKeyDiff->getAddedForeignKeys() as $foreignKey) {
+            $queries[] = $platform->getCreateForeignKeySQL($foreignKey, $tableName);
+        }
+
+        return $queries;
     }
 
     /**
@@ -67,9 +79,14 @@ class MigrationQueryGenerator
     {
         $tableSchema = $this->schemaBuilder->buildSchemaOfDefinition($definition);
 
-        $tableSchema = $this->dropIndexes($tableSchema);
+        $platform = $this->getPlatform();
+        $queries = $platform->getCreateTableSQL($this->dropIndexes($tableSchema));
 
-        return $this->getPlatform()->getCreateTableSQL($tableSchema);
+        foreach ($tableSchema->getForeignKeys() as $foreignKey) {
+            $queries[] = $platform->getCreateForeignKeySQL($foreignKey, $tableSchema->getObjectName()->toSQL($platform));
+        }
+
+        return $queries;
     }
 
     private function getPlatform(): AbstractPlatform
@@ -79,16 +96,7 @@ class MigrationQueryGenerator
 
     private function dropIndexes(Table $table): Table
     {
-        $tableEditor = $table->edit();
-        foreach ($table->getIndexes() as $index) {
-            /** @phpstan-ignore method.deprecated (if can be removed with DBAL 5.0 as primaries won't be inlcuded anymore) */
-            if ($index->isPrimary()) {
-                continue;
-            }
-
-            $tableEditor->dropIndex($index->getObjectName());
-        }
-
-        return $tableEditor->create();
+        // Foreign keys are handled separately, otherwise DBAL recreates their backing indexes.
+        return $table->edit()->setIndexes()->setForeignKeyConstraints()->create();
     }
 }

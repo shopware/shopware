@@ -77,7 +77,7 @@ class MigrationQueryGeneratorTest extends TestCase
 
         static::assertCount(2, $queries);
         static::assertStringContainsString('ALTER TABLE test ADD priority INT NOT NULL, ADD test2_id VARCHAR(255) NOT NULL', $queries[0]);
-        static::assertStringContainsString('ALTER TABLE test ADD CONSTRAINT fk_column_id FOREIGN KEY (test2_id) REFERENCES test2 (id)', $queries[1]);
+        static::assertStringContainsString('ALTER TABLE `test` ADD CONSTRAINT fk_column_id FOREIGN KEY (test2_id) REFERENCES test2 (id)', $queries[1]);
     }
 
     public function testGenerateQueriesForNewTable(): void
@@ -92,7 +92,7 @@ class MigrationQueryGeneratorTest extends TestCase
 
         static::assertCount(2, $queries);
         static::assertStringContainsString('CREATE TABLE test (id VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, priority INT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, test2_id VARCHAR(255) NOT NULL, PRIMARY KEY (`id`))', $queries[0]);
-        static::assertStringContainsString('ALTER TABLE test ADD CONSTRAINT fk_column_id FOREIGN KEY (test2_id) REFERENCES test2 (id)', $queries[1]);
+        static::assertStringContainsString('ALTER TABLE `test` ADD CONSTRAINT fk_column_id FOREIGN KEY (test2_id) REFERENCES test2 (id)', $queries[1]);
     }
 
     private function getOriginalTable(): Table

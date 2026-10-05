@@ -20,7 +20,6 @@ use Shopware\Core\Framework\Plugin\Struct\PluginFromFileSystemStruct;
 use Shopware\Core\Framework\Plugin\Util\PluginFinder;
 use Shopware\Core\Framework\Plugin\Util\VersionSanitizer;
 use Shopware\Core\System\Language\LanguageCollection;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 
 /**
@@ -209,19 +208,20 @@ class PluginServiceTest extends TestCase
         $pluginFinder->method('findPlugins')->willReturn($plugins);
 
         $languageLookups = [];
-        $language = new LanguageEntity();
-        $language->setId('foo');
-        $languageSearch = static function (Criteria $criteria) use (&$languageLookups, $language): LanguageCollection {
+        $languageSearch = static function (Criteria $criteria) use (&$languageLookups): array {
             $languageLookups[] = $criteria;
 
-            return new LanguageCollection([$language]);
+            return ['foo'];
         };
+
+        /** @var StaticEntityRepository<LanguageCollection> $languageRepo */
+        $languageRepo = new StaticEntityRepository(array_fill(0, 8, $languageSearch));
 
         $pluginService = new PluginService(
             __DIR__,
             __DIR__,
             new StaticEntityRepository([new PluginCollection()]),
-            new StaticEntityRepository(array_fill(0, 8, $languageSearch)),
+            $languageRepo,
             $pluginFinder,
             new VersionSanitizer()
         );
@@ -284,10 +284,8 @@ class PluginServiceTest extends TestCase
      */
     private function getLanguageRepository(): StaticEntityRepository
     {
-        $language = new LanguageEntity();
-        $language->setId('foo');
-
-        $repo = new StaticEntityRepository([new LanguageCollection([$language]), new LanguageCollection([$language])]);
+        /** @var StaticEntityRepository<LanguageCollection> $repo */
+        $repo = new StaticEntityRepository([['foo'], ['foo']]);
 
         return $repo;
     }

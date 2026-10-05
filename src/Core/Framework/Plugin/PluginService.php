@@ -184,9 +184,8 @@ class PluginService
 
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('language.translationCode.code', $locale));
-        $languageEntity = $this->languageRepo->search($criteria, $context)->getEntities()->first();
 
-        return $this->languageIdsByLocale[$locale] = $languageEntity?->getId() ?? '';
+        return $this->languageIdsByLocale[$locale] = $this->languageRepo->searchIds($criteria, $context)->firstId() ?? '';
     }
 
     private function getPluginIconRaw(string $pluginIconPath): ?string

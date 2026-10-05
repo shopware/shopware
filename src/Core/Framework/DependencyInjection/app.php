@@ -654,6 +654,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
                 'timeout' => 5,
                 'connect_timeout' => 1,
                 'proxy' => [],
+                'allow_redirects' => AuthMiddleware::ALLOW_REDIRECTS,
                 'handler' => inline_service(HandlerStack::class)
                     ->factory([HandlerStack::class, 'create'])
                     ->call('after', [

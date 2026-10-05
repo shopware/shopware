@@ -95,6 +95,17 @@
     }
 }
 
+.confirm-legal-guarantee-notice-inline {
+    margin-top: $spacer-lg;
+    margin-bottom: $spacer-lg;
+
+    a {
+        display: block;
+        max-width: 560px;
+        margin: 0;
+    }
+}
+
 .payment-method-label,
 .shipping-method-label {
     width: 100%;

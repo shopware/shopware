@@ -60,6 +60,7 @@ use Shopware\Core\Framework\Telemetry\Metrics\Metric\PeriodicMetricCollectorInte
 use Shopware\Core\Framework\Telemetry\Metrics\MetricTransportInterface;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\AbstractValueGenerator;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
+use Shopware\Core\System\SalesChannel\Capability\AbstractSalesChannelTypeCapabilities;
 use Shopware\Core\System\Snippet\Filter\SnippetFilterInterface;
 use Shopware\Core\System\Tax\TaxRuleType\TaxRuleTypeFilterInterface;
 use Shopware\Elasticsearch\Admin\Indexer\AbstractAdminIndexer;
@@ -127,6 +128,7 @@ return [
             'shopware.route_scope' => AbstractRouteScope::class,
             'shopware.route_scope_whitelist' => RouteScopeWhitelistInterface::class,
             'shopware.rule.definition' => Rule::class,
+            'shopware.sales_channel.type_capabilities' => AbstractSalesChannelTypeCapabilities::class,
             'shopware.scheduled.task' => ScheduledTask::class,
             'shopware.seo_url.route' => SeoUrlRouteInterface::class,
             'shopware.sitemap.config_handler' => ConfigHandlerInterface::class,

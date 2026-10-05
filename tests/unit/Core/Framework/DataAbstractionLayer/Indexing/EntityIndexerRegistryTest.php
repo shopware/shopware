@@ -160,6 +160,7 @@ class EntityIndexerRegistryTest extends TestCase
             ->with('indexer1');
 
         $messageMock
+            ->expects($this->once())
             ->method('setSkip')
             ->with(static::callback(
                 static function (array $skips) {

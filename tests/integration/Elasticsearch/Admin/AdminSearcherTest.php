@@ -38,13 +38,16 @@ class AdminSearcherTest extends TestCase
 
     protected function setUp(): void
     {
-        if (!static::getContainer()->getParameter('elasticsearch.administration.enabled')) {
-            static::markTestSkipped('No OPENSEARCH configured');
-        }
-
         $this->productRepository = static::getContainer()->get('product.repository');
         $this->searcher = static::getContainer()->get(AdminSearcher::class);
 
+        static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
+
+        $this->clearElasticsearch();
+    }
+
+    protected function tearDown(): void
+    {
         static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM product');
 
         $this->clearElasticsearch();

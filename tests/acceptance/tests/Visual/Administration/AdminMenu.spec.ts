@@ -40,7 +40,7 @@ test.afterEach(async ({ AdminDashboard }) => {
 test('Visual: Administration menu', { tag: '@Visual' }, async ({ ShopAdmin, AdminDashboard }) => {
     const page = AdminDashboard.page;
 
-    await test.step('Creates a screenshot of the expanded admin menu with an open Catalogues section.', async () => {
+    await test.step('Creates a screenshot of the expanded admin menu with an open Products section.', async () => {
         await ShopAdmin.goesTo(AdminDashboard.url());
         // Pin the height so the menu screenshots do not depend on the dashboard's content height.
         await setViewport(page, {

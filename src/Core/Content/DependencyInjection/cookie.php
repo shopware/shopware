@@ -16,6 +16,7 @@ use Shopware\Core\Content\Cookie\ScheduledTask\CleanupCookieConsentLogTask;
 use Shopware\Core\Content\Cookie\ScheduledTask\CleanupCookieConsentLogTaskHandler;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -43,6 +44,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(CookieProvider::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     // Consent log storages are selected by name via shopware.cookie_consent.log_storage

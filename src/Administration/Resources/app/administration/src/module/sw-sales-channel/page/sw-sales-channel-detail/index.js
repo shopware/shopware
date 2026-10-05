@@ -34,6 +34,7 @@ export default {
         'systemConfigApiService',
         'acl',
         'feature',
+        'customFieldDataProviderService',
     ],
 
     provide() {
@@ -225,6 +226,7 @@ export default {
             return this.repositoryFactory.create('sales_channel_analytics');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
@@ -439,12 +441,7 @@ export default {
         },
 
         loadCustomFieldSets() {
-            const criteria = new Criteria(1, 100);
-
-            criteria.addFilter(Criteria.equals('relations.entityName', 'sales_channel'));
-            criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
-
-            this.customFieldRepository.search(criteria, Context.api).then((searchResult) => {
+            this.customFieldDataProviderService.getCustomFieldSets('sales_channel', false, 100).then((searchResult) => {
                 this.customFieldSets = searchResult;
             });
         },

@@ -131,7 +131,7 @@ describe('pushCoverageToGetDx', () => {
 
     it('POSTs the payload with a bearer token', async () => {
         const fetchImpl = mock.fn(async (url: string, init?: RequestInit) => {
-            assert.equal(url, 'https://app.getdx.com/api/customData.set');
+            assert.equal(url, 'https://shopware.getdx.net/api/customData.set');
             assert.equal(init?.method, 'POST');
             assert.equal((init?.headers as Record<string, string>).Authorization, 'Bearer dx-secret');
             assert.equal(init?.body, JSON.stringify(payload));

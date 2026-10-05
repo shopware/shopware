@@ -197,6 +197,20 @@ class NoCreateMockWithoutExpectationsRuleTest extends RuleTestCase
         ]);
     }
 
+    public function testWithWithoutExpectsPerChain(): void
+    {
+        $this->analyse([__DIR__ . '/data/NoCreateMockWithoutExpectationsRule/ChainCases.php'], [
+            [NoCreateMockWithoutExpectationsRule::ERROR_WITH_WITHOUT_EXPECTS, 49],
+            [NoCreateMockWithoutExpectationsRule::ERROR_WITH_WITHOUT_EXPECTS, 58],
+            [NoCreateMockWithoutExpectationsRule::ERROR_WITH_WITHOUT_EXPECTS, 67],
+            [NoCreateMockWithoutExpectationsRule::ERROR_WITH_WITHOUT_EXPECTS, 76],
+            [\sprintf(NoCreateMockWithoutExpectationsRule::ERROR_AT_LEAST_NOT_POSITIVE, 0), 109],
+            [\sprintf(NoCreateMockWithoutExpectationsRule::ERROR_AT_LEAST_NOT_POSITIVE, -1), 117],
+            // NOT flagged: 40 (->expects() on the same chain), 87 (a fluent with() of the dependency itself),
+            // 101 and 126 (positive or unresolvable atLeast() bound)
+        ]);
+    }
+
     protected function getRule(): Rule
     {
         return new NoCreateMockWithoutExpectationsRule(

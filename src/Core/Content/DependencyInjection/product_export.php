@@ -161,7 +161,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             tagged_iterator('shopware.product_export.validator'),
         ]);
 
-    $services->set(JsonlRowParser::class);
+    $services->set(JsonlRowParser::class)
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(XmlValidator::class)
         ->tag('shopware.product_export.validator');
@@ -170,29 +171,34 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(JsonlRowParser::class),
         ])
-        ->tag('shopware.product_export.validator');
+        ->tag('shopware.product_export.validator')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(GoogleProductExportValidator::class)
-        ->tag('shopware.product_export.validator');
+        ->tag('shopware.product_export.validator')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(AgenticCommerceProductExportProviderRegistry::class)
         ->args([
             tagged_iterator('shopware.product_export.provider'),
-        ]);
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(OpenAiProductExportProvider::class)
         ->args([
             service('sales_channel.repository'),
             service(SystemConfigService::class),
         ])
-        ->tag('shopware.product_export.provider');
+        ->tag('shopware.product_export.provider')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(GoogleProductExportProvider::class)
         ->args([
             service('sales_channel.repository'),
             service(SystemConfigService::class),
         ])
-        ->tag('shopware.product_export.provider');
+        ->tag('shopware.product_export.provider')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(ProductExportExceptionHandler::class)
         ->tag('shopware.dal.exception_handler');
@@ -209,7 +215,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(AgenticCommerceProductExportProviderRegistry::class),
         ])
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(ExportController::class)
         ->public()

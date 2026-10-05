@@ -17,6 +17,7 @@ async function createWrapper() {
                 'sw-context-button': {
                     template: `
                         <div class="sw-context-button">
+                            <slot name="button"></slot>
                             <slot></slot>
                         </div>`,
                 },
@@ -54,6 +55,17 @@ describe('app/component/base/sw-product-image', () => {
 
         const setAsCoverButton = wrapper.find('.sw-product-image__context-button .sw-product-image__button-cover');
         expect(setAsCoverButton.exists()).toBe(false);
+    });
+
+    it('should render the context button trigger as a labelled square secondary button', async () => {
+        const wrapper = await createWrapper();
+        await wrapper.vm.$nextTick();
+
+        const trigger = wrapper.find('.sw-product-image__context-button .mt-button');
+        expect(trigger.classes()).toEqual(
+            expect.arrayContaining(['mt-button--secondary', 'mt-button--x-small', 'mt-button--square']),
+        );
+        expect(trigger.attributes('aria-label')).toBe('global.sw-data-grid.actionsMenu');
     });
 
     it('should not show spatial label if media item is not a 3D object', async () => {

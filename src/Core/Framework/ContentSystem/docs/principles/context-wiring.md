@@ -8,8 +8,6 @@ An element reaches root context directly. A provider serves its direct children 
 
 Why: Relay chains made each intermediate container part of a wiring that the container did not author. An arbitrary pick among ambiguous candidates fails silently.
 
-Not chosen: Context flowing between non-adjacent elements, or a chain of ancestors relaying root context hop by hop.
-
 Exceptions: An event listener may write a property on any element. The adjacency rule applies to wiring only.
 
 In code:
@@ -26,8 +24,6 @@ In code:
 Placeholder substitution runs first, then wiring validation and redistribute derivation. Data resolution over the whole forest runs next, then the page-level data that forms the root context, then context delivery. A loader therefore never receives delivered context or the page entity. The preparation event fires before this order starts, as [rendering.md](rendering.md#the-two-tree-replacement-events-fire-at-fixed-points) states.
 
 Why: A provider may hand a loaded value to a child, so data resolution over the whole forest finishes before context delivery starts. Placeholder substitution never descends into a map.
-
-Not chosen: Preparation and resolution as independent stages in an incidental order.
 
 In code:
 

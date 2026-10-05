@@ -8,8 +8,6 @@ The module bounds its surface against Hyrum's law and keeps every extension poin
 
 Why: A broken offered extension point is worse than no extension point.
 
-Not chosen: A surface made of whatever plugins reach and whatever third parties come to depend on.
-
 In code:
 
 - `InternalClassRule::CONTENT_SYSTEM_PUBLIC_SURFACE` lists the offered classes.
@@ -40,8 +38,6 @@ A registry must reconcile app rows under a per-app lock and in one transaction. 
 
 Why: A registry that does not fail on one bad row becomes inconsistent for every app. Install and update fail because the app lifecycle handlers load the declarations and throw on a defect. A lifecycle handler without a deactivate hook still serves a deactivated app.
 
-Not chosen: Patching an app-shipped declaration into shape instead of failing the install.
-
 Exceptions: The attribution reconciler drops an attribution to a specification that no longer exists, and the drop is not a fault. A database registry loader skips and logs a malformed persisted row on load, under the [build-time rule](failure-and-loss.md#a-declaration-or-registration-defect-fails-the-build-or-the-load-never-a-request).
 
 In code:
@@ -55,8 +51,6 @@ Where no sound runtime guard on listener output exists, the requirement is a doc
 
 Why: A guard based on the one producer that surfaced a hazard turns a known limitation into an assumed protection.
 
-Not chosen: A guard fitted to the hazard that the current producer shows, with the permitted actions listed later or never.
-
 In code:
 
 - `ContentPipeline::load()` serves an element that a finalization listener adds.
@@ -69,7 +63,7 @@ The module applies the "open/closed principle" to element capabilities. An exten
 
 Why: A core method that an app cannot reach is a capability that only first-party code has. Other per-entity requests follow the first one.
 
-Not chosen: Core classes that call app code, or a core edit repeated per app or per entity.
+Not chosen: Core classes that call app code.
 
 In code:
 
@@ -83,8 +77,6 @@ In code:
 The module adds no protected member, subscribed service or import to `StorefrontController` or any other platform base class that plugin controllers extend. A controller that needs the content route takes `AbstractContentRoute` as a constructor argument and keeps its own private helper.
 
 Why: A member on a base class that every plugin controller extends is an extension surface in all but name. Once such a member ships, the member is a compatibility promise.
-
-Not chosen: A shared helper on the common base class, written once instead of per controller.
 
 Exceptions: StorefrontController keeps `loadContentPage()`, the subscribed service and the imports until separate work reverses the addition. `ProductController` and `NavigationController` call `StorefrontController::loadContentPage()`.
 

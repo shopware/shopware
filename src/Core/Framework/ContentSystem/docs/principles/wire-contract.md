@@ -8,8 +8,6 @@ The storage column and every Admin API element body share one codec with round-t
 
 Why: Two serializations for one audience drift apart. A codec that strips input instead of throwing persists what nothing reads back.
 
-Not chosen: A separate Admin API serializer beside the storage serializer.
-
 Exceptions: The Store API serves `RenderedElement` to shoppers without attribution.
 
 In code:
@@ -39,7 +37,7 @@ Every framework struct in a body passes the protection gate leaf by leaf. Module
 
 Why: The framework encoder walks only its own structs. `StructEncoder::encode()` recurses into a `Struct` and passes every other object through raw, so a non-`Struct` object that holds a `Struct` would carry it past the field filter and publish every field. If a module encoder took over field filtering, nothing would enforce that filtering.
 
-Not chosen: Relying on a module encoder to protect fields without the gate, or an open value domain for rendered properties.
+Not chosen: An open value domain for rendered properties.
 
 Exceptions: The skeleton format stays a struct that the framework encodes. Only `ContentSkeletonElement::fromRendered()` mints that struct.
 
@@ -57,8 +55,6 @@ In code:
 The module generates its routes as formats times section resolvers. Every full-mode response wraps one page over one forest. A cached skeleton and a later data response join on the element id, never on a ref. A ref is local to one response, and the module numbers refs in document order. The module assigns data to positions deterministically, so a client may cache the skeleton first.
 
 Why: A client outside this codebase composes the data response onto a cached skeleton. That composition works only if the skeleton and the data response never differ in structure.
-
-Not chosen: Computing each format separately, each with its own traversal.
 
 Exceptions: The skeleton puts the element alias on root nodes only. The decomposed format puts the element alias on every node. A skeleton node and a decomposed node are therefore not interchangeable.
 
@@ -89,8 +85,6 @@ In code:
 Decode throws on a malformed persisted row, on read as on write. A well-formed row that names a style option or an element type the registry no longer holds still decodes. Decode keeps that unknown name verbatim. A row that names a removed style option still renders.
 
 Why: Uninstalling a plugin must not make layouts unreadable. A row that no supported path produces is corruption that an operator sees.
-
-Not chosen: One read policy for malformed rows and drifted rows, either all strict or all lenient.
 
 Exceptions: Decode throws instead on a data requirement whose loader source lost its config serializer.
 

@@ -36,8 +36,6 @@ The skeleton runs the full render path. The skeleton never takes a prune-to-targ
 
 Why: A client caches the skeleton and fills it later. A structural difference between the skeleton and the full response must therefore be impossible by construction, not merely untested. No runtime guard can check the structural identity of the skeleton and the full response in one request.
 
-Not chosen: A mode-shaped skeleton that prunes the tree, or structure derived from data.
-
 In code:
 
 - `StoredTreePreparer::prepare()` gates placeholder substitution on `RenderingMode::FULL`.
@@ -52,8 +50,6 @@ Rendering stages run as direct calls in an order stated once at the call site, n
 
 Why: A typed record carries a fact that only its producer established, which a tree-in, tree-out listener cannot carry. The accepted price is that no core listener exists on either event. The order that the old priority bands declared never applied.
 
-Not chosen: Priority-banded listeners per stage over a shared mutable element.
-
 In code:
 
 - `ContentPipeline::load()` calls `StoredTreePreparer::prepare()`, `WiringPlanner::plan()` and `ElementLowering::lower()`.
@@ -66,8 +62,6 @@ In code:
 Neither event exposes the rendering mode. The preparation event fires first, before placeholder substitution. Placeholder substitution therefore still reaches any placeholder that the listener adds. The finalization event fires after the finishing steps, in both modes. The pipeline checks each tree that an event hands back, under the [final check](#the-render-validates-the-whole-stored-forest-in-every-mode).
 
 Why: A later event would show a listener a request-specific view of content.
-
-Not chosen: Listener points that are not fixed.
 
 Exceptions: A returned tree that names an unregistered element type is [registry drift](wire-contract.md#structural-malformation-and-registry-drift-are-different-cases-on-read), on a returned tree as on a stored one.
 
@@ -83,8 +77,6 @@ An element template reads `id`, `component`, `properties`, `slots` and `style`, 
 
 Why: Every field that a template can reach is a contract that `RenderedElement` must keep. A toggle stored in the content model becomes content.
 
-Not chosen: Templates reading any field, with fields added and read ad hoc.
-
 In code:
 
 - `RenderedElement` has the five fields only.
@@ -97,8 +89,6 @@ In code:
 An unfulfilled key stays absent from the rendered map. A null in the rendered map means that a resolution ran and found nothing. A resolution that found nothing is a loader's `notFound()` or a context delivery that resolved to nothing. That null overwrites the stored value in the working map. A parent therefore hands its children what it renders. An undelivered consumer key and an authored null stay absent. No per-element signal or log entry records why an element rendered null, and the module defers observability for render-time degradation.
 
 Why: A stale stored value left by a loader that found nothing is a degraded output that looks valid, which the [fail-fast rule](failure-and-loss.md#a-component-throws-where-it-meets-invalid-data-and-nothing-degrades-silently) bans. A reader of the rendered map tells found-nothing from never-ran.
-
-Not chosen: One representation for found-nothing and never-written.
 
 In code:
 

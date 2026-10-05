@@ -15,8 +15,6 @@ A client check may gate an interaction. A client check must not coerce, filter o
 
 Why: A rewrite based on a guess hides the client defect. A copy of a rule in the client drifts from the server's rule or becomes a second gate that the server cannot see.
 
-Not chosen: A client that repairs a value before sending it, or a client that rewrites the server's response.
-
 Exceptions: The passes of `LayoutWriteBoundary::apply()` seed declared defaults and normalize style. The multi-entity picker trims unresolvable ids.
 
 In code:
@@ -30,8 +28,6 @@ In code:
 Admissibility for a declared property, a default's shape, the nesting bound and a wire message must each have a "single source of truth", its owner. Diagnostics, the conformance validator, the codec and the mutation operations must call that owner. Those callers must keep no copy of the rule. A rule needed at mutation time and at the write boundary is one shared provider.
 
 Why: In an earlier design, diagnostics, the conformance validator and the mutation operations each kept a private match table for the same admission rule. With three tables, the module stores or drops a value that one table accepts and another rejects, depending on the path that the value takes.
-
-Not chosen: A private copy of the rule on each path.
 
 Exceptions: A `resolvedBy` storage key is undeclared, and `matchesStoredValueShape()` checks the values that a layout stores under that key. The codec and the constraint descriptor keep separate copies of the wiring rules, under the [rule that one change tightens both](drafts-and-gates.md#the-codec-and-the-constraint-descriptor-keep-separate-copies-of-the-wiring-rules-and-one-change-tightens-both).
 
@@ -47,8 +43,6 @@ A present null and an absent key differ as null and undefined differ in JavaScri
 
 Why: Collapsing a present null and an absent key is silent degradation. An absent text property would then pass for an authored empty text.
 
-Not chosen: One state for a present null and an absent key, with default seeding treating both alike.
-
 Exceptions: `RenderedElementFactory` drops an authored null and keeps a lookup's null. A template prop with a null default and a type default of null both merge a present null and an absent key.
 
 In code:
@@ -61,8 +55,6 @@ In code:
 A stored or sent empty object decodes as the empty list. Removing the last entry of a map drops the key. The module does not emit a map-valued element member with no entries.
 
 Why: An empty map and an absent key would be two encodings of one meaning. The wire cannot distinguish an empty map from an empty list.
-
-Not chosen: Storing an empty map as a record of absence.
 
 Exceptions: The module emits an element's `properties` even when that map is empty. The module emits the `slots` of a skeleton or decomposed node even when the node has no slots.
 

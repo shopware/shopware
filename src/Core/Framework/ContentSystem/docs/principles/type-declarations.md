@@ -8,8 +8,6 @@ A stored element's `providesContext` and `acceptsContext` entries in the layout 
 
 Why: A consumer minted by the type would apply at scaffold time. At scaffold time, the element has no ancestors and no root context yet.
 
-Not chosen: Provider and consumer entries in the type YAML, inherited by every instance.
-
 Exceptions: `resolvedBy` on a reference property is the one type-level offer of a default wiring. `DefaultBindingSpecificationSynthesizer` turns that `resolvedBy` offer into the type's default binding.
 
 In code:
@@ -36,8 +34,6 @@ In code:
 The `adminUI` block on a type property or a style option is presentation metadata for the administration. The module bases no storage, validation or normalization rule on the content of the `adminUI` block. The declaration validator checks only that the `adminUI` block is well-formed. The declaration states a storage-relevant kind as its own typed key.
 
 Why: The box-spacing normalization, now the box-spacing branch of `ElementStyleNormalizer`, once read the `adminUI` component name to choose its storage rule. Inferring a storage rule from an editor hint let a control choice govern persisted data. A change of control would then silently alter storage.
-
-Not chosen: Branching server-side on the `adminUI` component name.
 
 In code:
 

@@ -8,8 +8,6 @@ Every component fails fast on invalid, unrepresentable or misconfigured data, at
 
 Why: A skipped defect surfaces far from its cause, as a state that no write could produce. A degraded result that looks valid cannot be told from a correct one, so no caller can react to it.
 
-Not chosen: Skipping, coercing or falling back.
-
 Exceptions: A data loader degrades to a not-found result on a collaborator's HTTP exception, under the [degradation rule](data-loading.md#a-loader-degrades-on-a-named-domain-outcome-and-lets-every-other-fault-propagate), or on an entity id that `Uuid::isValid()` rejects, so that an unsubstituted placeholder never reaches an id parser. Each database registry loader skips and logs a malformed row under the [build-time rule](#a-declaration-or-registration-defect-fails-the-build-or-the-load-never-a-request). The attribution reconciler drops a diverged attribution, as [extension-surface.md](extension-surface.md#an-app-shipped-declaration-is-validated-and-reconciled-by-the-module-never-trusted-or-patched) states. The type declaration reader reads the `meta`, `properties` and `slots` keys only and ignores every other top-level key.
 
 In code:
@@ -26,8 +24,6 @@ The registry load fails fast on a property-key collision, on `resolvedBy` on a p
 
 Why: A request-time defect surfaces far from its cause. The registry splits when one loader rejects a row and another loader skips and logs the same row. A persisted row can drift after install, for example when a dependency is deactivated, so the production load skips it instead of failing every request.
 
-Not chosen: Validation at request time.
-
 In code:
 
 - `YamlTypeLoader`, `DefaultBindingSpecificationSynthesizer` and `ContentSystemDataLoaderCompilerPass` enforce the load and build failures.
@@ -39,8 +35,6 @@ In code:
 The mutation response returns a detached child as orphaned and names every dropped property and every dropped wiring key. The server answers an undeclared field with a 400. It answers a request affordance that the route does not support with a 400. It strips neither. A request DTO accepts no extra attributes. An editor that reads the orphaned child and the dropped names from the mutation response can offer re-placement, undo or confirmation. An editor that discards them promotes silent loss.
 
 Why: A client that cannot tell applied state from ignored state builds on the ignored state. To the author, a loss that the client hides looks unreported.
-
-Not chosen: Stripping an undeclared field and saving the rest, or an editor that reads only the convenient response channels.
 
 Exceptions: A whole-subtree remove reports no orphans, because the removal is itself the request.
 
@@ -84,7 +78,7 @@ Each code has one factory that new callers reuse. The module has one exception c
 
 Why: A client acts on codes. A server code that is missing from the client's table is a silent 400. Parallel codes split what a cross-cutting reader treats as one condition. A rejection without the element id sends the editor searching.
 
-Not chosen: An open code space whose unknown codes a client ignores, or an exception class, a catalogue or a code per feature or per call site.
+Not chosen: An exception class, a catalogue or a code per feature or per call site.
 
 Exceptions: `unknownStyleBreakpoint()` and `invalidLoaderConfig()` each reuse the code of another factory. `unknownStyleBreakpoint()` reuses its code by documented design. The codec throws the wiring factories that the render step also throws, without an element id.
 

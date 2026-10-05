@@ -36,7 +36,7 @@ The tree a listener hands back through `replaceTree()` is what the response carr
 | Duplicate an existing element id | Fails the render, under [the render's final check](../../../docs/principles/rendering.md#the-render-validates-the-whole-stored-forest-in-every-mode) |
 | Hand back the stored model, or an array that is not a list | Fails the render, `CONTENT_SYSTEM__INVALID_MAP_VALUE` (500) |
 
-Element ids are a rendered-model contract, not bookkeeping: partial extraction addresses by id, the storefront emits `data-element-id`, and the decomposed format's `assignments` are keyed by it. Structural validity is otherwise the listener's responsibility; nothing repairs a tree a listener hands back.
+Structural validity is otherwise the listener's responsibility; nothing repairs a tree a listener hands back.
 
 `RenderedTreeEditor::mapNodes()` is the whole-tree edit idiom: it visits every existing node exactly once and replaces it with exactly one node, so it neither adds nor drops nodes. That guarantee is about cardinality only. Whatever the mapper returns goes into the tree, so nothing stops it returning an element whose id already exists elsewhere in the forest, or one carrying extra slot children. Using the idiom does not satisfy the id obligation. That stays with the listener, as above.
 

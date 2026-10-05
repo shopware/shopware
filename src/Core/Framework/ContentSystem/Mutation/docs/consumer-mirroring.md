@@ -15,9 +15,7 @@ the consumer-map write, and `StoredElementWiringDecoder::decodeConsumers()` reje
 decode time.
 
 The consumer is keyed by the resolved `contextKey`. It carries `propertyAlias: $resolution->key` whenever the
-resolution's own key differs from that `contextKey`, and `null` when they are equal, because the property key the
-consumer writes must be the reference property whose resolution proved the consumer, or delivery fills a foreign key
-while the declared property stays empty.
+resolution's own key differs from that `contextKey`, and `null` when they are equal.
 
 A cross-key resolution whose written property key (`$resolution->key`) contains a dot is skipped:
 `StoredElementWiringDecoder` rejects a dotted `propertyAlias` at decode time, so mirroring one would write a tree its
@@ -38,11 +36,6 @@ These skips apply per resolution:
 3. The written property key present in the element's own `dataRequirements`, because a loader fills it.
 4. The written property key present in the element's own provider key set, because auto-mirroring would silently
    turn a provider into a conduit for same-named upstream context.
-
-The last two test the written property key rather than the `contextKey`, deliberately: with equal keys, the common
-case, behavior is unchanged, but a cross-key mirror is blocked only when the written key itself collides with a data
-requirement or a provider, never merely because its resolved `contextKey` happens to match one that fills a
-different property.
 
 ## Rebuild
 

@@ -39,7 +39,7 @@ Why: `StructEncoder::encode()` recurses into a `Struct` and passes every other o
 
 Not chosen: An open value domain for rendered properties.
 
-Exceptions: The skeleton format stays a struct that the framework encodes. Only `ContentSkeletonElement::fromRendered()` builds that struct.
+Exceptions: The skeleton format stays a struct that the framework encodes. Only `ContentSkeletonElement::fromRendered()` builds that struct. This is safe because the skeleton is homogeneous and carries no entity payloads.
 
 In code:
 

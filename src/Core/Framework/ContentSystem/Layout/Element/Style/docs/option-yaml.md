@@ -38,7 +38,7 @@ adminUI:
 - **`adminUI`** (optional): an opaque block passed through verbatim to the Administration. An option shown as a `radio-panel` declares its values in `enum`, unless it is a `string` option with `breakpointAware: false`; without one, a click on one of its options throws an error in the Administration and emits no value. See [Presentation hints belong to the editor, and the server never branches on them](../../../../docs/principles/type-declarations.md#presentation-hints-belong-to-the-editor-and-the-server-never-branches-on-them).
 - **`kind`** (optional): declares that the option's value gets a kind-specific canonicalisation at the write boundary. Its only defined value is `box-spacing`, which canonicalises the value into explicit four-part CSS (`top right bottom left`). Any other value fails the declaration's `Assert\Choice`, and both `YamlStyleOptionLoader` and `DatabaseStyleOptionLoader` fail the load with `STYLE_OPTION_LOAD_FAILED`. No shipped core option declares `kind`. Omitted, the value is stored as authored.
 
-There is deliberately no `pattern` / regex: an app-supplied regex compiled from untrusted data and run on every write is a ReDoS vector, so strings are bounded by `maxLength` instead.
+There is no `pattern`: strings are bounded by `maxLength`, see [A style option value carries no regex pattern](../../../../docs/principles/type-declarations.md#a-style-option-value-carries-no-regex-pattern).
 
 ## Breakpoints
 

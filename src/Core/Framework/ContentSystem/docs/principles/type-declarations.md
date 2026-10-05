@@ -41,6 +41,20 @@ In code:
 - `TypedStyleOptionValidator` checks only the shape of the `adminUI` block.
 - See [option-model.md](../../Layout/Element/Style/docs/option-model.md).
 
+## A style option value carries no regex pattern
+
+A style option declaration has no `pattern` facet. A string value is bounded by `maxLength`, which defaults to 255.
+
+Why: An app-supplied regex compiled from untrusted data and run on every write is a ReDoS vector.
+
+Not chosen: A pattern constraint on strings.
+
+In code:
+
+- `StyleOptionValueType` declares `maxLength` and `DEFAULT_STRING_MAX_LENGTH`, and no pattern.
+- `StyleOptionSpecificationSerializer::denormalize()` reads no `pattern` key.
+- See [option-yaml.md](../../Layout/Element/Style/docs/option-yaml.md).
+
 ## Also true by construction
 
 - Only a primitive or all-primitive union constrains a value member by member. A bare `object`, class reference or union carrying one admits any value: [PropertyTypeConformanceValidator](../../Layout/Codec/PropertyTypeConformanceValidator.php)

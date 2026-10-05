@@ -12,7 +12,7 @@ The render runs a final check on the finished forest. Wiring validation and the 
 | Duplicate id | fails | fails |
 | Data-dependent failure | fails | does not fail |
 
-Why: Checking only the surviving subtree lets one defect fail one request and pass another. The write gate runs only on DAL writes, so a tree stored past the DAL or returned by a listener would render unchecked.
+Why: Checking only the surviving subtree lets one defect fail one request and pass another. The write gate runs only on DAL writes, so a tree stored past the DAL or returned by a listener would render unchecked. Partial extraction, the storefront's `data-element-id` and the decomposed format's `assignments` address an element by its id, so a repeated id would address two elements.
 
 Not chosen: Checking the post-prune subtree only, trusting the tree that a listener returns, or the write gate as the final check.
 

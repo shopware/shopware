@@ -40,8 +40,7 @@ itself is agnostic to whether the tree came from a request draft or a loaded `co
 
 Every operation reports these things alongside the new tree:
 
-- **affected** (`list<string>`) - element ids whose resolution may have changed. A conservative highlight hint for
-  the editor, not a correctness claim; the diagnostics pass is the authority.
+- **affected** (`list<string>`) - element ids whose resolution may have changed. See [The affected set is a highlight hint derived from how context flows](../docs/principles/mutation.md#the-affected-set-is-a-highlight-hint-derived-from-how-context-flows).
 - **created** (`list<string>`) - element ids whose node the operation created. See [The draft pipeline writes derived wiring only where proved](../docs/principles/mutation.md#the-draft-pipeline-writes-derived-wiring-only-where-proved).
 - **orphaned** (`list<StoredElement>`) - subtrees the operation detached (for example, a replace dropping the
   children of a slot the new type does not have). Returned so the caller can re-place them.
@@ -53,21 +52,6 @@ Every operation reports these things alongside the new tree:
   unwrap that removes the container), keyed by property key. Reported so the caller can re-apply them.
 
 See [The module drops nothing silently and reports every loss](../docs/principles/failure-and-loss.md#the-module-drops-nothing-silently-and-reports-every-loss).
-
-## Affected-set rationale
-
-Each operation derives its affected set from how context can flow, not from what structurally moved:
-
-- **RemoveElement reports nothing.** Context flows strictly down the tree, so a provider inside the removed subtree
-  could only feed elements that are themselves inside it. A removed subtree therefore breaks no surviving element.
-- **MoveElement reports the moved subtree only when the parent changes.** Resolution is candidate selection by
-  type/key, never by sibling index, so a same-parent move (a reorder, or a different slot under the same parent)
-  leaves every element's available providers unchanged and re-resolves nothing. Only a parent change re-scopes the
-  moved subtree.
-- **ReplaceElement reports the whole reconstructed subtree.** The new type may provide fewer context providers than
-  the old, so a kept descendant that consumed a now-dropped provider must re-resolve.
-- **UnwrapElement reports the whole hoisted forest.** The hoisted subtrees lose the container from their ancestor
-  chain, so any context the container provided is gone.
 
 ## Reference
 

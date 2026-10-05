@@ -29,7 +29,7 @@ A `resolves` entry accepts three shapes; the first two are expanded to the canon
 
 ## Collision Detection
 
-Uniqueness is per source, not global: a duplicate bare id within one source is a load-time error, while two different sources may ship the same bare id. The registry keys specifications by their source-qualified id (`source:id`), which is also the wire identifier clients pass back as `bindingSpecificationId`. This is intentionally looser than the style-option system's flat global namespace: a binding is scoped to the element type it declares, not a Store-API wire key.
+Uniqueness is per source, not global: a duplicate bare id within one source is a load-time error, while two different sources may ship the same bare id. The registry keys specifications by their source-qualified id (`source:id`), which is also the wire identifier clients pass back as `bindingSpecificationId`. A binding is scoped to the element type it declares, not a Store-API wire key. See [extension-surface.md](../../docs/principles/extension-surface.md#an-app-shipped-declaration-is-validated-and-reconciled-by-the-module-never-trusted-or-patched).
 
 ## App Lifecycle
 

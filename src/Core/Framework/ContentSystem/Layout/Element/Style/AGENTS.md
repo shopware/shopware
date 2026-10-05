@@ -7,7 +7,7 @@
 - Keep `default` an authoring hint: it reaches stored JSON only through `ElementStyleNormalizer` at the write boundary, and `style` stays omitted when empty. Check: does a serve, diagnostics or output path apply a default or emit an empty `style`? [stored-model.md](../../../docs/principles/stored-model.md)
 - Derive the style constraint `Collection` fresh per write, never memoized across writes. Check: does the change cache the `StoredTreeConstraints` output beyond one write? [write-and-read.md](docs/write-and-read.md#strict-write-registry-free-read)
 - Add no `Plugin::getStyleOptionDirectory()` hook: bundles and plugins share the fixed `Resources/content-system/style-options` directory. Check: does the change touch the `Plugin` base class? [custom-options.md](docs/custom-options.md#registration)
-- Keep `ElementStyle` immutable: the mutation subsystem aliases an untouched element's `ElementStyle` by reference into rebuilt and cloned nodes. Check: does the change add a setter or an in-place edit? [option-model.md](docs/option-model.md#the-option-model)
+- Keep `ElementStyle` immutable. Check: does the change add a setter or an in-place edit? [option-model.md](docs/option-model.md#the-option-model)
 
 ## Where to look
 

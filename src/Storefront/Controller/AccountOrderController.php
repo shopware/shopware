@@ -139,8 +139,7 @@ class AccountOrderController extends StorefrontController
 
             $this->hook(new AccountOrderPageLoadedHook($page, $context));
         } catch (GuestNotAuthenticatedException|WrongGuestCredentialsException|CustomerAuthThrottledException $exception) {
-            // A deep link code that matches no order (mistyped or expired) is not authenticated either,
-            // so submitted credentials need the error as well, or the empty form is shown again without a hint
+            // Submitted credentials for an unknown or expired deep link also need the error
             $credentialsSubmitted = RequestParamHelper::get($request, 'email') && RequestParamHelper::get($request, 'zipcode');
 
             return $this->redirectToRoute(

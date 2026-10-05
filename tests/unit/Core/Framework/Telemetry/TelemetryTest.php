@@ -37,6 +37,20 @@ class TelemetryTest extends TestCase
         $telemetry->emit($configured);
     }
 
+    public function testIsMetricEnabledDelegatesToMeter(): void
+    {
+        $meter = $this->createMock(Meter::class);
+        $meter->expects($this->exactly(2))
+            ->method('isEnabled')
+            ->with('order.placed.count')
+            ->willReturnOnConsecutiveCalls(true, false);
+
+        $telemetry = new Telemetry($meter, 'prod');
+
+        static::assertTrue($telemetry->isMetricEnabled('order.placed.count'));
+        static::assertFalse($telemetry->isMetricEnabled('order.placed.count'));
+    }
+
     public function testInstrumentEmits(): void
     {
         $emitted = null;

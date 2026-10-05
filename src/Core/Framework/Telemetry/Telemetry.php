@@ -37,6 +37,16 @@ class Telemetry
     }
 
     /**
+     * Whether a metric would actually be emitted (global switch, feature flag and per-metric
+     * `enabled` config). Use it to skip a measurement whose setup is too expensive to run for a
+     * discarded metric.
+     */
+    public function isMetricEnabled(string $metric): bool
+    {
+        return $this->meter->isEnabled($metric);
+    }
+
+    /**
      * Execute the callback and optionally record its duration as a histogram metric and/or wrap it
      * in a profiler span. Duration is always emitted in milliseconds.
      *

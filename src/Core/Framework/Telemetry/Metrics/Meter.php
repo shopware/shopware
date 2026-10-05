@@ -35,7 +35,7 @@ class Meter
 
     public function emit(ConfiguredMetric $metric): void
     {
-        if (!$this->enabled || !Feature::isActive('TELEMETRY_METRICS')) {
+        if (!$this->isEnabled($metric->name)) {
             return;
         }
 
@@ -49,28 +49,43 @@ class Meter
         }
     }
 
-    private function process(ConfiguredMetric $metric): ?Metric
+    /**
+     * Whether a metric would actually be emitted: the global switch, the feature flag and the
+     * per-metric `enabled` config are all checked. Call it before a measurement whose setup
+     * (timers, label derivation, value computation) is too expensive to run for a discarded metric.
+     *
+     * A metric without a yaml definition behaves like in `emit()`: throws in dev/test, logs and
+     * returns false in prod.
+     */
+    public function isEnabled(string $metric): bool
     {
+        if (!$this->enabled || !Feature::isActive('TELEMETRY_METRICS')) {
+            return false;
+        }
+
         try {
-            $metricConfig = $this->metricConfigProvider->get($metric->name);
-            if (!$metricConfig->enabled) {
-                return null;
-            }
-
-            $processedLabels = $this->labelProcessor->process($metricConfig, $metric->labels);
-            if ($processedLabels === null) {
-                return null;
-            }
-
-            return Metric::fromConfigured(configuredMetric: $metric, metricConfig: $metricConfig, processedLabels: $processedLabels);
+            return $this->metricConfigProvider->get($metric)->enabled;
         } catch (MissingMetricConfigurationException $exception) {
             $this->logger->error($exception->getMessage(), ['exception' => $exception]);
             if ($this->environment === 'dev' || $this->environment === 'test') {
                 throw $exception;
             }
 
+            return false;
+        }
+    }
+
+    private function process(ConfiguredMetric $metric): ?Metric
+    {
+        // the gate in emit() already handled a missing definition and a disabled metric
+        $metricConfig = $this->metricConfigProvider->get($metric->name);
+
+        $processedLabels = $this->labelProcessor->process($metricConfig, $metric->labels);
+        if ($processedLabels === null) {
             return null;
         }
+
+        return Metric::fromConfigured(configuredMetric: $metric, metricConfig: $metricConfig, processedLabels: $processedLabels);
     }
 
     private function doEmitVia(Metric $metric, MetricTransportInterface $transport): void

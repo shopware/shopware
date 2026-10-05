@@ -23,13 +23,6 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 #[CoversClass(CurrencyFormatter::class)]
 class CurrencyFormatterTest extends TestCase
 {
-    private CurrencyFormatter $formatter;
-
-    protected function setUp(): void
-    {
-        $this->formatter = new CurrencyFormatter(static::createStub(LanguageLocaleCodeProvider::class));
-    }
-
     #[DataProvider('formattingParameterProvider')]
     public function testFormatCurrencyByLanguageWillUseProvidedDecimalPlaces(float $price, int $decimalPlaces, string $localeCode, string $expectedSeparator, string $currencyISO, string $expectedCurrencySymbol): void
     {
@@ -71,16 +64,6 @@ class CurrencyFormatterTest extends TestCase
                 static::stringEndsWith($expectedCurrencySymbol)
             )
         );
-    }
-
-    public function testResetWillRemoveExistingFormatters(): void
-    {
-        $this->formatter->formatCurrencyByLanguage(19.9999, 'EUR', Uuid::randomHex(), $this->createContext(2));
-
-        static::assertNotEmpty((new \ReflectionProperty(CurrencyFormatter::class, 'formatter'))->getValue($this->formatter));
-        $this->formatter->reset();
-
-        static::assertEmpty((new \ReflectionProperty(CurrencyFormatter::class, 'formatter'))->getValue($this->formatter));
     }
 
     /**

@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreInstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
+use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
 use Shopware\Core\Framework\Plugin\Exception\PluginBaseClassNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
@@ -128,7 +129,9 @@ class PluginLifecycleServiceTest extends TestCase
         // one static so it doesn't leak into other tests. Do NOT use #[BackupStaticProperties(true)]:
         // it serialize-restores every loaded class's statics, which desyncs Doctrine's global
         // Type registry (spl_object_id-keyed reverse index) and breaks Type::lookupName() worker-wide.
-        (new \ReflectionClass(PluginLifecycleService::class))->setStaticPropertyValue('pluginToBeDeleted', null);
+        // onResponse() clears it; cluster mode turns the composer removal it would trigger into a no-op.
+        $this->container->setParameter('shopware.deployment.cluster_setup', true);
+        $this->createService()->onResponse();
     }
 
     public function testInstallPlugin(): void
@@ -486,32 +489,7 @@ class PluginLifecycleServiceTest extends TestCase
         $commandExecutor = $this->createMock(CommandExecutor::class);
         $commandExecutor->expects($this->never())->method('remove');
 
-        $pluginLifecycleService = $this->getMockBuilder(PluginLifecycleService::class)
-            ->setConstructorArgs([
-                $this->pluginRepoMock,
-                $this->eventDispatcher,
-                $this->kernelPluginCollectionMock,
-                $this->container,
-                $this->migrationLoaderMock,
-                static::createStub(AssetService::class),
-                $commandExecutor,
-                $this->requirementsValidatorMock,
-                $this->cacheItemPoolInterfaceMock,
-                Kernel::SHOPWARE_FALLBACK_VERSION,
-                static::createStub(SystemConfigService::class),
-                static::createStub(CustomEntityPersister::class),
-                static::createStub(CustomEntitySchemaUpdater::class),
-                $this->pluginServiceMock,
-                static::createStub(VersionSanitizer::class),
-                static::createStub(DefinitionInstanceRegistry::class),
-                $this->requestStackMock,
-                static::createStub(CustomFieldSetPersister::class),
-                new MockClock(),
-            ])
-            ->onlyMethods(['isCLI'])
-            ->getMock();
-
-        $pluginLifecycleService->expects($this->once())->method('isCLI')->willReturn(false);
+        $pluginLifecycleService = $this->createServiceOutsideCli($commandExecutor, $this->pluginServiceMock);
 
         $plugin = $this->getPluginEntityMock();
         $plugin->setInstalledAt(new \DateTime());
@@ -625,7 +603,6 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginMock->expects($this->once())->method('activate');
 
         $pluginRepo = $this->createMock(EntityRepository::class);
-        $this->pluginLifecycleService = $this->createService(pluginRepo: $pluginRepo);
 
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
         $eventDispatchMatcher = $this->exactly(2);
@@ -645,7 +622,7 @@ class PluginLifecycleServiceTest extends TestCase
                 throw $exception;
             });
 
-        (new \ReflectionProperty(PluginLifecycleService::class, 'eventDispatcher'))->setValue($this->pluginLifecycleService, $eventDispatcher);
+        $this->pluginLifecycleService = $this->createService(pluginRepo: $pluginRepo, eventDispatcher: $eventDispatcher);
 
         $repoUpdateMatcher = $this->exactly(2);
         $pluginRepo->expects($repoUpdateMatcher)
@@ -1033,35 +1010,48 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->onResponse();
     }
 
-    public function testOnResponseWithPluginMarkedForDelete(): void
+    public function testOnResponseRemovesComposerDependencyOfPluginUninstalledOutsideCli(): void
     {
         $context = Context::createDefaultContext();
-
-        $this->pluginMock->expects($this->never())->method('executeComposerCommands');
+        $steps = new \ArrayObject();
 
         $commandExecutor = $this->createMock(CommandExecutor::class);
         $commandExecutor->expects($this->once())
             ->method('remove')
-            ->with('MockPluginComposerName', 'MockPlugin');
+            ->willReturnCallback(static function (string $package, string $appName) use ($steps): void {
+                $steps->append('composer remove');
+                static::assertSame('MockPluginComposerName', $package);
+                static::assertSame('MockPlugin', $appName);
+            });
 
         $pluginService = $this->createMock(PluginService::class);
         $pluginService->expects($this->once())
             ->method('refreshPlugins')
-            ->with($context);
+            ->willReturnCallback(static function (Context $actualContext) use ($context): ExceptionCollection {
+                static::assertSame($context, $actualContext);
 
-        $this->pluginLifecycleService = $this->createService(commandExecutor: $commandExecutor, pluginService: $pluginService);
+                return new ExceptionCollection();
+            });
 
-        // Do not declare closure as static
-        \Closure::bind(function () use ($context): void {
-            $plugin = (new PluginEntity())->assign(['name' => 'MockPlugin', 'composerName' => 'MockPluginComposerName']);
+        $pluginLifecycleService = $this->createServiceOutsideCli($commandExecutor, $pluginService);
 
-            self::$pluginToBeDeleted = [
-                'plugin' => $plugin,
-                'context' => $context,
-            ];
-        }, $this->pluginLifecycleService, $this->pluginLifecycleService)();
+        $plugin = $this->getPluginEntityMock();
+        $plugin->setInstalledAt(new \DateTime());
+        $plugin->setActive(false);
+        $plugin->setComposerName('MockPluginComposerName');
 
-        $this->pluginLifecycleService->onResponse();
+        $this->pluginMock->expects($this->once())->method('uninstall');
+        $this->pluginMock->expects($this->once())->method('executeComposerCommands')->willReturn(true);
+
+        $pluginLifecycleService->uninstallPlugin($plugin, $context);
+
+        $steps->append('response');
+        $pluginLifecycleService->onResponse();
+
+        // The marker is consumed, a second response must not remove the dependency again
+        $pluginLifecycleService->onResponse();
+
+        static::assertSame(['response', 'composer remove'], $steps->getArrayCopy(), 'Outside the CLI the composer removal must wait for the response');
     }
 
     public function testActivatePluginClosesSession(): void
@@ -1124,10 +1114,11 @@ class PluginLifecycleServiceTest extends TestCase
         ?RequirementsValidator $requirementsValidator = null,
         ?PluginService $pluginService = null,
         ?CustomFieldSetPersister $customFieldSetPersister = null,
+        ?EventDispatcherInterface $eventDispatcher = null,
     ): PluginLifecycleService {
         return new PluginLifecycleService(
             $pluginRepo ?? $this->pluginRepoMock,
-            $this->eventDispatcher,
+            $eventDispatcher ?? $this->eventDispatcher,
             $this->kernelPluginCollectionMock,
             $this->container,
             $migrationLoader ?? $this->migrationLoaderMock,
@@ -1146,6 +1137,41 @@ class PluginLifecycleServiceTest extends TestCase
             $customFieldSetPersister ?? $this->customFieldSetPersister,
             new NativeClock()
         );
+    }
+
+    /**
+     * Outside the CLI the service defers the composer removal of an uninstalled plugin to the response.
+     */
+    private function createServiceOutsideCli(CommandExecutor $commandExecutor, PluginService $pluginService): PluginLifecycleService&MockObject
+    {
+        $pluginLifecycleService = $this->getMockBuilder(PluginLifecycleService::class)
+            ->setConstructorArgs([
+                $this->pluginRepoMock,
+                $this->eventDispatcher,
+                $this->kernelPluginCollectionMock,
+                $this->container,
+                $this->migrationLoaderMock,
+                static::createStub(AssetService::class),
+                $commandExecutor,
+                $this->requirementsValidatorMock,
+                $this->cacheItemPoolInterfaceMock,
+                Kernel::SHOPWARE_FALLBACK_VERSION,
+                static::createStub(SystemConfigService::class),
+                static::createStub(CustomEntityPersister::class),
+                static::createStub(CustomEntitySchemaUpdater::class),
+                $pluginService,
+                static::createStub(VersionSanitizer::class),
+                static::createStub(DefinitionInstanceRegistry::class),
+                $this->requestStackMock,
+                static::createStub(CustomFieldSetPersister::class),
+                new MockClock(),
+            ])
+            ->onlyMethods(['isCLI'])
+            ->getMock();
+
+        $pluginLifecycleService->expects($this->once())->method('isCLI')->willReturn(false);
+
+        return $pluginLifecycleService;
     }
 
     private function getPluginEntityMock(): PluginEntity

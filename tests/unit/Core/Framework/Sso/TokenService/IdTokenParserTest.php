@@ -2,7 +2,11 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Sso\TokenService;
 
-use Lcobucci\JWT\Validator as ValidatorInterface;
+use Lcobucci\JWT\Encoding\ChainedFormatter;
+use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Signer\Key\InMemory;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
+use Lcobucci\JWT\Token\Builder;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -11,10 +15,8 @@ use Shopware\Core\Framework\Sso\SsoException;
 use Shopware\Core\Framework\Sso\TokenService\IdTokenParser;
 use Shopware\Core\Framework\Sso\TokenService\PublicKeyLoader;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Tests\Integration\Core\Framework\Sso\Helper\FakeTokenGenerator;
-use Shopware\Tests\Unit\Core\Framework\Sso\TokenService\_fixtures\JwksIds;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
-use Symfony\Component\Clock\ClockInterface;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -26,53 +28,90 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 #[CoversClass(IdTokenParser::class)]
 class IdTokenParserTest extends TestCase
 {
+    private const KEY_ID = '742be0d0-038a-4f1a-b70d-d1ecabc2af05';
+
+    private const ISSUER = 'https://base.url';
+
+    private MockClock $clock;
+
+    private string $privateKey;
+
+    private string $jwks;
+
+    protected function setUp(): void
+    {
+        $this->clock = new MockClock('2026-01-01 12:00:00');
+
+        $key = openssl_pkey_new(['private_key_bits' => 2048, 'private_key_type' => \OPENSSL_KEYTYPE_RSA]);
+        static::assertNotFalse($key);
+        static::assertTrue(openssl_pkey_export($key, $privateKey));
+        static::assertIsString($privateKey);
+        $this->privateKey = $privateKey;
+
+        $details = openssl_pkey_get_details($key);
+        static::assertIsArray($details);
+        $this->jwks = json_encode(['keys' => [[
+            'use' => 'sig',
+            'kty' => 'RSA',
+            'kid' => self::KEY_ID,
+            'alg' => 'RS256',
+            'n' => self::base64UrlEncode($details['rsa']['n']),
+            'e' => self::base64UrlEncode($details['rsa']['e']),
+        ]]], \JSON_THROW_ON_ERROR);
+    }
+
     public function testParse(): void
     {
-        $idToken = (new FakeTokenGenerator())->generate(JwksIds::KEY_ID_TWO);
-
         $idTokenParser = new IdTokenParser(
             $this->createPublicKeyLoader(),
             $this->createLoginConfigService(),
-            $this->createClock()
+            $this->clock
         );
 
-        $validator = $this->createValidator(true);
-
-        $validatorProperty = (new \ReflectionClass(IdTokenParser::class))->getProperty('validator');
-        $validatorProperty->setValue($idTokenParser, $validator);
-
-        $result = $idTokenParser->parse($idToken);
+        $result = $idTokenParser->parse($this->createIdToken(self::ISSUER));
 
         static::assertSame('fake-subject', $result->sub);
         static::assertSame('fake@email.com', $result->email);
-        static::assertInstanceOf(\DateTimeImmutable::class, $result->expiry);
+        static::assertEquals($this->clock->now()->modify('+1 hour'), $result->expiry);
     }
 
     public function testParseWithInvalidTokenShouldThrowException(): void
     {
-        $idToken = (new FakeTokenGenerator())->generate(JwksIds::KEY_ID_TWO);
-
         $idTokenParser = new IdTokenParser(
             $this->createPublicKeyLoader(),
             $this->createLoginConfigService(),
-            $this->createClock()
+            $this->clock
         );
 
-        $validator = $this->createValidator(false);
-
-        $validatorProperty = (new \ReflectionClass(IdTokenParser::class))->getProperty('validator');
-        $validatorProperty->setValue($idTokenParser, $validator);
-
         $this->expectExceptionObject(new SsoException(0, '0', 'The id token is invalid'));
-        $idTokenParser->parse($idToken);
+        $idTokenParser->parse($this->createIdToken('https://other.issuer'));
     }
 
-    private function createValidator(bool $isValid): ValidatorInterface
+    /**
+     * @param non-empty-string $issuer
+     *
+     * @return non-empty-string
+     */
+    private function createIdToken(string $issuer): string
     {
-        $validator = static::createStub(ValidatorInterface::class);
-        $validator->method('validate')->willReturn($isValid);
+        $now = $this->clock->now();
+        $privateKey = $this->privateKey;
+        static::assertNotSame('', $privateKey);
 
-        return $validator;
+        return Builder::new(new JoseEncoder(), ChainedFormatter::default())
+            ->withHeader('kid', self::KEY_ID)
+            ->issuedBy($issuer)
+            ->issuedAt($now)
+            ->expiresAt($now->modify('+1 hour'))
+            ->relatedTo('fake-subject')
+            ->withClaim('email', 'fake@email.com')
+            ->getToken(new Sha256(), InMemory::plainText($privateKey))
+            ->toString();
+    }
+
+    private static function base64UrlEncode(string $value): string
+    {
+        return rtrim(strtr(base64_encode($value), '+/', '-_'), '=');
     }
 
     private function createPublicKeyLoader(): PublicKeyLoader
@@ -86,11 +125,8 @@ class IdTokenParserTest extends TestCase
 
     private function createClient(): HttpClientInterface
     {
-        $jwks = \file_get_contents(__DIR__ . '/_fixtures/jwks.json');
-        static::assertIsString($jwks);
-
         $response = static::createStub(ResponseInterface::class);
-        $response->method('getContent')->willReturn($jwks);
+        $response->method('getContent')->willReturn($this->jwks);
 
         $client = static::createStub(HttpClientInterface::class);
         $client->method('request')->willReturn($response);
@@ -115,10 +151,5 @@ class IdTokenParserTest extends TestCase
             ],
             static::createStub(RouterInterface::class)
         );
-    }
-
-    private function createClock(): ClockInterface
-    {
-        return static::createStub(ClockInterface::class);
     }
 }

@@ -19,14 +19,16 @@ class CommerceTest extends TestCase
     {
         $commerce = new Commerce(Factory::create());
 
-        $productNameProperty = new \ReflectionProperty(Commerce::class, 'productName');
-        $originalProductName = $productNameProperty->getValue($commerce);
-        $productNameProperty->setValue($commerce, ['adjective' => ['Test Product Name']]);
+        $setNames = [];
+        for ($i = 0; $i < 500; ++$i) {
+            $setNames[] = $commerce->customFieldSet();
+        }
 
-        $setName = $commerce->customFieldSet();
-        $productNameProperty->setValue($commerce, $originalProductName);
+        foreach ($setNames as $setName) {
+            static::assertMatchesRegularExpression('/^[A-Za-z_]+_\d+$/D', $setName);
+        }
 
-        static::assertStringNotContainsString(' ', $setName);
-        static::assertStringContainsString('Test_Product_Name', $setName);
+        // "Heavy Duty" is the only adjective with a space; 500 draws out of 17 adjectives practically always hit it
+        static::assertNotEmpty(array_filter($setNames, static fn (string $setName): bool => str_starts_with($setName, 'Heavy_Duty_')));
     }
 }

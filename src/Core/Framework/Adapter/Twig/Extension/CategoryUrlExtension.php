@@ -6,15 +6,12 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Category\SalesChannel\SalesChannelCategoryEntity;
 use Shopware\Core\Content\Category\Service\AbstractCategoryUrlGenerator;
 use Shopware\Core\Framework\Adapter\Twig\TwigContextHelper;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Bridge\Twig\Extension\RoutingExtension;
+use Twig\DeprecatedCallableInfo;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
-/**
- * @deprecated tag:v6.8.0 - reason:remove-subscriber - Will be removed, use CategoryEntity directly
- */
 #[Package('framework')]
 class CategoryUrlExtension extends AbstractExtension
 {
@@ -29,13 +26,15 @@ class CategoryUrlExtension extends AbstractExtension
 
     public function getFunctions(): array
     {
-        if (Feature::isActive('v6.8.0.0')) {
-            return [];
-        }
-
         return [
-            new TwigFunction('category_url', $this->getCategoryUrl(...), ['needs_context' => true, 'is_safe_callback' => $this->routingExtension->isUrlGenerationSafe(...)]),
-            new TwigFunction('category_linknewtab', $this->isLinkNewTab(...)),
+            new TwigFunction('category_url', $this->getCategoryUrl(...), [
+                'needs_context' => true,
+                'is_safe_callback' => $this->routingExtension->isUrlGenerationSafe(...),
+                'deprecation_info' => new DeprecatedCallableInfo('shopware/core', '6.7.16.0', 'category.seoUrl (when category is a SalesChannelCategoryEntity)'),
+            ]),
+            new TwigFunction('category_linknewtab', $this->isLinkNewTab(...), [
+                'deprecation_info' => new DeprecatedCallableInfo('shopware/core', '6.7.16.0', 'category.shouldOpenInNewTab'),
+            ]),
         ];
     }
 
@@ -44,11 +43,6 @@ class CategoryUrlExtension extends AbstractExtension
      */
     public function getCategoryUrl(array $twigContext, CategoryEntity $category): ?string
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            'The "category_url" function is deprecated and will be removed in v6.8.0.0. Use SalesChannelCategoryEntity::getSeoUrl() instead.'
-        );
-
         if ($category instanceof SalesChannelCategoryEntity) {
             return $category->getSeoUrl();
         }
@@ -60,11 +54,6 @@ class CategoryUrlExtension extends AbstractExtension
 
     public function isLinkNewTab(CategoryEntity $categoryEntity): bool
     {
-        Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            'The "category_linknewtab" function is deprecated and will be removed in v6.8.0.0. Use CategoryEntity::shouldOpenInNewTab() instead.'
-        );
-
         return $categoryEntity->shouldOpenInNewTab();
     }
 }

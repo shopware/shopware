@@ -25,6 +25,23 @@ An empty array blocks a type. There is no value meaning "everything" for a princ
 
 Both routes now also require the matching entity privilege, `user:update` and `integration:update` respectively, and answer `403` without it. `users_and_permissions.editor` already grants `user:update`; a custom role carrying only the action privilege has to be extended.
 
+## Deprecated category Twig functions
+
+The `category_url` and `category_linknewtab` Twig functions are deprecated. They remain available for compatibility, with no removal version currently scheduled. Use `category.seoUrl` instead of `category_url` and `category.shouldOpenInNewTab` instead of `category_linknewtab`.
+
+The `seoUrl` property is only available on `SalesChannelCategoryEntity`. If your storefront code currently passes a plain `CategoryEntity` to a template and needs this property, update the data-loading code to load categories in the sales-channel context and pass `SalesChannelCategoryEntity` instances to the template.
+
+For a `SalesChannelCategoryEntity`, migrate the template as follows:
+
+```diff
+<a class="link"
+-   href="{{ category_url(item) }}"
++   href="{{ item.seoUrl }}"
+-   {% if category_linknewtab(item) %}target="_blank"{% endif %}
++   {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
+</a>
+```
+
 ## Shared document classes moved to `DocumentV2`
 
 The legacy document classes that document generation v2 keeps moved from `Shopware\Core\Checkout\Document` into `Shopware\Core\Checkout\DocumentV2`, keeping their class names. `RenderedDocument` also moved into the `Struct` sub-namespace. The previous class names and service IDs keep working as aliases until Shopware 6.9. Replace them with the canonical names before upgrading to 6.9.

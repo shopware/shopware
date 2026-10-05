@@ -193,8 +193,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('twig.extension.routing'),
             service(CategoryUrlGenerator::class),
         ])
-        ->tag('twig.extension')
-        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
+        ->tag('twig.extension');
 
     $services->set(SeoUrlPlaceholderHandlerInterface::class, SeoUrlPlaceholderHandler::class)
         ->public()

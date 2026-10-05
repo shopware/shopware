@@ -2642,20 +2642,6 @@ The `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurati
 Use the new `ThemeConfigurationService::getPlainThemeConfiguration` and `ThemeConfigurationService::getThemeConfigurationFieldStructure` methods instead.
 The new methods return the same data as the old ones, excluding the deprecated fields.
 
-## Removed `category_url` and `category_linknewtab` twig functions
-
-The `category_url` and `category_linknewtab` twig functions have been removed.
-The data is now directly available in the category entities, therefore use `category.seoUrl` or `category.shouldOpenInNewTab` instead.
-
-```diff
-<a class="link"
--   href="{{ category_url(item) }}"
-+   href="{{ item.seoUrl }}"
--   {% if category_linknewtab(item) %}target="_blank"{% endif %}
-+   {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
-</a>
-```
-
 ## Removed `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` Twig functions
 
 The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` have been removed. On storefront product and navigation pages, use `page.breadcrumb` instead. Its entries provide `name`, `categoryId`, and `type`.

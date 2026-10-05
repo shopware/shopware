@@ -24,8 +24,6 @@ class CompatTwigExtensionTest extends TestCase
         $extension = new CompatTwigExtension();
 
         static::assertSame([
-            'category_url',
-            'category_linknewtab',
             'sw_breadcrumb_full',
             'sw_breadcrumb_full_by_id',
         ], array_map(static fn ($function) => $function->getName(), $extension->getFunctions()));
@@ -55,14 +53,14 @@ class CompatTwigExtensionTest extends TestCase
     public function testRemovedFunctionThrowsWhenCalled(): void
     {
         $twig = new Environment(new ArrayLoader([
-            'template' => '{{ category_url() }}',
+            'template' => '{{ sw_breadcrumb_full(null, null) }}',
         ]));
         $twig->addExtension(new CompatTwigExtension());
 
         static::expectExceptionObject(new RuntimeError(
-            'An exception has been thrown during the rendering of a template ("Twig function "category_url" was removed with feature "v6.8.0.0".")',
+            'An exception has been thrown during the rendering of a template ("Twig function "sw_breadcrumb_full" was removed with feature "v6.8.0.0".")',
             1,
-            new Source('{{ category_url() }}', 'template'),
+            new Source('{{ sw_breadcrumb_full(null, null) }}', 'template'),
         ));
 
         $twig->render('template');

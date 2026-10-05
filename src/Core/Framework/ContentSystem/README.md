@@ -4,7 +4,7 @@ A data-driven layout system for serving structured content through the Store API
 
 ## Design Principles
 
-The module is built on a set of written design rules, one file per area under [docs/principles/](docs/principles/README.md). Much of the code is only understandable against those rules: a check that looks redundant, a value that is never repaired, a null that is kept apart from an absent key.
+The module is built on a set of written design rules, one file per area under [docs/principles/](docs/principles/README.md). Much of the code is only understandable against those rules: a redundant-looking check, a value never repaired, a null kept apart from an absent key.
 
 ## Core Concepts
 
@@ -28,7 +28,7 @@ Three content sections with different resolution strategies:
 
 **Footer** (`/store-api/content-footer*`) — Same domain-aware resolution as header.
 
-Header and Footer are Storefront-owned sections: the Core ships none of their data wiring. The `ContentSection` enum that names them (`HEADER`, `FOOTER`, `MAIN`) lives in the Core, but their entity definitions, specification sources, and section resolvers are all registered by the Storefront module via `content-system.php`. This is intentional: headless deployments without the Storefront bundle operate without header/footer sections.
+Header and Footer are Storefront-owned sections: the Core ships none of their data wiring. The `ContentSection` enum that names them (`HEADER`, `FOOTER`, `MAIN`) lives in the Core. Their entity definitions, specification sources, and section resolvers are all registered by the Storefront module via `content-system.php`. This is intentional: headless deployments without the Storefront bundle operate without header/footer sections.
 
 Each section supports these response formats: full, decomposed, skeleton, and data. See SalesChannel/ and Output/.
 
@@ -84,14 +84,14 @@ Admin-facing endpoints are documented in [Api/README.md](Api/README.md).
 
 - **Adapter/** - [Adapter/README.md](Adapter/README.md) - Specification sources, layout assignment entities, resolution helpers
 - **Api/** - [Api/README.md](Api/README.md) - Admin API controllers (layout preview, resolve-and-diagnose, the draft mutation actions, and the persisted mutation actions)
-- **Binding/** - [Binding/README.md](Binding/README.md) - Binding specification system: declarations wiring a type's reference properties to loaders and seeding its primitive inputs — authored inline, or synthesized automatically from a `resolvedBy` reference property and fill-applied at scaffold/replace with no client action — plus explicit application via the `bind-element` mutation or an `insert-element` carrying a `bindingSpecificationId`
+- **Binding/** - [Binding/README.md](Binding/README.md) - Binding specification system: declarations wiring a type's reference properties to loaders and seeding its primitive inputs, authored inline or synthesized automatically from a `resolvedBy` reference property and fill-applied at scaffold/replace with no client action. Explicit application goes via the `bind-element` mutation or an `insert-element` carrying a `bindingSpecificationId`
 - **Cache/** - [Cache/README.md](Cache/README.md) - HTTP cache integration and invalidation
 - **Diagnostics/** - [Diagnostics/README.md](Diagnostics/README.md) - Layout analysis: per-element property resolution plus a well-formedness/resolvability report
 - **Event/** - [Event/README.md](Event/README.md) - Rendering lifecycle event definitions, and [Event/Listener/README.md](Event/Listener/README.md) for the listeners on them
 - **Helper/** - Utility classes (ContentLayoutMetadataDeriver)
 - **Hydration/** - [Hydration/README.md](Hydration/README.md) - The data-loading half of the render step: `DataLoader/` data fetching plus the remaining `DataContext/` utilities; the render step itself lives in Rendering/
 - **Layout/** - [Layout/README.md](Layout/README.md) - Element tree, entities, field types, scaffolding, element type system, universal style options
-- **Mutation/** - [Mutation/README.md](Mutation/README.md) - Server-side structural layout edits (insert, remove, move, replace, duplicate, wrap, unwrap, attach, bind), each re-resolved through the diagnostics pass; applied either statelessly to a draft tree or committed to a stored layout
+- **Mutation/** - [Mutation/README.md](Mutation/README.md) - Server-side structural layout edits (insert, remove, move, replace, duplicate, wrap, unwrap, attach, bind), each re-resolved through the diagnostics pass. They apply statelessly to a draft tree or commit to a stored layout
 - **Output/** - [Output/README.md](Output/README.md) - Response formatting and partial rendering
 - **Rendering/** - [Rendering/README.md](Rendering/README.md) - The pre-render wiring step on stored elements (context-wiring validation, redistribute derivation), then the render step: data loading, context distribution, and building the rendered tree
 - **Resolution/** - [Resolution/README.md](Resolution/README.md) - Property-resolution kernel (element/context resolvers, resolution candidates)

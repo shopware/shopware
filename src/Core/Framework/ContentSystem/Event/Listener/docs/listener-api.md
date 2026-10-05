@@ -36,7 +36,7 @@ class ReadingTimeSubscriber
 }
 ```
 
-The listener writes a property and returns each node, so it changes no structure and stays mode-independent: in SKELETON the `content` property is absent, the mapper returns the node untouched, and the skeleton tree is identical to the full one.
+The listener writes a property and returns each node, so it changes no structure and stays mode-independent. In SKELETON the `content` property is absent, the mapper returns the node untouched, and the skeleton tree is identical to the full one.
 
 Symfony reads `#[AsEventListener]` only on an **autoconfigured** service definition, so the attribute above registers nothing unless your `services.xml` carries `<defaults autoconfigure="true"/>` (or the definition sets `autoconfigure` itself). Without it the class is registered as an ordinary service and never called, and `priority` on it is inert for the same reason.
 

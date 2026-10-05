@@ -59,9 +59,9 @@ Each entry is `{ kind, type, required }` plus an optional `default`, and `kind` 
 
 A declared FQCN property gets no entry at all: nothing is stored under the reference key itself, only under its `resolvedBy` storage key.
 
-On the two binding-derived kinds, `type` is the loader config key's *referenced-value* type, not the type of the reference token — the token is always a string naming a property, while the value stored under it may be a list of ids. Neither carries a `default`: a config key's default is a default *token* (a property name), never a default stored value. Only a `property` entry has a `default`, and only when the declared property has one.
+On the two binding-derived kinds, `type` is the loader config key's *referenced-value* type, not the type of the reference token. The token is always a string naming a property, while the value stored under it may be a list of ids. Neither carries a `default`: a config key's default is a default *token* (a property name), never a default stored value. Only a `property` entry has a `default`, and only when the declared property has one.
 
-One key claimed by more than one kind yields exactly one entry, by precedence `property` > `resolvedByStorage` > `config`: a declared property is the most specific statement about a stored key, and between the two binding-derived kinds the `resolvedBy` shorthand's own storage key is the more specific.
+One key claimed by more than one kind yields exactly one entry, by precedence `property` > `resolvedByStorage` > `config`. A declared property is the most specific statement about a stored key. Between the two binding-derived kinds, the `resolvedBy` shorthand's own storage key is the more specific.
 
 Full field-level schema: [content-system-element-types.json](../../../../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-element-types.json).
 

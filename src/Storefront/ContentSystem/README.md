@@ -2,7 +2,7 @@
 
 Header and footer content layout assignments for the Storefront. These are Storefront-only sections — the Core content system (`Core/Framework/ContentSystem/`) has no knowledge of them.
 
-Nothing in the Storefront's own rendering path reads these assignments. A page receives its header and footer as ESI sub-requests to the `frontend.header` and `frontend.footer` routes in [NavigationController](../Controller/NavigationController.php), and no class under `Storefront/Pagelet/` touches the content system. For a content page the header action merges an `isNewContentStructure` flag into the ESI query parameters and renders a content-specific header template that still displays the legacy pagelet, whereas the footer action renders the legacy template unconditionally.
+Nothing in the Storefront's own rendering path reads these assignments. A page receives its header and footer as ESI sub-requests to the `frontend.header` and `frontend.footer` routes in [NavigationController](../Controller/NavigationController.php), and no class under `Storefront/Pagelet/` touches the content system. For a content page the header action merges an `isNewContentStructure` flag into the ESI query parameters and renders a content-specific header template that still displays the legacy pagelet. The footer action renders the legacy template unconditionally.
 
 ## Structure
 

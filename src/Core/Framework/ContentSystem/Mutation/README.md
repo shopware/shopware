@@ -22,16 +22,16 @@ straight back into the next operation.
 ## Pipeline
 
 `MutationPipeline` is the shared runner every operation goes through, on an **already-decoded** tree. The admin
-routes decode the request draft upstream through the shared `Api/DraftLayoutDecoder` (the structural pre-gate that
-fails a malformed or config-defective element with a `400` so the caller never sees a serializer `500`); the pipeline
-itself is agnostic to whether the tree came from a request draft or a loaded `content_layout`:
+routes decode the request draft upstream through the shared `Api/DraftLayoutDecoder`. It is the structural
+pre-gate failing a malformed or config-defective element with a `400`, so callers never see a serializer `500`.
+The pipeline itself is agnostic to whether the tree came from a request draft or a loaded `content_layout`:
 
 1. **Apply** the operation to the decoded tree.
 2. **Diagnose** the whole new tree via `Diagnostics/LayoutDiagnostics`. This pass is the authoritative correctness
    output.
 3. **Mirror** the proven context consumers onto the elements the operation created, via `ContextConsumerMirror`.
    A tree that gained a consumer is diagnosed a second time, so the report and the resolutions always describe the
-   tree the result carries; a tree that gained none comes back as the same instance and is diagnosed once.
+   tree the result carries. A tree that gained none comes back as the same instance and is diagnosed once.
 4. **Assemble** a `MutationResult`: the new layout, the resolutions restricted to the affected elements, the
    diagnostics report, the affected element ids, and the orphaned subtrees, dropped wiring, and dropped property
    values the operation reported.
@@ -44,9 +44,9 @@ Every operation reports these things alongside the new tree:
 - **created** (`list<string>`) - element ids whose node the operation created. See [The draft pipeline writes derived wiring only where proved](../docs/principles/mutation.md#the-draft-pipeline-writes-derived-wiring-only-where-proved).
 - **orphaned** (`list<StoredElement>`) - subtrees the operation detached (for example, a replace dropping the
   children of a slot the new type does not have). Returned so the caller can re-place them.
-- **droppedWiring** (`list<string>`) - wiring keys the operation could not re-home (for example, a replace to a type
-  without that reference property, or the data-requirement and accepted-context keys an unwrapped container
-  consumed). Reported so the caller can re-wire.
+- **droppedWiring** (`list<string>`) - wiring keys the operation could not re-home. Examples are a replace to a type
+  without that reference property, and the data-requirement and accepted-context keys an unwrapped container
+  consumed. Reported so the caller can re-wire.
 - **droppedProperties** (`array<string, StoredValue>`) - static property values the operation could not carry over
   (a replace whose new type cannot hold them, key absent or a value the new type's property type rejects, or an
   unwrap that removes the container), keyed by property key. Reported so the caller can re-apply them.

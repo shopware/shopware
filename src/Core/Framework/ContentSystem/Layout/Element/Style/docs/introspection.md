@@ -5,7 +5,7 @@
 - a dedicated endpoint `GET /api/_info/content-system-style-options.json` (`InfoController::getContentSystemStyleOptions()`), serving the options keyed by their wire name;
 - a folded `styleOptions` key on `GET /api/_info/content-system-element-types.json`, since every option is settable on every type.
 
-`toSchema()` (the client contract) always emits `breakpointAware` resolved to a concrete bool, so a client never has to assume the default. `normalize()` (internal DB storage of an app option) follows the `!== null` convention shared with `enum` / `range` / `maxLength` / `default` instead: it omits an absent flag but emits an explicit `false`. Both resolve to the same effective value (absent ⇒ `true`).
+`toSchema()` (the client contract) always emits `breakpointAware` resolved to a concrete bool, so a client never has to assume the default. `normalize()` (internal DB storage of an app option) follows the `!== null` convention shared with `enum` / `range` / `maxLength` / `default` instead. It omits an absent flag but emits an explicit `false`. Both resolve to the same effective value (absent ⇒ `true`).
 
 ## Style options
 

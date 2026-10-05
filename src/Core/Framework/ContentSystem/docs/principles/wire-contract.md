@@ -35,7 +35,7 @@ In code:
 
 Every framework struct in a body passes the protection gate leaf by leaf. Module encoders write the full, decomposed and data bodies from the render result in one listener, after SEO enrichment and before framework encoding. In-process consumers read the typed page, never an encoded body. No other object may hide a framework struct.
 
-Why: `StructEncoder::encode()` recurses into a `Struct` and passes every other object through raw, so a non-`Struct` object that holds a `Struct` would carry it past the field filter and publish every field. If a module encoder took over field filtering, nothing would enforce that filtering.
+Why: `StructEncoder::encode()` recurses into a `Struct` and passes every other object through raw. A non-`Struct` object that holds a `Struct` would therefore carry it past the field filter and publish every field. If a module encoder took over field filtering, nothing would enforce that filtering.
 
 Not chosen: An open value domain for rendered properties.
 
@@ -46,7 +46,7 @@ In code:
 - `ContentResponseEncodingListener` writes the full, decomposed and data bodies.
 - `ContentPageEncoder` hands `Struct` leaves to `StructEncoder::encode()`.
 - The `RenderedElement` constructor enforces that no other object hides a struct.
-- `StoreApiSeoResolver` reads the `properties` and `slots` of a `RenderedElement` in a dedicated branch, because no generic `Struct` walk reaches them, and a rename of either field changes that branch.
+- `StoreApiSeoResolver` reads the `properties` and `slots` of a `RenderedElement` in a dedicated branch, because no generic `Struct` walk reaches them. A rename of either field changes that branch.
 - See [Output/README.md](../../Output/README.md).
 
 ## Every response format is a structural projection of one rendered forest

@@ -75,7 +75,7 @@ final class WeatherLoader extends AbstractContentDataLoader
 }
 ```
 
-`LoaderInputResolver` turns the decoded config and the element's stored properties into `LoaderInputs` before the call: every declared key is already present, dereferenced, and type-checked, and reading a key the loader did not declare throws. See [A loader consumes typed inputs resolved from its own declared specification](../../../docs/principles/data-loading.md#a-loader-consumes-typed-inputs-resolved-from-its-own-declared-specification).
+`LoaderInputResolver` turns the decoded config and the element's stored properties into `LoaderInputs` before the call. Every declared key is already present, dereferenced, and type-checked. Reading a key the loader did not declare throws. See [A loader consumes typed inputs resolved from its own declared specification](../../../docs/principles/data-loading.md#a-loader-consumes-typed-inputs-resolved-from-its-own-declared-specification).
 
 **Service registration:**
 
@@ -118,4 +118,4 @@ Reference: `../EntityLoader/`
 
 ## Discoverability
 
-A registered loader's `source` value, its declared config keys (via `configSpecification()`), and the capabilities it produces (via `producibleTypes()`) appear in `GET /api/_info/content-system-data-loaders.json`, which the Administration reads to offer the data source when authoring `dataRequirements`. See [Data Loader Introspection](introspection.md).
+A registered loader's `source` value, its declared config keys (via `configSpecification()`), and the capabilities it produces (via `producibleTypes()`) appear in `GET /api/_info/content-system-data-loaders.json`. The Administration reads it to offer the data source when authoring `dataRequirements`. See [Data Loader Introspection](introspection.md).

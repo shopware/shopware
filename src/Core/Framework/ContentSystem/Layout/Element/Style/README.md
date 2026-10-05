@@ -1,6 +1,6 @@
 # Style
 
-Universal style option system. A defined set of presentation attributes (alignment, span, spacing, display) settable on **every** content element regardless of its type, served through the Store API and extensible by plugins and apps. Each option is per-breakpoint by default; an option opts out with `breakpointAware: false` to take a single flat scalar value instead. It mirrors the element type system (`Layout/Type/`) one directory at a time, varying only the subject: an option is a declarative specification, discovered from core, bundles, plugins, and apps, aggregated by one cache-decorated registry that both validation and introspection read.
+Universal style option system. A defined set of presentation attributes (alignment, span, spacing, display) settable on **every** content element regardless of its type, served through the Store API and extensible by plugins and apps. Each option is per-breakpoint by default; an option opts out with `breakpointAware: false` to take a single flat scalar value instead. It mirrors the element type system (`Layout/Type/`) one directory at a time, varying only the subject. An option is a declarative specification, discovered from core, bundles, plugins, and apps, aggregated by one cache-decorated registry that both validation and introspection read.
 
 ## Guides
 

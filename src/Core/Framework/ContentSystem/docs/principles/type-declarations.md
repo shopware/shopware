@@ -32,7 +32,7 @@ In code:
 
 The `adminUI` block on a type property or a style option is presentation metadata for the administration. The module bases no storage, validation or normalization rule on the content of the `adminUI` block. The declaration validator checks only that the `adminUI` block is well-formed. The declaration states a storage-relevant kind as its own typed key.
 
-Why: The box-spacing branch of `ElementStyleNormalizer` once chose its storage rule from the `adminUI` component name, so swapping the editor control would silently change how values are stored.
+Why: The box-spacing branch of `ElementStyleNormalizer` once chose its storage rule from the `adminUI` component name. Swapping the editor control would then silently change how values are stored.
 
 In code:
 

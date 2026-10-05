@@ -1,6 +1,6 @@
 # Binding
 
-The binding specification system. A binding specification is an authored declaration wiring one element type's reference properties to data loaders and seeding its primitive properties, so an editor (or an agentic layout builder) can apply a complete, pre-validated data wiring to an element in one action instead of hand-assembling loader configs. It mirrors the universal style option system (`Layout/Element/Style/`) one directory at a time, varying only the subject: a specification is a declarative artifact, discovered from core, bundles, plugins, and apps, aggregated by one cache-decorated registry that both validation and introspection read.
+The binding specification system. A binding specification is an authored declaration wiring one element type's reference properties to data loaders and seeding its primitive properties, so an editor (or an agentic layout builder) can apply a complete, pre-validated data wiring to an element in one action instead of hand-assembling loader configs. It mirrors the universal style option system (`Layout/Element/Style/`) one directory at a time, varying only the subject. A specification is a declarative artifact, discovered from core, bundles, plugins, and apps. One cache-decorated registry, which both validation and introspection read, aggregates them.
 
 ## Guides
 

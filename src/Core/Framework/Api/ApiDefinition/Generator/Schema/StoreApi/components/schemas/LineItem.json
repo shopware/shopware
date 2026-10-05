@@ -211,7 +211,31 @@
                         "then": {
                             "properties": {
                                 "payload": {
-                                    "$ref": "#/components/schemas/ProductLineItemPayload"
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/ProductLineItemPayload"
+                                        }
+                                    ],
+                                    "required": [
+                                        "categoryIds",
+                                        "createdAt",
+                                        "customFields",
+                                        "features",
+                                        "isCloseout",
+                                        "isNew",
+                                        "manufacturerId",
+                                        "markAsTopseller",
+                                        "optionIds",
+                                        "options",
+                                        "parentId",
+                                        "productNumber",
+                                        "propertyIds",
+                                        "releaseDate",
+                                        "stock",
+                                        "streamIds",
+                                        "tagIds",
+                                        "taxId"
+                                    ]
                                 }
                             }
                         }
@@ -228,7 +252,31 @@
                         "then": {
                             "properties": {
                                 "payload": {
-                                    "$ref": "#/components/schemas/PromotionLineItemPayload"
+                                    "allOf": [
+                                        {
+                                            "$ref": "#/components/schemas/PromotionLineItemPayload"
+                                        }
+                                    ],
+                                    "required": [
+                                        "code",
+                                        "conditionRuleIds",
+                                        "discountId",
+                                        "discountScope",
+                                        "discountType",
+                                        "exclusions",
+                                        "filter",
+                                        "groupId",
+                                        "hasGlobalRedemptionLimit",
+                                        "hasPersonaRestriction",
+                                        "limitedRedemptions",
+                                        "maxValue",
+                                        "preventCombination",
+                                        "priority",
+                                        "promotionCodeType",
+                                        "promotionId",
+                                        "setGroups",
+                                        "value"
+                                    ]
                                 }
                             }
                         }

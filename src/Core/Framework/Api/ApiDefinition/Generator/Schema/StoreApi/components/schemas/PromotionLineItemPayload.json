@@ -5,7 +5,7 @@
     "components": {
         "schemas": {
             "PromotionLineItemPayload": {
-                "description": "Payload of a `promotion` line item: the discount it applies and the promotion it belongs to. Extensions can add further keys.",
+                "description": "Payload of a `promotion` line item: the discount it applies and the promotion it belongs to. In the cart it has every listed key except `composition`. Order line items keep the payload stored with the order, so orders placed by older versions or written through the Admin API can lack keys. Other keys are extension data; extensions that declare them in their Store API schema files add them to this list.",
                 "type": "object",
                 "additionalProperties": true,
                 "properties": {
@@ -124,7 +124,7 @@
                         }
                     },
                     "composition": {
-                        "description": "Line items the discount was spread over, with the discount amount each one received.",
+                        "description": "Line items the discount was spread over, with the discount amount each one received. Not set for delivery discounts.",
                         "type": "array",
                         "items": {
                             "type": "object",

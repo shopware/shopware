@@ -5,7 +5,7 @@
     "components": {
         "schemas": {
             "ProductLineItemPayload": {
-                "description": "Payload of a `product` line item: a snapshot of the product taken when the line item was calculated. Extensions can add further keys.",
+                "description": "Payload of a `product` line item: a snapshot of the product taken when the line item was calculated. In the cart it has every listed key except `productType`. Order line items keep the payload stored with the order, so orders placed by older versions or written through the Admin API can lack keys. Other keys are extension data; extensions that declare them in their Store API schema files add them to this list.",
                 "type": "object",
                 "additionalProperties": true,
                 "properties": {
@@ -135,7 +135,8 @@
                         "pattern": "^[0-9a-f]{32}$"
                     },
                     "productType": {
-                        "$ref": "#/components/schemas/Product/properties/type"
+                        "$ref": "#/components/schemas/Product/properties/type",
+                        "description": "Can be missing on carts saved before 6.7.7.0."
                     }
                 }
             }

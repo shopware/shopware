@@ -79,7 +79,7 @@
                         "type": "string"
                     },
                     "payload": {
-                        "description": "Data owned by the line item type. `product` and `promotion` line items carry `ProductLineItemPayload` and `PromotionLineItemPayload`. Other types, including types added by extensions, carry their own keys, and extensions can add keys to the core payloads too. An empty payload is an empty array.",
+                        "description": "Data owned by the line item type. `product` and `promotion` line items carry `ProductLineItemPayload` and `PromotionLineItemPayload`. Core defines no payload for `credit`, `custom`, `container` and `discount` line items, theirs holds whatever their creator set, for example the admin, an integration or an app script. Types added by extensions carry their own keys, and extensions can add keys to the core payloads too. An empty payload is an empty array.",
                         "type": ["object", "array"],
                         "maxItems": 0,
                         "additionalProperties": true
@@ -120,7 +120,7 @@
                         "type": "string"
                     },
                     "type": {
-                        "description": "Type of the line item, which decides what `payload` contains. Core uses the listed values. Extensions add their own types, so expect any string.",
+                        "description": "Type of the line item, which decides what `payload` contains. Core uses the listed values. Extensions add their own types, so expect any string. Show a type you don't know from the fields every line item has, such as `label`, `quantity` and the price, and ignore its `payload`.",
                         "anyOf": [
                             {
                                 "type": "string",

@@ -15,7 +15,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
@@ -53,15 +52,12 @@ class AppSeoUrlSynchronizerTest extends TestCase
 
     private const SWISS_GERMAN_ID = 'ffffffffffffffffffffffffffffffff';
 
-    private const AMERICAN_ID = '11111111111111111111111111111111';
-
     private const FRENCH_ID = '22222222222222222222222222222222';
 
     private const LOCALES = [
         Defaults::LANGUAGE_SYSTEM => 'en-GB',
         self::GERMAN_ID => 'de-DE',
         self::SWISS_GERMAN_ID => 'de-CH',
-        self::AMERICAN_ID => 'en-US',
         self::FRENCH_ID => 'fr-FR',
     ];
 
@@ -135,11 +131,11 @@ class AppSeoUrlSynchronizerTest extends TestCase
      * @param list<string> $expectedLanguageChain
      */
     #[DataProvider('domainLanguages')]
-    public function testTheSeoUrlIsWrittenWithTheLanguageChainOfTheDomain(string $languageId, ?string $parentLanguageId, array $expectedLanguageChain): void
+    public function testTheSeoUrlIsWrittenWithTheDomainLanguageFallingBackToTheSystemLanguage(string $languageId, array $expectedLanguageChain): void
     {
         $this->synchronizer(
             [$this->feature($this->seoUrl('imprint', ['en-GB' => 'imprint']))],
-            $this->salesChannelRepository($this->salesChannel(self::SALES_CHANNEL_ID, $this->domain($languageId, $parentLanguageId)))
+            $this->salesChannelRepository($this->salesChannel(self::SALES_CHANNEL_ID, $this->domain($languageId)))
         )->syncStaticRoutes();
 
         static::assertCount(1, $this->written);
@@ -147,29 +143,17 @@ class AppSeoUrlSynchronizerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, ?string, list<string>}>
+     * @return iterable<string, array{string, list<string>}>
      */
     public static function domainLanguages(): iterable
     {
-        yield 'a root language falls back to the system language' => [
+        yield 'a domain language other than the system language falls back to it' => [
             self::GERMAN_ID,
-            null,
             [self::GERMAN_ID, Defaults::LANGUAGE_SYSTEM],
-        ];
-        yield 'a child language falls back to its parent before the system language' => [
-            self::SWISS_GERMAN_ID,
-            self::GERMAN_ID,
-            [self::SWISS_GERMAN_ID, self::GERMAN_ID, Defaults::LANGUAGE_SYSTEM],
         ];
         yield 'the system language is not repeated' => [
             Defaults::LANGUAGE_SYSTEM,
-            null,
             [Defaults::LANGUAGE_SYSTEM],
-        ];
-        yield 'the system language as parent is not repeated' => [
-            self::AMERICAN_ID,
-            Defaults::LANGUAGE_SYSTEM,
-            [self::AMERICAN_ID, Defaults::LANGUAGE_SYSTEM],
         ];
     }
 
@@ -177,11 +161,11 @@ class AppSeoUrlSynchronizerTest extends TestCase
      * @param array<string, string> $paths
      */
     #[DataProvider('pathsByLocale')]
-    public function testThePathOfTheFirstLocaleInTheLanguageChainIsUsed(string $languageId, ?string $parentLanguageId, array $paths, string $expectedPath): void
+    public function testThePathOfTheDomainLanguageIsUsedWithTheSystemLanguageAsFallback(string $languageId, array $paths, string $expectedPath): void
     {
         $this->synchronizer(
             [$this->feature($this->seoUrl('imprint', $paths))],
-            $this->salesChannelRepository($this->salesChannel(self::SALES_CHANNEL_ID, $this->domain($languageId, $parentLanguageId)))
+            $this->salesChannelRepository($this->salesChannel(self::SALES_CHANNEL_ID, $this->domain($languageId)))
         )->syncStaticRoutes();
 
         static::assertCount(1, $this->written);
@@ -189,37 +173,32 @@ class AppSeoUrlSynchronizerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string, ?string, array<string, string>, string}>
+     * @return iterable<string, array{string, array<string, string>, string}>
      */
     public static function pathsByLocale(): iterable
     {
-        yield 'the path of the domain language wins' => [
-            self::GERMAN_ID,
-            null,
-            ['en-GB' => 'imprint', 'de-DE' => 'impressum'],
-            'impressum',
-        ];
-        yield 'a child language without a path of its own uses the path of its parent' => [
-            self::SWISS_GERMAN_ID,
+        yield 'the path of the domain language beats the path of the system language' => [
             self::GERMAN_ID,
             ['en-GB' => 'imprint', 'de-DE' => 'impressum'],
             'impressum',
         ];
-        yield 'the order of the language chain beats the order of the declaration' => [
+        yield 'the path of the domain language beats the order of the declaration' => [
             self::SWISS_GERMAN_ID,
-            self::GERMAN_ID,
             ['de-DE' => 'impressum', 'de-CH' => 'impressum-schweiz'],
             'impressum-schweiz',
         ];
+        yield 'a regional language without a path of its own uses the path of the system language' => [
+            self::SWISS_GERMAN_ID,
+            ['en-GB' => 'imprint', 'de-DE' => 'impressum'],
+            'imprint',
+        ];
         yield 'a language without a path uses the path of the system language' => [
             self::FRENCH_ID,
-            null,
             ['de-DE' => 'impressum', 'en-GB' => 'imprint'],
             'imprint',
         ];
-        yield 'without a path for any language of the chain the first declared path is used' => [
+        yield 'without a path for the domain or the system language the first declared path is used' => [
             self::FRENCH_ID,
-            null,
             ['de-DE' => 'impressum', 'nl-NL' => 'colofon'],
             'impressum',
         ];
@@ -323,7 +302,7 @@ class AppSeoUrlSynchronizerTest extends TestCase
         static::assertSame([], $this->written);
     }
 
-    public function testOnlyActiveSalesChannelsThatAreNotHeadlessAreLoadedWithTheirDomainLanguages(): void
+    public function testOnlyActiveSalesChannelsThatAreNotHeadlessAreLoadedWithTheirDomains(): void
     {
         $salesChannelRepository = StaticEntityRepository::of(SalesChannelCollection::class, [
             static function (Criteria $criteria): SalesChannelCollection {
@@ -335,7 +314,6 @@ class AppSeoUrlSynchronizerTest extends TestCase
                     $criteria->getFilters()
                 );
                 static::assertTrue($criteria->hasAssociation('domains'));
-                static::assertTrue($criteria->getAssociation('domains')->hasAssociation('language'));
 
                 return new SalesChannelCollection();
             },
@@ -485,16 +463,11 @@ class AppSeoUrlSynchronizerTest extends TestCase
         return $salesChannel;
     }
 
-    private function domain(string $languageId, ?string $parentLanguageId = null): SalesChannelDomainEntity
+    private function domain(string $languageId): SalesChannelDomainEntity
     {
-        $language = new LanguageEntity();
-        $language->setId($languageId);
-        $language->setParentId($parentLanguageId);
-
         $domain = new SalesChannelDomainEntity();
         $domain->setId(Uuid::randomHex());
         $domain->setLanguageId($languageId);
-        $domain->setLanguage($language);
 
         return $domain;
     }

@@ -151,14 +151,11 @@ final class SeoUrlAppFeatureDefinition extends AppFeatureDefinition
 
         return $this->connection->fetchOne(
             'SELECT 1
-             FROM `sales_channel_domain`
-             INNER JOIN `seo_url`
-                ON `seo_url`.`sales_channel_id` = `sales_channel_domain`.`sales_channel_id`
-                AND `seo_url`.`language_id` = `sales_channel_domain`.`language_id`
-             WHERE `seo_url`.`seo_path_info` = :path
-               AND `seo_url`.`is_canonical` = 1
-               AND `seo_url`.`is_deleted` = 0
-               AND `seo_url`.`route_name` NOT LIKE :ownRoutes
+             FROM `seo_url`
+             WHERE `seo_path_info` = :path
+               AND `is_canonical` = 1
+               AND `is_deleted` = 0
+               AND `route_name` NOT LIKE :ownRoutes
              LIMIT 1',
             [
                 'path' => $normalizedPath,

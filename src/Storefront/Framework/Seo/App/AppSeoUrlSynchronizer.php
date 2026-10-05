@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -52,8 +53,12 @@ class AppSeoUrlSynchronizer
         }
 
         foreach ($this->fetchSalesChannels() as $salesChannel) {
-            foreach ($this->languageChains($salesChannel) as $languageChain) {
-                $context = new Context(new SystemSource(), [], Defaults::CURRENCY, $languageChain);
+            $languageIds = array_unique($salesChannel->getDomains()?->map(
+                static fn (SalesChannelDomainEntity $domain): string => $domain->getLanguageId()
+            ) ?? []);
+
+            foreach ($languageIds as $languageId) {
+                $context = new Context(new SystemSource(), [], Defaults::CURRENCY, array_values(array_unique([$languageId, Defaults::LANGUAGE_SYSTEM])));
 
                 foreach ($seoUrls as $seoUrl) {
                     $this->write($seoUrl, $pathInfos[$seoUrl->getRouteName()], $salesChannel, $context);
@@ -89,7 +94,7 @@ class AppSeoUrlSynchronizer
             [[
                 'foreignKey' => $foreignKey,
                 'pathInfo' => $pathInfo,
-                'seoPathInfo' => $this->resolvePath($seoUrl, $context),
+                'seoPathInfo' => $this->resolvePath($seoUrl, $context->getLanguageId()),
                 'salesChannelId' => $salesChannel->getId(),
                 'isCanonical' => true,
                 'isModified' => true,
@@ -111,19 +116,12 @@ class AppSeoUrlSynchronizer
         return substr($pathInfo, \strlen($basePath));
     }
 
-    private function resolvePath(AppSeoUrlConfig $seoUrl, Context $context): string
+    private function resolvePath(AppSeoUrlConfig $seoUrl, string $languageId): string
     {
         $paths = $seoUrl->getPaths();
+        $locale = $this->languageLocaleProvider->getLocaleForLanguageId(...);
 
-        foreach ($context->getLanguageIdChain() as $languageId) {
-            $path = $paths[$this->languageLocaleProvider->getLocaleForLanguageId($languageId)] ?? null;
-
-            if ($path !== null) {
-                return $path;
-            }
-        }
-
-        return (string) array_first($paths);
+        return $paths[$locale($languageId)] ?? $paths[$locale(Defaults::LANGUAGE_SYSTEM)] ?? (string) array_first($paths);
     }
 
     private function fetchSalesChannels(): SalesChannelCollection
@@ -134,34 +132,8 @@ class AppSeoUrlSynchronizer
         $criteria->addFilter(new NotFilter(NotFilter::CONNECTION_AND, [
             new EqualsFilter('typeId', Defaults::SALES_CHANNEL_TYPE_API),
         ]));
-        $criteria->addAssociation('domains.language');
+        $criteria->addAssociation('domains');
 
         return $this->salesChannelRepository->search($criteria, Context::createDefaultContext())->getEntities();
-    }
-
-    /**
-     * @return list<non-empty-list<string>>
-     */
-    private function languageChains(SalesChannelEntity $salesChannel): array
-    {
-        $languageChains = [];
-
-        foreach ($salesChannel->getDomains() ?? [] as $domain) {
-            $languageId = $domain->getLanguageId();
-
-            if (isset($languageChains[$languageId])) {
-                continue;
-            }
-
-            $parentId = $domain->getLanguage()?->getParentId();
-
-            $languageChains[$languageId] = array_values(array_unique(
-                $parentId === null
-                    ? [$languageId, Defaults::LANGUAGE_SYSTEM]
-                    : [$languageId, $parentId, Defaults::LANGUAGE_SYSTEM]
-            ));
-        }
-
-        return array_values($languageChains);
     }
 }

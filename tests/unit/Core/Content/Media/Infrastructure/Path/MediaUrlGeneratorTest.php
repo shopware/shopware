@@ -81,8 +81,6 @@ class MediaUrlGeneratorTest extends TestCase
 
     public function testWithActive68MajorKeepsLiteralPercentInStoragePath(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
         $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/ab/cd/50%20off.jpg', null);
         $generator = new MediaUrlGenerator(
             new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),

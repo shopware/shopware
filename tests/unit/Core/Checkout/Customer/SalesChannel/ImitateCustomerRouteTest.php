@@ -4,11 +4,13 @@ namespace Shopware\Tests\Unit\Core\Checkout\Customer\SalesChannel;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Extension\ImitateCustomerRouteExtension;
 use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
 use Shopware\Core\Checkout\Customer\SalesChannel\ImitateCustomerRoute;
 use Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute;
 use Shopware\Core\Checkout\Customer\Struct\ImitateCustomerToken;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -19,6 +21,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -54,6 +57,7 @@ class ImitateCustomerRouteTest extends TestCase
             static::createStub(SalesChannelContextFactory::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(DataValidator::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $salesChannelContext = static::createStub(SalesChannelContext::class);
@@ -101,6 +105,7 @@ class ImitateCustomerRouteTest extends TestCase
             static::createStub(SalesChannelContextFactory::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(DataValidator::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $dataBag = new RequestDataBag([
@@ -155,6 +160,7 @@ class ImitateCustomerRouteTest extends TestCase
             $salesChannelContextFactory,
             static::createStub(EventDispatcherInterface::class),
             static::createStub(DataValidator::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $dataBag = new RequestDataBag([
@@ -164,5 +170,32 @@ class ImitateCustomerRouteTest extends TestCase
         $response = $route->imitateCustomerLogin($dataBag, $salesChannelContext);
 
         static::assertSame('newToken', $response->getToken());
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $data = new RequestDataBag();
+        $context = Generator::generateSalesChannelContext();
+        $response = new ContextTokenResponse('token');
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('imitate-customer-route.imitate-customer-login.pre', static function (ImitateCustomerRouteExtension $extension) use ($data, $context, $response): void {
+            static::assertSame(['data' => $data, 'context' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ImitateCustomerRoute(
+            static::createStub(AccountService::class),
+            static::createStub(ImitateCustomerTokenGenerator::class),
+            static::createStub(LogoutRoute::class),
+            static::createStub(SalesChannelContextFactory::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(DataValidator::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->imitateCustomerLogin($data, $context));
     }
 }

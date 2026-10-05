@@ -69,7 +69,8 @@ class RobotsPageLoader
     {
         $criteria = new Criteria();
         $criteria
-            ->addFilter(new ContainsFilter('url', $hostname))
+            // Filter on the bare host: domains on a default port carry no port in their URL
+            ->addFilter(new ContainsFilter('url', parse_url('//' . $hostname, \PHP_URL_HOST) ?: $hostname))
             ->addFilter(new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT))
         ;
 
@@ -155,30 +156,62 @@ class RobotsPageLoader
     }
 
     /**
-     * Selects domains by hostname, preferring HTTPS over HTTP for the same hostname.
+     * Selects domains matching the given hostname and port exactly, preferring HTTPS over HTTP
+     * when the same host has both. Falls back to subdomains of the hostname (e.g.
+     * `www.example.com` for `example.com`) when no domain matches exactly.
      *
      * @param non-empty-string $hostname
      *
-     * @return array<string, SalesChannelDomainEntity> Array keyed by domain hostname with selected domain entities
+     * @return array<string, SalesChannelDomainEntity> Array keyed by the domain's URL path
+     *                                                 (e.g. `/en`, `''` for the root) with
+     *                                                 selected domain entities
      */
     private function selectDomainsByHostname(SalesChannelDomainCollection $domains, string $hostname): array
     {
-        $selectedDomains = [];
         \assert($hostname !== '');
 
+        // HTTP_HOST is a bare `host[:port]` for HTTP and HTTPS alike. The `//` prefix only lets
+        // parse_url() split it into host and port
+        $requestParts = parse_url('//' . $hostname) ?: [];
+        $requestHost = strtolower($requestParts['host'] ?? $hostname);
+        $requestPort = $requestParts['port'] ?? null;
+
+        $exactMatches = [];
+        $subdomainMatches = [];
+
         foreach ($domains as $domain) {
+            $domainParts = parse_url($domain->getUrl()) ?: [];
+            $domainHost = strtolower($domainParts['host'] ?? '');
+            $domainPort = $domainParts['port'] ?? (($domainParts['scheme'] ?? 'http') === 'https' ? 443 : 80);
+
+            // A header without a port stays lenient: proxies often strip it while the domain keeps it
+            if ($requestPort !== null && $requestPort !== $domainPort) {
+                continue;
+            }
+
+            if ($domainHost === $requestHost) {
+                $exactMatches[] = $domain;
+            } elseif (str_ends_with($domainHost, '.' . $requestHost)) {
+                $subdomainMatches[] = $domain;
+            }
+        }
+
+        // `getDomains()` uses a substring filter, so hosts like `www.example.com` or `myexample.com`
+        // show up for `example.com` as well. Only subdomains are used, and only when nothing matches
+        // exactly: crawlers always fetch robots.txt on the bare host (see FriendsOfShopware/FroshRobotsTxt#3).
+        $selectedDomains = [];
+
+        foreach ($exactMatches ?: $subdomainMatches as $domain) {
             $domainUrl = $domain->getUrl();
+            $domainPath = (string) (parse_url($domainUrl, \PHP_URL_PATH) ?? '');
 
-            $domainPath = explode($hostname, $domainUrl, 2);
-            $domainHostname = trim($domainPath[1] ?? '');
-
-            $existingDomain = $selectedDomains[$domainHostname] ?? null;
+            $existingDomain = $selectedDomains[$domainPath] ?? null;
             $isHttps = str_starts_with($domainUrl, 'https://');
 
             if ($existingDomain === null) {
-                $selectedDomains[$domainHostname] = $domain;
+                $selectedDomains[$domainPath] = $domain;
             } elseif ($isHttps && !str_starts_with($existingDomain->getUrl(), 'https://')) {
-                $selectedDomains[$domainHostname] = $domain;
+                $selectedDomains[$domainPath] = $domain;
             }
         }
 

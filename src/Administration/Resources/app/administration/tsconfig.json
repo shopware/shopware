@@ -21,6 +21,10 @@
       "@shopware-ag/dive/toolbox": ["./node_modules/@shopware-ag/dive/build/plugins/toolbox/index.d.ts"],
       "@shopware-ag/dive/orbitcontroller": ["./node_modules/@shopware-ag/dive/build/plugins/orbitcontroller/index.d.ts"],
       "@shopware-ag/dive/assetexporter": ["./node_modules/@shopware-ag/dive/build/plugins/assetexporter/index.d.ts"],
+      // DIVE types against `three/webgpu`, which three only exposes through its
+      // exports map. "node" resolution ignores that map, so without this mapping
+      // every DIVE type that touches three degrades to `any`.
+      "three/webgpu": ["./node_modules/@types/three/build/three.webgpu.d.ts"],
       "@tiptap/vue-3": ["./node_modules/@tiptap/vue-3/dist/index.d.ts", "./node_modules/@shopware-ag/meteor-component-library/node_modules/@tiptap/vue-3/dist/index.d.ts"],
       "@tiptap/extension-link": ["./node_modules/@tiptap/extension-link/dist/index.d.ts", "./node_modules/@shopware-ag/meteor-component-library/node_modules/@tiptap/extension-link/dist/index.d.ts"],
     },

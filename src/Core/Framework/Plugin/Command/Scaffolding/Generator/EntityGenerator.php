@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Plugin\Command\Scaffolding\PluginScaffoldConfigurati
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\Stub;
 use Shopware\Core\Framework\Plugin\Command\Scaffolding\StubCollection;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter;
 
@@ -17,20 +18,23 @@ use Symfony\Component\Serializer\NameConverter\CamelCaseToSnakeCaseNameConverter
 #[Package('framework')]
 class EntityGenerator implements ScaffoldingGenerator
 {
-    use HasCommandOption;
-
     public const OPTION_NAME = 'entities';
     private const OPTION_DESCRIPTION = 'list of entities to generate (PascalCase, comma separated)';
 
     private string $servicesPhpEntry = <<<'EOL'
 
-    $services->set(\{{ namespace }}\Core\Content\{{ entityName }}\{{ entityName }}Definition::class)
-        ->tag('shopware.entity.definition', ['entity' => '{{ tableName }}']);
+    $services->set(\{{ namespace }}\Core\Content\{{ entityName }}\{{ entityName }}Entity::class)
+        ->tag('shopware.entity');
 
 EOL;
 
     public function __construct(private readonly ClockInterface $clock)
     {
+    }
+
+    public function getCommandOption(): InputOption
+    {
+        return new InputOption(self::OPTION_NAME, null, InputOption::VALUE_REQUIRED, self::OPTION_DESCRIPTION);
     }
 
     public function addScaffoldConfig(
@@ -72,14 +76,13 @@ EOL;
             }
 
             $stubCollection->add($this->createEntityClass($configuration, $entityName));
-            $stubCollection->add($this->createEntityDefinition($configuration, $entityName));
             $stubCollection->add($this->createEntityCollection($configuration, $entityName));
 
             $stubCollection->append(
                 'src/Resources/config/services.php',
                 str_replace(
-                    ['{{ namespace }}', '{{ entityName }}', '{{ tableName }}'],
-                    [$configuration->namespace, $entityName, $this->getTableName($entityName)],
+                    ['{{ namespace }}', '{{ entityName }}'],
+                    [$configuration->namespace, $entityName],
                     $this->servicesPhpEntry
                 )
             );
@@ -134,27 +137,7 @@ EOL;
             [
                 'namespace' => $configuration->namespace,
                 'entityName' => $entityName,
-            ]
-        );
-    }
-
-    private function createEntityDefinition(PluginScaffoldConfiguration $configuration, string $entityName): Stub
-    {
-        $tableName = $this->getTableName($entityName);
-
-        $entityDefinitionPath = \sprintf(
-            'src/Core/Content/%s/%sDefinition.php',
-            $entityName,
-            $entityName
-        );
-
-        return Stub::template(
-            $entityDefinitionPath,
-            self::STUB_DIRECTORY . '/entity-definition.stub',
-            [
-                'namespace' => $configuration->namespace,
-                'entityName' => $entityName,
-                'tableName' => $tableName,
+                'tableName' => $this->getTableName($entityName),
             ]
         );
     }

@@ -64,11 +64,36 @@ Searches with a limit continue to use bounded lookahead totals.
 
 ### System activity logging
 
-User and integration creation and successful app and plugin uploads, activation, deactivation, installation, uninstallation, and updates now produce Monolog records at the `info` level on the `system_activity` channel. Records include entity identifiers and the acting Administration user ID and username or integration access key (`integrationAccessKey`) where available. Upload records include the plugin name and version read from the ZIP (the version is omitted when absent from `composer.json`). App uploads produce `app:upload` records with `appName` and `appVersion` from `manifest.xml`. Plugin lifecycle records include `pluginName` and `pluginVersion`; update records also include `previousPluginVersion` to show the version transition. Actor types are `user` for Administration users, `integration` for integrations, and `system` for system contexts, including CLI plugin commands. CLI commands and background jobs share the same context source. Fields with `null` values are omitted. Passwords and secret access keys are excluded.
+System activities now produce Monolog records at the `info` level on the `system_activity` channel. By default, records are stored in the `log_entry` database table through the buffered business-event handler. You can also route the channel to a file or another logging destination.
 
-These records are stored in the `log_entry` database table by the existing buffered business-event handler by default.
+**Logged activities**
 
-Additionally, route these records to a separate file or another Monolog handler by configuring the channel in `config/packages/monolog.yaml`, for example:
+| Area | Log messages | Context fields |
+| --- | --- | --- |
+| Users and integrations | `user:create`, `integration:create` | `entityId` |
+| Plugin uploads | `plugin:upload` | `filename`, `pluginName`, `pluginVersion` |
+| Plugin lifecycle | `plugin:install`, `plugin:update`, `plugin:enable`, `plugin:disable`, `plugin:uninstall` | `pluginName`, `pluginVersion`; updates also include `previousPluginVersion` |
+| App uploads | `app:upload` | `filename`, `appName`, `appVersion` |
+| App lifecycle | `app:install`, `app:update`, `app:enable`, `app:disable` | `appName`, `appVersion` |
+| App removal | `app:uninstall` | `appId`, `appName`, `appVersion`, `keepUserData` |
+
+Upload metadata comes from the ZIP's `composer.json` for plugins and `manifest.xml` for apps. App updates log the target manifest version; the previous version is not available. App deactivation and removal records follow the existing event timing and are emitted before the operation completes. If an app is already missing, its removal record omits the unavailable name and version.
+
+**Actor information**
+
+Each record includes actor details where available:
+
+| `actorType` | Actor fields |
+| --- | --- |
+| `user` | `userId`, `username` |
+| `integration` | `integrationAccessKey` |
+| `system` | No additional identity fields; includes CLI commands and background jobs |
+
+Fields with `null` values are omitted, including plugin upload versions absent from `composer.json`. Passwords and secret access keys are excluded.
+
+**Route activities to a separate file**
+
+Add a handler in `config/packages/monolog.yaml`:
 
 ```yaml
 monolog:
@@ -81,7 +106,18 @@ monolog:
             channels: ['system_activity']
 ```
 
-To keep these records out of other handlers, add `!system_activity` to those handlers' channel filters, preserving any existing exclusions. To disable database storage for system activities, override `business_event_handler_buffer.channels` with `[business_events]`.
+To exclude these records from other handlers, add `!system_activity` to their channel filters while preserving existing exclusions.
+
+**Disable database storage for activities**
+
+Keep business-event database logging and remove system activities from its buffered handler:
+
+```yaml
+monolog:
+    handlers:
+        business_event_handler_buffer:
+            channels: ['business_events']
+```
 
 ### Feed sales channels are saved without a currency list again
 

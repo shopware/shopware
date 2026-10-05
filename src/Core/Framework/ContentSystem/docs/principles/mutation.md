@@ -1,6 +1,6 @@
 # Mutation
 
-The rules in this area govern a mutation, one server-side edit of a stored layout tree, and the context wiring that a mutation derives. The model is a mutation operation as a pure tree transform.
+The rules in this area govern a mutation, one server-side edit of a stored layout tree, and the context wiring that a mutation derives.
 
 ## The draft pipeline writes derived wiring only where proved
 

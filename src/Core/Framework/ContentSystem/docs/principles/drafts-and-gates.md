@@ -1,6 +1,6 @@
 # Drafts and gates
 
-This area concerns the standard the module applies to an unsaved draft and to a layout write, and the components that both paths share. The model is two standards, well-formedness for a draft and resolvability for a layout write, checked through shared components.
+This area concerns the standard the module applies to an unsaved draft and to a layout write, and the components that both paths share.
 
 ## The module holds a draft to well-formedness
 

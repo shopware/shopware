@@ -1,6 +1,6 @@
 # Rendering
 
-Rendering is the path from a loaded stored forest to the rendered forest that a response carries. The model is one render path of direct stage calls that produces the same structure in every rendering mode.
+Rendering is the path from a loaded stored forest to the rendered forest that a response carries.
 
 ## The render validates the whole stored forest in every mode
 

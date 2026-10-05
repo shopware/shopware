@@ -1,6 +1,6 @@
 # Extension surface
 
-The extension surface is the set of classes, declarations and events that a plugin or app may build on. The model is a bounded, listed surface that a plugin or app extends through declared data.
+The extension surface is the set of classes, declarations and events that a plugin or app may build on.
 
 ## The extension surface is a deliberate, bounded, listed choice
 

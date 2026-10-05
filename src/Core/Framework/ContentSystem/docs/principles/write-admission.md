@@ -1,6 +1,6 @@
 # Write admission
 
-Write admission is the path that a layout write takes into storage through `LayoutWriteBoundary::apply()`, the write boundary. The model is a single choke point that runs its passes in a fixed order.
+Write admission is the path that a layout write takes into storage through `LayoutWriteBoundary::apply()`, the write boundary.
 
 ## Every layout write passes through the write boundary, a single choke point
 

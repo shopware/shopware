@@ -1,6 +1,6 @@
 # Context wiring
 
-Context wiring brings a value to an element from a parent's provider or from the layout's root context. The model is adjacency: a provider serves its direct children, and root context reaches an element directly.
+Context wiring brings a value to an element from a parent's provider or from the layout's root context.
 
 ## Context flows only between adjacent elements
 

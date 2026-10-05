@@ -383,10 +383,15 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
         expect(wrapper.vm.avatarMediaItem.id).toBe(mediaId);
     });
 
-    it('should show the password confirm modal', async () => {
+    it('should show the password confirm modal when the password is changed', async () => {
         const updateFunction = jest.fn(() => Promise.resolve({}));
         const wrapper = await createWrapper(['user.update_profile'], { isSso: false }, updateFunction);
         await flushPromises();
+
+        await wrapper.setData({
+            newPassword: 'NewPassword123',
+            newPasswordConfirm: 'NewPassword123',
+        });
 
         const saveButton = wrapper.find('.sw-profile__save-action');
         await saveButton.trigger('click');
@@ -396,6 +401,40 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
 
         expect(passwordConfirmModal.exists()).toBeTruthy();
         expect(updateFunction).not.toHaveBeenCalled();
+    });
+
+    it('should save without the password confirm modal when the password is not changed', async () => {
+        const updateFunction = jest.fn(() => Promise.resolve({}));
+        const wrapper = await createWrapper(['user.update_profile'], { isSso: false }, updateFunction);
+        await flushPromises();
+
+        const saveButton = wrapper.find('.sw-profile__save-action');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.confirmPasswordModal).toBe(false);
+        expect(wrapper.find('sw-verify-user-modal-stub').exists()).toBe(false);
+        expect(updateFunction).toHaveBeenCalled();
+    });
+
+    it('should not open the password confirm modal when the password confirmation does not match', async () => {
+        const updateFunction = jest.fn(() => Promise.resolve({}));
+        const wrapper = await createWrapper(['user.update_profile'], { isSso: false }, updateFunction);
+        await flushPromises();
+
+        await wrapper.setData({
+            newPassword: 'NewPassword123',
+            newPasswordConfirm: 'Different123',
+        });
+        wrapper.vm.createNotificationError = jest.fn();
+
+        const saveButton = wrapper.find('.sw-profile__save-action');
+        await saveButton.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.vm.confirmPasswordModal).toBe(false);
+        expect(updateFunction).not.toHaveBeenCalled();
+        expect(wrapper.vm.createNotificationError).toHaveBeenCalled();
     });
 
     it('should update the user', async () => {

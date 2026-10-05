@@ -110,7 +110,7 @@ export default {
 
             criteria.addFilter(
                 Criteria.multi('OR', [
-                    Criteria.equals('numberRangeSalesChannels.numberRangeId', this.numberRange.id),
+                    Criteria.equals('numberRangeSalesChannels.numberRange.id', this.numberRange.id),
                     Criteria.not('OR', [
                         Criteria.equals('numberRangeSalesChannels.numberRangeTypeId', this.numberRange.typeId),
                     ]),

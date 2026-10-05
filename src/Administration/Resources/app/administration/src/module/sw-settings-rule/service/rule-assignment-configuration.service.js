@@ -24,7 +24,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
             label: 'sw-settings-rule.detail.associations.products',
             criteria: () => {
                 const criteria = new Criteria(1, associationLimit);
-                criteria.addFilter(Criteria.equals('prices.ruleId', ruleId));
+                criteria.addFilter(Criteria.equals('prices.rule.id', ruleId));
                 criteria.addAssociation('options.group');
                 criteria.addAssociation('manufacturer');
                 criteria.addIncludes({
@@ -567,7 +567,7 @@ export default function createRuleAssignmentConfigService(ruleId, associationLim
             label: 'sw-settings-rule.detail.associations.flows',
             criteria: () => {
                 const criteria = new Criteria(1, associationLimit);
-                criteria.addFilter(Criteria.equals('sequences.ruleId', ruleId));
+                criteria.addFilter(Criteria.equals('sequences.rule.id', ruleId));
 
                 return criteria;
             },

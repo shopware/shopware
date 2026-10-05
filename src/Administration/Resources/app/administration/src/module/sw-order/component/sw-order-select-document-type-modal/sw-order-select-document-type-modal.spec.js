@@ -164,7 +164,7 @@ describe('src/module/sw-order/component/sw-order-select-document-type-modal', ()
             expect.objectContaining({
                 filters: expect.arrayContaining([
                     expect.objectContaining({
-                        field: 'orderId',
+                        field: 'order.id',
                         type: 'equals',
                         value: '1234',
                     }),

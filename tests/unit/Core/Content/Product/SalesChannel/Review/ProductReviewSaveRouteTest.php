@@ -7,6 +7,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Product\Aggregate\ProductReview\ProductReviewCollection;
+use Shopware\Core\Content\Product\Extension\ProductReviewSaveRouteExtension;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductException;
 use Shopware\Core\Content\Product\SalesChannel\Review\Event\ReviewFormEvent;
@@ -15,14 +16,19 @@ use Shopware\Core\Content\Shared\MailFlow\DataProvider\ProductProvider;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
+use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -70,7 +76,8 @@ class ProductReviewSaveRouteTest extends TestCase
             $this->validator,
             $this->config,
             $this->eventDispatcher,
-            $this->productProvider
+            $this->productProvider,
+            new ExtensionDispatcher(new EventDispatcher())
         );
     }
 
@@ -159,7 +166,8 @@ class ProductReviewSaveRouteTest extends TestCase
             $validator,
             $this->config,
             $eventDispatcher,
-            $productProvider
+            $productProvider,
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $route->save($productId, $data, $salesChannelContext);
@@ -179,5 +187,32 @@ class ProductReviewSaveRouteTest extends TestCase
             new RequestDataBag(['test' => 'test']),
             $salesChannelContext,
         );
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $productId = Uuid::randomHex();
+        $data = new RequestDataBag(['title' => 'Great product', 'content' => 'Fits well and the material feels durable.', 'points' => 5]);
+        $context = Generator::generateSalesChannelContext();
+        $response = new NoContentResponse();
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('product-review-save-route.save.pre', static function (ProductReviewSaveRouteExtension $extension) use ($productId, $data, $context, $response): void {
+            static::assertSame(['productId' => $productId, 'data' => $data, 'context' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ProductReviewSaveRoute(
+            static::createStub(EntityRepository::class),
+            static::createStub(DataValidator::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(ProductProvider::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->save($productId, $data, $context));
     }
 }

@@ -8,18 +8,23 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientCollection;
 use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRecipientEntity;
 use Shopware\Core\Content\Newsletter\Event\NewsletterUnsubscribeEvent;
+use Shopware\Core\Content\Newsletter\Extension\NewsletterUnsubscribeRouteExtension;
 use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterSubscribeRoute;
 use Shopware\Core\Content\Newsletter\SalesChannel\NewsletterUnsubscribeRoute;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\System\SalesChannel\SuccessResponse;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -70,6 +75,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
             $eventDispatcher,
             static::createStub(RateLimiter::class),
             static::createStub(RequestStack::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $newsletterSubscribeRoute->unsubscribeWithResponse($requestData, $this->salesChannelContext);
@@ -163,11 +169,37 @@ class NewsletterUnsubscribeRouteTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             $rateLimiter,
             $requestStack,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $response = $newsletterSubscribeRoute->unsubscribeWithResponse($requestData, $this->salesChannelContext);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $dataBag = new RequestDataBag();
+        $response = new SuccessResponse();
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('newsletter-unsubscribe-route.unsubscribe.pre', function (NewsletterUnsubscribeRouteExtension $extension) use ($dataBag, $response): void {
+            static::assertSame(['dataBag' => $dataBag, 'context' => $this->salesChannelContext], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new NewsletterUnsubscribeRoute(
+            static::createStub(EntityRepository::class),
+            static::createStub(DataValidator::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(RequestStack::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->unsubscribeWithResponse($dataBag, $this->salesChannelContext));
     }
 
     /**
@@ -184,6 +216,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
             $eventDispatcher,
             static::createStub(RateLimiter::class),
             static::createStub(RequestStack::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
     }
 }

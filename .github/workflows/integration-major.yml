@@ -16,7 +16,9 @@ jobs:
   major-matrix:
     # Serves every major arm below, so it runs for any of their labels; each arm keeps its own gate.
     # Nightly (workflow_call) and manual runs are unaffected.
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')
+    # A label event only counts when the label just added is a major arm label: without that, any later
+    # label (domain, milestone, waiting-on) re-runs the whole suite. The arms need this job, so they skip with it.
+    if: (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')) && (github.event.action != 'labeled' || contains(fromJSON('["major-php", "major-js", "major-tests"]'), github.event.label.name))
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
@@ -160,7 +162,8 @@ jobs:
   # single required/monitorable status for the whole major matrix
   integration-major-check:
     # Skip cleanly on unlabeled PRs so they don't get a confusing status; otherwise aggregate the matrix result.
-    if: always() && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests'))
+    # Same label-event filter as major-matrix, otherwise it would fail on the arms that skipped with it.
+    if: always() && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')) && (github.event.action != 'labeled' || contains(fromJSON('["major-php", "major-js", "major-tests"]'), github.event.label.name))
     needs:
       - phpunit-major
       - jest-admin-major

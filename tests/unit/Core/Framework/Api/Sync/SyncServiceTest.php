@@ -2,8 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Api\Sync;
 
-use Doctrine\DBAL\Driver\Exception as DriverException;
-use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
@@ -41,7 +39,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -52,35 +49,6 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 #[CoversClass(SyncService::class)]
 class SyncServiceTest extends TestCase
 {
-    public function testForeignKeyConstraintViolationIsReportedAsBadRequest(): void
-    {
-        $writer = $this->createMock(EntityWriterInterface::class);
-        $driverException = static::createStub(DriverException::class);
-        $writer
-            ->expects($this->once())
-            ->method('sync')
-            ->willThrowException(new ForeignKeyConstraintViolationException($driverException, null));
-
-        $service = new SyncService(
-            $writer,
-            static::createStub(EventDispatcherInterface::class),
-            new StaticDefinitionInstanceRegistry(
-                [ProductDefinition::class],
-                static::createStub(ValidatorInterface::class),
-                static::createStub(EntityWriteGatewayInterface::class),
-            ),
-            static::createStub(EntitySearcherInterface::class),
-            static::createStub(RequestCriteriaBuilder::class),
-            static::createStub(AclCriteriaValidator::class),
-            static::createStub(SyncFkResolver::class),
-            $this->createSyncMetricsStub(),
-        );
-
-        $this->expectException(BadRequestHttpException::class);
-
-        $service->sync([], Context::createDefaultContext(), new SyncBehavior());
-    }
-
     public function testSyncSingleOperation(): void
     {
         $writeResult = new WriteResult(

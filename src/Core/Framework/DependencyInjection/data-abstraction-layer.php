@@ -37,6 +37,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToManyAs
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\ManyToOneAssociationFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\OneToManyAssociationFieldResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldResolver\TranslationFieldResolver;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\ForeignKeyConstraintViolationExceptionHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\JoinGroupBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\SchemaBuilder;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -897,6 +898,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     $services->set(TechnicalNameExceptionHandler::class)
+        ->tag('shopware.dal.exception_handler');
+
+    $services->set(ForeignKeyConstraintViolationExceptionHandler::class)
+        ->args([
+            service(DefinitionInstanceRegistry::class),
+        ])
         ->tag('shopware.dal.exception_handler');
 
     $services->set(EntityProtectionValidator::class)

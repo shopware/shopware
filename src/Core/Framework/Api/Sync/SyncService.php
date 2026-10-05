@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\Sync;
 
-use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Shopware\Core\Framework\Adapter\Database\ReplicaConnection;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\ApiException;
@@ -70,11 +69,7 @@ class SyncService implements SyncServiceInterface
             $context->addState($behavior->getIndexingBehavior());
         }
 
-        try {
-            $result = $this->writer->sync($operations, WriteContext::createFromContext($context));
-        } catch (ForeignKeyConstraintViolationException) {
-            throw ApiException::badRequest('The request references an entity or version that does not exist.');
-        }
+        $result = $this->writer->sync($operations, WriteContext::createFromContext($context));
 
         $writes = EntityWrittenContainerEvent::createWithWrittenEvents($result->getWritten(), $context, []);
         $deletes = EntityWrittenContainerEvent::createWithDeletedEvents($result->getDeleted(), $context, []);

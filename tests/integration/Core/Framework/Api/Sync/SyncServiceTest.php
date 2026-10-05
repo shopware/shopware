@@ -12,6 +12,7 @@ use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Api\Sync\SyncService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidForeignKeyReferenceException;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteException;
 use Shopware\Core\Framework\Log\Package;
@@ -20,7 +21,6 @@ use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 /**
  * @internal
@@ -298,7 +298,7 @@ class SyncServiceTest extends TestCase
         static::assertStringStartsWith('/manufacturers/1/translations', $first->getPath());
     }
 
-    public function testInvalidProductCategoryReferenceIsAClientError(): void
+    public function testInvalidProductCategoryReferenceIsReportedWithAFieldSpecificWriteError(): void
     {
         $ids = new IdsCollection();
         static::getContainer()->get('product.repository')->create([
@@ -310,8 +310,16 @@ class SyncServiceTest extends TestCase
             'categoryId' => Uuid::randomHex(),
         ]]);
 
-        static::expectException(BadRequestHttpException::class);
-        $this->service->sync([$operation], Context::createDefaultContext(), new SyncBehavior());
+        try {
+            $this->service->sync([$operation], Context::createDefaultContext(), new SyncBehavior());
+            static::fail('The invalid reference should be reported as a write error.');
+        } catch (InvalidForeignKeyReferenceException $exception) {
+            $error = $exception->getErrors()->current();
+            static::assertSame('FRAMEWORK__INVALID_FOREIGN_KEY_REFERENCE', $error['code']);
+            static::assertSame('/categoryId', $error['source']['pointer']);
+            static::assertStringContainsString('product_category', (string) $error['detail']);
+            static::assertStringContainsString('category', (string) $error['detail']);
+        }
     }
 
     public function testDeleteWithWildCards(): void

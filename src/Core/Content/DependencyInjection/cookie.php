@@ -15,8 +15,8 @@ use Shopware\Core\Content\Cookie\SalesChannel\CookieRoute;
 use Shopware\Core\Content\Cookie\ScheduledTask\CleanupCookieConsentLogTask;
 use Shopware\Core\Content\Cookie\ScheduledTask\CleanupCookieConsentLogTaskHandler;
 use Shopware\Core\Content\Cookie\Service\CookieProvider;
-use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
+use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
 use Shopware\Storefront\Framework\Cookie\CookieProviderInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -80,6 +80,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ClockInterface::class),
             service(RateLimiter::class),
             service('cache.object'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CleanupCookieConsentLogTask::class)

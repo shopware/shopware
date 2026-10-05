@@ -10,6 +10,7 @@ use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
+use Shopware\Core\Content\Cookie\Extension\CookieConsentLogRouteExtension;
 use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogPayload;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogRoute;
@@ -18,13 +19,15 @@ use Shopware\Core\Content\Cookie\Struct\CookieEntry;
 use Shopware\Core\Content\Cookie\Struct\CookieEntryCollection;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterException;
+use Shopware\Core\System\SalesChannel\NoContentResponse;
 use Shopware\Core\Test\Generator;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Clock\MockClock;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -51,11 +54,25 @@ class CookieConsentLogRouteTest extends TestCase
         $this->route = $this->createRoute($this->rateLimiter);
     }
 
-    public function testItThrowsDecorationPatternException(): void
+    public function testPublishesExtension(): void
     {
-        $this->expectExceptionObject(new DecorationPatternException(CookieConsentLogRoute::class));
+        $payload = $this->payload(['consentAction' => 'accept_all']);
+        $request = new Request();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $response = new NoContentResponse();
 
-        $this->route->getDecorated();
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(CookieConsentLogRouteExtension::NAME . '.pre', static function (CookieConsentLogRouteExtension $extension) use ($payload, $request, $salesChannelContext, $response): void {
+            static::assertSame(['payload' => $payload, 'request' => $request, 'salesChannelContext' => $salesChannelContext], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = $this->createRoute($this->rateLimiter, $dispatcher);
+
+        static::assertSame($response, $route->log($payload, $request, $salesChannelContext));
+        static::assertSame([], $this->storage->calls);
     }
 
     public function testAcceptAllMarksEveryGroupAccepted(): void
@@ -266,7 +283,7 @@ class CookieConsentLogRouteTest extends TestCase
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode());
     }
 
-    private function createRoute(RateLimiter $rateLimiter): CookieConsentLogRoute
+    private function createRoute(RateLimiter $rateLimiter, EventDispatcher $dispatcher = new EventDispatcher()): CookieConsentLogRoute
     {
         $cookieRoute = static::createStub(AbstractCookieRoute::class);
         $cookieRoute->method('getCookieGroups')
@@ -278,6 +295,7 @@ class CookieConsentLogRouteTest extends TestCase
             new MockClock('2026-07-13 12:00:00'),
             $rateLimiter,
             new ArrayAdapter(),
+            new ExtensionDispatcher($dispatcher),
         );
     }
 

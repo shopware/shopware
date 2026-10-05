@@ -2,9 +2,9 @@
 
 namespace Shopware\Storefront\Controller;
 
-use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieConsentLogRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogPayload;
+use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogRoute;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
@@ -34,7 +34,7 @@ class CookieController extends StorefrontController
      */
     public function __construct(
         private readonly AbstractCookieRoute $cookieRoute,
-        private readonly AbstractCookieConsentLogRoute $cookieConsentLogRoute,
+        private readonly CookieConsentLogRoute $cookieConsentLogRoute,
     ) {
     }
 

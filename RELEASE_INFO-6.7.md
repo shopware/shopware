@@ -1,5 +1,13 @@
 # 6.7.16.0 (upcoming)
 
+## Critical Fixes
+
+### Line item conditions evaluate line items by the data they carry
+
+Since 6.7.14.0, most line item conditions of the Rule Builder evaluated only line items of the type `product`. Custom and credit line items and line items that extensions add to the cart no longer matched them, and a single custom line item could hide shipping methods or block promotions under a negated condition such as "Item with tag / All / Are none of".
+
+The conditions now evaluate a line item by the data it carries instead of by its type, so line items of any type work with the built-in conditions again, with no change needed in extensions.
+
 ## Features
 
 ### Server-side cookie consent logging
@@ -10,15 +18,6 @@ The built-in cookie banner can now record consent decisions on the server, as pr
 - Export the log with `bin/console cookie:consent:export`. Old records are deleted after `shopware.cookie_consent.retention_days` (default: 120).
 - Behind a proxy or CDN, configure `framework.trusted_proxies`, otherwise decisions can get lost because of the rate limit.
 - Headless frontends log decisions via `POST /store-api/cookie-consent-log`.
-## Critical Fixes
-
-### Line item conditions evaluate line items by the data they carry
-
-Since 6.7.14.0, most line item conditions of the Rule Builder evaluated only line items of the type `product`. Custom and credit line items and line items that extensions add to the cart no longer matched them, and a single custom line item could hide shipping methods or block promotions under a negated condition such as "Item with tag / All / Are none of".
-
-The conditions now evaluate a line item by the data it carries instead of by its type, so line items of any type work with the built-in conditions again, with no change needed in extensions.
-
-## Features
 
 ### System configuration tabs
 

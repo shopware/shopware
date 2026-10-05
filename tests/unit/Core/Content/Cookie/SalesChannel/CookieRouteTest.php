@@ -405,17 +405,6 @@ class CookieRouteTest extends TestCase
         static::assertSame('old-hash-2', $secondHashEntry->value); // Should remain unchanged
     }
 
-    private function getHash(CookieEntryCollection $requiredEntries, SalesChannelContext $salesChannelContext): string
-    {
-        $requiredGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
-        $requiredGroup->setEntries($requiredEntries);
-
-        $cookieProvider = static::createStub(CookieProvider::class);
-        $cookieProvider->method('getCookieGroups')->willReturn(new CookieGroupCollection([$requiredGroup]));
-
-        return (new CookieRoute($cookieProvider))->getCookieGroups(new Request(), $salesChannelContext)->getHash();
-    }
-
     public function testPublishesExtension(): void
     {
         $request = new Request();
@@ -436,5 +425,16 @@ class CookieRouteTest extends TestCase
         );
 
         static::assertSame($response, $route->getCookieGroups($request, $salesChannelContext));
+    }
+
+    private function getHash(CookieEntryCollection $requiredEntries, SalesChannelContext $salesChannelContext): string
+    {
+        $requiredGroup = new CookieGroup(CookieProvider::SNIPPET_NAME_COOKIE_GROUP_REQUIRED);
+        $requiredGroup->setEntries($requiredEntries);
+
+        $cookieProvider = static::createStub(CookieProvider::class);
+        $cookieProvider->method('getCookieGroups')->willReturn(new CookieGroupCollection([$requiredGroup]));
+
+        return (new CookieRoute($cookieProvider, new ExtensionDispatcher(new EventDispatcher())))->getCookieGroups(new Request(), $salesChannelContext)->getHash();
     }
 }

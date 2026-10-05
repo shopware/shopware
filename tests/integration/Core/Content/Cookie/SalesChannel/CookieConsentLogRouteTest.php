@@ -9,6 +9,7 @@ use Shopware\Core\Content\Cookie\ConsentLog\DatabaseCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogPayload;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieConsentLogRoute;
 use Shopware\Core\Content\Cookie\SalesChannel\CookieRoute;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
@@ -19,6 +20,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -50,6 +52,7 @@ class CookieConsentLogRouteTest extends TestCase
             new NativeClock(),
             static::createStub(RateLimiter::class),
             new ArrayAdapter(),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $this->salesChannelContext = static::getContainer()->get(SalesChannelContextFactory::class)

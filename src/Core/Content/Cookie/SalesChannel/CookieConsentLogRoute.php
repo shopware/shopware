@@ -8,10 +8,11 @@ use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
+use Shopware\Core\Content\Cookie\Extension\CookieConsentLogRouteExtension;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
 use Shopware\Core\Content\Cookie\Struct\CookieGroupCollection;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
@@ -31,10 +32,14 @@ use Symfony\Contracts\Cache\CacheInterface;
  * per-group verdict, is derived here against the configuration the server holds,
  * so the stored evidence cannot be shaped by the client and the rules stay in
  * one testable place.
+ *
+ * Extend it through the `CookieConsentLogRouteExtension` events.
+ *
+ * @internal
  */
 #[Package('framework')]
 #[Route(defaults: [PlatformRequest::ATTRIBUTE_ROUTE_SCOPE => [StoreApiRouteScope::ID]])]
-class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
+class CookieConsentLogRoute
 {
     private const SNAPSHOT_CACHE_KEY_PREFIX = 'cookie-consent-snapshot-';
 
@@ -47,16 +52,21 @@ class CookieConsentLogRoute extends AbstractCookieConsentLogRoute
         private readonly ClockInterface $clock,
         private readonly RateLimiter $rateLimiter,
         private readonly CacheInterface $cache,
+        private readonly ExtensionDispatcher $extensions,
     ) {
-    }
-
-    public function getDecorated(): AbstractCookieConsentLogRoute
-    {
-        throw new DecorationPatternException(self::class);
     }
 
     #[Route(path: '/store-api/cookie-consent-log', name: 'store-api.cookie.consent-log', methods: [Request::METHOD_POST])]
     public function log(#[MapRequestPayload(acceptFormat: 'json')] CookieConsentLogPayload $payload, Request $request, SalesChannelContext $salesChannelContext): NoContentResponse
+    {
+        return $this->extensions->publish(
+            name: CookieConsentLogRouteExtension::NAME,
+            extension: new CookieConsentLogRouteExtension($payload, $request, $salesChannelContext),
+            function: $this->_log(...),
+        );
+    }
+
+    private function _log(CookieConsentLogPayload $payload, Request $request, SalesChannelContext $salesChannelContext): NoContentResponse
     {
         $this->ensureNotRateLimited($request);
 

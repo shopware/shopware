@@ -90,7 +90,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(AppSeoUrlRouteProvider::class)
         ->args([
             service(AppFeatureStorage::class),
-            service('cache.object'),
         ])
         ->tag('kernel.event_subscriber')
         ->tag('kernel.reset', ['method' => 'reset']);

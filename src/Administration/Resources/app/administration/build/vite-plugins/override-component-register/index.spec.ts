@@ -2,6 +2,9 @@
  * @sw-package framework
  */
 import overrideComponentRegisterPlugin from './index';
+import { EventEmitter } from 'events';
+import fs from 'fs';
+import os from 'os';
 import path from 'path';
 import { parse } from '@babel/parser';
 
@@ -14,8 +17,33 @@ import { parse } from '@babel/parser';
 type CallableOverridePlugin = {
     name: string;
     configResolved(): void;
+    configureServer(server: FakeDevServer): void;
     transform(code: string, id: string): { code: string } | null;
 };
+
+/** The slice of Vite's dev server the plugin touches: the file watcher and the client environment. */
+type FakeDevServer = ReturnType<typeof createFakeDevServer>;
+
+/**
+ * Builds a dev server stand-in whose watcher is a plain emitter, so a test can emit `add`/`unlink` itself.
+ * `entryModule` is what the module graph returns for the entry - `null` mimics an entry no browser loaded yet.
+ */
+function createFakeDevServer(entryModule: object | null = { id: 'entry' }) {
+    return {
+        watcher: new EventEmitter(),
+        environments: {
+            client: {
+                moduleGraph: {
+                    getModuleById: jest.fn(() => entryModule),
+                    invalidateModule: jest.fn(),
+                },
+                hot: {
+                    send: jest.fn(),
+                },
+            },
+        },
+    };
+}
 
 function createPlugin(options: { root: string; pluginEntryFile: string }): CallableOverridePlugin {
     return overrideComponentRegisterPlugin(options) as unknown as CallableOverridePlugin;
@@ -123,5 +151,88 @@ describe('build/vite-plugins/override-component-register', () => {
         const paths = [...first!.code.matchAll(/import _swOverride\d+ from '\.\/(.+?)';/g)].map((match) => match[1]);
 
         expect(paths).toEqual([...paths].sort());
+    });
+
+    describe('dev server', () => {
+        let extensionRoot: string;
+        let entryFile: string;
+
+        beforeEach(() => {
+            extensionRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'sw-override-register-'));
+            entryFile = path.join(extensionRoot, 'main.ts');
+            fs.writeFileSync(entryFile, '');
+        });
+
+        afterEach(() => {
+            fs.rmSync(extensionRoot, { recursive: true, force: true });
+        });
+
+        function addFile(relativePath: string): string {
+            const file = path.join(extensionRoot, relativePath);
+            fs.mkdirSync(path.dirname(file), { recursive: true });
+            fs.writeFileSync(file, '<template></template>');
+
+            return file;
+        }
+
+        function startServer(server: FakeDevServer): CallableOverridePlugin {
+            const plugin = createPlugin({ root: extensionRoot, pluginEntryFile: entryFile });
+            plugin.configResolved();
+            plugin.configureServer(server);
+
+            return plugin;
+        }
+
+        it('registers an override file added while the server runs and reloads the page', () => {
+            const server = createFakeDevServer();
+            const plugin = startServer(server);
+
+            expect(plugin.transform('// entry', entryFile)).toBeNull();
+
+            const file = addFile('override/sw-foo.override.vue');
+            server.watcher.emit('add', file);
+
+            expect(plugin.transform('// entry', entryFile)?.code).toContain("from './override/sw-foo.override.vue';");
+            expect(server.environments.client.moduleGraph.getModuleById).toHaveBeenCalledWith(entryFile);
+            expect(server.environments.client.moduleGraph.invalidateModule).toHaveBeenCalledWith({ id: 'entry' });
+            expect(server.environments.client.hot.send).toHaveBeenCalledWith({ type: 'full-reload' });
+        });
+
+        it('drops an override file deleted while the server runs and reloads the page', () => {
+            const kept = addFile('override/sw-kept.override.vue');
+            const deleted = addFile('override/sw-deleted.override.vue');
+            const server = createFakeDevServer();
+            const plugin = startServer(server);
+
+            fs.rmSync(deleted);
+            server.watcher.emit('unlink', deleted);
+
+            const code = plugin.transform('// entry', entryFile)?.code;
+            expect(code).toContain(path.basename(kept));
+            expect(code).not.toContain(path.basename(deleted));
+            expect(server.environments.client.moduleGraph.invalidateModule).toHaveBeenCalledTimes(1);
+            expect(server.environments.client.hot.send).toHaveBeenCalledWith({ type: 'full-reload' });
+        });
+
+        it('leaves the page alone when an added file is no override', () => {
+            const server = createFakeDevServer();
+            startServer(server);
+
+            server.watcher.emit('add', addFile('component/sw-foo.vue'));
+
+            expect(server.environments.client.moduleGraph.invalidateModule).not.toHaveBeenCalled();
+            expect(server.environments.client.hot.send).not.toHaveBeenCalled();
+        });
+
+        it('picks up a new override without reloading when no page has loaded the entry yet', () => {
+            const server = createFakeDevServer(null);
+            const plugin = startServer(server);
+
+            server.watcher.emit('add', addFile('sw-foo.override.vue'));
+
+            expect(plugin.transform('// entry', entryFile)?.code).toContain("from './sw-foo.override.vue';");
+            expect(server.environments.client.moduleGraph.invalidateModule).not.toHaveBeenCalled();
+            expect(server.environments.client.hot.send).not.toHaveBeenCalled();
+        });
     });
 });

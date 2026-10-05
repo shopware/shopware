@@ -1,6 +1,6 @@
 # Preview
 
-Preview shows an editor an unsaved draft rendered against real data, from the token the Admin API mints to the page the storefront renders. The model is preview as a second entry into the one rendering path.
+Preview shows an editor an unsaved draft rendered against real data, from the token the Admin API mints to the page the storefront renders.
 
 ## Preview is a second entry into the one rendering path, never a second storage path
 

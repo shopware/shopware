@@ -1,6 +1,6 @@
 # Clients
 
-The clients are the administration's layout editor and the storefront templates that render a served layout. The model is one wire-derived element type in the administration and one shared element partial in the storefront.
+The clients are the administration's layout editor and the storefront templates that render a served layout.
 
 ## The administration declares one element type, typed from the wire
 

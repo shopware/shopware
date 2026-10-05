@@ -1,6 +1,6 @@
 # Stored model
 
-The stored model is `StoredElement`, the element a layout persists, and `StoredTree`, the tree that holds it. The model is two element classes joined by one explicit conversion.
+The stored model is `StoredElement`, the element a layout persists, and `StoredTree`, the tree that holds it.
 
 ## `StoredElement` and `RenderedElement` are two classes joined by one explicit conversion
 

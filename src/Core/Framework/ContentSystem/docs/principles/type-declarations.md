@@ -1,6 +1,6 @@
 # Type declarations
 
-A type declaration describes the properties and slots of an element type, and this area limits what it may state. The model is that a type declaration constrains what an instance may hold and decides nothing that the layout or the editor owns.
+A type declaration describes the properties and slots of an element type, and this area limits what it may state.
 
 ## Context wiring belongs to the element, never to the type
 

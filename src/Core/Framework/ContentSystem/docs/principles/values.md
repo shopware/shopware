@@ -1,6 +1,6 @@
 # Values
 
-This area concerns the value that a layout stores under a property key and who owns the rules for that value. The model is that the server owns every rule about a value.
+This area concerns the value that a layout stores under a property key and who owns the rules for that value.
 
 ## Every rule about a value is the server's, and the client sends the raw value
 

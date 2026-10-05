@@ -1,6 +1,6 @@
 # Wire contract
 
-The wire contract is the shape of what the module accepts and serves over the Admin API and the Store API. The model is one paired codec for the stored element and one rendered forest behind every response format.
+The wire contract is the shape of what the module accepts and serves over the Admin API and the Store API.
 
 ## The stored element's wire shape is defined once, by one paired codec
 

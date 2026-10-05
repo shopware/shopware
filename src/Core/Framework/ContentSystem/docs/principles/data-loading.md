@@ -1,6 +1,6 @@
 # Data loading
 
-Data loading turns an element's data requirements into loaded values and publishes the loader configuration that an authoring client needs. The model is a loader as a consumer of typed inputs that take their final form at write time and that introspection publishes.
+Data loading turns an element's data requirements into loaded values and publishes the loader configuration that an authoring client needs.
 
 ## A loader degrades on a named domain outcome and lets every other fault propagate
 

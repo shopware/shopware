@@ -1,0 +1,202 @@
+{% block sw_settings_agentic_commerce_index %}
+<sw-page class="sw-settings-agentic-commerce">
+
+    {% block sw_settings_agentic_commerce_search_bar %}
+    <template #search-bar>
+        <sw-search-bar />
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_agentic_commerce_smart_bar_header %}
+    <template #smart-bar-header>
+        {% block sw_settings_agentic_commerce_smart_bar_header_title %}
+        <h2>
+            {{ $t('sw-settings.index.title') }}
+            <mt-icon
+                name="regular-chevron-right-xs"
+                size="12px"
+            />
+            {{ $t('sw-settings-agentic-commerce.general.textHeadline') }}
+        </h2>
+        {% endblock %}
+    </template>
+    {% endblock %}
+
+    {% block sw_settings_agentic_commerce_content %}
+    <template #content>
+        <sw-card-view>
+
+            {% block sw_settings_agentic_commerce_readiness_card %}
+            <mt-card
+                class="sw-settings-agentic-commerce__readiness-card"
+                position-identifier="sw-settings-agentic-commerce-readiness"
+            >
+                {% block sw_settings_agentic_commerce_readiness_header %}
+                <div class="sw-settings-agentic-commerce__readiness-header">
+                    {% block sw_settings_agentic_commerce_readiness_header_icon %}
+                    <span
+                        class="sw-settings-agentic-commerce__status-icon"
+                        :class="{
+                            'is--ready': isReady,
+                            'is--pending': !isReady,
+                        }"
+                    >
+                        <mt-icon
+                            :name="isReady ? 'solid-checkmark' : 'regular-exclamation-s'"
+                            size="15px"
+                        />
+                    </span>
+                    {% endblock %}
+
+                    {% block sw_settings_agentic_commerce_readiness_header_text %}
+                    <div class="sw-settings-agentic-commerce__readiness-header-text">
+                        <h3 class="sw-settings-agentic-commerce__readiness-title">
+                            {{ isReady
+                            ? $t('sw-settings-agentic-commerce.readiness.titleReady')
+                            : $t('sw-settings-agentic-commerce.readiness.titlePending') }}
+                        </h3>
+                        <p class="sw-settings-agentic-commerce__readiness-subtitle">
+                            {{ readinessSubtitle }}
+                        </p>
+                    </div>
+                    {% endblock %}
+
+                    {% block sw_settings_agentic_commerce_readiness_header_badge %}
+                    <span
+                        class="sw-settings-agentic-commerce__status-badge"
+                        :class="{
+                            'is--ready': isReady,
+                            'is--pending': !isReady,
+                        }"
+                    >
+                        {{ isReady
+                        ? $t('sw-settings-agentic-commerce.readiness.badgeReady')
+                        : $t('sw-settings-agentic-commerce.readiness.badgePending') }}
+                    </span>
+                    {% endblock %}
+                </div>
+                {% endblock %}
+
+                {% block sw_settings_agentic_commerce_readiness_progress %}
+                <div class="sw-settings-agentic-commerce__progress">
+                    <div class="sw-settings-agentic-commerce__progress-labels">
+                        <span class="sw-settings-agentic-commerce__progress-title">
+                            {{ $t('sw-settings-agentic-commerce.readiness.progressTitle') }}
+                        </span>
+                        <span class="sw-settings-agentic-commerce__progress-count">
+                            {{ $t('sw-settings-agentic-commerce.readiness.progressCount', {
+                            completed: completedStepCount,
+                            total: totalStepCount,
+                            }) }}
+                        </span>
+                    </div>
+                    <mt-progress-bar
+                        :model-value="progressValue"
+                        :max-value="100"
+                    />
+                </div>
+                {% endblock %}
+
+                {% block sw_settings_agentic_commerce_readiness_steps %}
+                <ul class="sw-settings-agentic-commerce__steps">
+                    <li
+                        v-for="step in steps"
+                        :key="step.key"
+                        class="sw-settings-agentic-commerce__step"
+                    >
+                        <span
+                            class="sw-settings-agentic-commerce__status-icon"
+                            :class="{
+                                'is--ready': step.complete,
+                                'is--pending': !step.complete,
+                            }"
+                        >
+                            <mt-icon
+                                :name="step.complete ? 'solid-checkmark' : 'regular-exclamation-s'"
+                                size="15px"
+                            />
+                        </span>
+
+                        <div class="sw-settings-agentic-commerce__step-text">
+                            <span class="sw-settings-agentic-commerce__step-title">{{ step.title }}</span>
+                            <span class="sw-settings-agentic-commerce__step-description">{{ step.description }}</span>
+                        </div>
+
+                        <div class="sw-settings-agentic-commerce__step-action">
+                            {% block sw_settings_agentic_commerce_step_action_extension %}
+                            <template v-if="step.key === 'extension'">
+                                <span
+                                    v-if="step.complete"
+                                    class="sw-settings-agentic-commerce__step-complete"
+                                >
+                                    {{ $t('sw-settings-agentic-commerce.readiness.stepComplete') }}
+                                </span>
+                                <mt-button
+                                    v-else
+                                    variant="primary"
+                                    :is-loading="isInstallingExtension"
+                                    @click="onInstallExtension"
+                                >
+                                    {{ $t('sw-settings-agentic-commerce.readiness.steps.extension.action') }}
+                                </mt-button>
+                            </template>
+                            {% endblock %}
+
+                            {% block sw_settings_agentic_commerce_step_action_prepare %}
+                            <template v-else-if="step.key === 'prepareSalesChannels'">
+                                <span
+                                    v-if="step.complete"
+                                    class="sw-settings-agentic-commerce__step-complete"
+                                >
+                                    {{ $t('sw-settings-agentic-commerce.readiness.stepComplete') }}
+                                </span>
+                                <mt-button
+                                    v-else
+                                    variant="primary"
+                                    :disabled="!canPrepareSalesChannels"
+                                    @click="onPrepareSalesChannels"
+                                >
+                                    {{ $t('sw-settings-agentic-commerce.readiness.steps.prepareSalesChannels.action') }}
+                                </mt-button>
+                            </template>
+                            {% endblock %}
+                        </div>
+                    </li>
+                </ul>
+                {% endblock %}
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_settings_agentic_commerce_shop_readiness_card %}
+            <mt-card
+                class="sw-settings-agentic-commerce__shop-readiness-card"
+                :title="$t('sw-settings-agentic-commerce.shopReadiness.title')"
+                position-identifier="sw-settings-agentic-commerce-shop-readiness"
+            >
+                <dl class="sw-settings-agentic-commerce__facts">
+                    <div class="sw-settings-agentic-commerce__fact">
+                        <dt>{{ $t('sw-settings-agentic-commerce.shopReadiness.extension') }}</dt>
+                        <dd>{{ extensionStatusLabel }}</dd>
+                    </div>
+                    <div class="sw-settings-agentic-commerce__fact">
+                        <dt>{{ $t('sw-settings-agentic-commerce.shopReadiness.preparedSalesChannels') }}</dt>
+                        <dd>{{ preparedSalesChannelCount }}</dd>
+                    </div>
+                    <div class="sw-settings-agentic-commerce__fact">
+                        <dt>{{ $t('sw-settings-agentic-commerce.shopReadiness.agenticSalesChannels') }}</dt>
+                        <dd>{{ agenticSalesChannelCount }}</dd>
+                    </div>
+                </dl>
+            </mt-card>
+            {% endblock %}
+
+            {% block sw_settings_agentic_commerce_after_content %}
+            <sw-extension-component-section
+                position-identifier="sw-settings-agentic-commerce__after-content"
+            />
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

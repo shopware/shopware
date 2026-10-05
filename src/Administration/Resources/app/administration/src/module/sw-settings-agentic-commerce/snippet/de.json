@@ -1,0 +1,39 @@
+{
+    "sw-settings-agentic-commerce": {
+        "general": {
+            "mainMenuItemGeneral": "Agentic Commerce",
+            "textHeadline": "Agentic Commerce",
+            "description": "Bereite deinen Shop auf KI-gestützte Einkaufserlebnisse vor."
+        },
+        "readiness": {
+            "titlePending": "Dein Shop ist noch nicht KI-bereit",
+            "titleReady": "Dein Shop ist KI-bereit",
+            "subtitleInactive": "Installiere Agentic Commerce und bereite anschließend deine bestehenden Verkaufskanäle vor, um deinen Shop KI-bereit zu machen.",
+            "badgePending": "Einrichtung erforderlich",
+            "badgeReady": "Bereit",
+            "progressTitle": "KI-Bereitschaft",
+            "progressCount": "{completed} von {total} Schritten abgeschlossen",
+            "stepComplete": "Abgeschlossen",
+            "steps": {
+                "extension": {
+                    "title": "Agentic Commerce installiert",
+                    "description": "Installiere die Agentic-Commerce-Erweiterung, um zu starten.",
+                    "action": "Erweiterung installieren",
+                    "installError": "Die Agentic-Commerce-Erweiterung konnte nicht installiert werden. Bitte versuche es erneut."
+                },
+                "prepareSalesChannels": {
+                    "title": "Bestehende Verkaufskanäle vorbereiten",
+                    "description": "Aktiviere die erforderlichen UCP- und KI-Datei-Einstellungen, ohne jeden Verkaufskanal manuell zu konfigurieren.",
+                    "action": "Verkaufskanäle vorbereiten"
+                }
+            }
+        },
+        "shopReadiness": {
+            "title": "Shop-Bereitschaft",
+            "extension": "Erweiterung",
+            "extensionNotInstalled": "Nicht installiert",
+            "preparedSalesChannels": "Vorbereitete Verkaufskanäle",
+            "agenticSalesChannels": "Agentic-Verkaufskanäle"
+        }
+    }
+}

@@ -1,0 +1,39 @@
+{
+    "sw-settings-agentic-commerce": {
+        "general": {
+            "mainMenuItemGeneral": "Agentic Commerce",
+            "textHeadline": "Agentic Commerce",
+            "description": "Prepare your shop for AI-driven shopping experiences."
+        },
+        "readiness": {
+            "titlePending": "Your shop is not AI prepared yet",
+            "titleReady": "Your shop is AI ready",
+            "subtitleInactive": "Install Agentic Commerce, then prepare your existing sales channels to make your shop AI ready.",
+            "badgePending": "Setup needed",
+            "badgeReady": "Ready",
+            "progressTitle": "AI readiness",
+            "progressCount": "{completed} of {total} steps complete",
+            "stepComplete": "Complete",
+            "steps": {
+                "extension": {
+                    "title": "Agentic Commerce installed",
+                    "description": "Install the Agentic Commerce extension to get started.",
+                    "action": "Install extension",
+                    "installError": "The Agentic Commerce extension could not be installed. Please try again."
+                },
+                "prepareSalesChannels": {
+                    "title": "Prepare existing sales channels",
+                    "description": "Enable the required UCP and AI-file settings without configuring each sales channel by hand.",
+                    "action": "Prepare sales channels"
+                }
+            }
+        },
+        "shopReadiness": {
+            "title": "Shop readiness",
+            "extension": "Extension",
+            "extensionNotInstalled": "Not installed",
+            "preparedSalesChannels": "Prepared sales channels",
+            "agenticSalesChannels": "Agentic sales channels"
+        }
+    }
+}

@@ -43,7 +43,7 @@ A present null and an absent key differ, and PHP tells them apart with `array_ke
 
 Why: An absent key read as a present null blocks default seeding. A present null read as absent gets a default seeded over it.
 
-Exceptions: `RenderedElementFactory` drops an authored null and keeps a lookup's null. A template prop with a null default and a type default of null both merge a present null and an absent key.
+Exceptions: `RenderedElementFactory` drops an authored null and keeps a lookup's null. A template prop with a null default and a type default of null both merge a present null and an absent key. `LayoutDiagnostics` counts an authored null as no value when it checks a required primitive or a configured property reference.
 
 In code:
 

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\Event\TerminateEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
@@ -40,6 +41,7 @@ class HttpRequestMetricSubscriberTest extends TestCase
     {
         static::assertSame(
             [
+                KernelEvents::REQUEST => 'onKernelRequest',
                 KernelEvents::RESPONSE => 'onKernelResponse',
                 // should be before other terminate listeners that do post-response work, so request duration tracks
                 // client latency
@@ -86,6 +88,63 @@ class HttpRequestMetricSubscriberTest extends TestCase
         $sub = Request::create('/');
         $sub->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['store-api']);
         $subscriber->onKernelResponse($this->createResponseEvent($sub, HttpKernelInterface::SUB_REQUEST));
+
+        $subscriber->onKernelTerminate($this->createTerminateEvent('', [], 200, microtime(true)));
+
+        static::assertSame('storefront', $this->getMetric('http.server.request.duration')->labels['area']);
+    }
+
+    public function testRequestStartDiscardsStaleRoutedRequest(): void
+    {
+        $subscriber = $this->createSubscriber();
+
+        // previous request stored its routed request, but its terminate never ran
+        // (e.g. the worker runtime aborted between response and terminate)
+        $stale = Request::create('/');
+        $stale->attributes->set('_route', 'frontend.detail.page');
+        $stale->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront']);
+        $subscriber->onKernelResponse($this->createResponseEvent($stale, HttpKernelInterface::MAIN_REQUEST));
+
+        // next request starts in the same process and clears the leftover state
+        $subscriber->onKernelRequest($this->createRequestEvent(Request::create('/'), HttpKernelInterface::MAIN_REQUEST));
+
+        $subscriber->onKernelTerminate($this->createTerminateEvent('store-api.product.search', ['store-api'], 200, microtime(true)));
+
+        // area should come from the terminate request itself (store-api), not the stale one (storefront)
+        static::assertSame('store-api', $this->getMetric('http.server.request.duration')->labels['area']);
+    }
+
+    public function testSubRequestStartKeepsRoutedRequest(): void
+    {
+        $subscriber = $this->createSubscriber();
+
+        $routed = Request::create('/');
+        $routed->attributes->set('_route', 'frontend.detail.page');
+        $routed->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront']);
+        $subscriber->onKernelResponse($this->createResponseEvent($routed, HttpKernelInterface::MAIN_REQUEST));
+
+        // a sub-request after the main response (e.g. fragment rendering) must not clear the state
+        $subscriber->onKernelRequest($this->createRequestEvent(Request::create('/'), HttpKernelInterface::SUB_REQUEST));
+
+        $subscriber->onKernelTerminate($this->createTerminateEvent('', [], 200, microtime(true)));
+
+        static::assertSame('storefront', $this->getMetric('http.server.request.duration')->labels['area']);
+    }
+
+    public function testEsiFragmentRequestKeepsRoutedRequest(): void
+    {
+        $subscriber = $this->createSubscriber();
+
+        // page response is stored first; the HttpCache resolves ESI fragments afterwards, before the outer terminate
+        $page = Request::create('/');
+        $page->attributes->set('_route', 'frontend.detail.page');
+        $page->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, ['storefront']);
+        $subscriber->onKernelResponse($this->createResponseEvent($page, HttpKernelInterface::MAIN_REQUEST));
+
+        // ESI fragments are forwarded to the kernel as main requests (marked `_sw_esi`) and must not clear the stored request
+        $fragment = Request::create('/');
+        $fragment->attributes->set('_sw_esi', true);
+        $subscriber->onKernelRequest($this->createRequestEvent($fragment, HttpKernelInterface::MAIN_REQUEST));
 
         $subscriber->onKernelTerminate($this->createTerminateEvent('', [], 200, microtime(true)));
 
@@ -204,6 +263,15 @@ class HttpRequestMetricSubscriberTest extends TestCase
             static::createStub(HttpKernelInterface::class),
             $request,
             new Response('', $statusCode)
+        );
+    }
+
+    private function createRequestEvent(Request $request, int $requestType): RequestEvent
+    {
+        return new RequestEvent(
+            static::createStub(HttpKernelInterface::class),
+            $request,
+            $requestType,
         );
     }
 

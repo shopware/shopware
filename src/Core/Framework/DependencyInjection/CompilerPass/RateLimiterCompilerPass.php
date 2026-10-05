@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\DependencyInjection\CompilerPass;
 
 use Psr\Clock\ClockInterface;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
@@ -14,6 +15,7 @@ use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\RateLimiter\Storage\CacheStorage;
 
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class RateLimiterCompilerPass implements CompilerPassInterface
 {
     private const DEFAULT_ENABLED_STATE = true;

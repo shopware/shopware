@@ -292,10 +292,6 @@ class Feature
             return;
         }
 
-        if (!self::$emitDeprecations) {
-            return;
-        }
-
         if (isset(self::$silent[$majorFlag])) {
             return;
         }
@@ -312,6 +308,11 @@ class Feature
             if (self::$registeredFeatures !== [] && !self::has($majorFlag)) {
                 throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
             }
+        }
+
+        // Suppress notices in production, but still enforce removal in major mode.
+        if (!self::$emitDeprecations) {
+            return;
         }
 
         if (\PHP_SAPI !== 'cli') {

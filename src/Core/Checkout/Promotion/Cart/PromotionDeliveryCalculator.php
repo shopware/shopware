@@ -40,6 +40,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 class PromotionDeliveryCalculator
 {
     use PromotionCartInformationTrait;
+    use PromotionExclusionTrait;
 
     /**
      * @internal
@@ -69,7 +70,8 @@ class PromotionDeliveryCalculator
         $notDiscountedDeliveriesValue = $toCalculate->getDeliveries()->getShippingCosts()->getTotalPriceAmount();
 
         // build exclusions list before reducing line items
-        $exclusions = $this->buildExclusions($discountLineItems, $toCalculate, $context);
+        $exclusions = $this->buildExclusions($discountLineItems);
+        $eligibility = [];
 
         // reduce discount lineItems if fixed price discounts are in collection
         $this->restorePriceDefinitions($discountLineItems);
@@ -88,7 +90,10 @@ class PromotionDeliveryCalculator
                 continue;
             }
 
-            if (!$this->isRequirementValid($discountItem, $toCalculate, $context)) {
+            $isEligible = $this->isRequirementValid($discountItem, $toCalculate, $context);
+            $eligibility[$discountItem->getId()] = $isEligible;
+
+            if (!$isEligible) {
                 // hide the notEligibleErrors on automatic discounts
                 if (!$this->isAutomaticDiscount($discountItem)) {
                     $name = $discountItem->getLabel() ?? $discountItem->getId();
@@ -110,9 +115,7 @@ class PromotionDeliveryCalculator
                 continue;
             }
 
-            $promotionId = $discountItem->getPayloadValue('promotionId');
-
-            if (\array_key_exists($promotionId, $exclusions)) {
+            if ($this->isExcluded($discountItem, $discountLineItems, $exclusions, $eligibility, $toCalculate, $context)) {
                 $toCalculate->addErrors(new PromotionNotEligibleError($discountItem->getDescription() ?? $discountItem->getId()));
 
                 continue;
@@ -162,49 +165,6 @@ class PromotionDeliveryCalculator
 
             $item->setPriceDefinition($definition);
         }
-    }
-
-    /**
-     * This function builds a complete list of promotions
-     * that are excluded somehow.
-     * The validation which one to take will be done later.
-     *
-     * @return array<mixed, bool>
-     */
-    private function buildExclusions(LineItemCollection $discountLineItems, Cart $toCalculate, SalesChannelContext $context): array
-    {
-        // array that holds all excluded promotion ids.
-        // if a promotion has exclusions they are added on the stack
-        $exclusions = [];
-
-        foreach ($discountLineItems as $discountItem) {
-            // if we dont have a scope
-            // then skip it, it might not belong to us
-            if (!$discountItem->hasPayloadValue('discountScope')) {
-                continue;
-            }
-
-            // if promotion is on exclusions stack it is ignored
-            if ($discountItem->hasPayloadValue('promotionId')) {
-                $promotionId = $discountItem->getPayloadValue('promotionId');
-
-                // if promotion is on exclusions stack it is ignored
-                // this avoids cycles that both promotions exclude each other
-                if (isset($exclusions[$promotionId])) {
-                    continue;
-                }
-            }
-
-            // add all exclusions to the stack
-            foreach ($discountItem->getPayloadValue('exclusions') as $id) {
-                // check if the promotion is active by its conditions
-                if ($this->isRequirementValid($discountItem, $toCalculate, $context)) {
-                    $exclusions[$id] = true;
-                }
-            }
-        }
-
-        return $exclusions;
     }
 
     /**

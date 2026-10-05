@@ -78,7 +78,7 @@ export default {
         },
 
         shippingMethodRepository() {
-            return this.repositoryFactory.create('shipping_method');
+            return this.repositoryFactory.create('shipping_method', null, { useSync: true });
         },
 
         shippingMethodPricesRepository() {

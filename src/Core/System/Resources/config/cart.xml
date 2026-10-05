@@ -92,6 +92,15 @@
             <helpText>Displays the EU-harmonised legal guarantee notice in the customer's storefront language.</helpText>
             <helpText lang="de-DE">Zeigt den EU-weit harmonisierten Gewährleistungshinweis in der Storefront-Sprache des Kunden an.</helpText>
         </input-field>
+
+        <input-field type="bool">
+            <name>showLegalGuaranteeNoticeInline</name>
+            <defaultValue>false</defaultValue>
+            <label>Display legal guarantee notice directly on checkout</label>
+            <label lang="de-DE">Gewährleistungshinweis direkt auf der Bestellabschlussseite anzeigen</label>
+            <helpText>Shows the complete legal guarantee notice below the terms and conditions on the checkout page, instead of displaying only a link. Requires the legal guarantee notice to be enabled.</helpText>
+            <helpText lang="de-DE">Zeigt den vollständigen Gewährleistungshinweis auf der Bestellabschlussseite unter den AGB an, anstatt nur einen Link anzuzeigen. Der Gewährleistungshinweis muss dafür aktiviert sein.</helpText>
+        </input-field>
     </card>
 
     <card>

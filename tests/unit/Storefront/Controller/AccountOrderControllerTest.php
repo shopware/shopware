@@ -359,10 +359,22 @@ class AccountOrderControllerTest extends TestCase
             true,
         ];
 
+        yield 'an incomplete submission asks for the credentials again without an error' => [
+            OrderException::guestNotAuthenticated(),
+            ['email' => 'guest@example.com'],
+            false,
+        ];
+
         yield 'submitted credentials not matching the order show an error' => [
             OrderException::wrongGuestCredentials(),
             ['email' => 'guest@example.com', 'zipcode' => '12345'],
             true,
+        ];
+
+        yield 'throttled submissions only show the wait time, not the error' => [
+            OrderException::customerAuthThrottledException(10),
+            ['email' => 'guest@example.com', 'zipcode' => '12345'],
+            false,
         ];
     }
 

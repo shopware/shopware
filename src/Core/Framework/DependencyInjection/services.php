@@ -30,6 +30,7 @@ use Shopware\Core\Framework\Adapter\Twig\AppTemplateIterator;
 use Shopware\Core\Framework\Adapter\Twig\BackwardCompatibleIntlExtension;
 use Shopware\Core\Framework\Adapter\Twig\EntityTemplateLoader;
 use Shopware\Core\Framework\Adapter\Twig\Extension\ComparisonExtension;
+use Shopware\Core\Framework\Adapter\Twig\Extension\CompatTwigExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\ConfigExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\FeatureFlagExtension;
 use Shopware\Core\Framework\Adapter\Twig\Extension\InAppPurchaseExtension;
@@ -71,6 +72,7 @@ use Shopware\Core\Framework\Log\Monolog\ExcludeExceptionHandler;
 use Shopware\Core\Framework\Log\Monolog\ExcludeFlowEventHandler;
 use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTask;
 use Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTaskHandler;
+use Shopware\Core\Framework\Log\SystemActivitySubscriber;
 use Shopware\Core\Framework\Migration\Command\CreateMigrationCommand;
 use Shopware\Core\Framework\Migration\Command\MigrationCommand;
 use Shopware\Core\Framework\Migration\Command\MigrationDestructiveCommand;
@@ -175,8 +177,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         'lowercase' => false,
     ]);
 
-    // Populated by RouteScopeCompilerPass with all route prefixes from the registers RouteScopes
+    // Populated by RouteScopeCompilerPass with all route prefixes from the registered RouteScopes,
+    // and with the prefixes of the RouteScopes that depend on an API context
     $parameters->set('shopware.routing.registered_api_prefixes', []);
+    $parameters->set('shopware.routing.api_context_route_prefixes', []);
 
     // Migration config
     $parameters->set('core.migration.directories', []);
@@ -197,17 +201,17 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $parameters->set('shopware.http.cache.default_ttl', env('SHOPWARE_HTTP_DEFAULT_TTL')->default('shopware_http_cache_default_ttl_default'));
 
     $containerConfigurator->extension('monolog', [
-        'channels' => ['business_events'],
+        'channels' => ['business_events', 'system_activity'],
         'handlers' => [
             'business_event_handler_buffer' => [
                 'type' => 'buffer',
                 'handler' => 'business_event_handler',
-                'channels' => ['business_events'],
+                'channels' => ['business_events', 'system_activity'],
             ],
             'business_event_handler' => [
                 'type' => 'service',
                 'id' => DoctrineSQLHandler::class,
-                'channels' => ['business_events'],
+                'channels' => ['business_events', 'system_activity'],
             ],
         ],
     ]);
@@ -664,6 +668,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('twig.extension.intl'),
         ])
+        ->tag('twig.extension')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
+
+    $services->set(CompatTwigExtension::class)
         ->tag('twig.extension');
 
     $services->set(SecurityExtension::class)
@@ -783,6 +791,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ]);
 
     // Logging
+    $services->set(SystemActivitySubscriber::class)
+        ->args([service('logger'), service(Connection::class)])
+        ->tag('monolog.logger', ['channel' => 'system_activity'])
+        ->tag('kernel.event_subscriber');
+
     $services->set(LoggingService::class)
         ->args([
             param('kernel.environment'),
@@ -956,7 +969,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service('cache.http'),
-            service(CacheStateValidator::class),
+            service(CacheStateValidator::class)->nullOnInvalid(),
             service('event_dispatcher'),
             service(HttpCacheKeyGenerator::class),
             service(MaintenanceModeResolver::class),
@@ -977,7 +990,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(CacheStateValidator::class)
         ->args([
             param('shopware.cache.invalidation.http_cache'),
-        ]);
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(BacktraceCollector::class);
 

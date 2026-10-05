@@ -100,6 +100,18 @@ The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now requi
 
 The field `restockTime` of ProductDefinition now requires a minimum value of `0`. Writing a negative value via the API is rejected. Existing negative values are set to `NULL` by a migration, as they previously broke cart calculation for out-of-stock products.
 
+## `RegulationPrice` constructor is private
+
+Matching `ListPrice`, `Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice` is built through its factory, which also computes `discount` and `percentage`:
+
+```php
+// before
+$regulationPrice = new RegulationPrice($price);
+
+// after
+$regulationPrice = RegulationPrice::createFromUnitPrice($unitPrice, $price);
+```
+
 ## Default CMS page ID now persisted for categories
 
 The default CMS page ID is now automatically written to the database when a category is saved without a `cmsPageId`.
@@ -253,6 +265,10 @@ Price-based shipping method price matrix ranges are now compared in the default 
 Enable the `SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION` feature flag in 6.7 to preview the behavior before updating to 6.8.
 
 </details>
+
+## Storefront session continues on the token returned by the logout route
+
+After a customer logs out, the storefront session now holds the context token that `\Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute` created and returned in its response body, instead of a separately generated one. Both are fresh anonymous tokens, so no action is required unless an extension relied on the session token differing from the one the logout response returned.
 
 # API
 

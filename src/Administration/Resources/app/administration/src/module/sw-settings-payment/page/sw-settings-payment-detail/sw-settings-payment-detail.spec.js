@@ -140,6 +140,17 @@ describe('module/sw-settings-payment/page/sw-settings-payment-detail', () => {
         expect(ruleField.attributes('disabled')).toBeUndefined();
     });
 
+    it('should only allow whole numbers for the position', async () => {
+        const wrapper = await createWrapper();
+
+        await flushPromises();
+
+        const positionField = wrapper.find('.sw-settings-payment-detail__field-position');
+
+        expect(positionField.attributes('step')).toBe('1');
+        expect(positionField.attributes('number-type')).toBe('int');
+    });
+
     it('should add conditions association', async () => {
         const wrapper = await createWrapper();
 

@@ -26,7 +26,7 @@ renamed storage key.
 
 ## Result channels
 
-`orphaned` = children of slots absent from the new type. `droppedWiring` = old wiring keys minus kept.
+[`orphaned`](../README.md#result-channels) = children of slots absent from the new type. `droppedWiring` = old wiring keys not carried.
 `droppedProperties` = static property values whose key is absent from the new type (and not a carryable `resolvedBy`
 storage key) or whose value its property type rejects. A value rejected for a key the new type still declares as a
 primitive with a default is reported as dropped even though that default then re-fills the key. A key absent from

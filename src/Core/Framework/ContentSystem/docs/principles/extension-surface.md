@@ -21,8 +21,6 @@ A public signature must name only public types. Every class in a `ContentSystem`
 
 Why: A public member whose signature names an internal type forces a plugin to reference that type. Marking chosen classes internal publishes every class the marking misses.
 
-Not chosen: Marking chosen classes `@internal` in a public module, with public signatures free to name internal types.
-
 Exceptions: The test builders under `src/Core/Test/Stub/` are public without an entry in the public-surface list.
 
 In code:
@@ -38,7 +36,7 @@ A registry must reconcile app rows under a per-app lock and in one transaction. 
 
 Why: A malformed row that install accepts is skipped on load, so the declaration is absent from the registry. A lifecycle handler without a deactivate hook still serves a deactivated app. A binding is scoped to its element type, not a Store API wire key.
 
-Not chosen: A global flat id namespace, as the style-option and element-type names use.
+Decided against: A global flat id namespace, as the style-option and element-type names use.
 
 Exceptions: The attribution reconciler drops an attribution to a specification that no longer exists, and the drop is not a fault. A database registry loader skips and logs a malformed persisted row on load, under the [build-time rule](failure-and-loss.md#a-declaration-or-registration-defect-fails-the-build-or-the-load-never-a-request).
 
@@ -56,7 +54,7 @@ Why: A guard based on the one producer that surfaced a hazard turns a known limi
 In code:
 
 - `ContentPipeline::load()` serves an element that a finalization listener adds.
-- A repeated id is the one listed edit that fails, under the [final check](rendering.md#the-render-validates-the-whole-stored-forest-in-every-mode).
+- A repeated id is the one listed edit that fails, under the [render checks](rendering.md#the-render-validates-the-whole-stored-forest-in-every-mode).
 - See [custom-listeners.md](../../Event/Listener/docs/custom-listeners.md).
 
 ## An app or plugin extends the module through declared data the module reads
@@ -65,7 +63,7 @@ The module applies the "open/closed principle" to element capabilities. An exten
 
 Why: A capability that needs a core edit per entity is closed to apps, and each further entity needs another core edit.
 
-Not chosen: Core classes that call app code.
+Decided against: Core classes that call app code.
 
 In code:
 
@@ -84,6 +82,6 @@ Exceptions: StorefrontController keeps `loadContentPage()`, the subscribed servi
 
 In code:
 
-- `ContentRouteCompilerPass` aliases `AbstractContentRoute` to the main full-format route, so a controller can take `AbstractContentRoute` as a constructor argument.
+- `ContentRouteCompilerPass` aliases `AbstractContentRoute` to the main section's route in the full format.
 - No check enforces the rule.
 - See [SalesChannel/README.md](../../SalesChannel/README.md).

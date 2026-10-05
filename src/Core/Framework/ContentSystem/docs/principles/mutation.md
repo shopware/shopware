@@ -4,13 +4,13 @@ The rules in this area govern a mutation, one server-side edit of a stored layou
 
 ## The draft pipeline writes derived wiring only where proved
 
-The draft pipeline writes derived wiring only onto created elements. Only the draft pipeline turns a resolution into wiring. The draft pipeline writes a consumer only onto an element the operation created, and only for a reference that the resolution proved unambiguously. It aliases the written consumer to the property that proved the reference. Where decode would reject the wiring or the element itself provides the key, it writes no consumer and never throws. Unproved wiring stays dropped and returns to the client. An unwired consumer stays unwired. Resolution output never enters storage.
+The draft pipeline writes derived wiring only onto created elements. Only the draft pipeline turns a resolution into wiring. The draft pipeline writes a [consumer](README.md#glossary) only onto an element the operation created, and only for a reference that the resolution proved unambiguously. It aliases the written consumer to the property that proved the reference. Where decode would reject the wiring or the element itself provides the key, it writes no consumer and never throws. Unproved wiring stays dropped and returns to the client. An unwired consumer stays unwired. Resolution output never enters storage.
 
 Why: A guessed consumer is wiring that nobody chose. A consumer written onto a moved element re-adds a consumer that the author removed. An unaliased consumer fills a foreign key while the declared property stays empty.
 
-Not chosen: Widening the written set from `created()` to `affected()`, or wiring a consumer on a guess. Testing the resolved `contextKey` instead of the written property key against a data requirement or a provider.
+Decided against: Testing the resolved `contextKey` instead of the written property key against a data requirement or a [provider](README.md#glossary).
 
-Exceptions: A type swap re-scaffolds the node under the same id and counts as created. The re-scaffolded node may regain a consumer that the author removed.
+Exceptions: `ReplaceElement` rebuilds the node under the same id and counts as created. The rebuilt node may regain a consumer that the author removed.
 
 In code:
 

@@ -1,6 +1,6 @@
 # Element
 
-The storage-side element model, and the edit idiom for the rendered one. Elements nest via named slots, declare data requirements and context definitions, and are rebuilt rather than mutated.
+Stored elements and `RenderedTreeEditor`, which edits a rendered forest. Elements nest via named slots, declare data requirements and context definitions, and are rebuilt rather than mutated.
 
 ## Guides
 
@@ -21,9 +21,9 @@ The storage-side element model, and the edit idiom for the rendered one. Element
 - declared authored properties (every declared type except a single-FQCN reference, unions and bare `object` included) carrying the stored value and skipped when that value is the null variant
 - `dataRequirements[$key]` keys carrying the resolved loader value
 - the keys context was actually delivered under
-- stored keys a parent's distribution config names, excluding a declared reference property
+- stored keys that a parent's `KeyedDistributionConfig` names, excluding a declared reference property
 
-The rendered property map draws no distinction between a static, a loaded and a context-provided value; provenance is recorded separately in `Rendering/ElementMintResult`, collected by `LoweringResult`. A rendered element's slots are `array<string, list<RenderedElement>>`. A `RenderedTreeFinalizationEvent` listener may hand back elements changed through `withProperty()` / `withProperties()`, and `ContentPipeline` carries that replacement forward rather than the tree it dispatched.
+The rendered property map draws no distinction between a static, a loaded and a context-provided value; the origin of each value is recorded separately in `Rendering/ElementMintResult`, collected by `LoweringResult`. A rendered element's slots are `array<string, list<RenderedElement>>`. A `RenderedTreeFinalizationEvent` listener may hand back elements changed through `withProperty()` / `withProperties()`, and `ContentPipeline` carries that replacement forward rather than the tree it dispatched.
 
 ## Editing a Rendered Forest
 
@@ -31,7 +31,7 @@ The rendered property map draws no distinction between a static, a loaded and a 
 
 Nothing is edited in place. That is `RenderedElement`'s doing rather than the editor's: the class is `final readonly`, so a mapper has no way to mutate what it was handed.
 
-It is the whole-tree half of the rendering extension idiom, aimed at third-party listeners. A `RenderedTreeFinalizationEvent` listener that has a rule for a single element hands it here instead of writing the recursion itself.
+A `RenderedTreeFinalizationEvent` listener that has a rule for a single element hands it here instead of writing the recursion itself.
 
 ## Context and Data
 

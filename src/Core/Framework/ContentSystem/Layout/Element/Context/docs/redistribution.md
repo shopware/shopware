@@ -97,9 +97,9 @@ The `content-section` container automatically passes product data to nested comp
 
 ## Where each rule is enforced
 
-`redistribute: true` makes the redistribute derivation in `Rendering/WiringPlanner::plan()` generate a virtual provider at runtime. It is never persisted.
+`redistribute: true` makes `Rendering/WiringPlanner::plan()` add a derived provider at render time. It is never persisted.
 
-Three sites judge wiring. The decoder `Layout/Codec/StoredElementWiringDecoder` (composed by `StoredElementCodec`) throws on decode. The descriptor `Layout/Codec/StoredTreeWiringConstraints` (composed by `StoredTreeConstraints`) reports a write-descriptor violation. `WiringPlanner::plan()` judges the pre-prune forest.
+Three sites judge wiring. The decoder `Layout/Codec/StoredElementWiringDecoder` (composed by `StoredElementCodec`) throws on decode. The descriptor `Layout/Codec/StoredTreeWiringConstraints` (composed by `StoredTreeConstraints`) reports a write-descriptor violation. `WiringPlanner::plan()` judges the forest before the [partial prune](../../../../docs/principles/README.md#glossary).
 
 - `consumerAlias` without `redistribute`: the decoder throws `ContentSystemException::consumerAliasWithoutRedistribute()`; the descriptor reports on `[consumerAlias]`.
 - `propertyAlias` with a dot: the decoder and the descriptor reject it.

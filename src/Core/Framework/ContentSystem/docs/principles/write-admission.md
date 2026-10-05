@@ -1,14 +1,12 @@
 # Write admission
 
-Write admission is the path that a layout write takes into storage through `LayoutWriteBoundary::apply()`, the write boundary.
+Write admission is the path that a layout write takes into storage through `LayoutWriteBoundary::apply()`, the [write boundary](README.md#terms-that-are-easy-to-confuse).
 
 ## Every layout write passes through the write boundary, a single choke point
 
-Every route that persists a layout commits through `LayoutWriteBoundary::apply()`, including plain DAL writes, the Sync API, imports and fixtures. No pass of the write boundary overwrites a value the author set. The passes reconcile attribution. No client-side sanitizer runs before the write boundary, under the [server-owned value rule](values.md#every-rule-about-a-value-is-the-servers-and-the-client-sends-the-raw-value).
+Every route that persists a layout commits through `LayoutWriteBoundary::apply()`, including plain DAL writes, the Sync API, imports and fixtures. No pass of the write boundary overwrites a value the author set. The attribution pass alone reconciles `attributedSpecifications`. No client-side sanitizer runs before the write boundary, under the [server-owned value rule](values.md#every-rule-about-a-value-is-the-servers-and-the-client-sends-the-raw-value).
 
 Why: Two write boundaries diverge.
-
-Not chosen: Per-route validation and normalization.
 
 Exceptions: Raw SQL and migrations bypass the write boundary, with the obligations that the [bypass rule](#no-dal-write-can-bypass-the-constraint-descriptor) states.
 
@@ -43,4 +41,4 @@ In code:
 
 ## Also true by construction
 
-- The write gate checks the oldest tree that the field serializer recorded for its row in `LayoutWriteContext`. The write gate consumes that tree on the skip path too and never decodes the column: [Layout/Field/README.md](../../Layout/Field/README.md)
+- The [write gate](README.md#terms-that-are-easy-to-confuse) checks the oldest tree that the field serializer recorded for its row in `LayoutWriteContext`. The write gate consumes that tree on the skip path too and never decodes the column: [Layout/Field/README.md](../../Layout/Field/README.md)

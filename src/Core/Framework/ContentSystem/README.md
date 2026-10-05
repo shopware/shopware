@@ -16,7 +16,7 @@ The module is built on a set of written design rules, one file per area under [d
 
 **Data Requirements** - Declarations of what data an element needs. The system loads this data automatically before rendering.
 
-**Context** - Mechanism for elements to share data: providers expose data and consumers receive it, within the reach rules of [context-wiring](docs/principles/context-wiring.md#context-flows-only-between-adjacent-elements).
+**Context** - Mechanism for elements to share data: [providers](docs/principles/README.md#glossary) expose data and [consumers](docs/principles/README.md#glossary) receive it, within the reach rules of [context-wiring](docs/principles/context-wiring.md#context-flows-only-between-adjacent-elements).
 
 ## Content Sections
 
@@ -38,9 +38,9 @@ The pipeline is source-independent — specification sources translate entity ID
 
 1. **Specification Resolution** — the route picks a source through `RenderingSpecificationResolver` and assembles the `ResolvedContentLayout`. See Adapter/.
 2. **Layout Loading** — the route loads the `ContentLayoutEntity` and wraps it in a `RenderableLayout` for the pipeline.
-3. **Preparation** — `Layout/Scaffolding/StoredTreePreparer` brings the stored forest into renderable shape, then `Rendering/WiringPlanner::plan()` validates the context wiring and derives the redistribute providers. Everything here runs on stored elements, and `ContentTreePreparationEvent` is dispatched ahead of all of it. See Rendering/ and Event/Listener/.
+3. **Preparation** — `Layout/Scaffolding/StoredTreePreparer` makes the stored [forest](docs/principles/README.md#glossary) renderable, then `Rendering/WiringPlanner::plan()` validates the context wiring and derives providers for `redistribute: true` consumers. Everything here runs on stored elements, and `ContentTreePreparationEvent` is dispatched ahead of all of it. See Rendering/ and Event/Listener/.
 4. **Rendering** — `Rendering/ElementLowering` turns the derived stored forest into the rendered forest. See Rendering/.
-5. **Finishing** — `ContentPipeline` unwraps the virtual root and extracts the partial target, then dispatches `RenderedTreeFinalizationEvent` over the finished rendered tree in both modes. See Event/Listener/.
+5. **Finishing** — `ContentPipeline` runs the [finishing steps](docs/principles/README.md#glossary), then dispatches `RenderedTreeFinalizationEvent` over the finished rendered tree in FULL and SKELETON mode. See Event/Listener/.
 
 The step order, the passes inside preparation, and the checks between them are owned by [docs/pipeline-steps.md](docs/pipeline-steps.md); [docs/data-flow.md](docs/data-flow.md) diagrams the data flow.
 
@@ -103,4 +103,4 @@ Admin-facing endpoints are documented in [Api/README.md](Api/README.md).
 ## Reference Documents
 
 - [docs/README.md](docs/README.md) - Index of the module's reference documents, one subject per file
-- [docs/principles/README.md](docs/principles/README.md) - Why the module's design rules hold, and what was not chosen
+- [docs/principles/README.md](docs/principles/README.md) - Why the module's design rules hold, and what was decided against

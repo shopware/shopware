@@ -1,6 +1,6 @@
 # Mutation Errors
 
-A resolvability problem (an unresolved required property, a broken context chain) is reported in the `diagnostics` body at HTTP 200, not as an error. Only the conditions below abort the request (`ContentSystemException`); the structural impossibilities are `400 Bad Request`:
+A resolvability problem (an unresolved required property, a broken context chain) is reported in the `diagnostics` body at HTTP 200, not as an error. Only the conditions below abort the request (`ContentSystemException`). The structural impossibilities are `400 Bad Request`:
 
 | Condition                                                                                                | HTTP | Factory                                           |
 |----------------------------------------------------------------------------------------------------------|------|---------------------------------------------------|
@@ -16,4 +16,4 @@ A resolvability problem (an unresolved required property, a broken context chain
 | Layout element missing a non-empty string `id`/`component`; a duplicate element `id`, nesting past the maximum depth, or a non-array nested child (rejected before the edit runs); or an element config that is a client defect | 400 | `invalidLayoutStructure`                          |
 | `rootSource` is a non-empty value not registered in `RootSourceRegistry`                                 | 400  | `unknownRootSource` (the route gates membership against `RootSourceRegistry::knownRootSources()` before resolving, the same as the write validator) |
 
-The mutation-structural codes above — `mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType` — are not client defects; see [Client-Defect Error Codes](../../docs/client-defect-codes.md).
+The mutation-structural codes above (`mutationTargetNotFound`, `mutationCycle`, `mutationSlotRequired`, `mutationInvalidWrapTargets`, `mutationUnknownType`) are not client defects. See [Client-Defect Error Codes](../../docs/client-defect-codes.md).

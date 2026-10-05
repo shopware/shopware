@@ -14,7 +14,7 @@
 
 ## Broken required chain
 
-- `brokenChainViolations` reports a required consumer as `BrokenRequiredChain` unless an available entry supplies it. Keys match exact-or-dot-path via `ContextPathResolver::matches()`, the delivery predicate, so a required dotted consumer that delivery would resolve is not reported broken. The availability formula appends the root-ambient set at every depth, while delivery hands root-ambient values to root-scoped consumers alone. So a `parent`-scope consumer is supplied only by an entry with `root: false` and a `root`-scope consumer only by one with `root: true`. The message differs by consumer scope.
+- `brokenChainViolations` reports a required consumer as `BrokenRequiredChain` unless an available `ProvidedContext` supplies it. Keys match exact-or-dot-path via `ContextPathResolver::matches()`, the delivery predicate, so a required dotted consumer that delivery would resolve is not reported broken. The availability formula appends the root context at every depth, while delivery hands its values to root-scoped consumers alone. So a `parent`-scope consumer is supplied only by a `ProvidedContext` with `root: false` and a `root`-scope consumer only by one with `root: true`. The message differs by consumer scope.
 
 ## Constraint errors at the write
 

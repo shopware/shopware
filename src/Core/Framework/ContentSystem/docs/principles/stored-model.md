@@ -4,24 +4,24 @@ The stored model is `StoredElement`, the element a layout persists, and `StoredT
 
 ## `StoredElement` and `RenderedElement` are two classes joined by one explicit conversion
 
-`StoredElement`, which a layout persists, is a different type from `RenderedElement`, which a page serves. `StoredElement` carries data requirements, context wiring, attribution and property values in wrapped form. `RenderedElement` carries a flat map of raw values and no wiring. The two classes meet in the render step only. No element class plays both roles. Nothing writes into an element while the element renders. A listener replaces the tree through its event instead of editing the tree it received. A consumer that needs the content of a rendered element descends into it explicitly. Every edit of either class produces a new instance through a `with*()` method, and each class copies its fields at one private site.
+`StoredElement`, which a layout persists, is a different type from `RenderedElement`, which a page serves. `StoredElement` carries data requirements, context wiring, `attributedSpecifications` and property values in wrapped form. `RenderedElement` carries a flat map of raw values and no wiring. The two classes meet in the render step only. No element class plays both roles. Nothing writes into an element while the element renders. A listener replaces the tree through its event instead of editing the tree it received. Code that needs the content of a rendered element descends into it explicitly. Every edit of either class produces a new instance through a `with*()` method, and each class copies its fields at one private site.
 
 Why: One mutable element class served the storage, validation, mutation, wire and template roles. Hydration events handed listeners that mutable element, and in-place mutation became an extension contract. A rebuild that copied fields by hand dropped any field added to the class later.
 
-Not chosen: One element class that storage, validation, the administration, templates and several pipeline steps all use, or an in-place write that saves a copy. A rendered element that extends `Struct`, which reopens mutable extension state and generic traversal, and which a readonly class cannot extend.
+Decided against: A rendered element that extends `Struct`, which reopens mutable extension state and generic traversal, and which a readonly class cannot extend.
 
 In code:
 
 - `RenderedElementFactory` builds every rendered element from a stored one inside the render step.
-- `create()` builds in full rendering.
-- `createStructural()` builds for the skeleton.
+- `create()` builds in [FULL mode](README.md#terms-that-are-easy-to-confuse).
+- `createStructural()` builds in SKELETON mode.
 - A listener replaces the tree through `ContentTreePreparationEvent::replaceTree()`.
 - `StoredElementTest` pins the stored side's immutability.
 - See [stored-and-rendered.md](../stored-and-rendered.md).
 
 ## Every map key is a string, and the module rejects an integer-castable key, never coerces it
 
-Every key of a property, slot, data-requirement, wiring or placeholder map is a string that PHP cannot cast to an integer. The decode gate rejects an integer-castable key as a client defect with `INVALID_MAP_KEY`. The `StoredElement` and `RenderedElement` constructors reject an integer-castable key in the maps they build.
+Every key of a property, slot, data-requirement, wiring or placeholder map is a string that PHP cannot cast to an integer. `StoredElementCodec::decode()` rejects an integer-castable key as a [client defect](README.md#glossary) with `INVALID_MAP_KEY`. The `StoredElement` and `RenderedElement` constructors reject an integer-castable key in the maps they build.
 
 Why: PHP casts the array key `"5"` to `5`. PHP also renumbers integer keys when it merges arrays. No storage layer can therefore keep an integer-castable key sound.
 
@@ -36,7 +36,7 @@ In code:
 
 ## The module seeds a primitive default at write time, never at serve time
 
-Creation and replacement write the declared default of a primitive property in the stored shape. A binding writes the input defaults of its specification. On every write, the DAL write boundary seeds any type default that is still absent. It never seeds over a present value, including an authored null. Serving and diagnostics read only stored values. A stored value therefore satisfies a required primitive, and the declaration never does.
+Creation and replacement write the declared default of a primitive property in the stored shape. A binding writes the input defaults of its specification. On every write, the DAL [write boundary](README.md#terms-that-are-easy-to-confuse) seeds any type default that is still absent. It never seeds over a present value, including an authored null. Serving and diagnostics read only stored values. A stored value therefore satisfies a required primitive, and the declaration never does.
 
 Why: A serve-time default makes an unfilled required property look filled. It also lets a later declaration change what stored layouts render.
 
@@ -51,11 +51,11 @@ In code:
 
 ## The creating write sets the root source of a layout
 
-The root source of a layout never changes after the creating write. A layout row receives its root source in the write that creates the row. The write gate proves a stored layout resolvable against the one root context of its root source. `ContentLayoutAssignmentWriteValidator` rejects an assignment to an entity of another kind. The module does not support a layout polymorphic over root sources.
+The root source of a layout never changes after the creating write. A layout row receives its root source in the write that creates the row. The [write gate](README.md#terms-that-are-easy-to-confuse) proves a stored layout resolvable against the one [root context](README.md#glossary) of its root source. `ContentLayoutAssignmentWriteValidator` rejects an assignment to an entity of another kind. The module does not support a layout polymorphic over root sources.
 
 Why: Settling the root source once lets the write gate prove a layout resolvable at write time instead of on every render. A polymorphic layout would require the write gate to prove it resolvable against every candidate root context.
 
-Not chosen: Resolving the root source per request from the referencing entity, or reusing one layout across kinds.
+Decided against: Resolving the root source per request from the referencing entity, or reusing one layout across kinds.
 
 In code:
 
@@ -66,17 +66,17 @@ In code:
 
 ## An element id is an opaque string, unique across all roots of a layout
 
-An element id carries no format. No consumer derives meaning from the shape of an element id. The decode gate that every write path and every draft path share rejects two values only. The first value is the reserved virtual-root literal, which would collide with the render wrapper. The second value is a string that PHP casts to an integer, which the [map-key rule](#every-map-key-is-a-string-and-the-module-rejects-an-integer-castable-key-never-coerces-it) bans because element ids serve as map keys. A repeated element id is a well-formedness violation.
+An element id carries no format. No code derives meaning from the shape of an element id. `StoredElementCodec::decode()`, which every write path and every draft path share, rejects two values only. The first value is `VirtualRootWrapper::VIRTUAL_ROOT_ID`, which would collide with the [virtual root](README.md#glossary). The second value is a string that PHP casts to an integer, which the [map-key rule](#every-map-key-is-a-string-and-the-module-rejects-an-integer-castable-key-never-coerces-it) bans because element ids serve as map keys. A repeated element id is a well-formedness violation.
 
-Why: A format constraint invites a consumer to parse the id.
+Why: A format constraint invites code to parse the id.
 
-Not chosen: A 32-character hex pattern for the id.
+Decided against: A 32-character hex pattern for the id.
 
 In code:
 
 - `StoredElementCodec::decode()` rejects `VirtualRootWrapper::VIRTUAL_ROOT_ID` and an integer-castable id with `INVALID_ELEMENT_ID`.
 - `StoredTree::validate()` reports `ViolationCode::DuplicateElementId`.
-- `StoredElementCodecStructuralDecodeTest` pins that decode rejects the virtual-root literal and an integer-castable id.
+- `StoredElementCodecStructuralDecodeTest` pins that decode rejects `VirtualRootWrapper::VIRTUAL_ROOT_ID` and an integer-castable id.
 - See [client-defect-codes.md](../client-defect-codes.md).
 
 ## Also true by construction

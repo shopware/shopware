@@ -1,6 +1,6 @@
 # Failure and loss
 
-The rules in this area apply across the module and govern how it handles a defect and content that an operation cannot keep. The model is "fail fast at the point of origin", with one closed code set for client defects.
+The rules in this area apply across the module and govern how it handles a defect and content that an operation cannot keep.
 
 ## A component throws where it meets invalid data, and nothing degrades silently
 
@@ -8,7 +8,7 @@ Every component fails fast on invalid, unrepresentable or misconfigured data, at
 
 Why: A skipped defect appears later as a state that no write could produce. A degraded result that looks valid cannot be told from a correct one, so no caller can react to it.
 
-Not chosen: A first-wins pick or a precedence rule that resolves an ambiguous entity-name derivation or an ambiguous default specification into a value.
+Decided against: A first-wins pick or a precedence rule that resolves an ambiguous entity-name derivation or an ambiguous default specification into a value.
 
 Exceptions: A data loader degrades to a not-found result on a collaborator's HTTP exception, under the [degradation rule](data-loading.md#a-loader-degrades-on-a-named-domain-outcome-and-lets-every-other-fault-propagate). It degrades on an entity id that `Uuid::isValid()` rejects, so an unsubstituted placeholder never reaches an id parser. Each database registry loader skips and logs a malformed row under the [build-time rule](#a-declaration-or-registration-defect-fails-the-build-or-the-load-never-a-request). The attribution reconciler drops a diverged attribution, as [extension-surface.md](extension-surface.md#an-app-shipped-declaration-is-validated-and-reconciled-by-the-module-never-trusted-or-patched) states. The type declaration reader reads the `meta`, `properties` and `slots` keys only and ignores every other top-level key. It stays lenient because the binding system reads the inline `bindings:` section of the same file.
 
@@ -46,7 +46,7 @@ In code:
 
 ## The cause of a defect sets its classification, and HTTP status is a separate axis
 
-A code that a client can cause is a client defect, and `CLIENT_DEFECT_CODES` lists it. A defect whose only possible cause is data bypassing the write gate is an internal fault, and `CLIENT_DEFECT_CODES` does not list it. The module never repairs an internal fault. The route or serializer that meets a defect sets the HTTP status of that defect on its own path. A mutation payload defect reaches the client as a 400 with a code and a detail, never as a 500 or a silent save.
+A code that a client can cause is a [client defect](README.md#glossary), and `CLIENT_DEFECT_CODES` lists it. A defect whose only possible cause is data bypassing the write gate is an internal fault, and `CLIENT_DEFECT_CODES` does not list it. The module never repairs an internal fault. The route or serializer that meets a defect sets the HTTP status of that defect on its own path. A mutation payload defect reaches the client as a 400 with a code and a detail, never as a 500 or a silent save.
 
 | Path that meets a defect in an id or in a layout | HTTP status or behaviour |
 |---|---|
@@ -56,8 +56,6 @@ A code that a client can cause is a client defect, and `CLIENT_DEFECT_CODES` lis
 | Stored-column read | 500 |
 
 Why: A status derived from `CLIENT_DEFECT_CODES` would make a read of stored corruption a 400 that marks the client as the cause.
-
-Not chosen: One axis that sets both the HTTP status and the client-defect mark, or a status that a generic catch site sets for every path.
 
 Exceptions: `CLIENT_DEFECT_CODES` lists neither the mutation structural 400s nor the field-selection 400. A mutation payload that its request object rejects is a 400 without an error code.
 
@@ -77,7 +75,7 @@ Each code has one factory that new callers reuse. The module has one exception c
 
 Why: The administration gives a specific message only to codes it lists, and others get a generic one. Two codes for one condition make each consumer match both. Without the element id, the editor must search for the element.
 
-Not chosen: An exception class, a catalogue or a code per feature or per call site.
+Decided against: An exception class, a catalogue or a code per feature or per call site.
 
 Exceptions: `unknownStyleBreakpoint()` and `invalidLoaderConfig()` each reuse the code of another factory. `unknownStyleBreakpoint()` reuses its code by documented design. The codec throws the wiring factories that the render step also throws, without an element id.
 

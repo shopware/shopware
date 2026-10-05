@@ -9,11 +9,11 @@ Example: A product page with title, price, and images all showing the same produ
 ## Key Classes
 
 - `ContextProvider` - Defines what context an element exposes to descendants
-- `ContextConsumer` - Defines what context an element receives; its `scope` decides the source, an ancestor (`parent`, the default) or the layout's root-ambient context (`root`)
+- `ContextConsumer` - Defines what context an element receives; its `scope` decides the source, an ancestor (`parent`, the default) or the layout's [root context](../../../docs/principles/README.md#glossary) (`root`)
 - `ConsumerScope` - The scopes a consumer takes its value from
 - `ContextDefinitions` - Container holding providers and consumers for an element
 - `ContextDependencyAnalyzer` - Analyzes context dependencies for tree pruning, on `StoredElement`s
-- `ProviderDeliveryKeyResolver` - Computes the child-facing key every provider of one element delivers under, and rejects two producers sharing one
+- `ProviderDeliveryKeyResolver` - Computes the key each provider of an element delivers to its children under, and rejects collisions ([docs/providers.md](docs/providers.md))
 
 ## Configuration Reference
 

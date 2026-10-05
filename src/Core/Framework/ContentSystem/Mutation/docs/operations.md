@@ -2,7 +2,7 @@
 
 <!-- size-allowance: lookup - one entry per structural operation, consulted one at a time -->
 
-A channel an operation is not named for stays empty.
+A [result channel](../README.md#result-channels) an operation's section omits stays empty.
 
 ## InsertElement
 
@@ -56,9 +56,10 @@ so it carries over unchanged with no internal id references to rewrite.
 Adds a container element and moves a set of sibling elements into it. `requireRegistered`; slot required
 (`mutationSlotRequired`); each target must exist (`mutationTargetNotFound`); the targets must all be siblings in one
 slot (or all roots), else `mutationInvalidWrapTargets`. An empty id list and a list with a repeated id both throw
-`mutationInvalidWrapTargets` too. Scaffolds the container with the targets (in original order) in `$slot` and places it
-at the lowest target index. The wrapped elements sit one level deeper, so their nesting scope changes. `affected = [containerId, ...elementIds]`; `created = [containerId]` only, because the
-wrapped targets are moved, not created. The container provides no context of its own, so wrapping adds no provider.
+`mutationInvalidWrapTargets` too. Scaffolds the container with the targets (in original order) in `$slot` and places
+it at the lowest target index. The container becomes the wrapped elements' parent, changing the context they consume.
+`affected = [containerId, ...elementIds]`. `created = [containerId]` only, because the wrapped targets are
+moved, not created. The container provides no context of its own, so wrapping adds no provider.
 
 ## UnwrapElement
 
@@ -69,19 +70,19 @@ nodes.
 
 Reports the removed container's own static property values via `droppedProperties` and the wiring it consumed, its
 data requirement keys plus accepted-context keys, de-duplicated, via `droppedWiring`.
-The context the container *provided* is ancestor context, not a wiring key, so it is never a `droppedWiring` entry.
+The container's provided context is not in that set, so it is never a `droppedWiring` entry.
 A hoisted descendant that depended on it gets a `ViolationCode::BrokenRequiredChain` binding violation when a source
 is bound.
 
 ## AttachElement
 
-Splices a caller-supplied element subtree into a parent slot (or the root), replacing every id. The inverse of the
+Splices a caller-supplied element subtree into a parent slot (or the root), replacing every id. It inverts the
 detachment a replace reports through `orphaned`: it re-places a detached subtree, or a copied one, without trusting
-client ids. The supplied root's component must be a registered type, else `mutationUnknownType`, matching the check insert/replace/wrap run. Clients never supply ids. The server-issued
-ids come back in `affected = subtreeIds($clone)`, and `created` carries the same full new-id set: every node in
-the spliced subtree is new to the layout. Placement mirrors `Op/InsertElement` (slot required with a parent →
-`mutationSlotRequired`; parent must exist → `mutationTargetNotFound`). Detaches nothing:
-`orphaned`/`droppedWiring`/`droppedProperties` stay empty.
+client ids. The supplied root's component must be a registered type, else `mutationUnknownType`, matching the check
+insert/replace/wrap run. Clients never supply ids. The server-issued ids come back in `affected = subtreeIds($clone)`,
+and `created` carries the same full new-id set: every node in the spliced subtree is new to the layout. Placement
+mirrors `Op/InsertElement` (slot required with a parent → `mutationSlotRequired`; parent must exist →
+`mutationTargetNotFound`). Detaches nothing: `orphaned`/`droppedWiring`/`droppedProperties` stay empty.
 
 ## BindElement
 
@@ -97,5 +98,5 @@ entry with a default seeds that primitive property, but only into a key the elem
 The presence gate is `StoredElement::property()`: `null` there means absence, because an authored `null` is a
 present `StoredValue`. Every wired key's attribution is recorded into `attributedSpecifications`, also merged and overwriting.
 
-Keeps the same id. `affected = [elementId]`; `created` stays the empty default (the element node is wired, not
-built); `orphaned`/`droppedWiring`/`droppedProperties` stay empty, because binding only adds wiring.
+Keeps the same id. `affected = [elementId]`. `created` stays the empty default, because the element node is wired,
+not built. `orphaned`/`droppedWiring`/`droppedProperties` stay empty, because binding only adds wiring.

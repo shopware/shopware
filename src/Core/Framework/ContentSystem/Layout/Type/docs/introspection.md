@@ -47,21 +47,21 @@ Response:
 
 ## `storageSchema`
 
-`properties` publishes the *hydrated* output schema: what a rendered element of this type carries. `storageSchema` publishes the other half, what an element of this type **stores**, keyed by stored key. Derived per type by `Layout/Type/StoredSchemaResolver`; encodes as `{}` for a type that stores nothing. See [The Admin API exchanges `StoredElement`](../../../docs/principles/wire-contract.md#the-admin-api-exchanges-storedelement).
+`properties` publishes the [hydrated](output-schema.md) output schema: what a rendered element of this type carries. `storageSchema` publishes the other half, what an element of this type **stores**, keyed by stored key. `Layout/Type/StoredSchemaResolver` derives it per type. It encodes as `{}` for a type that stores nothing. See [The Admin API exchanges `StoredElement`](../../../docs/principles/wire-contract.md#the-admin-api-exchanges-storedelement).
 
-Each entry is `{ kind, type, required }` plus an optional `default`, and `kind` says where the key comes from:
+Each entry is `{ kind, type, required }` plus an optional `default`. `kind` says where the key comes from:
 
 | `kind` | The stored key is | `type` is |
 | --- | --- | --- |
 | `property` | a declared primitive property, stored under its own key | the primitive type name |
 | `resolvedByStorage` | the storage key of a `resolvedBy` reference property, taken from the type's synthesized default specification | `string` or `list<string>` |
-| `config` | a reference token a wired loader's config names | `string` or `list<string>` |
+| `config` | a reference token a binding's loader config names | `string` or `list<string>` |
 
 A declared FQCN property gets no entry at all: nothing is stored under the reference key itself, only under its `resolvedBy` storage key.
 
-On the two binding-derived kinds, `type` is the loader config key's *referenced-value* type, not the type of the reference token. The token is always a string naming a property, while the value stored under it may be a list of ids. Neither carries a `default`: a config key's default is a default *token* (a property name), never a default stored value. Only a `property` entry has a `default`, and only when the declared property has one.
+On `resolvedByStorage` and `config`, `type` is the config key's `referencedType`, not the type of the reference token. The token is always a string naming a property, while the value stored under it may be a list of ids. Neither carries a `default`: a config key's default is a default *token* (a property name), never a default stored value. Only a `property` entry has a `default`, and only when the declared property has one.
 
-One key claimed by more than one kind yields exactly one entry, by precedence `property` > `resolvedByStorage` > `config`. A declared property is the most specific statement about a stored key. Between the two binding-derived kinds, the `resolvedBy` shorthand's own storage key is the more specific.
+One key claimed by more than one kind yields exactly one entry, by precedence `property` > `resolvedByStorage` > `config`. A declared property is the most specific statement about a stored key. Between `resolvedByStorage` and `config`, the `resolvedBy` shorthand's own storage key is the more specific.
 
 Full field-level schema: [content-system-element-types.json](../../../../Api/ApiDefinition/Generator/Schema/AdminApi/paths/content-system-element-types.json).
 

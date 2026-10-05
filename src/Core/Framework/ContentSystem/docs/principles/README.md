@@ -6,7 +6,7 @@
 |---|---|---|---|
 | stored element / rendered element | Both describe one element of a layout tree. | `StoredElement` is what a layout persists, with wiring and wrapped values. `RenderedElement` is what a page serves, with raw values and no wiring. | [stored-model.md](stored-model.md) |
 | present null / absent key | Neither gives the property a non-null value. | `LayoutDefaultSeeder` fills an absent key and never a present null. | [values.md](values.md) |
-| FULL / SKELETON | Both run the one render path and produce the same structure. | FULL resolves data. SKELETON switches off placeholder substitution and data resolution. | [rendering.md](rendering.md) |
+| FULL / SKELETON | Both run the one render path and produce the same structure. | FULL resolves data. SKELETON switches off placeholder substitution, data resolution and context delivery. | [rendering.md](rendering.md) |
 | write gate / write boundary | Both sit on the DAL write path of a layout tree. | The write boundary (`LayoutWriteBoundary::apply()`) returns a new tree from its passes, while the write gate (`LayoutGate`, `StoredTreeConstraints`) only checks the tree. | [write-admission.md](write-admission.md), [drafts-and-gates.md](drafts-and-gates.md) |
 | client defect / internal fault | Both are defects that `ContentSystemException` throws. | A client can cause a client defect (`CLIENT_DEFECT_CODES`), while only data that bypassed the write gate causes an internal fault. | [failure-and-loss.md](failure-and-loss.md) |
 
@@ -18,6 +18,18 @@
 - root context: the context that a layout's root source supplies and that any element reaches through a root-scoped consumer (`RootSourceRegistry::resolve()`).
 - prove resolvable: `ContentLayoutWriteValidator` shows through `LayoutGate::resolvability()` that a stored layout resolves against its root context.
 - forest: the list of root elements of one layout tree, stored (`StoredTree::$roots`) or rendered.
+- virtual root: the element that `VirtualRootWrapper::wrap()` puts around the stored forest when the specification
+  declares page-level data requirements, holding the placeholder values those requirements resolve against.
+- partial prune: `PartialRenderer::pruneToTarget()`, which cuts the stored forest of an `?elementId` request down to
+  the target's subtree and the path of ancestors above it, in both rendering modes.
+- finishing steps: `VirtualRootWrapper::unwrap()` when the virtual root survived the partial prune, then
+  `PartialRenderer::extractTarget()` when the request names a target, on the rendered forest before the finalization
+  event.
+- working map: the values an element's providers serve from, its stored values overwritten by its loader values and
+  then by the context it received, built by `ContextDeliveryResolver` for `ContextDistributor::distribute()`.
+- response format: the Store API body, one of full (property values inline), decomposed (structure without
+  property values plus the `data` and `assignments` maps), data (the two maps only) or skeleton
+  (structure without property values). Only skeleton renders in `RenderingMode::SKELETON`.
 - draft pipeline: `MutationPipeline::run()`, which applies a mutation operation to a decoded draft and writes its derived consumer wiring.
 - the module: the Content System under `src/Core/Framework/ContentSystem/`.
 - present null, authored null, absent: a key whose value is null (authored when the author wrote it) and a key missing from the map: [values.md](values.md#a-present-null-and-an-absent-key-are-different-states).
@@ -79,7 +91,7 @@ The render path's steps are in [data-flow.md](../data-flow.md).
 - [mutation.md](mutation.md): a mutation operation as a pure tree transform
 - [data-loading.md](data-loading.md): loaders as consumers of typed inputs
 - [context-wiring.md](context-wiring.md): context between adjacent elements
-- [rendering.md](rendering.md): the render's final check and the two tree-replacement events
+- [rendering.md](rendering.md): the render checks and the two tree-replacement events
 - [preview.md](preview.md): preview as a second entry into the render path
 - [wire-contract.md](wire-contract.md): one paired codec and one rendered forest per format
 - [extension-surface.md](extension-surface.md): the bounded extension surface

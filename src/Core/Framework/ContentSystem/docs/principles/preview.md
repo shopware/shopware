@@ -4,7 +4,7 @@ Preview shows an editor an unsaved draft rendered against real data, from the Ad
 
 ## Preview is a second entry into the one rendering path, never a second storage path
 
-Admin and storefront preview render a decoded draft through one `ContentPreviewPageBuilder::build()` and through the `ContentPipeline::load()` that serves persisted layouts. The token route runs that full build as its gate and stores only the request. A redeemed token therefore renders. A malformed stored envelope is a server fault, and the token is the credential for redeeming the preview.
+Admin and storefront preview render a decoded draft through one `ContentPreviewPageBuilder::build()` and through the `ContentPipeline::load()` that serves persisted layouts. The token route runs that build as its gate and stores only the request. A redeemed token therefore renders. A malformed stored envelope is a server fault, and the token is the credential for redeeming the preview.
 
 Why: A validate-only check can accept a draft that the render later fails on. Redeeming the token then returns a 500 the editor cannot act on, instead of a rejection at creation.
 
@@ -17,13 +17,11 @@ In code:
 
 ## The editor's preview shows what the storefront renders
 
-Preview is the storefront's own render. The preview route runs `ContentPipeline::load()` in full mode with the storefront's templates, as serving does. The admin API sends the preview as a URL, not as inlined markup. Preview is the one place where admin and storefront element-type names must agree.
+Preview is the storefront's own render. The preview route runs `ContentPipeline::load()` in [FULL mode](README.md#terms-that-are-easy-to-confuse) with the storefront's templates, as serving does. The admin API sends the preview as a URL, not as inlined markup. Preview is the one place where admin and storefront element-type names must agree.
 
 The preview builds its sales-channel context from the ids in the payload through `SalesChannelContextService`, not from the request's domain. The storefront's domain resolution maps active sales channels only, and a preview must render a sales channel before its activation. The preview therefore does not reproduce the domain-derived request state, the session's customer and cart, or the rule ids that follow from them. A customer is previewed by id, without a cart. A listener or plugin that reads the request sees the request of the administration host, and that is not a defect.
 
 Why: An admin-side approximation renders differently from the storefront, so authors fix what only the approximation shows, not what shoppers see. A real storefront request cannot reach an inactive sales channel.
-
-Not chosen: An admin-side approximation of the storefront render, or a real sub-request against the sales channel's domain, which an inactive channel does not have.
 
 Exceptions: On the preview route, the storefront gives each element a `preview` flag. An element with that flag may show an authoring placeholder that the storefront hides. `Sw:Product:Manufacturer` shows an authoring placeholder that the storefront hides.
 

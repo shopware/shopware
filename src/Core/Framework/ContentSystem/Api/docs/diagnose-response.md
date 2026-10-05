@@ -54,7 +54,7 @@
 
 A client derives the specifications applicable to an element from the `bindingSpecifications` map on that element's type entry in [`content-system-element-types.json`](../../Layout/Type/docs/introspection.md) (`bindingSpecifications[element.component]`): the ids from the [Binding specifications](../../Binding/docs/introspection.md) fold that a client may pass as `bindingSpecificationId` to a bind-element action. It is a per-element-type catalog lookup, not a resolution against an element's actual wiring or ancestry.
 
-`diagnostics.wellFormed` is true when there are no intrinsic-scope error violations (the persistence gate predicate). `diagnostics.resolvable` is true when there are no binding-scope error violations (the serving gate predicate, meaningful only when a source was bound). Each violation derives its `scope` and `severity` from its `code`:
+`diagnostics.wellFormed` is true when there are no intrinsic-scope error violations (`LayoutGate::wellFormedness()`). `diagnostics.resolvable` is true when there are no binding-scope error violations (`LayoutGate::resolvability()`, meaningful only when a source was bound). Each violation derives its `scope` and `severity` from its `code`:
 
 | `code`                   | `scope`   | `severity` |
 |--------------------------|-----------|------------|

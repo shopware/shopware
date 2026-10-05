@@ -38,8 +38,8 @@ A malformed element **config** is reported as an `invalid_config` violation in t
 
 | Condition                                                  | HTTP | Factory                                           |
 |------------------------------------------------------------|------|---------------------------------------------------|
-| Missing/invalid envelope field                             | 400  | `#[MapRequestPayload]` validation (forced to 400) |
+| Missing/invalid request field                              | 400  | `#[MapRequestPayload]` validation (forced to 400) |
 | `rootSource` is a non-empty value not registered in `RootSourceRegistry` | 400  | `unknownRootSource` (the route gates membership against `RootSourceRegistry::knownRootSources()` before resolving, the same as the write validator) |
 | Layout element missing a non-empty string `id`/`component` | 400  | `invalidLayoutStructure`                          |
 
-An internal fault during decoding (a non-client-defect `ContentSystemException`, e.g. an unexpected field type) propagates.
+An internal fault during decoding (a non-[client-defect](../../docs/principles/README.md#glossary) `ContentSystemException`, e.g. an unexpected field type) propagates.

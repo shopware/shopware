@@ -1,8 +1,8 @@
 # Validation
 
-DAL `PreWriteValidationEvent` gate for content layouts. Two subscribers enforce the served-implies-resolvable invariant. `ContentLayoutWriteValidator` is the single ordered `content_layout` write gate (well-formedness → root-source membership → resolvability against the declared root source). `ContentLayoutAssignmentWriteValidator` is a tree-blind type-match that rejects an assignment whose layout's immutable `root_source` does not match the assignment's entity type.
+DAL `PreWriteValidationEvent` gate for content layouts. Two subscribers enforce that a served layout is resolvable. `ContentLayoutWriteValidator` is the single ordered `content_layout` write gate (well-formedness → root-source membership → resolvability against the declared root source). `ContentLayoutAssignmentWriteValidator` is a tree-blind type-match that rejects an assignment whose layout's immutable `root_source` does not match the assignment's entity type.
 
-The assignment type-match guarantees served-implies-resolvable only while the resolvability inputs a layout was validated against stay stable after its write: the bound definition's `getPageDataRequirements()` (its `providedRootContext`) and the live element-type registry, as [context-wiring.md](../docs/principles/context-wiring.md#the-write-gate-computes-each-delivery-rule-it-checks-exactly-as-serving-computes-it) states.
+The assignment type-match guarantees that a served layout is resolvable only while the resolvability inputs a layout was validated against stay stable after its write: the bound definition's `getPageDataRequirements()` (its `providedRootContext`) and the live element-type registry, as [context-wiring.md](../docs/principles/context-wiring.md#the-write-gate-computes-each-delivery-rule-it-checks-exactly-as-serving-computes-it) states.
 
 ## Writes that skip the gate
 

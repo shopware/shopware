@@ -9,14 +9,13 @@ The things that run an operation: `MutationPipeline`, the stateless runner over 
 
 `run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext): MutationResult` applies the mutation to the
 already-decoded `$tree`, diagnoses the whole new tree, mirrors the proven consumers onto `$mutation->created()`,
-and re-diagnoses only when the wiring returned a different `StoredTree` instance.
+and re-diagnoses only when the mirror step returned a different `StoredTree` instance.
 
-The instance-identity check is the whole gate. Mirroring returns the input tree unchanged when it writes no
-consumer, so the common case stays at one analysis pass. A wired response never carries diagnostics describing
-a pre-wiring tree.
+The instance-identity check alone gates the rerun. Mirroring returns the input tree unchanged when it writes
+no consumer, so the common case stays at one analysis pass. A response never carries diagnostics of the tree before
+mirroring.
 
-`$rootContext` is the bound source's root-ambient context (`list<ProvidedContext>`) or `null` for the
-well-formedness-only subset.
+`$rootContext` is the bound source's root context (`list<ProvidedContext>`). `null` skips the binding-scope checks.
 
 ## PersistedLayoutMutator
 

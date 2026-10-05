@@ -10,7 +10,7 @@
 
 ## Where to look
 
-- Why these constraints hold and what was not chosen: [data-loading.md](../../docs/principles/data-loading.md#data-loading)
+- Why these constraints hold and what was decided against: [data-loading.md](../../docs/principles/data-loading.md#data-loading)
 - Registering a loader (tag, config and serializer pair, requirement-type key, `@extends` annotation, wildcard loaders): [README.md](README.md#extension-point)
 - Container-build rejections of a loader, its specification and its serializer registration: [README.md](README.md#build-time-validation)
 - The loader classes, the `LoaderInputs` accessors and `LoaderInputResolver`: [README.md](README.md#key-classes)

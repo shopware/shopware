@@ -44,7 +44,7 @@ Fields:
 
 Note: The context key in `providesContext` typically matches a property name loaded by `dataRequirements`.
 
-A child-facing delivery key is unique per element. An authored provider delivers under `distributionConfig->getConsumerAlias() ?? providerKey`; a `redistribute` consumer adds a broadcast provider under `consumerAlias ?? contextKey`. `ProviderDeliveryKeyResolver` owns the rule and the derived-key formula, indexes the authored providers first (the earlier of two colliding producers is reported as `first`) and throws `ContentSystemException::providerDeliveryCollision()`. `Rendering/WiringPlanner::plan()` (over the pre-prune forest) and `Resolution/AvailableContextResolver` (over the target and its ancestors) both call it; which elements each judges stays that site's own decision.
+Providers of one element deliver under distinct keys. An authored provider delivers under `distributionConfig->getConsumerAlias() ?? providerKey`. A `redistribute: true` consumer adds a derived provider under `consumerAlias ?? contextKey`. `ProviderDeliveryKeyResolver` owns the rule. It indexes the authored providers first, reports the earlier of two colliding providers as `first` and throws `ContentSystemException::providerDeliveryCollision()`. `Rendering/WiringPlanner::plan()` (over the forest before the [partial prune](../../../../docs/principles/README.md#glossary)) and `Resolution/AvailableContextResolver` (over the target and its ancestors) both call it. Each site decides which elements it judges.
 
 **Consumer Alias Example:**
 

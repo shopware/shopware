@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\Api\ApiDefinition\Generator;
 
-use OpenApi\Annotations\OpenApi;
 use Shopware\Core\Framework\Api\ApiDefinition\ApiDefinitionGeneratorInterface;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
 use Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi\OpenApiDefinitionSchemaBuilder;
@@ -56,10 +55,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
     {
         $forSalesChannel = $this->containsSalesChannelDefinition($definitions);
 
-        $openApi = new OpenApi([
-            'openapi' => '3.2.0',
-        ]);
-        $this->openApiBuilder->enrich($openApi, $api);
+        $spec = $this->openApiBuilder->createSpec($api);
 
         ksort($definitions);
 
@@ -73,7 +69,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 default => $this->shouldIncludeReferenceOnly($definition, $forSalesChannel),
             };
 
-            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition(
+            $schemas = $this->definitionSchemaBuilder->createSchemas(
                 $definition,
                 $this->getResourceUri($definition),
                 $forSalesChannel,
@@ -81,26 +77,29 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 $apiType
             );
 
-            $openApi->components->merge(array_values($schema));
+            $spec['components']['schemas'] = ($spec['components']['schemas'] ?? []) + $schemas;
 
             if ($onlyFlat) {
                 continue;
             }
 
             if ($apiType === DefinitionService::TYPE_JSON_API) {
-                $openApi->merge(array_values($this->pathBuilder->getPathActions($definition, $this->getResourceUri($definition))));
-                $openApi->merge([$this->pathBuilder->getTag($definition)]);
+                $spec['paths'] += $this->pathBuilder->createPathItems($definition, $this->getResourceUri($definition));
+                $spec['tags'][] = $this->pathBuilder->createTag($definition);
             }
         }
 
-        $data = json_decode($openApi->toJson(), true, 512, \JSON_THROW_ON_ERROR);
-        $data['paths'] ??= [];
+        if ($spec['paths'] === []) {
+            // keeps the key order of previous versions, which listed an empty path map after the components
+            unset($spec['paths']);
+            $spec['paths'] = [];
+        }
 
         $schemaPaths = [$this->schemaPath];
 
         if ($bundleName !== null && $bundleName !== '') {
             $schemaPaths = array_merge([$this->schemaPath . '/components', $this->schemaPath . '/tags'], $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
-            $data['paths'] = [];
+            $spec['paths'] = [];
         } else {
             $schemaPaths = array_merge($schemaPaths, $this->bundleSchemaPathCollection->getSchemaPaths($api, $bundleName));
         }
@@ -108,7 +107,7 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
         $loader = new OpenApiFileLoader($schemaPaths);
 
         /** @var OpenApiSpec $finalSpecs */
-        $finalSpecs = array_replace_recursive($data, $loader->loadOpenapiSpecification());
+        $finalSpecs = array_replace_recursive($spec, $loader->loadOpenapiSpecification());
 
         return $this->routeDefaultsFilter?->filter($finalSpecs, $api) ?? $finalSpecs;
     }
@@ -142,12 +141,11 @@ class OpenApi3Generator implements ApiDefinitionGeneratorInterface
                 continue;
             }
 
-            $schema = $this->definitionSchemaBuilder->getSchemaByDefinition($definition, $this->getResourceUri($definition), $forSalesChannel);
+            $schema = $this->definitionSchemaBuilder->createSchemas($definition, $this->getResourceUri($definition), $forSalesChannel);
             $schema = array_shift($schema);
             if ($schema === null) {
                 throw ApiException::invalidSchemaForDefinition($definition, 'No schema found');
             }
-            $schema = json_decode($schema->toJson(), true, 512, \JSON_THROW_ON_ERROR);
             $schema = $schema['allOf'][1]['properties'];
 
             $relationships = [];

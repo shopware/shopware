@@ -4,22 +4,31 @@ namespace Shopware\Core\Framework\Api\ApiDefinition\Generator\OpenApi;
 
 use OpenApi\Annotations\Components;
 use OpenApi\Annotations\Info;
-use OpenApi\Annotations\MediaType;
 use OpenApi\Annotations\OpenApi;
-use OpenApi\Annotations\Property;
 use OpenApi\Annotations\Response as OpenApiResponse;
 use OpenApi\Annotations\Schema;
 use OpenApi\Annotations\SecurityScheme;
 use OpenApi\Annotations\Server;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\ApiDefinition\DefinitionService;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Symfony\Component\HttpFoundation\Response;
 
+/**
+ * Builds the document skeleton every generated OpenAPI specification starts from: info, servers, security and the
+ * default components.
+ *
+ * @phpstan-type OpenApiDocument array{openapi: string, info: array<string, mixed>, servers: list<array{url: string}>, paths: array<string, array<string, mixed>>, components: array<string, array<array-key, mixed>>, security: list<array<string, list<string>>>, tags?: list<array<string, mixed>>}
+ */
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class OpenApiSchemaBuilder
 {
+    final public const OPENAPI_VERSION = '3.2.0';
+
     final public const API = [
         DefinitionService::API => [
             'name' => 'Admin API',
@@ -40,23 +49,71 @@ class OpenApiSchemaBuilder
     {
     }
 
+    /**
+     * The document skeleton for the given API. The generators add paths, component schemas and tags to it.
+     *
+     * @internal
+     *
+     * @return OpenApiDocument
+     */
+    public function createSpec(string $api): array
+    {
+        $components = [];
+
+        if ($api !== DefinitionService::STORE_API) {
+            $components['schemas'] = $this->getDefaultSchemas();
+        }
+
+        $components['responses'] = $this->createDefaultResponses($api);
+        $components['securitySchemes'] = $this->createSecurityScheme($api);
+
+        return [
+            'openapi' => self::OPENAPI_VERSION,
+            'info' => $this->createInfo($api, $this->version),
+            'servers' => $this->createServers($api),
+            'paths' => [],
+            'components' => $components,
+            'security' => [$this->createSecurity($api)],
+        ];
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed, the class becomes internal
+     */
     public function enrich(OpenApi $openApi, string $api): void
     {
-        $openApi->merge(array_values($this->createServers($api)));
-        $openApi->info = $this->createInfo($api, $this->version);
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
+        $spec = $this->createSpec($api);
+
+        $openApi->merge(array_map(static fn (array $server): Server => new Server($server), $spec['servers']));
+        $openApi->info = new Info($spec['info']);
 
         $security = $openApi->security;
-        $openApi->security = [array_merge(\is_array($security) ? $security : [], $this->createSecurity($api))];
+        $openApi->security = [array_merge(\is_array($security) ? $security : [], $spec['security'][0])];
 
         if (!$openApi->components instanceof Components) {
             $openApi->components = new Components([]);
         }
 
-        $this->enrichComponents($openApi->components, $api);
+        foreach ($spec['components']['schemas'] ?? [] as $name => $schema) {
+            $openApi->components->merge([new Schema(['schema' => $name] + $schema)]);
+        }
+
+        foreach ($spec['components']['securitySchemes'] as $name => $securityScheme) {
+            $openApi->components->merge([new SecurityScheme(['securityScheme' => $name] + $securityScheme)]);
+        }
+
+        foreach ($spec['components']['responses'] as $statusCode => $response) {
+            $openApi->components->merge([new OpenApiResponse(['response' => $statusCode] + $response)]);
+        }
     }
 
     /**
-     * @return Server[]
+     * @return list<array{url: string}>
      */
     private function createServers(string $api): array
     {
@@ -64,12 +121,12 @@ class OpenApiSchemaBuilder
 
         if ($this->shouldUseRelativeServerUrl($url)) {
             return [
-                new Server(['url' => self::API[$api]['url']]),
+                ['url' => self::API[$api]['url']],
             ];
         }
 
         return [
-            new Server(['url' => rtrim($url, '/') . self::API[$api]['url']]),
+            ['url' => rtrim($url, '/') . self::API[$api]['url']],
         ];
     }
 
@@ -84,26 +141,29 @@ class OpenApiSchemaBuilder
         return \is_string($host) && \in_array($host, ['localhost', '127.0.0.1', '::1'], true);
     }
 
-    private function createInfo(string $api, string $version): Info
+    /**
+     * @return array{title: string, description: string, license: array{name: string, url: string}, version: string}
+     */
+    private function createInfo(string $api, string $version): array
     {
-        return new Info([
+        return [
             'title' => 'Shopware ' . self::API[$api]['name'],
-            'version' => $version,
-            'license' => [
-                'name' => 'MIT',
-                'url' => 'https://github.com/shopware/shopware/blob/trunk/LICENSE',
-            ],
             'description' => <<<'EOF'
 This endpoint reference contains an overview of all endpoints comprising the Shopware Admin API.
 
 For a better overview, all CRUD-endpoints are hidden by default. If you want to show also CRUD-endpoints
 add the query parameter `type=jsonapi`.
 EOF,
-        ]);
+            'license' => [
+                'name' => 'MIT',
+                'url' => 'https://github.com/shopware/shopware/blob/trunk/LICENSE',
+            ],
+            'version' => $version,
+        ];
     }
 
     /**
-     * @return array<string, array<string|null>>
+     * @return array<string, list<string>>
      */
     private function createSecurity(string $api): array
     {
@@ -114,27 +174,16 @@ EOF,
         return ['oAuth' => ['write']];
     }
 
-    private function enrichComponents(Components $components, string $api): void
-    {
-        if ($api !== DefinitionService::STORE_API) {
-            $components->merge(array_values($this->getDefaultSchemas()));
-        }
-
-        $components->merge(array_values($this->createSecurityScheme($api)));
-        $components->merge(array_values($this->createDefaultResponses($api)));
-    }
-
     /**
-     * @return Schema[]
+     * The JSON:API document building blocks of the Admin API, keyed by schema name.
+     *
+     * @return array<string, array<string, mixed>>
      */
     private function getDefaultSchemas(): array
     {
-        $defaults = [
-            'success' => new Schema([
-                'schema' => 'success',
-                'type' => 'object',
+        return [
+            'success' => [
                 'required' => ['data'],
-                'additionalProperties' => false,
                 'properties' => [
                     'meta' => ['$ref' => '#/components/schemas/meta'],
                     'links' => [
@@ -152,12 +201,11 @@ EOF,
                         'uniqueItems' => true,
                     ],
                 ],
-            ]),
-            'failure' => new Schema([
-                'schema' => 'failure',
                 'type' => 'object',
-                'required' => ['errors'],
                 'additionalProperties' => false,
+            ],
+            'failure' => [
+                'required' => ['errors'],
                 'properties' => [
                     'meta' => ['$ref' => '#/components/schemas/meta'],
                     'links' => ['$ref' => '#/components/schemas/links'],
@@ -167,25 +215,24 @@ EOF,
                         'uniqueItems' => true,
                     ],
                 ],
-            ]),
-            'info' => new Schema([
-                'schema' => 'info',
                 'type' => 'object',
+                'additionalProperties' => false,
+            ],
+            'info' => [
                 'required' => ['meta'],
                 'properties' => [
                     'meta' => ['$ref' => '#/components/schemas/meta'],
                     'links' => ['$ref' => '#/components/schemas/links'],
                     'jsonapi' => ['$ref' => '#/components/schemas/jsonapi'],
                 ],
-            ]),
-            'meta' => new Schema([
-                'schema' => 'meta',
+                'type' => 'object',
+            ],
+            'meta' => [
                 'description' => 'Non-standard meta-information that can not be represented as an attribute or relationship.',
                 'type' => 'object',
                 'additionalProperties' => true,
-            ]),
-            'data' => new Schema([
-                'schema' => 'data',
+            ],
+            'data' => [
                 'description' => 'The document\'s "primary data" is a representation of the resource or collection of resources targeted by a request.',
                 'oneOf' => [
                     ['$ref' => '#/components/schemas/resource'],
@@ -198,11 +245,9 @@ EOF,
                         'uniqueItems' => true,
                     ],
                 ],
-            ]),
-            'resource' => new Schema([
-                'schema' => 'resource',
+            ],
+            'resource' => [
                 'description' => '"Resource objects" appear in a JSON API document to represent resources.',
-                'type' => 'object',
                 'required' => ['type', 'id'],
                 'properties' => [
                     'type' => ['type' => 'string'],
@@ -212,43 +257,35 @@ EOF,
                     'links' => ['$ref' => '#/components/schemas/links'],
                     'meta' => ['$ref' => '#/components/schemas/meta'],
                 ],
-            ]),
-            'relationshipLinks' => new Schema([
-                'schema' => 'relationshipLinks',
-                'description' => 'A resource object **MAY** contain references to other resource objects ("relationships"). Relationships may be to-one or to-many. Relationships can be specified by including a member in a resource\'s links object.',
                 'type' => 'object',
-                'additionalProperties' => true,
+            ],
+            'relationshipLinks' => [
+                'description' => 'A resource object **MAY** contain references to other resource objects ("relationships"). Relationships may be to-one or to-many. Relationships can be specified by including a member in a resource\'s links object.',
                 'properties' => [
-                    new Property([
-                        'property' => 'self',
+                    'self' => [
                         'allOf' => [
-                            new Schema([
+                            [
                                 'description' => 'A `self` member, whose value is a URL for the relationship itself (a "relationship URL"). This URL allows the client to directly manipulate the relationship. For example, it would allow a client to remove an `author` from an `article` without deleting the people resource itself.',
                                 'type' => 'array',
                                 'items' => [
                                     'type' => 'object',
                                 ],
-                            ]),
-                            new Schema([
-                                'ref' => '#/components/schemas/link',
-                            ]),
+                            ],
+                            ['$ref' => '#/components/schemas/link'],
                         ],
-                    ]),
-                    new Property([
-                        'property' => 'related',
-                        'ref' => '#/components/schemas/link',
-                    ]),
+                    ],
+                    'related' => ['$ref' => '#/components/schemas/link'],
                 ],
-            ]),
-            'links' => new Schema([
-                'schema' => 'links',
+                'type' => 'object',
+                'additionalProperties' => true,
+            ],
+            'links' => [
                 'type' => 'object',
                 'additionalProperties' => [
                     '$ref' => '#/components/schemas/link',
                 ],
-            ]),
-            'link' => new Schema([
-                'schema' => 'link',
+            ],
+            'link' => [
                 'description' => 'A link **MUST** be represented as either: a string containing the link\'s URL or a link object.',
                 'oneOf' => [
                     [
@@ -269,25 +306,21 @@ EOF,
                         ],
                     ],
                 ],
-            ]),
-            'attributes' => new Schema([
-                'schema' => 'attributes',
+            ],
+            'attributes' => [
                 'description' => 'Members of the attributes object ("attributes") represent information about the resource object in which it\'s defined.',
                 'type' => 'object',
                 'additionalProperties' => true,
-            ]),
-            'relationships' => new Schema([
-                'schema' => 'relationships',
+            ],
+            'relationships' => [
                 'description' => 'Members of the relationships object ("relationships") represent references from the resource object in which it\'s defined to other resource objects.',
                 'type' => 'object',
                 'additionalProperties' => [
                     '$ref' => '#/components/schemas/relationship',
                 ],
-            ]),
-            'relationship' => new Schema([
-                'schema' => 'relationship',
+            ],
+            'relationship' => [
                 'description' => 'A relationship object describes links, resource linkage, or meta-information for a related resource.',
-                'type' => 'object',
                 'minProperties' => 1,
                 'properties' => [
                     'links' => ['$ref' => '#/components/schemas/relationshipLinks'],
@@ -300,43 +333,37 @@ EOF,
                     ],
                     'meta' => ['$ref' => '#/components/schemas/meta'],
                 ],
+                'type' => 'object',
                 'additionalProperties' => false,
-            ]),
-            'relationshipToOne' => new Schema([
-                'schema' => 'relationshipToOne',
+            ],
+            'relationshipToOne' => [
                 'allOf' => [
-                    new Schema([
+                    [
                         'description' => 'References to other resource objects in a to-one ("relationship"). Relationships can be specified by including a member in a resource\'s links object.',
-                    ]),
-                    new Schema([
-                        'ref' => '#/components/schemas/linkage',
-                    ]),
+                    ],
+                    ['$ref' => '#/components/schemas/linkage'],
                 ],
-            ]),
-            'relationshipToMany' => new Schema([
-                'schema' => 'relationshipToMany',
+            ],
+            'relationshipToMany' => [
                 'description' => 'An array of objects each containing \"type\" and \"id\" members for to-many relationships.',
                 'type' => 'array',
                 'items' => [
                     '$ref' => '#/components/schemas/linkage',
                 ],
                 'uniqueItems' => true,
-            ]),
-            'linkage' => new Schema([
-                'schema' => 'linkage',
+            ],
+            'linkage' => [
                 'description' => 'The "type" and "id" to non-empty members.',
-                'type' => 'object',
                 'required' => ['type', 'id'],
                 'properties' => [
                     'type' => ['type' => 'string'],
                     'id' => ['type' => 'string', 'pattern' => '^[0-9a-f]{32}$'],
                     'meta' => ['$ref' => '#/components/schemas/meta'],
                 ],
-                'additionalProperties' => false,
-            ]),
-            'pagination' => new Schema([
-                'schema' => 'pagination',
                 'type' => 'object',
+                'additionalProperties' => false,
+            ],
+            'pagination' => [
                 'properties' => [
                     'first' => [
                         'description' => 'The first page of data',
@@ -359,20 +386,18 @@ EOF,
                         'format' => 'uri-reference',
                     ],
                 ],
-            ]),
-            'jsonapi' => new Schema([
-                'schema' => 'jsonapi',
-                'description' => 'An object describing the server\'s implementation',
                 'type' => 'object',
+            ],
+            'jsonapi' => [
+                'description' => 'An object describing the server\'s implementation',
                 'properties' => [
                     'version' => ['type' => 'string'],
                     'meta' => ['$ref' => '#/components/schemas/meta'],
                 ],
-                'additionalProperties' => false,
-            ]),
-            'error' => new Schema([
-                'schema' => 'error',
                 'type' => 'object',
+                'additionalProperties' => false,
+            ],
+            'error' => [
                 'properties' => [
                     'id' => ['type' => 'string', 'description' => 'A unique identifier for this particular occurrence of the problem.'],
                     'links' => ['$ref' => '#/components/schemas/links'],
@@ -390,42 +415,38 @@ EOF,
                     ],
                     'meta' => ['$ref' => '#/components/schemas/meta'],
                 ],
+                'type' => 'object',
                 'additionalProperties' => false,
-            ]),
+            ],
         ];
-
-        return $defaults;
     }
 
     /**
-     * @return SecurityScheme[]
+     * @return array<string, array<string, mixed>>
      */
     private function createSecurityScheme(string $api): array
     {
         if (self::API[$api]['apiKey']) {
             return [
-                'Sales Channel Access Key' => new SecurityScheme([
-                    'securityScheme' => 'ApiKey',
+                'ApiKey' => [
                     'type' => 'apiKey',
-                    'in' => 'header',
-                    'name' => PlatformRequest::HEADER_ACCESS_KEY,
                     'description' => 'Identifies the sales channel you want to access the API through',
-                ]),
-                'User Context Token' => new SecurityScheme([
-                    'securityScheme' => 'ContextToken',
-                    'type' => 'apiKey',
+                    'name' => PlatformRequest::HEADER_ACCESS_KEY,
                     'in' => 'header',
-                    'name' => PlatformRequest::HEADER_CONTEXT_TOKEN,
+                ],
+                'ContextToken' => [
+                    'type' => 'apiKey',
                     'description' => 'Identifies an anonymous or identified user session',
-                ]),
+                    'name' => PlatformRequest::HEADER_CONTEXT_TOKEN,
+                    'in' => 'header',
+                ],
             ];
         }
 
         $url = (string) EnvironmentHelper::getVariable('APP_URL', '');
 
         return [
-            'oAuth' => new SecurityScheme([
-                'securityScheme' => 'oAuth',
+            'oAuth' => [
                 'type' => 'oauth2',
                 'description' => 'Authentication API',
                 'flows' => [
@@ -449,12 +470,12 @@ EOF,
                         ],
                     ],
                 ],
-            ]),
+            ],
         ];
     }
 
     /**
-     * @return OpenApiResponse[]
+     * @return array<int, array<string, mixed>>
      */
     private function createDefaultResponses(string $api): array
     {
@@ -467,17 +488,20 @@ EOF,
         ];
 
         if ($api !== DefinitionService::STORE_API) {
-            $responses[Response::HTTP_NO_CONTENT] = new OpenApiResponse(['description' => 'No Content', 'response' => Response::HTTP_NO_CONTENT]);
+            $responses[Response::HTTP_NO_CONTENT] = ['description' => 'No Content'];
         }
 
         return $responses;
     }
 
-    private function createErrorResponse(int $statusCode, string $title, string $description): OpenApiResponse
+    /**
+     * @return array{description: string, content: array<string, array{schema: array{'$ref': string}, example: array<string, mixed>}>}
+     */
+    private function createErrorResponse(int $statusCode, string $title, string $description): array
     {
-        $schema = new Schema([
-            'ref' => '#/components/schemas/failure',
-        ]);
+        $schema = [
+            '$ref' => '#/components/schemas/failure',
+        ];
 
         $example = [
             'errors' => [
@@ -489,21 +513,18 @@ EOF,
             ],
         ];
 
-        return new OpenApiResponse([
-            'response' => $statusCode,
+        return [
             'description' => $title,
             'content' => [
-                new MediaType([
-                    'mediaType' => 'application/vnd.api+json',
+                'application/vnd.api+json' => [
                     'schema' => $schema,
                     'example' => $example,
-                ]),
-                new MediaType([
-                    'mediaType' => 'application/json',
+                ],
+                'application/json' => [
                     'schema' => $schema,
                     'example' => $example,
-                ]),
+                ],
             ],
-        ]);
+        ];
     }
 }

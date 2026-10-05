@@ -1,7 +1,5 @@
 # Applying a Binding
 
-The merge that writes one specification's wiring onto an element, its two modes, and the three mutation operations that drive it.
-
 `BindingApplicator` owns the merge that applies one specification's wiring onto an element. It rebuilds the element through `StoredElement`'s own copiers — `withDataRequirements()`, `withProperties()`, `withAttributedSpecifications()` — so its id, component, slots, context definitions and style ride across untouched and the input is never mutated, keeping the mutation immutability invariant. Two modes:
 
 - **`apply()` (overwrite)** — each `resolves` entry becomes a concrete `DataRequirement`, merged into the element's existing data requirements and **overwriting** the same keys; re-applying a specification over an already-bound key replaces its wiring. Every wired key's attribution is recorded into the element's `attributedSpecifications` map (also merged, overwriting), so a client can later ask "which specification wired this key". Used for explicit application: `bind-element`, and an `insert-element` request's explicit `bindingSpecificationId`.

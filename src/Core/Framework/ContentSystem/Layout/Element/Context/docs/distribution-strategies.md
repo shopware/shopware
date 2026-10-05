@@ -1,7 +1,5 @@
 # Distribution Strategies
 
-The values the `distribution` field of a `providesContext` entry accepts, and the rules governing how far the distributed context reaches.
-
 Strategy determines how provider data is distributed to direct children.
 
 **Broadcast** - All children receive identical data (e.g., product detail page with shared product)

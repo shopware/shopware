@@ -1,7 +1,5 @@
 # Service Tags and Types
 
-The DI tags a plugin registers its content system services under, and the classes an extension developer encounters while writing them.
-
 ## Service Tag Reference
 
 | Tag                                   | Index Method           | Attributes                                     |
@@ -15,8 +13,6 @@ The DI tags a plugin registers its content system services under, and the classe
 Framework-owned DI configuration: `src/Core/Framework/DependencyInjection/content-system.php`. Domain sources register in their owning module's DI instead: `content_system.entity_specification_source` is tagged in `src/Core/Content/DependencyInjection/product.php`, `category.php` and `landing_page.php`, and `content_system.specification_source` is tagged in `src/Storefront/DependencyInjection/content-system.php` for the header and footer sections.
 
 ## Type Reference
-
-Key types extension developers encounter when working with the ContentSystem:
 
 ### Base Classes (extend these)
 

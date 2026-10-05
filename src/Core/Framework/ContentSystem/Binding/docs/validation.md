@@ -1,7 +1,5 @@
 # Two Validators, Two Concerns
 
-The two class-level constraints every binding declaration passes at load time, and why they sit at different levels.
-
 Every declaration passes its constraints at two levels:
 
 - **`Validation/WellFormedBindingSpecification`** — class-level on `BindingSpecificationDto`, structural shape only: `type`/`label` non-blank, `resolves`/`inputs` (if present) are arrays of arrays, each `resolves` entry declares a non-blank `loader`, each `inputs` entry's `default` (if present) is a scalar or `null`. No registry lookups. Runs per dto via the collection's `#[Assert\Valid]` cascade.

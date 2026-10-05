@@ -1,7 +1,5 @@
 # resolvedBy References
 
-The inline shorthand that lets a reference property name its storage key without any authored `bindings:` entry.
-
 A reference property can name its storage key inline through a single `resolvedBy` key, instead of an authored `bindings:` entry:
 
 ```yaml

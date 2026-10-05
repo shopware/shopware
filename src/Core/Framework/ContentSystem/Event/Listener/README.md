@@ -11,8 +11,6 @@ Event-driven extension points for the content rendering lifecycle. A listener re
 
 The step order is owned by [../../docs/pipeline-steps.md](../../docs/pipeline-steps.md). `ContentPipeline::load()` (module root) runs its preparation and finishing steps as direct calls, not through the two events. A `ContentTreePreparationEvent` listener therefore always sees the raw loaded forest, and a `RenderedTreeFinalizationEvent` listener always sees the finished rendered forest, at any priority.
 
-A `ContentTreePreparationEvent` listener may replace the stored forest before the render step; a `RenderedTreeFinalizationEvent` listener may replace the rendered forest after it. Each event exposes `replaceTree()` only.
-
 ## Priorities
 
 Priority only orders extension listeners against each other on the same event. See [docs/listener-api.md](docs/listener-api.md) for what a plugin written against the old bands has to re-check.

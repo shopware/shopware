@@ -1,7 +1,5 @@
 # Write Path, Read Path, and Output
 
-The asymmetry between a registry-backed strict write and a registry-free structural read, and where the resulting value surfaces.
-
 ## Strict Write, Registry-Free Read
 
 `Layout/Codec/` is the boundary, one class per direction. Only the write path reads the registry; `StoredTreeConstraints` derives the validation constraints fresh per write and reuses that one built tree across every element in the write:

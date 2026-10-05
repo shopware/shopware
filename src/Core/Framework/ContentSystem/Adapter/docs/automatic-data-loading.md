@@ -1,7 +1,5 @@
 # Automatic Data Loading
 
-What an entity-based render loads before your layout runs, and how a layout takes delivery of it.
-
 Entity-based rendering automatically loads the main entity before rendering your layout -- no `dataRequirements` declaration needed. The entity ID is available via placeholders, and the entity object is loaded with pre-configured associations and available as the layout's root-ambient context.
 
 **Auto-loaded entities and associations:**

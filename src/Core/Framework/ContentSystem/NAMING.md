@@ -1,7 +1,5 @@
 # Naming
 
-How components in this module are named.
-
 ## A name answers two questions
 
 Every class name resolves "about what?" and "what kind of thing?". `ContentLayoutDefinition` concerns the persisted content layout (subject) and is a DAL definition (role). Get both right and the name places itself.

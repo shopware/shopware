@@ -4,7 +4,7 @@ A data-driven layout system for serving structured content through the Store API
 
 ## Design Principles
 
-The module is built on a set of written design rules, one file per area under [docs/principles/](docs/principles/README.md). Each rule comes with the reason behind it, the alternative that was considered and not chosen, the exceptions that exist in code, and the code and test that enforce it. Much of the code is only understandable against those rules: a check that looks redundant, a value that is never repaired, a null that is kept apart from an absent key. Read the file for the area before changing its code, and when a change needs a rule to move, change the rule, its pinning test and the code together.
+The module is built on a set of written design rules, one file per area under [docs/principles/](docs/principles/README.md). Much of the code is only understandable against those rules: a check that looks redundant, a value that is never repaired, a null that is kept apart from an absent key. Read the file for the area before changing its code, and when a change needs a rule to move, change the rule, its pinning test and the code together.
 
 ## Core Concepts
 
@@ -74,11 +74,11 @@ Domain-specific content system classes live in their owning domain module — no
 
 ## Naming
 
-The reasoning behind how classes in this module are named starts at [`NAMING.md`](NAMING.md), which routes on to the two subjects that need room of their own. Consult it before adding or renaming a type.
+Consult [`NAMING.md`](NAMING.md) before adding or renaming a type.
 
 ## Administration API
 
-Admin-facing endpoints (layout preview, resolve-and-diagnose, the draft mutation actions, and the persisted mutation actions) are documented in [Api/README.md](Api/README.md), which also routes on to the four type-introspection endpoints the Administration consumes.
+Admin-facing endpoints are documented in [Api/README.md](Api/README.md).
 
 ## Subdirectories
 

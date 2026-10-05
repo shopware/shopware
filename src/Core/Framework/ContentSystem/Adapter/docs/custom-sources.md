@@ -1,7 +1,5 @@
 # Custom Specification Sources
 
-The plugin-facing authoring guide for a new specification source: the resolution steps it implements, how it is registered, and what it must additionally implement to work with the preview and diagnose actions.
-
 Specification sources translate path patterns into rendering specifications via discrete steps. A blog plugin rendering posts at `/store-api/content/blog/{id}` implements a source that recognizes the `blog/` prefix and resolves the corresponding layout.
 
 ## Chain of Responsibility

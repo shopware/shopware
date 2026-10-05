@@ -1,7 +1,5 @@
 # Custom Style Options
 
-The plugin- and app-facing guide to registering a new style option.
-
 Style options are universal presentation attributes — alignment, span, spacing, display — that can be set per breakpoint on **every** element, regardless of its type. Unlike an element type property, an option declares nothing about which elements it applies to: every registered option is valid on every element. Plugins and apps register options by placing YAML files in a style-options directory.
 
 The declaration's own file format is documented in [option-yaml.md](option-yaml.md).

@@ -1,9 +1,5 @@
 # Listener API
 
-What a rendering-lifecycle listener works with once it is wired: the element members it edits, a
-worked listener, cache-tag control, and priority. Which event to choose and where each one sits in
-the pipeline is in [custom-listeners.md](custom-listeners.md).
-
 ## Working with RenderedElement
 
 `RenderedElement` is the tree node a `RenderedTreeFinalizationEvent` listener works against (a `ContentTreePreparationEvent` listener works against `StoredElement` instead). It is `final readonly`, so every edit returns a new instance:

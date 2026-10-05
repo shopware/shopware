@@ -1,7 +1,5 @@
 # Context Example
 
-A single provider distributing one loaded entity to three consumer children.
-
 Provider distributing context to multiple consumer children:
 
 ```json

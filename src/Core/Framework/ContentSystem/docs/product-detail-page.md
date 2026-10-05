@@ -1,7 +1,5 @@
 # Product Detail Page Example
 
-One layout configuration combining entity-based rendering, data loading, and context distribution.
-
 **Layout Configuration:**
 ```json
 {

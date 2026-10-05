@@ -1,7 +1,5 @@
 # Entity-Based Rendering
 
-The main content section: the Store API endpoints that render an entity, the assignment record that binds a layout to it, and the sales channel fallback that picks between assignments.
-
 Products, Categories, and Landing Pages can render directly using ContentSystem layouts. This is the primary method for rendering entity-based pages.
 
 **Endpoints:**

@@ -1,7 +1,5 @@
 # Context Path Resolution
 
-How a consumer addresses a nested property of the context an ancestor exposes, or of the layout's root-ambient context.
-
 Consumers can request nested properties from context using dot notation. When a provider exposes an entity like `product`, consumers can access nested properties without loading the full entity themselves.
 
 **Example**: Provider exposes product, consumer requests only the cover image:

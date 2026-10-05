@@ -1,7 +1,5 @@
 # Custom Binding Specifications
 
-The plugin- and app-facing authoring guide: where a specification lives, how it is registered, and how it is discovered.
-
 A binding specification is a pre-validated data wiring for one element type: a `resolves` map wiring the type's reference properties to data loaders, plus `inputs` defaults for its primitive properties. An editor (or an agentic layout builder) applies one to an element in a single action (the `bind-element` mutation, or an `insert-element` request carrying a `bindingSpecificationId`) instead of hand-assembling loader configs.
 
 The simplest case needs no authored specification at all: declaring `resolvedBy` on a reference property (see [Custom Element Types](../../Layout/Type/docs/custom-types.md)) synthesizes a default specification for the type automatically, fill-applied to every freshly inserted or replaced element of that type with no client-side binding step. Plugins and apps additionally author specifications inline, in the optional top-level `bindings:` key of an element-type YAML file — for an alternative or additional wiring beyond the type's default.

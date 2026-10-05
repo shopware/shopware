@@ -1,7 +1,5 @@
 # Custom Event Listeners
 
-The plugin-facing authoring guide for a rendering-lifecycle listener: the two events, where each one sits in the pipeline, and what each may change. The element members, a worked listener, cache tags and priority are in [listener-api.md](listener-api.md).
-
 Listeners modify elements before or after rendering: computing derived values, transforming structure, resolving custom placeholders.
 
 | Event                         | When                                               | Purpose                                  |

@@ -1,7 +1,5 @@
 # Placeholders
 
-The `{{key}}` values an entity-based render makes available, and how to add more from the query string.
-
 Default placeholders available in entity-based rendering:
 - `{{productId}}` - Product UUID (product endpoint)
 - `{{categoryId}}` - Category UUID (category endpoint)

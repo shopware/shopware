@@ -1,7 +1,5 @@
 # Style Option Introspection
 
-The two read surfaces a declaration feeds, and the Admin API endpoint that serves the registered options.
-
 `StyleOptionSpecification::toSchema()` feeds two surfaces, both from the one registry, so introspection and validation never drift:
 
 - a dedicated endpoint `GET /api/_info/content-system-style-options.json` (`InfoController::getContentSystemStyleOptions()`), serving the options keyed by their wire name;

@@ -1,7 +1,5 @@
 # Context Redistribution
 
-The `redistribute` flag on an `acceptsContext` entry, which lets a container pass the context it receives straight through to its own children.
-
 **The Problem:** You build reusable layout components (product cards, content blocks, sliders) that need to work in different places - homepage grids, category listings, search results. When you nest these components inside container elements (grids, sections, columns), the container needs to pass data through to the nested components.
 
 **Example scenario:** A product grid contains product cards. The grid receives product data and needs to pass it to each card. Without redistribution, you must configure both `acceptsContext` (to receive data) AND `providesContext` (to pass it along) on the grid - verbose and repetitive.

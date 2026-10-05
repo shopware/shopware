@@ -1,7 +1,5 @@
 # Custom Element Types
 
-The plugin- and app-facing guide to registering a new element type.
-
 Element types define what content components exist, their properties, and their slots. They are the schema for what a hydrated element looks like in the API response. Plugins and apps register types by placing YAML files in a types directory.
 
 ## Registration

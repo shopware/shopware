@@ -1,8 +1,5 @@
 # Introspection Endpoints
 
-The registries, compiler passes and `/api/_info/` endpoints that publish the content system's own shape to
-the Administration, and the runtime assembly each one reads.
-
 ## Registries and the schema bridge
 
 - **Element Type Registry**: `Layout/Type/Registry/ContentSystemElementTypeRegistry`

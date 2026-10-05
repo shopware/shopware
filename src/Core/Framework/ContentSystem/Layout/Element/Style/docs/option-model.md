@@ -1,7 +1,5 @@
 # Style Option Model
 
-Why an option is universal rather than per-type, and the four value objects that make up a declaration and its stored value.
-
 ## Universal, Not Per-Type
 
 Style options are strictly universal: every defined option is valid on every element, with no backend per-type gating. Where an element type declares its own `properties` and `slots`, a style option declares nothing about which elements it applies to. Visibility hints (for example, showing `col-span` only inside a grid) are carried in the option's opaque `adminUI` block. See [Presentation hints belong to the editor, and the server never branches on them](../../../../docs/principles/type-declarations.md#presentation-hints-belong-to-the-editor-and-the-server-never-branches-on-them).

@@ -12,9 +12,8 @@ back the edited, freshly diagnosed layout. The operations run statelessly over a
 An operation is a pure transform over the element tree:
 
 1. It receives the entire draft tree (`Layout/StoredTree`).
-2. It applies one structural change through that tree's own algebra (`remove`, `insertAtRoot`, `insertIntoSlot`,
-   Every walked node is rebuilt (`withSlots()` never returns `$this`);
-   only a subtree handed in whole is placed by reference.
+2. It applies one structural change through that tree's own algebra, returning a new `StoredTree`. Every walked node
+   is rebuilt (`withSlots()` never returns `$this`); only a subtree handed in whole is placed by reference.
 3. It returns a new tree. `StoredTree` and `StoredElement` are `final readonly`.
 
 Because the operation never mutates shared state, the same draft can be diffed against the result, and the result fed

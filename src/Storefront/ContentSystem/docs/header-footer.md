@@ -26,9 +26,7 @@ Header and footer layouts use domain-aware resolution instead of entity-based re
 
 ## Header/Footer Assignment Structure
 
-```
-
-Fields:
+An assignment record has these fields:
 - `domainId` - Sales channel domain scope (`null` = not domain-specific)
 - `salesChannelId` - Sales channel scope (`null` = global)
 - `contentLayoutId` - Layout to use

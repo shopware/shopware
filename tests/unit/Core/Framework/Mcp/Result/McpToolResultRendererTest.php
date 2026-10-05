@@ -184,8 +184,6 @@ class McpToolResultRendererTest extends TestCase
 
     public function testSpecOnlyModeSendsTheSummaryNextToTheLink(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
         $result = $this->renderer()->render($this->linkedResult(), ProtocolVersion::latestHandshake());
 
         static::assertInstanceOf(TextContent::class, $result->content[0]);

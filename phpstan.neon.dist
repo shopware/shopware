@@ -135,6 +135,20 @@ parameters:
         - identifier: typePerfect.noArrayAccessOnObject
           path: tests/unit/Core/Framework/Script/Service/ArrayFacadeTest.php
 
+        # NoReflectionInUnitTestsRule: the only state these tests can check is private to a third-party class
+        - # Symfony keeps the transport's authenticators private and EsmtpTransportFactory is final; without it
+          # nothing proves that the OAuth authenticator is wired
+            identifier: shopware.reflectionInUnitTest
+            path: tests/unit/Core/Content/Mail/Transport/SmtpOauthTransportFactoryDecoratorTest.php
+        - # Composer's InstalledVersions reads every vendor's installed.php; only its private static switch lets the
+          # test reach the shopware/core branch, which is the one production installations take
+            identifier: shopware.reflectionInUnitTest
+            path: tests/unit/Core/Installer/InstallerKernelTest.php
+        - # the OpenSearch client exposes neither its transport nor its options, so base_uri and the TLS settings
+          # are only visible through the client's private configuration
+            identifier: shopware.reflectionInUnitTest
+            path: tests/unit/Elasticsearch/Framework/ClientFactoryTest.php
+
         # DefaultsTest explicitly tests that the default values are not changed
         - identifier: staticMethod.alreadyNarrowedType
           path: tests/devops/Core/DefaultsTest.php

@@ -26,9 +26,6 @@ Why: The pass order determines which of two defects a client sees first. The pas
 
 In code:
 
-- Inside `StoredElementListFieldSerializer::normalize()`, `LayoutWriteBoundary::apply()` seeds type defaults, normalizes style and reconciles attribution, in that order.
-- These passes run before `PreWriteValidationEvent`.
-- `ContentLayoutWriteValidator` checks well-formedness first, then membership with an early return, then resolvability.
 - See [Validation/README.md](../../Validation/README.md).
 
 ## No DAL write can bypass the constraint descriptor
@@ -41,7 +38,6 @@ In code:
 
 - Only `PreWriteValidationEvent` subscribers read `LayoutGate::SKIP_VALIDATION_STATE`.
 - `StoredElementListFieldSerializer` therefore still passes every tree through `LayoutWriteBoundary` and the `StoredTreeConstraints` descriptor.
-- The descriptor includes `PropertyTypeConformance`.
 - `ContentLayoutWriteMemoLifetimeTest` shows that a DAL write under the skip state still passes the write boundary and leaves no tree behind in `LayoutWriteContext`.
 - See [layout-write-gates.md](../layout-write-gates.md).
 

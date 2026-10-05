@@ -16,7 +16,7 @@ The storage-side element model, and the edit idiom for the rendered one. Element
 
 ## Editing a Rendered Forest
 
-`RenderedTreeEditor::mapNodes(array $tree, callable $mapper)` visits every node of the forest exactly once, slot children before their parent. A node whose slot map is non-empty reaches the mapper as a copy carrying the already-mapped children (`$mapper($element->withSlots($slots))`); only a node whose slot map is empty is handed over as the instance itself. The branch tests the map, not the child count — an element declaring a slot that currently holds no children still has a non-empty slot map, so it is re-created like any other parent. Whatever the mapper returns is what ends up in the tree — the editor keeps it verbatim rather than rebuilding it afterwards, so a mapper may return a separately constructed replacement. Elements a mapper introduces are not themselves visited — one pass is one pass.
+`RenderedTreeEditor::mapNodes()` visits every node of the forest exactly once, slot children before their parent. A node whose slot map is non-empty reaches the mapper as a copy carrying the already-mapped children; only a node whose slot map is empty is handed over as the instance itself. The branch tests the map, not the child count — an element declaring a slot that currently holds no children still has a non-empty slot map, so it is re-created like any other parent. Whatever the mapper returns is what ends up in the tree — the editor keeps it verbatim rather than rebuilding it afterwards, so a mapper may return a separately constructed replacement. Elements a mapper introduces are not themselves visited.
 
 Nothing is edited in place, but that is `RenderedElement`'s doing rather than the editor's: the class is `final readonly`, so a mapper has no way to mutate what it was handed.
 
@@ -26,7 +26,7 @@ It is the whole-tree half of the rendering extension idiom, aimed at third-party
 
 Elements provide/consume context via string keys matched between `ContextProvider` and `ContextConsumer`. Context flows down tree only. See Context/ for definitions and Rendering/ for distribution.
 
-Data requirements declare external data via `DataRequirement` objects (`key`, `source`, `config`). See Hydration/DataLoader/ for loaders.
+Data requirements declare external data via `DataRequirement` objects. See Hydration/DataLoader/ for loaders.
 
 ## Subdirectories
 

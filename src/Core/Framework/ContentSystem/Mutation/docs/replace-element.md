@@ -3,8 +3,6 @@
 The one operation that changes an element's type in place, and the only one whose contract is a set of carry-over
 rules rather than a placement. The other operations are in [operations.md](operations.md).
 
-`__construct(AbstractContentSystemElementTypeRegistry $registry, string $elementId, string $newType, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator)`.
-
 ## What it carries over
 
 Swaps an element's component to `$newType`, keeping the same id. `requireRegistered($newType)`; the element must
@@ -16,15 +14,15 @@ wins). The element's `style` carries over unconditionally, being universal and t
 
 A stored property under one of the new type's `resolvedBy` storage keys is likewise carryable: `carryProperties()`
 maps the new type's default specification's `resolves` entries whose loader is one of the two built-in resolvedBy
-loaders (`Binding/ResolvedByLoaderBranch::fromLoaderSource()`) to their storage keys, and carries a value forward
-only when its shape strictly matches that branch (`matchesStoredValueShape()`: a string for `entity`, a list of
+loaders (`Binding/ResolvedByLoaderBranch`) to their storage keys, and carries a value forward
+only when its shape strictly matches that branch (a string for `entity`, a list of
 strings for `entity_collection`). A shape mismatch is dropped and reported like any other uncarryable value.
 
 ## The default overlay
 
 After the rebuild, the new type's default binding specification, when it has exactly one
-(`resolveDefaultSpecification()`; zero is a no-op, more than one throws `bindingSpecificationDefaultAmbiguous`
-`409`), is fill-applied via `BindingApplicator::applyFillOnly()`, after `carryWiring()`, so carried wiring is never
+(zero is a no-op, more than one throws `bindingSpecificationDefaultAmbiguous`
+`409`), is fill-applied after the wiring carry-over, so carried wiring is never
 overwritten by the default even when the default would correct a renamed storage key.
 
 ## Result channels

@@ -4,12 +4,12 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 
 ## Key Classes
 
-- `AbstractContentDataLoader` - Loader base class with `load(LoaderInputs, DataRequirement, SalesChannelContext, Request)`, `getRequirementType()`, `producibleTypes()`, and `resolveProducedType()`
-- `ContentDataLoaderResult` - Result with data and cache info: `notFound()`, `cached()`, `cachedExternally()`, `uncacheable()`
-- `LoaderTypeCapability` - VO describing one type a loader can produce: `producedType`, `configTemplate`, `genericParameters`
-- `LoaderConfigSpecification` - VO for a loader's declared config contract: an ordered `list<ConfigKeySpecification>`; `requiredKeys()` and `keysOfKind()` derive from it
-- `ConfigKeySpecification` - VO for one declared config key: `name`, `kind`, `type`, `required`, `hasDefault`/`default`, optional `adminUI`, `referencedType` (the type of the value a `PropertyReference` token points at), optional `mergesInto` (another declared key this key's resolved list is unioned into)
-- `ConfigKeyKind` - Enum: what a config key's value names — `Literal`, `PropertyReference`, `EntityName`
+- `AbstractContentDataLoader` - Loader base class
+- `ContentDataLoaderResult` - Result with data and cache info
+- `LoaderTypeCapability` - VO describing one type a loader can produce
+- `LoaderConfigSpecification` - VO for a loader's declared config contract: an ordered `list<ConfigKeySpecification>`
+- `ConfigKeySpecification` - VO for one declared config key. `referencedType` is the type of the value a `PropertyReference` token points at, `mergesInto` names another declared key this key's resolved list is unioned into
+- `ConfigKeyKind` - Enum: what a config key's value names
 - `LoaderInputs` - The resolved inputs of one `load()` call: one entry per declared key. `has()`, `get()`, `string()`/`int()`/`bool()`/`stringList()` (throw when unresolved), `stringOrNull()`/`stringListOrNull()`; every accessor throws on an undeclared key
 - `LoaderInputResolver` - Builds `LoaderInputs` from a specification, the decoded config, and the element's stored properties: dereferences each `PropertyReference` token (an absent or wrongly typed stored value resolves to null, never throws) and folds each `mergesInto` key into its target, target entries first
 - `DataLoaderProvider` - Service locator dispatcher: `get($source)` throws if the source is not registered; `getSources()` lists every registered source identifier (used by the type resolver)
@@ -19,7 +19,7 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 - [**EntityLoader** (`entity`)](docs/entity.md) — Single entity by ID
 - [**EntityCollectionLoader** (`entity_collection`)](docs/entity_collection.md) — Multiple entities by IDs
 - [**ProductListingDataLoader** (`product_listing`)](docs/product_listing.md) — Product listings with filters, sorting, pagination
-- [**NavigationDataLoader** (`navigation`)](docs/navigation.md) — Navigation tree; aliases: `main-navigation`, `service-navigation`, `footer-navigation`
+- [**NavigationDataLoader** (`navigation`)](docs/navigation.md) — Navigation tree
 - **ServiceMenuDataLoader** (`service_menu`) — Service menu navigation
 - **CrossSellingDataLoader** (`cross_selling`) — Cross-selling product sets
 - **ProductReviewDataLoader** (`product_review`) — Product reviews
@@ -32,7 +32,7 @@ Data fetching for content elements. Elements declare `DataRequirement` objects w
 
 A loader degrades a broken element to `notFound()` instead of failing the whole render. Its imperative form lives in [AGENTS.md](AGENTS.md). See [A loader degrades on a named domain outcome and lets every other fault propagate](../../docs/principles/data-loading.md#a-loader-degrades-on-a-named-domain-outcome-and-lets-every-other-fault-propagate).
 
-An entity id read off a `PropertyReference` is guarded with `Uuid::isValid()` before use, because the stored map can hold anything, typically an unsubstituted placeholder such as `{{productId}}`, and `LoaderInputResolver::dereference()` only type-checks it as a string. The guard runs after any normalization: `Uuid::VALID_PATTERN` is lowercase-only while `Uuid::fromHexToBytes()` accepts uppercase hex, so guarding the raw value would reject an uppercase configured id that works. When the guard fails, the loader takes its own null-input path. An unsubstituted placeholder or a malformed id never reaches an id parser, where it would surface as an HTTP 400 from deep in the platform. A value the loader never dereferences as an id gets no guard. `EntityLoader::load()` and every other built-in loader that reads an id run the guard after lowercasing, and `EntityLoaderTest` pins it.
+An entity id read off a `PropertyReference` is guarded with `Uuid::isValid()` before use, because the stored map can hold anything, typically an unsubstituted placeholder such as `{{productId}}`, and `LoaderInputResolver::dereference()` only type-checks it as a string. The guard runs after any normalization: `Uuid::VALID_PATTERN` is lowercase-only while `Uuid::fromHexToBytes()` accepts uppercase hex, so guarding the raw value would reject an uppercase configured id that works. When the guard fails, the loader takes its own null-input path. An unsubstituted placeholder or a malformed id never reaches an id parser, where it would surface as an HTTP 400 from deep in the platform. A value the loader never dereferences as an id gets no guard. `EntityLoader::load()` and every other built-in loader that reads an id run the guard after lowercasing.
 
 A collaborator call inside `load()` is wrapped in `catch (ShopwareHttpException)`: a failure Shopware modelled as an HTTP outcome degrades the element. The clause names the single covering ancestor rather than an enumerated union for two reasons. The reachable set is open: `ProductListingRoute` and `ProductCrossSellingRoute` throw `EntityNotFoundException` and `NoFilterException` out of `ProductStreamBuilder`, a collaborator that never appears as a `throw` in either route's own file. And a decorator can rewrap a named class into an unnamed one: `AppScriptProductPriceCalculator` decorates `ProductPriceCalculator` and hands every `\Throwable` an app script raises to `ScriptExecutor`, which rethrows it as `ScriptExecutionFailedException`. `HttpException` extends `ShopwareHttpException`, so both exception roots are one inheritance line. The boundary is deliberate rather than a proof of exhaustiveness: third-party code can still throw outside it, for example a pre/post/error extension listener, whose throw propagates uncaught out of `ExtensionDispatcher`'s event dispatch (`publish()` rethrows the wrapped call's exception unless an error listener supplies a result).
 

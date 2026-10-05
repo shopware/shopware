@@ -49,9 +49,9 @@ The step order, the passes inside preparation, and the checks between them are o
 Module root:
 - `ContentPipeline` - Orchestrates steps 3-5 of the rendering pipeline; receives the loaded `RenderableLayout` from the route
 - `RenderableLayout` - Loaded layout handed to the pipeline: a `LayoutReference` plus its `list<StoredElement>`
-- `LayoutReference` - Immutable layout identity: id, name, version
+- `LayoutReference` - Immutable layout identity
 - `ResolvedContentLayout` - Resolver output: layout ID plus the `RenderingSpecification`
-- `ContentSection` - Enum: HEADER, FOOTER, MAIN
+- `ContentSection` - Enum of the sections
 - `RenderingSpecification` - Data requirements, placeholders, request, target element, cache tags
 - `RenderingMode` - Enum: FULL (resolve data and context), SKELETON (structure only)
 - `PlaceholderValues` - Immutable placeholder value map

@@ -9,7 +9,7 @@
 - Fail a mutation payload defect as a typed `400` from a `ContentSystemException` factory, never a `500` or a silent save. List a new structural code in [Api/docs/mutation-errors.md](../Api/docs/mutation-errors.md) and keep it out of `CLIENT_DEFECT_CODES`. Check: is the code in that table?
 - `bindingSpecificationNotFound` and `bindingTypeMismatch` (`400`, also not client-defect codes) concern the specification rather than the tree's shape, and `bindingSpecificationDefaultAmbiguous` is `409`.
 - `MutationPipeline::run()` takes an already-decoded `StoredTree`; the request draft is decoded upstream by `Api/DraftLayoutDecoder`, never by the pipeline.
-- `ReplaceElement` honors a type default exactly as `scaffoldElement` does on insert: `apply()` overlays `primitiveDefaults($newType)` with PHP's `+`, so a carried or authored value wins and a default fills only a new-type primitive key the carry-over left empty ([docs/replace-element.md](docs/replace-element.md)).
+- `ReplaceElement` honors a type default exactly as `scaffoldElement` does on insert: a carried or authored value wins and a default fills only a new-type primitive key the carry-over left empty ([docs/replace-element.md](docs/replace-element.md)).
 - `WrapElements` containers provide no context of their own; wrapping changes the wrapped elements' nesting scope but adds no provider.
 
 ## Navigation

@@ -4,7 +4,7 @@ The shared request draft-layout decode path: a structural pre-decode gate plus p
 
 Every decoded element's `style` is normalized through the same `Layout/StoredTreeStyleNormalizer` service `Layout/LayoutWriteBoundary` runs, on the strict and the lenient path alike, so a draft previews and diagnoses with the style shape its saved layout will carry. See [Draft and persisted paths decode and check through the same components](../../docs/principles/drafts-and-gates.md#draft-and-persisted-paths-decode-and-check-through-the-same-components).
 
-`decode()` is strict (a malformed or config-defective element is a 400 `invalidLayoutStructure`); `decodeOne()` runs the same gate on one element (the attach subtree) and returns it; `decodeLintable()` returns `[tree, list<Violation>]`, collecting client config defects as `invalid_config` violations for the diagnose route.
+`decode()` is strict (a malformed or config-defective element is a 400 `invalidLayoutStructure`); `decodeOne()` runs the same gate on one element (the attach subtree); `decodeLintable()` collects client config defects as `invalid_config` violations for the diagnose route.
 
 Storage-side decode of the persisted `content_layout` column stays separate, in `Layout/Field/StoredElementListFieldSerializer` via `Layout/Codec/StoredTreeCodec`; the write gate reads the tree that serializer memoized.
 

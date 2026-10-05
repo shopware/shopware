@@ -28,9 +28,9 @@ Framework-owned DI configuration: `src/Core/Framework/DependencyInjection/conten
 | Class                     | Purpose                                                                                |
 |---------------------------|----------------------------------------------------------------------------------------|
 | `ContentDataLoaderResult` | Loader return value with cache info                                                    |
-| `LoaderTypeCapability`    | One type a loader can produce: `producedType`, `configTemplate`, `genericParameters`; returned by `producibleTypes()` (construct directly when overriding it) |
+| `LoaderTypeCapability`    | One type a loader can produce, returned by `producibleTypes()` (construct directly when overriding it) |
 | `SpecificationData`       | Return type of `resolveSpecificationData()`                                            |
-| `PlaceholderValues`       | Created via `PlaceholderValues::from(array $values)`                                   |
+| `PlaceholderValues`       | Created via `PlaceholderValues::from()`                                                |
 
 The layout value objects a source assembles and the pipeline consumes — `RenderingSpecification`, `ResolvedContentLayout`, `LayoutReference`, `RenderableLayout` — are described in [README.md](../README.md#key-classes).
 
@@ -52,8 +52,8 @@ The layout value objects a source assembles and the pipeline consumes — `Rende
 
 | Class                    | Purpose                                         |
 |--------------------------|-------------------------------------------------|
-| `StoredElement`          | Stored tree node: properties, slots, data requirements, context wiring |
-| `RenderedElement`        | Rendered tree node: `id`, `component`, flat properties, slots, style |
+| `StoredElement`          | Stored tree node                                                       |
+| `RenderedElement`        | Rendered tree node                                                   |
 | `RenderingCacheContext`  | Cache tag collection + disable flag             |
 | `ContentSystemException` | Exception class with error codes                |
 

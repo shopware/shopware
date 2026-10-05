@@ -4,20 +4,9 @@
 
 `RenderedElement` is the tree node a `RenderedTreeFinalizationEvent` listener works against (a `ContentTreePreparationEvent` listener works against `StoredElement` instead). It is `final readonly`, so every edit returns a new instance:
 
-| Member                                            | Purpose                                                       |
-|---------------------------------------------------|---------------------------------------------------------------|
-| `$id`                                             | Element ID, readonly                                          |
-| `$component`                                      | Component type identifier, readonly                           |
-| `$properties`                                     | The flat property map, readonly `array<string, mixed>`        |
-| `$slots`                                          | Named child slots, readonly `array<string, list<RenderedElement>>` |
-| `$style`                                          | `ElementStyle`, readonly                                      |
-| `withProperty(string $key, mixed $value): self`   | Copy with one property set                                    |
-| `withProperties(array $properties): self`         | Copy with the whole property map replaced                     |
-| `withSlots(array $slots): self`                   | Copy with the slot map replaced                               |
-
 A `null` property value is a present property holding null, which is how a lookup that ran and found nothing differs from one that never wrote at all. Use `array_key_exists()` on `$properties` when that distinction matters.
 
-`RenderedTreeEditor::mapNodes(array $tree, callable $mapper): array` applies one mapper to every node of a whole forest, rebuilding the copies down each branch, and is the idiom for anything beyond a single node.
+`RenderedTreeEditor::mapNodes()` applies one mapper to every node of a whole forest, rebuilding the copies down each branch, and is the idiom for anything beyond a single node.
 
 ## Example: Reading Time Listener
 

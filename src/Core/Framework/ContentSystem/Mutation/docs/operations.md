@@ -6,8 +6,6 @@ A channel an operation is not named for stays empty.
 
 ## InsertElement
 
-`__construct(AbstractContentSystemElementTypeRegistry $registry, string $type, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator, ?string $bindingSpecificationId = null, ?string $parentElementId = null, ?int $index = null, ?string $slot = null)`.
-
 Inserts a fresh element of `$type` (primitive defaults seeded from the type, no wiring) into a parent slot at an
 index, or appended to the root. `requireRegistered`; scaffolds via `scaffoldElement`, then always fill-applies the
 type's default binding specification regardless of `$bindingSpecificationId` (`resolveDefaultSpecification()`,
@@ -23,14 +21,10 @@ explicit choice. Both steps precede insertion, so a bound insert is atomic: noth
 
 ## RemoveElement
 
-`__construct(string $elementId)`.
-
 Deletes an element and its whole subtree. Target must exist (`mutationTargetNotFound`). `affected = []`; `created`
 stays the empty default.
 
 ## MoveElement
-
-`__construct(string $elementId, ?string $newParentId = null, ?string $newSlot = null, ?int $index = null)`.
 
 Relocates the element and its subtree under a new parent slot, or to the root. The element must exist
 (`mutationTargetNotFound`); a move into itself or a descendant throws `mutationCycle`; a non-null new parent must
@@ -51,16 +45,12 @@ three drop channels: [replace-element.md](replace-element.md).
 
 ## DuplicateElement
 
-`__construct(string $elementId, ?int $index = null)`.
-
 Deep-clones the subtree with freshly minted ids and splices the clone as the next sibling. Target must exist
 (`mutationTargetNotFound`); `affected = subtreeIds($clone)` and `created` the same full clone set, never the
 original; splices at `$index ?? location.index + 1`. Context wiring is key-based and position-based, never id-based,
 so it carries over unchanged with no internal id references to rewrite.
 
 ## WrapElements
-
-`__construct(AbstractContentSystemElementTypeRegistry $registry, array $elementIds, string $containerType, ?string $slot = null)`.
 
 Mints a container element and moves a set of sibling elements into it. `requireRegistered`; slot required
 (`mutationSlotRequired`); each target must exist (`mutationTargetNotFound`); the targets must all be siblings in one
@@ -70,8 +60,6 @@ at the lowest target index. `affected = [containerId, ...elementIds]`; `created 
 wrapped targets are moved, not minted.
 
 ## UnwrapElement
-
-`__construct(string $containerElementId)`.
 
 Replaces a container with its slot children, hoisted into the container's parent slot at the container's index and
 flattened across all slots in slot order. The container must exist (`mutationTargetNotFound`); `affected` = the
@@ -85,11 +73,9 @@ The context the container *provided* is not reported, a carve-out stated with th
 
 ## AttachElement
 
-`__construct(AbstractContentSystemElementTypeRegistry $registry, StoredElement $element, ?string $parentElementId = null, ?string $slot = null, ?int $index = null)`.
-
 Splices a caller-supplied element subtree into a parent slot (or the root), reminting every id. The inverse of the
 detachment a replace reports through `orphaned`: it re-places a detached subtree, or a copied one, without trusting
-client ids. `requireRegistered($this->element->component)`: the supplied root's component must be a registered type,
+client ids. The supplied root's component must be a registered type,
 else `mutationUnknownType`, matching the check insert/replace/wrap run. Clients never supply ids; the server-minted
 ids come back in `affected = subtreeIds($clone)`, and `created` carries the same full re-minted set, every node in
 the spliced subtree being new to the layout. Placement mirrors `Op/InsertElement` (slot required with a parent →
@@ -97,8 +83,6 @@ the spliced subtree being new to the layout. Placement mirrors `Op/InsertElement
 `orphaned`/`droppedWiring`/`droppedProperties` stay empty.
 
 ## BindElement
-
-`__construct(AbstractContentSystemBindingSpecificationRegistry $registry, string $bindingSpecificationId, string $elementId, BindingApplicator $applicator)`.
 
 Applies a `Binding/Specification/BindingSpecification`'s wiring onto one element. Looks up the specification
 (`bindingSpecificationNotFound` if the id is not registered); the target element must exist

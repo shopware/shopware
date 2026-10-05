@@ -10,9 +10,9 @@ Fill-only application wires a `resolves` entry only into a key the element carri
 
 Auto-application at scaffold supersedes the earlier stance that every binding application is an explicit client act; that stance now applies only to a non-default specification, applied via `bind-element` or an explicit `bindingSpecificationId`.
 
-## The seven core defaults
+## The core defaults
 
-Core ships no dedicated binding-specification directory and no authored inline `bindings:` entry, so every core binding specification is a synthesized default, seven in all, each from the `resolvedBy` properties of one file under `Layout/Type/Definitions/`:
+Core ships no dedicated binding-specification directory and no authored inline `bindings:` entry, so every core binding specification is a synthesized default, each from the `resolvedBy` properties of one file under `Layout/Type/Definitions/`:
 
 - `core:Sw:Media:Image` — `media` from the `mediaId` storage key, `media/image.yaml`
 - `core:Sw:Grid:Container` — `backgroundImage` from `backgroundImageId`, `grid/container.yaml`

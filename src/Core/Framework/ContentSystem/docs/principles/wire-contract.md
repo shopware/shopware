@@ -47,7 +47,6 @@ In code:
 - `ContentPageEncoder` hands `Struct` leaves to `StructEncoder::encode()`.
 - The `RenderedElement` constructor enforces that no other object hides a struct.
 - `StoreApiSeoResolver` reads the `properties` and `slots` of a `RenderedElement` in a dedicated branch, because no generic `Struct` walk reaches them, and a rename of either field changes that branch.
-- `StoreApiSeoResolverTest` pins the branch.
 - See [Output/README.md](../../Output/README.md).
 
 ## Every response format is a structural projection of one rendered forest
@@ -63,7 +62,6 @@ In code:
 - `ContentRouteCompilerPass` generates the routes.
 - Every full-mode response builds its page through `ContentPage::fromRenderResult()`.
 - `ResolvedValueIndexFactory` numbers the refs in document order.
-- `ResolvedValueIndexFactoryTest` pins that the value index numbers refs in pre-order document order.
 - `ContentRouteRenderingTest` pins that a data response assigns only to element ids the skeleton response carries.
 - See [Output/README.md](../../Output/README.md).
 

@@ -187,7 +187,7 @@ class GrossPriceCalculatorTest extends TestCase
         $calculator = new GrossPriceCalculator(new TaxCalculator(), new CashRounding());
         $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
 
-        static::assertEquals(new RegulationPrice(23.8), $price->getRegulationPrice());
+        static::assertEquals(RegulationPrice::createFromUnitPrice(11.9, 23.8), $price->getRegulationPrice());
     }
 
     public function testUncalculatedReferencePriceUsesTheDerivedGrossUnitPrice(): void

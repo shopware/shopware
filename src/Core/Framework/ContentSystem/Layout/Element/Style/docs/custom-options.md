@@ -25,7 +25,7 @@ An option name is the **Store-API wire key** taken directly from the kebab-case 
 ## Collision Detection
 
 Option names must be globally unique across core, bundles, plugins, and apps. Duplicates are detected at:
-- **Load time** by the registry when aggregating loaders (core / bundle / plugin)
+- **Load time** by registry `all()` when aggregating loaders (core / bundle / plugin)
 - **Persist time** by `StyleOptionCollisionDetector` when syncing app options to the database (also checks inactive app options). The `UNIQUE KEY` on `app_content_system_style_option.name` is the authoritative guard.
 
 ## App Lifecycle

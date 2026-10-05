@@ -4,7 +4,7 @@ Strategy determines how provider data is distributed to direct children.
 
 **Broadcast** - All children receive identical data (e.g., product detail page with shared product)
 
-**Indexed** - Children receive data by position: child[N] gets data[N] (e.g., top 3 products in specific slots)
+**Indexed** - Consumers receive data by position: consumer[N] gets data[N] (e.g., top 3 products in specific slots)
 
 **Keyed** - Children receive data by matching their property value to data keys. The `keyProperty` field (default: `"data_key"`) specifies which element property is used for matching. Consumers need a property matching this name, e.g., `"properties": {"data_key": "featured"}` when using the default.
 

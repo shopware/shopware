@@ -14,7 +14,7 @@
 - Treat an element id as an opaque string, unique across all roots: `StoredElementCodec::decode()` rejects only the reserved virtual-root literal and an integer-castable string. Check: does the change parse an id or narrow it to a pattern? `StoredElementCodecStructuralDecodeTest` pins the domain.
 - Placeholders (`{{key}}`) resolved in single pass on the stored tree, in FULL mode only (`Scaffolding/StoredTreePreparer`)
 - Keep the preparation and resolution order that [docs/pipeline-steps.md](../docs/pipeline-steps.md) owns. Check: `StoredTreePreparerTest` and `ElementLoweringTest` pin the order.
-- Field/ serializers are infrastructure — only interact in EntityDefinition classes
+- Field/ serializers are infrastructure. Only EntityDefinition classes declare them
 - Seed a primitive default at write time, never at serve time: `LayoutDefaultSeeder` fills an absent key, never a present value, an authored null included. Check: does a serve or diagnostics path read a type default? `LayoutDefaultSeederTest` and `LayoutDiagnosticsTest` pin both halves.
 - Keep the draft decode and the write on one `StoredTreeStyleNormalizer` service, beside the one codec below. Check: `DraftLayoutStyleParityTest` pins that the draft decode and the write produce the same style.
 - Tighten `StoredElementCodec` and `StoredTreeConstraints` in one change. Check: `StoredTreeShapeConformanceTest` pins where the two agree.

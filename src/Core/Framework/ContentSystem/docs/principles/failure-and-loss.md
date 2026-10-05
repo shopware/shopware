@@ -44,7 +44,7 @@ In code:
 
 ## The cause of a defect sets its classification, and HTTP status is a separate axis
 
-A code that a client can cause is a client defect, and `CLIENT_DEFECT_CODES` lists it. A defect whose only possible cause is data bypassing the write gate is an internal fault, and `CLIENT_DEFECT_CODES` does not list it. The module never repairs an internal fault. The route or serializer that meets a defect sets the HTTP status of that defect on its own path. A persisted-row defect keeps one HTTP status on every path that meets it. A mutation payload defect reaches the client as a 400 with a code and a detail, never as a 500 or a silent save.
+A code that a client can cause is a client defect, and `CLIENT_DEFECT_CODES` lists it. A defect whose only possible cause is data bypassing the write gate is an internal fault, and `CLIENT_DEFECT_CODES` does not list it. The module never repairs an internal fault. The route or serializer that meets a defect sets the HTTP status of that defect on its own path. A mutation payload defect reaches the client as a 400 with a code and a detail, never as a 500 or a silent save.
 
 | Path that meets a defect in an id or in a layout | HTTP status or behaviour |
 |---|---|

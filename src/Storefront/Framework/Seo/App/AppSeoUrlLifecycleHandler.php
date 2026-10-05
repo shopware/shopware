@@ -2,7 +2,8 @@
 
 namespace Shopware\Storefront\Framework\Seo\App;
 
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
+use Doctrine\DBAL\ArrayParameterType;
+use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateIndexingMessage;
 use Shopware\Core\Framework\App\Event\AppUpdatedEvent;
@@ -17,7 +18,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -28,15 +28,12 @@ use Symfony\Component\Messenger\MessageBusInterface;
 #[Package('inventory')]
 class AppSeoUrlLifecycleHandler extends AbstractLifecycleHandler implements EventSubscriberInterface
 {
-    private const WRITE_CHUNK_SIZE = 500;
-
     /**
-     * @param EntityRepository<SeoUrlCollection> $seoUrlRepository
      * @param EntityRepository<SeoUrlTemplateCollection> $seoUrlTemplateRepository
      */
     public function __construct(
         private readonly AppFeatureStorage $storage,
-        private readonly EntityRepository $seoUrlRepository,
+        private readonly Connection $connection,
         private readonly EntityRepository $seoUrlTemplateRepository,
         private readonly MessageBusInterface $messageBus,
         private readonly AppSeoUrlSynchronizer $synchronizer,
@@ -72,7 +69,7 @@ class AppSeoUrlLifecycleHandler extends AbstractLifecycleHandler implements Even
             }
         }
 
-        $this->markSeoUrlsAsDeleted($removed, $context->context);
+        $this->markSeoUrlsAsDeleted($removed);
         $this->deleteTemplates(array_values(array_diff($removed, array_keys($declaredEntity))), $context->context);
     }
 
@@ -90,7 +87,7 @@ class AppSeoUrlLifecycleHandler extends AbstractLifecycleHandler implements Even
 
     public function deactivate(AppActivationContext $context): void
     {
-        $this->markSeoUrlsAsDeleted($this->storedRouteNames($context->app->getId()), $context->context);
+        $this->markSeoUrlsAsDeleted($this->storedRouteNames($context->app->getId()));
     }
 
     public function uninstall(AppRemovalContext $context): void
@@ -107,7 +104,7 @@ class AppSeoUrlLifecycleHandler extends AbstractLifecycleHandler implements Even
     {
         $appId = $context->app->getId();
 
-        $this->markSeoUrlsAsDeleted($this->storedRouteNames($appId), $context->context);
+        $this->markSeoUrlsAsDeleted($this->storedRouteNames($appId));
 
         if (!$context->keepUserData) {
             $this->deleteTemplates(
@@ -189,25 +186,17 @@ class AppSeoUrlLifecycleHandler extends AbstractLifecycleHandler implements Even
     /**
      * @param list<string> $routeNames
      */
-    private function markSeoUrlsAsDeleted(array $routeNames, Context $context): void
+    private function markSeoUrlsAsDeleted(array $routeNames): void
     {
         if ($routeNames === []) {
             return;
         }
 
-        $criteria = new Criteria();
-        $criteria->setTitle('app-seo-url::mark-deleted');
-        $criteria->addFilter(new EqualsAnyFilter('routeName', $routeNames));
-        $criteria->addFilter(new EqualsFilter('isDeleted', false));
-
-        $ids = array_values(array_filter($this->seoUrlRepository->searchIds($criteria, $context)->getIds(), \is_string(...)));
-
-        foreach (array_chunk($ids, self::WRITE_CHUNK_SIZE) as $chunk) {
-            $this->seoUrlRepository->update(
-                array_map(static fn (string $id): array => ['id' => $id, 'isDeleted' => true], $chunk),
-                $context
-            );
-        }
+        $this->connection->executeStatement(
+            'UPDATE `seo_url` SET `is_deleted` = 1 WHERE `route_name` IN (:routeNames) AND `is_deleted` = 0',
+            ['routeNames' => $routeNames],
+            ['routeNames' => ArrayParameterType::STRING]
+        );
     }
 
     /**

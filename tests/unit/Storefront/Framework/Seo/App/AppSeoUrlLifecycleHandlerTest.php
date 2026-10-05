@@ -2,10 +2,10 @@
 
 namespace Shopware\Tests\Unit\Storefront\Framework\Seo\App;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Seo\SeoUrl\SeoUrlCollection;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateCollection;
 use Shopware\Core\Content\Seo\SeoUrlTemplate\SeoUrlTemplateIndexingMessage;
 use Shopware\Core\Framework\App\AppEntity;
@@ -20,9 +20,7 @@ use Shopware\Core\Framework\App\Manifest\Xml\Storefront\SeoUrl;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
 use Shopware\Storefront\Framework\Seo\App\AppEntitySeoUrlConfig;
@@ -46,28 +44,15 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
 
     private const ROUTE_NAME_PREFIX = 'storefront.app.SwagSeoUrlApp.';
 
-    private const IMPRINT_ROUTE = 'storefront.app.SwagSeoUrlApp.imprint';
-
-    private const CONTACT_ROUTE = 'storefront.app.SwagSeoUrlApp.contact';
-
     private const PRODUCT_TEASER_ROUTE = 'storefront.app.SwagSeoUrlApp.product-teaser';
 
     private const CATEGORY_TEASER_ROUTE = 'storefront.app.SwagSeoUrlApp.category-teaser';
 
     private const BLOG_DETAIL_ROUTE = 'storefront.app.SwagSeoUrlApp.blog-detail';
 
-    private const SEO_URL_ID = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
-
-    private const OTHER_SEO_URL_ID = 'cccccccccccccccccccccccccccccccc';
-
     private const TEMPLATE_ID = 'dddddddddddddddddddddddddddddddd';
 
     private const OTHER_TEMPLATE_ID = 'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
-
-    /**
-     * @var StaticEntityRepository<SeoUrlCollection>
-     */
-    private StaticEntityRepository $seoUrlRepository;
 
     /**
      * @var StaticEntityRepository<SeoUrlTemplateCollection>
@@ -78,38 +63,8 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->seoUrlRepository = StaticEntityRepository::of(SeoUrlCollection::class);
         $this->seoUrlTemplateRepository = StaticEntityRepository::of(SeoUrlTemplateCollection::class);
         $this->messageBus = new CollectingMessageBus();
-    }
-
-    public function testUpdateMarksTheSeoUrlsOfRoutesTheManifestNoLongerDeclaresAsDeleted(): void
-    {
-        $this->seoUrlRepository->addSearch(static function (Criteria $criteria): array {
-            static::assertEquals(
-                [
-                    new EqualsAnyFilter('routeName', [self::CONTACT_ROUTE, self::BLOG_DETAIL_ROUTE]),
-                    new EqualsFilter('isDeleted', false),
-                ],
-                $criteria->getFilters()
-            );
-
-            return [self::SEO_URL_ID, self::OTHER_SEO_URL_ID];
-        });
-        $this->seoUrlTemplateRepository->addSearch([]);
-
-        $this->handler(
-            storedSeoUrls: ['imprint', 'contact'],
-            storedEntitySeoUrls: ['product-teaser' => 'product', 'blog-detail' => 'ce_blog'],
-        )->update(self::updateContext(self::manifest(
-            seoUrls: ['imprint'],
-            entitySeoUrls: ['product-teaser' => 'product'],
-        )));
-
-        static::assertSame(
-            [[['id' => self::SEO_URL_ID, 'isDeleted' => true], ['id' => self::OTHER_SEO_URL_ID, 'isDeleted' => true]]],
-            $this->seoUrlRepository->updates
-        );
     }
 
     /**
@@ -118,7 +73,6 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
     #[DataProvider('entitySeoUrlsGoneFromTheManifest')]
     public function testUpdateDeletesTheTemplateOfAnEntitySeoUrlTheManifestNoLongerDeclares(array $declaredSeoUrls): void
     {
-        $this->seoUrlRepository->addSearch([]);
         $this->seoUrlTemplateRepository->addSearch(static function (Criteria $criteria): array {
             static::assertEquals([new EqualsAnyFilter('routeName', [self::BLOG_DETAIL_ROUTE])], $criteria->getFilters());
 
@@ -149,33 +103,19 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
      * @param array<string, string> $declaredEntitySeoUrls
      */
     #[DataProvider('routesStillDeclaredAsEntitySeoUrl')]
-    public function testUpdateMarksTheSeoUrlsOfARedeclaredRouteAsDeletedButKeepsItsTemplates(
+    public function testUpdateKeepsTheTemplatesOfARedeclaredRoute(
         array $storedSeoUrls,
         array $storedEntitySeoUrls,
         array $declaredEntitySeoUrls,
-        string $expectedRouteName,
     ): void {
-        $this->seoUrlRepository->addSearch(static function (Criteria $criteria) use ($expectedRouteName): array {
-            static::assertEquals(
-                [
-                    new EqualsAnyFilter('routeName', [$expectedRouteName]),
-                    new EqualsFilter('isDeleted', false),
-                ],
-                $criteria->getFilters()
-            );
-
-            return [self::SEO_URL_ID];
-        });
-
         $this->handler(storedSeoUrls: $storedSeoUrls, storedEntitySeoUrls: $storedEntitySeoUrls)
             ->update(self::updateContext(self::manifest(entitySeoUrls: $declaredEntitySeoUrls)));
 
-        static::assertSame([[['id' => self::SEO_URL_ID, 'isDeleted' => true]]], $this->seoUrlRepository->updates);
         static::assertSame([], $this->seoUrlTemplateRepository->deletes);
     }
 
     /**
-     * @return iterable<string, array{list<string>, array<string, string>, array<string, string>, string}>
+     * @return iterable<string, array{list<string>, array<string, string>, array<string, string>}>
      */
     public static function routesStillDeclaredAsEntitySeoUrl(): iterable
     {
@@ -183,17 +123,15 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
             [],
             ['category-teaser' => 'category'],
             ['category-teaser' => 'product'],
-            self::CATEGORY_TEASER_ROUTE,
         ];
         yield 'a static SEO URL that turned into an entity SEO URL' => [
             ['imprint'],
             [],
             ['imprint' => 'product'],
-            self::IMPRINT_ROUTE,
         ];
     }
 
-    public function testUpdateWithoutRemovedRoutesQueriesNothing(): void
+    public function testUpdateWithoutRemovedRoutesDeletesNoTemplates(): void
     {
         $this->handler(
             storedSeoUrls: ['imprint'],
@@ -203,7 +141,6 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
             entitySeoUrls: ['product-teaser' => 'product', 'category-teaser' => 'category'],
         )));
 
-        static::assertSame([], $this->seoUrlRepository->updates);
         static::assertSame([], $this->seoUrlTemplateRepository->deletes);
     }
 
@@ -297,66 +234,23 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
         );
     }
 
-    public function testDeactivationMarksTheSeoUrlsOfEveryStoredRouteAsDeletedButKeepsTheTemplates(): void
+    public function testDeactivationKeepsTheTemplatesAndRegeneratesNothing(): void
     {
-        $this->seoUrlRepository->addSearch(static function (Criteria $criteria): array {
-            static::assertEquals(
-                [
-                    new EqualsAnyFilter('routeName', [self::IMPRINT_ROUTE, self::PRODUCT_TEASER_ROUTE]),
-                    new EqualsFilter('isDeleted', false),
-                ],
-                $criteria->getFilters()
-            );
-
-            return [self::SEO_URL_ID];
-        });
-
         $this->handler(
             storedSeoUrls: ['imprint'],
             storedEntitySeoUrls: ['product-teaser' => 'product'],
         )->deactivate(self::activationContext());
 
-        static::assertSame([[['id' => self::SEO_URL_ID, 'isDeleted' => true]]], $this->seoUrlRepository->updates);
         static::assertSame([], $this->seoUrlTemplateRepository->deletes);
         static::assertSame([], $this->dispatchedMessages());
-    }
-
-    public function testDeactivatingAnAppWithoutSeoUrlsQueriesNothing(): void
-    {
-        $this->handler()->deactivate(self::activationContext());
-
-        static::assertSame([], $this->seoUrlRepository->updates);
-    }
-
-    public function testSeoUrlsAreMarkedAsDeletedInChunksOf500(): void
-    {
-        $ids = array_map(static fn (): string => Uuid::randomHex(), range(1, 501));
-        $this->seoUrlRepository->addSearch($ids);
-
-        $this->handler(storedSeoUrls: ['imprint'])->deactivate(self::activationContext());
-
-        static::assertCount(2, $this->seoUrlRepository->updates);
-        static::assertCount(500, $this->seoUrlRepository->updates[0]);
-        static::assertSame([['id' => $ids[500], 'isDeleted' => true]], $this->seoUrlRepository->updates[1]);
     }
 
     /**
      * @param \Closure(AppSeoUrlLifecycleHandler, AppRemovalContext): void $removal
      */
     #[DataProvider('removals')]
-    public function testRemovingTheAppMarksItsSeoUrlsAsDeletedAndDeletesItsTemplates(\Closure $removal): void
+    public function testRemovingTheAppDeletesTheTemplatesOfItsEntitySeoUrls(\Closure $removal): void
     {
-        $this->seoUrlRepository->addSearch(static function (Criteria $criteria): array {
-            static::assertEquals(
-                [
-                    new EqualsAnyFilter('routeName', [self::IMPRINT_ROUTE, self::PRODUCT_TEASER_ROUTE, self::CATEGORY_TEASER_ROUTE]),
-                    new EqualsFilter('isDeleted', false),
-                ],
-                $criteria->getFilters()
-            );
-
-            return [self::SEO_URL_ID];
-        });
         $this->seoUrlTemplateRepository->addSearch(static function (Criteria $criteria): array {
             static::assertEquals(
                 [new EqualsAnyFilter('routeName', [self::PRODUCT_TEASER_ROUTE, self::CATEGORY_TEASER_ROUTE])],
@@ -374,7 +268,6 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
             self::removalContext(keepUserData: false)
         );
 
-        static::assertSame([[['id' => self::SEO_URL_ID, 'isDeleted' => true]]], $this->seoUrlRepository->updates);
         static::assertSame([[['id' => self::TEMPLATE_ID], ['id' => self::OTHER_TEMPLATE_ID]]], $this->seoUrlTemplateRepository->deletes);
         static::assertSame([], $this->dispatchedMessages());
     }
@@ -385,14 +278,11 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
     #[DataProvider('removals')]
     public function testRemovingTheAppWhileKeepingUserDataKeepsItsTemplates(\Closure $removal): void
     {
-        $this->seoUrlRepository->addSearch([self::SEO_URL_ID]);
-
         $removal(
             $this->handler(storedEntitySeoUrls: ['product-teaser' => 'product']),
             self::removalContext(keepUserData: true)
         );
 
-        static::assertSame([[['id' => self::SEO_URL_ID, 'isDeleted' => true]]], $this->seoUrlRepository->updates);
         static::assertSame([], $this->seoUrlTemplateRepository->deletes);
     }
 
@@ -400,11 +290,10 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
      * @param \Closure(AppSeoUrlLifecycleHandler, AppRemovalContext): void $removal
      */
     #[DataProvider('removals')]
-    public function testRemovingAnAppWithoutSeoUrlsQueriesNothing(\Closure $removal): void
+    public function testRemovingAnAppWithoutSeoUrlsDeletesNoTemplates(\Closure $removal): void
     {
         $removal($this->handler(), self::removalContext(keepUserData: false));
 
-        static::assertSame([], $this->seoUrlRepository->updates);
         static::assertSame([], $this->seoUrlTemplateRepository->deletes);
     }
 
@@ -465,7 +354,7 @@ class AppSeoUrlLifecycleHandlerTest extends TestCase
 
         return new AppSeoUrlLifecycleHandler(
             $storage,
-            $this->seoUrlRepository,
+            static::createStub(Connection::class),
             $this->seoUrlTemplateRepository,
             $this->messageBus,
             $synchronizer ?? static::createStub(AppSeoUrlSynchronizer::class),

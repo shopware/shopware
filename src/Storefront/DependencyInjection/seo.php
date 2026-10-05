@@ -123,7 +123,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(AppSeoUrlLifecycleHandler::class)
         ->args([
             service(AppFeatureStorage::class),
-            service('seo_url.repository'),
+            service(Connection::class),
             service('seo_url_template.repository'),
             service(MessageBusInterface::class),
             service(AppSeoUrlSynchronizer::class),

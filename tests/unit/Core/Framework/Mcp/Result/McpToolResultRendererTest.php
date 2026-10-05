@@ -8,7 +8,6 @@ use Mcp\Schema\Enum\ProtocolVersion;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Result\McpToolResult;
@@ -130,8 +129,6 @@ class McpToolResultRendererTest extends TestCase
 
     public function testSpecOnlyModeSendsPlainDataAndPrefixedMeta(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
         $result = $this->renderer()->render(McpToolResult::success(['a' => 1], ['total' => 1]), ProtocolVersion::latestHandshake(), '{"success":true,"data":{"a":1}}');
 
         static::assertSame('{"a":1}', $this->text($result->content[0]));
@@ -142,8 +139,6 @@ class McpToolResultRendererTest extends TestCase
 
     public function testSpecOnlyModeKeepsTheDataFirstAddsTheSummaryAndSendsErrorsAsTheirMessage(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
         $success = $this->renderer()->render(McpToolResult::success(['a' => 1], summary: 'One product'), ProtocolVersion::latestHandshake());
         static::assertSame('{"a":1}', $this->text($success->content[0]), 'the summary never replaces the data');
         static::assertSame('One product', $this->text($success->content[1]));
@@ -156,8 +151,6 @@ class McpToolResultRendererTest extends TestCase
 
     public function testSpecOnlyModeSendsNoDataBlockForAResultWithoutData(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
         $result = $this->renderer()->render(new McpToolResult(summary: 'Stored as a resource.'), ProtocolVersion::latestHandshake());
 
         static::assertSame('Stored as a resource.', $this->text($result->content[0]));

@@ -44,7 +44,12 @@ export default {
         };
     },
 
-    emits: ['search', 'active-item-index-select', 'keyup-enter', 'click-search-result'],
+    emits: [
+        'search',
+        'active-item-index-select',
+        'keyup-enter',
+        'click-search-result',
+    ],
 
     shortcuts: {
         f: 'setFocus',

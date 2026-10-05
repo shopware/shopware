@@ -98,14 +98,14 @@ final class SystemActivitySubscriber implements EventSubscriberInterface
             $event instanceof AppInstalledEvent => 'install',
             $event instanceof AppUpdatedEvent => 'update',
         };
-        // 6.6 app getters are declared non-nullable, but the properties are still untyped and may be null.
+        // 6.6 getters are typed as string and throw when these untyped properties are null.
         $app = $event->getApp()->getVars();
         $appVersion = $event instanceof AppInstalledEvent || $event instanceof AppUpdatedEvent
             ? $event->getManifest()->getMetadata()->getVersion()
-            : $this->nullableString($app['version'] ?? null);
+            : (string) $app['version'];
 
         $this->logger->info('app:' . $action, array_filter([
-            'appName' => $this->nullableString($app['name'] ?? null),
+            'appName' => (string) $app['name'],
             'appVersion' => $appVersion,
             ...$this->actor($event->getContext()),
         ], static fn (mixed $value): bool => $value !== null));
@@ -183,10 +183,5 @@ final class SystemActivitySubscriber implements EventSubscriberInterface
         }
 
         return $actor;
-    }
-
-    private function nullableString(mixed $value): ?string
-    {
-        return \is_string($value) ? $value : null;
     }
 }

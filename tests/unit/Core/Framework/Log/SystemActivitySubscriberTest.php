@@ -137,13 +137,14 @@ class SystemActivitySubscriberTest extends TestCase
         $dispatcher->dispatch($event);
     }
 
-    public function testAppEnableOmitsMissingVersion(): void
+    public function testAppEnableCastsMissingVersionToEmptyString(): void
     {
         $app = new AppEntity();
         $app->setName('ExampleApp');
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->once())->method('info')->with('app:enable', [
             'appName' => 'ExampleApp',
+            'appVersion' => '',
             'actorType' => 'system',
         ]);
         $dispatcher = new EventDispatcher();

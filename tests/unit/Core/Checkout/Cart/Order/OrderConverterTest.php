@@ -881,8 +881,10 @@ class OrderConverterTest extends TestCase
         $productDownloadRepository->method('search')->willReturnCallback(static function (Criteria $criteria) use ($productDownload): EntitySearchResult {
             $filters = $criteria->getFilters();
             if (isset($filters[0]) && $filters[0] instanceof EqualsAnyFilter) {
-                $value = (new \ReflectionProperty(EqualsAnyFilter::class, 'value'))->getValue($filters[0]);
-                $productDownload->setProductId($value[0] ?? null);
+                $productId = $filters[0]->getValue()[0] ?? null;
+                if (\is_string($productId)) {
+                    $productDownload->setProductId($productId);
+                }
             }
 
             return new EntitySearchResult(

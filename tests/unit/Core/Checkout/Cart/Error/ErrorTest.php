@@ -73,28 +73,22 @@ class ErrorTest extends TestCase
     {
         $unserialized = Serialization::assertRoundTrip($error);
 
-        // Call all public methods without parameters (i.e. getters) to make sure the don't throw an exception
-        $refClass = new \ReflectionClass($error);
-        $refMethods = $refClass->getMethods(\ReflectionMethod::IS_PUBLIC);
-        foreach ($refMethods as $method) {
-            if ($method->getNumberOfParameters() !== 0) {
-                continue;
-            }
-
-            /** @deprecated tag:v6.8.0 - remove whole if statement */
-            if ($method->getName() === 'getRoute') {
-                // Skip getRoute method as it is deprecated and will be removed in v6.8.0.0
-                continue;
-            }
-
-            $method->invoke($error);
-        }
+        // The exception comparator ignores the trace, which __serialize() drops on purpose
+        static::assertEquals($error, $unserialized);
+        // getId() is left out because some errors generate a random id on every call
+        static::assertSame($error->getMessageKey(), $unserialized->getMessageKey());
+        static::assertSame($error->getMessage(), $unserialized->getMessage());
+        static::assertSame($error->getLevel(), $unserialized->getLevel());
+        static::assertSame($error->blockOrder(), $unserialized->blockOrder());
+        static::assertSame($error->blockResubmit(), $unserialized->blockResubmit());
+        static::assertSame($error->isPersistent(), $unserialized->isPersistent());
+        static::assertEquals($error->getParameters(), $unserialized->getParameters());
     }
 
     /**
-     * @return iterable<class-string<Error>, array{0: Error}>
+     * @return \Generator<class-string<Error>, array{0: Error}>
      */
-    public static function serializationDataProvider(): iterable
+    public static function serializationDataProvider(): \Generator
     {
         yield AddressValidationError::class => [new AddressValidationError(true, new ConstraintViolationList(), 'address-id-123')];
         yield BillingAddressBlockedError::class => [new BillingAddressBlockedError('foo', 'address-id-123')];

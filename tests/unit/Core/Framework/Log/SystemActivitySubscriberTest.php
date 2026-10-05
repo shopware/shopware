@@ -137,6 +137,21 @@ class SystemActivitySubscriberTest extends TestCase
         $dispatcher->dispatch($event);
     }
 
+    public function testAppEnableOmitsMissingVersion(): void
+    {
+        $app = new AppEntity();
+        $app->setName('ExampleApp');
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('info')->with('app:enable', [
+            'appName' => 'ExampleApp',
+            'actorType' => 'system',
+        ]);
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addSubscriber(new SystemActivitySubscriber($logger, $this->connection));
+
+        $dispatcher->dispatch(new AppActivatedEvent($app, Context::createDefaultContext()));
+    }
+
     public static function appLifecycleProvider(): \Generator
     {
         yield 'app enabled' => ['enable'];

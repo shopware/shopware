@@ -40,4 +40,4 @@ Writing an element `style` is strict: an unknown option, an unknown breakpoint, 
 
 A registered option appears in `GET /api/_info/content-system-style-options.json` and, folded under a `styleOptions` key, in `GET /api/_info/content-system-element-types.json`. The Administration reads either to render controls from the option's `adminUI` hints. See [introspection.md](introspection.md).
 
-Reference: [Layout/Element/Style/README.md](../README.md), `Layout/Element/Style/Definitions/` (5 core option examples)
+Reference: [Layout/Element/Style/README.md](../README.md), `Layout/Element/Style/Definitions/`

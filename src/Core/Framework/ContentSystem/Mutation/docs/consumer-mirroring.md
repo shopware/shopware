@@ -5,8 +5,6 @@ onto the created elements the `acceptsContext` consumers their own resolutions a
 is `@internal`, `#[Package('framework')]` like everything else here, and absent from `InternalClassRule`'s
 public-surface allowlist.
 
-`apply(StoredTree $tree, array $resolutions, array $createdElementIds): StoredTree`.
-
 ## What proves a consumer
 
 A resolution yields a consumer only when its `kind` is `Reference`, its `resolved` candidate is non-null with a
@@ -50,8 +48,7 @@ different property.
 ## Rebuild and the identity contract
 
 Element rebuild goes through
-`StoredElement::withContextDefinitions(new ContextDefinitions($definitions->getAllProviders(), $consumers))` and a
-parent-rebuilding recursion over `StoredElement::$slots`, because `StoredTree::locate()` carries no ancestors.
+`StoredTree::locate()` carries no ancestors.
 
 Writing no consumer returns the input `StoredTree` instance itself, which is what the pipeline's re-analysis gate
 reads.

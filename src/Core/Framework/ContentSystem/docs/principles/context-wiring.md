@@ -16,7 +16,6 @@ In code:
 - `ContextDeliveryResolver` fills `ConsumerScope::Root` consumers.
 - `ElementResolver` ranks a root candidate first.
 - `ContextDeliveryResolverTest` pins the direct-children and root-consumer behaviors.
-- `ElementResolverTest` pins the root-first ranking.
 - See [consumers.md](../../Layout/Element/Context/docs/consumers.md).
 
 ## Preparation and resolution run in one fixed order
@@ -27,10 +26,8 @@ Why: A provider may hand a loaded value to a child, so delivery before data reso
 
 In code:
 
-- `ContentPipeline::load()` dispatches `ContentTreePreparationEvent` before `StoredTreePreparer::prepare()` runs.
 - `ElementLowering::lower()` loads data before it delivers context.
 - `StoredTreePreparerTest` pins this order.
-- `ElementLoweringTest` pins this order.
 - See [pipeline-steps.md](../pipeline-steps.md).
 
 ## The write gate computes each delivery rule it checks exactly as serving computes it
@@ -46,7 +43,6 @@ In code:
 - `WiringPlanner::plan()` and `AvailableContextResolver` share `ProviderDeliveryKeyResolver`.
 - `LayoutDiagnostics` matches consumer keys with `ContextPathResolver::matches()`.
 - `AvailableContextResolverTest` pins the shared key resolver.
-- `LayoutDiagnosticsTest` pins the consumer-key matching.
 - See [Validation/README.md](../../Validation/README.md).
 
 ## Also true by construction

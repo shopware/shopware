@@ -78,8 +78,6 @@ Slots hold arrays of elements.
 }
 ```
 
-In this example, the `header` slot contains 3 elements, while `main` has 1 and `sidebar` has 2.
-
 ## Nested Containers
 
 ```json

@@ -19,7 +19,7 @@
 - Keep the draft decode and the write on one `StoredTreeStyleNormalizer` service, beside the one codec below. Check: `DraftLayoutStyleParityTest` pins that the draft decode and the write produce the same style.
 - Tighten `StoredElementCodec` and `StoredTreeConstraints` in one change. Check: `StoredTreeShapeConformanceTest` pins where the two agree.
 - Check a written value, never repair it. No client may sanitize a value before sending it. Check: does the change add a server pass or a client step that rewrites, coerces, filters or drops a value?
-- Keep one codec for the stored element: storage and every Admin API body go through `StoredElementCodec`. Check: `StoredElementCodecTest` round-trips every field.
+- Keep one codec for the stored element: storage and every Admin API body go through `StoredElementCodec`.
 - Keep the Admin API on the stored shape and the Store API on the rendered one. No stored-only key in a Store API body. No rendered value on the Admin API. Check: can the change put either into the wrong API?
 - On read, throw on a malformed row but keep a name the registry no longer knows. Check: does a read path now reject a drifted option or component?
 - Admit every layout write through `LayoutWriteBoundary`: add no second write boundary and no per-route normalization. Check: can any DAL route store a tree `LayoutWriteBoundary::apply()` did not produce?

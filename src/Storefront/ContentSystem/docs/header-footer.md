@@ -26,13 +26,6 @@ Header and footer layouts use domain-aware resolution instead of entity-based re
 
 ## Header/Footer Assignment Structure
 
-```json
-{
-  "id": "<uuid>",
-  "domainId": "<domain-uuid>|null",
-  "salesChannelId": "<sales-channel-uuid>|null",
-  "contentLayoutId": "<layout-uuid>"
-}
 ```
 
 Fields:

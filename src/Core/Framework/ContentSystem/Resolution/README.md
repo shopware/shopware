@@ -4,4 +4,4 @@ Property-resolution kernel for the ContentSystem. Given an element's position in
 
 ## Key Classes
 
-Two kernels do the work: `ElementResolver` resolves one element's declared properties at a position; `AvailableContextResolver` computes which context reaches that position with one formula for every depth: what the ancestor path exposes, simulating runtime redistribution, plus the layout's root-ambient set appended verbatim. Both are consumed by `Diagnostics/LayoutDiagnostics` via constructor injection.
+Two kernels do the work: `ElementResolver` resolves one element's declared properties at a position; `AvailableContextResolver` computes which context reaches that position with one formula for every depth: what the ancestor path exposes, simulating runtime redistribution, plus the layout's root-ambient set appended verbatim.

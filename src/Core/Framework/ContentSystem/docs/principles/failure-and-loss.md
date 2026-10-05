@@ -15,7 +15,6 @@ In code:
 - `RenderedElement` admits a scalar, null, an array of those, a `Struct`, a `\DateTimeInterface` or a `\BackedEnum` as a property value and throws `unsupportedPropertyValueType()` on anything else.
 - `SlicedDistributionConfig` rejects a slice size below 1 instead of clamping it.
 - `ResolvedValueIndexEncoder` throws on a missing index, because an empty map would look like a page whose elements resolved nothing.
-- `RenderedElementTest`, `SlicedDistributionConfigTest` and `ResolvedValueIndexEncoderTest` pin the allowlist, the rejection and the throw.
 - See [DataLoader/README.md](../../Hydration/DataLoader/README.md#degradation-boundary).
 
 ## A declaration or registration defect fails the build or the load, never a request
@@ -27,7 +26,6 @@ Why: A request-time defect fails that request. If one loader rejects a row that 
 In code:
 
 - `YamlTypeLoader`, `DefaultBindingSpecificationSynthesizer` and `ContentSystemDataLoaderCompilerPass` enforce the load and build failures.
-- `DefaultBindingSpecificationSynthesizerTest` and `ContentSystemDataLoaderCompilerPassTest` pin those failures.
 - See [architecture.md](../../Layout/Type/docs/architecture.md).
 
 ## The module drops nothing silently and reports every loss
@@ -42,7 +40,6 @@ In code:
 
 - `MutationResponse` carries `LayoutMutation::orphaned()`, `droppedWiring()` and `droppedProperties()`.
 - `ContentRoute` and `UnknownRequestFieldExceptionListener` produce the 400s.
-- `MutationResponseTest`, `ContentRouteTest` and `UnknownRequestFieldExceptionListenerTest` pin the loss reports and the 400s.
 - See [mutation-response.md](../../Api/docs/mutation-response.md).
 
 ## The cause of a defect sets its classification, and HTTP status is a separate axis
@@ -68,7 +65,7 @@ In code:
 - `DraftLayoutDecoder` and `LayoutDiagnostics` read `isClientDefect()`.
 - `DraftLayoutDecoder::decode()` remaps a client defect to `invalidLayoutStructure`.
 - `UnknownRequestFieldExceptionListener` remaps an unknown field to `unknownRequestField`.
-- `ContentSystemExceptionTest`, `StoredElementListFieldSerializerTest` and `DraftLayoutDecoderTest` pin the 400 wrapping, the client-defect reads and the remap in the decoder.
+- `ContentSystemExceptionTest` pins the client-defect reads.
 - [mutation-errors.md](../../Api/docs/mutation-errors.md) lists each mutation error with its status and code.
 - See [client-defect-codes.md](../client-defect-codes.md).
 
@@ -86,5 +83,4 @@ In code:
 
 - `ContentSystemException` holds the catalogue.
 - The administration's `structuralErrorCodes` lists the mutation error codes that it maps to a message.
-- `ContentSystemExceptionTest` pins `ContentSystemException::CLIENT_DEFECT_CODES` as literal wire strings.
 - See [client-defect-codes.md](../client-defect-codes.md).

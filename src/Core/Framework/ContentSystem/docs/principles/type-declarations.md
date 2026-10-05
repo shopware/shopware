@@ -26,7 +26,6 @@ In code:
 
 - `PropertySpecification::required()` carries the flag.
 - `LayoutDiagnostics` reports `ViolationCode::UnresolvedRequired` as an error and `ViolationCode::UnresolvedOptional` as a warning.
-- `LayoutDiagnosticsTest` pins the required case.
 - See [Diagnostics/README.md](../../Diagnostics/README.md).
 
 ## Presentation hints belong to the editor, and the server never branches on them

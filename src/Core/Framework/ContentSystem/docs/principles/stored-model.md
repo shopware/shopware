@@ -16,7 +16,6 @@ In code:
 - `create()` mints in full rendering.
 - `createStructural()` mints for the skeleton.
 - A listener replaces the tree through `ContentTreePreparationEvent::replaceTree()`.
-- `RenderedElementFactoryTest` pins the conversion.
 - `StoredElementTest` pins the stored side's immutability.
 - See [stored-and-rendered.md](../stored-and-rendered.md).
 

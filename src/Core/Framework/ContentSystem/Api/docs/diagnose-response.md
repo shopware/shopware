@@ -1,6 +1,6 @@
 # Resolve-and-Diagnose Response
 
-`DiagnoseResponse` is a sibling `\JsonSerializable` value object, built via `fromReport(array $resolutions, DiagnosticsReport $report)`, which normalizes through `LayoutDiagnosticsResultNormalizer`; `jsonSerialize()` casts `resolutions` to `{}` when empty. Same output-only discipline as [`MutationResponse`](mutation-response.md): serialized to the response and discarded, never cached or denormalized.
+`DiagnoseResponse` is a sibling `\JsonSerializable` value object that normalizes through `LayoutDiagnosticsResultNormalizer`. Same output-only discipline as [`MutationResponse`](mutation-response.md): serialized to the response and discarded, never cached or denormalized.
 
 `200 OK` with `{ resolutions, diagnostics }`.
 

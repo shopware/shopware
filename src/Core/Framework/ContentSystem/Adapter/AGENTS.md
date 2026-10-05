@@ -8,7 +8,6 @@
 - Entity sources tagged `content_system.entity_specification_source` priority 100 — higher priority runs first
 - Header/footer sources are NOT in the tagged iterator — injected directly into separate resolver instances
 - 3 resolver instances: main (Core, tagged iterator), header + footer (Storefront, single source each)
-- Entity query: `WHERE entity_id = X AND (sales_channel_id = Y OR IS NULL) ORDER BY sales_channel_id DESC LIMIT 1`
-- Entity default: when the entity query finds nothing, `EntityLayoutContextFactory::resolveLayoutId()` falls back to the system config key from `AbstractContentLayoutAssignableDefinition::getContentLayoutDefaultConfigKey()` (read for the sales channel, so the channel value overrides the global one); `null` for landing pages, so they have no default. See [docs/entity-rendering.md](docs/entity-rendering.md#default-layout)
-- Header/footer query: `WHERE (domain_id = X AND sales_channel_id = Y) OR (domain_id IS NULL AND sales_channel_id = Y) OR (domain_id IS NULL AND sales_channel_id IS NULL) ORDER BY domain_id DESC, sales_channel_id DESC LIMIT 1`. Three explicit tiers (domain+channel, then channel, then global); there is NO domain-only tier (`domain_id = X AND sales_channel_id IS NULL` never matches)
+- Entity default: with no matching assignment, products and categories fall back to a default layout held in system config ([docs/entity-rendering.md](docs/entity-rendering.md#default-layout))
+- Header/footer lookup has three tiers (domain+channel, then channel, then global) and NO domain-only tier (`domain_id = X AND sales_channel_id IS NULL` never matches)
 - Never let a request parameter choose the entity a loader targets or the property it reads. A per-request value reaches a loader only through a declared property. Check: can a query parameter named like the entity id field replace the server-derived placeholder value?

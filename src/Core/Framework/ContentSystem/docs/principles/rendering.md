@@ -50,9 +50,7 @@ Why: The order that the old priority bands declared never applied. A typed recor
 
 In code:
 
-- `ContentPipeline::load()` calls `StoredTreePreparer::prepare()`, `WiringPlanner::plan()` and `ElementLowering::lower()`.
-- It reads a `TreePreparationResult`.
-- It dispatches only `ContentTreePreparationEvent` and `RenderedTreeFinalizationEvent`.
+- `ContentPipeline::load()` dispatches only `ContentTreePreparationEvent` and `RenderedTreeFinalizationEvent`.
 - See [Event/README.md](../../Event/README.md).
 
 ## The two tree-replacement events fire at fixed points

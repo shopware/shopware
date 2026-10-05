@@ -23,6 +23,6 @@ The binding specification system. A binding specification is an authored declara
 - **Loader/** - `AbstractContentSystemBindingSpecificationLoader` (base), `YamlBindingSpecificationLoader` (filesystem), `DatabaseBindingSpecificationLoader` (app bindings in prod), `ResolvedBindingSpecificationDto` (loading-to-specification bridge). The source-directory VO is the shared `Layout/Type/Loader/ElementTypeSourceDirectory` (source/path/prefix)
 - **Registry/** - `AbstractContentSystemBindingSpecificationRegistry` (decoration pattern contract), `ContentSystemBindingSpecificationRegistry` (stateless aggregator), `CachedContentSystemBindingSpecificationRegistry` (cross-request cache decorator on `cache.system`, cache key `content_system.binding_specifications`)
 - **Serialization/** - `BindingSpecificationSerializer` (YAML/JSON-schema ↔ DTO), `BindingSpecificationCanonicalizer` (load-time sugar expansion, registry-driven)
-- **Specification/** - Value objects: `BindingSpecification` (`id`, `type`, `label`, `resolves`, `inputs`, `source`; `toSchema()` for introspection), `LoaderBinding` (`loader`, `config`), `BindingInput` (`hasDefault`, `default`)
+- **Specification/** - Value objects: `BindingSpecification`, `LoaderBinding`, `BindingInput`
 - **Specification/Dto/** - `BindingSpecificationDto` (deserialization + load-time validation shape, carries both class-level constraints) and its collection
 - **Validation/** - `WellFormedBindingSpecification` (+ validator, structural shape), `TypeConsistentBindingSpecification` (+ validator, live-registry semantics)

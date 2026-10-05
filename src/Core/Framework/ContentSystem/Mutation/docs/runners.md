@@ -5,15 +5,9 @@ The things that run an operation: `MutationPipeline`, the stateless runner over 
 
 ## MutationPipeline
 
-`@internal`, with a `@final` annotation (behaviorally final, kept mockable for tests). Constructor:
-`LayoutDiagnostics $diagnostics, ContextConsumerMirror $contextMirror`.
+`@internal`, with a `@final` annotation (behaviorally final, kept mockable for tests).
 
 `run(LayoutMutation $mutation, StoredTree $tree, ?array $rootContext): MutationResult` applies the mutation to the
-already-decoded `$tree`, diagnoses the whole new tree, mirrors the proven consumers onto `$mutation->created()` via
-`ContextConsumerMirror::apply()`, re-diagnoses when (and only when) the wiring returned a different `StoredTree`
-instance, and hands the wired tree, the surviving analysis and the mutation to
-`MutationResult::fromAnalyzedMutation()`, which owns the restriction of the returned resolutions to the affected set
-(`array_intersect_key($analysis->resolutions, array_flip($affected))`).
 
 The instance-identity check is the whole gate: mirroring returns the input tree unchanged when it writes no
 consumer, so the common case stays at one analysis pass while a wired response never carries diagnostics describing
@@ -26,10 +20,9 @@ from a request draft or a loaded `content_layout`. Stateless: it never persists.
 
 ## PersistedLayoutMutator
 
-`@internal`, `@final` annotation. The persisted counterpart to `MutationPipeline`. Constructor:
-`LockFactory $lockFactory, EntityRepository<ContentLayoutCollection> $contentLayoutRepository, RootSourceRegistry $rootSourceRegistry, LayoutDiagnostics $diagnostics`.
+`@internal`, `@final` annotation. The persisted counterpart to `MutationPipeline`.
 
-`mutate(string $layoutId, ?string $expectedVersion, LayoutMutation $mutation, Context $context): MutationResult`
+`mutate()`
 serializes concurrent writers for the layout id under a `lock.factory` named lock so the load → version-check →
 commit span is atomic, closing the lost-update window. It then loads by id
 (`ContentSystemException::contentLayoutNotFound`, 404, if absent), guards the optimistic-concurrency token against
@@ -72,13 +65,9 @@ Two known limitations are deferred to the planned layout draft/versioning system
 
 `MutationResult` is `@internal final readonly` with a private constructor, reached through named constructors:
 
-- `fromAnalyzedMutation(StoredTree $mutated, LayoutAnalysis $analysis, LayoutMutation $mutation): self` is the
+- `fromAnalyzedMutation()` is the
   single owner of the result assembly. It restricts the analysis resolutions to the mutation's `affected()` set via
-  `array_intersect_key($analysis->resolutions, array_flip($affected))` and reads
   `orphaned`/`droppedWiring`/`droppedProperties` off the mutation. Both `MutationPipeline::run()` and `mutate()` call
   it, so the affected-set restriction is stated once.
-- `fromParts(StoredTree $layout, array $resolutions, DiagnosticsReport $diagnostics, array $affectedElementIds, array $orphaned = [], array $droppedWiring = [], array $droppedProperties = []): self`
+- `fromParts()`
   is the direct passthrough for a bespoke result.
-
-`$resolutions` is `array<string, list<PropertyResolution>>` keyed by element id; `$droppedProperties` is
-`array<string, StoredValue>` keyed by property key.

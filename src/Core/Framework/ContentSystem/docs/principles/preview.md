@@ -10,7 +10,6 @@ Why: A validate-only mint can accept a draft that the render later fails on. Red
 
 In code:
 
-- `ContentPreviewController::previewUrl()` builds the page first and stores the request after that.
 - `ContentPreviewPayloadStore::load()` throws `previewPayloadInvalid` for a malformed stored envelope.
 - Only the mint route requires `content_layout:read`.
 - `ContentSystemPreviewControllerTest` pins that redemption renders through the pipeline and a malformed envelope is a server fault.

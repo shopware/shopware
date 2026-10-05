@@ -5,8 +5,10 @@ namespace Shopware\Core\Checkout\Customer\SalesChannel;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
+use Shopware\Core\Checkout\Customer\Extension\CustomerRouteExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -24,7 +26,7 @@ class CustomerRoute extends AbstractCustomerRoute
      *
      * @param EntityRepository<CustomerCollection> $customerRepository
      */
-    public function __construct(private readonly EntityRepository $customerRepository)
+    public function __construct(private readonly EntityRepository $customerRepository, private readonly ExtensionDispatcher $extensions)
     {
     }
 
@@ -44,6 +46,15 @@ class CustomerRoute extends AbstractCustomerRoute
         methods: [Request::METHOD_GET, Request::METHOD_POST],
     )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): CustomerResponse
+    {
+        return $this->extensions->publish(
+            name: CustomerRouteExtension::NAME,
+            extension: new CustomerRouteExtension($request, $context, $criteria, $customer),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(Request $request, SalesChannelContext $context, Criteria $criteria, CustomerEntity $customer): CustomerResponse
     {
         $criteria->setIds([$customer->getId()]);
 

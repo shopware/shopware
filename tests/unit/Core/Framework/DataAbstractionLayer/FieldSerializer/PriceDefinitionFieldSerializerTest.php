@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemListPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -333,6 +334,11 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         yield 'quantity price definition' => [
             new QuantityPriceDefinition(100, new TaxRuleCollection([new TaxRule(19, 50), new TaxRule(7, 50)]), 3),
         ];
+
+        $withReferencePrice = new QuantityPriceDefinition(100, new TaxRuleCollection([new TaxRule(19)]), 3);
+        $withReferencePrice->setReferencePriceDefinition(new ReferencePriceDefinition(0.5, 1.0, 'Liter'));
+
+        yield 'quantity price definition with reference price' => [$withReferencePrice];
 
         yield 'absolute price definition' => [
             new AbsolutePriceDefinition(20, $rule),

@@ -446,6 +446,17 @@ describe('module/sw-cms/service/cmsDataResolver.service.js', () => {
         });
     });
 
+    it('should keep cleared block margins while filling other missing block defaults', async () => {
+        const pageMock = createPageMock();
+        const block = Object.assign(pageMock.sections[0].blocks[0], { type: 'text-on-image', backgroundMedia: null });
+        Object.assign(block, { marginTop: null, marginBottom: '', marginRight: '5px' });
+
+        await service.resolve(pageMock);
+
+        expect(block).toMatchObject({ marginTop: null, marginBottom: '', marginRight: '5px', backgroundColor: '#FFFFFF' });
+        expect(block.backgroundMedia).toEqual(expect.objectContaining({ url: expect.stringContaining('preview_mountain') }));
+    });
+
     it('should enrich cmsElements if entities are attached', async () => {
         const pageMock = createPageMock();
         const success = await service.resolve(pageMock);

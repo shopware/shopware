@@ -47,4 +47,4 @@ In code:
 
 ## Also true by construction
 
-- Each finished rendered key gets exactly one provenance category, and a key a finalization listener added gets `ValueOrigin::Injected` instead of throwing or dropping. The decomposed and data formats therefore carry every full-format key: [ValueOrigin.php](../../Output/Index/ValueOrigin.php)
+- Each finished rendered key gets exactly one provenance category. A key that a finalization listener added gets `ValueOrigin::Injected` instead of throwing or dropping. Each write loop records the category of the value it produces. A contested key is therefore recorded for the member that won it. Reordering the write loops recategorises index entries. Every value stays correct. The decomposed and data formats carry every full-format key: [ValueOrigin.php](../../Output/Index/ValueOrigin.php)

@@ -4,17 +4,18 @@ Data loading turns an element's data requirements into loaded values and publish
 
 ## A loader degrades on a named domain outcome and lets every other fault propagate
 
-Each loader degrades gracefully behind a narrow catch. The loader wraps the collaborator call it delegates to and catches `ShopwareHttpException` there. On that catch, it returns `ContentDataLoaderResult::notFound()`. Every other fault, an infrastructure fault or a type error among them, propagates. Each loader's own call chain determines what the loader wraps and whether its degradation is whole or partial.
+Each loader degrades gracefully behind a narrow catch. The loader wraps the collaborator call it delegates to and catches `ShopwareHttpException` there. On that catch, it returns `ContentDataLoaderResult::notFound()`. Every other fault, an infrastructure fault or a type error among them, propagates. Each loader's own call chain determines what the loader wraps and whether its degradation is whole or partial. A loader guards an entity id that it reads from a `PropertyReference` with `Uuid::isValid()`, after its lowercasing or alias resolution and before first use. When the guard fails, the loader takes its own null-input path. A value that the loader never dereferences as an id gets no guard.
 
-Why: A collaborator throws for ordinary domain reasons, such as a deleted category. When an exception reaches `StorefrontController::loadContentPage()`, that controller catches every `\Exception` and renders the page without its layout. A blanket catch in a loader turns a database outage or a type error into an empty element with no error report.
+Why: A collaborator throws for ordinary domain reasons, such as a deleted category. When an exception reaches `StorefrontController::loadContentPage()`, that controller catches every `\Exception` and renders the page without its layout. A blanket catch in a loader turns a database outage or a type error into an empty element with no error report. The stored map can hold an unsubstituted placeholder such as `{{productId}}`. `LoaderInputResolver` only type-checks it as a string. An unguarded placeholder reaches an id parser and becomes an HTTP 400 from deep in the platform. `Uuid::VALID_PATTERN` accepts lowercase only. `Uuid::fromHexToBytes()` accepts uppercase hex. A guard on the raw value therefore rejects an uppercase configured id that would work.
 
-Not chosen: A loader that throws on every failure, which turns one failing element into a page without its layout. Catching everything in a loader. One central wrapper for all loaders, which cannot give each loader its own code after the call, its own whole-or-partial handling and its own catch scope.
+Not chosen: A loader that throws on every failure, which turns one failing element into a page without its layout. Catching everything in a loader. One central wrapper for all loaders, which cannot give each loader its own code after the call, its own whole-or-partial handling and its own catch scope. An enumerated union of exception classes in the catch, because the reachable set is open. `ProductStreamBuilder` throws `EntityNotFoundException` and `NoFilterException` out of `ProductListingRoute` and `ProductCrossSellingRoute`. A decorator can also rewrap a named class into an unnamed one. `AppScriptProductPriceCalculator` hands app-script throwables to `ScriptExecutor`, which rethrows `ScriptExecutionFailedException`.
 
 Exceptions: `EntityCollectionLoader` maps an absent or empty id list to an empty collection, not to not-found.
 
 In code:
 
 - Every built-in loader, `EntityLoader::load()` among them, contains `catch (ShopwareHttpException)`.
+- Every built-in loader that reads an id, `EntityLoader::load()` among them, runs the `Uuid::isValid()` guard after its lowercasing or alias resolution.
 - See [Hydration/DataLoader/README.md](../../Hydration/DataLoader/README.md#degradation-boundary).
 
 ```text
@@ -26,9 +27,11 @@ load() throws       the same \TypeError instance, unmodified
 
 ## A loader consumes typed inputs resolved from its own declared specification
 
-Loader configuration follows the principle "parse, do not validate". A loader declares its configuration in `configSpecification()`. It reads every input off the `LoaderInputs` that `LoaderInputResolver` resolves from that declaration, never off the element or a stored value. A static default lives in the key's `ConfigKeySpecification`, never in `load()`. `LoaderInputResolver` applies that default centrally. `LoaderInputResolver` owns the presence and type guards. The loader owns the check for domain emptiness.
+Loader configuration follows the principle "parse, do not validate". A loader declares its configuration in `configSpecification()`. It reads every input off the `LoaderInputs` that `LoaderInputResolver` resolves from that declaration, never off the element or a stored value. A static default lives in the key's `ConfigKeySpecification`, never in `load()`. `LoaderInputResolver` applies that default centrally. `LoaderInputResolver` owns the presence and type guards. The loader owns the check for domain emptiness, because an empty string such as an empty `activeId` is a resolved value.
 
-Why: The introspection schema lists only declared keys and defaults. A key read off the element, or a default written in `load()`, never reaches it.
+The required keys that a loader declares equal the requirements of the `decode()` method of its config serializer.
+
+Why: The introspection schema lists only declared keys and defaults. A key read off the element, or a default written in `load()`, never reaches it. No build-time check compares the required keys with `decode()`: `ContentSystemDataLoaderCompilerPass::validateConfigSerializerCoverage()` asserts only that a serializer is registered for the source.
 
 Exceptions: A loader declares a sales-channel fallback, such as navigation depth, without a default. The loader applies the fallback in `load()`.
 
@@ -37,6 +40,7 @@ In code:
 - `AbstractContentDataLoader::load()` receives the resolved `LoaderInputs`.
 - `LoaderInputResolver::resolve()` resolves the inputs and applies each static default.
 - `ContentSystemDataLoaderCompilerPass` dry-runs every `configSpecification()` at build time.
+- A per-loader test guards the agreement of required keys: `EntityCollectionLoaderTest::testConfigSpecificationRequiredKeysMatchSerializerRequiredKeys` is the pattern.
 - See [custom-loaders.md](../../Hydration/DataLoader/docs/custom-loaders.md).
 
 ## Loader configuration takes its final form at write time, and no request selects what loads
@@ -82,4 +86,4 @@ In code:
 ## Also true by construction
 
 - `StoredTreePreparer` substitutes a placeholder token in one pass at the property's own level, in full rendering only. An unresolved token stays literal, and placeholder values become properties only on the page-level virtual root: [pipeline-steps.md](../pipeline-steps.md)
-- A loader-resolved value dedups by its source, configuration and value identity. Any other object dedups by instance identity, a non-object by value equality, and every explicit null shares one ref: [Output/README.md](../../Output/README.md)
+- A loader-resolved value dedups by its source, configuration and value identity, without a value comparison. The DAL keeps no identity map, so two loads of one row return two instances that no value-level test can collapse. `ElementDataResolver` creates that identity at the load, because the resolved `LoaderInputs` do not outlive the call. `producedFingerprint` describes the value that the loader returned, not the value that the response finally carries. Any other object dedups by instance identity, a non-object by value equality, and every explicit null shares one ref: [Output/README.md](../../Output/README.md)

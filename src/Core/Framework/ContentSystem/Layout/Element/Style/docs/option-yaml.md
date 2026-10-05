@@ -38,7 +38,7 @@ adminUI:
 - **`adminUI`** (optional): an opaque block passed through verbatim to the Administration. See [Presentation hints belong to the editor, and the server never branches on them](../../../../docs/principles/type-declarations.md#presentation-hints-belong-to-the-editor-and-the-server-never-branches-on-them).
 - **`kind`** (optional): declares that the option's value gets a kind-specific canonicalisation at the write boundary. Its only defined value is `box-spacing`, which canonicalises the value into explicit four-part CSS (`top right bottom left`). Any other value fails the declaration's `Assert\Choice`: `YamlStyleOptionLoader` fails hard and `DatabaseStyleOptionLoader` skips the row with a warning. No shipped core option declares `kind`. Omitted, the value is stored as authored.
 
-There is deliberately no `pattern` / regex: an app-supplied regex compiled from untrusted data and run on every write is a ReDoS vector, so strings are bounded by `maxLength` instead.
+There is no `pattern`: strings are bounded by `maxLength`, see [A style option value carries no regex pattern](../../../../docs/principles/type-declarations.md#a-style-option-value-carries-no-regex-pattern).
 
 ## Breakpoints
 

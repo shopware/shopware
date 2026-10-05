@@ -4,7 +4,7 @@ Specification sources translate path patterns into rendering specifications via 
 
 ## Chain of Responsibility
 
-Sources are tried in priority order (highest first). The first source where `supports()` returns true handles the request via `RenderingSpecificationFactory`.
+Sources are tried in priority order (highest first). `RenderingSpecificationResolver` iterates them with the `supports()` bool check; the first source where it returns true handles the request via `RenderingSpecificationFactory`. A source never signals "not mine" by returning null.
 
 | Priority                     | Behavior                                      |
 |------------------------------|-----------------------------------------------|

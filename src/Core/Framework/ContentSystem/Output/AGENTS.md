@@ -12,5 +12,5 @@
 - Partial rendering by `?elementId`, the pruner and extractor on either side of the render step, and multi-root search: [README.md](README.md#partial-rendering)
 - What `Struct/`, `Format/`, `Encoder/` and `Index/` hold, and where `ContentResponseEncodingListener` sits and how it selects a response: [README.md](README.md#subdirectories)
 - Why `includes` and `excludes` never reach a content response, on the store-api routes and on the preview URL: [SalesChannel/README.md](../SalesChannel/README.md#endpoints), [Api/docs/preview-url.md](../Api/docs/preview-url.md#errors)
-- What `RenderingMode` gates inside the render step: [rendering.md](../docs/principles/rendering.md#structure-is-a-function-independent-of-rendering-mode)
+- What `RenderingMode` gates inside the render step (data and context resolution; the render runs in both modes): [rendering.md](../docs/principles/rendering.md#structure-is-a-function-independent-of-rendering-mode), [service-tags-and-types.md](../docs/service-tags-and-types.md#type-reference)
 - Why a render result without an index throws `resolvedValueIndexMissing`: [failure-and-loss.md](../docs/principles/failure-and-loss.md#a-component-throws-where-it-meets-invalid-data-and-nothing-degrades-silently)

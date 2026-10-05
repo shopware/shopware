@@ -57,7 +57,7 @@ Adds a container element and moves a set of sibling elements into it. `requireRe
 (`mutationSlotRequired`); each target must exist (`mutationTargetNotFound`); the targets must all be siblings in one
 slot (or all roots), else `mutationInvalidWrapTargets`. An empty id list and a list with a repeated id both throw
 `mutationInvalidWrapTargets` too. Scaffolds the container with the targets (in original order) in `$slot`, places it
-at the lowest target index. `affected = [containerId, ...elementIds]`; `created = [containerId]` only, because the
+at the lowest target index, so the wrapped elements sit one level deeper and their nesting scope changes. `affected = [containerId, ...elementIds]`; `created = [containerId]` only, because the
 wrapped targets are moved, not created. The container provides no context of its own, so wrapping adds no provider.
 
 ## UnwrapElement

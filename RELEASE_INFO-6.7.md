@@ -332,6 +332,12 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
 
+### MCP list change notifications reach sessions on every server
+
+When an app adds, changes or removes MCP tools, prompts or resources, every open MCP session on the Admin API endpoint now receives `notifications/tools/list_changed` (or the prompt or resource variant) with its next request, whichever server it is connected to. Before, only sessions known to the server that processed the app change were notified, because each server kept its own list of sessions.
+
+The list of sessions is gone, together with the `shopware.mcp.session_registry_cache` and `mcp.store_api.session_registry_cache` services. If you overrode them to share the list between servers, remove the override. A shared `framework.lock` is no longer needed for MCP notifications.
+
 ## API
 
 ### MCP tool results carry `structuredContent` and `isError`

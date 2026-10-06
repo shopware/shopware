@@ -3,12 +3,12 @@
 namespace Shopware\Tests\Integration\Core\Framework\Mcp;
 
 use Doctrine\DBAL\Connection;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListVersions;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\Clock\NativeClock;
 
 /**
  * Runs the atomic increment against the real database.
@@ -16,7 +16,6 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
  * @internal
  */
 #[Package('framework')]
-#[CoversClass(McpListVersions::class)]
 class McpListVersionsTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -26,7 +25,7 @@ class McpListVersionsTest extends TestCase
     protected function setUp(): void
     {
         static::getContainer()->get(Connection::class)->executeStatement('DELETE FROM `mcp_list_version`');
-        $this->versions = static::getContainer()->get(McpListVersions::class);
+        $this->versions = new McpListVersions(static::getContainer()->get(Connection::class), new NativeClock());
     }
 
     public function testAllListsStartAtZero(): void

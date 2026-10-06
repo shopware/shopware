@@ -806,8 +806,6 @@ class ElasticsearchProductDefinitionTest extends TestCase
             static::assertSame($price, $document[$key]);
         }
 
-        // keyed by `c_<currencyId>` to match the accessor of the criteria parser, and the `c` prefix of the
-        // database key is only stripped once - the currency id of the second price starts with a `c` itself
         static::assertSame(
             [
                 'c_b7d2554b0ce847cd82f3ac9bd1c0dfca' => ['gross' => 10.0, 'net' => 8.0],
@@ -905,6 +903,35 @@ class ElasticsearchProductDefinitionTest extends TestCase
                 ],
             ],
             $document['properties']
+        );
+    }
+
+    public function testFetchingPriceStoredAsList(): void
+    {
+        $registry = $this->getDefinitionRegistry();
+        $definition = $registry->get(ProductDefinition::class);
+        static::assertInstanceOf(ProductDefinition::class, $definition);
+
+        $definition = new ElasticsearchProductDefinition(
+            $definition,
+            $this->getConnection(price: '[{"currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca", "net": 8, "gross": 10}]'),
+            static::createStub(ProductSearchQueryBuilder::class),
+            static::createStub(ElasticsearchFieldBuilder::class),
+            static::createStub(ElasticsearchFieldMapper::class),
+            new StaticSalesChannelLanguageLoader([
+                Defaults::LANGUAGE_SYSTEM => [TestDefaults::SALES_CHANNEL],
+            ]),
+            false,
+            'dev',
+            static::createStub(LanguageLoaderInterface::class)
+        );
+
+        $uuid = $this->ids->get('product-1');
+        $documents = $definition->fetch([$uuid], Context::createDefaultContext());
+
+        static::assertSame(
+            ['c_b7d2554b0ce847cd82f3ac9bd1c0dfca' => ['gross' => 10.0, 'net' => 8.0]],
+            $documents[$uuid]['price']
         );
     }
 
@@ -1110,7 +1137,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         );
     }
 
-    private function getConnection(int $numberOfTranslations = 1): Stub&Connection
+    private function getConnection(int $numberOfTranslations = 1, ?string $price = null): Stub&Connection
     {
         $connection = static::createStub(Connection::class);
 
@@ -1144,7 +1171,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
                     'coverId' => null,
                     'childCount' => 0,
                     'cheapest_price_accessor' => '{"rule-1": {"b7d2554b0ce847cd82f3ac9bd1c0dfca": {"gross": 5, "net": 4}, "b7d2554b0ce847cd82f3ac9bd1c0dfc2": {"gross": 5, "net": 4, "percentage": {"gross": 1, "net": 2}}}}',
-                    'price' => '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca": {"net": 8, "gross": 10}, "cc0d2554b0ce847cd82f3ac9bd1c0dfca": {"net": 16, "gross": 20}}',
+                    'price' => $price ?? '{"cb7d2554b0ce847cd82f3ac9bd1c0dfca": {"currencyId": "b7d2554b0ce847cd82f3ac9bd1c0dfca", "net": 8, "gross": 10}, "cc0d2554b0ce847cd82f3ac9bd1c0dfca": {"currencyId": "c0d2554b0ce847cd82f3ac9bd1c0dfca", "net": 16, "gross": 20}}',
                     'visibilities' => '[{"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 20, "salesChannelId": "sc-2"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 30, "salesChannelId": "sc-1"}, {"visibility": 20, "salesChannelId": "sc-2"}]',
                     'propertyIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',
                     'optionIds' => '["809c1844f4734243b6aa04aba860cd45", "e4a08f9dd88f4a228240de7107e4ae4b"]',

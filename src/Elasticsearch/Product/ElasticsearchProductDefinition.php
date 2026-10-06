@@ -649,11 +649,12 @@ SQL;
     }
 
     /**
-     * The database keys a price by `c<currencyId>`, the index uses `c_<currencyId>`, which is the accessor
+     * The index keys a price by `c_<currencyId>`, which is the accessor
      * {@see \Shopware\Elasticsearch\Framework\DataAbstractionLayer\CriteriaParser::buildAccessor()} builds
-     * for a price field.
+     * for a price field. Like {@see \Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceFieldSerializer::decode()},
+     * the currency is read from the price itself, as the stored JSON is not always keyed by `c<currencyId>`.
      *
-     * @param array<string, array{gross?: float|string, net?: float|string}> $price
+     * @param array<array-key, array{currencyId?: string, gross?: float|string, net?: float|string}> $price
      *
      * @return array<string, array{gross: float, net: float}>
      */
@@ -661,15 +662,12 @@ SQL;
     {
         $mapped = [];
 
-        foreach ($price as $currency => $taxes) {
-            if (!isset($taxes['gross'], $taxes['net'])) {
+        foreach ($price as $taxes) {
+            if (!isset($taxes['currencyId'], $taxes['gross'], $taxes['net'])) {
                 continue;
             }
 
-            // only the single `c` prefix is stripped - a currency id is hex and may start with a `c` itself
-            $currencyId = str_starts_with($currency, 'c') ? substr($currency, 1) : $currency;
-
-            $mapped['c_' . $currencyId] = [
+            $mapped['c_' . $taxes['currencyId']] = [
                 'gross' => (float) $taxes['gross'],
                 'net' => (float) $taxes['net'],
             ];

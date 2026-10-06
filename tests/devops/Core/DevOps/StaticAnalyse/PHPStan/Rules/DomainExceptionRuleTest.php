@@ -4,7 +4,6 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\DomainExceptionRule;
 use Shopware\Core\Framework\Log\Package;
@@ -17,7 +16,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class DomainExceptionRuleTest extends RuleTestCase
 {
-    #[RunInSeparateProcess]
     public function testRule(): void
     {
         $this->analyse([__DIR__ . '/data/DomainExceptionRule/DomainExceptionViolations.php'], [

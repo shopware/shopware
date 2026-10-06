@@ -165,6 +165,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->call('setContainer', [service('service_container')]);
 
+    // @deprecated tag:v6.8.0 Will be removed
     $services->alias(
         'Shopware\Administration\Controller\NotificationController',
         NotificationController::class,
@@ -214,6 +215,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    // @deprecated tag:v6.8.0 Will be removed
     $services->alias(
         'Shopware\Administration\Notification\NotificationDefinition',
         NotificationDefinition::class,
@@ -240,5 +242,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->call('setContainer', [service('service_container')]);
 
     $services->set(AdministrationCacheControlListener::class)
-        ->tag('kernel.event_listener', ['event' => BeforeCacheControlEvent::class]);
+        ->tag('kernel.event_listener', ['event' => BeforeCacheControlEvent::class])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 };

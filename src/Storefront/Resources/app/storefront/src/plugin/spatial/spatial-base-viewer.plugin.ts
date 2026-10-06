@@ -13,6 +13,7 @@ import { loadDIVE } from './utils/spatial-dive-load-util';
 export default class SpatialBaseViewerPlugin extends Plugin {
 
     protected rendering = false;
+    private disposed = false;
 
     public canvas: HTMLCanvasElement | undefined;
 
@@ -137,7 +138,7 @@ export default class SpatialBaseViewerPlugin extends Plugin {
     /**
      * Start rendering loop
      */
-    public startRendering() {
+    public async startRendering() {
         // Prevent multiple render loops
         if (this.rendering) {
             return;
@@ -145,7 +146,11 @@ export default class SpatialBaseViewerPlugin extends Plugin {
 
         // start render loop
         this.rendering = true;
-        this.dive?.start();
+        await this.dive?.startAsync();
+
+        if (this.disposed) {
+            return;
+        }
 
         // Add classes to canvas parent
         this.canvas?.parentElement?.classList.add('spatial-canvas-rendering');
@@ -163,6 +168,12 @@ export default class SpatialBaseViewerPlugin extends Plugin {
      * Stop rendering loop
      */
     public stopRendering() {
+        if (this.disposed) {
+            return;
+        }
+
+        this.disposed = true;
+
         // stop render loop
         this.rendering = false;
 

@@ -37,11 +37,13 @@ class DeprecatedMethodsThrowDeprecationRule implements Rule
     ];
 
     /**
+     * Defaults to an empty list so PHPStan can construct this rule from a `rules:` entry.
+     *
      * @param iterable<DeprecationPattern> $deprecationPatterns
      */
     public function __construct(
         private readonly ServiceMap $serviceMap,
-        private readonly iterable $deprecationPatterns,
+        private readonly iterable $deprecationPatterns = [],
     ) {
     }
 

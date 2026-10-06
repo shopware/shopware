@@ -25,10 +25,12 @@ class CompatTwigExtension extends AbstractExtension
      */
     public const FUNCTIONS_BY_FEATURE = [
         'v6.8.0.0' => [
-            'category_url',
-            'category_linknewtab',
             'sw_breadcrumb_full',
             'sw_breadcrumb_full_by_id',
+        ],
+        'v6.9.0.0' => [
+            'category_url',
+            'category_linknewtab',
         ],
     ];
 

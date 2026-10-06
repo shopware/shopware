@@ -24,19 +24,30 @@ class CompatTwigExtensionTest extends TestCase
         $extension = new CompatTwigExtension();
 
         static::assertSame([
-            'category_url',
-            'category_linknewtab',
             'sw_breadcrumb_full',
             'sw_breadcrumb_full_by_id',
+            'category_url',
+            'category_linknewtab',
         ], array_map(static fn ($function) => $function->getName(), $extension->getFunctions()));
     }
 
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.8.0.0', 'v6.9.0.0'])]
     public function testRegistersNoFunctionsForInactiveMajorFlag(): void
     {
         $extension = new CompatTwigExtension();
 
         static::assertSame([], $extension->getFunctions());
+    }
+
+    #[DisabledFeatures(['v6.9.0.0'])]
+    public function testRegistersOnlyBreadcrumbFunctionsIn68(): void
+    {
+        $extension = new CompatTwigExtension();
+
+        static::assertSame([
+            'sw_breadcrumb_full',
+            'sw_breadcrumb_full_by_id',
+        ], array_map(static fn ($function) => $function->getName(), $extension->getFunctions()));
     }
 
     public function testTwigCanParseAnInactiveCallToARemovedFunction(): void
@@ -50,7 +61,7 @@ class CompatTwigExtensionTest extends TestCase
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Remove with the compatibility function registration
+     * @deprecated tag:v6.9.0 - Remove with the compatibility function registration
      */
     public function testRemovedFunctionThrowsWhenCalled(): void
     {
@@ -60,7 +71,7 @@ class CompatTwigExtensionTest extends TestCase
         $twig->addExtension(new CompatTwigExtension());
 
         static::expectExceptionObject(new RuntimeError(
-            'An exception has been thrown during the rendering of a template ("Twig function "category_url" was removed with feature "v6.8.0.0".")',
+            'An exception has been thrown during the rendering of a template ("Twig function "category_url" was removed with feature "v6.9.0.0".")',
             1,
             new Source('{{ category_url() }}', 'template'),
         ));

@@ -17,13 +17,13 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 /**
  * @internal
  *
- * @deprecated tag:v6.8.0 - Will be removed
+ * @deprecated tag:v6.9.0 - Will be removed
  */
 #[Package('framework')]
 #[CoversClass(CategoryUrlExtension::class)]
 class CategoryUrlExtensionTest extends TestCase
 {
-    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DisabledFeatures(['v6.9.0.0'])]
     public function testGetCategoryUrlUsesSalesChannelContextFallback(): void
     {
         $category = new CategoryEntity();

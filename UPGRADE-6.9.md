@@ -92,3 +92,21 @@ The legacy document services and components in the Administration were removed:
 
 - `DocumentApiService` (including `DocumentEvents`). Use the v2 Admin API routes (`/api/_action/order/document-v2/*`) instead.
 - The legacy document modals and their component registrations: `sw-order-document-settings-modal`, `sw-order-document-settings-invoice-modal`, `sw-order-document-settings-credit-note-modal`, `sw-order-document-settings-delivery-note-modal`, `sw-order-document-settings-storno-modal`, and `sw-order-select-document-type-modal`.
+
+# Storefront
+
+## Removed `category_url` and `category_linknewtab` Twig functions
+
+The `category_url` and `category_linknewtab` Twig functions have been removed.
+Use `category.seoUrl` instead of `category_url` and `category.shouldOpenInNewTab` instead of `category_linknewtab`.
+
+The `seoUrl` property is only available on `SalesChannelCategoryEntity`. If a template receives a plain `CategoryEntity`, update the data-loading code to load categories in the sales channel context and pass `SalesChannelCategoryEntity` instances to the template.
+
+```diff
+<a class="link"
+-   href="{{ category_url(item) }}"
++   href="{{ item.seoUrl }}"
+-   {% if category_linknewtab(item) %}target="_blank"{% endif %}
++   {% if item.shouldOpenInNewTab %}target="_blank"{% endif %}
+</a>
+```

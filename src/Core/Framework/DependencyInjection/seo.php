@@ -194,7 +194,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CategoryUrlGenerator::class),
         ])
         ->tag('twig.extension')
-        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.9.0.0']);
 
     $services->set(SeoUrlPlaceholderHandlerInterface::class, SeoUrlPlaceholderHandler::class)
         ->public()

@@ -13,7 +13,10 @@ use Twig\Extension\AbstractExtension;
 use Twig\TwigFunction;
 
 /**
- * @deprecated tag:v6.8.0 - reason:remove-subscriber - Will be removed, use CategoryEntity directly
+ * Removal was postponed from 6.8.0 to 6.9.0 for backwards compatibility, to make migration easier
+ * and give extension developers more time to migrate.
+ *
+ * @deprecated tag:v6.9.0 - reason:remove-subscriber - Will be removed, use CategoryEntity directly
  */
 #[Package('framework')]
 class CategoryUrlExtension extends AbstractExtension
@@ -29,7 +32,7 @@ class CategoryUrlExtension extends AbstractExtension
 
     public function getFunctions(): array
     {
-        if (Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('v6.9.0.0')) {
             return [];
         }
 
@@ -45,8 +48,8 @@ class CategoryUrlExtension extends AbstractExtension
     public function getCategoryUrl(array $twigContext, CategoryEntity $category): ?string
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            'The "category_url" function is deprecated and will be removed in v6.8.0.0. Use SalesChannelCategoryEntity::getSeoUrl() instead.'
+            'v6.9.0.0',
+            'The "category_url" function is deprecated and will be removed in v6.9.0.0. Use SalesChannelCategoryEntity::getSeoUrl() instead.'
         );
 
         if ($category instanceof SalesChannelCategoryEntity) {
@@ -61,8 +64,8 @@ class CategoryUrlExtension extends AbstractExtension
     public function isLinkNewTab(CategoryEntity $categoryEntity): bool
     {
         Feature::triggerDeprecationOrThrow(
-            'v6.8.0.0',
-            'The "category_linknewtab" function is deprecated and will be removed in v6.8.0.0. Use CategoryEntity::shouldOpenInNewTab() instead.'
+            'v6.9.0.0',
+            'The "category_linknewtab" function is deprecated and will be removed in v6.9.0.0. Use CategoryEntity::shouldOpenInNewTab() instead.'
         );
 
         return $categoryEntity->shouldOpenInNewTab();

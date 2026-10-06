@@ -259,6 +259,10 @@
             "orders": {
                 "label": "Bestellungen"
             },
+            "experience_studio": {
+                "label": "Experience Studio",
+                "translator": "Layouts übersetzen"
+            },
             "routes": {
                 "label": "Routen",
                 "api_action_access-key_integration": "API-Zugangsdaten neu generieren",

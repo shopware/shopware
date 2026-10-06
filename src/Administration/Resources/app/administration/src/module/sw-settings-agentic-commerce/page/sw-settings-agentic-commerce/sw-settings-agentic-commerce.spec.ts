@@ -90,12 +90,6 @@ async function createWrapper(myExtensions: MyExtension[] = [], canInstall = true
 }
 
 describe('module/sw-settings-agentic-commerce/page/sw-settings-agentic-commerce', () => {
-    it('should be a Vue.js component', async () => {
-        const wrapper = await createWrapper();
-
-        expect(wrapper.vm).toBeTruthy();
-    });
-
     it('should expose exactly two readiness steps', async () => {
         const wrapper = await createWrapper();
 

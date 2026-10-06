@@ -31,15 +31,28 @@ type CallableSetupPlugin = {
     transform(code: string, id: string): Promise<LoadedModule | null>;
     hotUpdate(options: HotUpdateOptions): Promise<HotUpdateModule[] | undefined>;
     watchChange(id: string, change: { event: 'create' | 'delete' | 'update' }): void;
+    configResolved(config: { command: ViteCommand }): void;
     generateBundle: unknown;
 };
+type ViteCommand = 'serve' | 'build';
 
-const pluginOptions = {
-    administrationRoot: process.cwd(),
-};
+/**
+ * Creates the plugin for the administration under test.
+ *
+ * Pass `command` to resolve it the way Vite does for the dev server (`serve`) or `vite build`; without
+ * it the plugin runs as in a toolchain that calls its hooks directly.
+ */
+function createPlugin({
+    administrationRoot = process.cwd(),
+    command,
+}: { administrationRoot?: string; command?: ViteCommand } = {}): CallableSetupPlugin {
+    const plugin = shopwareSetupPlugin({ administrationRoot }) as unknown as CallableSetupPlugin;
 
-function createPlugin(options: { administrationRoot: string } = pluginOptions): CallableSetupPlugin {
-    return shopwareSetupPlugin(options) as unknown as CallableSetupPlugin;
+    if (command) {
+        plugin.configResolved({ command });
+    }
+
+    return plugin;
 }
 
 async function createVueFile(source: string, fileName = 'component.vue') {

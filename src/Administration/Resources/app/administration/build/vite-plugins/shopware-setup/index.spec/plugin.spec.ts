@@ -16,14 +16,46 @@ type ProbeSide = {
     authoredPosition: ProbePosition;
     mappedPosition: { source: string; line: number };
 };
-type ProbeResult = {
+type SourcemapProbeResult = {
     sources: string[];
     loweredSourceCount: number;
     base: ProbeSide;
     override: ProbeSide;
 };
+type ErrorLocationProbeResult = {
+    id: string;
+    loc: { file: string; line: number; column: number };
+    plugin: string;
+    frame: string;
+};
 
 const execFileAsync = promisify(execFile);
+
+/**
+ * Runs `fixtures/<fixtureName>/probe.ts` against a temporary copy of the fixture and returns the JSON it prints.
+ *
+ * Through jiti's CLI rather than `node probe.ts`: node only strips types natively from v22.6+/v23.6, but
+ * the admin supports node >= 20, so native execution would break there.
+ */
+async function runFixtureProbe<Result>(fixtureName: string): Promise<Result> {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), `sw-setup-${fixtureName}-`));
+    await fs.cp(path.join(__dirname, '../fixtures', fixtureName), root, { recursive: true });
+
+    const jitiDir = path.dirname(require.resolve('jiti/package.json'));
+    const jitiPackage = JSON.parse(await fs.readFile(path.join(jitiDir, 'package.json'), 'utf8')) as {
+        bin: { jiti: string };
+    };
+    const jitiBin = path.join(jitiDir, jitiPackage.bin.jiti);
+    const { stdout } = await execFileAsync(process.execPath, [jitiBin, path.join(root, 'probe.ts')], {
+        cwd: process.cwd(),
+        env: {
+            ...process.env,
+            SHOPWARE_ADMIN_ROOT: process.cwd(),
+        },
+    });
+
+    return JSON.parse(stdout) as Result;
+}
 
 describe('build/vite-plugins/shopware-setup', () => {
     it('returns a pre-load Vite plugin', () => {
@@ -231,27 +263,8 @@ swDefinePublic({ count });
     it('maps the written sourcemap back to the authored SFCs, for base and override alike', async () => {
         expect.hasAssertions();
 
-        const fixtureDirectory = path.join(__dirname, '../fixtures/sourcemap-composition');
-        const root = await fs.mkdtemp(path.join(os.tmpdir(), 'sw-setup-vite-map-'));
-
-        await fs.cp(fixtureDirectory, root, { recursive: true });
-
-        // Run the TypeScript probe through jiti's CLI rather than `node probe.ts` directly: node only
-        // strips types natively from v22.6+/v23.6, but the admin supports node >= 20, so native execution
-        // would break there. jiti transpiles on the fly on every supported node.
-        const jitiDir = path.dirname(require.resolve('jiti/package.json'));
-        const jitiPackage = JSON.parse(await fs.readFile(path.join(jitiDir, 'package.json'), 'utf8')) as {
-            bin: { jiti: string };
-        };
-        const jitiBin = path.join(jitiDir, jitiPackage.bin.jiti);
-        const { stdout } = await execFileAsync(process.execPath, [jitiBin, path.join(root, 'probe.ts')], {
-            cwd: process.cwd(),
-            env: {
-                ...process.env,
-                SHOPWARE_ADMIN_ROOT: process.cwd(),
-            },
-        });
-        const { sources, loweredSourceCount, base, override } = JSON.parse(stdout) as ProbeResult;
+        const { sources, loweredSourceCount, base, override } =
+            await runFixtureProbe<SourcemapProbeResult>('sourcemap-composition');
 
         // The probe reads the map file the build wrote, not the in-memory chunk: the `.js.map` is
         // serialized from the emitted asset, so asserting on the chunk object hid a bug where every
@@ -317,7 +330,7 @@ swDefinePublic({});
         }
 
         it('when the error surfaces through an importer resolve', async () => {
-            const plugin = createPlugin();
+            const plugin = createPlugin({ command: 'serve' });
             const vueFile = await createVueFile(brokenSource, 'sw-broken-component.vue');
 
             const error = await resolveVueFile(plugin, vueFile).catch((reason: unknown) => reason);
@@ -326,7 +339,7 @@ swDefinePublic({});
         });
 
         it('when the error surfaces while loading the virtual module', async () => {
-            const plugin = createPlugin();
+            const plugin = createPlugin({ command: 'serve' });
             const vueFile = await createVueFile(
                 `<script setup>
 swDefinePublic({});
@@ -343,6 +356,29 @@ swDefinePublic({});
 
             expectAttributedToSfc(error, vueFile);
         });
+
+        it('without marking it in a build, where Rollup reads `pluginCode` as an error code', async () => {
+            const plugin = createPlugin({ command: 'build' });
+            const vueFile = await createVueFile(brokenSource, 'sw-broken-component.vue');
+
+            const error = await resolveVueFile(plugin, vueFile).catch((reason: unknown) => reason);
+
+            expect(error).toMatchObject({ id: vueFile, loc: { file: vueFile, line: 2, column: 22 } });
+            expect(error).not.toHaveProperty('pluginCode');
+        });
+
+        it('when a dev server reports it through an importer longer than the error line', async () => {
+            expect.hasAssertions();
+
+            // Vite re-traces an unmarked error's `loc` through the importer's sourcemap, which can map
+            // the SFC's error line onto the importer once the importer has that many lines.
+            const { id, loc, plugin, frame } = await runFixtureProbe<ErrorLocationProbeResult>('dev-server-error-location');
+
+            expect(id).toMatch(/\/src\/sw-comp\.vue$/);
+            expect(loc).toEqual({ file: id, line: 9, column: 22 });
+            expect(plugin).toBe('shopware-vite-plugin-shopware-setup');
+            expect(frame).toContain('9  |  const broken = { a: 1 b: 2 };');
+        }, 60000);
     });
 
     it('ignores non-vue files', async () => {

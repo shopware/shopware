@@ -70,17 +70,17 @@ type TransformFailure = {
 };
 
 /**
- * Reads the location a transform diagnostic carries, for reporting it to Vite.
+ * Reads the message, location and code frame a transform diagnostic carries, for reporting it to Vite.
  *
  * Use it instead of `instanceof ShopwareSetupTransformError`: the lazily required transform module may
  * throw from another realm, where `instanceof` fails. `loc` and `frame` are `null` for any other error.
  *
  * @example
- * const { message, loc } = readTransformErrorLocation(error); // loc: { file, line, column } | null
+ * const { message, loc, frame } = readTransformDiagnostic(error); // loc: { file, line, column } | null
  */
-function readTransformErrorLocation(error: unknown): {
+function readTransformDiagnostic(error: unknown): {
     message: string;
-    loc: ShopwareSetupTransformError['loc'] | null;
+    loc: ShopwareSetupTransformError['loc'];
     frame: string | null;
 } {
     const { message, loc, frame } = (error ?? {}) as { message?: unknown } & Partial<
@@ -96,10 +96,11 @@ function readTransformErrorLocation(error: unknown): {
 
 /**
  * Renders a transform diagnostic as `file:line:column`, its message and code frame, for the terminal and
- * the error overlay alike, so editors can jump to it. Line and column are Vite's: 1-based and 0-based.
+ * the error overlay alike. Line and column are Vite's (1-based, 0-based), so a save reports the position
+ * Vite prints when a page load hits the same error.
  */
 function formatTransformError(error: unknown, fileName: string): TransformFailure {
-    const { message, loc, frame } = readTransformErrorLocation(error);
+    const { message, loc, frame } = readTransformDiagnostic(error);
     const position = loc ? `:${loc.line}:${loc.column}` : '';
 
     return {
@@ -121,10 +122,11 @@ const PLUGIN_NAME = 'shopware-vite-plugin-shopware-setup';
  * through the importer's sourcemap.
  *
  * Vite's plugin context skips its own `id`/`loc`/`frame` attribution for an error that carries
- * `pluginCode`; `plugin` keeps the "Plugin:" line in the terminal.
+ * `pluginCode`; `plugin` keeps the "Plugin:" line in the terminal. Dev server only: Rollup, which runs
+ * `vite build`, reads `pluginCode` as the plugin's error code instead.
  */
 function asReportedTransformError(error: unknown, source: string): unknown {
-    if (readTransformErrorLocation(error).loc) {
+    if (readTransformDiagnostic(error).loc) {
         Object.assign(error as object, { pluginCode: source, plugin: PLUGIN_NAME });
     }
 
@@ -150,6 +152,8 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     const resolvedTransforms = new Map<string, { source: string; result: ShopwareSetupTransformResult }>();
     // Set from the resolved Vite config; the remap is pointless when the build emits no maps.
     let sourcemapsEnabled = true;
+    // Set from the resolved Vite config; see asReportedTransformError for why only the dev server marks errors.
+    let isDevServer = false;
     // caveat: also rejections are cached
     let transformPromise: Promise<typeof transformShopwareSetupSfcRuntime> | null = null;
 
@@ -174,7 +178,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     }
 
     /**
-     * Transforms SFC code and marks a located failure as attributed to `fileName`, see
+     * Transforms SFC code and, in the dev server, marks a located failure as attributed to `fileName`, see
      * {@link asReportedTransformError}.
      */
     async function transformSource(code: string, fileName: string): Promise<ShopwareSetupTransformResult | null> {
@@ -183,7 +187,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
         try {
             return transformShopwareSetupSfc(code, fileName);
         } catch (error) {
-            throw asReportedTransformError(error, code);
+            throw isDevServer ? asReportedTransformError(error, code) : error;
         }
     }
 
@@ -408,6 +412,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             // from GENERATE_SOURCEMAPS / SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION. Reading it here keeps
             // this plugin on par with the rest of the build instead of re-interpreting those variables.
             sourcemapsEnabled = Boolean(config.build?.sourcemap);
+            isDevServer = config.command === 'serve';
         },
 
         /**

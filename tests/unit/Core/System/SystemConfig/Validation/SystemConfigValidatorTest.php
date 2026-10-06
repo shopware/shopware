@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigCard;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigElement;
 use Shopware\Core\System\SystemConfig\DTO\SystemConfigTab;
-use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
+use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -35,13 +35,13 @@ class SystemConfigValidatorTest extends TestCase
     {
         $exceptionThrown = false;
 
-        $systemConfigDefinitionServiceMock = static::createStub(SystemConfigDefinitionService::class);
-        $systemConfigDefinitionServiceMock->method('getConfiguration')
+        $configurationServiceMock = static::createStub(ConfigurationService::class);
+        $configurationServiceMock->method('getSystemConfigDefinition')
             ->willReturn($formConfigs);
 
         $dataValidatorMock = static::createStub(DataValidator::class);
 
-        $systemConfigValidation = new SystemConfigValidator($systemConfigDefinitionServiceMock, $dataValidatorMock);
+        $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
 
         $contextMock = Context::createDefaultContext();
 
@@ -61,8 +61,8 @@ class SystemConfigValidatorTest extends TestCase
     #[DataProvider('dataProviderTestValidateFailure')]
     public function testValidateFailure(array $inputValues, array $formConfigs): void
     {
-        $systemConfigDefinitionServiceMock = static::createStub(SystemConfigDefinitionService::class);
-        $systemConfigDefinitionServiceMock->method('getConfiguration')
+        $configurationServiceMock = static::createStub(ConfigurationService::class);
+        $configurationServiceMock->method('getSystemConfigDefinition')
             ->willReturn($formConfigs);
 
         $validateException = static::createStub(ConstraintViolationException::class);
@@ -71,7 +71,7 @@ class SystemConfigValidatorTest extends TestCase
         $dataValidatorMock->method('validate')
             ->willThrowException($validateException);
 
-        $systemConfigValidation = new SystemConfigValidator($systemConfigDefinitionServiceMock, $dataValidatorMock);
+        $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
 
         $contextMock = Context::createDefaultContext();
 
@@ -89,13 +89,13 @@ class SystemConfigValidatorTest extends TestCase
     {
         $exceptionThrown = false;
 
-        $systemConfigDefinitionServiceMock = static::createStub(SystemConfigDefinitionService::class);
-        $systemConfigDefinitionServiceMock->method('getConfiguration')
+        $configurationServiceMock = static::createStub(ConfigurationService::class);
+        $configurationServiceMock->method('getSystemConfigDefinition')
             ->willReturn([]);
 
         $dataValidatorMock = static::createStub(DataValidator::class);
 
-        $systemConfigValidation = new SystemConfigValidator($systemConfigDefinitionServiceMock, $dataValidatorMock);
+        $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
 
         $contextMock = Context::createDefaultContext();
 
@@ -112,10 +112,10 @@ class SystemConfigValidatorTest extends TestCase
     {
         $context = Context::createDefaultContext();
 
-        $systemConfigDefinitionServiceMock = $this->createMock(SystemConfigDefinitionService::class);
-        $systemConfigDefinitionServiceMock
+        $configurationServiceMock = $this->createMock(ConfigurationService::class);
+        $configurationServiceMock
             ->expects($this->once())
-            ->method('getConfiguration')
+            ->method('getSystemConfigDefinition')
             ->with('core.basicInformation', $context)
             ->willReturn([
                 new SystemConfigTab([
@@ -133,7 +133,7 @@ class SystemConfigValidatorTest extends TestCase
             ->expects($this->once())
             ->method('validate');
 
-        $systemConfigValidation = new SystemConfigValidator($systemConfigDefinitionServiceMock, $dataValidatorMock);
+        $systemConfigValidation = new SystemConfigValidator($configurationServiceMock, $dataValidatorMock);
 
         $systemConfigValidation->validate([
             'null' => [
@@ -144,13 +144,13 @@ class SystemConfigValidatorTest extends TestCase
 
     public function testValidateAddsNoConstraintsForDomainWithoutConfiguration(): void
     {
-        $systemConfigDefinitionServiceMock = static::createStub(SystemConfigDefinitionService::class);
-        $systemConfigDefinitionServiceMock->method('getConfiguration')
+        $configurationServiceMock = static::createStub(ConfigurationService::class);
+        $configurationServiceMock->method('getSystemConfigDefinition')
             ->willReturn([]);
 
         $definition = null;
         $systemConfigValidation = new SystemConfigValidator(
-            $systemConfigDefinitionServiceMock,
+            $configurationServiceMock,
             $this->createDefinitionCapturingValidator($definition)
         );
 
@@ -165,13 +165,13 @@ class SystemConfigValidatorTest extends TestCase
 
     public function testValidateIgnoresSystemConfigExceptionsWhileLoadingTheDomainConfiguration(): void
     {
-        $systemConfigDefinitionServiceMock = static::createStub(SystemConfigDefinitionService::class);
-        $systemConfigDefinitionServiceMock->method('getConfiguration')
+        $configurationServiceMock = static::createStub(ConfigurationService::class);
+        $configurationServiceMock->method('getSystemConfigDefinition')
             ->willThrowException(SystemConfigException::configurationNotFound('missing'));
 
         $definition = null;
         $systemConfigValidation = new SystemConfigValidator(
-            $systemConfigDefinitionServiceMock,
+            $configurationServiceMock,
             $this->createDefinitionCapturingValidator($definition)
         );
 
@@ -195,8 +195,8 @@ class SystemConfigValidatorTest extends TestCase
         $salesChannelId = $allowNulls ? Uuid::randomHex() : 'null';
         $configKey = 'core.basicInformation.dummyKey';
 
-        $systemConfigDefinitionServiceMock = static::createStub(SystemConfigDefinitionService::class);
-        $systemConfigDefinitionServiceMock->method('getConfiguration')
+        $configurationServiceMock = static::createStub(ConfigurationService::class);
+        $configurationServiceMock->method('getSystemConfigDefinition')
             ->willReturn([
                 new SystemConfigTab(
                     [
@@ -212,7 +212,7 @@ class SystemConfigValidatorTest extends TestCase
 
         $definition = null;
         $systemConfigValidation = new SystemConfigValidator(
-            $systemConfigDefinitionServiceMock,
+            $configurationServiceMock,
             $this->createDefinitionCapturingValidator($definition)
         );
 

@@ -806,6 +806,8 @@ class ElasticsearchProductDefinitionTest extends TestCase
             static::assertSame($price, $document[$key]);
         }
 
+        // keyed by `c_<currencyId>` to match the accessor of the criteria parser, and the `c` prefix of the
+        // database key is only stripped once - the currency id of the second price starts with a `c` itself
         static::assertSame(
             [
                 'c_b7d2554b0ce847cd82f3ac9bd1c0dfca' => ['gross' => 10.0, 'net' => 8.0],
@@ -906,7 +908,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         );
     }
 
-    public function testFetchingPriceStoredAsList(): void
+    public function testFetchingSkipsPriceNotKeyedByCurrency(): void
     {
         $registry = $this->getDefinitionRegistry();
         $definition = $registry->get(ProductDefinition::class);
@@ -929,10 +931,7 @@ class ElasticsearchProductDefinitionTest extends TestCase
         $uuid = $this->ids->get('product-1');
         $documents = $definition->fetch([$uuid], Context::createDefaultContext());
 
-        static::assertSame(
-            ['c_b7d2554b0ce847cd82f3ac9bd1c0dfca' => ['gross' => 10.0, 'net' => 8.0]],
-            $documents[$uuid]['price']
-        );
+        static::assertSame([], $documents[$uuid]['price']);
     }
 
     public function testFetchingWithSalesChannelLanguageMissingDefaultLang(): void

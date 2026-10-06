@@ -36,7 +36,7 @@ class AbstractProductStreamBuilderTest extends TestCase
             }
         };
 
-        static::assertTrue((new \ReflectionClass(AbstractProductStreamBuilder::class))->implementsInterface(ProductStreamBuilderInterface::class));
+        static::assertInstanceOf(ProductStreamBuilderInterface::class, $builder);
         static::assertSame([$filter], $builder->buildFilters('stream-id', Context::createDefaultContext()));
     }
 

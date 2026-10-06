@@ -310,16 +310,18 @@ class SyncServiceTest extends TestCase
             'categoryId' => Uuid::randomHex(),
         ]]);
 
+        $exception = null;
         try {
             $this->service->sync([$operation], Context::createDefaultContext(), new SyncBehavior());
-            static::fail('The invalid reference should be reported as a write error.');
         } catch (InvalidForeignKeyReferenceException $exception) {
-            $error = $exception->getErrors()->current();
-            static::assertSame('FRAMEWORK__INVALID_FOREIGN_KEY_REFERENCE', $error['code']);
-            static::assertSame('/categoryId', $error['source']['pointer']);
-            static::assertStringContainsString('product_category', (string) $error['detail']);
-            static::assertStringContainsString('category', (string) $error['detail']);
         }
+
+        static::assertInstanceOf(InvalidForeignKeyReferenceException::class, $exception, 'The invalid reference should be reported as a write error.');
+        $error = $exception->getErrors()->current();
+        static::assertSame('FRAMEWORK__INVALID_FOREIGN_KEY_REFERENCE', $error['code']);
+        static::assertSame('/categoryId', $error['source']['pointer']);
+        static::assertStringContainsString('product_category', (string) $error['detail']);
+        static::assertStringContainsString('category', (string) $error['detail']);
     }
 
     public function testDeleteWithWildCards(): void

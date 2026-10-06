@@ -92,8 +92,7 @@ class OrderProductAvailabilityResolver
             $criteria->addFilter($this->productCloseoutFilterFactory->create($context));
         }
 
-        // reading the products instead would publish ProductPriceCalculationExtension, whose listeners type hint
-        // ProductEntity and get a PartialEntity. searchIds() hydrates nothing, so none of that runs
+        // only a yes/no is needed, and any product read runs the price calculation over every id, partial or not
         return array_flip($this->productRepository->searchIds($criteria, $context)->getIds());
     }
 }

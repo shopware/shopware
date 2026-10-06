@@ -51,7 +51,7 @@ class ForeignKeyConstraintViolationExceptionHandler implements ExceptionHandlerI
         }
 
         return $this->createException(
-            $definition->getEntityName(),
+            $matches['entity'],
             $field->getPropertyName(),
             $field->getReferenceDefinition()->getEntityName(),
         );

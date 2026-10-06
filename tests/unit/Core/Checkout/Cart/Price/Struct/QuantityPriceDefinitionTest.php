@@ -185,6 +185,7 @@ class QuantityPriceDefinitionTest extends TestCase
         $constraints = QuantityPriceDefinition::getConstraints();
 
         static::assertArrayHasKey('price', $constraints);
+        static::assertArrayHasKey('taxRules', $constraints);
         static::assertArrayHasKey('quantity', $constraints);
         static::assertArrayHasKey('isCalculated', $constraints);
     }

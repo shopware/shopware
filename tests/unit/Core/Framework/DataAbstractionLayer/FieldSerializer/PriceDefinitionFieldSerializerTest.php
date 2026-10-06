@@ -120,6 +120,58 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         yield 'string, where PHP reads the offset as a string offset' => ['2025-10-09'];
     }
 
+    /**
+     * `QuantityPriceDefinition::fromArray()` requires the tax rules and their percentage, so a definition stored without
+     * them could never be read again. It has to be rejected on write instead.
+     *
+     * @param array<string, mixed> $priceDefinition
+     */
+    #[DataProvider('invalidQuantityTaxRulesProvider')]
+    public function testEncodeRejectsQuantityPriceDefinitionWithInvalidTaxRules(
+        array $priceDefinition,
+        string $expectedPointer,
+        string $expectedMessage
+    ): void {
+        try {
+            $this->encodeDefinition($priceDefinition);
+            static::fail('Expected a WriteConstraintViolationException');
+        } catch (WriteConstraintViolationException $exception) {
+            $errors = iterator_to_array($exception->getErrors());
+            static::assertCount(1, $errors);
+            static::assertSame($expectedPointer, $errors[0]['source']['pointer']);
+            static::assertSame($expectedMessage, $errors[0]['detail']);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{array<string, mixed>, string, string}>
+     */
+    public static function invalidQuantityTaxRulesProvider(): iterable
+    {
+        yield 'missing tax rules are rejected because they cannot be decoded' => [
+            ['type' => QuantityPriceDefinition::TYPE, 'price' => 10, 'quantity' => 1],
+            '/taxRules',
+            'This value should not be null.',
+        ];
+        yield 'tax rules that are not a list are rejected' => [
+            ['type' => QuantityPriceDefinition::TYPE, 'price' => 10, 'quantity' => 1, 'taxRules' => '19'],
+            '/taxRules',
+            'This value should be of type array.',
+        ];
+        yield 'tax rule without percentage is rejected instead of being decoded as zero percent' => [
+            ['type' => QuantityPriceDefinition::TYPE, 'price' => 10, 'quantity' => 1, 'taxRules' => [['taxRate' => 19]]],
+            '/taxRules/0/percentage',
+            'This value should not be null.',
+        ];
+    }
+
+    public function testEncodeAcceptsQuantityPriceDefinitionWithEmptyTaxRules(): void
+    {
+        $stored = $this->encodeDefinition(['type' => QuantityPriceDefinition::TYPE, 'price' => 10, 'quantity' => 1, 'taxRules' => []]);
+
+        static::assertSame([], $stored['taxRules']);
+    }
+
     public function testEncodeDecodeWithEmptyOperatorCondition(): void
     {
         $rule = new LineItemListPriceRule();
@@ -378,9 +430,11 @@ class PriceDefinitionFieldSerializerTest extends TestCase
     }
 
     /**
+     * @param PriceDefinitionInterface|array<string, mixed> $definition
+     *
      * @return array<string, mixed>
      */
-    private function encodeDefinition(PriceDefinitionInterface $definition): array
+    private function encodeDefinition(PriceDefinitionInterface|array $definition): array
     {
         $writeContext = WriteContext::createFromContext(Context::createDefaultContext());
 

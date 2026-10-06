@@ -331,6 +331,10 @@ Store API responses contain the new properties wherever they contain a regulatio
 
 The `indexing-behavior` header now supports `use-queue-indexing` and `disable-indexing` on REST API writes, matching the existing Sync API behavior. Requests without this header retain the current synchronous indexing behavior.
 
+### Quantity price definitions require tax rules on write
+
+A `quantity` price definition written to a price definition field, for example `priceDefinition` of an order line item, is now rejected with a `400` if `taxRules` is missing or is not a list, or if a tax rule has no `percentage`. Before, such a definition was stored and could not be read again, or a tax rule without `percentage` was read as 0 %. Send `taxRules` with `taxRate` and `percentage` for every rule, or `"taxRules": []` if no tax applies.
+
 ## Administration
 
 ### [Internal] Native `<sw-block>` names are isolated per component

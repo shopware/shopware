@@ -296,7 +296,7 @@
     "tmp": "0.2.7",
     "qs": "6.16.0",
     "ip-address": "10.7.2",
-    "basic-ftp": "5.3.1",
+    "basic-ftp": "6.2.2",
     "follow-redirects": "1.16.0",
     "compression": "1.8.2",
     "prosemirror-view": "1.42.3",

@@ -29,6 +29,5 @@ runNpmAudit({
     ignoredGHSAs: [
         'https://github.com/advisories/GHSA-jmr9-qjv8-65gv', // extract-zip symlink traversal via Lighthouse/Puppeteer browser downloads, test-only; fixed Lighthouse requires Node 22.19+ while this package still supports Node 20
         'https://github.com/advisories/GHSA-7pqw-9j4j-h8q3', // extract-zip arbitrary file writes via symlink archive entries, test-only; no fix in extract-zip itself and the fixed Lighthouse requires Node 22.19+ while this package still supports Node 20
-        'https://github.com/advisories/GHSA-c475-qrg2-pj4r', // basic-ftp Client.list() DoS, test-only (Lighthouse via proxy-agent/get-uri); only fixed in basic-ftp 6.x while get-uri requires ^5
     ],
 });

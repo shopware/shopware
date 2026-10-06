@@ -319,6 +319,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(GaranLabelMailSubscriber::class)
         ->args([
             service(GaranLabelInlineImage::class),
+            service('product.repository'),
+            service(GaranLabelResolver::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -339,7 +341,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(AbstractKeyValueStorage::class),
             service('logger'),
         ])
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(ProductSubscriber::class)
         ->args([
@@ -578,6 +581,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service(ProductListingLoader::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductSearchRoute::class)
@@ -613,6 +617,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CacheTagCollector::class),
             service(SystemConfigService::class),
             service(ProductCloseoutFilterFactory::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     // decorated by cached route
@@ -671,7 +676,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(Connection::class),
             service('event_dispatcher'),
-        ]);
+        ])
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(VariantListingUpdater::class)
         ->args([
@@ -744,6 +750,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductCloseoutFilterFactory::class),
             service('event_dispatcher'),
             service(CacheTagCollector::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductPurchaseLimitRoute::class)
@@ -751,6 +758,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('sales_channel.product.repository'),
             service(AbstractProductMaxPurchaseCalculator::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductReviewLoader::class)
@@ -766,6 +774,9 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('product_review.repository'),
             service(SystemConfigService::class),
             service(CacheTagCollector::class),
+            service(ExtensionDispatcher::class),
+            param('shopware.api.store.max_limit'),
+            service(CompressedCriteriaDecoder::class),
         ]);
 
     $services->set(ProductConfiguratorLoader::class)
@@ -793,6 +804,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductCloseoutFilterFactory::class),
             service(CacheTagCollector::class),
             service(Connection::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductReviewSaveRoute::class)
@@ -803,12 +815,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
             service('event_dispatcher'),
             service(ProductProvider::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductListRoute::class)
         ->public()
         ->args([
             service('sales_channel.product.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(GaranLabelRoute::class)
@@ -816,6 +830,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('sales_channel.product.repository'),
             service(GaranLabelResolver::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->alias(AbstractGaranLabelRoute::class, GaranLabelRoute::class);

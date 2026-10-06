@@ -79,6 +79,17 @@
             >
             {% endblock %}
 
+            {% block sw_category_tree_field_input_expand_indicator %}
+            <mt-icon
+                class="sw-category-tree-field__expand-indicator"
+                :class="{ 'is--collapsed': !isExpanded }"
+                name="regular-chevron-up-xs"
+                color="var(--color-icon-primary-default)"
+                size="var(--scale-size-10)"
+                @click="toggleDropdown({ setFocusClass, removeFocusClass })"
+            />
+            {% endblock %}
+
             {% block sw_category_tree_field_input_transition %}
             {% block sw_category_tree_field_input_results %}
             <sw-popover-deprecated

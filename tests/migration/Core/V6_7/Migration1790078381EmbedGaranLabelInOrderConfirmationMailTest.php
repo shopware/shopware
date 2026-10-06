@@ -52,8 +52,7 @@ class Migration1790078381EmbedGaranLabelInOrderConfirmationMailTest extends Mail
 
         foreach (['en' => $translations->getEnHtml(), 'de' => $translations->getDeHtml()] as $language => $html) {
             static::assertIsString($html);
-            static::assertStringContainsString('sw_garan_label_mail', $html, $language . ': the mail references the label via cid');
-            static::assertStringNotContainsString('sw_garan_label_nested_uri', $html, $language);
+            static::assertStringContainsString('garanLabels[nestedItem.productId] ?? null', $html, $language . ': the label comes from template data');
             static::assertStringContainsString('alt="GARAN', $html, $language);
             static::assertStringContainsString('{{ garanLabel.duration', $html, $language . ': the alt text has to name the duration');
             static::assertMatchesRegularExpression(
@@ -65,7 +64,8 @@ class Migration1790078381EmbedGaranLabelInOrderConfirmationMailTest extends Mail
 
         foreach (['en' => $translations->getEnPlain(), 'de' => $translations->getDePlain()] as $language => $plain) {
             static::assertIsString($plain);
-            static::assertStringContainsString('sw_garan_label_mail', $plain, $language . ': the plain text mail has to name the guarantee as well');
+            static::assertStringContainsString('garanLabels[lineItem.productId] ?? null', $plain, $language . ': the plain text mail has to name the guarantee as well');
+            static::assertStringNotContainsString('|sw_garan_label', $plain, $language);
             static::assertStringContainsString('{{ garanLabel.duration', $plain, $language);
         }
     }

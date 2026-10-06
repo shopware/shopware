@@ -660,14 +660,16 @@ class AccountOrderControllerTest extends TestCase
         ]);
 
         // an order that still has at least one buyable product keeps its reorder entry
+        $goneProductId = $this->createProduct($context, 'Gone product', $salesChannelId);
         $partlyAvailableProductId = $this->createProduct($context, 'Second product', $salesChannelId);
         $partlyAvailableOrderId = $this->createOrderWithProducts($context, $customer, $salesChannelId, [
-            $this->createProduct($context, 'Gone product', $salesChannelId) => 'Gone product',
+            $goneProductId => 'Gone product',
             $partlyAvailableProductId => 'Second product',
         ]);
 
         static::getContainer()->get('product.repository')->update([
             ['id' => $unavailableProductId, 'active' => false],
+            ['id' => $goneProductId, 'active' => false],
         ], $context);
 
         $browser = $this->login($customer->getEmail());

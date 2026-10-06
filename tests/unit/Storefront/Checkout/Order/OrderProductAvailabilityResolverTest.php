@@ -129,6 +129,25 @@ class OrderProductAvailabilityResolverTest extends TestCase
         $resolver->addAvailability([$order], Generator::generateSalesChannelContext());
     }
 
+    public function testTheCloseoutFilterIsNotAddedWhenTheConfigIsOff(): void
+    {
+        $productId = Uuid::randomHex();
+        $order = $this->createOrder([$this->createLineItem(LineItem::PRODUCT_LINE_ITEM_TYPE, $productId)]);
+
+        $route = static::createMock(SalesChannelRepository::class);
+        $route
+            ->expects($this->once())
+            ->method('searchIds')
+            ->with(static::callback(static function (Criteria $criteria): bool {
+                static::assertSame([], $criteria->getFilters());
+
+                return true;
+            }))
+            ->willReturn($this->createResponse([$productId]));
+
+        $this->createResolver([$productId], $route)->addAvailability([$order], Generator::generateSalesChannelContext());
+    }
+
     private function firstExtension(OrderEntity $order): ArrayStruct
     {
         $lineItems = $order->getLineItems();

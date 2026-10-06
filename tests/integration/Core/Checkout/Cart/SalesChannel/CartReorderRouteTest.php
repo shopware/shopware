@@ -156,13 +156,16 @@ class CartReorderRouteTest extends TestCase
     public function testPromotionLineItemsAreNotReAdded(): void
     {
         $productId = $this->createProduct();
-        $orderId = $this->createOrder($this->ids->get('customer'), [$productId], withPromotion: true);
+        // a real product, so dropping the type guard re-adds it instead of failing on a missing product
+        $promotionReferencedId = $this->createProduct();
+        $orderId = $this->createOrder($this->ids->get('customer'), [$productId], $promotionReferencedId);
 
         $this->browser->request('POST', '/store-api/checkout/cart/reorder/' . $orderId);
 
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertCount(1, $response['lineItems']);
+        static::assertSame($productId, $response['lineItems'][0]['referencedId']);
         static::assertSame(LineItem::PRODUCT_LINE_ITEM_TYPE, $response['lineItems'][0]['type']);
     }
 
@@ -212,7 +215,7 @@ class CartReorderRouteTest extends TestCase
     /**
      * @param list<string> $productIds
      */
-    private function createOrder(string $customerId, array $productIds, bool $withPromotion = false): string
+    private function createOrder(string $customerId, array $productIds, ?string $promotionReferencedId = null): string
     {
         $id = Uuid::randomHex();
         $billingAddressId = Uuid::randomHex();
@@ -237,10 +240,11 @@ class CartReorderRouteTest extends TestCase
             ];
         }
 
-        if ($withPromotion) {
+        if ($promotionReferencedId !== null) {
             $lineItems[] = [
                 'id' => Uuid::randomHex(),
                 'identifier' => 'promotion',
+                'referencedId' => $promotionReferencedId,
                 'type' => LineItem::PROMOTION_LINE_ITEM_TYPE,
                 'quantity' => 1,
                 'label' => 'promotion',

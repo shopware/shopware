@@ -4,7 +4,7 @@
 
 `frontend.checkout.cart.reorder` resolves the reordered products from the order, so the reorder form no longer posts `lineItems`. The blocks `page_account_order_item_context_menu_reorder_form_line_items_input` and `page_account_order_item_context_menu_reorder_form_line_item_input` in `storefront/page/account/order-history/order-item.html.twig` are empty and deprecated: an override still renders, but it no longer changes what a reorder adds. Subscribe to the `checkout.cart.collect-reorder-line-items` extension instead, which hands you the `OrderEntity` and the built `list<LineItem>`
 
-The form is only rendered when at least one of the order's products is still visible in the sales channel, so `page_account_order_item_context_menu_reorder_form` and the blocks inside it no longer render for an order whose products were all deactivated or deleted
+The form is only rendered when at least one of the order's products is still visible in the sales channel, so `page_account_order_item_context_menu_reorder_form` and the blocks inside it no longer render for an order whose products were all deactivated or deleted, or that carries no product line item at all. An order built only from a custom line item type therefore offers no reorder entry, and `checkout.cart.collect-reorder-line-items` is not reached from the storefront for it
 
 ## Existing MCP integrations and non-admin users need an explicit MCP allowlist
 

@@ -25,7 +25,7 @@ class McpToolResultParser
             return null;
         }
 
-        $meta = isset($decoded->_meta) && $decoded->_meta instanceof \stdClass ? $this->toArray($decoded->_meta) : [];
+        $meta = isset($decoded->_meta) && $decoded->_meta instanceof \stdClass ? get_object_vars($decoded->_meta) : [];
 
         if ($decoded->success) {
             return $this->success($decoded->data ?? null, $meta);
@@ -74,7 +74,7 @@ class McpToolResultParser
 
         // Some tools (for example agentic-commerce's UCP tools) return a structured error object.
         if ($error instanceof \stdClass) {
-            $details = $this->toArray($error);
+            $details = get_object_vars($error);
             $message = \is_string($details['message'] ?? null) ? $details['message'] : 'The tool call failed.';
             $code = \is_string($details['code'] ?? null) ? $details['code'] : $code;
             unset($details['message'], $details['code']);
@@ -83,18 +83,5 @@ class McpToolResultParser
         }
 
         return new McpToolError('The tool call failed.', $code);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function toArray(\stdClass $object): array
-    {
-        $array = [];
-        foreach (get_object_vars($object) as $key => $value) {
-            $array[(string) $key] = $value;
-        }
-
-        return $array;
     }
 }

@@ -1,0 +1,285 @@
+/**
+ * @sw-package framework
+ */
+
+import TemplateFactory from 'src/core/factory/template.factory';
+import { registerNativeExtensionTargets } from 'src/core/factory/native-extension-targets';
+
+describe('core/factory/template.factory.js - native block extension points', () => {
+    beforeEach(() => {
+        TemplateFactory.getTemplateRegistry().clear();
+        TemplateFactory.getNormalizedTemplateRegistry().clear();
+        TemplateFactory.disableTwigCache();
+    });
+
+    it('wraps only registered target blocks, around the content the Twig overrides produced', () => {
+        registerNativeExtensionTargets({ component: 'tf-target', blocks: ['tf_target_block'] });
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-target',
+            '<div>{% block tf_target_block %}<p>base</p>{% endblock %}{% block tf_other_block %}<span>other</span>{% endblock %}</div>',
+        );
+        TemplateFactory.registerTemplateOverride(
+            'tf-target',
+            '{% block tf_target_block %}<p>from twig override</p>{% endblock %}',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-target').html).toBe(
+            '<div><sw-block name="tf_target_block" sw-internal-component-name="tf-target" :data="$dataScope" :sw-internal-legacy-shim="false"><p>from twig override</p></sw-block><span>other</span></div>',
+        );
+    });
+
+    it('wraps a block once when an extending component overrides it', () => {
+        registerNativeExtensionTargets({ component: 'tf-parent', blocks: ['tf_parent_block'] });
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-parent',
+            '<div>{% block tf_parent_block %}<p>parent</p>{% endblock %}</div>',
+        );
+        TemplateFactory.extendComponentTemplate(
+            'tf-kid',
+            'tf-parent',
+            '{% block tf_parent_block %}<i>kid</i>{% parent %}{% endblock %}',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        const registry = TemplateFactory.getNormalizedTemplateRegistry();
+
+        // The child inherits the parent's tokens. A wrapper persisted on those tokens would be
+        // inherited and then wrapped a second time.
+        expect(registry.get('tf-parent').html).toBe(
+            '<div><sw-block name="tf_parent_block" sw-internal-component-name="tf-parent" :data="$dataScope" :sw-internal-legacy-shim="false"><p>parent</p></sw-block></div>',
+        );
+        expect(registry.get('tf-kid').html).toBe(
+            '<div><sw-block name="tf_parent_block" sw-internal-component-name="tf-kid" :data="$dataScope" :sw-internal-legacy-shim="false"><i>kid</i><p>parent</p></sw-block></div>',
+        );
+    });
+
+    it('moves the extension point inside a block that is a single slot template', () => {
+        registerNativeExtensionTargets({ component: 'tf-slot', blocks: ['tf_slot_block'] });
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-slot',
+            '<sw-card>{% block tf_slot_block %}<template #header="{ item }"><b>{{ item }}</b></template>{% endblock %}</sw-card>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // Wrapping from the outside would bind #header to sw-block, which renders only its default
+        // slot - the content would vanish from the DOM without any error.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-slot').html).toBe(
+            '<sw-card><template #header="{ item }"><sw-block name="tf_slot_block" sw-internal-component-name="tf-slot" :data="$dataScope" :sw-internal-legacy-shim="false"><b>{{ item }}</b></sw-block></template></sw-card>',
+        );
+    });
+
+    it('moves the extension point inside a slot template that a nested block wraps', () => {
+        registerNativeExtensionTargets({ component: 'tf-nested', blocks: ['tf_nested_outer'] });
+
+        // The shape sw-multi-select-base uses: the targeted block holds nothing but another block, and
+        // only that one holds the slot template. Looking at the top token level alone sees no template
+        // here and would wrap from the outside, which silently drops the slot content.
+        TemplateFactory.registerComponentTemplate(
+            'tf-nested',
+            '<sw-select>{% block tf_nested_outer %}{% block tf_nested_inner %}<template #label="{ item }"><b>{{ item }}</b></template>{% endblock %}{% endblock %}</sw-select>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-nested').html).toBe(
+            '<sw-select><template #label="{ item }"><sw-block name="tf_nested_outer" sw-internal-component-name="tf-nested" :data="$dataScope" :sw-internal-legacy-shim="false"><b>{{ item }}</b></sw-block></template></sw-select>',
+        );
+    });
+
+    it('wraps a slot template whose own content is a nested block', () => {
+        registerNativeExtensionTargets({ component: 'tf-inner', blocks: ['tf_inner_slot'] });
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-inner',
+            '<sw-select>{% block tf_inner_slot %}<template #label><b>{% block tf_inner_content %}<i>x</i>{% endblock %}</b></template>{% endblock %}</sw-select>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // The nested block sits between the two raw tokens, so the tag-balance check has to see through
+        // it - reading only the raw siblings would measure a partial template.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-inner').html).toBe(
+            '<sw-select><template #label><sw-block name="tf_inner_slot" sw-internal-component-name="tf-inner" :data="$dataScope" :sw-internal-legacy-shim="false"><b><i>x</i></b></sw-block></template></sw-select>',
+        );
+    });
+
+    it('leaves a nested block holding two sibling slot templates unwrapped', () => {
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+
+        registerNativeExtensionTargets({ component: 'tf-nested-two', blocks: ['tf_nested_two_outer'] });
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-nested-two',
+            '<sw-page>{% block tf_nested_two_outer %}{% block tf_nested_two_inner %}<template #content><b>c</b></template><template #sidebar><u>s</u></template>{% endblock %}{% endblock %}</sw-page>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // Descending must not turn the multi-slot case into a wrap: the guard still has to reject it one
+        // level down.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-nested-two').html).toBe(
+            '<sw-page><template #content><b>c</b></template><template #sidebar><u>s</u></template></sw-page>',
+        );
+        expect(warnSpy).toHaveBeenCalledWith('TemplateFactory', expect.stringContaining('tf_nested_two_outer'));
+
+        warnSpy.mockRestore();
+    });
+
+    it('leaves a block that mixes a slot template with other content unwrapped', () => {
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+
+        registerNativeExtensionTargets({ component: 'tf-mixed', blocks: ['tf_mixed_block'] });
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-mixed',
+            '<sw-card>{% block tf_mixed_block %}<template #header><b>h</b></template><p>extra</p>{% endblock %}</sw-card>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // There is no single position that would serve both the slot and the trailing content.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-mixed').html).toBe(
+            '<sw-card><template #header><b>h</b></template><p>extra</p></sw-card>',
+        );
+        expect(warnSpy).toHaveBeenCalledWith('TemplateFactory', expect.stringContaining('tf_mixed_block'));
+
+        warnSpy.mockRestore();
+    });
+
+    it('leaves a block whose slot template follows other content unwrapped', () => {
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+
+        registerNativeExtensionTargets({ component: 'tf-trailing', blocks: ['tf_trailing_block'] });
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-trailing',
+            '<sw-modal>{% block tf_trailing_block %}<p>Hello world</p><template #modal-footer><b>f</b></template>{% endblock %}</sw-modal>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // The slot template is not the first child, so the starts-with check does not see it. Wrapping
+        // from the outside would hand the footer slot to sw-block, which never renders it.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-trailing').html).toBe(
+            '<sw-modal><p>Hello world</p><template #modal-footer><b>f</b></template></sw-modal>',
+        );
+        expect(warnSpy).toHaveBeenCalledWith('TemplateFactory', expect.stringContaining('tf_trailing_block'));
+
+        warnSpy.mockRestore();
+    });
+
+    it('wraps a block whose slot templates all belong to a child element', () => {
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+
+        registerNativeExtensionTargets({ component: 'tf-child-slots', blocks: ['tf_child_slots_block'] });
+
+        // Void and self-closing elements must not open a nesting level, or the card's slot would look nested
+        // one level too deep and the template's own slot would go unnoticed - or the reverse.
+        TemplateFactory.registerComponentTemplate(
+            'tf-child-slots',
+            '<div>{% block tf_child_slots_block %}<input type="text"><mt-icon name="x" /><!-- <template #ghost> --><sw-card><template #header><b>h</b></template>body</sw-card>{% endblock %}</div>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-child-slots').html).toBe(
+            '<div><sw-block name="tf_child_slots_block" sw-internal-component-name="tf-child-slots" :data="$dataScope" :sw-internal-legacy-shim="false">' +
+                '<input type="text"><mt-icon name="x" /><!-- <template #ghost> --><sw-card><template #header><b>h</b></template>body</sw-card>' +
+                '</sw-block></div>',
+        );
+        expect(warnSpy).not.toHaveBeenCalled();
+
+        warnSpy.mockRestore();
+    });
+
+    it('leaves a block with two sibling slot templates unwrapped', () => {
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+
+        registerNativeExtensionTargets({ component: 'tf-two', blocks: ['tf_two_block'] });
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-two',
+            '<sw-page>{% block tf_two_block %}<template #content><b>c</b></template><template #sidebar><u>s</u></template>{% endblock %}</sw-page>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // The block fills two slots of its parent, so no single position can serve both. A naive
+        // starts-with/ends-with check would place the wrapper between them and break the markup.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-two').html).toBe(
+            '<sw-page><template #content><b>c</b></template><template #sidebar><u>s</u></template></sw-page>',
+        );
+        expect(warnSpy).toHaveBeenCalledWith('TemplateFactory', expect.stringContaining('tf_two_block'));
+
+        warnSpy.mockRestore();
+    });
+
+    it('finds the end of the slot tag when an attribute value contains an angle bracket', () => {
+        registerNativeExtensionTargets({ component: 'tf-angle', blocks: ['tf_angle_block'] });
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-angle',
+            '<sw-card>{% block tf_angle_block %}<template #header :show="a > 1"><b>h</b></template>{% endblock %}</sw-card>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // Scanning for the first ">" would cut the opening tag in half.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-angle').html).toBe(
+            '<sw-card><template #header :show="a > 1"><sw-block name="tf_angle_block" sw-internal-component-name="tf-angle" :data="$dataScope" :sw-internal-legacy-shim="false"><b>h</b></sw-block></template></sw-card>',
+        );
+    });
+
+    it.each([
+        ['after another attribute', '<template v-if="!isLoading" #smart-bar-header>'],
+        ['on a multi-line opening tag', '<template\n    v-if="!isLoading"\n    #smart-bar-header\n>'],
+        ['as v-slot after another attribute', '<template v-if="!isLoading" v-slot:smart-bar-header>'],
+        ['after an attribute value containing an angle bracket', '<template v-if="count > 1" #smart-bar-header>'],
+    ])('moves the extension point inside a slot template whose slot directive comes %s', (_, openingTag) => {
+        registerNativeExtensionTargets({ component: 'tf-late-slot', blocks: ['tf_late_slot_block'] });
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-late-slot',
+            `<sw-page>{% block tf_late_slot_block %}${openingTag}<h2>h</h2></template>{% endblock %}</sw-page>`,
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // The slot directive is not the first attribute, the shape of sw_customer_detail_header. Missing it
+        // here would reject the block as mixed content and ignore its native override.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-late-slot').html).toBe(
+            `<sw-page>${openingTag}<sw-block name="tf_late_slot_block" sw-internal-component-name="tf-late-slot" :data="$dataScope" :sw-internal-legacy-shim="false"><h2>h</h2></sw-block></template></sw-page>`,
+        );
+        expect(warnSpy).not.toHaveBeenCalled();
+
+        warnSpy.mockRestore();
+    });
+
+    it('wraps a template whose attribute value merely contains a "#" from the outside', () => {
+        registerNativeExtensionTargets({ component: 'tf-hash-value', blocks: ['tf_hash_value_block'] });
+        const warnSpy = jest.spyOn(Shopware.Utils.debug, 'warn').mockImplementation();
+
+        TemplateFactory.registerComponentTemplate(
+            'tf-hash-value',
+            '<div>{% block tf_hash_value_block %}<template title="a #b"><p>p</p></template>{% endblock %}</div>',
+        );
+
+        TemplateFactory.resolveTemplates();
+
+        // The "#" sits inside a quoted value, so this is a plain template and no slot is at stake.
+        expect(TemplateFactory.getNormalizedTemplateRegistry().get('tf-hash-value').html).toBe(
+            '<div><sw-block name="tf_hash_value_block" sw-internal-component-name="tf-hash-value" :data="$dataScope" :sw-internal-legacy-shim="false"><template title="a #b"><p>p</p></template></sw-block></div>',
+        );
+        expect(warnSpy).not.toHaveBeenCalled();
+
+        warnSpy.mockRestore();
+    });
+});

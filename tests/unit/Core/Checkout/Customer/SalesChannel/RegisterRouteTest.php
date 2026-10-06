@@ -811,6 +811,7 @@ class RegisterRouteTest extends TestCase
             $doubleOptInService,
             static::createStub(CustomerNewsletterSalesChannelsUpdater::class),
             new NativeClock(),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $salutationId = Uuid::randomHex();

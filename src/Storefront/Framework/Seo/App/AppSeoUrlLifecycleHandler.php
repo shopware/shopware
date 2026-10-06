@@ -212,15 +212,12 @@ class AppSeoUrlLifecycleHandler extends AbstractLifecycleHandler implements Even
         $criteria->setTitle('app-seo-url::delete-templates');
         $criteria->addFilter(new EqualsAnyFilter('routeName', $routeNames));
 
-        $ids = array_values(array_filter($this->seoUrlTemplateRepository->searchIds($criteria, $context)->getIds(), \is_string(...)));
+        $ids = $this->seoUrlTemplateRepository->searchIds($criteria, $context)->getPrimaryKeyData();
 
         if ($ids === []) {
             return;
         }
 
-        $this->seoUrlTemplateRepository->delete(
-            array_map(static fn (string $id): array => ['id' => $id], $ids),
-            $context
-        );
+        $this->seoUrlTemplateRepository->delete($ids, $context);
     }
 }

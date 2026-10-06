@@ -236,6 +236,13 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### Order contexts keep the order's own addresses
+
+When an address of an order no longer matches an address of its customer, for example because the customer edited it, `OrderConverter::assembleSalesChannelContext()` now uses the order's own address instead of the customer's default address. This applies to the billing address and to the shipping address of the order's delivery. Orders without a delivery still fall back to the customer's default shipping address. Recalculations, flows and payment handling of that order therefore use the tax state, tax rules, cash rounding and address rules of the address the order was placed with.
+
+In that case, `getActiveBillingAddress()` and `getActiveShippingAddress()` of the order context's customer return the order's address as a `CustomerAddressEntity`. Its ID is the ID of the `order_address`, not of a `customer_address`. Payment handlers and checkout gateway apps that load or update a customer address by this ID have to handle IDs that are not customer address IDs.
+
+The options passed to `AbstractSalesChannelContextFactory::create()` and returned by `BeforeSalesChannelContextAssembledEvent::getOptions()` can now contain `CustomerAddressEntity` objects under the internal keys `SalesChannelContextService::BILLING_ADDRESS` and `SalesChannelContextService::SHIPPING_ADDRESS`. Decorators and listeners that read these options should not assume that every value is a string or an array.
 ### Sales-channel scoped limits for `system_config` rate limiters
 
 The cart setting "Maximum addable products to cart per minute through API" can be set per sales channel, but only the global value took effect.
@@ -260,6 +267,12 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 ### `dal:validate` checks attribute entities
 
 `bin/console dal:validate` no longer skips attribute entities. They are held to the same rules as `EntityDefinition` classes, for example that a many-to-one must not cascade deletes, and violations name them by their entity class instead of `AttributeEntityDefinition`, also when another definition's check mentions them. If your CI fails on `dal:validate`, or ignores messages that contain `AttributeEntityDefinition`, run it against your extension before updating.
+
+### `SalesChannelContextRestorer::restoreByOrder()` is deprecated
+
+`SalesChannelContextRestorer::restoreByOrder()` now builds the context with `OrderConverter::assembleSalesChannelContext()` and re-evaluates the rules afterwards, as before. Its contexts therefore match every other order context: they use the customer addresses that match the order's addresses instead of the customer's default addresses, and dispatch `BeforeSalesChannelContextAssembledEvent` and `SalesChannelContextAssembledEvent`. They also keep the order's tax status, except that the re-evaluation still drops tax-free when the order no longer qualifies for it. Like the converter, it now fails with `CHECKOUT__CUSTOMER_ADDRESS_NOT_FOUND` when the order's billing address does not exist.
+
+`restoreByOrder()` and `SalesChannelContextRestorerOrderCriteriaEvent` are deprecated and will be removed in 6.8.0.0. Load the order yourself and pass it to `OrderConverter::assembleSalesChannelContext()` instead.
 
 ### Creating a language no longer fails on a drifted Elasticsearch/OpenSearch mapping
 
@@ -312,6 +325,14 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 - `Country.addressFormat` and `currentFilters.navigationId` are no longer required, and `redirectUrl` can be `null`.
 - `POST /product/{productId}/review` and `GET /breadcrumb/{id}` document their `204` responses.
 
+### Store API resolves the context from the storefront session on request
+
+A Store API request that sends the storefront session cookie together with `sw-access-key` and the new header `sw-context-source: session` is resolved with the context token held in that session, so a client embedded in a storefront page shares the shopper's cart and login without managing a token. Login, registration, logout and password changes made this way are written back into the session.
+
+The session is resumed, never created, so this only works alongside a storefront. When it cannot be used the request fails with `FRAMEWORK__ROUTING_SESSION_CONTEXT_NOT_RESOLVABLE` (HTTP 400) instead of falling back to a new context, for example without a session cookie, when `sw-context-token` is sent alongside, or when the session holds no token for the sales channel. Requests without the header are unaffected. Deployments that widen the default CORS configuration must keep `sw-context-source` out of the allowed headers.
+
+Session-resolved responses carry no `sw-context-token` header. The HTTP cache treats these requests like any other, keyed by the `sw-cache-hash` cookie they share with the storefront page, so a cacheable route can be answered from the cache without the session being resolved. The responses also keep the storefront's HTTP cache cookies current, so the next storefront page reflects a login or cart change made this way.
+
 ### Regulation price contains the saving
 
 `regulationPrice` of a calculated price now contains `discount` and `percentage` next to `price`, calculated against the unit price like `listPrice`. `percentage` is negative when the unit price is above the regulation price, so only show a saving when it is greater than `0`.
@@ -319,6 +340,9 @@ The Store API OpenAPI schema was corrected where it contradicted the real respon
 Store API responses contain the new properties wherever they contain a regulation price: in `calculatedPrice`, `calculatedPrices` and `calculatedCheapestPrice` of products, for example in the product listing, search and detail responses, and in `price` of cart and order line items.
 
 `Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice` is created with `RegulationPrice::createFromUnitPrice($unitPrice, $regulationPrice)`, which calculates both values. Its constructor becomes private in `v6.8.0`.
+### REST API indexing behavior header is honored
+
+The `indexing-behavior` header now supports `use-queue-indexing` and `disable-indexing` on REST API writes, matching the existing Sync API behavior. Requests without this header retain the current synchronous indexing behavior.
 
 ## Administration
 
@@ -478,7 +502,15 @@ extension component looks like a migrated Administration one. In an extension, a
 the `cms-element` mixin is skipped, because its `useCmsElementDeprecated` replacement is not published;
 migrate it to `useCmsElement` by hand.
 
+### Mail template trigger event is preselected
+
+The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
+
 ## Storefront
+
+### Anonymous index components use their directory name
+
+Asset entry names for index components were not resolved correctly to the directory name and still used "index" in their names. Storefront components using an `index.js` or `index.ts` layout are now registered under their directory name, for example `Sw:Comp`. The former `Sw:Comp:index` import-map key is no longer generated, including for existing build manifests. If you used `data-component="Sw:Comp:index"` as a workaround, change it to `data-component="Sw:Comp"`.
 
 ### New line item reference price block
 
@@ -509,6 +541,10 @@ The new `CheckoutCustomerStorageReset` plugin drops that data and is bound via `
 ### Separate legal guarantee notice
 
 The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
+
+### Storefront session handling moved to Core
+
+`Shopware\Core\Framework\Routing\SessionContextTokenSubscriber` now starts the storefront session, keeps its context token and follows token rotations on login, registration, logout and password changes; `Shopware\Storefront\Framework\Routing\StorefrontSubscriber` no longer handles the session. The `sw-sales-channel-id` session key is no longer written. With `core.systemWideLoginRegistration.isCustomerBoundToSalesChannel` enabled, a password change now updates the sales channel bound session token instead of leaving a revoked one behind.
 
 ### Legal guarantee notice on the registration and other privacy notices
 

@@ -8,7 +8,6 @@ type BundleDefinition = {
 
 export type ExtensionComponentAliases = {
     bundleRoot: string;
-    componentRoot: string;
     aliases: Alias[];
 };
 
@@ -83,11 +82,10 @@ export async function loadExtensionComponentAliases(projectRoot: string): Promis
 
         const configuredAliases = loaded?.config.resolve?.alias as Alias[] | Record<string, string> | undefined;
         if (Array.isArray(configuredAliases)) {
-            extensionAliases.push({ bundleRoot, componentRoot, aliases: configuredAliases });
+            extensionAliases.push({ bundleRoot, aliases: configuredAliases });
         } else if (configuredAliases) {
             extensionAliases.push({
                 bundleRoot,
-                componentRoot,
                 aliases: Object.entries(configuredAliases).map(([find, replacement]) => ({ find, replacement })),
             });
         }

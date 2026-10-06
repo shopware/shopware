@@ -46,7 +46,6 @@ describe('loadExtensionComponentAliases', () => {
         await expect(loadExtensionComponentAliases(projectRoot)).resolves.toEqual([
             {
                 bundleRoot,
-                componentRoot: path.join(bundleRoot, 'Resources/views/components'),
                 aliases: [{ find: '@modules', replacement: '/example/src/modules' }],
             },
         ]);
@@ -143,7 +142,6 @@ describe('loadExtensionComponentAliases', () => {
         await expect(loadExtensionComponentAliases(projectRoot)).resolves.toEqual([
             {
                 bundleRoot: validBundleRoot,
-                componentRoot: path.join(validBundleRoot, 'Resources/views/components'),
                 aliases: [{ find: '@modules', replacement: '/valid/modules' }],
             },
         ]);

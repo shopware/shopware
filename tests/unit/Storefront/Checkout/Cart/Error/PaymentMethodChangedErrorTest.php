@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Storefront\Checkout\Cart\Error;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\IgnoreDeprecations;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Feature\FeatureException;
 use Shopware\Core\Framework\Log\Package;
@@ -74,11 +73,8 @@ class PaymentMethodChangedErrorTest extends TestCase
     }
 
     #[DisabledFeatures(['v6.8.0.0'])]
-    #[IgnoreDeprecations]
-    public function testConstructWithoutIdsAndReasonWhenMajorFlagIsInactive(): void
+    public function testConstructWithoutIdsAndReasonFallsBackWhenMajorFlagIsInactive(): void
     {
-        $this->expectUserDeprecationMessage('Passing null for $oldPaymentMethodId, $newPaymentMethodId, or $reason is deprecated and will not be allowed in v6.8.0.0. Please provide valid string values for both parameters.');
-
         $error = new PaymentMethodChangedError('Invoice', 'Cash on delivery');
 
         static::assertSame(

@@ -177,6 +177,8 @@
 
         <service id="Shopware\Core\Content\Product\Garan\GaranLabelMailSubscriber">
             <argument type="service" id="Shopware\Core\Content\Product\Garan\GaranLabelInlineImage"/>
+            <argument type="service" id="product.repository"/>
+            <argument type="service" id="Shopware\Core\Content\Product\Garan\GaranLabelResolver"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

@@ -100,7 +100,7 @@ class Migration1783944800AddGaranLabelTest extends TestCase
         $translations = $this->fetchMailTranslations();
 
         foreach ($translations as $translation) {
-            static::assertStringContainsString('sw_garan_label', $translation['content_html']);
+            static::assertStringContainsString('garanLabels[', $translation['content_html']);
         }
     }
 

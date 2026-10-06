@@ -52,6 +52,7 @@ use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\CustomField\Xml\CustomFields;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\EventDispatcher\CollectingEventDispatcher;
+use Shopware\Tests\Unit\Core\Framework\Plugin\_fixtures\WebRequestPluginLifecycleService;
 use Symfony\Component\Cache\CacheItem;
 use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Clock\NativeClock;
@@ -1142,36 +1143,29 @@ class PluginLifecycleServiceTest extends TestCase
     /**
      * Outside the CLI the service defers the composer removal of an uninstalled plugin to the response.
      */
-    private function createServiceOutsideCli(CommandExecutor $commandExecutor, PluginService $pluginService): PluginLifecycleService&MockObject
+    private function createServiceOutsideCli(CommandExecutor $commandExecutor, PluginService $pluginService): PluginLifecycleService
     {
-        $pluginLifecycleService = $this->getMockBuilder(PluginLifecycleService::class)
-            ->setConstructorArgs([
-                $this->pluginRepoMock,
-                $this->eventDispatcher,
-                $this->kernelPluginCollectionMock,
-                $this->container,
-                $this->migrationLoaderMock,
-                static::createStub(AssetService::class),
-                $commandExecutor,
-                $this->requirementsValidatorMock,
-                $this->cacheItemPoolInterfaceMock,
-                Kernel::SHOPWARE_FALLBACK_VERSION,
-                static::createStub(SystemConfigService::class),
-                static::createStub(CustomEntityPersister::class),
-                static::createStub(CustomEntitySchemaUpdater::class),
-                $pluginService,
-                static::createStub(VersionSanitizer::class),
-                static::createStub(DefinitionInstanceRegistry::class),
-                $this->requestStackMock,
-                static::createStub(CustomFieldSetPersister::class),
-                new MockClock(),
-            ])
-            ->onlyMethods(['isCLI'])
-            ->getMock();
-
-        $pluginLifecycleService->expects($this->once())->method('isCLI')->willReturn(false);
-
-        return $pluginLifecycleService;
+        return new WebRequestPluginLifecycleService(
+            $this->pluginRepoMock,
+            $this->eventDispatcher,
+            $this->kernelPluginCollectionMock,
+            $this->container,
+            $this->migrationLoaderMock,
+            static::createStub(AssetService::class),
+            $commandExecutor,
+            $this->requirementsValidatorMock,
+            $this->cacheItemPoolInterfaceMock,
+            Kernel::SHOPWARE_FALLBACK_VERSION,
+            static::createStub(SystemConfigService::class),
+            static::createStub(CustomEntityPersister::class),
+            static::createStub(CustomEntitySchemaUpdater::class),
+            $pluginService,
+            static::createStub(VersionSanitizer::class),
+            static::createStub(DefinitionInstanceRegistry::class),
+            $this->requestStackMock,
+            static::createStub(CustomFieldSetPersister::class),
+            new MockClock(),
+        );
     }
 
     private function getPluginEntityMock(): PluginEntity

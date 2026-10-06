@@ -291,6 +291,36 @@ class ElementLoweringTest extends TestCase
     }
 
     /**
+     * A dotted root-scoped consumer reads a path INTO a page value (`product.cover` off the `product`
+     * requirement), so the requirement is consumed and must be loaded. Exact-key matching would drop it,
+     * diverging from the delivery predicate — this guards against that regression.
+     */
+    #[TestDox('resolves a page-level requirement consumed only through a dotted root-scoped consumer')]
+    public function testFullModeResolvesARequirementConsumedByADottedRootConsumer(): void
+    {
+        $loader = $this->loader();
+        $loader->expects($this->once())
+            ->method('load')
+            ->willReturn(ContentDataLoaderResult::cached(new StubStruct()));
+
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [
+                StoredElementBuilder::create('Sw:Box', 'child-1')
+                    ->withConsumer('product.cover', ContextType::Single, required: false, scope: ConsumerScope::Root)
+                    ->build(),
+            ])
+            ->build();
+        $wrapper = $this->virtualRoot($root);
+
+        $this->lower(
+            $loader,
+            [$wrapper],
+            [new DataRequirement('product', 'entity', new StubLoaderConfig())],
+            $wrapper
+        );
+    }
+
+    /**
      * Why the wrapper is the input source rather than an arbitrary element: a page-level requirement's
      * `propertyReference` input names a stored key, and the keys it can name are the placeholder values the
      * wrapper carries. The loader receives the placeholder's VALUE, so a run that dereferenced against
@@ -430,7 +460,8 @@ class ElementLoweringTest extends TestCase
                 new ContextDistributor(new ContextPathResolver()),
                 new ContextPathResolver()
             ),
-            new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry()))
+            new RenderedTreeFactory(new RenderedElementFactory($this->typeRegistry())),
+            new ContextPathResolver()
         );
     }
 

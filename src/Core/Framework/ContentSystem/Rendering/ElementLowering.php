@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\ContentSystem\Rendering;
 
 use Shopware\Core\Framework\ContentSystem\Cache\RenderingCacheContext;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -52,6 +53,7 @@ final readonly class ElementLowering
         private ElementDataResolver $dataResolver,
         private ContextDeliveryResolver $deliveryResolver,
         private RenderedTreeFactory $treeFactory,
+        private ContextPathResolver $pathResolver,
     ) {
     }
 
@@ -148,8 +150,22 @@ final readonly class ElementLowering
 
         return array_values(array_filter(
             $pageDataRequirements,
-            static fn (DataRequirement $requirement): bool => \in_array($requirement->key, $rootConsumerKeys, true),
+            fn (DataRequirement $requirement): bool => $this->isConsumed($requirement, $rootConsumerKeys),
         ));
+    }
+
+    /**
+     * @param list<string> $rootConsumerKeys
+     */
+    private function isConsumed(DataRequirement $requirement, array $rootConsumerKeys): bool
+    {
+        foreach ($rootConsumerKeys as $consumerKey) {
+            if ($this->pathResolver->matches($requirement->key, $consumerKey)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

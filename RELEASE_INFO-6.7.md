@@ -58,7 +58,7 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ### Association id paths in API aggregations and sortings
 
-Admin and Store API aggregations and sortings on a to-one association id, such as `manufacturer.id`, now use the foreign key column (`manufacturerId`), as filters already did. Results are unchanged, and the request no longer needs read access to the associated entity. Extensions that inspect criteria built from API requests should match on the foreign key field, such as `product.manufacturerId`, instead of `product.manufacturer.id`.
+Admin and Store API aggregations and sortings on a to-one association id, such as `manufacturer.id`, now use the foreign key column (`manufacturerId`), as filters already did. Results are unchanged, and the request no longer needs read access to the associated entity.
 
 API filters on reverse-inherited associations, such as `product.id` on `product_price` or `product_cross_selling`, now include the rows a variant inherits from its parent again.
 

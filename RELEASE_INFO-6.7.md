@@ -230,6 +230,13 @@ The merged file is now named after its document type and the date of the downloa
 
 Existing integrations and non-admin users therefore lose MCP access until an allowlist is granted, in the Administration under Settings > System > Integrations or on the user detail page.
 
+### Order contexts keep the order's own addresses
+
+When an address of an order no longer matches an address of its customer, for example because the customer edited it, `OrderConverter::assembleSalesChannelContext()` now uses the order's own address instead of the customer's default address. This applies to the billing address and to the shipping address of the order's delivery. Orders without a delivery still fall back to the customer's default shipping address. Recalculations, flows and payment handling of that order therefore use the tax state, tax rules, cash rounding and address rules of the address the order was placed with.
+
+In that case, `getActiveBillingAddress()` and `getActiveShippingAddress()` of the order context's customer return the order's address as a `CustomerAddressEntity`. Its ID is the ID of the `order_address`, not of a `customer_address`. Payment handlers and checkout gateway apps that load or update a customer address by this ID have to handle IDs that are not customer address IDs.
+
+The options passed to `AbstractSalesChannelContextFactory::create()` and returned by `BeforeSalesChannelContextAssembledEvent::getOptions()` can now contain `CustomerAddressEntity` objects under the internal keys `SalesChannelContextService::BILLING_ADDRESS` and `SalesChannelContextService::SHIPPING_ADDRESS`. Decorators and listeners that read these options should not assume that every value is a string or an array.
 ### Sales-channel scoped limits for `system_config` rate limiters
 
 The cart setting "Maximum addable products to cart per minute through API" can be set per sales channel, but only the global value took effect.
@@ -254,6 +261,12 @@ Recounting a promotion's redemptions on order placement is faster, through a new
 ### `dal:validate` checks attribute entities
 
 `bin/console dal:validate` no longer skips attribute entities. They are held to the same rules as `EntityDefinition` classes, for example that a many-to-one must not cascade deletes, and violations name them by their entity class instead of `AttributeEntityDefinition`, also when another definition's check mentions them. If your CI fails on `dal:validate`, or ignores messages that contain `AttributeEntityDefinition`, run it against your extension before updating.
+
+### `SalesChannelContextRestorer::restoreByOrder()` is deprecated
+
+`SalesChannelContextRestorer::restoreByOrder()` now builds the context with `OrderConverter::assembleSalesChannelContext()` and re-evaluates the rules afterwards, as before. Its contexts therefore match every other order context: they use the customer addresses that match the order's addresses instead of the customer's default addresses, and dispatch `BeforeSalesChannelContextAssembledEvent` and `SalesChannelContextAssembledEvent`. They also keep the order's tax status, except that the re-evaluation still drops tax-free when the order no longer qualifies for it. Like the converter, it now fails with `CHECKOUT__CUSTOMER_ADDRESS_NOT_FOUND` when the order's billing address does not exist.
+
+`restoreByOrder()` and `SalesChannelContextRestorerOrderCriteriaEvent` are deprecated and will be removed in 6.8.0.0. Load the order yourself and pass it to `OrderConverter::assembleSalesChannelContext()` instead.
 
 ### Creating a language no longer fails on a drifted Elasticsearch/OpenSearch mapping
 
@@ -284,6 +297,10 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 ### Customer login publishes an extension event
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
+
+### Reduced remote thumbnail URL generation overhead
+
+Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
 
 ## API
 
@@ -488,6 +505,10 @@ migrate it to `useCmsElement` by hand.
 The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
 
 ## Storefront
+
+### Anonymous index components use their directory name
+
+Asset entry names for index components were not resolved correctly to the directory name and still used "index" in their names. Storefront components using an `index.js` or `index.ts` layout are now registered under their directory name, for example `Sw:Comp`. The former `Sw:Comp:index` import-map key is no longer generated, including for existing build manifests. If you used `data-component="Sw:Comp:index"` as a workaround, change it to `data-component="Sw:Comp"`.
 
 ### New line item reference price block
 

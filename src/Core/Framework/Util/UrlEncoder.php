@@ -20,19 +20,27 @@ class UrlEncoder
             return null;
         }
 
-        $path = self::encodePathSegments(rawurldecode($uri->getPath()));
+        $path = self::encodeEachSegment(
+            $uri->getPath(),
+            static fn (string $segment): string => rawurlencode(rawurldecode($segment))
+        );
 
         return (string) $uri->withPath($path)->withFragment('');
     }
 
+    /**
+     * Expects a raw storage path: a "%" is part of the file name and gets encoded, unlike in encodeUrl().
+     */
     public static function encodePathSegments(string $path): string
     {
-        $segments = explode('/', $path);
+        return self::encodeEachSegment($path, rawurlencode(...));
+    }
 
-        foreach ($segments as $index => $segment) {
-            $segments[$index] = rawurlencode($segment);
-        }
-
-        return implode('/', $segments);
+    /**
+     * @param \Closure(string): string $encode
+     */
+    private static function encodeEachSegment(string $path, \Closure $encode): string
+    {
+        return implode('/', array_map($encode, explode('/', $path)));
     }
 }

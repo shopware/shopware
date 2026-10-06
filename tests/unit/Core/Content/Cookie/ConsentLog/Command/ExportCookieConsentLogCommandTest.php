@@ -40,7 +40,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
         $exitCode = $tester->execute([
             '--from' => '2026-01-01',
             '--to' => '2026-07-01',
-            '--sales-channel' => TestDefaults::SALES_CHANNEL,
+            '--sales-channel-id' => TestDefaults::SALES_CHANNEL,
         ]);
 
         static::assertSame(Command::SUCCESS, $exitCode);
@@ -192,7 +192,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
         $storage->expects($this->never())->method('iterate');
 
         $tester = new CommandTester($this->command($storage));
-        $exitCode = $tester->execute(['--sales-channel' => 'not-a-uuid']);
+        $exitCode = $tester->execute(['--sales-channel-id' => 'not-a-uuid']);
 
         static::assertSame(Command::INVALID, $exitCode);
         static::assertStringContainsString('"not-a-uuid" is not a valid sales channel id', $tester->getDisplay());
@@ -207,6 +207,17 @@ class ExportCookieConsentLogCommandTest extends TestCase
         $exitCode = $tester->execute(['--from' => 'yesterday-ish']);
 
         static::assertSame(Command::INVALID, $exitCode);
+        static::assertStringContainsString('Invalid --from or --to date', $tester->getDisplay());
+        static::assertStringContainsString('(yesterday-ish)', $tester->getDisplay());
+    }
+
+    public function testErrorsAreWrittenToStderr(): void
+    {
+        $tester = new CommandTester($this->command(static::createStub(CookieConsentLogStorageInterface::class)));
+        $tester->execute(['--format' => 'xml'], ['capture_stderr_separately' => true]);
+
+        static::assertSame('', $tester->getDisplay());
+        static::assertStringContainsString('Unknown format "xml"', $tester->getErrorOutput());
     }
 
     private function command(CookieConsentLogStorageInterface $storage): ExportCookieConsentLogCommand

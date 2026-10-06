@@ -31,9 +31,6 @@ class CookieGroup extends Struct
 
     protected ?CookieEntryCollection $entries;
 
-    /**
-     * @param string $technicalName identifier of the group that does not change with the translation, part of the serialized struct
-     */
     public function __construct(
         protected readonly string $technicalName,
     ) {

@@ -21,7 +21,17 @@ use Shopware\Core\Framework\Uuid\Uuid;
  *
  * @see \Shopware\Tests\Integration\Core\Content\Cookie\ConsentLog\DatabaseCookieConsentLogStorageTest
  *
- * @phpstan-type LogRow array{id: string, consent_id: string, consent_action: string, group_decisions: string, accepted_cookies: string, config_hash: string, sales_channel_id: string, language_id: string, created_at: string}
+ * @phpstan-type LogRow array{
+ *     id: string,
+ *     consent_id: string,
+ *     consent_action: string,
+ *     group_decisions: string,
+ *     accepted_cookies: string,
+ *     config_hash: string,
+ *     sales_channel_id: string,
+ *     language_id: string,
+ *     created_at: string
+ * }
  */
 #[Package('framework')]
 final class DatabaseCookieConsentLogStorage implements CookieConsentLogStorageInterface

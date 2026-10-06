@@ -49,24 +49,25 @@ class ExportCookieConsentLogCommand extends Command
 
     public function __invoke(
         SymfonyStyle $io,
-        OutputInterface $output,
-        #[Option(description: 'Only decisions recorded at or after this date/time (inclusive)', name: 'from')]
+        #[Option(description: 'Only decisions recorded at or after this date/time (inclusive)')]
         string $from = '1970-01-01',
-        #[Option(description: 'Only decisions recorded before this date/time (exclusive), defaults to now', name: 'to')]
+        #[Option(description: 'Only decisions recorded before this date/time (exclusive), defaults to now')]
         ?string $to = null,
-        #[Option(description: 'Only decisions of this sales channel id', name: 'sales-channel')]
+        #[Option(description: 'Only decisions of this sales channel id')]
         ?string $salesChannelId = null,
-        #[Option(description: 'Output format: json (one array) or csv', name: 'format')]
+        #[Option(description: 'Output format: json (one array) or csv')]
         string $format = self::FORMAT_JSON,
     ): int {
+        $errorIo = $io->getErrorStyle();
+
         if (!\in_array($format, [self::FORMAT_JSON, self::FORMAT_CSV], true)) {
-            $io->error(\sprintf('Unknown format "%s", expected "json" or "csv"', $format));
+            $errorIo->error(\sprintf('Unknown format "%s", expected "json" or "csv"', $format));
 
             return self::INVALID;
         }
 
         if ($salesChannelId !== null && !Uuid::isValid($salesChannelId)) {
-            $io->error(\sprintf('"%s" is not a valid sales channel id', $salesChannelId));
+            $errorIo->error(\sprintf('"%s" is not a valid sales channel id', $salesChannelId));
 
             return self::INVALID;
         }
@@ -75,7 +76,7 @@ class ExportCookieConsentLogCommand extends Command
             $fromDate = new \DateTimeImmutable($from);
             $toDate = new \DateTimeImmutable($to ?? 'now');
         } catch (\Exception $e) {
-            $io->error($e->getMessage());
+            $errorIo->error(\sprintf('Invalid --from or --to date: %s', $e->getMessage()));
 
             return self::INVALID;
         }
@@ -83,9 +84,9 @@ class ExportCookieConsentLogCommand extends Command
         $records = $this->storage->iterate($fromDate, $toDate, $salesChannelId);
 
         if ($format === self::FORMAT_CSV) {
-            $this->writeCsv($output, $records);
+            $this->writeCsv($io, $records);
         } else {
-            $this->writeJson($output, $records);
+            $this->writeJson($io, $records);
         }
 
         return self::SUCCESS;

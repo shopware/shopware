@@ -56,9 +56,17 @@ class CookieConsentLogRoute
     ) {
     }
 
-    #[Route(path: '/store-api/cookie-consent-log', name: 'store-api.cookie.consent-log', methods: [Request::METHOD_POST])]
-    public function log(#[MapRequestPayload(acceptFormat: 'json')] CookieConsentLogPayload $payload, Request $request, SalesChannelContext $salesChannelContext): NoContentResponse
-    {
+    #[Route(
+        path: '/store-api/cookie-consent-log',
+        name: 'store-api.cookie.consent-log',
+        methods: [Request::METHOD_POST],
+    )]
+    public function log(
+        #[MapRequestPayload(acceptFormat: 'json')]
+        CookieConsentLogPayload $payload,
+        Request $request,
+        SalesChannelContext $salesChannelContext,
+    ): NoContentResponse {
         return $this->extensions->publish(
             name: CookieConsentLogRouteExtension::NAME,
             extension: new CookieConsentLogRouteExtension($payload, $request, $salesChannelContext),
@@ -66,8 +74,11 @@ class CookieConsentLogRoute
         );
     }
 
-    private function _log(CookieConsentLogPayload $payload, Request $request, SalesChannelContext $salesChannelContext): NoContentResponse
-    {
+    private function _log(
+        CookieConsentLogPayload $payload,
+        Request $request,
+        SalesChannelContext $salesChannelContext,
+    ): NoContentResponse {
         $this->ensureNotRateLimited($request);
 
         $configuration = $this->cookieRoute->getCookieGroups($request, $salesChannelContext);

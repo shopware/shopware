@@ -82,9 +82,19 @@ class CookieController extends StorefrontController
         return $this->json($cookieRouteResponse->getObject());
     }
 
-    #[Route(path: '/cookie/consent-log', name: 'frontend.cookie.consent.log', options: ['seo' => false], defaults: ['XmlHttpRequest' => true], methods: [Request::METHOD_POST])]
-    public function logConsent(#[MapRequestPayload(acceptFormat: 'json')] CookieConsentLogPayload $payload, Request $request, SalesChannelContext $salesChannelContext): Response
-    {
+    #[Route(
+        path: '/cookie/consent-log',
+        name: 'frontend.cookie.consent.log',
+        options: ['seo' => false],
+        defaults: ['XmlHttpRequest' => true],
+        methods: [Request::METHOD_POST],
+    )]
+    public function logConsent(
+        #[MapRequestPayload(acceptFormat: 'json')]
+        CookieConsentLogPayload $payload,
+        Request $request,
+        SalesChannelContext $salesChannelContext,
+    ): Response {
         return $this->cookieConsentLogRoute->log($payload, $request, $salesChannelContext);
     }
 

@@ -12,7 +12,16 @@ use Shopware\Core\Framework\Log\Package;
  * visitor and lets a data subject retrieve their own records, but it is neither an
  * IP address, a session id nor a customer id.
  *
- * @phpstan-type CookieConsentRecordJson array{consentId: string, consentAction: string, groupDecisions: array<string, string>, acceptedCookies: list<string>, configHash: string, salesChannelId: string, languageId: string, createdAt: string}
+ * @phpstan-type CookieConsentRecordJson array{
+ *     consentId: string,
+ *     consentAction: string,
+ *     groupDecisions: array<string, string>,
+ *     acceptedCookies: list<string>,
+ *     configHash: string,
+ *     salesChannelId: string,
+ *     languageId: string,
+ *     createdAt: string
+ * }
  */
 #[Package('framework')]
 final readonly class CookieConsentRecord implements \JsonSerializable

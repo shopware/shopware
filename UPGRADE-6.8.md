@@ -12,6 +12,8 @@ The flag became an opt-out. Set it to `false` to keep running the legacy impleme
 
 The `@experimental` annotations on the v2 surface were removed. The classes listed in `UPGRADE-6.7.md` ("Document generation v2 experimental public surface", section 6.7.15.0) are now the stable public API. Everything else in the `DocumentV2` namespace stays `@internal`.
 
+The shared document classes moved into `Shopware\Core\Checkout\DocumentV2` with 6.7.16.0 (see "Shared document classes moved to `DocumentV2`" in `UPGRADE-6.7.md`). Their previous class names and service IDs remained available as aliases throughout 6.8 and were removed with 6.9.
+
 ## State machine actions enforce a single destination per source state
 
 A state machine action now maps to exactly one destination state per source state:
@@ -97,6 +99,18 @@ The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now requi
 ## Minimum value constraint added to restockTime field in ProductDefinition
 
 The field `restockTime` of ProductDefinition now requires a minimum value of `0`. Writing a negative value via the API is rejected. Existing negative values are set to `NULL` by a migration, as they previously broke cart calculation for out-of-stock products.
+
+## `RegulationPrice` constructor is private
+
+Matching `ListPrice`, `Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice` is built through its factory, which also computes `discount` and `percentage`:
+
+```php
+// before
+$regulationPrice = new RegulationPrice($price);
+
+// after
+$regulationPrice = RegulationPrice::createFromUnitPrice($unitPrice, $price);
+```
 
 ## Default CMS page ID now persisted for categories
 
@@ -224,7 +238,7 @@ When no Sales Channel business timezone is configured, document rendering no lon
 
 ## Nullable order reference on `DocumentEntity`
 
-The order reference on `Shopware\Core\Checkout\Document\DocumentEntity` became nullable. `getOrderId()` and `getOrderVersionId()` returned `?string` instead of `string`; documents that are not based on an order returned `null`.
+The order reference on `Shopware\Core\Checkout\DocumentV2\DocumentEntity` became nullable. `getOrderId()` and `getOrderVersionId()` returned `?string` instead of `string`; documents that are not based on an order returned `null`.
 
 `DocumentEntity::setOrderId()` and `setOrderVersionId()` accepted `?string`. Extensions overriding these setters had to widen their parameter types accordingly.
 
@@ -251,6 +265,10 @@ Price-based shipping method price matrix ranges are now compared in the default 
 Enable the `SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION` feature flag in 6.7 to preview the behavior before updating to 6.8.
 
 </details>
+
+## Storefront session continues on the token returned by the logout route
+
+After a customer logs out, the storefront session now holds the context token that `\Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute` created and returned in its response body, instead of a separately generated one. Both are fresh anonymous tokens, so no action is required unless an extension relied on the session token differing from the one the logout response returned.
 
 # API
 
@@ -1291,6 +1309,18 @@ public function ensureAccepted(string $route, string $key, ?string $salesChannel
 If your extension extends or decorates `\Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage.php`, implement `increaseToAtLeast(string $configurationId, int $value): void`.
 
 The method must raise the stored increment state to at least the given value without lowering an existing higher state.
+
+## Removal of `SalesChannelContextRestorer::restoreByOrder()`
+
+`\Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer::restoreByOrder()` and `\Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent` were removed. Load the order with the `orderCustomer`, `transactions.stateMachineState` and `primaryOrderDelivery` associations and pass it to `\Shopware\Core\Checkout\Cart\Order\OrderConverter::assembleSalesChannelContext()`. Add associations you used to add through `SalesChannelContextRestorerOrderCriteriaEvent` to that criteria directly.
+
+`restoreByOrder()` also re-evaluated the rules against the order. The assembled context carries the rules stored on the order instead. If you need them re-evaluated, also load the `lineItems` and `deliveries` associations and run the cart rule loader on it:
+
+```php
+$salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
+$cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
+$this->cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior($salesChannelContext->getPermissions()), true);
+```
 
 
 # Administration

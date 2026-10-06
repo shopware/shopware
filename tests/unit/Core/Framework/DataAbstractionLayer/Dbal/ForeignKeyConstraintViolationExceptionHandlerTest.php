@@ -53,7 +53,19 @@ class ForeignKeyConstraintViolationExceptionHandlerTest extends TestCase
             static::createStub(EntityWriteGatewayInterface::class),
         ));
 
-        static::assertSame(ExceptionHandlerInterface::PRIORITY_DEFAULT, $handler->getPriority());
+        static::assertSame(ExceptionHandlerInterface::PRIORITY_LATE, $handler->getPriority());
         static::assertNull($handler->matchException(new \RuntimeException('Unrelated failure')));
+    }
+
+    public function testDeleteRestrictionIsNotTreatedAsAMissingReference(): void
+    {
+        $driverException = PdoDriverException::new(new \PDOException('SQLSTATE[23000]: Integrity constraint violation: 1451 Cannot delete or update a parent row: a foreign key constraint fails (`shopware`.`product_category`, CONSTRAINT `fk.product_category.category_id` FOREIGN KEY (`category_id`) REFERENCES `category` (`id`))'));
+        $handler = new ForeignKeyConstraintViolationExceptionHandler(new StaticDefinitionInstanceRegistry(
+            [],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class),
+        ));
+
+        static::assertNull($handler->matchException(new ForeignKeyConstraintViolationException($driverException, null)));
     }
 }

@@ -22,12 +22,16 @@ class ForeignKeyConstraintViolationExceptionHandler implements ExceptionHandlerI
 
     public function getPriority(): int
     {
-        return ExceptionHandlerInterface::PRIORITY_DEFAULT;
+        return ExceptionHandlerInterface::PRIORITY_LATE;
     }
 
     public function matchException(\Throwable $e): ?\Throwable
     {
         if (!$e instanceof ForeignKeyConstraintViolationException) {
+            return null;
+        }
+
+        if (!\str_contains($e->getMessage(), 'Integrity constraint violation: 1452')) {
             return null;
         }
 

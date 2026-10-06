@@ -17,6 +17,11 @@ use Symfony\Component\Uid\Uuid;
  * @experimental stableVersion:v6.8.0
  *
  * @internal
+ *
+ * Queues `list_changed` notifications in a session's outgoing queue in the session store; the client
+ * receives them with its next request. Changes for every session are pulled, not pushed: notify()
+ * bumps a shared list version and syncSession() queues the notification when a session sees a version
+ * it has not seen yet. See "List change notifications" in `Mcp/AGENTS.md`.
  */
 #[Package('framework')]
 class McpListChangedNotifier
@@ -31,36 +36,74 @@ class McpListChangedNotifier
     private const SESSION_OUTGOING_QUEUE = '_mcp';
     private const SESSION_OUTGOING_QUEUE_KEY = 'outgoing_queue';
 
+    /**
+     * Session data key holding the list versions the session has been notified about.
+     */
+    private const SESSION_SEEN_VERSIONS = 'shopware_list_versions';
+
+    /**
+     * @param McpListVersions|null $listVersions null for a server whose lists only change per session
+     */
     public function __construct(
         private readonly ?SessionStoreInterface $sessionStore,
-        private readonly McpSessionRegistry $sessionRegistry,
+        private readonly ?McpListVersions $listVersions = null,
         private readonly LoggerInterface $logger = new NullLogger(),
     ) {
     }
 
     /**
-     * Broadcasts a list_changed notification to every active MCP session. Use only for
-     * installation-wide capability changes (e.g. app install/uninstall); this is O(active sessions)
-     * per call. For a change that only affects one session, use notifySession() instead.
+     * Announces an installation-wide capability change (e.g. app install or uninstall) to every
+     * session, on every server. Costs one write; each session picks the change up on its next request.
      */
     public function notify(McpListChangedNotificationSet $notifications): void
     {
-        $sessionStore = $this->sessionStore;
-        if ($sessionStore === null || !$notifications->hasChanges()) {
+        if (!$notifications->hasChanges()) {
             return;
         }
 
-        $messages = $this->buildMessages($notifications);
+        $this->listVersions?->bump($notifications);
+    }
 
-        foreach ($this->sessionRegistry->all() as $sessionId) {
-            $this->queueForSession($sessionId, $messages, $sessionStore);
+    /**
+     * Queues `list_changed` for the lists whose version moved since this session last looked. A new
+     * session starts at the current versions, so it gets no notification for changes before it existed.
+     *
+     * Must run after the MCP SDK has persisted its in-memory session, like notifySession().
+     */
+    public function syncSession(string $sessionId): void
+    {
+        if ($this->sessionStore === null || $this->listVersions === null) {
+            return;
         }
+
+        $session = $this->readSession($sessionId, $this->sessionStore);
+        if ($session === null) {
+            return;
+        }
+
+        [$uuid, $sessionData] = $session;
+        $current = $this->listVersions->current();
+        $seen = $sessionData[self::SESSION_SEEN_VERSIONS] ?? null;
+
+        if ($seen === $current) {
+            return;
+        }
+
+        if (\is_array($seen)) {
+            $sessionData = $this->appendToQueue($sessionData, $this->buildMessages(new McpListChangedNotificationSet(
+                tools: ($seen[McpListVersions::TOOLS] ?? null) !== $current[McpListVersions::TOOLS],
+                resources: ($seen[McpListVersions::RESOURCES] ?? null) !== $current[McpListVersions::RESOURCES],
+                prompts: ($seen[McpListVersions::PROMPTS] ?? null) !== $current[McpListVersions::PROMPTS],
+            )));
+        }
+
+        $sessionData[self::SESSION_SEEN_VERSIONS] = $current;
+        $this->sessionStore->write($uuid, Json::encode($sessionData));
     }
 
     /**
      * Queues a list_changed notification for a single MCP session. Use this for session-local
-     * changes (e.g. enabling a toolset for the current session) so the work stays O(1) instead of
-     * touching every active session.
+     * changes (e.g. enabling a toolset for the current session).
      *
      * This writes directly to the session store, so for the session of the current request it must
      * be called AFTER the MCP SDK has persisted its in-memory session (i.e. after the server run
@@ -70,31 +113,32 @@ class McpListChangedNotifier
      */
     public function notifySession(string $sessionId, McpListChangedNotificationSet $notifications): void
     {
-        $sessionStore = $this->sessionStore;
-        if ($sessionStore === null || !$notifications->hasChanges()) {
+        if ($this->sessionStore === null || !$notifications->hasChanges()) {
             return;
         }
 
-        $this->queueForSession($sessionId, $this->buildMessages($notifications), $sessionStore);
+        $session = $this->readSession($sessionId, $this->sessionStore);
+        if ($session === null) {
+            return;
+        }
+
+        [$uuid, $sessionData] = $session;
+        $this->sessionStore->write($uuid, Json::encode($this->appendToQueue($sessionData, $this->buildMessages($notifications))));
     }
 
     /**
-     * @param list<string> $messages
+     * @return array{Uuid, array<string, mixed>}|null
      */
-    private function queueForSession(string $sessionId, array $messages, SessionStoreInterface $sessionStore): void
+    private function readSession(string $sessionId, SessionStoreInterface $sessionStore): ?array
     {
         try {
             $uuid = Uuid::fromString($sessionId);
         } catch (\InvalidArgumentException) {
-            $this->sessionRegistry->remove($sessionId);
-
-            return;
+            return null;
         }
 
         if (!$sessionStore->exists($uuid)) {
-            $this->sessionRegistry->remove($sessionId);
-
-            return;
+            return null;
         }
 
         try {
@@ -106,9 +150,20 @@ class McpListChangedNotifier
                 'exception' => $exception,
             ]);
 
-            return;
+            return null;
         }
 
+        return [$uuid, $sessionData];
+    }
+
+    /**
+     * @param array<string, mixed> $sessionData
+     * @param list<string> $messages
+     *
+     * @return array<string, mixed>
+     */
+    private function appendToQueue(array $sessionData, array $messages): array
+    {
         $mcpData = $sessionData[self::SESSION_OUTGOING_QUEUE] ?? [];
         if (!\is_array($mcpData)) {
             $mcpData = [];
@@ -128,7 +183,8 @@ class McpListChangedNotifier
 
         $mcpData[self::SESSION_OUTGOING_QUEUE_KEY] = $queue;
         $sessionData[self::SESSION_OUTGOING_QUEUE] = $mcpData;
-        $sessionStore->write($uuid, Json::encode($sessionData));
+
+        return $sessionData;
     }
 
     /**

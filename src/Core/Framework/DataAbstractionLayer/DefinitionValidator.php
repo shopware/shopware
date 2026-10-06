@@ -126,6 +126,7 @@ class DefinitionValidator
         'consent_log',
         'mcp_tool_result_cache',
         'mcp_toolset_session',
+        'mcp_list_version',
         'webhook_delivery',
         'webhook_stream',
     ];

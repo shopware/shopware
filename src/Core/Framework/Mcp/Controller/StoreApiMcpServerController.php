@@ -3,13 +3,11 @@
 namespace Shopware\Core\Framework\Mcp\Controller;
 
 use Mcp\Server;
-use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Http\McpHttpTransportFactory;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
-use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Mcp\RateLimit\McpRateLimiter;
 use Shopware\Core\Framework\Mcp\Session\McpSessionIdValidator;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -48,7 +46,6 @@ class StoreApiMcpServerController
         private readonly McpRateLimiter $rateLimiter,
         private readonly McpSessionIdValidator $sessionIdValidator,
         private readonly ?LoggerInterface $logger = null,
-        private readonly ?McpSessionRegistry $sessionRegistry = null,
         private readonly ?McpListChangedNotifier $listChangedNotifier = null,
     ) {
     }
@@ -74,7 +71,6 @@ class StoreApiMcpServerController
         ]);
 
         $psrResponse = $this->server->run($this->transportFactory->createTransport($request));
-        $this->registerSession($psrResponse);
         $this->flushPendingToolsListChanged($request);
 
         return $this->transportFactory->createResponse($psrResponse);
@@ -104,23 +100,5 @@ class StoreApiMcpServerController
             $sessionId,
             new McpListChangedNotificationSet(tools: true, resources: false, prompts: false),
         );
-    }
-
-    /**
-     * Registers the MCP session id emitted on the initialize response so the store-api
-     * listChanged notifier can target this session (mirrors the Admin controller).
-     */
-    private function registerSession(PsrResponseInterface $psrResponse): void
-    {
-        if ($this->sessionRegistry === null) {
-            return;
-        }
-
-        $sessionId = $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
-        if ($sessionId === '') {
-            return;
-        }
-
-        $this->sessionRegistry->register($sessionId);
     }
 }

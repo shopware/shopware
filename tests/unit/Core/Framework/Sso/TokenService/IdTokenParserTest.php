@@ -28,36 +28,20 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 #[CoversClass(IdTokenParser::class)]
 class IdTokenParserTest extends TestCase
 {
-    private const KEY_ID = '742be0d0-038a-4f1a-b70d-d1ecabc2af05';
+    /**
+     * The key pair shared with the other JWT unit tests: valid-jwks.json publishes the public half of private.pem.
+     */
+    private const KEY_FIXTURES = __DIR__ . '/../../JWT/_fixtures';
+
+    private const KEY_ID = 'ibvOgtMeMhihwgJvEw9yxXOs1YX07H34';
 
     private const ISSUER = 'https://base.url';
 
     private MockClock $clock;
 
-    private string $privateKey;
-
-    private string $jwks;
-
     protected function setUp(): void
     {
         $this->clock = new MockClock('2026-01-01 12:00:00');
-
-        $key = openssl_pkey_new(['private_key_bits' => 2048, 'private_key_type' => \OPENSSL_KEYTYPE_RSA]);
-        static::assertNotFalse($key);
-        static::assertTrue(openssl_pkey_export($key, $privateKey));
-        static::assertIsString($privateKey);
-        $this->privateKey = $privateKey;
-
-        $details = openssl_pkey_get_details($key);
-        static::assertIsArray($details);
-        $this->jwks = json_encode(['keys' => [[
-            'use' => 'sig',
-            'kty' => 'RSA',
-            'kid' => self::KEY_ID,
-            'alg' => 'RS256',
-            'n' => self::base64UrlEncode($details['rsa']['n']),
-            'e' => self::base64UrlEncode($details['rsa']['e']),
-        ]]], \JSON_THROW_ON_ERROR);
     }
 
     public function testParse(): void
@@ -95,8 +79,6 @@ class IdTokenParserTest extends TestCase
     private function createIdToken(string $issuer): string
     {
         $now = $this->clock->now();
-        $privateKey = $this->privateKey;
-        static::assertNotSame('', $privateKey);
 
         return Builder::new(new JoseEncoder(), ChainedFormatter::default())
             ->withHeader('kid', self::KEY_ID)
@@ -105,13 +87,8 @@ class IdTokenParserTest extends TestCase
             ->expiresAt($now->modify('+1 hour'))
             ->relatedTo('fake-subject')
             ->withClaim('email', 'fake@email.com')
-            ->getToken(new Sha256(), InMemory::plainText($privateKey))
+            ->getToken(new Sha256(), InMemory::file(self::KEY_FIXTURES . '/private.pem'))
             ->toString();
-    }
-
-    private static function base64UrlEncode(string $value): string
-    {
-        return rtrim(strtr(base64_encode($value), '+/', '-_'), '=');
     }
 
     private function createPublicKeyLoader(): PublicKeyLoader
@@ -126,7 +103,7 @@ class IdTokenParserTest extends TestCase
     private function createClient(): HttpClientInterface
     {
         $response = static::createStub(ResponseInterface::class);
-        $response->method('getContent')->willReturn($this->jwks);
+        $response->method('getContent')->willReturn((string) file_get_contents(self::KEY_FIXTURES . '/valid-jwks.json'));
 
         $client = static::createStub(HttpClientInterface::class);
         $client->method('request')->willReturn($response);

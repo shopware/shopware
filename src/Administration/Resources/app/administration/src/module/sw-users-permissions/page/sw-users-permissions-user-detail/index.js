@@ -82,10 +82,12 @@ export default {
 
         userModuleIconColors: {
             get() {
-                return this.userModuleIconColorsSelection ?? useModuleIconColors().enabled.value;
+                const enabled = this.userModuleIconColorsSelection ?? useModuleIconColors().enabled.value;
+
+                return enabled ? 'module' : 'neutral';
             },
             set(value) {
-                this.userModuleIconColorsSelection = value;
+                this.userModuleIconColorsSelection = value === 'module';
             },
         },
 
@@ -461,7 +463,7 @@ export default {
                     }
                     await this.updateCurrentUser();
                     await useTheme().saveUserTheme(this.userTheme);
-                    await useModuleIconColors().saveUserModuleIconColors(this.userModuleIconColors);
+                    await useModuleIconColors().saveUserModuleIconColors(this.userModuleIconColors === 'module');
                     this.userThemeSelection = null;
                     this.userModuleIconColorsSelection = null;
                 }

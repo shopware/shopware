@@ -18,7 +18,7 @@ class McpReservedToolGroupRuleTest extends RuleTestCase
     public function testExtensionToolInTheDiscoveryGroupFails(): void
     {
         $this->analyse([__DIR__ . '/data/McpReservedToolGroupRule/ExtensionToolInDiscovery.php'], [[
-            'MCP tool "create_cart" must not use the reserved "discovery" group, which is limited to the core discovery tools. Give it a group of its own and select that toolset at connect time with ?toolsets=.',
+            'MCP tool "create_cart" must not use the reserved "discovery" group. Use a group of its own and select it with ?toolsets=.',
             8,
         ]]);
     }
@@ -26,7 +26,7 @@ class McpReservedToolGroupRuleTest extends RuleTestCase
     public function testDiscoveryGroupNamedThroughTheConstantFails(): void
     {
         $this->analyse([__DIR__ . '/data/McpReservedToolGroupRule/ExtensionToolInDiscoveryViaConstant.php'], [[
-            'MCP tool "swag-report" must not use the reserved "discovery" group, which is limited to the core discovery tools. Give it a group of its own and select that toolset at connect time with ?toolsets=.',
+            'MCP tool "swag-report" must not use the reserved "discovery" group. Use a group of its own and select it with ?toolsets=.',
             9,
         ]]);
     }
@@ -34,7 +34,7 @@ class McpReservedToolGroupRuleTest extends RuleTestCase
     public function testAttributesOnInvokeAreCheckedToo(): void
     {
         $this->analyse([__DIR__ . '/data/McpReservedToolGroupRule/ExtensionToolInDiscoveryOnInvoke.php'], [[
-            'MCP tool "lookup_catalog" must not use the reserved "discovery" group, which is limited to the core discovery tools. Give it a group of its own and select that toolset at connect time with ?toolsets=.',
+            'MCP tool "lookup_catalog" must not use the reserved "discovery" group. Use a group of its own and select it with ?toolsets=.',
             8,
         ]]);
     }
@@ -42,7 +42,7 @@ class McpReservedToolGroupRuleTest extends RuleTestCase
     public function testAttributesSplitAcrossClassAndInvokeAreCheckedToo(): void
     {
         $this->analyse([__DIR__ . '/data/McpReservedToolGroupRule/ExtensionToolSplitAcrossClassAndInvoke.php'], [[
-            'MCP tool "get_order" must not use the reserved "discovery" group, which is limited to the core discovery tools. Give it a group of its own and select that toolset at connect time with ?toolsets=.',
+            'MCP tool "get_order" must not use the reserved "discovery" group. Use a group of its own and select it with ?toolsets=.',
             8,
         ]]);
     }
@@ -50,6 +50,11 @@ class McpReservedToolGroupRuleTest extends RuleTestCase
     public function testCoreDiscoveryToolPasses(): void
     {
         $this->analyse([__DIR__ . '/data/McpReservedToolGroupRule/CoreMetaToolInDiscovery.php'], []);
+    }
+
+    public function testUnitTestsMayClaimTheGroup(): void
+    {
+        $this->analyse([__DIR__ . '/data/McpReservedToolGroupRule/UnitTestToolInDiscovery.php'], []);
     }
 
     public function testToolInItsOwnGroupPasses(): void

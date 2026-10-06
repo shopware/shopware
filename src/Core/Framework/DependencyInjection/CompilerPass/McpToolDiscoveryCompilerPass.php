@@ -26,16 +26,15 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 class McpToolDiscoveryCompilerPass implements CompilerPassInterface
 {
     /**
+     * Scope => tool name => class of extension tools moved out of the reserved discovery group.
+     */
+    final public const DEMOTED_DISCOVERY_TOOLS_PARAMETER = 'shopware.mcp.demoted_discovery_tools';
+
+    /**
      * The element kinds the bundle's McpPass resolves against the configured patterns, by the tag it
      * reads each one from. "apps" is replayed there purely so an app pattern counts as used, so it
      * has to be considered here as well.
      */
-    /**
-     * Scope => tool name => class of the tools that claimed the reserved discovery group and were
-     * moved to the fallback toolset. Read by `debug:mcp`.
-     */
-    final public const DEMOTED_DISCOVERY_TOOLS_PARAMETER = 'shopware.mcp.demoted_discovery_tools';
-
     private const BUNDLE_KIND_TAGS = [
         'tools' => 'mcp.tool',
         'prompts' => 'mcp.prompt',
@@ -366,12 +365,10 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
     }
 
     /**
-     * The initial tools/list surface is exactly the discovery meta-tools (tool-search + toolsets-list/
-     * -enable). Every other tool is deferred and only advertised once its toolset is enabled, so a
-     * domain tool cannot leak into the default surface. The group alone is not enough for that: an
-     * extension can claim it too, so only the meta-tools count. Returns the tools that claimed the
-     * group without being one of them (tool name => class); they stay reachable through the
-     * fallback toolset, see McpToolAnalysisCompilerPass.
+     * Advertises only the core discovery tools on the initial tools/list. Returns the other tools in
+     * the discovery group (tool name => class), which move to the fallback toolset.
+     *
+     * @see McpToolAnalysisCompilerPass
      *
      * @param list<string> $serviceIds
      *
@@ -405,7 +402,7 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
 
             $demoted[$toolInfo['name']] = $class;
             $container->log($this, \sprintf(
-                'MCP tool "%s" (%s) claims the reserved "%s" group, which is limited to the core discovery tools. It is moved to the "%s" toolset. Use a group of its own and select it at connect time with ?toolsets= instead.',
+                'MCP tool "%s" (%s) is moved from the reserved "%s" group to "%s".',
                 $toolInfo['name'],
                 $class,
                 McpToolsetRegistry::DISCOVERY_GROUP,

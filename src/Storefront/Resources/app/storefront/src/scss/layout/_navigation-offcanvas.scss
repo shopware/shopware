@@ -49,6 +49,7 @@ Based on custom offcanvas component.
 
 .navigation-offcanvas-link-icon {
     display: inline-flex;
+    flex-shrink: 0;
 
     .loader {
         @include sw-icon-size($icon-base-size * 0.875);
@@ -61,6 +62,11 @@ Based on custom offcanvas component.
     display: flex;
     justify-content: space-between;
     padding: 12px $spacer-md;
+    overflow-wrap: anywhere;
+
+    > * {
+        min-width: 0;
+    }
 
     &.is-home-link,
     &.is-back-link {

@@ -21,6 +21,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelCurrency\SalesChannelCurrencyDefinition;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelLanguage\SalesChannelLanguageDefinition;
+use Shopware\Core\System\SalesChannel\Capability\AbstractSalesChannelTypeCapabilities;
+use Shopware\Core\System\SalesChannel\Capability\SalesChannelTypeCapabilityRegistry;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 use Shopware\Core\System\SalesChannel\Validation\SalesChannelValidator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
@@ -35,6 +37,8 @@ class SalesChannelValidatorTest extends TestCase
 {
     private StaticDefinitionInstanceRegistry $definitionRegistry;
 
+    private SalesChannelTypeCapabilityRegistry $capabilityRegistry;
+
     protected function setUp(): void
     {
         $this->definitionRegistry = new StaticDefinitionInstanceRegistry(
@@ -42,6 +46,8 @@ class SalesChannelValidatorTest extends TestCase
             static::createStub(ValidatorInterface::class),
             static::createStub(EntityWriteGatewayInterface::class)
         );
+
+        $this->capabilityRegistry = new SalesChannelTypeCapabilityRegistry([]);
     }
 
     #[DataProvider('supportedSalesChannelTypeProvider')]
@@ -75,7 +81,7 @@ class SalesChannelValidatorTest extends TestCase
             ]
         );
 
-        (new SalesChannelValidator($connection))->handleSalesChannelLanguageIds($event);
+        (new SalesChannelValidator($connection, $this->capabilityRegistry))->handleSalesChannelLanguageIds($event);
 
         static::assertCount(1, $event->getExceptions()->getExceptions());
         $exception = $event->getExceptions()->getExceptions()[0];
@@ -106,7 +112,7 @@ class SalesChannelValidatorTest extends TestCase
             ]
         );
 
-        (new SalesChannelValidator($connection))->handleSalesChannelLanguageIds($event);
+        (new SalesChannelValidator($connection, $this->capabilityRegistry))->handleSalesChannelLanguageIds($event);
 
         static::assertCount(1, $event->getExceptions()->getExceptions());
         $exception = $event->getExceptions()->getExceptions()[0];
@@ -149,7 +155,7 @@ class SalesChannelValidatorTest extends TestCase
             ]
         );
 
-        (new SalesChannelValidator($connection))->handleSalesChannelLanguageIds($event);
+        (new SalesChannelValidator($connection, $this->capabilityRegistry))->handleSalesChannelLanguageIds($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
@@ -170,7 +176,7 @@ class SalesChannelValidatorTest extends TestCase
 
         $connection = $this->connectionWithLanguageState($salesChannelId, $previousDefaultId, [$previousDefaultId, $newDefaultId]);
 
-        (new SalesChannelValidator($connection))->handleSalesChannelLanguageIds($event);
+        (new SalesChannelValidator($connection, $this->capabilityRegistry))->handleSalesChannelLanguageIds($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
@@ -191,7 +197,7 @@ class SalesChannelValidatorTest extends TestCase
 
         $connection = $this->connectionWithLanguageState($salesChannelId, $previousDefaultId, [$previousDefaultId, $newDefaultId]);
 
-        (new SalesChannelValidator($connection))->handleSalesChannelLanguageIds($event);
+        (new SalesChannelValidator($connection, $this->capabilityRegistry))->handleSalesChannelLanguageIds($event);
 
         static::assertCount(1, $event->getExceptions()->getExceptions());
         $exception = $event->getExceptions()->getExceptions()[0];
@@ -214,7 +220,7 @@ class SalesChannelValidatorTest extends TestCase
 
         $connection = $this->connectionWithLanguageState($salesChannelId, $defaultId, [$defaultId, $secondLanguageId]);
 
-        (new SalesChannelValidator($connection))->handleSalesChannelLanguageIds($event);
+        (new SalesChannelValidator($connection, $this->capabilityRegistry))->handleSalesChannelLanguageIds($event);
 
         static::assertCount(1, $event->getExceptions()->getExceptions());
         $exception = $event->getExceptions()->getExceptions()[0];
@@ -242,7 +248,7 @@ class SalesChannelValidatorTest extends TestCase
             ]
         );
 
-        (new SalesChannelValidator($connection))->handleSalesChannelLanguageIds($event);
+        (new SalesChannelValidator($connection, $this->capabilityRegistry))->handleSalesChannelLanguageIds($event);
 
         static::assertCount(1, $event->getExceptions()->getExceptions());
         $exception = $event->getExceptions()->getExceptions()[0];
@@ -250,8 +256,38 @@ class SalesChannelValidatorTest extends TestCase
         static::assertSame('SYSTEM__NO_GIVEN_DEFAULT_CURRENCY_ID', $exception->getViolations()->get(0)->getCode());
     }
 
-    #[DataProvider('currencyExcludedSalesChannelTypeProvider')]
-    public function testExcludedSalesChannelTypesDoNotRequireDefaultCurrencyInCurrencyList(string $typeId): void
+    #[DataProvider('transactionalSalesChannelTypeProvider')]
+    public function testTransactionalSalesChannelTypesRequireDefaultCurrencyInCurrencyList(string $typeId): void
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([]);
+
+        $event = new PreWriteValidationEvent(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [
+                new InsertCommand(
+                    $this->definitionRegistry->getByEntityName(SalesChannelDefinition::ENTITY_NAME),
+                    [
+                        'type_id' => Uuid::fromHexToBytes($typeId),
+                        'currency_id' => Uuid::fromHexToBytes(Uuid::randomHex()),
+                    ],
+                    ['id' => Uuid::fromHexToBytes(Uuid::randomHex())],
+                    static::createStub(EntityExistence::class),
+                    '/0'
+                ),
+            ]
+        );
+
+        (new SalesChannelValidator($connection, $this->capabilityRegistry))->handleSalesChannelLanguageIds($event);
+
+        static::assertCount(1, $event->getExceptions()->getExceptions());
+        $exception = $event->getExceptions()->getExceptions()[0];
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
+        static::assertSame('SYSTEM__NO_GIVEN_DEFAULT_CURRENCY_ID', $exception->getViolations()->get(0)->getCode());
+    }
+
+    #[DataProvider('nonTransactionalSalesChannelTypeProvider')]
+    public function testNonTransactionalSalesChannelTypesDoNotRequireDefaultCurrencyInCurrencyList(string $typeId): void
     {
         $salesChannelId = Uuid::randomHex();
         $currencyId = Uuid::randomHex();
@@ -274,13 +310,60 @@ class SalesChannelValidatorTest extends TestCase
             ]
         );
 
-        (new SalesChannelValidator($connection))->handleSalesChannelLanguageIds($event);
+        (new SalesChannelValidator($connection, $this->capabilityRegistry))->handleSalesChannelLanguageIds($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
-    #[DataProvider('currencyExcludedSalesChannelTypeProvider')]
-    public function testDeletingDefaultCurrencyOfExcludedSalesChannelTypeIsSkipped(string $typeId): void
+    public function testPluginTypeRegisteredAsTransactionalRequiresDefaultCurrencyInCurrencyList(): void
+    {
+        $pluginTypeId = Uuid::randomHex();
+        $capabilityRegistry = new SalesChannelTypeCapabilityRegistry([
+            new class($pluginTypeId) extends AbstractSalesChannelTypeCapabilities {
+                public function __construct(private readonly string $salesChannelTypeId)
+                {
+                }
+
+                public function getSalesChannelTypeId(): string
+                {
+                    return $this->salesChannelTypeId;
+                }
+
+                public function isTransactional(): bool
+                {
+                    return true;
+                }
+            },
+        ]);
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn([]);
+
+        $event = new PreWriteValidationEvent(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [
+                new InsertCommand(
+                    $this->definitionRegistry->getByEntityName(SalesChannelDefinition::ENTITY_NAME),
+                    [
+                        'type_id' => Uuid::fromHexToBytes($pluginTypeId),
+                        'currency_id' => Uuid::fromHexToBytes(Uuid::randomHex()),
+                    ],
+                    ['id' => Uuid::fromHexToBytes(Uuid::randomHex())],
+                    static::createStub(EntityExistence::class),
+                    '/0'
+                ),
+            ]
+        );
+
+        (new SalesChannelValidator($connection, $capabilityRegistry))->handleSalesChannelLanguageIds($event);
+
+        static::assertCount(1, $event->getExceptions()->getExceptions());
+        $exception = $event->getExceptions()->getExceptions()[0];
+        static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
+        static::assertSame('SYSTEM__NO_GIVEN_DEFAULT_CURRENCY_ID', $exception->getViolations()->get(0)->getCode());
+    }
+
+    #[DataProvider('nonTransactionalSalesChannelTypeProvider')]
+    public function testDeletingDefaultCurrencyOfNonTransactionalSalesChannelTypeIsSkipped(string $typeId): void
     {
         $salesChannelId = Uuid::randomHex();
         $defaultId = Uuid::randomHex();
@@ -301,7 +384,7 @@ class SalesChannelValidatorTest extends TestCase
 
         $connection = $this->connectionWithCurrencyState($salesChannelId, $defaultId, [$defaultId], $typeId);
 
-        (new SalesChannelValidator($connection))->handleSalesChannelLanguageIds($event);
+        (new SalesChannelValidator($connection, $this->capabilityRegistry))->handleSalesChannelLanguageIds($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
@@ -327,12 +410,38 @@ class SalesChannelValidatorTest extends TestCase
 
         $connection = $this->connectionWithCurrencyState($salesChannelId, $currentDefaultId, [$currentDefaultId]);
 
-        (new SalesChannelValidator($connection))->handleSalesChannelLanguageIds($event);
+        (new SalesChannelValidator($connection, $this->capabilityRegistry))->handleSalesChannelLanguageIds($event);
 
         static::assertCount(1, $event->getExceptions()->getExceptions());
         $exception = $event->getExceptions()->getExceptions()[0];
         static::assertInstanceOf(WriteConstraintViolationException::class, $exception);
         static::assertSame('SYSTEM__CANNOT_UPDATE_DEFAULT_CURRENCY_ID', $exception->getViolations()->get(0)->getCode());
+    }
+
+    #[DataProvider('nonTransactionalSalesChannelTypeProvider')]
+    public function testUpdatingDefaultCurrencyOfNonTransactionalSalesChannelTypeIsSkipped(string $typeId): void
+    {
+        $salesChannelId = Uuid::randomHex();
+        $currentDefaultId = Uuid::randomHex();
+
+        $event = new PreWriteValidationEvent(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [
+                new UpdateCommand(
+                    $this->definitionRegistry->getByEntityName(SalesChannelDefinition::ENTITY_NAME),
+                    ['currency_id' => Uuid::fromHexToBytes(Uuid::randomHex())],
+                    ['id' => Uuid::fromHexToBytes($salesChannelId)],
+                    static::createStub(EntityExistence::class),
+                    '/0'
+                ),
+            ]
+        );
+
+        $connection = $this->connectionWithCurrencyState($salesChannelId, $currentDefaultId, [$currentDefaultId], $typeId);
+
+        (new SalesChannelValidator($connection, $this->capabilityRegistry))->handleSalesChannelLanguageIds($event);
+
+        static::assertCount(0, $event->getExceptions()->getExceptions());
     }
 
     public function testDeletingDefaultCurrencyFails(): void
@@ -356,7 +465,7 @@ class SalesChannelValidatorTest extends TestCase
 
         $connection = $this->connectionWithCurrencyState($salesChannelId, $defaultId, [$defaultId]);
 
-        (new SalesChannelValidator($connection))->handleSalesChannelLanguageIds($event);
+        (new SalesChannelValidator($connection, $this->capabilityRegistry))->handleSalesChannelLanguageIds($event);
 
         static::assertCount(1, $event->getExceptions()->getExceptions());
         $exception = $event->getExceptions()->getExceptions()[0];
@@ -387,7 +496,7 @@ class SalesChannelValidatorTest extends TestCase
 
         $connection = $this->connectionWithCurrencyState($salesChannelId, $currencyId, [$currencyId]);
 
-        (new SalesChannelValidator($connection))->handleSalesChannelLanguageIds($event);
+        (new SalesChannelValidator($connection, $this->capabilityRegistry))->handleSalesChannelLanguageIds($event);
 
         static::assertCount(0, $event->getExceptions()->getExceptions());
     }
@@ -406,10 +515,20 @@ class SalesChannelValidatorTest extends TestCase
     /**
      * @return iterable<string, array{string}>
      */
-    public static function currencyExcludedSalesChannelTypeProvider(): iterable
+    public static function transactionalSalesChannelTypeProvider(): iterable
+    {
+        yield 'storefront' => [Defaults::SALES_CHANNEL_TYPE_STOREFRONT];
+        yield 'headless' => [Defaults::SALES_CHANNEL_TYPE_API];
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function nonTransactionalSalesChannelTypeProvider(): iterable
     {
         yield 'product comparison' => [Defaults::SALES_CHANNEL_TYPE_PRODUCT_COMPARISON];
         yield 'agentic commerce' => [Defaults::SALES_CHANNEL_TYPE_AGENTIC_COMMERCE];
+        yield 'plugin type without registration' => [Uuid::randomHex()];
     }
 
     private function updateDefaultLanguageCommand(string $salesChannelId, string $languageId): UpdateCommand

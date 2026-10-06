@@ -498,27 +498,30 @@ migrate it to `useCmsElement` by hand.
 
 ### Translate and route in extension `<script setup>` components (experimental)
 
-`shopware:composables` now also provides the Administration's own `useI18n` from vue-i18n and `useRoute`
-and `useRouter` from vue-router. They return the Administration's i18n instance and router, so an
-extension component no longer needs `Shopware.Snippet` to translate in `setup()`:
+`shopware:composables` now also provides the Administration's own `useI18n` from vue-i18n, and
+`shopware:composables/router` the vue-router composables `useRoute`, `useRouter`, `onBeforeRouteLeave` and
+`onBeforeRouteUpdate`. They use the Administration's i18n instance and router, so an extension component
+no longer needs `Shopware.Snippet` to translate in `setup()`, and can guard leaving a route:
 
 ```ts
 // Before
 const message = computed(() => Shopware.Snippet.t('swag-example.hint', { count: count.value }));
 
 // After
-import { useI18n, useRoute, useRouter } from 'shopware:composables';
+import { useI18n } from 'shopware:composables';
+import { useRoute, onBeforeRouteLeave } from 'shopware:composables/router';
 
 const { t } = useI18n();
 const route = useRoute();
-const router = useRouter();
 const message = computed(() => t('swag-example.hint', { count: count.value }));
+onBeforeRouteLeave(() => !isDirty.value);
 ```
 
 Do not install `vue-i18n` or `vue-router` in an extension and import from them: an extension's own copy
 does not find the Administration's i18n instance or router. Called without options, `useI18n()` returns
 the global composer, so `t()` finds all registered snippets and falls back to the Administration's
-fallback locale. Like the other composables, the three are annotated `@experimental stableVersion:v6.9.0`.
+fallback locale. The SFC migration codemod imports `useI18n`, `useRoute` and `useRouter` from these modules
+as well. Like the other composables, they are annotated `@experimental stableVersion:v6.9.0`.
 
 ### Mail template trigger event is preselected
 

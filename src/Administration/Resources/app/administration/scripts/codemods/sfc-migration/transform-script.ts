@@ -136,17 +136,26 @@ function propsArgument(ctx: Ctx, collected: Collected, usesProps: boolean): stri
 }
 
 /**
- * The import lines of the composables replacing the mixins. The Administration and extensions import them
- * the same way, from `shopware:composables`. Only an unpublished one, which resolveMixins refuses for an
- * extension, falls back to its Administration file.
+ * The import lines of the composables replacing the mixins and `$t`, `$route` and `$router`. The
+ * Administration and extensions import them the same way, from `shopware:composables`: an extension's own
+ * copy of vue-i18n or vue-router would not find the app's i18n instance or router. Only an unpublished
+ * mixin composable, which resolveMixins refuses for an extension, falls back to its Administration file.
  */
-function composableImports(composables: ResolvedComposable[]): string[] {
+function composableImports(ctx: Ctx, composables: ResolvedComposable[]): string[] {
     const imports = composables.map(({ descriptor }) => descriptor.import);
-    const published = imports.filter(({ name }) => PUBLISHED_COMPOSABLES.has(name)).map(({ name }) => name);
+    const published = [
+        ...(ctx.helpers.has('t') ? ['useI18n'] : []),
+        ...imports.filter(({ name }) => PUBLISHED_COMPOSABLES.has(name)).map(({ name }) => name),
+    ];
     const unpublished = imports.filter(({ name }) => !PUBLISHED_COMPOSABLES.has(name));
+    const routerImports = [
+        ...(ctx.helpers.has('router') ? ['useRouter'] : []),
+        ...(ctx.helpers.has('route') ? ['useRoute'] : []),
+    ];
 
     return [
         ...(published.length > 0 ? [`import { ${published.join(', ')} } from 'shopware:composables';`] : []),
+        ...(routerImports.length > 0 ? [`import { ${routerImports.join(', ')} } from 'shopware:composables/router';`] : []),
         ...unpublished.map(({ name, source }) => `import ${name} from '${source}';`),
     ];
 }
@@ -173,10 +182,6 @@ function renderScript(
         ...(ctx.helpers.has('attrs') ? ['useAttrs'] : []),
         ...[...new Set(collected.hooks.map((hook) => hook.hook))],
     ];
-    const routerImports = [
-        ...(ctx.helpers.has('router') ? ['useRouter'] : []),
-        ...(ctx.helpers.has('route') ? ['useRoute'] : []),
-    ];
 
     const mixinEvents = [...new Set(composables.flatMap(({ descriptor }) => Object.values(descriptor.emits ?? {})))];
     const emitsText = emitsArgument(ctx, collected, mixinEvents, usesEmit);
@@ -186,9 +191,7 @@ function renderScript(
     // multi-line members keep a blank line between them.
     const importBlock = [
         vueImports.length > 0 ? `import { ${vueImports.join(', ')} } from 'vue';` : null,
-        ctx.helpers.has('t') ? "import { useI18n } from 'vue-i18n';" : null,
-        routerImports.length > 0 ? `import { ${routerImports.join(', ')} } from 'vue-router';` : null,
-        ...composableImports(composables),
+        ...composableImports(ctx, composables),
     ]
         .filter(Boolean)
         .join('\n');

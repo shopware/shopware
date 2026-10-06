@@ -20,7 +20,7 @@ export default {
 
     methods: {
         onGreet() {
-            this.createNotificationSuccess({ message: 'greeted' });
+            this.createNotificationSuccess({ message: this.$t('sw-mixin-composable.greeted') });
         },
     },
 };

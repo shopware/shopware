@@ -149,6 +149,7 @@
     },
     "shopware:composables": {
         "exports": [
+            "router",
             "useCmsElement",
             "useCmsState",
             "useI18n",
@@ -160,8 +161,6 @@
             "useNotificationTranslation",
             "usePlaceholder",
             "usePosition",
-            "useRoute",
-            "useRouter",
             "useRuleBetweenOperator",
             "useRuleContainer",
             "useSalutation",
@@ -171,6 +170,12 @@
             "useVideoCover"
         ],
         "subpaths": {
+            "router": [
+                "useRoute",
+                "useRouter",
+                "onBeforeRouteLeave",
+                "onBeforeRouteUpdate"
+            ],
             "useCmsElement": [],
             "useCmsState": [],
             "useI18n": [],
@@ -182,8 +187,6 @@
             "useNotificationTranslation": [],
             "usePlaceholder": [],
             "usePosition": [],
-            "useRoute": [],
-            "useRouter": [],
             "useRuleBetweenOperator": [],
             "useRuleContainer": [],
             "useSalutation": [],

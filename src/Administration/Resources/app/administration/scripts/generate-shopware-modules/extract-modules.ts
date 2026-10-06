@@ -27,11 +27,14 @@
  *       shopware:data/Criteria  default only, like every class subpath
  *
  * `Shopware.Composables` — src/app/composables/index.ts
- * The same literal shape and output as the data branch:
+ * The same literal shape and output as the data branch, plus namespaces: a file whose default export is
+ * an object literal, read by following the import of `index.ts`:
  *
- *     export default { useCmsElement, useListing, … };
+ *     import router from './router';      // router.ts: export default { useRoute, useRouter, … };
+ *     export default { router, useCmsElement, useListing, … };
  *
- *     → shopware:composables             named exports { useCmsElement, useListing, … }
+ *     → shopware:composables             named exports { router, useCmsElement, useListing, … }
+ *       shopware:composables/router      default is the namespace, named exports { useRoute, useRouter, … }
  *       shopware:composables/useListing  default only, like every composable file
  *
  * `Shopware.Mixin` — src/global.types.ts, `interface MixinContainer`
@@ -204,6 +207,49 @@ function namedObjectExports(sourceFile: ts.SourceFile): Record<string, string[]>
 }
 
 /**
+ * The composable namespaces, as name → its keys, read from the files the composables index imports.
+ *
+ * A composable is a function and stays default-only. A namespace groups library composables that belong
+ * together, and its file default-exports them as an object literal:
+ *
+ *     // src/app/composables/router.ts
+ *     export default { useRoute, useRouter, onBeforeRouteLeave, onBeforeRouteUpdate };
+ *
+ *     → { router: ["useRoute", "useRouter", "onBeforeRouteLeave", "onBeforeRouteUpdate"] }
+ *
+ * Joined with the default export of the index by the local import name, so `import router from './router'`
+ * pairs with the `router` key.
+ */
+function composableNamespaces(administrationRoot: string, indexSource: ts.SourceFile): Record<string, string[]> {
+    const namespaces: Record<string, string[]> = {};
+    const indexDirectory = path.posix.dirname(COMPOSABLES_SOURCE);
+
+    indexSource.statements.forEach((statement) => {
+        if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) {
+            return;
+        }
+
+        const name = statement.importClause?.name?.text;
+        const specifier = statement.moduleSpecifier.text;
+
+        if (name === undefined || !specifier.startsWith('./')) {
+            return;
+        }
+
+        const source = parse(administrationRoot, `${path.posix.join(indexDirectory, specifier)}.ts`);
+        // A composable file default-exports a function declaration or re-exports one, neither of which
+        // is an ExportAssignment of an object literal.
+        const literal = source.statements.find(ts.isExportAssignment)?.expression;
+
+        if (literal && ts.isObjectLiteralExpression(literal)) {
+            namespaces[name] = objectLiteralKeys(literal);
+        }
+    });
+
+    return namespaces;
+}
+
+/**
  * The member names of a declared `interface`, which is where the two runtime registries write down what
  * they hold.
  *
@@ -356,6 +402,7 @@ export function extractModuleRegistry(administrationRoot: string): ModuleRegistr
 
     const composablesSource = parse(administrationRoot, COMPOSABLES_SOURCE);
     const composableKeys = objectLiteralKeys(defaultExportLiteral(composablesSource, COMPOSABLES_SOURCE));
+    const composablesByNamespace = composableNamespaces(administrationRoot, composablesSource);
 
     const globalTypes = parse(administrationRoot, GLOBAL_TYPES_SOURCE);
 
@@ -375,7 +422,12 @@ export function extractModuleRegistry(administrationRoot: string): ModuleRegistr
         },
         'shopware:composables': {
             exports: composableKeys,
-            subpaths: defaultOnlySubpaths(composableKeys),
+            subpaths: Object.fromEntries(
+                composableKeys.map((key) => [
+                    key,
+                    composablesByNamespace[key] ?? [],
+                ]),
+            ),
         },
         'shopware:mixins': {
             exports: [],

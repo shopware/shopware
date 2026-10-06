@@ -409,6 +409,7 @@ declare module 'shopware:composables' {
     const members: typeof branch;
 
     export default members;
+    export const router: (typeof members)['router'];
     export const useCmsElement: (typeof members)['useCmsElement'];
     export const useCmsState: (typeof members)['useCmsState'];
     export const useI18n: (typeof members)['useI18n'];
@@ -420,8 +421,6 @@ declare module 'shopware:composables' {
     export const useNotificationTranslation: (typeof members)['useNotificationTranslation'];
     export const usePlaceholder: (typeof members)['usePlaceholder'];
     export const usePosition: (typeof members)['usePosition'];
-    export const useRoute: (typeof members)['useRoute'];
-    export const useRouter: (typeof members)['useRouter'];
     export const useRuleBetweenOperator: (typeof members)['useRuleBetweenOperator'];
     export const useRuleContainer: (typeof members)['useRuleContainer'];
     export const useSalutation: (typeof members)['useSalutation'];
@@ -429,6 +428,19 @@ declare module 'shopware:composables' {
     export const useUserSettings: (typeof members)['useUserSettings'];
     export const useValidation: (typeof members)['useValidation'];
     export const useVideoCover: (typeof members)['useVideoCover'];
+}
+
+/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
+declare module 'shopware:composables/router' {
+    import type branch from 'src/app/composables/index';
+
+    const member: (typeof branch)['router'];
+
+    export default member;
+    export const useRoute: (typeof member)['useRoute'];
+    export const useRouter: (typeof member)['useRouter'];
+    export const onBeforeRouteLeave: (typeof member)['onBeforeRouteLeave'];
+    export const onBeforeRouteUpdate: (typeof member)['onBeforeRouteUpdate'];
 }
 
 /** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
@@ -526,24 +538,6 @@ declare module 'shopware:composables/usePosition' {
     import type branch from 'src/app/composables/index';
 
     const member: (typeof branch)['usePosition'];
-
-    export default member;
-}
-
-/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
-declare module 'shopware:composables/useRoute' {
-    import type branch from 'src/app/composables/index';
-
-    const member: (typeof branch)['useRoute'];
-
-    export default member;
-}
-
-/** @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES */
-declare module 'shopware:composables/useRouter' {
-    import type branch from 'src/app/composables/index';
-
-    const member: (typeof branch)['useRouter'];
 
     export default member;
 }

@@ -4,7 +4,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { useI18n } from 'vue-i18n';
-import { useRoute, useRouter } from 'vue-router';
+import { onBeforeRouteLeave, onBeforeRouteUpdate, useRoute, useRouter } from 'vue-router';
 import composables from './index';
 
 jest.unmock('./index');
@@ -26,13 +26,14 @@ function taggedComposables(): string[] {
 }
 
 describe('src/app/composables/index', () => {
-    it('publishes exactly the composables tagged as mixin replacements', () => {
-        expect(Object.keys(composables).sort()).toEqual(taggedComposables().sort());
+    it('publishes exactly the composables tagged as mixin replacements, next to the router namespace', () => {
+        const flatComposables = Object.keys(composables).filter((key) => key !== 'router');
+
+        expect(flatComposables.sort()).toEqual(taggedComposables().sort());
     });
 
     it('publishes the very vue-i18n and vue-router composables the app installs its plugins with', () => {
         expect(composables.useI18n).toBe(useI18n);
-        expect(composables.useRoute).toBe(useRoute);
-        expect(composables.useRouter).toBe(useRouter);
+        expect(composables.router).toEqual({ useRoute, useRouter, onBeforeRouteLeave, onBeforeRouteUpdate });
     });
 });

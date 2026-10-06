@@ -59,8 +59,8 @@
       "labelVatId": "VAT Reg.No.",
       "placeholderVatId": "Enter VAT Reg.No...",
       "warningVatIdRequired": "The billing country requires a VAT Reg.No., but none is stored for this customer.",
-      "warningVatIdFormatNotCorrect": "The VAT Reg.No. does not match the format required by the billing country. The customer can only be saved once it is corrected.",
-      "warningVatIdFormatUnusual": "The VAT Reg.No. does not match the usual format of the billing country. Please check it."
+      "warningVatIdFormatNotCorrect": "The VAT Reg.No. does not have a valid format. The customer can only be saved once it is corrected.",
+      "warningVatIdFormatUnusual": "The VAT Reg.No. does not have the usual format. Please check it."
     },
     "list": {
       "textCustomers": "Customers",

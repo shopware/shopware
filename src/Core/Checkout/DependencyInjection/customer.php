@@ -88,6 +88,7 @@ use Shopware\Core\Checkout\Customer\Validation\CustomerProfileValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\CustomerValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\PasswordValidationFactory;
 use Shopware\Core\Checkout\Customer\Validation\VatIdPatternProvider;
+use Shopware\Core\Checkout\Customer\Validation\VatIdPatternTwigExtension;
 use Shopware\Core\Content\Media\File\DownloadResponseGenerator;
 use Shopware\Core\Content\Newsletter\DataAbstractionLayer\Indexing\CustomerNewsletterSalesChannelsUpdater;
 use Shopware\Core\Content\Product\SalesChannel\ProductCloseoutFilterFactory;
@@ -215,6 +216,12 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(SystemConfigService::class),
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
+
+    $services->set(VatIdPatternTwigExtension::class)
+        ->args([
+            service(VatIdPatternProvider::class),
+        ])
+        ->tag('twig.extension');
 
     $services->set(CustomerVatIdentificationValidator::class)
         ->args([

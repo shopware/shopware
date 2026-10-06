@@ -13,6 +13,23 @@
         {% endif %}
     {% endfor %}
 
+    {% set vatIdAttributes = {
+        'data-form-validation-pattern-message': 'error.VIOLATION::VAT_ID_FORMAT_NOT_CORRECT'|trans|sw_sanitize,
+        'data-vat-id-format-warning': 'address.companyVatFormatWarning'|trans|sw_sanitize,
+        'data-eu-vat-id-patterns': sw_eu_vat_id_patterns()|json_encode,
+    } %}
+
+    {# Forms without a country select, like the customer profile, pass the country the VAT ID is validated against #}
+    {% if billingCountry is defined and billingCountry %}
+        {% set vatIdAttributes = vatIdAttributes|merge({
+            'data-country-state-select': 'true',
+            'data-vat-id-required': billingCountry.vatIdRequired ? '1' : '',
+            'data-vat-id-pattern': billingCountry.vatIdPattern,
+            'data-check-vat-id-pattern': billingCountry.checkVatIdPattern ? '1' : '',
+            'data-is-eu': billingCountry.isEu ? '1' : '',
+        }) %}
+    {% endif %}
+
     {% block component_account_register_personal_vat_id_field_input %}
         {% sw_include '@Storefront/storefront/component/form/form-input.html.twig' with {
             label: 'address.companyVatLabel'|trans|sw_sanitize,
@@ -23,10 +40,7 @@
             violationPath: violationPath,
             validationRules: vatIdRequired ? 'required' : '',
             additionalClass: 'col-md-6',
-            attributes: {
-                'data-form-validation-pattern-message': 'error.VIOLATION::VAT_ID_FORMAT_NOT_CORRECT'|trans|sw_sanitize,
-                'data-vat-id-format-warning': 'address.companyVatFormatWarning'|trans|sw_sanitize,
-            },
+            attributes: vatIdAttributes,
         } %}
     {% endblock %}
 {% endblock %}

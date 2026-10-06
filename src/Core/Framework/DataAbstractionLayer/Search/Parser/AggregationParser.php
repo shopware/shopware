@@ -214,7 +214,7 @@ class AggregationParser
             return null;
         }
 
-        if (empty($aggregation['field']) && $type !== 'filter') {
+        if ($type !== 'filter' && (!\is_string($aggregation['field'] ?? null) || $aggregation['field'] === '')) {
             $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The aggregation should contain a "field".'), '/aggregations/' . $index . '/' . $type . '/field');
 
             return null;
@@ -268,12 +268,12 @@ class AggregationParser
                 return new EntityAggregation($name, $field, $aggregation['definition']);
 
             case 'filter':
-                if (empty($aggregation['filter'])) {
+                if (!\is_array($aggregation['filter'] ?? null) || $aggregation['filter'] === []) {
                     $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The aggregation should contain an array of filters in property "filter".'), '/aggregations/' . $index . '/' . $type . '/field');
 
                     return null;
                 }
-                if (empty($aggregation['aggregation'])) {
+                if (!\is_array($aggregation['aggregation'] ?? null) || $aggregation['aggregation'] === []) {
                     $exceptions->add(DataAbstractionLayerException::invalidAggregationQuery('The aggregation should contain an array of filters in property "filter".'), '/aggregations/' . $index . '/' . $type . '/field');
 
                     return null;

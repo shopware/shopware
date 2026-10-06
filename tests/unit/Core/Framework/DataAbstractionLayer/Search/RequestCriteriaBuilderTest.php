@@ -809,6 +809,45 @@ class RequestCriteriaBuilderTest extends TestCase
         ];
     }
 
+    /**
+     * @param array<string, mixed> $aggregation
+     */
+    #[DataProvider('invalidAggregationProvider')]
+    public function testInvalidAggregation(array $aggregation, string $message, string $pointer): void
+    {
+        try {
+            $this->requestCriteriaBuilder->fromArray(
+                ['aggregations' => [['name' => 'agg'] + $aggregation]],
+                new Criteria(),
+                $this->staticDefinitionRegistry->get(ProductDefinition::class),
+                Context::createDefaultContext()
+            );
+        } catch (SearchRequestException $e) {
+            $errors = iterator_to_array($e->getErrors(), false);
+            static::assertCount(1, $errors);
+            static::assertSame($message, $errors[0]['detail']);
+            static::assertSame($pointer, $errors[0]['source']['pointer']);
+
+            return;
+        }
+
+        static::fail('Expected a SearchRequestException');
+    }
+
+    public static function invalidAggregationProvider(): \Generator
+    {
+        $missingField = 'The aggregation should contain a "field".';
+        $missingFilter = 'The aggregation should contain an array of filters in property "filter".';
+
+        yield 'missing field' => [['type' => 'terms'], $missingField, '/aggregations/0/terms/field'];
+        yield 'empty field' => [['type' => 'terms', 'field' => ''], $missingField, '/aggregations/0/terms/field'];
+        yield 'non string field' => [['type' => 'terms', 'field' => 5], $missingField, '/aggregations/0/terms/field'];
+        yield 'missing filter' => [['type' => 'filter', 'aggregation' => ['name' => 'nested', 'type' => 'count', 'field' => 'id']], $missingFilter, '/aggregations/0/filter/field'];
+        yield 'non array filter' => [['type' => 'filter', 'filter' => 'name', 'aggregation' => ['name' => 'nested', 'type' => 'count', 'field' => 'id']], $missingFilter, '/aggregations/0/filter/field'];
+        yield 'missing nested aggregation' => [['type' => 'filter', 'filter' => [['type' => 'equals', 'field' => 'name', 'value' => 'foo']]], $missingFilter, '/aggregations/0/filter/field'];
+        yield 'non array nested aggregation' => [['type' => 'filter', 'filter' => [['type' => 'equals', 'field' => 'name', 'value' => 'foo']], 'aggregation' => 'count'], $missingFilter, '/aggregations/0/filter/field'];
+    }
+
     public function testSimpleFilterAddsExceptionWithBlankKey(): void
     {
         $payload = [

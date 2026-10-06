@@ -496,6 +496,30 @@ extension component looks like a migrated Administration one. In an extension, a
 the `cms-element` mixin is skipped, because its `useCmsElementDeprecated` replacement is not published;
 migrate it to `useCmsElement` by hand.
 
+### Translate and route in extension `<script setup>` components (experimental)
+
+`shopware:composables` now also provides the Administration's own `useI18n` from vue-i18n and `useRoute`
+and `useRouter` from vue-router. They return the Administration's i18n instance and router, so an
+extension component no longer needs `Shopware.Snippet` to translate in `setup()`:
+
+```ts
+// Before
+const message = computed(() => Shopware.Snippet.t('swag-example.hint', { count: count.value }));
+
+// After
+import { useI18n, useRoute, useRouter } from 'shopware:composables';
+
+const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
+const message = computed(() => t('swag-example.hint', { count: count.value }));
+```
+
+Do not install `vue-i18n` or `vue-router` in an extension and import from them: an extension's own copy
+does not find the Administration's i18n instance or router. Called without options, `useI18n()` returns
+the global composer, so `t()` finds all registered snippets and falls back to the Administration's
+fallback locale. Like the other composables, the three are annotated `@experimental stableVersion:v6.9.0`.
+
 ### Mail template trigger event is preselected
 
 The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.

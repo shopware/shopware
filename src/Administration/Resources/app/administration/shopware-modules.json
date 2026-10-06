@@ -151,6 +151,7 @@
         "exports": [
             "useCmsElement",
             "useCmsState",
+            "useI18n",
             "useInlineSnippet",
             "useListing",
             "useMediaGridListener",
@@ -159,6 +160,8 @@
             "useNotificationTranslation",
             "usePlaceholder",
             "usePosition",
+            "useRoute",
+            "useRouter",
             "useRuleBetweenOperator",
             "useRuleContainer",
             "useSalutation",
@@ -170,6 +173,7 @@
         "subpaths": {
             "useCmsElement": [],
             "useCmsState": [],
+            "useI18n": [],
             "useInlineSnippet": [],
             "useListing": [],
             "useMediaGridListener": [],
@@ -178,6 +182,8 @@
             "useNotificationTranslation": [],
             "usePlaceholder": [],
             "usePosition": [],
+            "useRoute": [],
+            "useRouter": [],
             "useRuleBetweenOperator": [],
             "useRuleContainer": [],
             "useSalutation": [],

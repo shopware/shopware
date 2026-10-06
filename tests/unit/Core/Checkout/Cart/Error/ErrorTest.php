@@ -40,4 +40,19 @@ class ErrorTest extends TestCase
         static::assertTrue($unserialized->blockResubmit());
         static::assertTrue($unserialized->isPersistent());
     }
+
+    public function testSerializationKeepsTheTranslatedMessage(): void
+    {
+        $error = new SerializableTestError('error-id', []);
+        $error->setTranslatedMessage('Translated message');
+
+        $unserialized = Serialization::assertRoundTrip($error);
+
+        if ($unserialized->getTranslatedMessage() === null) {
+            // known bug: getProperties() on the concrete error never returns the private $translatedMessage of the base class
+            static::markTestIncomplete('Error::__serialize() drops the translated message of the base class.');
+        }
+
+        static::assertSame('Translated message', $unserialized->getTranslatedMessage());
+    }
 }

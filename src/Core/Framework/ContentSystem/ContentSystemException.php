@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\ContentSystem;
 
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
@@ -69,6 +70,7 @@ class ContentSystemException extends HttpException
     public const MUTATION_PROPERTY_CONFLICT = 'CONTENT_SYSTEM__MUTATION_PROPERTY_CONFLICT';
     public const MUTATION_PROPERTY_VALUE_REJECTED = 'CONTENT_SYSTEM__MUTATION_PROPERTY_VALUE_REJECTED';
     public const MUTATION_PROPERTY_LANGUAGE_KEY_INVALID = 'CONTENT_SYSTEM__MUTATION_PROPERTY_LANGUAGE_KEY_INVALID';
+    public const MUTATION_PROPERTY_NOT_TRANSLATABLE = 'CONTENT_SYSTEM__MUTATION_PROPERTY_NOT_TRANSLATABLE';
 
     public const LAYOUT_VERSION_CONFLICT = 'CONTENT_SYSTEM__LAYOUT_VERSION_CONFLICT';
     public const INVALID_VERSION_TOKEN = 'CONTENT_SYSTEM__INVALID_VERSION_TOKEN';
@@ -836,6 +838,27 @@ class ContentSystemException extends HttpException
             'Language key "{{ languageKey }}" of translatable property "{{ key }}" of element "{{ elementId }}" is not a language id in lowercase UUID hex.',
             ['elementId' => $elementId, 'key' => $key, 'languageKey' => $languageKey]
         );
+    }
+
+    /**
+     * A mutation structural error like {@see mutationTargetNotFound()}, deliberately outside {@see CLIENT_DEFECT_CODES}.
+     */
+    public static function mutationPropertyNotTranslatable(string $elementId, string $key): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::MUTATION_PROPERTY_NOT_TRANSLATABLE,
+            'Property "{{ key }}" is not a translatable property declared by the type of element "{{ elementId }}".',
+            ['elementId' => $elementId, 'key' => $key]
+        );
+    }
+
+    /**
+     * @param list<string> $privileges
+     */
+    public static function missingPrivileges(array $privileges): MissingPrivilegeException
+    {
+        return new MissingPrivilegeException($privileges);
     }
 
     public static function layoutVersionConflict(string $layoutId): self

@@ -150,6 +150,19 @@ class ContentSystemExceptionTest extends TestCase
         static::assertSame('CONTENT_SYSTEM__INVALID_ELEMENT_ID', $violation->getCode());
     }
 
+    #[TestDox('builds a 403 missing-privilege exception that lists the missing privilege')]
+    public function testMissingPrivileges(): void
+    {
+        $exception = ContentSystemException::missingPrivileges(['content_layout:translate']);
+
+        static::assertSame(Response::HTTP_FORBIDDEN, $exception->getStatusCode());
+        static::assertSame('FRAMEWORK__MISSING_PRIVILEGE_ERROR', $exception->getErrorCode());
+        static::assertSame(
+            '{"message":"Missing privilege","missingPrivileges":["content_layout:translate"]}',
+            $exception->getMessage(),
+        );
+    }
+
     /**
      * @return iterable<string, array{ContentSystemException, bool}>
      */
@@ -509,6 +522,13 @@ class ContentSystemExceptionTest extends TestCase
             Response::HTTP_BAD_REQUEST,
             'CONTENT_SYSTEM__MUTATION_PROPERTY_LANGUAGE_KEY_INVALID',
             'Language key "de-DE" of translatable property "label" of element "el-1" is not a language id in lowercase UUID hex.',
+        ];
+
+        yield 'mutation property not translatable' => [
+            ContentSystemException::mutationPropertyNotTranslatable('el-1', 'headline'),
+            Response::HTTP_BAD_REQUEST,
+            'CONTENT_SYSTEM__MUTATION_PROPERTY_NOT_TRANSLATABLE',
+            'Property "headline" is not a translatable property declared by the type of element "el-1".',
         ];
 
         // The Admin mutation 404 half of the pair whose other half is the 'layout not found' row above: that one

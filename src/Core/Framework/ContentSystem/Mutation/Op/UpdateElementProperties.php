@@ -3,15 +3,12 @@
 namespace Shopware\Core\Framework\ContentSystem\Mutation\Op;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
-use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
-use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformanceValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Mutation\AbstractLayoutMutation;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Uuid\Uuid;
 
 /**
  * Replaces the value of each key in $values on one element and drops each key in $removeKeys. A value is
@@ -31,7 +28,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 final class UpdateElementProperties extends AbstractLayoutMutation
 {
     /**
-     * @param array<string, mixed> $values
+     * @param array<array-key, mixed> $values
      * @param list<string> $removeKeys
      */
     public function __construct(
@@ -91,7 +88,7 @@ final class UpdateElementProperties extends AbstractLayoutMutation
         // decide which of the two reports.
         foreach ($wrapped as $key => $value) {
             if ($declared[$key]->type()->translatable()) {
-                $this->rejectNonLanguageKeys($key, $value);
+                $this->rejectNonLanguageKeys($this->elementId, $key, $value);
             }
 
             $properties[$key] = $value;
@@ -106,25 +103,5 @@ final class UpdateElementProperties extends AbstractLayoutMutation
         // The replacement subtree is spliced in wholesale, so the target's children stay the instances the
         // input tree held.
         return $tree->replace($this->elementId, $node->withProperties($properties));
-    }
-
-    /**
-     * Every key of a translatable property's language map must be a language id in lowercase UUID hex — the
-     * same key rule the DAL write path enforces in {@see PropertyTypeConformanceValidator}, so the draft and
-     * persisted routes answer a malformed key the same way. Whether the id names an existing language stays a
-     * diagnostics warning ({@see ViolationCode::DanglingLanguage}), never a rejection. `admits()` has already
-     * established the value is a map, so `asMap()` cannot throw here.
-     */
-    private function rejectNonLanguageKeys(string $key, StoredValue $value): void
-    {
-        foreach (array_keys($value->asMap()) as $rawKey) {
-            $languageKey = (string) $rawKey;
-
-            if (Uuid::isValid($languageKey)) {
-                continue;
-            }
-
-            throw ContentSystemException::mutationPropertyLanguageKeyInvalid($this->elementId, $key, $languageKey);
-        }
     }
 }

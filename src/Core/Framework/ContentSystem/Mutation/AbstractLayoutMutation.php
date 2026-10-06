@@ -5,11 +5,14 @@ namespace Shopware\Core\Framework\ContentSystem\Mutation;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
+use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformanceValidator;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
 use Shopware\Core\Framework\Log\Package;
@@ -73,6 +76,11 @@ abstract class AbstractLayoutMutation implements LayoutMutation
     public function droppedProperties(): array
     {
         return $this->droppedProperties;
+    }
+
+    public function writePrivilege(): ?string
+    {
+        return null;
     }
 
     /**
@@ -156,6 +164,27 @@ abstract class AbstractLayoutMutation implements LayoutMutation
         }
 
         throw ContentSystemException::mutationUnknownType($type);
+    }
+
+    /**
+     * Every key of a translatable property's language map must be a language id in lowercase UUID hex, else
+     * `mutationPropertyLanguageKeyInvalid` names the first offending one: the key rule the DAL write path enforces in
+     * {@see PropertyTypeConformanceValidator}, so the draft and persisted routes answer a malformed key the same way.
+     * A map key PHP holds as an integer, such as "42", is checked and reported as the string it arrived as. Whether
+     * the id names an existing language stays a diagnostics warning ({@see ViolationCode::DanglingLanguage}), never
+     * a rejection. $value must already be admitted by {@see PropertyType::admits()} as a map, or `asMap()` throws.
+     */
+    protected function rejectNonLanguageKeys(string $elementId, string $key, StoredValue $value): void
+    {
+        foreach (array_keys($value->asMap()) as $rawKey) {
+            $languageKey = (string) $rawKey;
+
+            if (Uuid::isValid($languageKey)) {
+                continue;
+            }
+
+            throw ContentSystemException::mutationPropertyLanguageKeyInvalid($elementId, $key, $languageKey);
+        }
     }
 
     /**

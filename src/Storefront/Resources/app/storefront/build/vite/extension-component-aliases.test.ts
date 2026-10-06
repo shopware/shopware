@@ -45,6 +45,7 @@ describe('loadExtensionComponentAliases', () => {
 
         await expect(loadExtensionComponentAliases(projectRoot)).resolves.toEqual([
             {
+                bundleRoot,
                 componentRoot: path.join(bundleRoot, 'Resources/views/components'),
                 aliases: [{ find: '@modules', replacement: '/example/src/modules' }],
             },
@@ -54,6 +55,7 @@ describe('loadExtensionComponentAliases', () => {
     it('resolves the same alias against the importing bundle only', async () => {
         projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'storefront-vite-aliases-'));
         const bundles = ['FirstPlugin', 'SecondPlugin'];
+        const modulesRoots: string[] = [];
         const componentsRoots = bundles.map((bundleName, index) => {
             const bundleRoot = path.join(projectRoot, 'custom/plugins', bundleName);
             const storefrontAppDir = path.join(bundleRoot, 'Resources/app/storefront');
@@ -61,7 +63,10 @@ describe('loadExtensionComponentAliases', () => {
             const aliasPath = path.join(storefrontAppDir, `src/modules-${index + 1}`);
 
             fs.mkdirSync(componentRoot, { recursive: true });
-            fs.mkdirSync(storefrontAppDir, { recursive: true });
+            fs.mkdirSync(aliasPath, { recursive: true });
+            fs.writeFileSync(path.join(aliasPath, 'foo.js'), '');
+            fs.writeFileSync(path.join(aliasPath, 'bar.js'), '');
+            modulesRoots.push(aliasPath);
             fs.writeFileSync(path.join(storefrontAppDir, 'vite.components.config.mts'), `
                 export default {
                     resolve: { alias: { '@modules': '${aliasPath}' } },
@@ -96,9 +101,9 @@ describe('loadExtensionComponentAliases', () => {
         )).resolves.toBe(path.join(projectRoot, 'custom/plugins/FirstPlugin/Resources/app/storefront/src/modules-1/file.js'));
         await expect(resolveHook.call(
             context,
-            '@modules/file.js',
-            path.join(componentsRoots[1], 'Second.js'),
-        )).resolves.toBe(path.join(projectRoot, 'custom/plugins/SecondPlugin/Resources/app/storefront/src/modules-2/file.js'));
+            '@modules/bar.js',
+            path.join(modulesRoots[1], 'foo.js'),
+        )).resolves.toBe(path.join(modulesRoots[1], 'bar.js'));
         await expect(resolveHook.call(
             context,
             '@modules/file.js',
@@ -137,6 +142,7 @@ describe('loadExtensionComponentAliases', () => {
 
         await expect(loadExtensionComponentAliases(projectRoot)).resolves.toEqual([
             {
+                bundleRoot: validBundleRoot,
                 componentRoot: path.join(validBundleRoot, 'Resources/views/components'),
                 aliases: [{ find: '@modules', replacement: '/valid/modules' }],
             },

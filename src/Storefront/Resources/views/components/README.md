@@ -652,7 +652,7 @@ export default async () => {
 };
 ```
 
-The unified component dev server loads each active bundle's config and applies its `resolve.alias` entries only to imports from that bundle's component directory. This lets different bundles use the same alias name for different paths. Other bundle-specific build options and plugins are used by the component build only.
+The unified component dev server loads each active bundle's config and applies its `resolve.alias` entries only to imports from that bundle's resource tree. This lets different bundles use the same alias name for different paths, including when a module under `Resources/app/storefront/src` imports another module through the alias. Other bundle-specific build options and plugins are used by the component build only.
 
 ### Build security defaults
 

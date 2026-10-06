@@ -7,6 +7,7 @@ type BundleDefinition = {
 };
 
 export type ExtensionComponentAliases = {
+    bundleRoot: string;
     componentRoot: string;
     aliases: Alias[];
 };
@@ -71,6 +72,7 @@ export async function loadExtensionComponentAliases(projectRoot: string): Promis
                 { command: 'serve', mode: process.env.NODE_ENV ?? 'development' },
                 configFile,
                 storefrontAppDir,
+                'silent',
             );
         } catch (error) {
             const message = error instanceof Error ? error.message : String(error);
@@ -81,9 +83,10 @@ export async function loadExtensionComponentAliases(projectRoot: string): Promis
 
         const configuredAliases = loaded?.config.resolve?.alias as Alias[] | Record<string, string> | undefined;
         if (Array.isArray(configuredAliases)) {
-            extensionAliases.push({ componentRoot, aliases: configuredAliases });
+            extensionAliases.push({ bundleRoot, componentRoot, aliases: configuredAliases });
         } else if (configuredAliases) {
             extensionAliases.push({
+                bundleRoot,
                 componentRoot,
                 aliases: Object.entries(configuredAliases).map(([find, replacement]) => ({ find, replacement })),
             });
@@ -95,7 +98,7 @@ export async function loadExtensionComponentAliases(projectRoot: string): Promis
 
 /**
  * Applies each bundle's Vite aliases only to imports originating in that
- * bundle's component tree.
+ * bundle's resource tree.
  */
 export function extensionComponentAliasesPlugin(
     extensions: ExtensionComponentAliases[],
@@ -110,9 +113,9 @@ export function extensionComponentAliasesPlugin(
             }
 
             const normalizedImporter = path.normalize(importer.startsWith('/@fs/') ? importer.slice(4) : importer);
-            const extension = extensions.find(({ componentRoot }) => (
-                normalizedImporter === componentRoot
-                || normalizedImporter.startsWith(componentRoot + path.sep)
+            const extension = extensions.find(({ bundleRoot }) => (
+                normalizedImporter === bundleRoot
+                || normalizedImporter.startsWith(bundleRoot + path.sep)
             ));
 
             const extensionReplacement = findAliasReplacement(source, extension?.aliases ?? []);

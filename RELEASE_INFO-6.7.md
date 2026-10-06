@@ -504,7 +504,7 @@ The trigger event select in the mail template detail sidebars is now preselected
 
 ### Extension component aliases work in the dev server
 
-The unified Storefront component dev server now applies aliases from each extension's `vite.components.config.mts` only to that extension's components. Extensions can use the same alias name for different module paths in development and production builds.
+The unified Storefront component dev server now applies aliases from each extension's `vite.components.config.mts` only to imports from that extension's resource tree. Extensions can use the same alias name for different module paths, including imports between modules under `Resources/app/storefront/src`, in development and production builds.
 
 ### Anonymous index components use their directory name
 

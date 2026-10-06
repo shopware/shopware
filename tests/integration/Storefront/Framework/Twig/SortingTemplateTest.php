@@ -8,7 +8,8 @@ use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Twig\Environment;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\Test\TestDefaults;
 
 /**
  * @internal
@@ -18,14 +19,18 @@ class SortingTemplateTest extends TestCase
 {
     use IntegrationTestBehaviour;
 
-    public function testScoreSortingLabelIsTakenFromSnippet(): void
+    /**
+     * The `score` sorting is locked, but its translations are editable in the
+     * administration, so its label must not be replaced by a snippet.
+     */
+    public function testScoreSortingKeepsItsTranslatedLabel(): void
     {
         $output = $this->renderSortings(new ProductSortingCollection([
-            $this->createSorting(key: 'score', label: 'Label that cannot be translated'),
+            $this->createSorting(key: 'score', label: 'Label configured in the administration'),
         ]));
 
-        static::assertStringContainsString('<option value="score">Top results</option>', $output);
-        static::assertStringNotContainsString('Label that cannot be translated', $output);
+        static::assertStringContainsString('<option value="score">Label configured in the administration</option>', $output);
+        static::assertStringNotContainsString('Top results', $output);
     }
 
     public function testConfigurableSortingKeepsItsTranslatedLabel(): void
@@ -39,13 +44,13 @@ class SortingTemplateTest extends TestCase
 
     private function renderSortings(ProductSortingCollection $sortings): string
     {
-        $twig = static::getContainer()->get('twig');
-        static::assertInstanceOf(Environment::class, $twig);
+        $context = static::getContainer()->get(SalesChannelContextFactory::class)
+            ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        return $twig->render('@Storefront/storefront/component/sorting.html.twig', [
+        return StorefrontTwigRenderer::render(static::getContainer(), '@Storefront/storefront/component/sorting.html.twig', [
             'current' => '',
             'sortings' => $sortings,
-        ]);
+        ], $context);
     }
 
     private function createSorting(string $key, string $label): ProductSortingEntity

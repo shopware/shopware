@@ -40,20 +40,14 @@ describe('src/core/consent/events.ts', () => {
         const emitSpy = jest.spyOn(Shopware.Utils.EventBus, 'emit');
 
         dispatchConsentEvent('consent_modal_viewed', {
-            consents_shown: [
-                'product_analytics',
-                'backend_data',
-            ],
+            consents_shown: ['product_analytics', 'backend_data'],
         });
 
         expect(emitSpy).toHaveBeenCalledWith('consent', expect.any(ConsentEvent));
         expect(emitSpy.mock.calls[0][1]).toMatchObject({
             eventName: 'consent_modal_viewed',
             eventProperties: {
-                consents_shown: [
-                    'product_analytics',
-                    'backend_data',
-                ],
+                consents_shown: ['product_analytics', 'backend_data'],
             },
         });
     });

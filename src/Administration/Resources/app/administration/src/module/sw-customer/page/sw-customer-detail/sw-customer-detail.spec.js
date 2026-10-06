@@ -51,18 +51,12 @@ async function createWrapper(
                     'sw-tabs': {
                         name: 'sw-tabs',
                         template: '<div class="sw-tabs"><slot></slot></div>',
-                        props: [
-                            'positionIdentifier',
-                        ],
+                        props: ['positionIdentifier'],
                     },
                     'sw-tabs-item': {
                         name: 'sw-tabs-item',
                         template: '<div class="sw-tabs-item"><slot></slot></div>',
-                        props: [
-                            'route',
-                            'title',
-                            'hasError',
-                        ],
+                        props: ['route', 'title', 'hasError'],
                     },
                     'mt-tabs': {
                         name: 'mt-tabs',
@@ -186,9 +180,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
     });
 
     it('should be able to edit the customer', async () => {
-        const wrapperWithPrivileges = await createWrapper([
-            'customer.editor',
-        ]);
+        const wrapperWithPrivileges = await createWrapper(['customer.editor']);
 
         await flushPromises();
 
@@ -236,12 +228,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
     });
 
     it('should have company validation when customer type is commercial', async () => {
-        const wrapperWithPrivileges = await createWrapper(
-            [
-                'customer.editor',
-            ],
-            true,
-        );
+        const wrapperWithPrivileges = await createWrapper(['customer.editor'], true);
 
         await flushPromises();
 
@@ -401,9 +388,7 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
     it('should select the displayed customer for app action buttons', async () => {
         await flushPromises();
 
-        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
-            'customerId',
-        ]);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual(['customerId']);
     });
 
     it('should select the new customer for app action buttons when navigating to another customer', async () => {
@@ -412,17 +397,13 @@ describe('module/sw-customer/page/sw-customer-detail', () => {
         await wrapper.setProps({ customerId: 'otherCustomerId' });
         await flushPromises();
 
-        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
-            'otherCustomerId',
-        ]);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual(['otherCustomerId']);
     });
 
     it('should deselect the customer for app action buttons when leaving the detail page', async () => {
         await flushPromises();
 
-        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
-            'customerId',
-        ]);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual(['customerId']);
 
         wrapper.vm.$options.beforeRouteLeave.call(wrapper.vm);
 

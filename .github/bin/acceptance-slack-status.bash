@@ -30,18 +30,20 @@ done
 
 # Keep only the acceptance jobs (named "acceptance (...)") and sort them for
 # stable, readable output: non-major before major, then PHP/shard, Install last.
+# The optional major token is the FEATURE_ALL lane: either the legacy `major` or a
+# single in-flight major such as `v6.8.0.0` (see bin/lib/feature-flags.php).
 acceptance_jobs=$(jq -r '
     .[]
     | select(.name | contains("acceptance ("))
     | . as $job
-    | ($job.name | capture("acceptance \\((?<name>[^,]+), (?:(?<major>major), )?(?<php>[^,]+), (?<shard>\\d+), (?<shardCount>\\d+), (?<currents>true|false)\\)")) as $parsed
+    | ($job.name | capture("acceptance \\((?<name>[^,]+), (?:(?<major>major|v\\d+(?:\\.\\d+)+), )?(?<php>[^,]+), (?<shard>\\d+), (?<shardCount>\\d+), (?<currents>true|false)\\)")) as $parsed
     | {
         id: $job.id,
         name: $job.name,
         conclusion: $job.conclusion,
         sort: [
           ($parsed.name == "Install"),          # Install last
-          ($parsed.major == "major"),           # non-major first
+          ($parsed.major != null),              # non-major first
           ($parsed.php),                        # PHP version
           ($parsed.shard | tonumber),           # shard order
           ($parsed.currents == "false")         # currents=false last

@@ -19,10 +19,7 @@ const POSITION_DESCRIPTOR: ComposableDescriptor = {
         'renumberPositions',
     ]),
     // lower/raisePositionValue swap through changePosition, getSibling through getSiblingIndex.
-    internallyReferencedMembers: [
-        'changePosition',
-        'getSiblingIndex',
-    ],
+    internallyReferencedMembers: ['changePosition', 'getSiblingIndex'],
 };
 
 export default POSITION_DESCRIPTOR;

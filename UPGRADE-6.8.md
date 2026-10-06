@@ -4,6 +4,46 @@
 
 <details>
 
+## Document generation v2 is the default
+
+The `DOCUMENT_GENERATION_REWORK` feature flag now defaults to `true`. All Shopware-driven surfaces use document generation v2: the order documents section in the Administration, Flow Builder document actions, mail attachments, bulk edit, and the customer-facing download routes.
+
+The flag became an opt-out. Set it to `false` to keep running the legacy implementation during 6.8. The legacy implementation and the flag are removed with Shopware 6.9, so verify your document related extensions are v2 ready before upgrading. Migration guidance is in `UPGRADE-6.9.md`.
+
+The `@experimental` annotations on the v2 surface were removed. The classes listed in `UPGRADE-6.7.md` ("Document generation v2 experimental public surface", section 6.7.15.0) are now the stable public API. Everything else in the `DocumentV2` namespace stays `@internal`.
+
+The shared document classes moved into `Shopware\Core\Checkout\DocumentV2` with 6.7.16.0 (see "Shared document classes moved to `DocumentV2`" in `UPGRADE-6.7.md`). Their previous class names and service IDs remained available as aliases throughout 6.8 and were removed with 6.9.
+
+## State machine actions enforce a single destination per source state
+
+A state machine action now maps to exactly one destination state per source state:
+
+- A migration removed existing duplicates, keeping the oldest transition per state machine, source state, and action name, and replaced the unique key on `state_machine_transition` over `(action_name, state_machine_id, from_state_id, to_state_id)` with `uniq.state_machine_transition.action_name_from_state` over `(action_name, state_machine_id, from_state_id)`.
+- Writing a `state_machine_transition` that has the same state machine, source state, and action name as an existing transition, but a different destination state, now fails against that unique key instead of silently making the action's destination undefined.
+
+If your extension registered a transition that reuses an existing action name (for example `authorize`) from the same source state with its own destination state, register it under its own action name instead. Find affected installations with:
+
+```sql
+SELECT sm.technical_name, f.technical_name AS from_state, t.action_name, COUNT(*) AS destinations
+FROM state_machine_transition t
+JOIN state_machine sm ON sm.id = t.state_machine_id
+JOIN state_machine_state f ON f.id = t.from_state_id
+GROUP BY t.state_machine_id, t.from_state_id, t.action_name
+HAVING COUNT(*) > 1;
+```
+
+## Password recovery and mail events can no longer be received by webhooks
+
+`user.recovery.request`, `customer.recovery.request`, `mail.before.send` and `mail.after.create.message` were removed from the events an app may subscribe to with a webhook. They have not been delivered since 6.7; a manifest with a `<webhook>` for any of them is now rejected on install and update with a `WebhookNotPermittedError`.
+
+Remove the webhook from your manifest. The events remain available in Flow Builder.
+
+Events are opted out of webhook delivery with the `#[Shopware\Core\Framework\Webhook\NotHookable]` attribute.
+
+## `EventDataCollection` is final
+
+`\Shopware\Core\Framework\Event\EventData\EventDataCollection` is now `final` and `add()` takes `array $options = []` as third parameter.
+
 ## Composition API extension system is no longer a public entry point
 
 The Administration's Composition API extension system is now internal. `Shopware.Component.createExtendableSetup()` and `Shopware.Component.overrideComponentSetup()` were previously annotated `@experimental stableVersion:v6.8.0 feature:ADMIN_COMPOSITION_API_EXTENSION_SYSTEM`; both are now `@private`, together with the new `Shopware.Component.attachOverrides()`.
@@ -59,6 +99,18 @@ The fields `quantityStart` and `quantityEnd` of ProductPriceDefinition now requi
 ## Minimum value constraint added to restockTime field in ProductDefinition
 
 The field `restockTime` of ProductDefinition now requires a minimum value of `0`. Writing a negative value via the API is rejected. Existing negative values are set to `NULL` by a migration, as they previously broke cart calculation for out-of-stock products.
+
+## `RegulationPrice` constructor is private
+
+Matching `ListPrice`, `Shopware\Core\Checkout\Cart\Price\Struct\RegulationPrice` is built through its factory, which also computes `discount` and `percentage`:
+
+```php
+// before
+$regulationPrice = new RegulationPrice($price);
+
+// after
+$regulationPrice = RegulationPrice::createFromUnitPrice($unitPrice, $price);
+```
 
 ## Default CMS page ID now persisted for categories
 
@@ -184,6 +236,12 @@ The Agentic Commerce sales channel features — including product export provide
 
 When no Sales Channel business timezone is configured, document rendering no longer uses the Storefront browser timezone in Shopware 6.8. Documents now render with Twig's configured default timezone (`UTC` unless changed via `twig.date.timezone`) regardless of how they are generated. Set the Sales Channel business timezone if documents should use a merchant-controlled timezone.
 
+## Nullable order reference on `DocumentEntity`
+
+The order reference on `Shopware\Core\Checkout\DocumentV2\DocumentEntity` became nullable. `getOrderId()` and `getOrderVersionId()` returned `?string` instead of `string`; documents that are not based on an order returned `null`.
+
+`DocumentEntity::setOrderId()` and `setOrderVersionId()` accepted `?string`. Extensions overriding these setters had to widen their parameter types accordingly.
+
 ## Removed document template variables
 
 The following variables in `src/Core/Framework/Resources/views/documents/includes/position_header.html.twig` have been deprecated and were removed without replacement:
@@ -196,6 +254,10 @@ Extensions that rely on these variables in document template overrides must remo
 
 The variable `displayCustomerVatIdForDelivery` in `src/Core/Framework/Resources/views/documents/includes/letter_header.html.twig` was deprecated and removed without replacement. Extensions that rely on this variable in document template overrides must remove its usage without replacement.
 
+## `sw_garan_label_mail` Twig filter removed
+
+The `sw_garan_label_mail` Twig filter and `Shopware\Core\Content\Product\Garan\GaranLabelTwigFilter::resolveMailLabel()` were removed. Mail templates read the GARAN label from the `garanLabels` template variable instead: replace `productId|sw_garan_label_mail(context)` with `garanLabels[productId] ?? null`. Order confirmation mail templates that were never edited had already been migrated.
+
 ## Shipping price matrix ranges use currency conversion
 
 Price-based shipping method price matrix ranges are now compared in the default currency. When a cart is calculated in a currency with a factor, Shopware converts the cart price back to the default currency before matching the configured `quantityStart` and `quantityEnd` range.
@@ -203,6 +265,10 @@ Price-based shipping method price matrix ranges are now compared in the default 
 Enable the `SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION` feature flag in 6.7 to preview the behavior before updating to 6.8.
 
 </details>
+
+## Storefront session continues on the token returned by the logout route
+
+After a customer logs out, the storefront session now holds the context token that `\Shopware\Core\Checkout\Customer\SalesChannel\LogoutRoute` created and returned in its response body, instead of a separately generated one. Both are fresh anonymous tokens, so no action is required unless an extension relied on the session token differing from the one the logout response returned.
 
 # API
 
@@ -281,6 +347,45 @@ Previously, these routes could return unrelated records or fail because the unde
 # Core
 
 <details>
+
+## Removal of legacy `ConfigurationService` getters
+
+The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` have been removed.
+Replace calls with `getSystemConfigDefinition()` and `getResolvedSystemConfigDefinition()`, respectively.
+
+## `Feature` is final
+
+`Shopware\Core\Framework\Feature` is `final` and cannot be extended. It is a static utility class, call its methods directly instead of subclassing it.
+
+## `AbstractCartPersister::exists()` is abstract
+
+`Shopware\Core\Checkout\Cart\AbstractCartPersister::exists()` was introduced in 6.7.15.0 with a default implementation that delegated to the decorated persister. It is abstract now, so every cart persister declares it itself:
+
+```php
+public function exists(string $token, SalesChannelContext $context): bool
+{
+    return $this->getDecorated()->exists($token, $context);
+}
+```
+
+Answer it from the storage a persister that does not decorate another one owns. Placing an order rejects a cart token that `exists()` reports as gone, so a persister that always answers `true` reintroduces duplicate orders on overlapping checkout submits.
+
+## `AbstractCartLoadRoute::load()` takes the cart
+
+`Shopware\Core\Checkout\Cart\SalesChannel\AbstractCartLoadRoute::load()` takes the cart to respond with as an optional third parameter. Call sites are unaffected, but decorations had to add the parameter to their own `load()` declaration and forward it, otherwise the declaration is no longer compatible:
+
+```php
+public function load(Request $request, SalesChannelContext $context, ?Cart $cart = null): CartResponse
+{
+    return $this->getDecorated()->load($request, $context, $cart);
+}
+```
+
+A decoration that drops the parameter still works but gives up the optimization behind it, because the route then reads and calculates a cart the request already holds. Pass a cart wherever you have one: in a controller, type a `Cart` argument and the `CartValueResolver` provides the cart of the current request, elsewhere read it from `CartService::getCart()`.
+
+## `DocumentRoute::resolveRequest()` is private
+
+`Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute::resolveRequest()` is private, it only served the file type negotiation of the route itself. Download documents through `DocumentRoute::download()` or `/store-api/document/download/{documentId}/{deepLinkCode}`, which negotiate the file type from the `fileType` parameter or the `Accept` header.
 
 ## XML configuration is no longer supported
 
@@ -507,6 +612,20 @@ Since tokens are no longer deleted after use, a new scheduled task runs daily to
 
 Automatic promotions without a code are no longer removable as it adds more confusion as to how one gets it back than it helps.
 The blocked-promotion handling in `\Shopware\Core\Checkout\Promotion\Cart\Extension\CartExtension` has been removed.
+
+## Removal of `PromotionCartInformationTrait` helper methods
+
+The helper methods `\Shopware\Core\Checkout\Promotion\Cart\PromotionCartInformationTrait::{addPromotionNotFoundError,addPromotionNotEligibleError}` and `addPromotionNotEligibleError()` are removed, replace any calls in classes that use this trait with `$cart->addErrors()`:
+
+```php
+// Before
+$this->addPromotionNotFoundError($code, $cart);
+$this->addPromotionNotEligibleError($name, $cart);
+
+// After
+$cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotFoundError($code));
+$cart->addErrors(new \Shopware\Core\Checkout\Promotion\Cart\Error\PromotionNotEligibleError($name));
+```
 
 ## Removal of `$options` parameter in custom validator's constraints
 
@@ -1168,6 +1287,19 @@ The `Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader::PA
 
 If you referenced this constant, build your own field list or switch to `Criteria::excludeFields(['description', ...])` to omit specific columns while keeping a full, typed entity.
 
+## Rate limiter: `salesChannelId` parameter is now part of the declared signatures
+
+`Shopware\Core\Framework\RateLimiter\RateLimiter::ensureAccepted()` and `Shopware\Core\Framework\RateLimiter\RateLimiterFactory::create()` now accept an optional sales channel ID.
+If you extend one of these classes and override the method, add the parameter to your override to keep a compatible signature:
+
+```php
+// Before
+public function ensureAccepted(string $route, string $key): void
+
+// After
+public function ensureAccepted(string $route, string $key, ?string $salesChannelId = null): void
+```
+
 ## Removed `ProductExportResult::getTotal()`
 
 `\Shopware\Core\Content\ProductExport\Struct\ProductExportResult::getTotal()` and its `$total` constructor argument have been removed. The product export paginates by an `autoIncrement` keyset cursor and no longer computes a grand total per run. Use `hasNextBatch()` to decide whether another batch follows and `getOffset()` for the resume position.
@@ -1178,8 +1310,43 @@ If your extension extends or decorates `\Shopware\Core\System\NumberRange\ValueG
 
 The method must raise the stored increment state to at least the given value without lowering an existing higher state.
 
+## Removal of `SalesChannelContextRestorer::restoreByOrder()`
+
+`\Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer::restoreByOrder()` and `\Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent` were removed. Load the order with the `orderCustomer`, `transactions.stateMachineState` and `primaryOrderDelivery` associations and pass it to `\Shopware\Core\Checkout\Cart\Order\OrderConverter::assembleSalesChannelContext()`. Add associations you used to add through `SalesChannelContextRestorerOrderCriteriaEvent` to that criteria directly.
+
+`restoreByOrder()` also re-evaluated the rules against the order. The assembled context carries the rules stored on the order instead. If you need them re-evaluated, also load the `lineItems` and `deliveries` associations and run the cart rule loader on it:
+
+```php
+$salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
+$cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
+$this->cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior($salesChannelContext->getPermissions()), true);
+```
+
 
 # Administration
+
+## Removal of deprecated `config` data property in `sw-system-config` component
+
+The deprecated data property `config` in `sw-system-config` component with the legacy card structure was removed. Please use the new data property `schema` with the tab structure instead.
+
+## Custom-field set loader computed properties removed
+
+The deprecated custom-field set loader computed properties were removed from these Administration components:
+
+| Component | Removed computed properties |
+|---|---|
+| `sw-category-detail` (categories and landing pages) | `customFieldSetRepository`, `customFieldSetCriteria`, `customFieldSetLandingPageCriteria` |
+| `sw-customer-detail-base` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-customer-detail-addresses` | `customFieldSetRepository` |
+| `sw-manufacturer-detail` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-order-detail-details` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-sales-channel-detail` | `customFieldRepository` |
+| `sw-settings-units-detail` | `customFieldSetRepository`, `customFieldSetCriteria` |
+| `sw-bulk-edit-customer`, `sw-bulk-edit-order`, `sw-bulk-edit-product` | `customFieldSetRepository`, `customFieldSetCriteria` |
+
+These components switched to a shared loader to remove their duplicate custom-field queries and reuse cached results across them. Extensions that used the removed properties to load renderable custom-field sets must use `Shopware.Service('customFieldDataProviderService').getCustomFieldSets(entityName)` instead.
+
+`sw-customer-detail-base` no longer injects `repositoryFactory`, which was retained only for its removed `customFieldSetRepository` property. Extensions that still need `repositoryFactory` must inject it themselves.
 
 ## Deprecated password verification members in `sw-users-permissions-user-listing`
 
@@ -1188,6 +1355,19 @@ The `loginService` injection, the `confirmPassword` and `isConfirmingPassword` d
 ## Deprecated `sw-media-upload-v2.getUploadFailureMessage()`
 
 The `getUploadFailureMessage()` method on `sw-media-upload-v2` is deprecated and will be removed without replacement. Upload failure notifications are handled centrally by `sw-upload-status`; extensions should stop calling or overriding this method.
+
+## Deprecated state select styling members in the order module
+
+The `backgroundStyle` and `roundedStyle` props and the `selectStyle` computed property of `sw-order-state-select-v2` were removed without replacement. The select derives the status color from its `stateName` prop instead. For the same reason, the `backgroundStyle()` method of `sw-order-general-info` and the `stateSelectBackgroundStyle` computed property of `sw-order-details-state-card` were removed.
+
+Pass the technical name of the current state instead of `background-style` and `rounded-style`:
+
+```html
+<sw-order-state-select-v2
+    state-type="order"
+    :state-name="order.stateMachineState.technicalName"
+/>
+```
 
 ## Removed `integrationService.updateAdmin()`
 
@@ -1499,9 +1679,131 @@ After:
 <mt-empty-state title="short title" description="longer description"/>
 ```
 
+## Removed empty state Twig block anchors
+
+The empty Twig anchors left behind when Administration empty states moved to `mt-empty-state` were removed: `sw_flow_list_empty_state_icon`, `sw_mail_header_footer_list_grid_empty_state_icon`, `sw_mail_template_list_grid_empty_state_icon`, `sw_order_create_address_modal_empty_state_content`, `sw_order_customer_grid_empty_state_icon`, `sw_promotion_v2_individual_codes_behavior_empty_state_icon`, `sw_sales_channel_products_assignment_dynamic_product_groups_listing_empty_icon`, `sw_settings_listing_option_criteria_card_empty_state_icon`, `sw_settings_listing_content_card_view_options_card_empty_state_icon`, `sw_product_feature_set_card_empty_state_image`, `sw_product_feature_set_card_empty_state_label`, `sw_tax_rule_card_empty_state_image` and `sw_tax_rule_card_empty_state_label`. The product detail anchors went the same way: `sw_product_detail_prices_empty_state_image`, `sw_product_detail_prices_price_empty_state_text`, `sw_product_detail_prices_price_empty_state_text_child`, `sw_product_detail_prices_price_empty_state_text_inherited`, `sw_product_detail_prices_price_empty_state_text_link`, `sw_product_detail_prices_price_empty_state_text_not_inherited`, `sw_product_detail_prices_price_empty_state_text_empty`, `sw_product_detail_cross_selling_empty_state_actions`, `sw_product_detail_cross_selling_empty_state_icon`, `sw_product_detail_cross_selling_empty_state_content`, `sw_product_detail_cross_selling_empty_state_content_child`, `sw_product_detail_cross_selling_empty_state_content_child_inherited`, `sw_product_detail_cross_selling_empty_state_content_child_inherited_link`, `sw_product_detail_cross_selling_empty_state_content_child_not_inherited` and `sw_product_detail_cross_selling_empty_state_content_empty`. Override the surrounding `*_empty_state` block and pass the icon through the `icon` prop of `mt-empty-state` instead.
+
+## Removed the `assetFilter` computed of the empty state components
+
+The `assetFilter` computed became unused when the Administration empty states moved to `mt-empty-state`, and was removed from `sw-cms-layout-assignment-modal`, `sw-flow-list`, `sw-mail-header-footer-list`, `sw-mail-template-list`, `sw-order-customer-grid`, `sw-promotion-v2-individual-codes-behavior`, `sw-sales-channel-products-assignment-dynamic-product-groups`, `sw-settings-listing-option-criteria-grid`, `sw-settings-listing`, `sw-settings-product-feature-sets-values-card` and `sw-tax-rule-card`.
+
+An override that read it resolves the filter directly instead:
+
+```js
+Shopware.Filter.getByName('asset');
+```
+
+## `sw-tabs` automatic wrapper switch deferred
+
+The previously announced automatic switch from the deprecated Administration `sw-tabs` wrapper to `mt-tabs` when the `v6.8.0.0` feature flag is active will not happen. `sw-tabs` keeps rendering its legacy implementation regardless of the feature flag and remains deprecated for removal in 6.9.
+
+When an extension has already prepared for the Meteor API, it can opt in to the wrapper's temporary compatibility path with `use-meteor-component`. This renders the underlying `mt-tabs` implementation regardless of the `v6.8.0.0` feature flag:
+
+```html
+<sw-tabs use-meteor-component />
+```
+
+Prefer migrating directly to `mt-tabs`. The opt-in only helps validate a prepared migration while retaining the wrapper; it does not replace the migration required before 6.9.
+
+The `mt-tabs` API uses an `items` prop instead of `sw-tabs-item` child components and does not support the legacy content slot. The codemod cannot fully convert this API difference; review every TODO it creates.
+
+### Replace `sw-tabs` with `mt-tabs`
+
+Before:
+
+```html
+<sw-tabs />
+```
+
+After:
+
+```html
+<mt-tabs />
+```
+
+### Replace `sw-tabs-item` children with the `items` prop
+
+Before:
+
+```html
+<sw-tabs>
+    <template #default="{ active }">
+        <sw-tabs-item name="tab1">Tab 1</sw-tabs-item>
+        <sw-tabs-item name="tab2">Tab 2</sw-tabs-item>
+    </template>
+</sw-tabs>
+```
+
+After:
+
+```html
+<mt-tabs :items="[
+    {
+        label: 'Tab 1',
+        name: 'tab1',
+    },
+    {
+        label: 'Tab 2',
+        name: 'tab2',
+    },
+]" />
+```
+
+### Render content outside `mt-tabs`
+
+The legacy `content` slot is not supported. Store the active item from `new-item-active` and render the corresponding content outside the component.
+
+Before:
+
+```html
+<sw-tabs>
+    <template #content="{ active }">
+        The current active item is {{ active }}
+    </template>
+</sw-tabs>
+```
+
+After:
+
+```html
+<mt-tabs @new-item-active="setActiveItem" />
+
+The current active item is {{ activeItem }}
+```
+
+### Rename `is-vertical` to `vertical`
+
+Before:
+
+```html
+<sw-tabs is-vertical />
+```
+
+After:
+
+```html
+<mt-tabs vertical />
+```
+
+### Remove `align-right`
+
+`mt-tabs` has no replacement for `align-right`.
+
+Before:
+
+```html
+<sw-tabs align-right />
+```
+
+After:
+
+```html
+<mt-tabs />
+```
+
 ## Removed Administration Twig blocks from legacy `sw-tabs` branches
 
-The Administration `sw-tabs` component has been replaced by `mt-tabs`. The legacy `sw-tabs` fallback branches guarded by the `v6.8.0.0` feature flag have been removed. Extensions can no longer extend these areas through the removed Twig blocks. Custom tab entries need to migrate to the new `mt-tabs` item API or to the tab item data provided by the corresponding Administration component.
+The affected core Administration components use `mt-tabs` in their `v6.8.0.0` branches. Their legacy `sw-tabs` fallback branches have been removed. Extensions can no longer extend these areas through the removed Twig blocks. Custom tab entries need to migrate to the new `mt-tabs` item API or to the tab item data provided by the corresponding Administration component.
 
 The following Twig blocks have been removed:
 
@@ -1911,6 +2213,16 @@ The old classes are removed:
 `\Shopware\Administration\Controller\NotificationController` has been moved to core: `\Shopware\Core\Framework\Notification\Api\NotificationController` - if you type hint on this class, please refactor, it is now internal.
 The HTTP route is still the same. The old class has been removed.
 
+## Removed Elasticsearch search configuration loader alias
+
+`Shopware\Elasticsearch\Product\SearchConfigLoader` was removed.
+Use `Shopware\Core\Framework\DataAbstractionLayer\Search\SearchConfigLoader` instead.
+
+## Removed asset service alias
+
+`Shopware\Core\Framework\Plugin\Util\AssetService` was removed.
+The canonical `Shopware\Core\Framework\Adapter\Asset\AssetService` is now internal and must not be used as an extension dependency.
+
 ## Removal of snippets
 
 The following snippet keys have been removed:
@@ -2100,6 +2412,10 @@ const isInside = event.target instanceof Node && this.$el.contains(event.target)
 # Storefront
 
 <details>
+
+## Removed `--no-cleanup` option of `theme:compile` and `theme:change`
+
+The `--no-cleanup` option was removed from both commands. The commands no longer delete unused theme directories themselves, the `theme.delete_files` scheduled task does. Passing the option now fails with an unknown-option error, so drop it from deploy scripts.
 
 ## Footer collapse headlines and columns now use semantic elements
 
@@ -2368,15 +2684,14 @@ The data is now directly available in the category entities, therefore use `cate
 </a>
 ```
 
-## Breadcrumb template functions require the `SalesChannelContext`
+## Removed `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` Twig functions
 
-The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` now require the `SalesChannelContext`, i.e.
+The Twig breadcrumb functions `sw_breadcrumb_full` and `sw_breadcrumb_full_by_id` have been removed. On storefront product and navigation pages, use `page.breadcrumb` instead. Its entries provide `name`, `categoryId`, and `type`.
 
-```diff
-- sw_breadcrumb_full(category, context.context)
-- sw_breadcrumb_full_by_id(category, context.context)
-+ sw_breadcrumb_full(category, context)
-+ sw_breadcrumb_full_by_id(category, context)
+```twig
+{% for category in page.breadcrumb|default([]) %}
+    {{ category.name }}
+{% endfor %}
 ```
 
 ## Removal of DeleteThemeFilesMessage and its handler

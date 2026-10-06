@@ -24,7 +24,7 @@ trait RateLimiterTestTrait
             $limiter->method('consume')->willReturn(new RateLimit(1, new \DateTimeImmutable(), true, 1));
             $limiter->expects($this->exactly($expects))->method('reset');
 
-            $limiterFactory = $this->createMock(RateLimiterFactory::class);
+            $limiterFactory = static::createStub(RateLimiterFactory::class);
             $limiterFactory->method('create')->willReturn($limiter);
 
             $rateLimiter->registerLimiterFactory($factory, $limiterFactory);

@@ -95,9 +95,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
         expect(wrapper.vm.getProductStreams).toHaveBeenCalledTimes(1);
         expect(wrapper.vm.productStreamColumns).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({ property: 'name' }),
-            ]),
+            expect.arrayContaining([expect.objectContaining({ property: 'name' })]),
         );
 
         wrapper.vm.getProductStreams.mockRestore();
@@ -208,12 +206,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
         await wrapper.vm.onSelect({ 1: productStreamsMock[0] });
 
         expect(wrapper.vm.getProductsFromProductStreams).toHaveBeenCalledTimes(1);
-        expect(wrapper.emitted()['selection-change'][0]).toEqual(
-            expect.arrayContaining([
-                productsMock,
-                'groupProducts',
-            ]),
-        );
+        expect(wrapper.emitted()['selection-change'][0]).toEqual(expect.arrayContaining([productsMock, 'groupProducts']));
 
         wrapper.vm.getProductsFromProductStreams.mockRestore();
     });
@@ -240,12 +233,7 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
         wrapper.vm.onSelect({});
 
-        expect(wrapper.emitted()['selection-change'][0]).toEqual(
-            expect.arrayContaining([
-                [],
-                'groupProducts',
-            ]),
-        );
+        expect(wrapper.emitted()['selection-change'][0]).toEqual(expect.arrayContaining([[], 'groupProducts']));
     });
 
     it('should get products from product streams successful', async () => {
@@ -296,18 +284,14 @@ describe('src/module/sw-sales-channel/component/sw-sales-channel-products-assign
 
         wrapper.vm.productStreamRepository.get = jest.fn(() => {
             return Promise.resolve({
-                apiFilter: [
-                    productStreamFilterMock,
-                ],
+                apiFilter: [productStreamFilterMock],
             });
         });
 
         await wrapper.vm.getProductStreamFilter(1);
 
         expect(wrapper.vm.productStreamFilter).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining(productStreamFilterMock),
-            ]),
+            expect.arrayContaining([expect.objectContaining(productStreamFilterMock)]),
         );
 
         wrapper.vm.productStreamRepository.get.mockRestore();

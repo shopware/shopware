@@ -35,25 +35,15 @@ describe('sw-theme-manager acl', () => {
                 key: 'theme',
                 roles: expect.objectContaining({
                     viewer: expect.objectContaining({
-                        privileges: expect.arrayContaining([
-                            'theme:read',
-                            'sales_channel:read',
-                            expect.any(Function),
-                        ]),
+                        privileges: expect.arrayContaining(['theme:read', 'sales_channel:read', expect.any(Function)]),
                     }),
                     editor: expect.objectContaining({
-                        privileges: expect.arrayContaining([
-                            'theme:update',
-                            expect.any(Function),
-                        ]),
+                        privileges: expect.arrayContaining(['theme:update', expect.any(Function)]),
                         dependencies: ['theme.viewer'],
                     }),
                     creator: expect.objectContaining({
                         privileges: expect.arrayContaining(['theme:create']),
-                        dependencies: [
-                            'theme.viewer',
-                            'theme.editor',
-                        ],
+                        dependencies: ['theme.viewer', 'theme.editor'],
                     }),
                     deleter: expect.objectContaining({
                         privileges: expect.arrayContaining(['theme:delete']),

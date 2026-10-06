@@ -64,13 +64,18 @@
                 {% block sw_search_bar_type %}
                 <span
                     class="sw-search-bar__type--v2"
-                    :class="{ 'is--module-colored': searchTypeColor }"
-                    :style="searchTypeColor ? { '--sw-search-bar-type-color': searchTypeColor } : null"
                     role="button"
                     tabindex="0"
                     @click="onOpenModuleFiltersDropDown"
                     @keydown.enter="onOpenModuleFiltersDropDown"
                 >
+                    <mt-icon
+                        v-if="searchTypeIcon"
+                        class="sw-search-bar__type-icon"
+                        :name="searchTypeIcon"
+                        :color="searchTypeColor || undefined"
+                        size="var(--scale-size-16)"
+                    />
                     {{ getLabelSearchType() }}
                     <mt-icon
                         name="solid-chevron-down-s"

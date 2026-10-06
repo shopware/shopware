@@ -30,6 +30,7 @@ import {
     MtEmptyState,
     MtFloatingUi,
     MtIcon,
+    MtInset,
     MtLink,
     MtLoader,
     MtNumberField,
@@ -41,6 +42,7 @@ import {
     MtProgressBar,
     MtSelect,
     MtSkeletonBar,
+    MtStatusDot,
     MtSwitch,
     MtTabs,
     MtText,
@@ -315,6 +317,7 @@ config.global.stubs = {
     'mt-empty-state': MtEmptyState,
     'mt-floating-ui': MtFloatingUi,
     'mt-icon': MtIcon,
+    'mt-inset': MtInset,
     'mt-link': MtLink,
     'mt-loader': MtLoader,
     'mt-number-field': MtNumberField,
@@ -326,6 +329,7 @@ config.global.stubs = {
     'mt-porgress-bar': MtProgressBar,
     'mt-select': MtSelect,
     'mt-skeleton-bar': MtSkeletonBar,
+    'mt-status-dot': MtStatusDot,
     'mt-switch': MtSwitch,
     'mt-tabs': MtTabs,
     'mt-text': MtText,
@@ -397,11 +401,6 @@ directiveRegistry.forEach((value, key) => {
                 el.setAttribute('tooltip-mock-disabled', binding.value.disabled);
             },
         };
-        return;
-    }
-
-    if (key === 'popover') {
-        config.global.directives[key] = {};
         return;
     }
 

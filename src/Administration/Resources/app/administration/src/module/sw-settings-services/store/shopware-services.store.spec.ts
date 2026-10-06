@@ -15,16 +15,12 @@ describe('src/module/sw-settings-services/store/shopware-services.store.ts', () 
     });
 
     it.each([
-        [
-            undefined,
-            null,
-            false,
-        ],
+        [undefined, null, false],
         [
             {
                 identifier: 'id',
                 revision: '2025-07-08',
-                consentingUserId: 'user-id',
+                consentingUserId: 'user-id' as EntityKey<'user'>,
                 grantedAt: '2025-07-08T00:00:00Z',
             },
             null,
@@ -34,7 +30,7 @@ describe('src/module/sw-settings-services/store/shopware-services.store.ts', () 
             {
                 identifier: 'id',
                 revision: '2025-07-08',
-                consentingUserId: 'user-id',
+                consentingUserId: 'user-id' as EntityKey<'user'>,
                 grantedAt: '2025-07-08T00:00:00Z',
             },
             {
@@ -47,7 +43,7 @@ describe('src/module/sw-settings-services/store/shopware-services.store.ts', () 
             {
                 identifier: 'id',
                 revision: '2025-07-08',
-                consentingUserId: 'user-id',
+                consentingUserId: 'user-id' as EntityKey<'user'>,
                 grantedAt: '2025-07-08T00:00:00Z',
             },
             {
@@ -66,10 +62,7 @@ describe('src/module/sw-settings-services/store/shopware-services.store.ts', () 
     });
 
     it.each([
-        [
-            null,
-            null,
-        ],
+        [null, null],
         [
             {
                 'latest-revision': '2025-07-08',

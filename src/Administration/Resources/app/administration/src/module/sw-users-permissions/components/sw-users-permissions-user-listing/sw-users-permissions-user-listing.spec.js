@@ -43,9 +43,7 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFu
                                                 lastName: 'Mustermann',
                                                 email: 'max@mustermann.com',
                                                 active: false,
-                                                aclRoles: [
-                                                    { name: 'testRole' },
-                                                ],
+                                                aclRoles: [{ name: 'testRole' }],
                                             },
                                             {
                                                 id: '019bff8c86e773e79ec5538c7b1ed571',
@@ -54,10 +52,7 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFu
                                                 lastName: 'admin',
                                                 email: 'info@shopware.com',
                                                 active: true,
-                                                aclRoles: [
-                                                    { name: 'adminRole' },
-                                                    { name: 'superUser' },
-                                                ],
+                                                aclRoles: [{ name: 'adminRole' }, { name: 'superUser' }],
                                             },
                                         ],
                                         1,
@@ -86,11 +81,7 @@ async function createWrapper(privileges = [], isSso = { isSso: false }, deleteFu
                     'sw-context-menu-item': {
                         template:
                             '<div class="sw-context-menu-item-stub" :disabled="disabled ? \'true\' : undefined"><slot /></div>',
-                        props: [
-                            'disabled',
-                            'routerLink',
-                            'variant',
-                        ],
+                        props: ['disabled', 'routerLink', 'variant'],
                     },
                     'sw-user-sso-invitation-modal': true,
                     'sw-verify-user-modal': true,
@@ -209,10 +200,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
                 lastName: 'admin',
                 email: 'info@shopware.com',
                 active: true,
-                aclRoles: [
-                    'adminRole',
-                    'superUser',
-                ],
+                aclRoles: ['adminRole', 'superUser'],
             },
         ];
 
@@ -258,10 +246,7 @@ describe('module/sw-users-permissions/components/sw-users-permissions-user-listi
             {
                 email: 'info@shopware.com',
                 active: true,
-                aclRoles: [
-                    'adminRole',
-                    'superUser',
-                ],
+                aclRoles: ['adminRole', 'superUser'],
             },
         ];
 

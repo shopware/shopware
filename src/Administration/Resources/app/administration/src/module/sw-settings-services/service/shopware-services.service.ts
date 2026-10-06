@@ -11,6 +11,11 @@ import type { PermissionsConsent, ServiceConfiguration } from '../store/shopware
 /**
  * @private
  */
+export type ServiceState = 'active' | 'pending_permissions' | 'inactive';
+
+/**
+ * @private
+ */
 export type ServiceDescription = {
     id: string;
     active: boolean;
@@ -22,6 +27,7 @@ export type ServiceDescription = {
     version: string;
     requested_privileges: string[];
     privileges: string[];
+    state: ServiceState;
     domains: string[];
     requirements: string[];
     state_change_permitted: boolean;

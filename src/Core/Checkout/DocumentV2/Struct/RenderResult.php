@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  * It contains both the binary or textual content and the metadata needed by the renderer to
  * create the final persisted file artifact.
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  *
  * @codeCoverageIgnore
  */

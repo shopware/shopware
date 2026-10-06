@@ -9,6 +9,7 @@ use Shopware\Core\Content\MailTemplate\Request\PreviewRequest;
 use Shopware\Core\Content\MailTemplate\Request\SimulateRequest;
 use Shopware\Core\Content\MailTemplate\Service\Event\MailTemplateRenderContextEvent;
 use Shopware\Core\Content\MailTemplate\Validation\MailTemplateRenderResult;
+use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Adapter\Twig\StringTemplateRenderer;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -16,6 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Collection;
 use Shopware\Core\Framework\Struct\Struct;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -35,6 +37,8 @@ class MailTemplateService
         private readonly MailDataSimulator $mailDataSimulator,
         private readonly MailTemplateContentBuilder $mailTemplateContentBuilder,
         private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly AbstractTranslator $translator,
+        private readonly LanguageLocaleCodeProvider $languageLocaleProvider,
     ) {
     }
 
@@ -66,27 +70,40 @@ class MailTemplateService
         $templateData = $this->mailDataSimulator->getTemplateData($simulateRequest->eventName, $context, $simulateRequest->salesChannel);
         $templateData = $this->enrichTemplateDataForRendering($templateData, $context, $simulateRequest->salesChannel);
 
-        if (!$simulateRequest->strictRendering) {
-            $this->templateRenderer->enableTestMode();
-        }
+        $salesChannelId = $simulateRequest->salesChannel?->getId();
+        $injectTranslator = $salesChannelId !== null && $this->translator->getSnippetSetId() === null;
 
-        foreach ($simulateRequest->templateParts as $key => $content) {
-            try {
-                $rendered = $this->templateRenderer->render(
-                    $content,
-                    $templateData,
-                    $context,
-                    $this->shouldEscapeHtml($key),
-                );
-
-                $renderedResult[$key] = MailTemplateRenderResult::success($rendered);
-            } catch (\Throwable $e) {
-                $renderedResult[$key] = MailTemplateRenderResult::errorFromThrowable($e);
+        try {
+            if ($injectTranslator) {
+                $this->injectTranslator($context, $salesChannelId);
             }
-        }
 
-        if (!$simulateRequest->strictRendering) {
-            $this->templateRenderer->disableTestMode();
+            if (!$simulateRequest->strictRendering) {
+                $this->templateRenderer->enableTestMode();
+            }
+
+            foreach ($simulateRequest->templateParts as $key => $content) {
+                try {
+                    $rendered = $this->templateRenderer->render(
+                        $content,
+                        $templateData,
+                        $context,
+                        $this->shouldEscapeHtml($key),
+                    );
+
+                    $renderedResult[$key] = MailTemplateRenderResult::success($rendered);
+                } catch (\Throwable $e) {
+                    $renderedResult[$key] = MailTemplateRenderResult::errorFromThrowable($e);
+                }
+            }
+
+            if (!$simulateRequest->strictRendering) {
+                $this->templateRenderer->disableTestMode();
+            }
+        } finally {
+            if ($injectTranslator) {
+                $this->translator->resetInjection();
+            }
         }
 
         return $renderedResult;
@@ -109,39 +126,52 @@ class MailTemplateService
         );
         $templateData = $this->enrichTemplateDataForRendering($templateData, $context, $request->salesChannel);
 
-        if (!$request->strictRendering) {
-            $this->templateRenderer->enableTestMode();
-        }
+        $salesChannelId = $request->salesChannel?->getId();
+        $injectTranslator = $salesChannelId !== null && $this->translator->getSnippetSetId() === null;
 
-        $templateContent = $this->getTemplateContent($request->mailTemplate);
-
-        if ($request->includeHeaderFooter) {
-            $templateContent = array_replace(
-                $templateContent,
-                $this->mailTemplateContentBuilder->build([
-                    'contentPlain' => $templateContent['contentPlain'],
-                    'contentHtml' => $templateContent['contentHtml'],
-                ], $request->salesChannel)
-            );
-        }
-
-        foreach ($templateContent as $key => $value) {
-            try {
-                $rendered = $this->templateRenderer->render(
-                    $value,
-                    $templateData,
-                    $context,
-                    $this->shouldEscapeHtml($key),
-                );
-
-                $renderedResult[$key] = MailTemplateRenderResult::success($rendered);
-            } catch (\Throwable $e) {
-                $renderedResult[$key] = MailTemplateRenderResult::errorFromThrowable($e);
+        try {
+            if ($injectTranslator) {
+                $this->injectTranslator($context, $salesChannelId);
             }
-        }
 
-        if (!$request->strictRendering) {
-            $this->templateRenderer->disableTestMode();
+            if (!$request->strictRendering) {
+                $this->templateRenderer->enableTestMode();
+            }
+
+            $templateContent = $this->getTemplateContent($request->mailTemplate);
+
+            if ($request->includeHeaderFooter) {
+                $templateContent = array_replace(
+                    $templateContent,
+                    $this->mailTemplateContentBuilder->build([
+                        'contentPlain' => $templateContent['contentPlain'],
+                        'contentHtml' => $templateContent['contentHtml'],
+                    ], $request->salesChannel)
+                );
+            }
+
+            foreach ($templateContent as $key => $value) {
+                try {
+                    $rendered = $this->templateRenderer->render(
+                        $value,
+                        $templateData,
+                        $context,
+                        $this->shouldEscapeHtml($key),
+                    );
+
+                    $renderedResult[$key] = MailTemplateRenderResult::success($rendered);
+                } catch (\Throwable $e) {
+                    $renderedResult[$key] = MailTemplateRenderResult::errorFromThrowable($e);
+                }
+            }
+
+            if (!$request->strictRendering) {
+                $this->templateRenderer->disableTestMode();
+            }
+        } finally {
+            if ($injectTranslator) {
+                $this->translator->resetInjection();
+            }
         }
 
         return $renderedResult;
@@ -239,6 +269,16 @@ class MailTemplateService
             'contentHtml' => $mailTemplate->getContentHtml() ?? '',
             'contentPlain' => $mailTemplate->getContentPlain() ?? '',
         ];
+    }
+
+    private function injectTranslator(Context $context, string $salesChannelId): void
+    {
+        $this->translator->injectSettings(
+            $salesChannelId,
+            $context->getLanguageId(),
+            $this->languageLocaleProvider->getLocaleForLanguageId($context->getLanguageId()),
+            $context
+        );
     }
 
     private function shouldEscapeHtml(string $templatePart): bool

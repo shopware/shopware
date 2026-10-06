@@ -37,10 +37,9 @@ nonTestSourceFiles.forEach((sourceFile) => {
         if (ifStatement.wasForgotten()) return;
 
         const condition = ifStatement.getExpression();
-        const isVue3FeatureFlag = [
-            "this.feature.isActive('VUE3')",
-            "Shopware.Service('feature').isActive('VUE3')",
-        ].includes(condition.getText());
+        const isVue3FeatureFlag = ["this.feature.isActive('VUE3')", "Shopware.Service('feature').isActive('VUE3')"].includes(
+            condition.getText(),
+        );
 
         if (isVue3FeatureFlag) {
             const thenStatement = ifStatement.getThenStatement();
@@ -53,10 +52,7 @@ nonTestSourceFiles.forEach((sourceFile) => {
 
             ifStatement.replaceWithText(filteredIfStatementContent.map((statement) => statement.getText()).join('\n'));
         } else if (
-            [
-                "!this.feature.isActive('VUE3')",
-                "!Shopware.Service('feature').isActive('VUE3')",
-            ].includes(condition.getText())
+            ["!this.feature.isActive('VUE3')", "!Shopware.Service('feature').isActive('VUE3')"].includes(condition.getText())
         ) {
             if (ifStatement.getElseStatement()) {
                 const elseStatement = ifStatement.getElseStatement();

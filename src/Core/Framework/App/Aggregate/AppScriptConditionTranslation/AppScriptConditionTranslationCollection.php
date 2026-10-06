@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<AppScriptConditionTranslationEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class AppScriptConditionTranslationCollection extends EntityCollection

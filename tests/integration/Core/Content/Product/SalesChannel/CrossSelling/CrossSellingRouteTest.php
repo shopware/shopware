@@ -24,6 +24,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
@@ -654,13 +655,14 @@ class CrossSellingRouteTest extends TestCase
         $route = new ProductCrossSellingRoute(
             static::getContainer()->get('product_cross_selling.repository'),
             $eventDispatcher,
-            $this->createMock(ProductStreamBuilderInterface::class),
+            static::createStub(ProductStreamBuilderInterface::class),
             static::getContainer()->get('sales_channel.product.repository'),
-            $this->createMock(SystemConfigService::class),
-            $this->createMock(ProductListingLoader::class),
-            $this->createMock(AbstractProductCloseoutFilterFactory::class),
-            $this->createMock(CacheTagCollector::class),
+            static::createStub(SystemConfigService::class),
+            static::createStub(ProductListingLoader::class),
+            static::createStub(AbstractProductCloseoutFilterFactory::class),
+            static::createStub(CacheTagCollector::class),
             static::getContainer()->get(Connection::class),
+            new ExtensionDispatcher(new EventDispatcher()),
         );
 
         $productId = Uuid::randomHex();

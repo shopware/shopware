@@ -45,9 +45,7 @@ function buildProduct() {
     return {
         crossSellings: [
             {
-                assignedProducts: [
-                    'bar',
-                ],
+                assignedProducts: ['bar'],
             },
         ],
     };
@@ -88,9 +86,7 @@ describe('src/module/sw-product/view/sw-product-detail-cross-selling', () => {
         await wrapper.setData({ product: customProduct });
         await flushPromises();
 
-        expect(customProduct.crossSellings[0].assignedProducts).toStrictEqual([
-            'bar',
-        ]);
+        expect(customProduct.crossSellings[0].assignedProducts).toStrictEqual(['bar']);
     });
 
     it('should show inherited state when product is a variant', async () => {

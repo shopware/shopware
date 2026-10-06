@@ -115,7 +115,10 @@
       "placeholderPaymentDueDate": "Enter payment due date..."
     },
     "errors": {
-      "invalidDueDateFormat": "The date modifier is invalid."
+      "invalidDueDateFormat": "The date modifier is invalid.",
+      "duplicateFilenameInfix": "Produces the same filename as {formats}.",
+      "duplicateFilenameInfixInSalesChannelConfig": "Produces the same filename as {formats} in the sales channel configuration {configs}.",
+      "duplicateFilenameInfixInherited": "The inherited infix \"{infix}\" produces the same filename as {formats}."
     }
   },
   "sw-privileges": {

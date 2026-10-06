@@ -39,7 +39,7 @@ export default class RepositoryFactory {
      * Creates a repository for the provided entity.
      * The route parameter allows to configure a custom route for the entity - used for association loading.
      */
-    create<EntityName extends keyof EntitySchema.Entities>(
+    create<EntityName extends keyof EntitySchema.EntityKeys>(
         entityName: EntityName,
         route = '',
         options = {},

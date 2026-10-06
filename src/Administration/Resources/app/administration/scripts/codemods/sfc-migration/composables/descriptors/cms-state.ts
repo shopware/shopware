@@ -24,9 +24,7 @@ const CMS_STATE_MEMBERS: Record<string, ComposableMember> = {
         'contentEntity',
         'inheritedSlotConfig',
     ]),
-    ...methodMembers([
-        'getSlotConfigForLanguage',
-    ]),
+    ...methodMembers(['getSlotConfigForLanguage']),
 };
 
 /**

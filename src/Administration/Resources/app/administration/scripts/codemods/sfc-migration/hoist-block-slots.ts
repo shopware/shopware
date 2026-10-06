@@ -156,18 +156,7 @@ function findSites(nodes: TemplateChildNode[], parent: ElementNode | null, ances
             sites.push({ slot: element, chain, reason });
         }
 
-        sites.push(
-            ...findSites(
-                element.children,
-                element,
-                parent === null
-                    ? []
-                    : [
-                          ...ancestors,
-                          parent,
-                      ],
-            ),
-        );
+        sites.push(...findSites(element.children, element, parent === null ? [] : [...ancestors, parent]));
     }
 
     return sites;

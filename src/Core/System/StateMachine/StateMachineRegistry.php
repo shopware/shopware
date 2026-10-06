@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StateMachineStateField;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineHistory\StateMachineHistoryCollection;
@@ -74,7 +75,11 @@ class StateMachineRegistry implements ResetInterface
             ->setLimit(1);
 
         $criteria->getAssociation('transitions')
-            ->addSorting(new FieldSorting('state_machine_transition.actionName'))
+            ->addSorting(
+                new FieldSorting('state_machine_transition.actionName'),
+                new FieldSorting('state_machine_transition.createdAt'),
+                new FieldSorting('state_machine_transition.id')
+            )
             ->addAssociation('fromStateMachineState')
             ->addAssociation('toStateMachineState');
 
@@ -327,6 +332,8 @@ class StateMachineRegistry implements ResetInterface
         $stateMachineTransitions = $stateMachine->getTransitions();
         \assert($stateMachineTransitions !== null);
 
+        // @deprecated tag:v6.8.0 - remove the $destinations collection and return the first matching $toState directly again; the unique key on state_machine_transition guarantees a single destination per action and source state
+        $destinations = [];
         foreach ($stateMachineTransitions as $transition) {
             // Not the transition that was requested step over
             if ($transition->getActionName() !== $transitionName) {
@@ -350,8 +357,27 @@ class StateMachineRegistry implements ResetInterface
 
             // Desired transition found
             if ($fromState->getId() === $fromStateId) {
-                return $toState;
+                $destinations[] = $toState;
             }
+        }
+
+        // @deprecated tag:v6.8.0 - remove the ambiguity handling together with the $destinations collection
+        if (\count($destinations) > 1) {
+            $toStateNames = array_map(static fn (StateMachineStateEntity $state): string => $state->getTechnicalName(), $destinations);
+
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                \sprintf(
+                    'The action "%s" of state machine "%s" resolves to multiple destination states ("%s") from the same source state. A state machine action must have exactly one destination state per source state.',
+                    $transitionName,
+                    $stateMachineName,
+                    implode('", "', $toStateNames)
+                )
+            );
+        }
+
+        if ($destinations !== []) {
+            return $destinations[0];
         }
 
         if ($context->hasState(SetOrderStateAction::FORCE_TRANSITION)) {

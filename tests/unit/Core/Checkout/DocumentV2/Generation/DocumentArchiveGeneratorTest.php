@@ -4,15 +4,16 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Generation;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentEntity;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentArchiveGenerator;
 use Shopware\Core\Checkout\DocumentV2\Renderer\DocumentRendererRegistry;
+use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileNameBuilder;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaService;
@@ -20,6 +21,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures\StaticDocumentRenderer;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -29,6 +31,8 @@ use Symfony\Component\Filesystem\Filesystem;
 #[CoversClass(DocumentArchiveGenerator::class)]
 class DocumentArchiveGeneratorTest extends TestCase
 {
+    private const DOWNLOAD_DATE = '2026-01-15';
+
     public function testArchiveContainsAllDocumentFiles(): void
     {
         $pdfMediaId = Uuid::randomHex();
@@ -286,7 +290,7 @@ class DocumentArchiveGeneratorTest extends TestCase
             ->archive(new DocumentCollection([$firstInvoice, $secondInvoice]), Context::createDefaultContext());
 
         static::assertNotNull($archive);
-        static::assertSame('documents.zip', $archive->getName());
+        static::assertSame('documents_' . self::DOWNLOAD_DATE . '.zip', $archive->getName());
 
         $this->assertArchiveContains($archive, [
             '10000_invoice_1000.pdf' => 'first invoice content',
@@ -335,6 +339,45 @@ class DocumentArchiveGeneratorTest extends TestCase
         $this->assertArchiveContains($archive, [
             \sprintf('%s_document_1000.pdf', $firstOrderId) => 'first invoice content',
             \sprintf('%s_document_1000.pdf', $secondOrderId) => 'second invoice content',
+        ]);
+    }
+
+    public function testArchiveFallsBackToDocumentIdForOrderlessDocuments(): void
+    {
+        $firstMediaId = Uuid::randomHex();
+        $secondMediaId = Uuid::randomHex();
+
+        $firstDocument = new DocumentEntity();
+        $firstDocument->setId(Uuid::randomHex());
+        $firstDocument->setConfig(['documentNumber' => '1000']);
+        $firstDocument->setDocumentFiles(new DocumentFileCollection([
+            $this->createDocumentFile($firstMediaId, DocumentFormat::PDF->value, 'document_1000', DocumentFormat::PDF->fileExtension(), DocumentFormat::PDF->mimeType()),
+        ]));
+
+        $secondDocument = new DocumentEntity();
+        $secondDocument->setId(Uuid::randomHex());
+        $secondDocument->setConfig(['documentNumber' => '1000']);
+        $secondDocument->setDocumentFiles(new DocumentFileCollection([
+            $this->createDocumentFile($secondMediaId, DocumentFormat::PDF->value, 'document_1000', DocumentFormat::PDF->fileExtension(), DocumentFormat::PDF->mimeType()),
+        ]));
+
+        $mediaService = $this->createMock(MediaService::class);
+        $mediaService->expects($this->exactly(2))
+            ->method('loadFile')
+            ->willReturnCallback(static fn (string $mediaId): string => match ($mediaId) {
+                $firstMediaId => 'first document content',
+                $secondMediaId => 'second document content',
+                default => throw new \RuntimeException('Unexpected media id.'),
+            });
+
+        $archive = $this->createArchiveGenerator($mediaService)
+            ->archive(new DocumentCollection([$firstDocument, $secondDocument]), Context::createDefaultContext());
+
+        static::assertNotNull($archive);
+
+        $this->assertArchiveContains($archive, [
+            \sprintf('%s_document_1000.pdf', $firstDocument->getId()) => 'first document content',
+            \sprintf('%s_document_1000.pdf', $secondDocument->getId()) => 'second document content',
         ]);
     }
 
@@ -412,6 +455,7 @@ class DocumentArchiveGeneratorTest extends TestCase
                 new StaticDocumentRenderer(DocumentFormat::HTML),
                 new StaticDocumentRenderer('custom_format', fileExtension: 'custom'),
             ]),
+            new DocumentFileNameBuilder(new MockClock(self::DOWNLOAD_DATE . ' 10:00:00')),
         );
     }
 

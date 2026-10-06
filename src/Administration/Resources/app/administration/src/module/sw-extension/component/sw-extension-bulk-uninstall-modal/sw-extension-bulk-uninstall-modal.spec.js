@@ -72,8 +72,6 @@ describe('src/module/sw-extension/component/sw-extension-bulk-uninstall-modal', 
 
         await wrapper.vm.emitConfirm();
 
-        expect(wrapper.emitted()).toHaveProperty('confirm', [
-            [false],
-        ]);
+        expect(wrapper.emitted()).toHaveProperty('confirm', [[false]]);
     });
 });

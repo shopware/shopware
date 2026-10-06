@@ -239,15 +239,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LineItemFactoryRegistry::class),
             service('event_dispatcher'),
             service(CartLocker::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartLoadRoute::class)
         ->public()
         ->args([
-            service(CartPersister::class),
-            service(CartFactory::class),
             service(CartCalculator::class),
             service(TaxProviderProcessor::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartDeleteRoute::class)
@@ -256,6 +256,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CartPersister::class),
             service('event_dispatcher'),
             service(CartLocker::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartItemRemoveRoute::class)
@@ -265,6 +266,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(CartCalculator::class),
             service(CartPersister::class),
             service(CartLocker::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartItemAddRoute::class)
@@ -276,6 +278,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LineItemFactoryRegistry::class),
             service('shopware.rate_limiter'),
             service(CartLocker::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CartOrderRoute::class)
@@ -300,6 +303,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shipping_method.repository'),
             service(CartRuleLoader::class),
             service(CheckoutGatewayRoute::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(ProductShippingCostRoute::class)
@@ -308,6 +312,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ProductGateway::class),
             service('shipping_method.repository'),
             service(Processor::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(QuantityPriceCalculator::class)
@@ -399,6 +404,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(PaymentMethodRoute::class),
             service(ShippingMethodRoute::class),
             service(AppCheckoutGateway::class),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(CheckoutGatewayCommandRegistry::class)
@@ -572,6 +578,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Processor::class),
             service(CartRuleLoader::class),
             service(PromotionItemBuilder::class),
+            service(LineItemFactoryRegistry::class),
         ]);
 
     $services->set(CartRuleLoader::class)

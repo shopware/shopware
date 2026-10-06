@@ -161,7 +161,7 @@
             "propertyLabel": "Properties",
             "mappingAutomatedDescription": "Shopware has automatically mapped {automatedCount} database entries. Please complete the process by assigning unmapped entries to the correct database entry manually. Required fields that are left empty will cause errors during import unless default values have been set. Default values will also be used to fill empty database entries.",
             "mappingDescription": "Use the table below to map the CSV column names to Shopware database entries. Empty required fields will cause errors during import unless default values have been set.",
-            "mappingEmptyState": "No custom mapping provided yet.",
+            "mappingEmptyState": "No custom mapping yet",
             "advancedDescription": "Identifiers are used to unambiguously determine updateable entities and thus have to be unique.",
             "configuratorSettingLabel": "Variant configuration settings",
             "productCrossSellingLabel": "Cross Selling",

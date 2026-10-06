@@ -9,7 +9,7 @@ use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
-use Shopware\Core\Checkout\Customer\Exception\BadCredentialsException;
+use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\SalesChannel\LoginRoute;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -23,7 +23,6 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\System\SalesChannel\ContextTokenResponse;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -162,8 +161,6 @@ class LoginRouteTest extends TestCase
 
     public function testLoginWithInvalidBoundSalesChannelId(): void
     {
-        static::expectException(BadCredentialsException::class);
-
         $email = Uuid::randomHex() . '@example.com';
         $salesChannel = $this->createSalesChannel([
             'id' => Uuid::randomHex(),
@@ -179,9 +176,7 @@ class LoginRouteTest extends TestCase
 
         $requestDataBag = new RequestDataBag(['email' => $email, 'password' => 'shopware']);
 
-        $success = $loginRoute->login($requestDataBag, $salesChannelContext);
-        static::assertInstanceOf(ContextTokenResponse::class, $success);
-
+        static::expectExceptionObject(CustomerException::badCredentials());
         $loginRoute->login($requestDataBag, $salesChannelContext);
     }
 

@@ -20,19 +20,15 @@ interface PromotionCodeItem {
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'feature',
-    ],
+    inject: ['feature'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('cart-notification'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('cart-notification')],
 
     data(): {
         isLoading: boolean;
         isProductGridLoading: boolean;
         disabledAutoPromotion: boolean;
+        sendOrderConfirmationMail: boolean;
         promotionCodes: string[];
         productItems: LineItem[];
         context: ContextSwitchParameters;
@@ -45,22 +41,23 @@ export default Component.wrapComponentConfig({
             isLoading: false,
             isProductGridLoading: false,
             disabledAutoPromotion: false,
+            sendOrderConfirmationMail: true,
             shippingCosts: null,
             activeTab: 'customer',
             context: {
-                currencyId: '',
-                paymentMethodId: '',
-                shippingMethodId: '',
-                languageId: '',
-                billingAddressId: '',
-                shippingAddressId: '',
+                currencyId: '' as EntityKey<'currency'>,
+                paymentMethodId: '' as EntityKey<'payment_method'>,
+                shippingMethodId: '' as EntityKey<'shipping_method'>,
+                languageId: '' as EntityKey<'language'>,
+                billingAddressId: '' as EntityKey<'customer_address'>,
+                shippingAddressId: '' as EntityKey<'customer_address'>,
             },
         };
     },
 
     computed: {
-        salesChannelId(): string {
-            return this.customer?.salesChannelId ?? '';
+        salesChannelId(): EntityKey<'sales_channel'> {
+            return this.customer?.salesChannelId ?? ('' as EntityKey<'sales_channel'>);
         },
 
         salesChannelContext(): SalesChannelContext {
@@ -125,8 +122,8 @@ export default Component.wrapComponentConfig({
                 languageId: value.context.languageIdChain[0],
                 shippingMethodId: value.shippingMethod.id,
                 paymentMethodId: value.paymentMethod.id,
-                billingAddressId: value.customer?.activeBillingAddress?.id ?? '',
-                shippingAddressId: value.customer?.activeShippingAddress?.id ?? '',
+                billingAddressId: value.customer?.activeBillingAddress?.id ?? ('' as EntityKey<'customer_address'>),
+                shippingAddressId: value.customer?.activeShippingAddress?.id ?? ('' as EntityKey<'customer_address'>),
             };
         },
     },
@@ -147,6 +144,7 @@ export default Component.wrapComponentConfig({
             const promises = [];
 
             this.isLoading = true;
+            Store.get('swOrder').setSendOrderConfirmationMail(this.sendOrderConfirmationMail);
 
             promises.push(this.updateOrderContext());
 
@@ -216,6 +214,10 @@ export default Component.wrapComponentConfig({
 
         updateAutoPromotionToggle(value: boolean): void {
             this.disabledAutoPromotion = value;
+        },
+
+        updateSendOrderConfirmationMail(value: boolean): void {
+            this.sendOrderConfirmationMail = value;
         },
 
         updateShippingCost(value: number): void {

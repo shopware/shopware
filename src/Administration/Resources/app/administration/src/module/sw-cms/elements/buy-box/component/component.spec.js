@@ -11,9 +11,7 @@ const productMock = {
     deliveryTime: {
         name: '1-3 days',
     },
-    price: [
-        { gross: 100 },
-    ],
+    price: [{ gross: 100 }],
 };
 
 async function createWrapper(props = {}) {
@@ -155,9 +153,7 @@ describe('module/sw-cms/elements/buy-box/component', () => {
             deliveryTime: {
                 name: '1-3 days',
             },
-            price: [
-                { gross: 0.0 },
-            ],
+            price: [{ gross: 0.0 }],
         });
     });
 });

@@ -231,8 +231,10 @@ $nesting-line-indent: 36px;
 }
 
 // An active sub item picks up the same neutral background as its colored parent row and keeps
-// the regular text color, so only the marker signals the active state.
-.navigation-list-item__level-1.is--module-colored .navigation-list-item--nested {
+// the regular text color, so only the marker signals the active state. The collapsed flyout is
+// teleported to the body, so it carries the module color itself instead of inheriting it.
+.navigation-list-item__level-1.is--module-colored .navigation-list-item--nested,
+.sw-admin-menu__flyout-content.is--module-colored .navigation-list-item--nested {
     > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link.router-link-active {
         background: var(--color-interaction-secondary-hover);
         color: var(--color-text-primary-default);

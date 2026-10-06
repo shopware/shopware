@@ -28,10 +28,7 @@ export default {
         'inheritance-remove',
     ],
 
-    mixins: [
-        Mixin.getByName('sw-form-field'),
-        Mixin.getByName('remove-api-error'),
-    ],
+    mixins: [Mixin.getByName('sw-form-field'), Mixin.getByName('remove-api-error')],
 
     props: {
         value: {

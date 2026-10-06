@@ -1,5 +1,5 @@
 import { reactive } from 'vue';
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import RuleConditionService from 'src/app/service/rule-condition.service';
 import { PRODUCT_STREAM_CONDITIONS } from '../../constant/sw-settings-rule.constant';
 
@@ -57,9 +57,7 @@ async function createWrapper(props = defaultProps, privileges = ['rule.editor'])
                 'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
                 'sw-condition-tree': swConditionTree,
                 'sw-popover': await wrapTestComponent('sw-popover'),
-                'sw-popover-deprecated': {
-                    template: '<div class="sw-popover"><slot></slot></div>',
-                },
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
                 'sw-text-field': true,
                 'mt-number-field': true,
                 'mt-textarea': true,
@@ -147,7 +145,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             await wrapper.find('.sw-select__selection').trigger('click');
             await flushPromises();
 
-            await wrapper.find('.sw-select-result').trigger('click');
+            await new DOMWrapper(document.body).find('.sw-select-result').trigger('click');
             await flushPromises();
 
             expect(wrapper.vm.rule.moduleTypes).toEqual({
@@ -171,7 +169,7 @@ describe('src/module/sw-settings-rule/view/sw-settings-rule-detail-base', () => 
             await wrapper.find('.sw-select__selection').trigger('click');
             await flushPromises();
 
-            await wrapper.find('.sw-select-result').trigger('click');
+            await new DOMWrapper(document.body).find('.sw-select-result').trigger('click');
             await flushPromises();
 
             expect(wrapper.vm.rule.moduleTypes).toBeNull();

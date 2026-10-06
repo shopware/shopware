@@ -21,10 +21,7 @@ export default {
         },
     },
 
-    emits: [
-        'inheritance-restore',
-        'inheritance-remove',
-    ],
+    emits: ['inheritance-restore', 'inheritance-remove'],
 
     props: {
         isInherited: {

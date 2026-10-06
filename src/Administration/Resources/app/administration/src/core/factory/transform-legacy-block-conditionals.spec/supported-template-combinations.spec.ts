@@ -42,10 +42,7 @@ describe('core/factory/transform-legacy-block-conditionals.ts - supported templa
     });
 
     it('rewrites legacy Twig chains continuing across different block entries', () => {
-        const [
-            leadingEntry,
-            fallbackEntry,
-        ] = transformLegacyTwigBlockSequenceConditionals(
+        const [leadingEntry, fallbackEntry] = transformLegacyTwigBlockSequenceConditionals(
             [
                 {
                     blockName: 'test_block',

@@ -15,7 +15,7 @@ use Shopware\Core\Framework\Log\Package;
  * Renderers can depend on other formats and consume their output from RenderState, which makes
  * chained generation flows like HTML -> PDF -> embedded PDF explicit in code.
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  *
  * @codeCoverageIgnore
  */

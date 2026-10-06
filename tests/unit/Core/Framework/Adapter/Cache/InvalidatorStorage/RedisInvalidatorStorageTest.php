@@ -29,6 +29,29 @@ class RedisInvalidatorStorageTest extends TestCase
         static::assertSame([], $storage->loadAndDelete());
     }
 
+    public function testStoreIgnoresTagKeys(): void
+    {
+        $logger = static::createStub(LoggerInterface::class);
+        $storage = new RedisInvalidatorStorage(new RedisStub(), $logger);
+
+        $storage->store([
+            'abcdef0123456789abcdef0123456789' => 'cms-page-example',
+            'fedcba9876543210fedcba9876543210' => 'product-example',
+        ]);
+
+        static::assertSame(['cms-page-example', 'product-example'], $storage->loadAndDelete());
+    }
+
+    public function testStoreWithoutTags(): void
+    {
+        $logger = static::createStub(LoggerInterface::class);
+        $storage = new RedisInvalidatorStorage(new RedisStub(), $logger);
+
+        $storage->store([]);
+
+        static::assertSame([], $storage->loadAndDelete());
+    }
+
     public function testLoadAndDeleteFallbackOnTransactionFailure(): void
     {
         $redis = $this->createMock(\Redis::class);

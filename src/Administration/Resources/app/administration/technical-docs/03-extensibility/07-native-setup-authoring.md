@@ -40,7 +40,7 @@ swDefineOverride({ doubled });
 
 The transform runs before Vue compiles the SFC.
 
-**Base.** The author body stays exactly as written — plain `<script setup>`, macros in place, nothing hoisted or wrapped. The transform only (1) renames each top-level runtime binding to a reserved `__swSetupAuthor_<name>` alias and (2) appends a generated `Shopware.Component.attachOverrides({ public, private })` footer that re-declares the original names from the override wrapper. Templates read overrideable state exactly as before.
+**Base.** The author body stays exactly as written — plain `<script setup>`, macros in place, nothing hoisted or wrapped. The transform only (1) renames each top-level runtime binding to a reserved `__swSetupAuthor_<name>` alias, (2) appends a generated `Shopware.Component.attachOverrides({ public, private })` footer that re-declares the original names from the override wrapper, and (3) closes that footer with a generated `defineExpose()` carrying the component's props and its `swDefinePublic()` entries (see [swDefinePublic() is also the parent-facing surface](#swdefinepublic-is-also-the-parent-facing-surface)). Templates read overrideable state exactly as before.
 
 Base mode is **auto-private**: every supported top-level runtime binding becomes private state unless it is listed in `swDefinePublic({...})`, which every base component must declare (see [Setup markers](#setup-markers)). Private state is still normal component/template state — it is only hidden from the top-level public override API. Overrides reach it through the `_private` group of the previous-state payload (`override(({ publicName, _private }) => ...)`). Macro-derived bindings are treated the same way: `const props = defineProps(...)`, `const emit = defineEmits(...)`, and `const slots = defineSlots(...)` become private state under their declared names, so templates can reference `emit`, `slots`, and `props.<name>` directly.
 
@@ -101,11 +101,38 @@ Renaming, string keys, computed keys, spreads, and non-object-literal arguments 
 
 **Both markers are mandatory in their mode** — pass an empty object when there is nothing to declare (`swDefinePublic({})` for a base component with no public state, `swDefineOverride({})` for a template-only override). A transformed base component is an extension point: its filename becomes the public override target and its bindings become overrideable state. Requiring the marker keeps that from happening merely because a file carries a `<script setup>` block, and it tells a reader at a glance that the file is lowered rather than being a plain Vue SFC.
 
+### swDefinePublic() is also the parent-facing surface
+
+`swDefinePublic({...})` declares one surface, used in two directions. Besides marking what an override may replace, the transform generates a `defineExpose()` call from the same entries, so a parent holding a template ref reads and writes exactly those bindings:
+
+```text
+// sw-tree-item.vue
+const opened = ref(false);
+function openTreeItem() { opened.value = true; }
+
+swDefinePublic({ opened, openTreeItem });
+```
+
+```text
+// a consumer
+const item = useTemplateRef('treeItem');
+item.value.openTreeItem();
+item.value.opened = false;      // writes through to the component's own ref
+```
+
+**Authoring `defineExpose()` yourself is rejected** — there is one declaration, and the transform owns the call. Vue allows a single `defineExpose()` per block, and a second, hand-written one could disagree with what overrides see.
+
+**Props ride along, and you never declare them.** The generated call spreads the component's own props in front of the public bindings, so `ref.value.label` keeps working after a component is lowered. They are read-only — a prop belongs to the parent that passes it, so writing one through the ref warns and changes nothing.
+
+The one consequence to know: **a binding you left out of `swDefinePublic()` is invisible to a parent, not only to overrides.** It reads as `undefined` through a template ref. Add it to the marker if a parent needs it.
+
+Reaching in through Vue internals — `vnode.component.proxy`, or walking `subTree.children` to find an instance — is not covered by any of this and never was. A `<script setup>` component hides its setup state from the instance proxy, and `defineExpose()` does not change what that proxy returns. Use a template ref.
+
 ## Differences from native setup
 
 - Base public/private state is explicit Shopware extension state, not native setup-return behaviour.
 - Override SFCs register with `overrideComponentSetup(...)` at import time.
-- **Base mode does not touch the Vue macros at all.** `defineProps`, `withDefaults`, `defineEmits`, `defineSlots`, `defineExpose`, and `defineOptions` stay where you wrote them and are compiled by Vue with their normal semantics — including Vue's own rules on how many times each may appear, and Vue's own diagnostics for macro arguments it cannot hoist. The transform only renames top-level bindings and appends the footer.
+- **Base mode does not touch the Vue macros at all.** `defineProps`, `withDefaults`, `defineEmits`, `defineSlots`, and `defineOptions` stay where you wrote them and are compiled by Vue with their normal semantics — including Vue's own rules on how many times each may appear, and Vue's own diagnostics for macro arguments it cannot hoist. The transform only renames top-level bindings and appends the footer.
 - **Override mode moves the author body into a callback**, so imports and type-only declarations (`interface`, `type`, ambient `declare`) are lifted back to the generated script root — matching how Vue keeps them at the module root. Ambient `declare` statements describe values provided elsewhere and are never returned as setup state.
 - **Forwarded override bindings are read-only in the template.** Inside `<sw-block extends>` content a forwarded binding arrives ref-unwrapped as a slot-scope local, so Vue's compiler applies none of the ref handling it gives a setup binding — no `.value` write-through. A template write (`@click="count = count + 1"`, `count++`) reassigns the slot-scope local and silently no-ops, where the identical line mutates state in a base component. The transform rejects such writes at build time; mutate from a method defined in the override setup instead.
 - Vue macros other than the base-mode set above are unsupported in either mode.
@@ -117,7 +144,8 @@ The transform rejects these at build time:
 
 - Script languages other than `js`, `jsx`, `ts`, and `tsx`
 - `defineModel()`, in either mode
-- Base-mode macros used in override mode (`defineProps`, `withDefaults`, `defineEmits`, `defineExpose`, `defineSlots`, `defineOptions`)
+- `defineExpose()`, in either mode — the transform generates it from `swDefinePublic({...})`
+- Base-mode macros used in override mode (`defineProps`, `withDefaults`, `defineEmits`, `defineSlots`, `defineOptions`)
 - Override-only helpers (`useSwPreviousState()`, `useSwProps()`, `useSwContext()`) in base mode
 - Top-level `await`
 - An SFC without a `<script setup>` block — a plain `<script>` (Options API) or a template-only `.vue` file. Every `.vue` component is extendable, and the markers that declare that only exist in `<script setup>`, so such a file would compile into a component nothing can override

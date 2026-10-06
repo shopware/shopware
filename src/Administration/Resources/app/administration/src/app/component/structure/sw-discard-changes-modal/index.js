@@ -16,10 +16,7 @@ import template from './sw-discard-changes-modal.html.twig';
 export default {
     template,
 
-    emits: [
-        'keep-editing',
-        'discard-changes',
-    ],
+    emits: ['keep-editing', 'discard-changes'],
 
     methods: {
         keepEditing() {

@@ -21,9 +21,7 @@ export default defineComponent({
 
     inject: ['messageStatsService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {

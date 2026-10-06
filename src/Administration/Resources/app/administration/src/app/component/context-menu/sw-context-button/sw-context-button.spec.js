@@ -77,10 +77,7 @@ describe('src/app/component/context-menu/sw-context-button', () => {
         await flushPromises();
 
         expect(wrapper.find('.sw-context-menu').exists()).toBeFalsy();
-        expect(wrapper.emitted('on-open-change')).toEqual([
-            [true],
-            [false],
-        ]);
+        expect(wrapper.emitted('on-open-change')).toEqual([[true], [false]]);
 
         outsideButton.removeEventListener('click', stopClickPropagation);
         outsideButton.remove();

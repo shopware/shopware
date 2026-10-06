@@ -71,10 +71,7 @@ const HEADLESS_DEFAULTS = [
     headlessDefault('category', 'store-api.category.detail'),
 ];
 
-const ALL_DEFAULTS = [
-    ...STOREFRONT_DEFAULTS,
-    ...HEADLESS_DEFAULTS,
-];
+const ALL_DEFAULTS = [...STOREFRONT_DEFAULTS, ...HEADLESS_DEFAULTS];
 
 async function createWrapper({ defaultTemplates = ALL_DEFAULTS, salesChannelTemplates = [] } = {}) {
     const seoUrlTemplateService = {
@@ -211,31 +208,11 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
     });
 
     it.each([
-        [
-            'storefront',
-            STOREFRONT_SALES_CHANNEL_ID,
-            true,
-        ],
-        [
-            'headless',
-            HEADLESS_SALES_CHANNEL_ID,
-            true,
-        ],
-        [
-            'product comparison',
-            PRODUCT_COMPARISON_SALES_CHANNEL_ID,
-            false,
-        ],
-        [
-            'agentic commerce',
-            AGENTIC_COMMERCE_SALES_CHANNEL_ID,
-            false,
-        ],
-        [
-            'none selected',
-            null,
-            true,
-        ],
+        ['storefront', STOREFRONT_SALES_CHANNEL_ID, true],
+        ['headless', HEADLESS_SALES_CHANNEL_ID, true],
+        ['product comparison', PRODUCT_COMPARISON_SALES_CHANNEL_ID, false],
+        ['agentic commerce', AGENTIC_COMMERCE_SALES_CHANNEL_ID, false],
+        ['none selected', null, true],
     ])('should determine SEO URL template support for a %s sales channel', async (_, salesChannelId, supported) => {
         const { wrapper } = await createWrapper();
 
@@ -245,14 +222,8 @@ describe('src/module/sw-settings-seo/component/sw-seo-url-template-card', () => 
     });
 
     it.each([
-        [
-            'product comparison',
-            PRODUCT_COMPARISON_SALES_CHANNEL_ID,
-        ],
-        [
-            'agentic commerce',
-            AGENTIC_COMMERCE_SALES_CHANNEL_ID,
-        ],
+        ['product comparison', PRODUCT_COMPARISON_SALES_CHANNEL_ID],
+        ['agentic commerce', AGENTIC_COMMERCE_SALES_CHANNEL_ID],
     ])(
         'should show the not-supported message instead of template fields for a %s sales channel',
         async (_, salesChannelId) => {

@@ -33,7 +33,7 @@ class EntitySearchToolIntegrationTest extends TestCase
         $criteriaBuilder = static::getContainer()->get(RequestCriteriaBuilder::class);
         \assert($criteriaBuilder instanceof RequestCriteriaBuilder);
 
-        $contextProvider = $this->createMock(McpContextProvider::class);
+        $contextProvider = static::createStub(McpContextProvider::class);
         $contextProvider->method('getContext')->willReturn(Context::createDefaultContext());
 
         $encoder = static::getContainer()->get(JsonEntityEncoder::class);

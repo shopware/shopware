@@ -6,13 +6,17 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Checkout\Customer\CustomerCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Exception\CustomerAlreadyConfirmedException;
+use Shopware\Core\Checkout\Customer\Extension\RegisterConfirmRouteExtension;
+use Shopware\Core\Checkout\Customer\SalesChannel\CustomerResponse;
 use Shopware\Core\Checkout\Customer\SalesChannel\RegisterConfirmRoute;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Hasher;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -24,6 +28,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\Clock\NativeClock;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Validator\Constraints\IsTrue;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
@@ -176,6 +181,34 @@ class RegisterConfirmRouteTest extends TestCase
         $this->route->confirm($this->mockRequestDataBag(), $this->context);
     }
 
+    public function testPublishesExtension(): void
+    {
+        $dataBag = new RequestDataBag();
+        $response = new CustomerResponse(new CustomerEntity());
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('register-confirm-route.confirm.pre', function (RegisterConfirmRouteExtension $extension) use ($dataBag, $response): void {
+            static::assertSame(['dataBag' => $dataBag, 'context' => $this->context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $this->customerRepository->expects($this->never())->method('search');
+
+        $route = new RegisterConfirmRoute(
+            $this->customerRepository,
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(DataValidator::class),
+            static::createStub(SalesChannelContextPersister::class),
+            static::createStub(SalesChannelContextServiceInterface::class),
+            static::createStub(ClockInterface::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->confirm($dataBag, $this->context));
+    }
+
     protected function mockCustomer(): CustomerEntity
     {
         $customer = new CustomerEntity();
@@ -206,7 +239,8 @@ class RegisterConfirmRouteTest extends TestCase
             $validator ?? $this->validator,
             $this->salesChannelContextPersister,
             $this->salesChannelContextService,
-            new NativeClock()
+            new NativeClock(),
+            new ExtensionDispatcher(new EventDispatcher())
         );
     }
 }

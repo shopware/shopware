@@ -11,17 +11,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'systemConfigApiService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'systemConfigApiService'],
 
     emits: ['media-open'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         disabled: {

@@ -37,6 +37,7 @@ import MtTextField from '@shopware-ag/meteor-component-library/dist/esm/MtTextFi
 import MtTextarea from '@shopware-ag/meteor-component-library/dist/esm/MtTextarea';
 import MtThemeSelect from '@shopware-ag/meteor-component-library/dist/esm/MtThemeSelect';
 import MtIcon from '@shopware-ag/meteor-component-library/dist/esm/MtIcon';
+import MtInset from '@shopware-ag/meteor-component-library/dist/esm/MtInset';
 import MtPagination from '@shopware-ag/meteor-component-library/dist/esm/MtPagination';
 import MtSkeletonBar from '@shopware-ag/meteor-component-library/dist/esm/MtSkeletonBar';
 import MtToast from '@shopware-ag/meteor-component-library/dist/esm/MtToast';
@@ -53,6 +54,7 @@ import MtLink from '@shopware-ag/meteor-component-library/dist/esm/MtLink';
 import MtUnitField from '@shopware-ag/meteor-component-library/dist/esm/MtUnitField';
 import MtSnackbar from '@shopware-ag/meteor-component-library/dist/esm/MtSnackbar';
 import MtBadge from '@shopware-ag/meteor-component-library/dist/esm/MtBadge';
+import MtStatusDot from '@shopware-ag/meteor-component-library/dist/esm/MtStatusDot';
 import MtPromoBadge from '@shopware-ag/meteor-component-library/dist/esm/MtPromoBadge';
 import MtActionMenu from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenu';
 import MtActionMenuItem from '@shopware-ag/meteor-component-library/dist/esm/MtActionMenuItem';
@@ -65,6 +67,7 @@ import {
     MtDropdownMenuSub,
 } from '@shopware-ag/meteor-component-library';
 
+import { attachSetupOverrideShim } from '../composition-extension-system/options-api-setup-shim';
 import getBlockDataScope from '../../component/structure/sw-block-override/sw-block/get-block-data-scope';
 import useLegacyConditionContext from '../../component/structure/sw-block-override/shim/legacy-condition-context';
 import type { LegacyConditionCaseOptions } from '../../component/structure/sw-block-override/shim/legacy-condition-context';
@@ -102,11 +105,7 @@ type RouteEnterCallback =
     Exclude<Parameters<NavigationGuardNext>[0], undefined> extends (vm: infer VM) => void ? (vm: VM) => void : never;
 type RouteGuardResult = false | RouteLocationRaw | Error | RouteEnterCallback | undefined;
 
-const routeGuardNames: RouteGuardName[] = [
-    'beforeRouteEnter',
-    'beforeRouteLeave',
-    'beforeRouteUpdate',
-];
+const routeGuardNames: RouteGuardName[] = ['beforeRouteEnter', 'beforeRouteLeave', 'beforeRouteUpdate'];
 
 /**
  * @private
@@ -173,11 +172,7 @@ export default class VueAdapter extends ViewAdapter {
                 );
                 // This is a workaround to avoid breaking changes for the $tc function which that swap the second and
                 // third parameters in the latest version.
-                return [
-                    args[0],
-                    args[1],
-                    args[2],
-                ];
+                return [args[0], args[1], args[2]];
             }
             return args;
         }
@@ -201,22 +196,12 @@ export default class VueAdapter extends ViewAdapter {
         } as typeof i18n.global.t;
 
         this.app.config.warnHandler = (msg: string, instance: unknown, trace: string) => {
-            const warnArgs = [
-                `[Vue warn]: ${msg}`,
-                trace,
-                instance,
-            ];
+            const warnArgs = [`[Vue warn]: ${msg}`, trace, instance];
 
             console.warn(...warnArgs);
 
             if (msg.includes('Template compilation error')) {
-                console.error(
-                    ...[
-                        `[Vue error]: ${msg}`,
-                        trace,
-                        instance,
-                    ],
-                );
+                console.error(...[`[Vue error]: ${msg}`, trace, instance]);
                 throw new Error(msg);
             }
         };
@@ -465,6 +450,7 @@ export default class VueAdapter extends ViewAdapter {
             MtTextarea,
             MtThemeSelect,
             MtIcon,
+            MtInset,
             MtPagination,
             MtSkeletonBar,
             MtToast,
@@ -481,6 +467,7 @@ export default class VueAdapter extends ViewAdapter {
             MtUnitField,
             MtSnackbar,
             MtBadge,
+            MtStatusDot,
             MtPromoBadge,
             MtActionMenu,
             MtActionMenuItem,
@@ -499,25 +486,15 @@ export default class VueAdapter extends ViewAdapter {
             MtPopoverItem: () => import('@shopware-ag/meteor-component-library/dist/esm/MtPopoverItem'),
         };
 
-        Object.entries(meteorComponents).forEach(
-            ([
-                componentName,
-                component,
-            ]) => {
-                const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
-                this.app.component(componentNameAsKebabCase, component as VueComponent);
-            },
-        );
+        Object.entries(meteorComponents).forEach(([componentName, component]) => {
+            const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
+            this.app.component(componentNameAsKebabCase, component as VueComponent);
+        });
 
-        Object.entries(lazyMeteorComponents).forEach(
-            ([
-                componentName,
-                importMethod,
-            ]) => {
-                const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
-                this.registerAsyncComponent(componentNameAsKebabCase, importMethod);
-            },
-        );
+        Object.entries(lazyMeteorComponents).forEach(([componentName, importMethod]) => {
+            const componentNameAsKebabCase = Shopware.Utils.string.kebabCase(componentName);
+            this.registerAsyncComponent(componentNameAsKebabCase, importMethod);
+        });
 
         return this.vueComponents;
     }
@@ -529,14 +506,9 @@ export default class VueAdapter extends ViewAdapter {
         // Extend default snippets with module specific snippets
         const moduleSnippets = this.applicationFactory.module.getModuleSnippets();
 
-        Object.entries(moduleSnippets).forEach(
-            ([
-                key,
-                moduleSnippet,
-            ]) => {
-                this.applicationFactory.locale.extend(key, moduleSnippet);
-            },
-        );
+        Object.entries(moduleSnippets).forEach(([key, moduleSnippet]) => {
+            this.applicationFactory.locale.extend(key, moduleSnippet);
+        });
 
         return this.applicationFactory.locale;
     }
@@ -591,6 +563,7 @@ export default class VueAdapter extends ViewAdapter {
                         if (typeof componentConfig === 'boolean') {
                             resolve(false);
                         } else {
+                            attachSetupOverrideShim(componentName, componentConfig);
                             this.resolveMixins(componentConfig);
                         }
 

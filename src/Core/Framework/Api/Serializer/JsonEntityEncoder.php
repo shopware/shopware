@@ -128,7 +128,14 @@ class JsonEntityEncoder
                 continue;
             }
 
-            $object = $struct->getVars()[$property];
+            $vars = $struct->getVars();
+
+            // the normalized payload can contain keys without a backing property, e.g. merged foreign keys
+            if (!\array_key_exists($property, $vars)) {
+                continue;
+            }
+
+            $object = $vars[$property];
 
             if ($object instanceof Collection) {
                 $objects = array_values($object->getElements());

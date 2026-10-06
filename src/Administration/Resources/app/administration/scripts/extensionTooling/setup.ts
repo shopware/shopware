@@ -90,10 +90,7 @@ function loadHostModules(context: GeneratorContext): Record<string, string> {
     const hostModules = (JSON.parse(fs.readFileSync(hostModulesPath, 'utf8')) as { hostModules: Record<string, string> })
         .hostModules;
 
-    for (const [
-        moduleName,
-        modulePath,
-    ] of Object.entries(hostModules)) {
+    for (const [moduleName, modulePath] of Object.entries(hostModules)) {
         if (!fs.existsSync(path.join(context.administrationRoot, modulePath))) {
             warn(
                 context,
@@ -184,15 +181,7 @@ export function setupExtensionTooling(options: SetupExtensionToolingOptions): Se
             eslintConfig: toManifestState(rootEslintState),
         },
         ideBootstraps: Object.fromEntries(
-            Object.entries(ideBootstraps).map(
-                ([
-                    key,
-                    state,
-                ]) => [
-                    key,
-                    toManifestState(state),
-                ],
-            ),
+            Object.entries(ideBootstraps).map(([key, state]) => [key, toManifestState(state)]),
         ),
         gitignore,
         projects: discovered,

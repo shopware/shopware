@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\JsonF
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\JsonFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class JsonField extends Field implements StorageAware
 {
@@ -17,7 +20,8 @@ class JsonField extends Field implements StorageAware
         protected string $storageName,
         string $propertyName,
         protected array $propertyMapping = [],
-        protected ?array $default = null
+        protected ?array $default = null,
+        protected bool $allowAdditionalProperties = false
     ) {
         parent::__construct($propertyName);
     }
@@ -54,6 +58,11 @@ class JsonField extends Field implements StorageAware
     public function getDefault(): ?array
     {
         return $this->default;
+    }
+
+    public function allowsAdditionalProperties(): bool
+    {
+        return $this->allowAdditionalProperties;
     }
 
     protected function getSerializerClass(): string

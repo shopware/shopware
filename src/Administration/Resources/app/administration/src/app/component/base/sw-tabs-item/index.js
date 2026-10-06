@@ -56,10 +56,7 @@ export default {
 
     props: {
         route: {
-            type: [
-                String,
-                Object,
-            ],
+            type: [String, Object],
             required: false,
             default: '',
         },

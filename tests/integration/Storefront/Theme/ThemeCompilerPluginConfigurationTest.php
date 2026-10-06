@@ -124,7 +124,7 @@ SCSS;
 
     public function testHandlesDatabaseException(): void
     {
-        $configService = $this->getConfigurationServiceDbException([
+        $configurationService = $this->getConfigurationServiceDbException([
             new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'),
         ]);
 
@@ -138,7 +138,7 @@ SCSS;
             Context::createDefaultContext()
         );
 
-        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configService, $storefrontPluginRegistry);
+        $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configurationService, $storefrontPluginRegistry);
 
         $subscriber->enrichExtensionVars($event);
 
@@ -169,7 +169,7 @@ SCSS;
      */
     private function getStorefrontPluginRegistry(array $plugins): StorefrontPluginRegistry
     {
-        $kernel = $this->createMock(Kernel::class);
+        $kernel = static::createStub(Kernel::class);
         $kernel
             ->method('getBundles')
             ->willReturn($plugins);

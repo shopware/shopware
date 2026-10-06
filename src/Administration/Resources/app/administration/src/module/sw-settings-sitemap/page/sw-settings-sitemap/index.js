@@ -10,9 +10,7 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {

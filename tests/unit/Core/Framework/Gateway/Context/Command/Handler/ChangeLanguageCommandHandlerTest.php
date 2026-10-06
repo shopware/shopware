@@ -76,9 +76,12 @@ class ChangeLanguageCommandHandlerTest extends TestCase
         $this->expectExceptionObject(GatewayException::handlerException('Language with iso code {{ isoCode }} not found', ['isoCode' => 'de-DE']));
 
         $handler = new ChangeLanguageCommandHandler($languageRepo);
-        $handler->handle($command, $context, $parameters);
 
-        static::assertSame([], $parameters);
+        try {
+            $handler->handle($command, $context, $parameters);
+        } finally {
+            static::assertSame([], $parameters);
+        }
     }
 
     public function testSupportedCommands(): void

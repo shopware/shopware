@@ -66,13 +66,35 @@ function escapeRegExp(value: string): string {
     return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+/** A fenced block may quote "# ..." lines that are content, not structure. */
+const FENCE_PATTERN = /^ {0,3}(`{3,}|~{3,})(.*)$/;
+
 /** Collects every "### " heading that appears under a "# <version-prefix>.*" section. */
 export function extractHeadings(content: string, versionPrefix: string): string[] {
     const sectionOpen = new RegExp(`^#\\s+${escapeRegExp(versionPrefix)}\\.`);
     const headings: string[] = [];
     let inSection = false;
+    let fence: string | undefined;
 
     for (const line of content.split('\n')) {
+        // RELEASE_INFO quotes YAML and Markdown, so a fenced block carries lines like
+        // "# config/packages/shopware.yaml" and "### Example". Read as structure they cut a
+        // section short — every entry below is then never verified — or add an entry that does
+        // not exist. Both fail silently, which is the worst way for this check to be wrong.
+        const delimiter = FENCE_PATTERN.exec(line);
+        if (delimiter) {
+            const [, marker, info] = delimiter;
+            if (fence === undefined) {
+                fence = marker[0];
+            } else if (fence === marker[0] && info.trim() === '') {
+                fence = undefined;
+            }
+            continue;
+        }
+        if (fence !== undefined) {
+            continue;
+        }
+
         // "# 6.7.11.0" → enter the section for this version prefix.
         if (sectionOpen.test(line)) {
             inSection = true;

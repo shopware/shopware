@@ -136,6 +136,7 @@ class InfoControllerTest extends TestCase
                 'enableHtmlSanitizer' => true,
                 'enableStagingMode' => false,
                 'disableExtensionManagement' => false,
+                'hideUpdateModule' => false,
                 'minSearchTermLength' => 2,
             ],
             'inAppPurchases' => [],
@@ -423,6 +424,7 @@ class InfoControllerTest extends TestCase
                     ],
                     'contextToken' => [
                         'type' => 'string',
+                        'hiddenFromWebhook' => true,
                     ],
                 ],
                 'aware' => [

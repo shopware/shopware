@@ -7,14 +7,14 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeDefinition;
-use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentDefinition;
-use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileDefinition;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentDefinition;
+use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
@@ -150,7 +150,7 @@ class DocumentPersisterTest extends TestCase
             'text/html',
         ));
 
-        $mediaService = static::createMock(MediaService::class);
+        $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')
             ->willReturnCallback(static fn (string $content, string $extension) => $extension === 'html' ? $htmlMediaId : $pdfMediaId);
 
@@ -196,7 +196,7 @@ class DocumentPersisterTest extends TestCase
             'application/xml',
         ));
 
-        $mediaService = static::createMock(MediaService::class);
+        $mediaService = static::createStub(MediaService::class);
         $mediaService->method('saveFile')
             ->willReturnCallback(static fn (string $content, string $extension) => $extension === 'html' ? $htmlMediaId : $xmlMediaId);
 

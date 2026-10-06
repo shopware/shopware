@@ -31,10 +31,7 @@ async function createWrapper(propOverrides = {}) {
                     'sw-select-field': {
                         template:
                             '<select class="sw-field sw-select-field" :value="value" @change="$emit(\'update:value\', $event.target.value)"><slot></slot></select>',
-                        props: [
-                            'value',
-                            'disabled',
-                        ],
+                        props: ['value', 'disabled'],
                     },
                     'sw-select-rule-create': {
                         template: '<div class="sw-select-rule-create"></div>',
@@ -271,11 +268,7 @@ describe('src/module/sw-promotion-v2/component/sw-promotion-discount-component',
             },
         });
 
-        expect(wrapper.vm.discountTypeOptions.map(({ value }) => value)).toEqual([
-            'absolute',
-            'percentage',
-            'fixed',
-        ]);
+        expect(wrapper.vm.discountTypeOptions.map(({ value }) => value)).toEqual(['absolute', 'percentage', 'fixed']);
     });
 
     it('should normalize fixed item price to fixed price for shipping costs discounts', async () => {

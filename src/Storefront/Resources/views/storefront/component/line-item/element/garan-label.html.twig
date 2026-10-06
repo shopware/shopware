@@ -1,5 +1,6 @@
 {% block component_line_item_garan_label %}
-    {% set garanLabel = lineItem.referencedId|sw_garan_label_nested(context.context) %}
+    {% set productId = displayMode === 'order' ? lineItem.productId : lineItem.referencedId %}
+    {% set garanLabel = productId|sw_garan_label_nested(context.context) %}
 
     {% if garanLabel %}
         <div class="line-item-garan-label">

@@ -45,10 +45,7 @@ const defaultPrice = {
 // initial component setup
 const setup = async (propOverride) => {
     const props = {
-        price: [
-            dollarPrice,
-            euroPrice,
-        ],
+        price: [dollarPrice, euroPrice],
         taxRate,
         currency,
         defaultPrice,
@@ -58,10 +55,7 @@ const setup = async (propOverride) => {
 
     return mount(await wrapTestComponent('sw-purchase-price-field', { sync: true }), {
         global: {
-            stubs: [
-                'sw-price-field',
-                'sw-field',
-            ],
+            stubs: ['sw-price-field', 'sw-field'],
         },
         props,
     });

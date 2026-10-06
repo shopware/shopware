@@ -92,6 +92,11 @@ class RedisCartPersister extends AbstractCartPersister
         return $cart;
     }
 
+    public function exists(string $token, SalesChannelContext $context): bool
+    {
+        return (bool) $this->redis->exists(self::PREFIX . $token);
+    }
+
     public function save(Cart $cart, SalesChannelContext $context): void
     {
         $shouldPersist = $this->shouldPersist($cart);

@@ -11,10 +11,7 @@ export default Shopware.Component.wrapComponentConfig({
     template,
     name: 'SwSettingsUsageDataUserDataConsentCard',
 
-    emits: [
-        'update:consent',
-        'legal-link-clicked',
-    ],
+    emits: ['update:consent', 'legal-link-clicked'],
 
     props: {
         consent: {

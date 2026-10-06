@@ -41,6 +41,7 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
         }
 
         this._formSubmitting = false;
+        this._invisibleFormSubmitted = false;
         this.formPluginInstances = window.PluginManager.getPluginInstancesFromElement(this._form);
 
         this._setGoogleReCaptchaHandleSubmit();
@@ -117,10 +118,16 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
     }
 
     _submitInvisibleForm() {
+        if (this._invisibleFormSubmitted) {
+            return;
+        }
+
         if (!this._form.checkValidity()) {
             this._formSubmitting = false;
             return;
         }
+
+        this._invisibleFormSubmitted = true;
 
         this.$emitter.publish('beforeGreCaptchaFormSubmit', {
             info: this.getGreCaptchaInfo(),
@@ -153,6 +160,7 @@ export default class GoogleReCaptchaBasePlugin extends Plugin {
         event.preventDefault();
 
         this._formSubmitting = true;
+        this._invisibleFormSubmitted = false;
 
         this.onFormSubmit();
     }

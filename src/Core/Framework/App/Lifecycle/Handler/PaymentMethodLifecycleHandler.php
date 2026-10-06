@@ -204,11 +204,13 @@ class PaymentMethodLifecycleHandler extends AbstractLifecycleHandler
         $criteria->addFilter(new EqualsFilter('appPaymentMethod.appId', $appId));
         $criteria->addFilter(new EqualsFilter('active', $currentActiveState));
 
-        $paymentMethods = $this->paymentMethodRepository->searchIds($criteria, $context)->getIds();
+        $paymentMethods = $this->paymentMethodRepository->searchIds($criteria, $context)->getPrimaryKeyData();
+        foreach ($paymentMethods as &$paymentMethod) {
+            $paymentMethod['active'] = $newActiveState;
+        }
+        unset($paymentMethod);
 
-        $updateSet = array_map(static fn (string $id) => ['id' => $id, 'active' => $newActiveState], $paymentMethods);
-
-        $this->paymentMethodRepository->update($updateSet, $context);
+        $this->paymentMethodRepository->update($paymentMethods, $context);
     }
 
     private function getMediaId(Filesystem $fs, string $appName, PaymentMethod $paymentMethod, Context $context, ?AppPaymentMethodEntity $existing): ?string

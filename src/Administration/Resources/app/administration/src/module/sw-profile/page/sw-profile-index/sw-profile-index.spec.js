@@ -44,17 +44,12 @@ async function createWrapper(
                 'sw-tabs': {
                     name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot /></div>',
-                    props: [
-                        'positionIdentifier',
-                    ],
+                    props: ['positionIdentifier'],
                 },
                 'sw-tabs-item': {
                     name: 'sw-tabs-item',
                     template: '<div class="sw-tabs-item"><slot /></div>',
-                    props: [
-                        'route',
-                        'title',
-                    ],
+                    props: ['route', 'title'],
                 },
                 'mt-tabs': {
                     name: 'mt-tabs',
@@ -286,9 +281,7 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
     });
 
     it('should be able to save own user', async () => {
-        const wrapper = await createWrapper([
-            'user.update_profile',
-        ]);
+        const wrapper = await createWrapper(['user.update_profile']);
         await flushPromises();
 
         await wrapper.setData({
@@ -442,6 +435,28 @@ describe('src/module/sw-profile/page/sw-profile-index', () => {
             expect(useTheme().theme.value).toBe('dark');
             expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
             expect(Shopware.Service('userConfigService').upsert).toHaveBeenCalledWith({
+                [USER_THEME_CONFIG_KEY]: { theme: 'dark' },
+            });
+        });
+
+        it('should save the theme applied by the appearance shortcut while the page is open', async () => {
+            const wrapper = await createWrapper(
+                ['user.update_profile'],
+                { isSso: true },
+                jest.fn(() => Promise.resolve({})),
+            );
+            await flushPromises();
+
+            await useTheme().saveUserTheme('dark');
+            await flushPromises();
+
+            expect(wrapper.vm.userTheme).toBe('dark');
+
+            await wrapper.find('.sw-profile__save-action').trigger('click');
+            await flushPromises();
+
+            expect(useTheme().theme.value).toBe('dark');
+            expect(Shopware.Service('userConfigService').upsert).toHaveBeenNthCalledWith(2, {
                 [USER_THEME_CONFIG_KEY]: { theme: 'dark' },
             });
         });

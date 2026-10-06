@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Maintenance\System\Struct;
 
+use Pdo\Mysql;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -108,11 +109,10 @@ class DatabaseConnectionInformationTest extends TestCase
             'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
-                \PDO::MYSQL_ATTR_SSL_CA => '/ca-path',
-                \PDO::MYSQL_ATTR_SSL_CERT => '/cert-path',
-                \PDO::MYSQL_ATTR_SSL_KEY => '/cert-key-path',
-                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-            ],
+                Mysql::ATTR_SSL_CA => '/ca-path',
+                Mysql::ATTR_SSL_CERT => '/cert-path',
+                Mysql::ATTR_SSL_KEY => '/cert-key-path',
+            ] + self::sslVerifyServerCertOption(),
             'dbname' => 'shopware',
             'user' => 'root',
             'password' => 'root',
@@ -153,8 +153,7 @@ class DatabaseConnectionInformationTest extends TestCase
             'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
-                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-            ],
+            ] + self::sslVerifyServerCertOption(),
             'dbname' => 'shopware',
             'user' => 'root',
             'password' => 'root',
@@ -167,8 +166,7 @@ class DatabaseConnectionInformationTest extends TestCase
             'driver' => 'pdo_mysql',
             'driverOptions' => [
                 \PDO::ATTR_STRINGIFY_FETCHES => true,
-                \PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-            ],
+            ] + self::sslVerifyServerCertOption(),
             'user' => 'root',
             'password' => 'root',
         ], $info->toDBALParameters(true));
@@ -394,5 +392,20 @@ class DatabaseConnectionInformationTest extends TestCase
             ],
             MaintenanceException::environmentVariableNotValid('DATABASE_URL', 'mysql://root:root@localhost:3306', 'Not a valid DSN'),
         ];
+    }
+
+    /**
+     * The constant only exists when PDO is built against a MySQL client library that supports it, and the
+     * struct only emits the option in that case.
+     *
+     * @return array<int, false>
+     */
+    private static function sslVerifyServerCertOption(): array
+    {
+        if (!\defined('\Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT')) {
+            return [];
+        }
+
+        return [Mysql::ATTR_SSL_VERIFY_SERVER_CERT => false];
     }
 }

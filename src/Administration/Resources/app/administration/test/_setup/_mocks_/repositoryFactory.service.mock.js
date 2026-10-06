@@ -15,14 +15,9 @@ import EntitySchema from '../../_mocks_/entity-schema.json';
 const TEST_LANGUAGE_ID = '2fbb5fe2e29a4d70aa5854ce7ce3e20b';
 
 // Add all entities from entity-schema
-Object.entries(EntitySchema).forEach(
-    ([
-        entityName,
-        entityInformation,
-    ]) => {
-        Shopware.EntityDefinition.add(entityName, entityInformation);
-    },
-);
+Object.entries(EntitySchema).forEach(([entityName, entityInformation]) => {
+    Shopware.EntityDefinition.add(entityName, entityInformation);
+});
 
 // This function throws an error if some request has no mocked return value
 function throwMissingImplementationError(config) {
@@ -112,17 +107,11 @@ function clientMockFactory() {
                 throwMissingImplementationError(config);
             }
 
-            return [
-                customResponse.status,
-                customResponse.response,
-            ];
+            return [customResponse.status, customResponse.response];
         }
 
         throwMissingImplementationError(config);
-        return [
-            500,
-            {},
-        ];
+        return [500, {}];
     };
 
     clientMock.onAny().reply(replyHandler);

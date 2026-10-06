@@ -331,6 +331,55 @@ class ProductControllerTest extends TestCase
         static::assertArrayHasKey('product-page-loaded', $traces);
     }
 
+    public function testBuyWidgetIncludesCategoryNames(): void
+    {
+        $salesChannel = static::getContainer()->get('sales_channel.repository')
+            ->search(new Criteria([$this->getSalesChannelId()]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+        static::assertInstanceOf(SalesChannelEntity::class, $salesChannel);
+
+        $categoryId = Uuid::randomHex();
+        static::getContainer()->get('category.repository')->create([[
+            'id' => $categoryId,
+            'name' => 'Dresses',
+            'parentId' => $salesChannel->getNavigationCategoryId(),
+        ]], Context::createDefaultContext());
+
+        $productId = $this->createProduct([
+            'categories' => [['id' => $categoryId]],
+            'mainCategories' => [[
+                'id' => Uuid::randomHex(),
+                'categoryId' => $categoryId,
+                'salesChannelId' => $this->getSalesChannelId(),
+            ]],
+        ]);
+
+        $response = $this->request('GET', '/my-product/' . $productId, []);
+        $this->checkStatusCode($response);
+
+        $crawler = new Crawler((string) $response->getContent());
+        $categoryName = $crawler->filter(\sprintf('input[name="lineItems[%s][payload][categoryNames][%s]"]', $productId, $categoryId));
+
+        static::assertCount(1, $categoryName);
+        static::assertSame('Dresses', $categoryName->attr('value'));
+    }
+
+    public function testProductManufacturerRelativeLinkIsNotNormalizedAsExternalUrl(): void
+    {
+        $productId = $this->createProduct(['manufacturer' => ['name' => 'linked-manufacturer', 'link' => '/manufacturer-test/']]);
+
+        $response = $this->request('GET', '/my-product/' . $productId, []);
+
+        $this->checkStatusCode($response);
+
+        $crawler = new Crawler((string) $response->getContent());
+
+        $manufacturerLink = $crawler->filter('a.product-detail-manufacturer-link');
+        static::assertCount(1, $manufacturerLink);
+        static::assertSame('/manufacturer-test/', $manufacturerLink->attr('href'));
+    }
+
     public function testProductJsonLdContainsMerchantListingData(): void
     {
         Feature::skipTestIfInActive('JSON_LD_DATA', $this);
@@ -632,9 +681,10 @@ class ProductControllerTest extends TestCase
         static::assertStringContainsString('no-link-manufacturer', $manufacturer->text());
     }
 
-    public function testProductQuickViewManufacturerIsLinkedWithUrl(): void
+    #[DataProvider('manufacturerLinkProvider')]
+    public function testProductQuickViewManufacturerIsLinkedWithUrl(string $manufacturerUrl, string $expectedUrl): void
     {
-        $productId = $this->createProduct(['manufacturer' => ['name' => 'linked-manufacturer', 'link' => 'shopware.com']]);
+        $productId = $this->createProduct(['manufacturer' => ['name' => 'linked-manufacturer', 'link' => $manufacturerUrl]]);
 
         $response = $this->request('GET', '/quickview/' . $productId, []);
 
@@ -645,10 +695,19 @@ class ProductControllerTest extends TestCase
 
         $manufacturerLink = $crawler->filter('a.quickview-minimal-product-manufacturer');
         static::assertCount(1, $manufacturerLink);
-        static::assertSame('https://shopware.com', $manufacturerLink->attr('href'));
+        static::assertSame($expectedUrl, $manufacturerLink->attr('href'));
         static::assertStringContainsString('linked-manufacturer', $manufacturerLink->text());
 
         static::assertCount(0, $crawler->filter('span.quickview-minimal-product-manufacturer'));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function manufacturerLinkProvider(): iterable
+    {
+        yield 'host without scheme gets https scheme' => ['shopware.com', 'https://shopware.com'];
+        yield 'absolute internal path stays relative' => ['/manufacturer-test/', '/manufacturer-test/'];
     }
 
     public function testProductReviewsLoadedScriptsAreExecuted(): void

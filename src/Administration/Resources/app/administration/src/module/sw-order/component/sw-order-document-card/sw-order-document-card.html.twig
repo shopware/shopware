@@ -109,6 +109,7 @@
             :plain-appearance="true"
             :allow-delete="!attachView"
             :show-actions="attachView || !feature.isActive('DOCUMENT_GENERATION_REWORK')"
+            @delete-item-finish="getList"
         >
             {% block sw_order_document_card_grid_column_date %}
             <template #column-createdAt="{ item }">
@@ -437,6 +438,7 @@
         {% endblock %}
     </template>
 
+    {# @deprecated tag:v6.9.0 - Removed with document generation v1. #}
     {% block sw_order_document_card_grid_column_modal %}
     <div v-if="showModal">
         <component
@@ -474,6 +476,8 @@
         @page-leave="onCloseUploadDocumentModal"
         @document-upload="onUploadDocument"
     />
+
+    {# @deprecated tag:v6.9.0 - Removed with document generation v1. #}
     <sw-order-select-document-type-modal
         v-else-if="showSelectDocumentTypeModal"
         v-model:value="currentDocumentType"
@@ -498,11 +502,15 @@
         class="sw-order-document-card__empty-state"
         :icon="$route.meta.$module.icon"
         :headline="emptyStateTitle"
+        description=""
         centered
     >
-        <template #button>
+        <template
+            v-if="showCreateDocumentButton"
+            #button
+        >
             <sw-button-group
-                v-if="feature.isActive('DOCUMENT_GENERATION_REWORK') && showCreateDocumentButton"
+                v-if="feature.isActive('DOCUMENT_GENERATION_REWORK')"
                 split-button
             >
                 <mt-button
@@ -549,7 +557,7 @@
             </sw-button-group>
 
             <mt-button
-                v-else-if="showCreateDocumentButton"
+                v-else
                 v-tooltip="{
                     message: tooltipCreateDocumentButton,
                     disabled: acl.can('document.viewer') && !isEditing,

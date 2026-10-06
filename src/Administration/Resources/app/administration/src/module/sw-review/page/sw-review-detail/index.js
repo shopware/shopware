@@ -10,17 +10,9 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'customFieldDataProviderService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
-    mixins: [
-        'placeholder',
-        'notification',
-        'salutation',
-    ],
+    mixins: ['placeholder', 'notification', 'salutation'],
 
     shortcuts: {
         'SYSTEMKEY+S': {

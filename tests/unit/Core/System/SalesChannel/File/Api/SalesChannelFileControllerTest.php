@@ -156,7 +156,7 @@ class SalesChannelFileControllerTest extends TestCase
             'templateOverrides' => new RequestDataBag([
                 'Framework' => 'Unsaved override',
             ]),
-        ]));
+        ]), Context::createDefaultContext());
 
         static::assertSame(200, $response->getStatusCode());
         static::assertSame([

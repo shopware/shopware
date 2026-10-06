@@ -40,10 +40,7 @@ async function createWrapper(
                 },
                 'sw-tabs-item': {
                     template: '<div class="sw-tabs-item"><slot /></div>',
-                    props: [
-                        'route',
-                        'title',
-                    ],
+                    props: ['route', 'title'],
                 },
                 'mt-tabs': {
                     name: 'mt-tabs',
@@ -176,18 +173,8 @@ describe('src/module/sw-category/component/sw-category-view', () => {
                 'sw.category.detail.seo',
             ],
         ],
-        [
-            'folder',
-            [
-                'sw.category.detail.base',
-            ],
-        ],
-        [
-            'link',
-            [
-                'sw.category.detail.base',
-            ],
-        ],
+        ['folder', ['sw.category.detail.base']],
+        ['link', ['sw.category.detail.base']],
         [
             'custom_entity',
             [

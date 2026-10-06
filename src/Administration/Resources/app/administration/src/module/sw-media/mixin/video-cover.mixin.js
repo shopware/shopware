@@ -4,10 +4,7 @@
  * Duplicated in `src/app/composables/use-video-cover`; change both together.
  */
 Shopware.Mixin.register('video-cover', {
-    inject: [
-        'mediaService',
-        'acl',
-    ],
+    inject: ['mediaService', 'acl'],
 
     data() {
         return {

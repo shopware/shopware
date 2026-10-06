@@ -128,10 +128,7 @@ describe('scripts/extensionTooling/probe-static', () => {
                 'own.mjs': ['export default [];'],
             };
 
-            for (const [
-                file,
-                lines,
-            ] of Object.entries(cases)) {
+            for (const [file, lines] of Object.entries(cases)) {
                 writeFile(path.join(projectRoot, file), lines);
             }
 

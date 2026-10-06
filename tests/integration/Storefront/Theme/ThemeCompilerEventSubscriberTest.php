@@ -68,7 +68,7 @@ class ThemeCompilerEventSubscriberTest extends TestCase
             static::getContainer()->get(ThemeFilesystemResolver::class),
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             static::getContainer()->get(CacheInvalidator::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
             [],

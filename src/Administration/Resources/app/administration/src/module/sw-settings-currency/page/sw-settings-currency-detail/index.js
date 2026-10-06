@@ -20,10 +20,7 @@ export default {
         'customFieldDataProviderService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     props: {
         currencyId: {
@@ -199,10 +196,7 @@ export default {
     methods: {
         createdComponent() {
             if (this.currencyId) {
-                return Promise.all([
-                    this.loadEntityData(),
-                    this.loadCustomFieldSets(),
-                ]);
+                return Promise.all([this.loadEntityData(), this.loadCustomFieldSets()]);
             }
 
             Shopware.Store.get('context').resetLanguageToDefault();
@@ -231,10 +225,7 @@ export default {
                 .then((currency) => {
                     this.currency = currency;
                     return this.loadCurrencyCountryRoundings().then((currencyCountryRoundings) => {
-                        return [
-                            currency,
-                            currencyCountryRoundings,
-                        ];
+                        return [currency, currencyCountryRoundings];
                     });
                 })
                 .finally(() => {
@@ -286,9 +277,15 @@ export default {
                         this.isLoading = false;
                     });
                 })
-                .catch(() => {
+                .catch((error) => {
+                    const errorCode = error?.response?.data?.errors?.[0]?.code;
+                    const isoCode = error?.response?.data?.errors?.[0]?.meta?.parameters?.isoCode;
+
                     this.createNotificationError({
-                        message: this.$t('sw-settings-currency.detail.notificationErrorMessage'),
+                        message:
+                            errorCode === 'SYSTEM__CURRENCY_ISO_CODE_NOT_UNIQUE'
+                                ? this.$t('sw-settings-currency.detail.notificationIsoCodeAlreadyExists', { isoCode })
+                                : this.$t('sw-settings-currency.detail.notificationErrorMessage'),
                     });
                     this.isLoading = false;
                 });
@@ -302,16 +299,10 @@ export default {
             const cacheService = Shopware.Service('cacheService');
 
             cacheService.invalidateCaches({
-                cacheKey: [
-                    'shared-data',
-                    'currencies',
-                ],
+                cacheKey: ['shared-data', 'currencies'],
             });
             cacheService.invalidateCaches({
-                cacheKey: [
-                    'shared-data',
-                    'system-currency',
-                ],
+                cacheKey: ['shared-data', 'system-currency'],
             });
         },
 

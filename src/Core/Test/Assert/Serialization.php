@@ -23,7 +23,7 @@ final class Serialization
     {
         $serialized = \serialize($object);
 
-        $result = \unserialize($serialized);
+        $result = self::unserialize($serialized);
 
         Assert::assertInstanceOf($object::class, $result);
 
@@ -44,7 +44,7 @@ final class Serialization
      */
     public static function assertUnserializedInstanceOf(string $class, string $serialized): object
     {
-        $result = \unserialize($serialized);
+        $result = self::unserialize($serialized);
 
         Assert::assertInstanceOf($class, $result);
 
@@ -60,7 +60,7 @@ final class Serialization
      */
     public static function assertUnserializedIsArray(string $serialized): array
     {
-        $result = \unserialize($serialized);
+        $result = self::unserialize($serialized);
 
         Assert::assertIsArray($result);
 
@@ -74,7 +74,7 @@ final class Serialization
      */
     public static function assertUnserializedEquals(mixed $expected, string $serialized, string $message = ''): mixed
     {
-        $result = \unserialize($serialized);
+        $result = self::unserialize($serialized);
 
         Assert::assertEquals($expected, $result, $message);
 
@@ -88,9 +88,38 @@ final class Serialization
      */
     public static function assertUnserializedSame(int|float|string|bool|array|null $expected, string $serialized, string $message = ''): int|float|string|bool|array|null
     {
-        $result = \unserialize($serialized, ['allowed_classes' => false]);
+        $result = self::unserialize($serialized, ['allowed_classes' => false]);
 
         Assert::assertSame($expected, $result, $message);
+
+        return $result;
+    }
+
+    /**
+     * unserialize() reports malformed input through a PHP warning instead of an exception. The warning is
+     * turned into an assertion failure, so a test sees one failure with the parser message rather than a
+     * warning plus a follow-up type assertion on `false`.
+     *
+     * @param array{allowed_classes?: bool|list<class-string>} $options
+     */
+    private static function unserialize(string $serialized, array $options = []): mixed
+    {
+        $error = null;
+        set_error_handler(static function (int $errno, string $message) use (&$error): bool {
+            $error = $message;
+
+            return true;
+        });
+
+        try {
+            $result = \unserialize($serialized, $options);
+        } finally {
+            restore_error_handler();
+        }
+
+        if ($error !== null) {
+            Assert::fail(\sprintf('The string could not be unserialized: %s', $error));
+        }
 
         return $result;
     }

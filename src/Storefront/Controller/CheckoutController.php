@@ -111,7 +111,10 @@ class CheckoutController extends StorefrontController
     )]
     public function cartJson(Request $request, SalesChannelContext $context): Response
     {
-        return $this->cartLoadRoute->load($request, $context);
+        $cart = $this->cartService->getCart($context->getToken(), $context);
+
+        // @phpstan-ignore arguments.count (cart is hidden on AbstractCartLoadRoute::load() via NewOptionalParameter to avoid a BC break for decorators; CartLoadRoute reads this 3rd argument for real)
+        return $this->cartLoadRoute->load($request, $context, $cart);
     }
 
     #[Route(

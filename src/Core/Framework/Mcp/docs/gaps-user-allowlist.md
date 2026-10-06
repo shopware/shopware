@@ -16,7 +16,7 @@ Tracked in [product-epic-backlog.md](product-epic-backlog.md) — Workstream 1, 
 | Bearer JWT, client_credentials | `unrestricted()` | `integration.mcp_allowlist` via `ATTRIBUTE_OAUTH_CLIENT_ID` |
 | Integration + `sw-app-user-id` (Copilot) | `integration.mcp_allowlist` only | intersect(`integration.mcp_allowlist`, `user.mcp_allowlist`) |
 
-`NULL` allowlist means unrestricted for that principal. Admin users (`admin = true`) always bypass the allowlist regardless of auth mode.
+A `NULL` allowlist used to mean unrestricted for that principal. Since the null-bypass fix it means the opposite: no capabilities at all, for every principal except an administrator user (`admin = true`), who still bypasses the allowlist regardless of auth mode. Integrations have no bypass, including those flagged `admin`.
 
 ### Architecture decision: allowlist lives on the user, not the access key
 
@@ -90,10 +90,10 @@ if ($userId !== '' && Uuid::isValid($userId)) {
     return $this->forUserId($userId);
 }
 
-return $this->unrestricted();
+return McpAllowlist::blocked();
 ```
 
-`forUserId()` reads `mcp_allowlist` and `admin` from the `user` table. Admin users always get `unrestricted()`. `forUserAccessKey()` looks up `user_id` from `user_access_key` and delegates to `forUserId()`. `intersect()` takes the element-wise intersection of two allowlists (null = unrestricted, treated as "allow all" when intersecting).
+`forUserId()` reads `mcp_allowlist` and `admin` from the `user` table. Admin users get `unrestricted()`; every other row is parsed with `McpAllowlist::restrictedFromJson()`, which resolves anything not explicitly selected to an empty list. `forUserAccessKey()` looks up `user_id` from `user_access_key` and delegates to `forUserId()`. `intersect()` takes the element-wise intersection of two allowlists (null = unrestricted, treated as "allow all" when intersecting, which after the fix only an administrator user can contribute).
 
 ### `UserMcpAllowlistController.php`
 

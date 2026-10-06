@@ -560,7 +560,7 @@ class ThemeTest extends TestCase
                 })
             );
 
-        $scssCompilerMock = $this->createMock(ScssPhpCompiler::class);
+        $scssCompilerMock = static::createStub(ScssPhpCompiler::class);
 
         $kernel = new class(static::getContainer()->get('kernel')) implements KernelInterface {
             private readonly SimpleTheme $simpleTheme;

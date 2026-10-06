@@ -46,9 +46,11 @@ import Store from 'src/app/store';
 import {
     attachOverrides,
     createExtendableSetup,
+    getExposedProps,
     overrideComponentSetup,
 } from 'src/app/adapter/composition-extension-system';
 import * as Vue from 'vue';
+import { registerNativeExtensionTargets } from 'src/core/factory/native-extension-targets';
 import type { DefineComponent, Ref } from 'vue';
 import CMS from '../module/sw-cms/constant/sw-cms.constant';
 import CUSTOMER from '../module/sw-customer/constant/sw-customer.constant';
@@ -58,6 +60,7 @@ import ExtensionApi from './extension-api';
 import Telemetry from './telemetry';
 import { LineItemType } from '../module/sw-order/order.types';
 import useContext from '../app/composables/use-context';
+import composables from '../app/composables';
 
 /** Initialize feature flags at the beginning */
 if (window.hasOwnProperty('_features_')) {
@@ -145,8 +148,13 @@ class ShopwareClass implements CustomShopwareProperties {
         getOverrideRegistry: AsyncComponentFactory.getOverrideRegistry,
         createExtendableSetup: createExtendableSetup,
         attachOverrides: attachOverrides,
+        getExposedProps: getExposedProps,
         overrideComponentSetup: overrideComponentSetup,
 
+        /**
+         * @private
+         */
+        registerNativeExtensionTargets: registerNativeExtensionTargets,
         /**
          * @private
          *
@@ -260,17 +268,22 @@ class ShopwareClass implements CustomShopwareProperties {
     };
 
     public Defaults = {
-        systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b',
-        defaultLanguageIds: ['2fbb5fe2e29a4d70aa5854ce7ce3e20b'],
-        versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425',
-        storefrontSalesChannelTypeId: '8a243080f92e4c719546314b577cf82b',
-        productComparisonTypeId: 'ed535e5722134ac1aa6524f73e26881b',
-        apiSalesChannelTypeId: 'f183ee5650cf4bdb8a774337575067a6',
-        agenticCommerceTypeId: '5e29f9890c4d4d519a1c7f9d5c24b7c1',
-        defaultSalutationId: 'ed643807c9f84cc8b50132ea3ccb1c3b',
+        systemLanguageId: '2fbb5fe2e29a4d70aa5854ce7ce3e20b' as EntityKey<'language'>,
+        defaultLanguageIds: ['2fbb5fe2e29a4d70aa5854ce7ce3e20b'] as EntityKey<'language'>[],
+        versionId: '0fa91ce3e96a4bc2be4bd9ce752c3425' as EntityKey<'version'>,
+        storefrontSalesChannelTypeId: '8a243080f92e4c719546314b577cf82b' as EntityKey<'sales_channel_type'>,
+        productComparisonTypeId: 'ed535e5722134ac1aa6524f73e26881b' as EntityKey<'sales_channel_type'>,
+        apiSalesChannelTypeId: 'f183ee5650cf4bdb8a774337575067a6' as EntityKey<'sales_channel_type'>,
+        agenticCommerceTypeId: '5e29f9890c4d4d519a1c7f9d5c24b7c1' as EntityKey<'sales_channel_type'>,
+        defaultSalutationId: 'ed643807c9f84cc8b50132ea3ccb1c3b' as EntityKey<'salutation'>,
     };
 
     public Data = data;
+
+    /**
+     * @experimental stableVersion:v6.9.0 feature:ADMIN_MIXIN_COMPOSABLES
+     */
+    public Composables = composables;
 
     public get Snippet() {
         // @ts-expect-error - type is currently not available

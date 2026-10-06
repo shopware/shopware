@@ -9,9 +9,7 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     computed: {
         isProductPage() {

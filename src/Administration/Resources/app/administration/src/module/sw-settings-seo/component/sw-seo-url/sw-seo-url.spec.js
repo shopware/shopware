@@ -158,19 +158,18 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
         );
     });
 
-    it.each([
-        ['seo/url%/1'],
-        ['foo/bar#baz'],
-        ['foo\\bar'],
-    ])('reports a validation error for disallowed character in "%s"', async (invalidPath) => {
-        Shopware.Store.get('swSeoUrl').currentSeoUrl = {
-            seoPathInfo: invalidPath,
-        };
+    it.each([['seo/url%/1'], ['foo/bar#baz'], ['foo\\bar']])(
+        'reports a validation error for disallowed character in "%s"',
+        async (invalidPath) => {
+            Shopware.Store.get('swSeoUrl').currentSeoUrl = {
+                seoPathInfo: invalidPath,
+            };
 
-        expect(wrapper.vm.seoPathInfoError).toEqual(
-            expect.objectContaining({ code: 'CONTENT__SEO_URL_INVALID_CHARACTERS' }),
-        );
-    });
+            expect(wrapper.vm.seoPathInfoError).toEqual(
+                expect.objectContaining({ code: 'CONTENT__SEO_URL_INVALID_CHARACTERS' }),
+            );
+        },
+    );
 
     it.each([
         ['Computers/Laptops'],
@@ -229,31 +228,11 @@ describe('src/module/sw-settings-seo/component/sw-seo-url', () => {
     });
 
     it.each([
-        [
-            'storefront',
-            STOREFRONT_SALES_CHANNEL_ID,
-            false,
-        ],
-        [
-            'headless',
-            HEADLESS_SALES_CHANNEL_ID,
-            false,
-        ],
-        [
-            'product comparison',
-            PRODUCT_COMPARISON_SALES_CHANNEL_ID,
-            true,
-        ],
-        [
-            'agentic commerce',
-            AGENTIC_COMMERCE_SALES_CHANNEL_ID,
-            true,
-        ],
-        [
-            'none selected',
-            null,
-            false,
-        ],
+        ['storefront', STOREFRONT_SALES_CHANNEL_ID, false],
+        ['headless', HEADLESS_SALES_CHANNEL_ID, false],
+        ['product comparison', PRODUCT_COMPARISON_SALES_CHANNEL_ID, true],
+        ['agentic commerce', AGENTIC_COMMERCE_SALES_CHANNEL_ID, true],
+        ['none selected', null, false],
     ])('should flag SEO URL support for a %s sales channel', async (_, salesChannelId, unsupported) => {
         setSalesChannels();
 

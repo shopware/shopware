@@ -34,11 +34,7 @@ type BetweenValue = {
  * Field types whose compared value is a list. Used to pick the "is one of / is none of" operator labels
  * over "is equal to / is not equal to".
  */
-const LIST_VALUED_FIELD_TYPES = [
-    'multi-entity-id-select',
-    'multi-select',
-    'tagged',
-];
+const LIST_VALUED_FIELD_TYPES = ['multi-entity-id-select', 'multi-select', 'tagged'];
 
 /* Mixin uses many untyped dependencies */
 /* eslint-disable @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access,@typescript-eslint/no-unsafe-return,@typescript-eslint/no-unsafe-assignment */
@@ -118,12 +114,7 @@ export default Mixin.register(
                             // @ts-expect-error
                             this.ensureValueExist();
 
-                            if (
-                                [
-                                    'multi-entity-id-select',
-                                    'multi-select',
-                                ].includes(type)
-                            ) {
+                            if (['multi-entity-id-select', 'multi-select'].includes(type)) {
                                 // @ts-expect-error
                                 return this.condition.value[name] || [];
                             }
@@ -180,16 +171,10 @@ export default Mixin.register(
                     this.condition.type,
                     fieldClone.name,
                 ];
-                const placeholderPath = [
-                    ...snippetBasePath,
-                    'placeholder',
-                ].join('.');
+                const placeholderPath = [...snippetBasePath, 'placeholder'].join('.');
 
                 if (
-                    [
-                        'multi-entity-id-select',
-                        'single-entity-id-select',
-                    ].includes(fieldClone.type) &&
+                    ['multi-entity-id-select', 'single-entity-id-select'].includes(fieldClone.type) &&
                     fieldClone.config.criteria
                 ) {
                     fieldClone.config.criteria = createCriteriaFromArray(fieldClone.config.criteria);
@@ -201,13 +186,7 @@ export default Mixin.register(
                 ) {
                     fieldClone.config.options = fieldClone.config.options.map((value) => {
                         return {
-                            label: this.$t(
-                                [
-                                    ...snippetBasePath,
-                                    'options',
-                                    value,
-                                ].join('.'),
-                            ),
+                            label: this.$t([...snippetBasePath, 'options', value].join('.')),
                             value,
                         };
                     });
@@ -261,10 +240,7 @@ export default Mixin.register(
                     return false;
                 }
 
-                return [
-                    'date',
-                    'datetime',
-                ].includes(field.type);
+                return ['date', 'datetime'].includes(field.type);
             },
 
             updateBetweenDateValue(fieldName: string, value: BetweenValue) {

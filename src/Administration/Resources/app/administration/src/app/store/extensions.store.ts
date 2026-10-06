@@ -15,7 +15,7 @@ export interface Extension {
     version?: string;
     type: 'app' | 'plugin';
     sourceType?: string;
-    integrationId?: string;
+    integrationId?: EntityKey<'integration'>;
     active?: boolean;
 }
 

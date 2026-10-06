@@ -201,10 +201,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
         expect(tabs.props('defaultItem')).toBe('tab-2');
     });
 
-    it.each([
-        'dev',
-        'prod',
-    ])('should be deprecated in %s env', async (env) => {
+    it.each(['dev', 'prod'])('should be deprecated in %s env', async (env) => {
         Shopware.Store.get('extensionComponentSections').addSection({
             component: 'card',
             positionId: 'test-position',
@@ -284,10 +281,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             wrapper = await createWrapper();
             await flushPromises();
 
-            expect(orderedNames()).toEqual([
-                'ServiceExtension',
-                'AppExtension',
-            ]);
+            expect(orderedNames()).toEqual(['ServiceExtension', 'AppExtension']);
         });
 
         it('orders by ascending priority within the same group', async () => {
@@ -302,11 +296,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             wrapper = await createWrapper();
             await flushPromises();
 
-            expect(orderedNames()).toEqual([
-                'AppA',
-                'AppB',
-                'AppC',
-            ]);
+            expect(orderedNames()).toEqual(['AppA', 'AppB', 'AppC']);
         });
 
         it('renders entries without a priority below those that set one', async () => {
@@ -319,10 +309,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             wrapper = await createWrapper();
             await flushPromises();
 
-            expect(orderedNames()).toEqual([
-                'AppPositioned',
-                'AppUnset',
-            ]);
+            expect(orderedNames()).toEqual(['AppPositioned', 'AppUnset']);
         });
 
         it('keeps registration order for entries with an unset priority (no name bias)', async () => {
@@ -338,11 +325,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             wrapper = await createWrapper();
             await flushPromises();
 
-            expect(orderedNames()).toEqual([
-                'Charlie',
-                'Alpha',
-                'Bravo',
-            ]);
+            expect(orderedNames()).toEqual(['Charlie', 'Alpha', 'Bravo']);
         });
 
         it('keeps registration order for entries sharing the same priority', async () => {
@@ -356,10 +339,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             await flushPromises();
 
             // Equal priority → stable sort preserves insertion order (Second was registered first).
-            expect(orderedNames()).toEqual([
-                'Second',
-                'First',
-            ]);
+            expect(orderedNames()).toEqual(['Second', 'First']);
         });
 
         it('keeps services on top even when an app has a lower priority', async () => {
@@ -372,10 +352,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             wrapper = await createWrapper();
             await flushPromises();
 
-            expect(orderedNames()).toEqual([
-                'ServiceExtension',
-                'AppExtension',
-            ]);
+            expect(orderedNames()).toEqual(['ServiceExtension', 'AppExtension']);
         });
 
         it('treats sections whose extension is unknown as non-services', async () => {
@@ -387,10 +364,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
             wrapper = await createWrapper();
             await flushPromises();
 
-            expect(orderedNames()).toEqual([
-                'ServiceExtension',
-                'UnknownExtension',
-            ]);
+            expect(orderedNames()).toEqual(['ServiceExtension', 'UnknownExtension']);
         });
 
         it('orders distinct priorities deterministically regardless of registration order', async () => {
@@ -416,11 +390,7 @@ describe('src/app/component/extension-api/sw-extension-component-section', () =>
 
             // Service first, then apps by ascending priority — identical both runs because
             // every entry has a distinct priority (no reliance on registration order).
-            expect(firstRun).toEqual([
-                'ServiceZ',
-                'AppA',
-                'AppB',
-            ]);
+            expect(firstRun).toEqual(['ServiceZ', 'AppA', 'AppB']);
             expect(orderedNames()).toEqual(firstRun);
         });
     });

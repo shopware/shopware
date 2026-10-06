@@ -61,10 +61,7 @@ export default class PrivilegesService {
     }
 
     public existsPrivilege(privilegeKey: string) {
-        const [
-            key,
-            role,
-        ] = privilegeKey.split('.');
+        const [key, role] = privilegeKey.split('.');
 
         return this.state.privilegesMappings.some((privilegeMapping) => {
             return privilegeMapping.key === key && role in privilegeMapping.roles;
@@ -72,10 +69,7 @@ export default class PrivilegesService {
     }
 
     private _getPrivilege(privilegeKey: string): PrivilegeMapping | undefined {
-        const [
-            key,
-            role,
-        ] = privilegeKey.split('.');
+        const [key, role] = privilegeKey.split('.');
 
         return this.state.privilegesMappings.find((privilegeMapping) => {
             return privilegeMapping.key === key && role in privilegeMapping.roles;
@@ -140,10 +134,7 @@ export default class PrivilegesService {
          * Resolve all privileges for dependencies
          */
         const dependenciesPrivileges = dependencies.reduce((acc: string[], dependencyKey) => {
-            return [
-                ...acc,
-                ...this._getPrivilegesWithDependencies(dependencyKey, shouldAddAdminPrivilege),
-            ];
+            return [...acc, ...this._getPrivilegesWithDependencies(dependencyKey, shouldAddAdminPrivilege)];
         }, []);
 
         /**
@@ -152,25 +143,16 @@ export default class PrivilegesService {
          */
         const resolvedPrivileges = privileges.reduce((acc: string[], privilege) => {
             if (typeof privilege === 'function') {
-                return [
-                    ...acc,
-                    ...privilege(),
-                ];
+                return [...acc, ...privilege()];
             }
 
-            return [
-                ...acc,
-                privilege,
-            ];
+            return [...acc, privilege];
         }, []);
 
         /**
          * Combine privileges and privileges of dependencies
          */
-        const collectedPrivileges = [
-            ...resolvedPrivileges,
-            ...dependenciesPrivileges,
-        ];
+        const collectedPrivileges = [...resolvedPrivileges, ...dependenciesPrivileges];
 
         /**
          * Only add adminPrivilege if wanted
@@ -242,11 +224,7 @@ export default class PrivilegesService {
 
             const privileges = this._getPrivilegesWithDependencies(adminPrivilegeKey);
 
-            return [
-                ...acc,
-                adminPrivilegeKey,
-                ...privileges,
-            ];
+            return [...acc, adminPrivilegeKey, ...privileges];
         }, []);
 
         return [
@@ -270,21 +248,16 @@ export default class PrivilegesService {
             return this;
         }
 
-        Object.entries(privilegeMapping.roles).forEach(
-            ([
-                role,
-                entry,
-            ]) => {
-                if (existingCategoryKeyCombination.roles.hasOwnProperty(role) === true) {
-                    existingCategoryKeyCombination.roles[role] = object.deepMergeObject(
-                        existingCategoryKeyCombination.roles[role],
-                        entry,
-                    );
-                } else {
-                    existingCategoryKeyCombination.roles[role] = entry;
-                }
-            },
-        );
+        Object.entries(privilegeMapping.roles).forEach(([role, entry]) => {
+            if (existingCategoryKeyCombination.roles.hasOwnProperty(role) === true) {
+                existingCategoryKeyCombination.roles[role] = object.deepMergeObject(
+                    existingCategoryKeyCombination.roles[role],
+                    entry,
+                );
+            } else {
+                existingCategoryKeyCombination.roles[role] = entry;
+            }
+        });
 
         return this;
     }

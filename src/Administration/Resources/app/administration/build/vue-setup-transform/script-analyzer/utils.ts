@@ -56,9 +56,7 @@ function absoluteRange(node: BabelNode, blockOffset: number): ShopwareSetupError
  * Parses user setup code with the plugins required by the declared script language.
  */
 function parseScript(script: string, lang: string, scriptOffset: number): BabelFile {
-    const plugins: ParserPlugin[] = [
-        'importMeta',
-    ];
+    const plugins: ParserPlugin[] = ['importMeta'];
 
     if (lang === 'ts' || lang === 'tsx') {
         plugins.push('typescript');
@@ -79,7 +77,10 @@ function parseScript(script: string, lang: string, scriptOffset: number): BabelF
     } catch (error: unknown) {
         const parserError = error as { pos?: unknown; message?: unknown };
         const offset = typeof parserError.pos === 'number' ? scriptOffset + parserError.pos : scriptOffset;
-        const message = typeof parserError.message === 'string' ? parserError.message : String(error);
+        // Babel appends a `(line:column)` relative to the script block; the absolute offset is the only
+        // position consumers should show.
+        const message =
+            typeof parserError.message === 'string' ? parserError.message.replace(/ \(\d+:\d+\)$/, '') : String(error);
         throw new ShopwareSetupTransformError(`Unable to parse Shopware setup script: ${message}`, offset);
     }
 }
@@ -97,10 +98,7 @@ function walk(node: BabelNode | null | undefined, visitor: AstVisitor, ancestors
 
     visitor(node, ancestors);
 
-    const childAncestors = [
-        ...ancestors,
-        node,
-    ];
+    const childAncestors = [...ancestors, node];
 
     childBabelNodes(node).forEach((child) => walk(child, visitor, childAncestors));
 }

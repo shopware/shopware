@@ -17,9 +17,7 @@ export default Mixin.register(
     defineComponent({
         inject: ['cmsService'],
 
-        mixins: [
-            Mixin.getByName('cms-state'),
-        ],
+        mixins: [Mixin.getByName('cms-state')],
 
         props: {
             element: {
@@ -67,22 +65,17 @@ export default Mixin.register(
                     set(this.element, 'config', {});
                 }
 
-                Object.entries(config).forEach(
-                    ([
-                        key,
-                        value,
-                    ]) => {
-                        const path = `config.${key}`;
+                Object.entries(config).forEach(([key, value]) => {
+                    const path = `config.${key}`;
 
-                        if (has(this.element, path)) {
-                            return;
-                        }
+                    if (has(this.element, path)) {
+                        return;
+                    }
 
-                        const newValue: unknown = cloneDeep(get(this.element, `translated.${path}`, value));
+                    const newValue: unknown = cloneDeep(get(this.element, `translated.${path}`, value));
 
-                        set(this.element, path, newValue);
-                    },
-                );
+                    set(this.element, path, newValue);
+                });
             },
 
             applyContentOverride() {
@@ -96,14 +89,9 @@ export default Mixin.register(
                     return;
                 }
 
-                Object.entries(overrideConfig).forEach(
-                    ([
-                        key,
-                        value,
-                    ]) => {
-                        set(this.element, `config.${key}`, cloneDeep(value));
-                    },
-                );
+                Object.entries(overrideConfig).forEach(([key, value]) => {
+                    set(this.element, `config.${key}`, cloneDeep(value));
+                });
             },
 
             initElementData(elementName: string) {

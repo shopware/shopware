@@ -10,7 +10,8 @@
  * hoisted, nothing is wrapped. Every top-level runtime binding is renamed to a reserved
  * `__swSetupAuthor_<name>` alias, and the footer re-declares the original names by destructuring the
  * override wrapper, so templates read overrideable state exactly like before while the body text
- * itself never moves.
+ * itself never moves. The footer closes with the generated `defineExpose()` that gives the props and
+ * the public bindings to a parent holding a template ref.
  */
 
 import { generated } from '../source-edits/chunks';
@@ -62,16 +63,18 @@ function formatStateMap(names: string[], spaces: number): string {
 }
 
 /**
- * The generated attribute through which a base `<sw-block>` reads the data scope its overrides write.
+ * The generated attributes wired onto a base `<sw-block>`: the owning component name and the data scope.
  *
- * `$dataScope` resolves against the scope `attachOverrides()` registers for the instance; authoring the
- * attribute is rejected, so the transform owns the whole binding.
+ * `sw-internal-component-name` identifies the block by its owning component (`componentName + blockName`)
+ * like Twig, keeping the same block name in two components isolated. `$dataScope` resolves against the data
+ * scope `attachOverrides()` registers for the instance; authoring either attribute is rejected, so the
+ * transform owns the whole binding.
  */
-function toDataScopeEdit(at: number): SourceEdit {
+function toDataScopeEdit(at: number, componentName: string): SourceEdit {
     return {
         start: at,
         end: at,
-        replacement: ' :data="$dataScope"',
+        replacement: ` sw-internal-component-name='${escapeSingleQuoted(componentName)}' :data="$dataScope"`,
     };
 }
 
@@ -113,17 +116,24 @@ function buildBaseScript(
         `    public: ${formatStateMap(analysis.publicEntries, 8)},`,
         `    private: ${formatStateMap(privateNames, 8)},`,
         '});',
+        '',
+        // swDefinePublic() is the parent-facing surface too, so the call is generated here and authoring
+        // one is rejected. Props join it because exposing anything closes a component to everything
+        // else, and reading a prop off a ref must keep working. After the destructure, which hands out
+        // the override-aware customRefs - that is what makes a parent's `treeItem.opened = false` reach
+        // the component's own state.
+        `defineExpose(${formatObjectProperties(
+            ['...Shopware.Component.getExposedProps()', ...analysis.publicEntries],
+            4,
+        )});`,
     ].join('\n');
 
     return [
-        ...templateAnalysis.dataScopeInsertions.map(toDataScopeEdit),
+        ...templateAnalysis.dataScopeInsertions.map((at) => toDataScopeEdit(at, block.componentName)),
         {
             start: block.contentStart,
             end: block.contentEnd,
-            replacement: [
-                ...body,
-                generated(`\n\n${footer}\n`),
-            ],
+            replacement: [...body, generated(`\n\n${footer}\n`)],
         },
     ];
 }

@@ -3,7 +3,6 @@ title: Shared Guidance Files for Humans and Agents
 date: 2026-06-17
 area: process
 tags: [documentation, agents, developer-experience, coding-guidelines, adr]
-status: accepted
 ---
 
 ## Context

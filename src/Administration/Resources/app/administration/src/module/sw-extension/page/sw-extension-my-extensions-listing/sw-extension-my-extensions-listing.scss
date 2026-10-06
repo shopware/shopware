@@ -8,6 +8,11 @@
             margin: 0 auto 8px;
         }
 
+        .sw-extension-my-extensions-listing__empty-state {
+            margin: 0 auto;
+        }
+
+        // @deprecated tag:v6.9.0 - Kept for overrides still rendering the old sw-meteor-card empty state.
         .sw-extension-my-extensions-listing__empty-state .sw-meteor-card__content-wrapper {
             text-align: center;
             padding: 56px 32px;
@@ -38,10 +43,6 @@
             max-width: 960px;
             margin-bottom: 32px;
         }
-    }
-
-    &-empty-state {
-        text-align: center;
     }
 
     &__container {

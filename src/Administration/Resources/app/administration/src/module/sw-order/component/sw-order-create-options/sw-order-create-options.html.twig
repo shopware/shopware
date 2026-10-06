@@ -18,6 +18,15 @@
     />
     {% endblock %}
 
+    {% block sw_order_create_options_order_switch_send_order_confirmation_mail %}
+    <mt-switch
+        class="sw-order-create-options__send-order-confirmation-mail"
+        :model-value="sendOrderConfirmationMail"
+        :label="$t('sw-order.createBase.labelSendOrderConfirmationMail')"
+        @update:model-value="onToggleSendOrderConfirmationMail"
+    />
+    {% endblock %}
+
     {% block sw_order_create_options_order_field_container %}
     <sw-container
         class="sw-order-create-options__order-container"

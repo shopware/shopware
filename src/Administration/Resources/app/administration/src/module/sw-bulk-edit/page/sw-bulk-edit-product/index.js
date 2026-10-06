@@ -20,6 +20,7 @@ export default {
         'feature',
         'bulkEditApiFactory',
         'repositoryFactory',
+        'customFieldDataProviderService',
     ],
 
     data() {
@@ -82,6 +83,7 @@ export default {
             return Shopware.Store.get('swBulkEdit').selectedIds;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
@@ -102,6 +104,7 @@ export default {
             return Object.values(this.bulkEditProduct).some((field) => field.isChanged) || this.bulkEditSelected.length > 0;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
             const criteria = new Criteria(1, null);
 
@@ -583,6 +586,40 @@ export default {
             ];
         },
 
+        guaranteeFormFields() {
+            return [
+                {
+                    name: 'guaranteeMonths',
+                    type: 'int',
+                    canInherit: this.isChild,
+                    config: {
+                        componentName: 'mt-number-field',
+                        numberType: 'int',
+                        min: 30,
+                        max: 600,
+                        step: 6,
+                        allowEmpty: true,
+                        changeLabel: this.$t('sw-bulk-edit.product.guarantee.guaranteeMonths.changeLabel'),
+                        helpText: this.$t('sw-bulk-edit.product.guarantee.guaranteeMonths.helpText'),
+                        placeholder: this.$t('sw-bulk-edit.product.guarantee.guaranteeMonths.placeholder'),
+                        disabled: this.bulkEditProduct?.guaranteeMonths?.isInherited,
+                    },
+                },
+                {
+                    name: 'guaranteeConfirmed',
+                    type: 'bool',
+                    canInherit: this.isChild,
+                    config: {
+                        type: 'switch',
+                        label: this.$t('sw-bulk-edit.product.guarantee.guaranteeConfirmed.label'),
+                        helpText: this.$t('sw-bulk-edit.product.guarantee.guaranteeConfirmed.helpText'),
+                        changeLabel: this.$t('sw-bulk-edit.product.guarantee.guaranteeConfirmed.changeLabel'),
+                        disabled: this.bulkEditProduct?.guaranteeConfirmed?.isInherited,
+                    },
+                },
+            ];
+        },
+
         seoFormFields() {
             return [
                 {
@@ -806,10 +843,7 @@ export default {
             }
 
             return this.product?.prices.reduce((r, a) => {
-                r[a.ruleId] = [
-                    ...(r[a.ruleId] || []),
-                    a,
-                ];
+                r[a.ruleId] = [...(r[a.ruleId] || []), a];
                 return r;
             }, {});
         },
@@ -965,7 +999,7 @@ export default {
         },
 
         setRouteMetaModule() {
-            this.$route.meta.$module.color = '#57D9A3';
+            this.$route.meta.$module.color = 'var(--sw-color-module-green-default)';
             this.$route.meta.$module.icon = 'regular-products';
         },
 
@@ -1039,6 +1073,7 @@ export default {
                 this.assignmentFormFields,
                 this.mediaFormFields,
                 this.labellingFormFields,
+                this.guaranteeFormFields,
                 this.seoFormFields,
                 this.measuresPackagingFields,
                 this.sellingPackagingFields,
@@ -1064,7 +1099,7 @@ export default {
         },
 
         loadCustomFieldSets() {
-            return this.customFieldSetRepository.search(this.customFieldSetCriteria).then((res) => {
+            return this.customFieldDataProviderService.getCustomFieldSets('product', false, null).then((res) => {
                 this.customFieldSets = res;
             });
         },
@@ -1211,12 +1246,7 @@ export default {
                     return;
                 }
 
-                if (
-                    [
-                        'price',
-                        'purchasePrices',
-                    ].includes(key)
-                ) {
+                if (['price', 'purchasePrices'].includes(key)) {
                     hasPriceChange = true;
                 }
 
@@ -1263,14 +1293,7 @@ export default {
                 // each variant's effective set (its own rows when it overrides, otherwise the
                 // inherited parent set) with the removed channels dropped and the added ones
                 // merged in.
-                if (
-                    this.isChild &&
-                    key === 'visibilities' &&
-                    [
-                        'add',
-                        'remove',
-                    ].includes(bulkEditField.type)
-                ) {
+                if (this.isChild && key === 'visibilities' && ['add', 'remove'].includes(bulkEditField.type)) {
                     this.transformVariantVisibilityChange(change);
                 }
 
@@ -1615,12 +1638,7 @@ export default {
         },
 
         onInheritanceRemove(item) {
-            if (
-                [
-                    'properties',
-                    'prices',
-                ].includes(item.name)
-            ) {
+            if (['properties', 'prices'].includes(item.name)) {
                 this.setProductAssociation(item.name);
             }
 

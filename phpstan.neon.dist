@@ -16,6 +16,8 @@ parameters:
         - var/cache/static_phpstan_dev/Symfony/Config
     scanFiles:
         - vendor/symfony/dependency-injection/Loader/Configurator/ContainerConfigurator.php
+        # global functions the matrix generators share, required by tests/devops/Github
+        - .github/bin/lib/feature-flags.php
 
     excludePaths:
         # vendor patches over autoload files
@@ -27,10 +29,6 @@ parameters:
         # node_modules
         - src/**/node_modules/*
         - tests/**/node_modules/*
-
-        # @todo NEXT-22697 - Remove when re-enabling cms-aware
-        - src/Core/System/CustomEntity/Xml/Config/CustomEntityEnrichmentService.php
-        - tests/integration/Core/System/CustomEntity/Xml/Config/CmsAwareAndAdminUiTest.php
 
         # PHPStan rule test files
         - tests/devops/Core/DevOps/StaticAnalyse/PHPStan/Rules/data/*
@@ -61,11 +59,6 @@ parameters:
                 - tests/integration/**/*Test.php
                 - tests/integration/**/*TestCase.php
 
-        - # ignore errors caused by static::markTestSkipped
-            message: '#Unreachable statement - code above always terminates.#'
-            paths:
-                - tests/**/*Test.php
-
         # To fix this error, the \Shopware\Core\Framework\Struct\Collection::createNew method has to be implemented
         # in every implementation of `Collection` and needs to return `new self` instead of `new static`. See https://github.com/phpstan/phpstan/issues/2773
         -
@@ -95,7 +88,6 @@ parameters:
         -
            message: '#.* has no route scope defined.*#'
            paths:
-            - **/*Test.php
             - src/Core/Installer
 
         -

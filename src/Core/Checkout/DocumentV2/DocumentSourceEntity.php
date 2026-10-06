@@ -8,7 +8,7 @@ use Shopware\Core\System\Language\LanguageEntity;
 /**
  * Contract for entities that documents can be generated from.
  *
- * @internal
+ * @experimental stableVersion:v6.8.0 feature:DOCUMENT_GENERATION_REWORK
  */
 #[Package('after-sales')]
 interface DocumentSourceEntity

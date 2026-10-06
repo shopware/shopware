@@ -51,6 +51,7 @@ use Shopware\Core\Framework\Adapter\Twig\TwigVariableParserFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\RequestCriteriaBuilder;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
@@ -192,7 +193,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('twig.extension.routing'),
             service(CategoryUrlGenerator::class),
         ])
-        ->tag('twig.extension');
+        ->tag('twig.extension')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(SeoUrlPlaceholderHandlerInterface::class, SeoUrlPlaceholderHandler::class)
         ->public()
@@ -232,6 +234,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->public()
         ->args([
             service('sales_channel.seo_url.repository'),
+            service(ExtensionDispatcher::class),
         ]);
 
     $services->set(StoreApiSeoResolver::class)
@@ -240,6 +243,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(DefinitionInstanceRegistry::class),
             service(SalesChannelDefinitionInstanceRegistry::class),
             service(SeoUrlRouteRegistry::class),
+            service(EntityRouteResolver::class),
         ])
         ->tag('kernel.event_subscriber');
 
@@ -284,7 +288,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('sales_channel.category.repository'),
             service('category.repository'),
         ])
-        ->tag('twig.extension');
+        ->tag('twig.extension')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(SeoUrlTwigFactory::class);
 

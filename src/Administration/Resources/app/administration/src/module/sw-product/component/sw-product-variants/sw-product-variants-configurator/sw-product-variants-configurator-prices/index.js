@@ -69,10 +69,7 @@ export default {
                 };
             });
 
-            return [
-                ...defaultColumns,
-                ...currenciesColumns,
-            ];
+            return [...defaultColumns, ...currenciesColumns];
         },
     },
 

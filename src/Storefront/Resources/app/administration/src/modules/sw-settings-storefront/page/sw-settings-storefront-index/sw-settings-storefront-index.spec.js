@@ -24,10 +24,7 @@ describe('sw-settings-storefront-index', () => {
                     },
                     'sw-button-process': {
                         props: ['processSuccess'],
-                        emits: [
-                            'click',
-                            'update:processSuccess',
-                        ],
+                        emits: ['click', 'update:processSuccess'],
                         template: `
                             <button class="sw-button-process" @click="$emit('click')"><slot></slot></button>
                         `,
@@ -51,11 +48,7 @@ describe('sw-settings-storefront-index', () => {
                         template: '<div class="mt-switch"></div>',
                     },
                     'sw-inherit-wrapper': {
-                        props: [
-                            'value',
-                            'inheritedValue',
-                            'hasParent',
-                        ],
+                        props: ['value', 'inheritedValue', 'hasParent'],
                         emits: ['update:value'],
                         computed: {
                             isInherited() {

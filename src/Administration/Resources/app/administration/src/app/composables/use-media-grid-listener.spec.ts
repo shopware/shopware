@@ -51,19 +51,13 @@ describe('src/app/composables/use-media-grid-listener', () => {
         expect(onFolderChange).toHaveBeenCalledWith('folder-1');
     });
 
-    it.each([
-        'ctrl',
-        'meta',
-    ] as const)('toggles an item with the %s modifier', (modifier) => {
+    it.each(['ctrl', 'meta'] as const)('toggles an item with the %s modifier', (modifier) => {
         const { handleMediaItemClicked, selectedItems, isItemSelected } = listener();
 
         handleMediaItemClicked({ originalDomEvent: domEvent(), item: items[0] });
         handleMediaItemClicked({ originalDomEvent: domEvent(modifier), item: items[1] });
 
-        expect(selectedItems.value).toEqual([
-            items[0],
-            items[1],
-        ]);
+        expect(selectedItems.value).toEqual([items[0], items[1]]);
 
         handleMediaItemClicked({ originalDomEvent: domEvent(modifier), item: items[1] });
 
@@ -77,11 +71,7 @@ describe('src/app/composables/use-media-grid-listener', () => {
         handleMediaItemClicked({ originalDomEvent: domEvent(), item: items[3] });
         handleMediaItemClicked({ originalDomEvent: domEvent('shift'), item: items[1] });
 
-        expect(selectedItems.value).toEqual([
-            items[1],
-            items[2],
-            items[3],
-        ]);
+        expect(selectedItems.value).toEqual([items[1], items[2], items[3]]);
         expect(listSelectionStartItem.value).toBe(items[1]);
     });
 
@@ -91,10 +81,7 @@ describe('src/app/composables/use-media-grid-listener', () => {
         handleMediaGridItemSelected({ originalDomEvent: domEvent(), item: items[0] });
         handleMediaGridItemSelected({ originalDomEvent: domEvent(), item: items[1] });
 
-        expect(selectedItems.value).toEqual([
-            items[0],
-            items[1],
-        ]);
+        expect(selectedItems.value).toEqual([items[0], items[1]]);
 
         handleMediaGridItemUnselected({ item: items[0] });
 

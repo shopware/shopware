@@ -14,12 +14,14 @@ use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\CartLocker;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedCriteriaEvent;
 use Shopware\Core\Checkout\Cart\Event\CheckoutOrderPlacedEvent;
+use Shopware\Core\Checkout\Cart\Extension\CartOrderRouteExtension;
 use Shopware\Core\Checkout\Cart\Extension\CheckoutPlaceOrderExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Order\OrderPersister;
 use Shopware\Core\Checkout\Cart\Order\OrderPlaceResult;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRouteResponse;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\TaxProvider\TaxProviderProcessor;
@@ -333,6 +335,79 @@ class CartOrderRouteTest extends TestCase
         $this->buildRoute(cartLocker: $cartLocker)->order($cart, $this->context, $data);
     }
 
+    public function testOrderIsPlacedWhenTheStoredCartStillExists(): void
+    {
+        $cart = new Cart('token');
+        $cart->setPersisted(true);
+        $cart->add(new LineItem('id', 'type'));
+
+        $calculatedCart = new Cart('calculated');
+
+        $cartCalculator = $this->createMock(CartCalculator::class);
+        $cartCalculator->expects($this->once())
+            ->method('calculate')
+            ->with($cart, $this->context)
+            ->willReturn($calculatedCart);
+
+        $orderId = 'order-id';
+
+        $orderPersister = $this->createMock(OrderPersister::class);
+        $orderPersister->expects($this->once())
+            ->method('persist')
+            ->with($calculatedCart, $this->context)
+            ->willReturn($orderId);
+
+        $orderEntity = new OrderEntity();
+        $orderEntity->setId($orderId);
+
+        $searchResult = static::createStub(EntitySearchResult::class);
+        $searchResult->method('getEntities')->willReturn(new OrderCollection([$orderEntity]));
+
+        $orderRepository = $this->createMock(EntityRepository::class);
+        $orderRepository->expects($this->once())
+            ->method('search')
+            ->willReturn($searchResult);
+
+        $cartPersister = $this->createMock(AbstractCartPersister::class);
+        $cartPersister->expects($this->once())
+            ->method('exists')
+            ->with('token', $this->context)
+            ->willReturn(true);
+
+        $route = $this->buildRoute(
+            cartCalculator: $cartCalculator,
+            orderRepository: $orderRepository,
+            orderPersister: $orderPersister,
+            cartPersister: $cartPersister,
+        );
+
+        $response = $route->order($cart, $this->context, new RequestDataBag());
+
+        static::assertSame($orderEntity, $response->getObject());
+    }
+
+    public function testOrderIsRejectedWhenTheStoredCartWasAlreadyConsumed(): void
+    {
+        $cart = new Cart('token');
+        $cart->setPersisted(true);
+        $cart->add(new LineItem('id', 'type'));
+
+        $cartPersister = $this->createMock(AbstractCartPersister::class);
+        $cartPersister->expects($this->once())->method('exists')
+            ->with('token', $this->context)
+            ->willReturn(false);
+        $cartPersister->expects($this->never())->method('delete');
+
+        $orderPersister = $this->createMock(OrderPersister::class);
+        $orderPersister->expects($this->never())->method('persist');
+
+        $route = $this->buildRoute(orderPersister: $orderPersister, cartPersister: $cartPersister);
+
+        $this->expectExceptionObject(CartException::tokenNotFound('token'));
+
+        $route->order($cart, $this->context, new RequestDataBag());
+    }
+
     public function testExtensionIsDispatched(): void
     {
         $cart = new Cart('test');
@@ -363,6 +438,25 @@ class CartOrderRouteTest extends TestCase
         $route->order($cart, $context, new RequestDataBag());
     }
 
+    public function testPublishesExtension(): void
+    {
+        $cart = new Cart(Uuid::randomHex());
+        $data = new RequestDataBag();
+        $response = new CartOrderRouteResponse(new OrderEntity());
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('cart-order-route.order.pre', function (CartOrderRouteExtension $extension) use ($cart, $data, $response): void {
+            static::assertSame(['cart' => $cart, 'context' => $this->context, 'data' => $data], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = $this->buildRoute(extensions: new ExtensionDispatcher($dispatcher));
+
+        static::assertSame($response, $route->order($cart, $this->context, $data));
+    }
+
     /**
      * @param (EntityRepository<OrderCollection>&MockObject)|null $orderRepository
      */
@@ -373,12 +467,13 @@ class CartOrderRouteTest extends TestCase
         ?EventDispatcherInterface $eventDispatcher = null,
         ?CartLocker $cartLocker = null,
         ?ExtensionDispatcher $extensions = null,
+        ?AbstractCartPersister $cartPersister = null,
     ): CartOrderRoute {
         return new CartOrderRoute(
             $cartCalculator ?? $this->cartCalculator,
             $orderRepository ?? $this->orderRepository,
             $orderPersister ?? $this->orderPersister,
-            static::createStub(AbstractCartPersister::class),
+            $cartPersister ?? static::createStub(AbstractCartPersister::class),
             $eventDispatcher ?? $this->eventDispatcher,
             static::createStub(PaymentProcessor::class),
             static::createStub(TaxProviderProcessor::class),

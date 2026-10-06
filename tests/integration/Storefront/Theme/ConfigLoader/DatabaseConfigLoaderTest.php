@@ -91,7 +91,7 @@ class DatabaseConfigLoaderTest extends TestCase
             new StorefrontPluginConfiguration('base'),
         ]);
 
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')
             ->willReturn($collection);
 
@@ -139,7 +139,7 @@ class DatabaseConfigLoaderTest extends TestCase
             new StorefrontPluginConfiguration('base'),
         ]);
 
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')
             ->willReturn($collection);
 
@@ -181,7 +181,7 @@ class DatabaseConfigLoaderTest extends TestCase
             new StorefrontPluginConfiguration('base'),
         ]);
 
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
         $registry->method('getConfigurations')
             ->willReturn($collection);
 
@@ -252,7 +252,7 @@ class DatabaseConfigLoaderTest extends TestCase
             new StorefrontPluginConfiguration('child'),
         ]);
 
-        $registry = $this->createMock(StorefrontPluginRegistry::class);
+        $registry = static::createStub(StorefrontPluginRegistry::class);
 
         $registry->method('getConfigurations')
             ->willReturn($collection);

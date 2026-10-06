@@ -37,20 +37,14 @@ const BRIDGE_ESLINT_LINES = [
  */
 export function describeConfigFix(tool: 'TypeScript' | 'ESLint', config: OwnedConfig): string[] {
     if (tool === 'ESLint') {
-        return [
-            'compose the bridge in the eslint config:',
-            ...BRIDGE_ESLINT_LINES.map((line) => `    ${line}`),
-        ];
+        return ['compose the bridge in the eslint config:', ...BRIDGE_ESLINT_LINES.map((line) => `    ${line}`)];
     }
 
     switch (config.reason) {
         case 'files-override':
             return ['remove the own "files" array from the tsconfig — the bridge provides the type surface.'];
         case 'include-missing':
-            return [
-                'add an "include" to the tsconfig naming your sources:',
-                `    ${BRIDGE_INCLUDE_LINE}`,
-            ];
+            return ['add an "include" to the tsconfig naming your sources:', `    ${BRIDGE_INCLUDE_LINE}`];
         case 'unreadable':
             return ['repair the tsconfig so it parses, then re-run setup.'];
         default:
@@ -118,18 +112,9 @@ export function describeNextStep(
     if (state === 'bridge-unwired') {
         const lines = [`The ${SHIM_DIR_NAME}/ bridge exists — finish wiring it:`];
 
-        for (const [
-            tool,
-            config,
-        ] of [
-            [
-                'TypeScript',
-                firstDrift(project, 'tsconfig'),
-            ],
-            [
-                'ESLint',
-                firstDrift(project, 'eslintConfig'),
-            ],
+        for (const [tool, config] of [
+            ['TypeScript', firstDrift(project, 'tsconfig')],
+            ['ESLint', firstDrift(project, 'eslintConfig')],
         ] as Array<['TypeScript' | 'ESLint', OwnedConfig | null]>) {
             const guidance = describeToolGuidance(project, tool, config);
 

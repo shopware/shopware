@@ -5,7 +5,24 @@
 import shopwareSetupVueTransformer from '../../test/transformer/shopwareSetupVueTransformer';
 import { stripIndent } from './index.spec/helpers';
 
+const browserslistDataWarning = {
+    method: 'warn' as const,
+    msg: 'Browserslist: browsers data',
+};
+
 describe('test/transformer/shopwareSetupVueTransformer integration', () => {
+    beforeAll(() => {
+        global.allowedErrors.push(browserslistDataWarning);
+    });
+
+    afterAll(() => {
+        const warningIndex = global.allowedErrors.indexOf(browserslistDataWarning);
+
+        if (warningIndex !== -1) {
+            global.allowedErrors.splice(warningIndex, 1);
+        }
+    });
+
     it('applies the Shopware setup transform before delegating Vue files to vue-jest', () => {
         const source = stripIndent`
             <template>

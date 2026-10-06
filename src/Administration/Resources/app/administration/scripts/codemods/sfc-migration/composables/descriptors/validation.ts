@@ -11,10 +11,7 @@ const VALIDATION_DESCRIPTOR: ComposableDescriptor = {
     import: { source: 'src/app/composables/use-validation', name: 'useValidation' },
     members: {
         validationService: { kind: 'value' },
-        ...methodMembers([
-            'validate',
-            'validateRule',
-        ]),
+        ...methodMembers(['validate', 'validateRule']),
     },
     internallyReferencedMembers: ['validateRule'],
     // The mixin's computed read the host's current value under whichever of `currentValue`, `value`

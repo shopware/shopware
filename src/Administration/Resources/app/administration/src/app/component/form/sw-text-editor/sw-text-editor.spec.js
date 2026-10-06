@@ -112,9 +112,7 @@ describe('src/app/component/form/sw-text-editor', () => {
             id: 'cmsPage',
             state: () => ({
                 currentMappingTypes: {
-                    string: [
-                        'category.type',
-                    ],
+                    string: ['category.type'],
                 },
             }),
         });
@@ -862,14 +860,8 @@ describe('src/app/component/form/sw-text-editor', () => {
         await wrapper.get('.sw-text-editor__content-editor').trigger('copy', { clipboardData: { setData } });
 
         expect(setData.mock.calls).toContainEqual(
-            [
-                'text/html',
-                '<strike><u><bold>ware</bold></u></strike>',
-            ],
-            [
-                'text/plain',
-                'ware',
-            ],
+            ['text/html', '<strike><u><bold>ware</bold></u></strike>'],
+            ['text/plain', 'ware'],
         );
     });
 
@@ -901,10 +893,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         // paste styled 'test' over 'ware'
         await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
-        expect(getData.mock.calls).toEqual([
-            ['text/plain'],
-            ['text/html'],
-        ]);
+        expect(getData.mock.calls).toEqual([['text/plain'], ['text/html']]);
         expect(wrapper.vm.getContentValue()).toBe('<span id="anchor"><strike><u><bold>test</bold></u></strike></span>');
     });
 
@@ -936,10 +925,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         // paste styled 'test' over 'ware'
         await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
-        expect(getData.mock.calls).toEqual([
-            ['text/plain'],
-            ['text/html'],
-        ]);
+        expect(getData.mock.calls).toEqual([['text/plain'], ['text/html']]);
         expect(wrapper.vm.getContentValue()).toBe('<span id="anchor">test</span>');
     });
 
@@ -967,10 +953,7 @@ describe('src/app/component/form/sw-text-editor', () => {
 
         // paste 'test' over 'ware'
         await wrapper.get('.sw-text-editor__content-editor').trigger('paste', { clipboardData: { getData } });
-        expect(getData.mock.calls).toEqual([
-            ['text/plain'],
-            ['text/html'],
-        ]);
+        expect(getData.mock.calls).toEqual([['text/plain'], ['text/html']]);
         expect(wrapper.vm.getContentValue()).toBe('<span id="anchor">test</span>');
     });
 
@@ -1136,11 +1119,7 @@ describe('src/app/component/form/sw-text-editor', () => {
         expect(wrapper.vm.selection).not.toBeNull();
         expect(wrapper.vm.hasSelection).toBe(true);
 
-        const popoverClasses = [
-            'sw-popover__wrapper',
-            'mt-popover-deprecated__wrapper',
-            'mt-floating-ui__content',
-        ];
+        const popoverClasses = ['sw-popover__wrapper', 'mt-popover-deprecated__wrapper', 'mt-floating-ui__content'];
 
         popoverClasses.forEach((popoverClass) => {
             const popoverElement = document.createElement('div');

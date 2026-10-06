@@ -61,10 +61,7 @@ describe('src/app/service/acl.service.ts', () => {
             admin: false,
             aclRoles: [
                 {
-                    privileges: [
-                        'system.clear_cache',
-                        'orders.create_discounts',
-                    ],
+                    privileges: ['system.clear_cache', 'orders.create_discounts'],
                 },
             ],
         });

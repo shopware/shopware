@@ -148,9 +148,12 @@ class UserRecoveryServiceTest extends TestCase
             new NativeClock()
         );
 
-        $service->generateUserRecovery($userEmail, $context);
-        static::assertCount(0, $recoveryRepository->creates);
-        static::assertCount(0, $recoveryRepository->deletes);
+        try {
+            $service->generateUserRecovery($userEmail, $context);
+        } finally {
+            static::assertCount(1, $recoveryRepository->creates);
+            static::assertCount(1, $recoveryRepository->deletes);
+        }
     }
 
     public function testGenerateUserRecoveryWithExistingRecovery(): void

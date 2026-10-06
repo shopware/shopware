@@ -79,6 +79,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(LanguageLocaleCodeProvider::class),
             service(MailTemplateContentBuilder::class),
             service(MailMetricsInstrumentor::class),
+            service(Translator::class),
         ]);
 
     $services->set(MailGroupResolver::class);
@@ -94,8 +95,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(MailService::class),
             service('mail_template.repository'),
             service('logger'),
-            service(Translator::class),
-            service(LanguageLocaleCodeProvider::class),
             service(Connection::class),
         ]);
 

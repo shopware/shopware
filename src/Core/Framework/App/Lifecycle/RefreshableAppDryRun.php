@@ -42,11 +42,7 @@ class RefreshableAppDryRun extends AbstractAppLifecycle
     {
         $filter = static function (string $appName) use ($names) {
             foreach ($names as $name) {
-                if (str_contains($appName, $name)) {
-                    return true;
-                }
-
-                return false;
+                return str_contains($appName, $name);
             }
 
             return false;

@@ -17,15 +17,13 @@ use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Content\Seo\MainCategory\MainCategoryCollection;
+use Shopware\Core\Content\Seo\MainCategory\MainCategoryEntity;
 use Shopware\Core\Content\Seo\SeoUrlRoute\EntityRouteResolver;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\AndFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -156,7 +154,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         static::assertNotNull($categoryEntity);
     }
 
-    public function testGetProductSeoCategoryShouldReturnDeepestVisibleActiveCategory(): void
+    public function testGetProductSeoCategoryShouldPreferDeepestVisibleActiveCategory(): void
     {
         $categoryIds = [Uuid::randomHex()];
 
@@ -177,44 +175,74 @@ class CategoryBreadcrumbBuilderTest extends TestCase
         $categoryRepositoryMock->expects($this->once())
             ->method('search')
             ->willReturnCallback(static function (Criteria $criteria) use ($categoryEntity, $context): EntitySearchResult {
-                $levelSorting = array_values(array_filter(
-                    $criteria->getSorting(),
-                    static fn (FieldSorting $sorting) => $sorting->getField() === 'level'
-                ))[0] ?? null;
+                $sortings = $criteria->getSorting();
 
-                static::assertNotNull($levelSorting);
-                static::assertSame(FieldSorting::DESCENDING, $levelSorting->getDirection());
+                static::assertCount(2, $sortings);
+                static::assertSame('visible', $sortings[0]->getField());
+                static::assertSame(FieldSorting::DESCENDING, $sortings[0]->getDirection());
+                static::assertSame('level', $sortings[1]->getField());
+                static::assertSame(FieldSorting::DESCENDING, $sortings[1]->getDirection());
 
-                static::assertContains('visible', $criteria->getFilterFields());
                 static::assertContains('active', $criteria->getFilterFields());
-
-                $visibleActiveAndFilter = array_values(array_filter(
-                    $criteria->getFilters(),
-                    static fn (Filter $filter) => $filter instanceof AndFilter && \array_intersect(['visible', 'active'], $filter->getFields()) === ['visible', 'active']
-                ))[0] ?? null;
-
-                static::assertInstanceOf(AndFilter::class, $visibleActiveAndFilter);
-
-                $visibleFilter = array_values(array_filter(
-                    $visibleActiveAndFilter->getQueries(),
-                    static fn (Filter $filter) => $filter instanceof EqualsFilter && $filter->getField() === 'visible'
-                ))[0] ?? null;
-
-                static::assertInstanceOf(EqualsFilter::class, $visibleFilter);
-                static::assertTrue($visibleFilter->getValue());
-
-                $activeFilter = array_values(array_filter(
-                    $visibleActiveAndFilter->getQueries(),
-                    static fn (Filter $filter) => $filter instanceof EqualsFilter && $filter->getField() === 'active'
-                ))[0] ?? null;
-
-                static::assertInstanceOf(EqualsFilter::class, $activeFilter);
-                static::assertTrue($activeFilter->getValue());
+                static::assertNotContains('visible', $criteria->getFilterFields());
 
                 return new EntitySearchResult('category', 1, new CategoryCollection([$categoryEntity]), null, $criteria, $context);
             });
 
         $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext);
+    }
+
+    public function testGetProductSeoCategoryShouldReturnMainCategoryHiddenInNavigation(): void
+    {
+        $categoryId = Uuid::randomHex();
+
+        $categoryEntity = new CategoryEntity();
+        $categoryEntity->setId($categoryId);
+        $categoryEntity->setName('hidden-main-category');
+        $categoryEntity->setActive(true);
+        $categoryEntity->setVisible(false);
+        $categoryEntity->setPath('|navigationCategoryId|');
+
+        $mainCategory = new MainCategoryEntity();
+        $mainCategory->setId(Uuid::randomHex());
+        $mainCategory->setSalesChannelId($this->salesChannelContext->getSalesChannelId());
+        $mainCategory->setCategory($categoryEntity);
+
+        $product = $this->getProductEntity([], [$categoryId]);
+        $product->setMainCategories(new MainCategoryCollection([$mainCategory]));
+
+        $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
+            $this->getCategoryRepositoryMock([], []),
+            $this->getProductRepositoryMock([], []),
+            $this->getConnectionMock(),
+            $this->entityRouteResolver,
+        );
+
+        static::assertSame($categoryEntity, $categoryBreadcrumbBuilder->getProductSeoCategory($product, $this->salesChannelContext));
+    }
+
+    public function testGetProductCategoryByReferrerShouldReturnReferrerCategoryHiddenInNavigation(): void
+    {
+        $categoryId = Uuid::randomHex();
+
+        $categoryEntity = new CategoryEntity();
+        $categoryEntity->setId($categoryId);
+        $categoryEntity->setName('hidden-referrer-category');
+        $categoryEntity->setActive(true);
+        $categoryEntity->setVisible(false);
+        $categoryEntity->setPath('|navigationCategoryId|');
+
+        $product = $this->getProductEntity([], [$categoryId]);
+        $product->setCategoryTree([$categoryId]);
+
+        $categoryBreadcrumbBuilder = new CategoryBreadcrumbBuilder(
+            $this->getCategoryRepositoryMock([$categoryEntity], []),
+            $this->getProductRepositoryMock([], []),
+            $this->getConnectionMock(),
+            $this->entityRouteResolver,
+        );
+
+        static::assertSame($categoryEntity, $categoryBreadcrumbBuilder->getProductCategoryByReferrer($categoryId, $product, $this->salesChannelContext));
     }
 
     public function testConvertCategoriesToBreadcrumbUrlsWithSeoUrls(): void
@@ -482,7 +510,7 @@ class CategoryBreadcrumbBuilderTest extends TestCase
      * @param array<string> $streamIds
      * @param array<string>|null $categoryIds
      */
-    private function getProductEntity(?array $streamIds, ?array $categoryIds): ProductEntity
+    private function getProductEntity(?array $streamIds, ?array $categoryIds): SalesChannelProductEntity
     {
         $product = new SalesChannelProductEntity();
 

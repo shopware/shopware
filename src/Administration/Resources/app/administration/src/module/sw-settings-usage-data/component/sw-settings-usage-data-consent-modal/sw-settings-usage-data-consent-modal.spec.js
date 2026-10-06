@@ -32,10 +32,7 @@ function createConsentModal(storeDataConsent, userDataConsent) {
 
 describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consent-modal', () => {
     beforeEach(() => {
-        global.activeAclRoles = [
-            'system.system_config',
-            'user.update_profile',
-        ];
+        global.activeAclRoles = ['system.system_config', 'user.update_profile'];
         jest.useFakeTimers();
     });
 
@@ -55,24 +52,9 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
         });
 
         it.each([
-            [
-                'store data consent was given before',
-                [
-                    'system.system_config',
-                    'user.update_profile',
-                ],
-                true,
-            ],
-            [
-                'store data consent is hidden by permissions',
-                ['user.update_profile'],
-                false,
-            ],
-            [
-                'user data consent is hidden by permissions',
-                ['system.system_config'],
-                false,
-            ],
+            ['store data consent was given before', ['system.system_config', 'user.update_profile'], true],
+            ['store data consent is hidden by permissions', ['user.update_profile'], false],
+            ['user data consent is hidden by permissions', ['system.system_config'], false],
         ])('shows decline/give consent buttons when %s', async (scenario, roles, storeDataConsent) => {
             global.activeAclRoles = roles;
 
@@ -89,10 +71,7 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
         it('shows save preferences when one or both consent states changes', async () => {
             const wrapper = await createConsentModal(false, false);
 
-            const [
-                shareStoreDataSwitch,
-                shareUserDataSwitch,
-            ] = wrapper.findAllComponents(MtSwitch);
+            const [shareStoreDataSwitch, shareUserDataSwitch] = wrapper.findAllComponents(MtSwitch);
 
             await shareStoreDataSwitch.get('input').trigger('change');
 
@@ -132,10 +111,7 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
                 new ConsentEvent(
                     'consent_modal_viewed',
                     {
-                        consents_shown: [
-                            'backend_data',
-                            'product_analytics',
-                        ],
+                        consents_shown: ['backend_data', 'product_analytics'],
                     },
                     new Date(),
                 ),
@@ -427,16 +403,8 @@ describe('/module/sw-settings-usage-data/component/sw-settings-usage-data-consen
         });
 
         it.each([
-            [
-                'gives',
-                1,
-                'accept',
-            ],
-            [
-                'declines',
-                0,
-                'revoke',
-            ],
+            ['gives', 1, 'accept'],
+            ['declines', 0, 'revoke'],
         ])('%s store data consent in the single-option case', async (_label, buttonIndex, expectedMethod) => {
             global.activeAclRoles = ['system.system_config'];
 

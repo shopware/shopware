@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Log\Monolog;
 
 use Monolog\Handler\FingersCrossedHandler;
-use Monolog\Handler\HandlerInterface;
+use Monolog\Handler\Handler;
 use Monolog\Handler\TestHandler;
 use Monolog\Level;
 use Monolog\LogRecord;
@@ -53,15 +53,34 @@ class ExcludeFlowEventHandlerTest extends TestCase
         $handler->reset();
     }
 
-    public function testResetWorksWithNonResettableInnerHandler(): void
+    public function testResetSkipsInnerHandlerWithoutReset(): void
     {
-        $innerHandler = static::createStub(HandlerInterface::class);
+        // a handler without reset(): forwarding the call unconditionally would fail here
+        $innerHandler = new class extends Handler {
+            /**
+             * @var list<LogRecord>
+             */
+            public array $records = [];
 
+            public function isHandling(LogRecord $record): bool
+            {
+                return true;
+            }
+
+            public function handle(LogRecord $record): bool
+            {
+                $this->records[] = $record;
+
+                return false;
+            }
+        };
         $handler = new ExcludeFlowEventHandler($innerHandler, []);
 
-        $this->expectNotToPerformAssertions();
-
         $handler->reset();
+        $handler->handle(new LogRecord(new \DateTimeImmutable(), 'app', Level::Error, 'after reset'));
+
+        static::assertCount(1, $innerHandler->records);
+        static::assertSame('after reset', $innerHandler->records[0]->message);
     }
 
     public function testResetClearsFingersCrossedBufferThroughDecoratorChain(): void

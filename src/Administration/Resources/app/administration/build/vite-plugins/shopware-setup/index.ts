@@ -2,11 +2,14 @@
  * @sw-package framework
  */
 
-import type { Plugin } from 'vite';
+import type { ErrorPayload, Plugin } from 'vite';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import type { transformShopwareSetupSfc as transformShopwareSetupSfcRuntime } from '../../vue-setup-transform';
+import type {
+    ShopwareSetupTransformError,
+    transformShopwareSetupSfc as transformShopwareSetupSfcRuntime,
+} from '../../vue-setup-transform';
 import { createVirtualSetupSourcemapContext } from './virtual-sfc-sourcemap';
 
 type ShopwareSetupTransformModule = {
@@ -58,19 +61,38 @@ async function importShopwareSetupTransform(administrationRoot: string): Promise
     return transformModule.transformShopwareSetupSfc;
 }
 
-/** Renders a transform diagnostic as `file:line:column` plus its message, so editors can jump to it. */
-function formatTransformError(error: unknown, fileName: string, source: string): string {
+/**
+ * A transform failure in the two shapes the dev server reports it: a terminal line and an overlay payload.
+ */
+type TransformFailure = {
+    log: string;
+    overlay: ErrorPayload['err'];
+};
+
+/**
+ * Renders a transform diagnostic as `file:line:column`, its message and code frame, for the terminal and
+ * the error overlay alike, so editors can jump to it. Line and column are Vite's: 1-based and 0-based.
+ */
+function formatTransformError(error: unknown, fileName: string): TransformFailure {
     // Duck-typed: the lazily required transform module may throw from another realm, where `instanceof` fails.
-    const { message: rawMessage, index } = (error ?? {}) as { message?: unknown; index?: unknown };
+    const {
+        message: rawMessage,
+        loc,
+        frame,
+    } = (error ?? {}) as { message?: unknown } & Partial<Pick<ShopwareSetupTransformError, 'loc' | 'frame'>>;
     const message = typeof rawMessage === 'string' ? rawMessage : String(error);
+    const position = loc ? `:${loc.line}:${loc.column}` : '';
 
-    if (typeof index !== 'number') {
-        return `[shopware-setup] ${fileName}\n${message}`;
-    }
-
-    const lines = source.slice(0, index).split('\n');
-
-    return `[shopware-setup] ${fileName}:${lines.length}:${lines[lines.length - 1].length + 1}\n${message}`;
+    return {
+        log: `[shopware-setup] ${fileName}${position}\n${message}${frame ? `\n${frame}` : ''}`,
+        overlay: {
+            message,
+            stack: '',
+            id: fileName,
+            loc: loc ?? undefined,
+            frame: frame ?? undefined,
+        },
+    };
 }
 
 /**
@@ -125,11 +147,12 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     }
 
     /**
-     * Transforms a saved file and returns its formatted diagnostic, or `null` when it compiles.
+     * Transforms a saved file and returns its failure for the terminal and the overlay, or `null` when it
+     * compiles.
      *
      * A successful result is stashed for the `load` the hot update triggers, so a save is transformed once.
      */
-    async function transformChangedFile(fileName: string, source: string): Promise<string | null> {
+    async function transformChangedFile(fileName: string, source: string): Promise<TransformFailure | null> {
         try {
             const result = await transformSource(source, fileName);
 
@@ -139,7 +162,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
 
             return null;
         } catch (error) {
-            return formatTransformError(error, fileName, source);
+            return formatTransformError(error, fileName);
         }
     }
 
@@ -312,8 +335,8 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
                 const failure = await transformChangedFile(file, await read());
 
                 if (failure) {
-                    this.environment.logger.error(failure);
-                    this.environment.hot.send({ type: 'error', err: { message: failure, stack: '' } });
+                    this.environment.logger.error(failure.log);
+                    this.environment.hot.send({ type: 'error', err: failure.overlay });
 
                     // Without a pushed update nothing drops the cached transform, so a reload would serve stale code.
                     if (virtualModule) {

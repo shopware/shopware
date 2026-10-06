@@ -292,6 +292,70 @@ swDefinePublic({ count });
         ).rejects.toThrow('A Shopware setup component needs a <script setup> block.');
     });
 
+    describe('keeps the SFC location of a transform error', () => {
+        const brokenSource = `<script setup>
+const broken = { a: 1 b: 2 };
+
+swDefinePublic({});
+</script>`;
+
+        function expectAttributedToSfc(error: unknown, vueFile: string) {
+            // `pluginCode` is what Vite's plugin context checks before re-attributing an error to the importer.
+            expect(error).toMatchObject({
+                id: vueFile,
+                loc: { file: vueFile, line: 2, column: 22 },
+                frame: [
+                    '1  |  <script setup>',
+                    '2  |  const broken = { a: 1 b: 2 };',
+                    '   |                        ^',
+                    '3  |  ',
+                    '4  |  swDefinePublic({});',
+                ].join('\n'),
+                pluginCode: brokenSource,
+                plugin: 'shopware-vite-plugin-shopware-setup',
+            });
+        }
+
+        it('when the error surfaces through an importer resolve', async () => {
+            const plugin = createPlugin();
+            const vueFile = await createVueFile(brokenSource, 'sw-broken-component.vue');
+            const context = {
+                resolve: jest.fn().mockResolvedValue({ id: vueFile }),
+            };
+
+            const error = await plugin.resolveId
+                .call(context, `./${path.basename(vueFile)}`, path.join(path.dirname(vueFile), 'entry.ts'))
+                .catch((reason: unknown) => reason);
+
+            expectAttributedToSfc(error, vueFile);
+        });
+
+        it('when the error surfaces while loading the virtual module', async () => {
+            const plugin = createPlugin();
+            const vueFile = await createVueFile(
+                `<script setup>
+swDefinePublic({});
+</script>`,
+                'sw-broken-component.vue',
+            );
+            const context = {
+                resolve: jest.fn().mockResolvedValue({ id: vueFile }),
+            };
+            const resolvedId = await plugin.resolveId.call(
+                context,
+                `./${path.basename(vueFile)}`,
+                path.join(path.dirname(vueFile), 'entry.ts'),
+            );
+            await fs.writeFile(vueFile, brokenSource);
+
+            const error = await plugin.load
+                .call({ addWatchFile: jest.fn() }, resolvedId as string)
+                .catch((reason: unknown) => reason);
+
+            expectAttributedToSfc(error, vueFile);
+        });
+    });
+
     it('ignores non-vue files', async () => {
         const plugin = createPlugin();
 

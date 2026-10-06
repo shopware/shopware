@@ -95,6 +95,24 @@ function formatTransformError(error: unknown, fileName: string): TransformFailur
     };
 }
 
+const PLUGIN_NAME = 'shopware-vite-plugin-shopware-setup';
+
+/**
+ * Marks a located transform error as already attributed, which stops Vite from re-tracing its `loc`
+ * through the importer's sourcemap.
+ *
+ * Vite's plugin context skips its own `id`/`loc`/`frame` attribution for an error that carries
+ * `pluginCode`; `plugin` keeps the "Plugin:" line in the terminal. Duck-typed like
+ * {@link formatTransformError}, because the transform module may throw from another realm.
+ */
+function asReportedTransformError(error: unknown, source: string): unknown {
+    if (error && typeof error === 'object' && 'loc' in error && error.loc) {
+        Object.assign(error, { pluginCode: source, plugin: PLUGIN_NAME });
+    }
+
+    return error;
+}
+
 /**
  * @private
  *
@@ -136,14 +154,22 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform();
         const source = await fs.readFile(fileName, 'utf8');
 
-        return { source, result: transformShopwareSetupSfc(source, fileName) };
+        try {
+            return { source, result: transformShopwareSetupSfc(source, fileName) };
+        } catch (error) {
+            throw asReportedTransformError(error, source);
+        }
     }
 
     /** Transforms already-loaded module code; see {@link transformFile} for the read-from-disk variant. */
     async function transformSource(code: string, fileName: string): Promise<ShopwareSetupTransformResult | null> {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform();
 
-        return transformShopwareSetupSfc(code, fileName);
+        try {
+            return transformShopwareSetupSfc(code, fileName);
+        } catch (error) {
+            throw asReportedTransformError(error, code);
+        }
     }
 
     /**
@@ -201,7 +227,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     }
 
     return {
-        name: 'shopware-vite-plugin-shopware-setup',
+        name: PLUGIN_NAME,
         enforce: 'pre',
 
         /**

@@ -1,4 +1,44 @@
-# 6.7.15.0 (upcoming)
+# 6.7.15.1
+
+## Critical Fixes
+
+### Line item conditions evaluate line items by the data they carry
+
+Since 6.7.14.0, most line item conditions of the Rule Builder evaluated only line items of the type `product`. Custom and credit line items and line items that extensions add to the cart no longer matched them, and a single custom line item could hide shipping methods or block promotions under a negated condition such as "Item with tag / All / Are none of".
+
+The conditions now evaluate a line item by the data it carries instead of by its type, so line items of any type work with the built-in conditions again, with no change needed in extensions.
+
+### Unused theme directories are kept for 24 hours after the switch
+
+After a theme recompile, the previously active `public/theme/<hash>` directory was deleted as soon as its files were older than 24 hours. That age is measured from the compilation, not from the moment the sales channel switched to the new directory, so a theme compiled weeks ago was removed by the next cleanup right after the recompile. Pages still served from an HTTP cache or CDN then referenced CSS and JS files that returned 404.
+
+The `theme.delete_files` scheduled task now works in two steps. On the first run after a directory became unused, it marks the directory with a `.retired` file, provided all of its files are older than 24 hours. On a later run, it deletes the directory once that marker is at least 24 hours old. With the daily task interval, an unused directory is therefore removed 24 to 48 hours after the switch, never earlier. A directory that becomes active again, for example via `theme:change --no-compile`, loses the marker and stays. A directory that a queued compilation is still writing has fresh files and is left alone. Directories from before this change are handled the same way.
+
+`theme:compile` and `theme:change` no longer run that cleanup themselves; compiling and cleaning up are separate jobs again. Both commands still accept `--no-cleanup`, but the option is deprecated, has no effect and will be removed in 6.8.0.0. Drop it from deploy scripts.
+
+## Core
+
+### GARAN labels in mails come from the `garanLabels` template variable
+
+The order confirmation mail reads the GARAN label from the new `garanLabels` template variable. The `sw_garan_label_mail` Twig filter is deprecated. A migration updates the template for shops that never edited it.
+
+If you customized the order confirmation mail, replace `nestedItem.productId|sw_garan_label_mail(context)` with `garanLabels[nestedItem.productId] ?? null`, and `lineItem.productId|sw_garan_label_mail(context)` with `garanLabels[lineItem.productId] ?? null` in the plain text version. `garanLabels` is passed to every mail template that references it and has an `order` in its data.
+
+### Digital products follow their max. order quantity again
+
+Digital products are no longer limited to one unit per order regardless of `maxPurchase`, as they were since 6.7.14.0. Digital products without a `maxPurchase`, for example created through the API, now fall back to `core.cart.maxQuantity`. Set `maxPurchase` to `1` to keep one unit per order.
+
+### Feed sales channels are saved without a currency list again
+
+Sales channels of types other than storefront and headless, such as product comparison, Agentic Commerce and types added by extensions, are no longer rejected with `SYSTEM__NO_GIVEN_DEFAULT_CURRENCY_ID` when their default currency is missing from their currency list, as they were since 6.7.15.0. Storefront and headless sales channels still need their default currency in their currency list.
+
+## Storefront
+
+### Display the complete legal guarantee notice at checkout
+
+Cart settings now offer `core.cart.showLegalGuaranteeNoticeInline` to display the complete localized legal guarantee notice below the checkout terms and conditions. The setting is disabled by default and requires `core.cart.showLegalGuaranteeNotice` to be enabled. Themes can customize its placement through the `page_checkout_confirm_legal_guarantee_notice_inline` and `page_checkout_confirm_legal_guarantee_notice_inline_bottom` blocks.
+
+# 6.7.15.0
 
 ## Features
 

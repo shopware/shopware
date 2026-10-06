@@ -26,7 +26,7 @@ Twig was updated from 3.x to 4.x, and Symfony UX Twig Component from 2.x to 3.x.
 
 The PHPUnit version provided by the Shopware platform was upgraded to 13. If your extension's test pipeline uses the platform's `vendor/bin/phpunit`, adapt your test suites and PHPUnit configuration to PHPUnit 13 before upgrading to Shopware 6.8. Projects using their own PHPUnit installation do not need to upgrade solely because of this change.
 
-Alternatively, decouple your test runner from the platform by declaring `phpunit/phpunit` in your project's `require-dev`, installing dependencies with that project as the Composer root, and running its own `vendor/bin/phpunit`. Installing your extension as a dependency of Shopware does not install the extension's `require-dev` dependencies. Managing PHPUnit separately can be preferable when testing across multiple Shopware and PHP versions: choose a PHPUnit version compatible with your supported PHP versions and any Shopware test helpers your tests use, rather than adopting PHPUnit 13 for every test run.
+Alternatively, decouple your test runner from the platform by explicitly requiring the PHPUnit version you expect in your plugin and using that separate installation in your test pipeline. Managing PHPUnit separately can be preferable when testing across multiple Shopware and PHP versions: choose a PHPUnit version compatible with your supported PHP versions and any Shopware test helpers your tests use, rather than adopting PHPUnit 13 for every test run.
 
 # Changed Functionality
 

@@ -43,6 +43,37 @@ responses.addResponse({
     },
 });
 
+responses.addResponse({
+    method: 'Post',
+    url: '/search/category',
+    status: 200,
+    response: {
+        data: [
+            {
+                attributes: {
+                    id: 'c.a',
+                    name: 'Jackets',
+                    breadcrumb: ['Ladies', 'Jackets'],
+                },
+                id: 'c.a',
+                relationships: [],
+            },
+            {
+                attributes: {
+                    id: 'c.b',
+                    name: 'Jackets',
+                    breadcrumb: ['Gents', 'Jackets'],
+                },
+                id: 'c.b',
+                relationships: [],
+            },
+        ],
+        meta: {
+            total: 2,
+        },
+    },
+});
+
 async function createWrapper(condition = {}) {
     condition.getEntityName = () => 'rule_condition';
 
@@ -366,5 +397,47 @@ describe('components/rule/condition-type/sw-condition-generic', () => {
         await unitInput.trigger('change');
 
         expect(unitInput.element.value).toBe('10000');
+    });
+
+    it('should render configured entity result descriptions at the bottom', async () => {
+        const wrapper = await createWrapper({
+            type: 'cartLineItemInCategory',
+        });
+        await flushPromises();
+
+        await wrapper.get('.sw-entity-multi-select .sw-select__selection').trigger('click');
+        await flushPromises();
+
+        const results = wrapper.findAll('.sw-select-result');
+
+        expect(results.map((result) => result.get('.sw-select-result__result-item-description').text())).toEqual([
+            'Ladies / Jackets',
+            'Gents / Jackets',
+        ]);
+        results.forEach((result) => {
+            expect(result.classes()).toContain('is--description-bottom');
+        });
+
+        wrapper.unmount();
+    });
+
+    it('should keep the default description position for entity fields without a description', async () => {
+        const wrapper = await createWrapper({
+            type: 'customerCustomerGroup',
+        });
+        await flushPromises();
+
+        await wrapper.get('.sw-entity-multi-select .sw-select__selection').trigger('click');
+        await flushPromises();
+
+        const results = wrapper.findAll('.sw-select-result');
+
+        expect(results).toHaveLength(2);
+        results.forEach((result) => {
+            expect(result.get('.sw-select-result__result-item-description').text()).toBe('');
+            expect(result.classes()).not.toContain('is--description-bottom');
+        });
+
+        wrapper.unmount();
     });
 });

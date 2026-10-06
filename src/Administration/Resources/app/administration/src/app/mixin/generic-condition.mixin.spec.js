@@ -180,6 +180,22 @@ describe('app/mixin/generic-condition', () => {
     });
 
     it.each([
+        { name: 'no description', config: { entity: 'category' }, expected: undefined },
+        { name: 'a description', config: { entity: 'category', descriptionProperty: 'breadcrumb' }, expected: 'bottom' },
+        {
+            name: 'an explicit position',
+            config: { entity: 'category', descriptionProperty: 'breadcrumb', descriptionPosition: 'right' },
+            expected: 'right',
+        },
+    ])('should set the description position in getBind for $name', async ({ config, expected }) => {
+        const wrapper = await createWrapper();
+
+        const result = wrapper.vm.getBind({ name: 'categoryIds', type: 'multi-entity-id-select', config });
+
+        expect(result.config.descriptionPosition).toBe(expected);
+    });
+
+    it.each([
         { name: 'date + between', type: 'date', operator: 'between', expected: true },
         { name: 'datetime + between', type: 'datetime', operator: 'between', expected: true },
         { name: 'date + equals', type: 'date', operator: '=', expected: false },

@@ -370,6 +370,7 @@ declare global {
 
     interface FilterTypes {
         asset: (value: string) => string;
+        breadcrumb: (value: string[] | Record<string, string> | null | undefined, separator?: string) => string;
         currency: $TSFixMeFunction;
         date: (value: string, options?: Intl.DateTimeFormatOptions) => string;
         'file-size': $TSFixMeFunction;

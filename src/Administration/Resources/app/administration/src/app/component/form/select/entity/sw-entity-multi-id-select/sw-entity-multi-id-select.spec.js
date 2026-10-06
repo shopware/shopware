@@ -2,7 +2,7 @@
  * @sw-package framework
  */
 
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 import EntityCollection from 'src/core/data/entity-collection.data';
 import Criteria from 'src/core/data/criteria.data';
 import utils from 'src/core/service/util.service';
@@ -257,5 +257,88 @@ describe('components/sw-entity-multi-id-select', () => {
         expect(nonProductWrapper.vm.displayVariants).toBe(false);
         expect(nonProductWrapper.find('sw-product-variant-info-stub').exists()).toBe(false);
         expect(nonProductWrapper.text()).toContain(fixture[0].name);
+    });
+
+    describe('result descriptions', () => {
+        async function createDescriptionWrapper(slots = {}) {
+            const stubs = {
+                'sw-block-field': await wrapTestComponent('sw-block-field'),
+                'sw-base-field': await wrapTestComponent('sw-base-field'),
+                'sw-field-error': await wrapTestComponent('sw-field-error'),
+                'sw-select-selection-list': await wrapTestComponent('sw-select-selection-list'),
+                'sw-select-result-list': await wrapTestComponent('sw-select-result-list'),
+                'sw-select-result': await wrapTestComponent('sw-select-result'),
+                'sw-popover': await wrapTestComponent('sw-popover'),
+                'sw-popover-deprecated': await wrapTestComponent('sw-popover-deprecated', { sync: true }),
+                'sw-label': await wrapTestComponent('sw-label'),
+                'sw-inheritance-switch': true,
+                'sw-ai-copilot-badge': true,
+                'sw-help-text': true,
+                'sw-color-badge': true,
+                'mt-loader': true,
+                'sw-loader-deprecated': true,
+            };
+
+            const wrapper = mount(await wrapTestComponent('sw-entity-multi-id-select', { sync: true }), {
+                attachTo: document.body,
+                props: {
+                    value: [],
+                    repository: {
+                        route: '/test-entity',
+                        entityName: 'testEntity',
+                        search: () => Promise.resolve(getCollection()),
+                    },
+                    descriptionProperty: 'name',
+                },
+                slots,
+                global: {
+                    provide: {
+                        repositoryFactory: {
+                            create: () => ({
+                                search: () => Promise.resolve(getCollection()),
+                            }),
+                        },
+                    },
+                    stubs: {
+                        'sw-select-base': await wrapTestComponent('sw-select-base'),
+                        'sw-entity-multi-select': await wrapTestComponent('sw-entity-multi-select'),
+                        'sw-product-variant-info': true,
+                        'sw-highlight-text': true,
+                        'sw-loader': true,
+                        ...stubs,
+                    },
+                },
+            });
+            await flushPromises();
+
+            await wrapper.find('.sw-select__selection').trigger('click');
+            await flushPromises();
+
+            return wrapper;
+        }
+
+        function descriptions() {
+            return new DOMWrapper(document.body)
+                .findAll('.sw-select-result-list__item-list li .sw-select-result__result-item-description')
+                .map((description) => description.text());
+        }
+
+        it('should pass the description props through to the multi select', async () => {
+            const wrapper = await createDescriptionWrapper();
+
+            expect(descriptions()).toEqual(['first entry', 'second entry']);
+
+            wrapper.unmount();
+        });
+
+        it('should prefer a provided description slot', async () => {
+            const wrapper = await createDescriptionWrapper({
+                'result-description-property': 'custom',
+            });
+
+            expect(descriptions()).toEqual(['custom', 'custom']);
+
+            wrapper.unmount();
+        });
     });
 });

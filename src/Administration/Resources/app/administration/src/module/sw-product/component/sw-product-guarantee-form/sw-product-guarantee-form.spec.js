@@ -148,9 +148,9 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
                             'defaultFolder',
                         ],
                     },
-                    'mt-text-field': {
+                    'mt-url-field': {
                         template: `
-                            <div class="mt-text-field">
+                            <div class="mt-url-field">
                                 <input
                                     :value="modelValue"
                                     :disabled="disabled"
@@ -158,14 +158,13 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
                                 />
                                 <span
                                     v-if="error"
-                                    class="mt-text-field__error"
+                                    class="mt-url-field__error"
                                 >{{ error.code }}</span>
                             </div>`,
                         props: [
                             'modelValue',
                             'disabled',
                             'error',
-                            'placeholder',
                         ],
                     },
                 },
@@ -425,14 +424,14 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
             expect(wrapper.findComponent('.sw-media-field').props('fileAccept')).toBe('application/pdf');
 
             await wrapper.find('.sw-media-field__select').trigger('click');
-            await wrapper.find('.mt-text-field input').setValue('https://example.com/guarantee-terms');
+            await wrapper.find('.mt-url-field input').setValue('https://example.com/guarantee-terms');
 
             expect(store.product.guaranteeTermsMediaId).toBe('selected-media-id');
             expect(store.product.guaranteeTermsUrl).toBe('https://example.com/guarantee-terms');
         });
 
         it('should store an emptied terms URL as null', async () => {
-            const urlField = wrapper.find('.mt-text-field input');
+            const urlField = wrapper.find('.mt-url-field input');
 
             await urlField.setValue('https://example.com/guarantee-terms');
             await urlField.setValue('');
@@ -451,7 +450,7 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
             await flushPromises();
 
             expect(wrapper.find('.sw-media-field__select').element.disabled).toBe(true);
-            expect(wrapper.find('.mt-text-field input').element.disabled).toBe(true);
+            expect(wrapper.find('.mt-url-field input').element.disabled).toBe(true);
         });
 
         it('should show the error of an invalid terms URL', async () => {
@@ -464,14 +463,14 @@ describe('src/module/sw-product/component/sw-product-guarantee-form', () => {
             });
             await flushPromises();
 
-            expect(wrapper.find('.mt-text-field__error').text()).toBe('INVALID_GARAN_GUARANTEE_TERMS_URL');
+            expect(wrapper.find('.mt-url-field__error').text()).toBe('INVALID_GARAN_GUARANTEE_TERMS_URL');
         });
 
         it('should disable the terms fields when allowEdit is false', async () => {
             wrapper = await createWrapper({ allowEdit: false }, ['product.editor']);
 
             expect(wrapper.find('.sw-media-field__select').element.disabled).toBe(true);
-            expect(wrapper.find('.mt-text-field input').element.disabled).toBe(true);
+            expect(wrapper.find('.mt-url-field input').element.disabled).toBe(true);
         });
     });
 

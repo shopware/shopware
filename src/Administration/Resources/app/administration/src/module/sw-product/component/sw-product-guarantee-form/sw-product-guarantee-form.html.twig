@@ -105,8 +105,7 @@
             :help-text="$t('sw-product.settingsForm.helpTextGuaranteeTermsUrl')"
         >
             <template #content="props">
-                <mt-text-field
-                    placeholder="https://"
+                <mt-url-field
                     :error="productGuaranteeTermsUrlError"
                     :disabled="props.isInherited || !allowEdit"
                     :model-value="props.currentValue"

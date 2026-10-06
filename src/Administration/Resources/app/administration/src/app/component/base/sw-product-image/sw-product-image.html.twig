@@ -55,12 +55,14 @@
                     variant="secondary"
                     size="x-small"
                     square
-                    :aria-label="$t('global.sw-data-grid.actionsMenu')"
+                    tabindex="-1"
+                    aria-hidden="true"
                 >
                     <template #iconFront>
                         <mt-icon
                             name="solid-ellipsis-h-s"
                             :size="10"
+                            decorative
                         />
                     </template>
                 </mt-button>

@@ -57,7 +57,7 @@ describe('app/component/base/sw-product-image', () => {
         expect(setAsCoverButton.exists()).toBe(false);
     });
 
-    it('should render the context button trigger as a labelled square secondary button', async () => {
+    it('should render the context button trigger as a square secondary button that is not a separate tab stop', async () => {
         const wrapper = await createWrapper();
         await wrapper.vm.$nextTick();
 
@@ -65,7 +65,9 @@ describe('app/component/base/sw-product-image', () => {
         expect(trigger.classes()).toEqual(
             expect.arrayContaining(['mt-button--secondary', 'mt-button--x-small', 'mt-button--square']),
         );
-        expect(trigger.attributes('aria-label')).toBe('global.sw-data-grid.actionsMenu');
+        expect(trigger.attributes('tabindex')).toBe('-1');
+        expect(trigger.attributes('aria-hidden')).toBe('true');
+        expect(trigger.attributes('aria-label')).toBeUndefined();
     });
 
     it('should not show spatial label if media item is not a 3D object', async () => {

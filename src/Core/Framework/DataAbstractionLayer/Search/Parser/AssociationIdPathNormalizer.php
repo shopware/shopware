@@ -20,6 +20,7 @@ final class AssociationIdPathNormalizer
     {
         $parts = explode('.', $fieldName);
 
+        // Only paths ending in `<association>.id` can be shortened
         if (\count($parts) < 2 || array_pop($parts) !== 'id') {
             return $fieldName;
         }
@@ -33,19 +34,30 @@ final class AssociationIdPathNormalizer
             ? $association . 'Id'
             : implode('.', $parts) . '.' . $association . 'Id';
 
+        // No `<association>Id` foreign key next to the association, e.g. to-many associations
         $fkField = EntityDefinitionQueryHelper::getField($candidate, $definition, $definition->getEntityName());
         if (!$fkField instanceof FkField) {
             return $fieldName;
         }
 
+        // Only to-one associations hold the referenced id in a local column
         $associationField = EntityDefinitionQueryHelper::getAssociatedDefinition($definition, $candidate)->getFields()->get($association);
         if (!$associationField instanceof ManyToOneAssociationField && !$associationField instanceof OneToOneAssociationField) {
             return $fieldName;
         }
 
-        if ($associationField->getStorageName() !== $fkField->getStorageName()
-            || $associationField->getReferenceField() !== 'id'
-            || $associationField->is(ReverseInherited::class)) {
+        // The foreign key belongs to another association, or the one-to-one stores its key on the other side
+        if ($associationField->getStorageName() !== $fkField->getStorageName()) {
+            return $fieldName;
+        }
+
+        // The foreign key references another column than `id`, e.g. `#[ManyToOne(ref: 'technical_name')]`
+        if ($associationField->getReferenceField() !== 'id') {
+            return $fieldName;
+        }
+
+        // With inheritance, the join matches the parent's rows too, which the foreign key alone does not
+        if ($associationField->is(ReverseInherited::class)) {
             return $fieldName;
         }
 

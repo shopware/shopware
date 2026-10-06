@@ -97,13 +97,16 @@
                                                         {% endblock %}
                                                     {% endif %}
 
-                                                    {% if config('core.cart.wishlistEnabled') and isProductVisible %}
+                                                    {% if config('core.cart.wishlistEnabled') %}
                                                         {% block component_line_item_type_product_wishlist %}
-                                                            {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
-                                                                showText: true,
-                                                                size: 'sm',
-                                                                productId: lineItem.referencedId
-                                                            } %}
+                                                            {# the block still renders so overrides of it keep working, only the button itself is dropped #}
+                                                            {% if isProductVisible %}
+                                                                {% sw_include '@Storefront/storefront/component/product/card/wishlist.html.twig' with {
+                                                                    showText: true,
+                                                                    size: 'sm',
+                                                                    productId: lineItem.referencedId
+                                                                } %}
+                                                            {% endif %}
                                                         {% endblock %}
                                                     {% endif %}
 

@@ -843,7 +843,7 @@ class DebugMcpCommandTest extends TestCase
         $tester->execute([]);
 
         $output = $tester->getDisplay();
-        static::assertStringContainsString('These tools claim the "discovery" group', $output);
+        static::assertStringContainsString('Moved from the reserved "discovery" group', $output);
         static::assertStringContainsString('create_cart (store-api, Acme\\CartTool)', $output);
     }
 
@@ -874,7 +874,7 @@ class DebugMcpCommandTest extends TestCase
         $tester->execute([]);
 
         static::assertStringNotContainsString('exposed by no server', $tester->getDisplay());
-        static::assertStringNotContainsString('claim the "discovery" group', $tester->getDisplay());
+        static::assertStringNotContainsString('Moved from the reserved "discovery" group', $tester->getDisplay());
     }
 
     private function makeCommand(

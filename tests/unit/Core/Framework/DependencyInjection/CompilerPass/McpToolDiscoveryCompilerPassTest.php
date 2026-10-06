@@ -706,7 +706,6 @@ class McpDiscoveryTestMethodLevelDiscoveryGroupTool extends McpToolResponse
 /**
  * @internal
  */
-// @phpstan-ignore shopware.mcpReservedToolGroup (claims the reserved group on purpose, to test the fallback)
 #[McpTool(name: 'swag-claims-discovery', description: 'extension tool claiming the reserved group')]
 #[McpToolGroup(McpToolsetRegistry::DISCOVERY_GROUP)]
 class McpDiscoveryTestExtensionClaimingDiscoveryTool extends McpToolResponse

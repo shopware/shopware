@@ -201,11 +201,7 @@ class DebugMcpCommand extends Command
     }
 
     /**
-     * Tools that put themselves into the discovery group, which only the core discovery tools may use.
-     * They were moved to the fallback toolset, so they are no longer on the default surface. Only the
-     * requested scopes are reported, so `--scope` does not list tools of the server it excluded. The
-     * requested scopes, not the ones that could be built, so a demotion is still reported for a server
-     * that is not available.
+     * Lists extension tools moved out of the reserved discovery group, for the requested scopes.
      *
      * @param list<string> $scopeIds
      */
@@ -228,7 +224,7 @@ class DebugMcpCommand extends Command
 
         $io->warning(array_merge(
             [\sprintf(
-                'These tools claim the "%s" group, which is reserved for the core discovery tools. They were moved to the "%s" toolset. Give them a group of their own, and select it at connect time with ?toolsets= to show them on the first tools/list:',
+                'Moved from the reserved "%s" group to "%s":',
                 McpToolsetRegistry::DISCOVERY_GROUP,
                 McpToolsetRegistry::FALLBACK_GROUP,
             )],

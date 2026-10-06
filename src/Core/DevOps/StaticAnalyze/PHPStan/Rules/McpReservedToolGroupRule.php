@@ -13,12 +13,8 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
 
 /**
- * Reports MCP tools that put themselves into the reserved `discovery` group.
- *
- * Only the core discovery tools belong there: everything in it is advertised on every connection. At
- * runtime a tool that claims it anyway is moved to the fallback toolset, so this rule tells the author
- * before that happens. The supported way to show tools on the first `tools/list` is connect-time
- * selection with `?toolsets=`.
+ * Reports MCP tools in the `discovery` group, which is reserved for the core discovery tools. Unit tests
+ * are skipped, because they claim the group on purpose to cover the fallback.
  *
  * @implements Rule<Class_>
  *
@@ -31,6 +27,8 @@ class McpReservedToolGroupRule implements Rule
 
     private const MCP_TOOL_GROUP_ATTRIBUTE = 'Shopware\Core\Framework\Mcp\Attribute\McpToolGroup';
 
+    private const UNIT_TEST_NAMESPACE = 'Shopware\\Tests\\Unit\\';
+
     public function getNodeType(): string
     {
         return Class_::class;
@@ -38,6 +36,10 @@ class McpReservedToolGroupRule implements Rule
 
     public function processNode(Node $node, Scope $scope): array
     {
+        if (str_starts_with($scope->getNamespace() ?? '', self::UNIT_TEST_NAMESPACE)) {
+            return [];
+        }
+
         $group = $this->attributeArgument($node, self::MCP_TOOL_GROUP_ATTRIBUTE, 'group', $scope);
         if ($group !== McpToolsetRegistry::DISCOVERY_GROUP) {
             return [];
@@ -50,7 +52,7 @@ class McpReservedToolGroupRule implements Rule
 
         return [
             RuleErrorBuilder::message(\sprintf(
-                'MCP tool "%s" must not use the reserved "%s" group, which is limited to the core discovery tools. Give it a group of its own and select that toolset at connect time with ?toolsets=.',
+                'MCP tool "%s" must not use the reserved "%s" group. Use a group of its own and select it with ?toolsets=.',
                 $name,
                 McpToolsetRegistry::DISCOVERY_GROUP,
             ))

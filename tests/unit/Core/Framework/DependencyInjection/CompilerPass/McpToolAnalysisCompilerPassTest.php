@@ -290,7 +290,6 @@ class McpAnalysisTestDynamicPrivilegeTool extends McpToolResponse
 /**
  * @internal
  */
-// @phpstan-ignore shopware.mcpReservedToolGroup (claims the reserved group on purpose, to test the fallback)
 #[McpTool(name: 'swag-analysis-claims-discovery', description: 'extension tool claiming the reserved group')]
 #[McpToolGroup(McpToolsetRegistry::DISCOVERY_GROUP)]
 class McpAnalysisTestClaimingDiscoveryTool extends McpToolResponse

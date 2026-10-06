@@ -12,7 +12,7 @@ The conditions now evaluate a line item by the data it carries instead of by its
 
 ### Server-side cookie consent logging
 
-The built-in cookie banner can now record consent decisions on the server, as proof that consent was given. It is off by default. Enable it with `shopware.cookie_consent.log_storage`: `database` or `filesystem`, or your own storage extending `AbstractCookieConsentLogStorage`.
+The built-in cookie banner can now record consent decisions on the server, as proof that consent was given. It is off by default. Enable it with `shopware.cookie_consent.log_storage`: `database` or `filesystem`, or your own storage implementing `CookieConsentLogStorageInterface`.
 
 - While logging is on, a new technically required cookie `cookie-consent-id` is set, and visitors see the banner once more.
 - Export the log with `bin/console cookie:consent:export`. Old records are deleted after `shopware.cookie_consent.retention_days` (default: 120).

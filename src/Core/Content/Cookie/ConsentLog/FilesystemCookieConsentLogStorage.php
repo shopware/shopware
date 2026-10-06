@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Log\Package;
  * @phpstan-import-type CookieConsentRecordJson from CookieConsentRecord
  */
 #[Package('framework')]
-final class FilesystemCookieConsentLogStorage extends AbstractCookieConsentLogStorage
+final class FilesystemCookieConsentLogStorage implements CookieConsentLogStorageInterface
 {
     public const NAME = 'filesystem';
 

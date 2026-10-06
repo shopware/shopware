@@ -5,7 +5,7 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\ScheduledTask;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
-use Shopware\Core\Content\Cookie\ConsentLog\AbstractCookieConsentLogStorage;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentLogStorageInterface;
 use Shopware\Core\Content\Cookie\ScheduledTask\CleanupCookieConsentLogTaskHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -20,7 +20,7 @@ class CleanupCookieConsentLogTaskHandlerTest extends TestCase
 {
     public function testRunDeletesEverythingOlderThanTheRetention(): void
     {
-        $storage = $this->createMock(AbstractCookieConsentLogStorage::class);
+        $storage = $this->createMock(CookieConsentLogStorageInterface::class);
         $storage->expects($this->once())
             ->method('cleanup')
             ->with(static::callback(static fn (\DateTimeInterface $before) => $before->format('Y-m-d H:i:s') === '2026-03-15 12:00:00'));

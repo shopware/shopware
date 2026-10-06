@@ -4,10 +4,10 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\ConsentLog\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Cookie\ConsentLog\AbstractCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\ConsentLog\Command\ExportCookieConsentLogCommand;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentLogStorageInterface;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\TestDefaults;
@@ -26,7 +26,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
 {
     public function testItExportsTheRequestedRangeAsOneJsonArray(): void
     {
-        $storage = $this->createMock(AbstractCookieConsentLogStorage::class);
+        $storage = $this->createMock(CookieConsentLogStorageInterface::class);
         $storage->expects($this->once())
             ->method('iterate')
             ->with(
@@ -65,7 +65,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
             }
         })();
 
-        $storage = static::createStub(AbstractCookieConsentLogStorage::class);
+        $storage = static::createStub(CookieConsentLogStorageInterface::class);
         $storage->method('iterate')->willReturn($records);
 
         $tester = new CommandTester($this->command($storage));
@@ -79,7 +79,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
 
     public function testJsonValuesAreNotChangedByTheConsoleFormatter(): void
     {
-        $storage = static::createStub(AbstractCookieConsentLogStorage::class);
+        $storage = static::createStub(CookieConsentLogStorageInterface::class);
         $storage->method('iterate')->willReturn([$this->record('visitor-a', ['<info>lorem</info>'])]);
 
         $tester = new CommandTester($this->command($storage));
@@ -92,7 +92,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
 
     public function testAnEmptyRangeIsAnEmptyJsonArray(): void
     {
-        $storage = static::createStub(AbstractCookieConsentLogStorage::class);
+        $storage = static::createStub(CookieConsentLogStorageInterface::class);
         $storage->method('iterate')->willReturn([]);
 
         $tester = new CommandTester($this->command($storage));
@@ -103,7 +103,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
 
     public function testItExportsCsvWithAHeaderRow(): void
     {
-        $storage = static::createStub(AbstractCookieConsentLogStorage::class);
+        $storage = static::createStub(CookieConsentLogStorageInterface::class);
         $storage->method('iterate')->willReturn($this->records());
 
         $tester = new CommandTester($this->command($storage));
@@ -126,7 +126,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
 
     public function testCsvValuesAreNotChangedByTheConsoleFormatter(): void
     {
-        $storage = static::createStub(AbstractCookieConsentLogStorage::class);
+        $storage = static::createStub(CookieConsentLogStorageInterface::class);
         $storage->method('iterate')->willReturn([$this->record('visitor-a', ['<info>lorem</info>'])]);
 
         $tester = new CommandTester($this->command($storage));
@@ -144,7 +144,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
             }
         })();
 
-        $storage = static::createStub(AbstractCookieConsentLogStorage::class);
+        $storage = static::createStub(CookieConsentLogStorageInterface::class);
         $storage->method('iterate')->willReturn($records);
 
         $tester = new CommandTester($this->command($storage));
@@ -159,7 +159,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
 
     public function testCsvIsWrittenToAnOutputWithoutAStream(): void
     {
-        $storage = static::createStub(AbstractCookieConsentLogStorage::class);
+        $storage = static::createStub(CookieConsentLogStorageInterface::class);
         $storage->method('iterate')->willReturn([$this->record('visitor-a', ['<info>lorem</info>'])]);
 
         $output = new BufferedOutput();
@@ -176,7 +176,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
 
     public function testItRejectsAnUnknownFormat(): void
     {
-        $storage = $this->createMock(AbstractCookieConsentLogStorage::class);
+        $storage = $this->createMock(CookieConsentLogStorageInterface::class);
         $storage->expects($this->never())->method('iterate');
 
         $tester = new CommandTester($this->command($storage));
@@ -188,7 +188,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
 
     public function testItRejectsAnInvalidSalesChannelId(): void
     {
-        $storage = $this->createMock(AbstractCookieConsentLogStorage::class);
+        $storage = $this->createMock(CookieConsentLogStorageInterface::class);
         $storage->expects($this->never())->method('iterate');
 
         $tester = new CommandTester($this->command($storage));
@@ -200,7 +200,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
 
     public function testItRejectsAnUnparsableDate(): void
     {
-        $storage = $this->createMock(AbstractCookieConsentLogStorage::class);
+        $storage = $this->createMock(CookieConsentLogStorageInterface::class);
         $storage->expects($this->never())->method('iterate');
 
         $tester = new CommandTester($this->command($storage));
@@ -209,7 +209,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
         static::assertSame(Command::INVALID, $exitCode);
     }
 
-    private function command(AbstractCookieConsentLogStorage $storage): ExportCookieConsentLogCommand
+    private function command(CookieConsentLogStorageInterface $storage): ExportCookieConsentLogCommand
     {
         return new ExportCookieConsentLogCommand($storage, JsonStreamWriter::create());
     }

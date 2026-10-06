@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Content\Cookie\ConsentLog\Command;
 
-use Shopware\Core\Content\Cookie\ConsentLog\AbstractCookieConsentLogStorage;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentLogStorageInterface;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -41,7 +41,7 @@ class ExportCookieConsentLogCommand extends Command
      * @param StreamWriterInterface<array{include_null_properties?: bool, ...<string, mixed>}> $jsonWriter
      */
     public function __construct(
-        private readonly AbstractCookieConsentLogStorage $storage,
+        private readonly CookieConsentLogStorageInterface $storage,
         private readonly StreamWriterInterface $jsonWriter,
     ) {
         parent::__construct();

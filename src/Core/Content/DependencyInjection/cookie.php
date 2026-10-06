@@ -4,8 +4,8 @@ namespace Shopware\Core\Content\DependencyInjection;
 
 use Doctrine\DBAL\Connection;
 use Psr\Clock\ClockInterface;
-use Shopware\Core\Content\Cookie\ConsentLog\AbstractCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\ConsentLog\Command\ExportCookieConsentLogCommand;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentLogStorageInterface;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentLogStorageRegistry;
 use Shopware\Core\Content\Cookie\ConsentLog\DatabaseCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\ConsentLog\FilesystemCookieConsentLogStorage;
@@ -69,14 +69,14 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.cookie_consent.log_storage'),
         ]);
 
-    $services->set(AbstractCookieConsentLogStorage::class)
+    $services->set(CookieConsentLogStorageInterface::class)
         ->factory([service(CookieConsentLogStorageRegistry::class), 'getStorage']);
 
     $services->set(CookieConsentLogRoute::class)
         ->public()
         ->args([
             service(CookieRoute::class),
-            service(AbstractCookieConsentLogStorage::class),
+            service(CookieConsentLogStorageInterface::class),
             service(ClockInterface::class),
             service(RateLimiter::class),
             service('cache.object'),
@@ -90,7 +90,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('scheduled_task.repository'),
             service('logger'),
-            service(AbstractCookieConsentLogStorage::class),
+            service(CookieConsentLogStorageInterface::class),
             service(ClockInterface::class),
             param('shopware.cookie_consent.retention_days'),
         ])
@@ -98,7 +98,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(ExportCookieConsentLogCommand::class)
         ->args([
-            service(AbstractCookieConsentLogStorage::class),
+            service(CookieConsentLogStorageInterface::class),
             service('json_streamer.stream_writer'),
         ])
         ->tag('console.command');

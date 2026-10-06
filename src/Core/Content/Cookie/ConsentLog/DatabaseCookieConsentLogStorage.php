@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @phpstan-type LogRow array{id: string, consent_id: string, consent_action: string, group_decisions: string, accepted_cookies: string, config_hash: string, sales_channel_id: string, language_id: string, created_at: string}
  */
 #[Package('framework')]
-final class DatabaseCookieConsentLogStorage extends AbstractCookieConsentLogStorage
+final class DatabaseCookieConsentLogStorage implements CookieConsentLogStorageInterface
 {
     public const NAME = 'database';
 

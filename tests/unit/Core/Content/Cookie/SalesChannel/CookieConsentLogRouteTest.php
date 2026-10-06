@@ -5,10 +5,10 @@ namespace Shopware\Tests\Unit\Core\Content\Cookie\SalesChannel;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Content\Cookie\ConsentLog\AbstractCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentLogStorageInterface;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
 use Shopware\Core\Content\Cookie\Extension\CookieConsentLogRouteExtension;
 use Shopware\Core\Content\Cookie\SalesChannel\AbstractCookieRoute;
@@ -355,7 +355,7 @@ class CookieConsentLogRouteTest extends TestCase
 /**
  * @internal
  */
-class InMemoryCookieConsentLogStorage extends AbstractCookieConsentLogStorage
+class InMemoryCookieConsentLogStorage implements CookieConsentLogStorageInterface
 {
     /**
      * @var list<CookieConsentRecord>

@@ -4,7 +4,7 @@ namespace Shopware\Core\Content\Cookie\ScheduledTask;
 
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Content\Cookie\ConsentLog\AbstractCookieConsentLogStorage;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentLogStorageInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskHandler;
@@ -22,7 +22,7 @@ final class CleanupCookieConsentLogTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
-        private readonly AbstractCookieConsentLogStorage $storage,
+        private readonly CookieConsentLogStorageInterface $storage,
         private readonly ClockInterface $clock,
         private readonly int $retentionDays,
     ) {

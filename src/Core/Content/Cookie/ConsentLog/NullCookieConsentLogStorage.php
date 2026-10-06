@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  */
 #[Package('framework')]
-final class NullCookieConsentLogStorage extends AbstractCookieConsentLogStorage
+final class NullCookieConsentLogStorage implements CookieConsentLogStorageInterface
 {
     public const NAME = 'none';
 

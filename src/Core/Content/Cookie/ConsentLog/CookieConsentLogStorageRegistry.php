@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ServiceLocator;
 final class CookieConsentLogStorageRegistry
 {
     /**
-     * @param ServiceLocator<AbstractCookieConsentLogStorage> $storages
+     * @param ServiceLocator<CookieConsentLogStorageInterface> $storages
      */
     public function __construct(
         private readonly ServiceLocator $storages,
@@ -24,7 +24,7 @@ final class CookieConsentLogStorageRegistry
     ) {
     }
 
-    public function getStorage(): AbstractCookieConsentLogStorage
+    public function getStorage(): CookieConsentLogStorageInterface
     {
         if (!$this->storages->has($this->configuredStorage)) {
             throw CookieException::consentLogStorageNotFound(

@@ -3,10 +3,10 @@
 namespace Shopware\Core\Content\Cookie\SalesChannel;
 
 use Psr\Clock\ClockInterface;
-use Shopware\Core\Content\Cookie\ConsentLog\AbstractCookieConsentLogStorage;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentAction;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentConfigSnapshot;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentDecision;
+use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentLogStorageInterface;
 use Shopware\Core\Content\Cookie\ConsentLog\CookieConsentRecord;
 use Shopware\Core\Content\Cookie\Extension\CookieConsentLogRouteExtension;
 use Shopware\Core\Content\Cookie\Struct\CookieGroup;
@@ -48,7 +48,7 @@ class CookieConsentLogRoute
      */
     public function __construct(
         private readonly AbstractCookieRoute $cookieRoute,
-        private readonly AbstractCookieConsentLogStorage $storage,
+        private readonly CookieConsentLogStorageInterface $storage,
         private readonly ClockInterface $clock,
         private readonly RateLimiter $rateLimiter,
         private readonly CacheInterface $cache,

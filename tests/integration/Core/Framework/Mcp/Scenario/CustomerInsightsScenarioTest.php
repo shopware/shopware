@@ -54,6 +54,7 @@ class CustomerInsightsScenarioTest extends McpScenarioTestCase
                     'languageId' => $context->getLanguageId(),
                     'title' => 'Review ' . $i,
                     'content' => 'Test review content',
+                    'externalUser' => 'Test',
                     'points' => $points,
                     'status' => true,
                 ],

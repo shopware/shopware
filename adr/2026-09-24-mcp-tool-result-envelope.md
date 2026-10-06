@@ -21,6 +21,9 @@ The specification also says that a tool returning `structuredContent` SHOULD ret
 
 ### What Shopware returns today
 
+The tool contract comes from [MCP server placement and extensibility](2026-03-17-mcp-server-placement-and-extensibility.md): a tool's `__invoke()` returns a string built with `$this->success([...])`. This ADR changes that contract.
+
+
 Almost all Shopware tools return a JSON string, which the SDK wraps into a single text block. `McpToolResponse::success()` and `::error()` build it:
 
 ```json
@@ -94,11 +97,11 @@ Tools declare `__invoke(): string` today, and PHP checks that return type before
 
 One mapper in core converts every tool result before the SDK sends it. It is the only place that knows the wire format.
 
-- **One renderer per output format.** The mapper picks a renderer for each request: the legacy envelope, the handshake era, the stateless era, and later formats as they appear. The choice depends on the phase, the `v6.8.0.0` feature flag and the negotiated protocol version. Supporting a new format means adding a renderer, not touching tools.
+- **One renderer per output format.** The mapper picks a renderer for each request: the legacy envelope, the handshake era, the stateless era, and later formats as they appear. The choice depends on the phase, the `v6.8.0.0` feature flag and the negotiated protocol revision, not only on the era. `structuredContent` and `resource_link` only exist since 2025-06-18, so for clients on 2024-11-05 or 2025-03-26 everything goes into the text block, including the pointer to a stored result. Supporting a new format means adding a renderer, not touching tools.
 - **Every renderer handles every part.** A renderer maps each part type to the closest concept of its format. Where a format has no equivalent (for example images in a text-only format), the renderer falls back to a documented text form, never to silently dropping the part.
 - **Size limits per format.** The renderer applies the size limit of its format to the complete rendered result, including the text copy the MCP spec asks for. Anything too large is stored and sent as a link.
 - **Format version on the serialized form.** Results that leave PHP and are read back later or elsewhere carry a format version, an enum defined by core: stored large results in `mcp_tool_result_cache`, and responses from app tools. The mapper picks the matching parser for that version, so older stored results and apps built against an older format stay readable. The in-memory result object has no version field: inside PHP the class is the version, and the renderer is chosen by the output target, not by the result.
-- **Legacy input.** The mapper also accepts the legacy JSON string, so tools that still return a string, the phase 1 helpers and app tools keep working. It parses `{success, data, error}` into a result object and renders it like any other result.
+- **Legacy input.** The mapper also accepts the legacy JSON string, so tools that still return a string, the phase 1 helpers and app tools keep working. It parses `{success, data, error}` into a result object and renders it like any other result. An `error` may also be an object, as some extension tools return it; its `message` and `code` become the error, and its other keys are kept as details. A string that isn't this envelope (no boolean `success`) is passed through unchanged as a single text block, as today.
 
 For MCP today, the renderers fill `structuredContent`, `isError` and the text block, turn links to stored results into `resource_link` blocks, and respect era differences, for example that `structuredContent` must be an object on the handshake era.
 
@@ -143,4 +146,4 @@ Other MCP checks we want in PHPStan are tracked separately and aren't part of th
 
 **For Shopware development.** The mapper is the single place to test the output format on both protocol eras. The large-result pointer and the planned Sync tool build on the result object directly. Every step that changes what clients see comes with a matching change in the evaluation suite and with release notes.
 
-Related issues: epic #19965, #19967 (this decision), #19966 (large-result pointer), #20520 (Sync tool).
+Related issues: epic [#19965](https://github.com/shopware/shopware/issues/19965), [#19967](https://github.com/shopware/shopware/issues/19967) (this decision), [#19966](https://github.com/shopware/shopware/issues/19966) (large-result pointer), [#20520](https://github.com/shopware/shopware/issues/20520) (Sync tool).

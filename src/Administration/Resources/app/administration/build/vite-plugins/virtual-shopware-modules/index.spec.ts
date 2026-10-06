@@ -206,12 +206,42 @@ describe('build/vite-plugins/virtual-shopware-modules', () => {
             expect(source).toContain("import 'src/app/mixin';");
         });
 
+        it('exports the composables of the instance', () => {
+            const source = generateModuleSource('shopware:composables', registry, 'host') as string;
+
+            expect(source).toContain('export const useListing = shopware.Composables["useListing"];');
+            expect(source).toContain('export default shopware.Composables;');
+        });
+
+        it('gives a composable subpath the composable as its only export', () => {
+            const source = generateModuleSource('shopware:composables/useListing', registry, 'host') as string;
+
+            expect(source).toContain('export default shopware.Composables["useListing"];');
+            expect(source).not.toContain('export const');
+        });
+
         it('reads the global for an extension, which has no Administration source to import', () => {
             const source = generateModuleSource('shopware:data/Criteria', registry, 'extension') as string;
 
             expect(source).toContain('const shopware = globalThis.Shopware;');
             expect(source).not.toContain("from 'src/core/shopware'");
             expect(source).toContain('should be unreachable');
+            expect(source).not.toContain('requires Shopware');
+        });
+
+        it.each([
+            'shopware:composables',
+            'shopware:composables/useListing',
+        ])('checks for the branch before an extension reads %s, which older Administrations lack', (specifier) => {
+            const source = generateModuleSource(specifier, registry, 'extension') as string;
+
+            expect(source).toMatch(/if \(!shopware\.Composables\) \{[\s\S]*requires Shopware 6\.7\.16\.0[\s\S]*export/);
+        });
+
+        it('leaves the branch check out of the host, which imports its own instance', () => {
+            const source = generateModuleSource('shopware:composables', registry, 'host') as string;
+
+            expect(source).not.toContain('requires Shopware');
         });
 
         it('returns nothing for a specifier the registry does not list', () => {

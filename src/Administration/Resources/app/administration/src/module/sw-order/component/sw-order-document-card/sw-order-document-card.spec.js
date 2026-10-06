@@ -390,7 +390,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.emitted('document-save')).toBeTruthy();
     });
 
-    it('should leave out the empty state button area when the order already has documents', async () => {
+    it('should offer creating a document once the last document of the order was deleted', async () => {
         global.activeAclRoles = [
             'order.editor',
             'document.viewer',
@@ -405,9 +405,64 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         });
         await flushPromises();
 
-        // the grid holds no rows, so the empty state shows, but it has no create action to offer
+        documentSearchMock.mockResolvedValue(getCollection('document', []));
+        await wrapper.vm.onDeleteDocument(documentFixture.id);
+        await flushPromises();
+
         expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
-        expect(wrapper.find('.mt-empty-state__button').exists()).toBe(false);
+        expect(wrapper.vm.showCreateDocumentButton).toBe(true);
+        expect(wrapper.vm.showCardFilter).toBe(false);
+        expect(wrapper.vm.emptyStateTitle).toBe('sw-order.documentCard.messageEmptyTitle');
+        expect(wrapper.find('.sw-order-document-card__empty-state .mt-button').exists()).toBe(true);
+    });
+
+    it('should show the empty state right after the listing deleted the last document', async () => {
+        global.activeAclRoles = [
+            'order.editor',
+            'document.viewer',
+        ];
+
+        wrapper = await createWrapper({
+            ...defaultProps,
+            order: {
+                ...orderFixture,
+                documents: [documentFixture],
+            },
+        });
+        await flushPromises();
+        await wrapper.setData({
+            documents: getCollection('document', [documentFixture]),
+        });
+
+        const listing = wrapper.findComponent('.sw-order-document-card__grid');
+        expect(listing.exists()).toBe(true);
+
+        documentSearchMock.mockResolvedValue(getCollection('document', []));
+        listing.vm.$emit('delete-item-finish', documentFixture.id);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-order-document-card__grid').exists()).toBe(false);
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
+        expect(wrapper.vm.showCreateDocumentButton).toBe(true);
+        expect(wrapper.vm.showCardFilter).toBe(false);
+    });
+
+    it('should keep the search when a search term matches no document', async () => {
+        wrapper = await createWrapper({
+            ...defaultProps,
+            order: {
+                ...orderFixture,
+                documents: [documentFixture],
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.onSearchTermChange('no-match');
+        await flushPromises();
+
+        expect(wrapper.vm.showCardFilter).toBe(true);
+        expect(wrapper.vm.showCreateDocumentButton).toBe(false);
+        expect(wrapper.vm.emptyStateTitle).toBe('sw-order.documentCard.messageNoDocumentFound');
     });
 
     // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
@@ -1224,6 +1279,16 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 },
             },
         ]);
+    });
+
+    it('should label a document with the translated document type when the current language has no name', async () => {
+        const wrapper = await createWrapper();
+
+        expect(
+            wrapper.vm.documentTypeLabel({
+                documentType: { name: null, technicalName: 'invoice', translated: { name: 'Invoice' } },
+            }),
+        ).toBe('Invoice');
     });
 
     it('should exclude app-provided document types from documentTypeCriteria', async () => {

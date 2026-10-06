@@ -65,6 +65,7 @@ export default {
     data() {
         return {
             documentsLoading: false,
+            documentsLoaded: false,
             cardLoading: false,
             documents: new EntityCollection(null, null, null, new Criteria(1, 25), [], 0),
             documentTypes: null,
@@ -239,16 +240,24 @@ export default {
             return this.isLoading || this.documentsLoading || this.cardLoading;
         },
 
+        orderHasDocuments() {
+            if (!this.documentsLoaded) {
+                return this.order?.documents?.length > 0;
+            }
+
+            return !this.documentsEmpty || !!this.term;
+        },
+
         showCardFilter() {
-            return this.order?.documents?.length > 0;
+            return this.orderHasDocuments;
         },
 
         showCreateDocumentButton() {
-            return !this.order?.documents?.length;
+            return !this.orderHasDocuments;
         },
 
         emptyStateTitle() {
-            return this.order?.documents?.length > 0
+            return this.orderHasDocuments
                 ? this.$t('sw-order.documentCard.messageNoDocumentFound')
                 : this.$t('sw-order.documentCard.messageEmptyTitle');
         },
@@ -323,7 +332,7 @@ export default {
             const technicalName = document.typeName;
 
             if (!technicalName) {
-                return document.documentType?.name ?? '';
+                return document.documentType?.translated?.name ?? document.documentType?.name ?? '';
             }
 
             return this.documentV2Service.getDocumentTypeLabel(
@@ -370,6 +379,7 @@ export default {
             return this.documentRepository.search(this.documentCriteria).then((response) => {
                 this.total = response.total;
                 this.documents = response;
+                this.documentsLoaded = true;
                 this.documentsLoading = false;
                 return Promise.resolve();
             });

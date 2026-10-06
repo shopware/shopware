@@ -64,7 +64,7 @@ class AccountOrderController extends StorefrontController
         /**
          * @deprecated tag:v6.8.0 - Property `AccountOrderDetailPageLoader` will be removed
          */
-        private readonly AccountOrderDetailPageLoader $orderDetailPageLoader,
+        private readonly ?AccountOrderDetailPageLoader $orderDetailPageLoader,
         private readonly AbstractOrderRoute $orderRoute,
         private readonly SalesChannelContextServiceInterface $contextService,
         private readonly SystemConfigService $systemConfigService,
@@ -139,12 +139,16 @@ class AccountOrderController extends StorefrontController
 
             $this->hook(new AccountOrderPageLoadedHook($page, $context));
         } catch (GuestNotAuthenticatedException|WrongGuestCredentialsException|CustomerAuthThrottledException $exception) {
+            // Submitted credentials for an unknown or expired deep link also need the error
+            $credentialsSubmitted = RequestParamHelper::get($request, 'email') && RequestParamHelper::get($request, 'zipcode');
+
             return $this->redirectToRoute(
                 'frontend.account.guest.login.page',
                 [
                     'redirectTo' => 'frontend.account.order.single.page',
                     'redirectParameters' => ['deepLinkCode' => $request->attributes->get('deepLinkCode')],
-                    'loginError' => ($exception instanceof WrongGuestCredentialsException),
+                    'loginError' => $exception instanceof WrongGuestCredentialsException
+                        || ($exception instanceof GuestNotAuthenticatedException && $credentialsSubmitted),
                     'waitTime' => ($exception instanceof CustomerAuthThrottledException) ? $exception->getWaitTime() : '',
                 ]
             );
@@ -170,6 +174,8 @@ class AccountOrderController extends StorefrontController
             'Route "widgets.account.order.detail" is deprecated and will be removed in v6.8.0.0 without replacement.',
         );
 
+        // The loader service is removed only in v6.8.0.0 mode, which the deprecation check above rejects.
+        \assert($this->orderDetailPageLoader !== null);
         $page = $this->orderDetailPageLoader->load($request, $context);
 
         $this->hook(new AccountOrderDetailPageLoadedHook($page, $context));

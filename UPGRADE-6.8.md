@@ -49,7 +49,7 @@ public static function getSubscribedEvents(): array
 
 public function addMyLineItems(CheckoutCartCollectReorderLineItemsExtension $extension): void
 {
-    $extension->result = [...$extension->result, $myLineItem];
+    $extension->result = [...($extension->result ?? []), $myLineItem];
 }
 ```
 

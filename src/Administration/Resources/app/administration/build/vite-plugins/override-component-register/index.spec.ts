@@ -224,6 +224,27 @@ describe('build/vite-plugins/override-component-register', () => {
             expect(server.environments.client.hot.send).not.toHaveBeenCalled();
         });
 
+        it('leaves the page alone when an already registered override is added again', () => {
+            const file = addFile('override/sw-foo.override.vue');
+            const server = createFakeDevServer();
+            startServer(server);
+
+            server.watcher.emit('add', file);
+
+            expect(server.environments.client.moduleGraph.invalidateModule).not.toHaveBeenCalled();
+            expect(server.environments.client.hot.send).not.toHaveBeenCalled();
+        });
+
+        it('ignores an override file outside the extension root', () => {
+            const server = createFakeDevServer();
+            const plugin = startServer(server);
+
+            server.watcher.emit('add', path.join(path.dirname(extensionRoot), 'other-extension', 'sw-foo.override.vue'));
+
+            expect(plugin.transform('// entry', entryFile)).toBeNull();
+            expect(server.environments.client.hot.send).not.toHaveBeenCalled();
+        });
+
         it('picks up a new override without reloading when no page has loaded the entry yet', () => {
             const server = createFakeDevServer(null);
             const plugin = startServer(server);

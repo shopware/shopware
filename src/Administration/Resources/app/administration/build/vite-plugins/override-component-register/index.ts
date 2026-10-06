@@ -20,39 +20,24 @@ export default function viteOverridePlugin(options: Options): Plugin {
 
     let overrideFiles = [] as string[];
 
-    /**
-     * Lists every override file below `root`. Sorted because the walk follows filesystem order, which differs
-     * between machines - and the generated entry numbers its imports in this order.
-     */
-    function scanOverrideFiles(): string[] {
-        return findFilesRecursively(root, pattern).sort();
-    }
-
     return {
         name: 'shopware-vite-plugin-override-component',
 
         configResolved() {
-            overrideFiles = scanOverrideFiles();
+            // Find all override files. Sorted because the directory walk follows filesystem order, which
+            // differs between machines - and the generated entry numbers its imports in this order, so
+            // sorting is what keeps the emitted source byte-stable across builds.
+            overrideFiles = findFilesRecursively(root, pattern).sort();
         },
 
         configureServer(server) {
             const client = server.environments.client;
 
-            // The entry only imports the overrides found by the last scan, so adding or deleting one
-            // has to regenerate the entry and reload the page that already evaluated the old one.
-            const onOverrideFileAddedOrRemoved = (file: string) => {
-                if (!pattern.test(file)) {
-                    return;
-                }
-
-                const rescannedFiles = scanOverrideFiles();
-
-                if (rescannedFiles.join('\n') === overrideFiles.join('\n')) {
-                    return;
-                }
-
-                overrideFiles = rescannedFiles;
-
+            /**
+             * Regenerates the entry on its next request and reloads a page that already evaluated it.
+             * Call after `overrideFiles` changed, since the entry only imports the overrides known when it was built.
+             */
+            function reloadEntry(): void {
                 const entryModule = client.moduleGraph.getModuleById(pluginEntryFile);
 
                 if (!entryModule) {
@@ -61,12 +46,34 @@ export default function viteOverridePlugin(options: Options): Plugin {
 
                 client.moduleGraph.invalidateModule(entryModule);
                 client.hot.send({ type: 'full-reload' });
+            }
+
+            const onFileAdded = (file: string) => {
+                // Vite also watches files outside `root` that something imports - the startup scan never sees those.
+                const isOutsideRoot = path.relative(root, file).startsWith('..');
+
+                if (!pattern.test(file) || isOutsideRoot || overrideFiles.includes(file)) {
+                    return;
+                }
+
+                overrideFiles = [...overrideFiles, file].sort();
+                reloadEntry();
+            };
+
+            // Deleting a directory emits `unlink` for each file in it.
+            const onFileRemoved = (file: string) => {
+                if (!overrideFiles.includes(file)) {
+                    return;
+                }
+
+                overrideFiles = overrideFiles.filter((knownFile) => knownFile !== file);
+                reloadEntry();
             };
 
             // The watcher closes together with the server, which drops these listeners.
             /* eslint-disable listeners/no-missing-remove-event-listener */
-            server.watcher.on('add', onOverrideFileAddedOrRemoved);
-            server.watcher.on('unlink', onOverrideFileAddedOrRemoved);
+            server.watcher.on('add', onFileAdded);
+            server.watcher.on('unlink', onFileRemoved);
             /* eslint-enable listeners/no-missing-remove-event-listener */
         },
 

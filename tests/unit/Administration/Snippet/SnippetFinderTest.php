@@ -51,6 +51,8 @@ class SnippetFinderTest extends TestCase
 
     private Filesystem $filesystem;
 
+    private Filesystem $privateFilesystem;
+
     /**
      * @var StaticEntityRepository<LanguageCollection>
      */
@@ -69,6 +71,7 @@ class SnippetFinderTest extends TestCase
     protected function setUp(): void
     {
         $this->filesystem = new Filesystem(new InMemoryFilesystemAdapter());
+        $this->privateFilesystem = new Filesystem(new InMemoryFilesystemAdapter());
         $this->languageRepository = new StaticEntityRepository([], new LanguageDefinition());
         $this->localeRepository = new StaticEntityRepository([], new LocaleDefinition());
         $this->snippetSetRepository = new StaticEntityRepository([], new SnippetDefinition());
@@ -493,6 +496,72 @@ class SnippetFinderTest extends TestCase
         static::assertEmpty($snippets);
     }
 
+    public function testGeneratedSnippetsAreLoadedFromThePrivateFilesystem(): void
+    {
+        $this->privateFilesystem->write(
+            'snippets/administration/SwagTheme/jp.json',
+            '{"sw-theme": {"SwagTheme": {"default": {"label": "Generated"}}}}',
+        );
+
+        $snippets = $this->getSnippetFinder()->findSnippets('jp-JP');
+
+        static::assertSame(['SwagTheme' => ['default' => ['label' => 'Generated']]], $snippets['sw-theme']);
+    }
+
+    public function testGeneratedSnippetsLoseAgainstEveryShippedSnippetFile(): void
+    {
+        $this->privateFilesystem->write(
+            'snippets/administration/SwagTheme/jp.json',
+            '{"activePlugin": "generated", "generatedOnly": "yes"}',
+        );
+
+        $snippetFinder = $this->getSnippetFinder(
+            $this->getKernelMock(pluginPaths: ['activePlugin'], activePluginPaths: ['activePlugin']),
+        );
+
+        $snippets = $snippetFinder->findSnippets('jp-JP');
+
+        static::assertSame('successfully loaded', $snippets['activePlugin']);
+        static::assertSame('yes', $snippets['generatedOnly']);
+    }
+
+    public function testLocaleSpecificGeneratedFileOverridesTheLanguageFile(): void
+    {
+        $this->privateFilesystem->write('snippets/administration/SwagTheme/jp.json', '{"label": "language", "onlyInLanguage": "kept"}');
+        $this->privateFilesystem->write('snippets/administration/SwagTheme/jp-JP.json', '{"label": "locale"}');
+
+        $snippets = $this->getSnippetFinder()->findSnippets('jp-JP');
+
+        static::assertSame('locale', $snippets['label']);
+        static::assertSame('kept', $snippets['onlyInLanguage']);
+    }
+
+    public function testInvalidGeneratedSnippetFileIsSkippedAndLogged(): void
+    {
+        $this->privateFilesystem->write('snippets/administration/Broken/jp.json', '{');
+        $this->privateFilesystem->write('snippets/administration/Intact/jp.json', '{"intact": "yes"}');
+
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())
+            ->method('error')
+            ->with(static::stringContains('snippets/administration/Broken/jp.json'));
+
+        $snippets = $this->getSnippetFinder(logger: $logger)->findSnippets('jp-JP');
+
+        static::assertSame('yes', $snippets['intact']);
+    }
+
+    public function testInvalidGeneratedSnippetFileThrowsInDebugMode(): void
+    {
+        $this->privateFilesystem->write('snippets/administration/Broken/jp.json', '{');
+
+        $snippetFinder = $this->getSnippetFinder(debug: true);
+
+        $this->expectExceptionObject(SnippetException::invalidSnippetFile('snippets/administration/Broken/jp.json', new \JsonException('Syntax error')));
+
+        $snippetFinder->findSnippets('jp-JP');
+    }
+
     /**
      * @param array<string, mixed> $snippets
      */
@@ -554,6 +623,7 @@ class SnippetFinderTest extends TestCase
             $kernelMock,
             $connectionMock,
             $this->filesystem,
+            $this->privateFilesystem,
             $config,
             $translationLoader,
             $sanitizer,

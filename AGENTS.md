@@ -90,6 +90,8 @@ To add a new skill (interactive or unattended), follow the checklist in [`coding
 
 German snippets differ in register between the two UIs. The Administration addresses the user informally ("Du"), the Storefront formally ("Sie"). Keep each domain consistent when adding or editing `de` snippets.
 
+Snippet files are named by language, not locale: `en.json` / `de.json` in the Administration, `storefront.en.json` / `storefront.de.json` in the Storefront. Locale-specific names such as `en-GB.json` or `storefront.de-DE.json` are the legacy scheme; do not create them, and do not use them in tests, fixtures, or examples unless the test deliberately covers the legacy loader.
+
 ## File Linting
 
 **MANDATORY**: All code must be linted according to the following table.

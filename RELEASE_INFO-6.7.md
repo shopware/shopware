@@ -56,6 +56,15 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Snippets can be provided through the private filesystem
+
+Administration and storefront snippets are now also loaded from the private filesystem (`shopware.filesystem.private`, by default `files/`):
+
+- Administration: `snippets/administration/<source>/<language>.json` (or `<locale>.json`), for example `files/snippets/administration/MyIntegration/de.json`
+- Storefront: `snippets/storefront/<source>/<name>.<language>.json` (or `.<locale>.json`, optionally `.base.json`), for example `files/snippets/storefront/MyIntegration/storefront.de.json`
+
+They form the lowest-priority layer, so snippet files shipped by the core, plugins or apps always win; use them for keys nobody else provides. The source directory becomes the author and technical name of storefront snippets. Files survive updates and deployments and are never cleaned up by Shopware, except for the administration subdirectories it writes itself for themes, which are named after the theme's technical name, so pick a different source name. Run `cache:clear` after adding or changing a file (for administration snippets, invalidating the `admin-snippet` cache tag is enough). The constants live in `Shopware\Core\System\Snippet\Files\FilesystemAdministrationSnippets` and `FilesystemStorefrontSnippets`; `snippet:validate` ignores these files.
+
 ### Unlimited DAL searches with next-pages totals
 
 Database-backed DAL searches using `Criteria::TOTAL_COUNT_MODE_NEXT_PAGES` without a limit now return all matching entities after the requested offset and report the exact total, as `TOTAL_COUNT_MODE_EXACT` does.
@@ -502,6 +511,11 @@ The trigger event select in the mail template detail sidebars is now preselected
 
 ## Storefront
 
+### Legacy theme.json translations keep working and can be migrated with a command
+
+Themes that still define `label` or `helpText` in their `theme.json` show their labels in the theme manager again. On `theme:refresh`, plugin installation and plugin update, Shopware generates the matching administration snippets from those properties into the private filesystem (`snippets/administration/<technicalName>/<locale>.json`, see "Snippets can be provided through the private filesystem") and loads them as the lowest-priority snippet layer, so snippet files shipped by the theme always win. A warning is logged while a theme relies on the generated snippets; the fallback is planned for removal in a later major version.
+
+The new command `theme:migrate-translations <technicalName>` writes the snippets into `Resources/app/administration/src/snippet/<locale>.json` of the theme and keeps every snippet the theme already maintains there. Use `--strip` to also remove the deprecated properties from the `theme.json`, and `--dry-run` to preview the result.
 ### Anonymous index components use their directory name
 
 Asset entry names for index components were not resolved correctly to the directory name and still used "index" in their names. Storefront components using an `index.js` or `index.ts` layout are now registered under their directory name, for example `Sw:Comp`. The former `Sw:Comp:index` import-map key is no longer generated, including for existing build manifests. If you used `data-component="Sw:Comp:index"` as a workaround, change it to `data-component="Sw:Comp"`.

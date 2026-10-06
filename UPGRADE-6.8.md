@@ -2634,14 +2634,22 @@ Use the `\Shopware\Core\Content\Cookie\Event\CookieGroupCollectEvent` instead to
 The `snippet_name` and `snippet_description` properties on cookies in Twig templates have been removed.
 Use `name` and `description` instead.
 
-## Removed theme.json translations
+## Deprecated theme.json translations
 
-We removed properties `label` and `helpText` properties of `theme.json`, to use the snippet system of the administration instead.
+The `label` and `helpText` properties of `theme.json` were deprecated in favor of the administration snippet system. The theme manager now reads its labels from administration snippets with a constructed key.
 
-A constructed snippet key is now required.
-This affects `label` and `helpText` properties in the `theme.json`, which are used in the theme manager.
-The snippet keys to be used are constructed as follows.
-The mentioned `themeName` implies the `technicalName` property of the theme, or its respective parent theme name, since snippets are inherited from the parent theme as well.
+Themes that still define `label` or `helpText` in their `theme.json` keep working: on `theme:refresh`, plugin installation and plugin update Shopware generates the matching administration snippets from those properties and stores them in the private filesystem under `snippets/administration/<technicalName>/<locale>.json`. Snippet files shipped by the theme itself always take precedence over the generated ones, and a warning is logged while a theme still relies on the generated ones. This fallback will be removed in a later major version, so move the translations into snippet files before then.
+
+Run the following command to create the snippet files in the theme and remove the deprecated properties from the `theme.json`:
+
+```bash
+bin/console theme:migrate-translations <technicalName> --strip
+```
+
+The command writes `Resources/app/administration/src/snippet/<locale>.json` (`en-GB.json`, `de-DE.json`, ...), taking the locales over from the `theme.json` as they are, keeps every snippet the theme already maintains in those files, and offers `--dry-run` to preview the result. App themes are not supported by the command; add the snippets to `Resources/app/administration/snippet` of the app instead.
+
+The snippet keys are constructed as follows.
+The mentioned `technicalName` implies the `technicalName` property of the theme, or its respective parent theme name, since snippets are inherited from the parent theme as well.
 Also, please notice that unnamed tabs, blocks or sections will be accessible via `default`.
 
 Examples:
@@ -2663,6 +2671,8 @@ Examples:
 
 Both deprecated fields `label` & `helpText` of `Shopware\Storefront\Theme\ThemeEntity` are removed.
 Please use the snippet keys to be found in `\Shopware\Storefront\Theme\ThemeService::getThemeConfigurationStructuredFields` instead.
+
+The legacy translations are no longer persisted in `theme_translation.labels` and `theme_translation.help_texts` either; `theme:refresh` and the plugin lifecycle stopped writing them. Both columns and the `labels`/`helpTexts` properties of `ThemeTranslationEntity` are removed. Read the labels from the administration snippets instead, which are generated from the `theme.json` as described in "Deprecated theme.json translations" above.
 
 ## Removed `ThemeService::getThemeConfiguration` and `ThemeService::getThemeConfigurationStructuredFields`
 

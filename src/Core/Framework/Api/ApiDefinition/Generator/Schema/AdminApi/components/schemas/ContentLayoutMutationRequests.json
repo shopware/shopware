@@ -329,6 +329,36 @@
                     }
                 ]
             },
+            "ContentLayoutTranslateElementRequest": {
+                "title": "Translate element request (draft)",
+                "type": "object",
+                "description": "Replaces the language maps of translatable properties on one element. An empty or absent `values` is rejected with `400`. The operation rejects with `400` in a fixed order and the first failing rule reports: `mutationTargetNotFound`, `mutationUnknownType`, `mutationPropertyNotTranslatable`, `mutationPropertyValueRejected`, `mutationPropertyLanguageKeyInvalid`.",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutDraftEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "values"],
+                        "properties": {
+                            "elementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the element whose language maps are replaced."
+                            },
+                            "values": {
+                                "type": "object",
+                                "description": "Language maps to write, keyed by property key. Each entry is a language map keyed by language id in lowercase UUID hex, and replaces the property's whole stored map: a language left out of the map is cleared, and a map without the anchor (system) language entry is accepted. Maps are written as supplied: nothing is normalized and no type default is overlaid. A key must name a property the element's type declares translatable (else `mutationPropertyNotTranslatable`), its map must match the declared type (else `mutationPropertyValueRejected`), and every map key must be a language id in lowercase UUID hex (else `mutationPropertyLanguageKeyInvalid`).",
+                                "additionalProperties": {
+                                    "type": "object",
+                                    "minProperties": 1,
+                                    "additionalProperties": { "type": "string" }
+                                },
+                                "minProperties": 1,
+                                "example": { "text": { "2fbb5fe2e29a4d70aa5854ce7ce3e20b": "Autumn sale", "0188fa1b2c3d4e5f6a7b8c9d0e1f2a41": "Herbstschlussverkauf" } }
+                            }
+                        }
+                    }
+                ]
+            },
             "ContentLayoutPersistedInsertElementRequest": {
                 "title": "Insert element request (persisted)",
                 "type": "object",
@@ -615,6 +645,36 @@
                                 },
                                 "uniqueItems": true,
                                 "default": []
+                            }
+                        }
+                    }
+                ]
+            },
+            "ContentLayoutPersistedTranslateElementRequest": {
+                "title": "Translate element request (persisted)",
+                "type": "object",
+                "description": "Replaces the language maps of translatable properties on one element of the stored layout. An empty or absent `values` is rejected with `400`. The operation rejects with `400` in a fixed order and the first failing rule reports: `mutationTargetNotFound`, `mutationUnknownType`, `mutationPropertyNotTranslatable`, `mutationPropertyValueRejected`, `mutationPropertyLanguageKeyInvalid`.",
+                "allOf": [
+                    { "$ref": "#/components/schemas/ContentLayoutVersionEnvelope" },
+                    {
+                        "type": "object",
+                        "required": ["elementId", "values"],
+                        "properties": {
+                            "elementId": {
+                                "type": "string",
+                                "pattern": "^[0-9a-f]{32}$",
+                                "description": "Id of the element whose language maps are replaced."
+                            },
+                            "values": {
+                                "type": "object",
+                                "description": "Language maps to write, keyed by property key. Each entry is a language map keyed by language id in lowercase UUID hex, and replaces the property's whole stored map: a language left out of the map is cleared. The operation accepts a map without the anchor (system) language entry; for a required property the committing write's resolvability gate rejects it with `400`. Maps are written as supplied: the operation normalizes nothing and overlays no type default. A key must name a property the element's type declares translatable (else `mutationPropertyNotTranslatable`), its map must match the declared type (else `mutationPropertyValueRejected`), and every map key must be a language id in lowercase UUID hex (else `mutationPropertyLanguageKeyInvalid`).",
+                                "additionalProperties": {
+                                    "type": "object",
+                                    "minProperties": 1,
+                                    "additionalProperties": { "type": "string" }
+                                },
+                                "minProperties": 1,
+                                "example": { "text": { "2fbb5fe2e29a4d70aa5854ce7ce3e20b": "Autumn sale", "0188fa1b2c3d4e5f6a7b8c9d0e1f2a41": "Herbstschlussverkauf" } }
                             }
                         }
                     }

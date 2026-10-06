@@ -17,6 +17,7 @@ use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\MoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\RemoveElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\ReplaceElement;
+use Shopware\Core\Framework\ContentSystem\Mutation\Op\TranslateElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UnwrapElement;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\UpdateElementProperties;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\WrapElements;
@@ -156,6 +157,17 @@ class LayoutMutationController
         Context $context,
     ): Response {
         $mutation = new UpdateElementProperties($this->registry, $payload->elementId, $payload->values, $payload->removeKeys);
+
+        return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
+    }
+
+    #[Route(path: '/api/_action/content-system/layout/translate-element', name: 'api.action.content_system.layout.translate_element', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
+    public function translate(
+        #[MapRequestPayload(serializationContext: [AbstractNormalizer::ALLOW_EXTRA_ATTRIBUTES => false], validationFailedStatusCode: Response::HTTP_BAD_REQUEST)]
+        TranslateElementRequest $payload,
+        Context $context,
+    ): Response {
+        $mutation = new TranslateElement($this->registry, $payload->elementId, $payload->values);
 
         return $this->respond($mutation, $payload->layout, $payload->rootSource, $context);
     }

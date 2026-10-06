@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\ViolationCode;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\EntityLoader\EntityLoaderConfig;
@@ -586,6 +587,11 @@ class ContentLayoutMutationControllerTest extends TestCase
 
         $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
+        // the reported field name, not just the code: a rejection naming any other field must fail here
+        static::assertContains(
+            'The request contains unknown field(s): entityType. This endpoint rejects fields it does not declare.',
+            array_column($body['errors'], 'detail'),
+        );
         static::assertSame(['block-a'], $this->layoutIds($layoutId));
     }
 
@@ -775,6 +781,189 @@ class ContentLayoutMutationControllerTest extends TestCase
         $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
         static::assertNotNull($stored);
         static::assertEquals($map, $stored->jsonSerialize());
+    }
+
+    #[TestDox('commits a translation for a user holding only the read and translate privileges, though the write itself would demand the update privilege')]
+    public function testTranslateCommitsForATranslatorWithoutTheUpdatePrivilege(): void
+    {
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'])]);
+        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $this->secondLanguageId() => 'Herbstschlussverkauf'];
+        $this->actAs(['content_layout:read', 'content_layout:translate']);
+
+        $this->mutate('translate-element', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => ['label' => $map],
+            'expectedVersion' => null,
+        ]);
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
+        static::assertNotNull($stored);
+        static::assertEquals($map, $stored->jsonSerialize());
+    }
+
+    #[TestDox('commits a translation for a user holding the translate privilege alone and echoes the committed layout tree, since the layout load is an ungated repository search')]
+    public function testTranslateCommitsForAUserHoldingOnlyTheTranslatePrivilege(): void
+    {
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'])]);
+        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $this->secondLanguageId() => 'Herbstschlussverkauf'];
+        $this->actAs(['content_layout:translate']);
+
+        $body = $this->mutate('translate-element', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => ['label' => $map],
+            'expectedVersion' => null,
+        ]);
+
+        static::assertSame(['block-a'], array_column($body['layout'], 'id'));
+        static::assertEquals($map, $body['layout'][0]['properties']['label']);
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
+        static::assertNotNull($stored);
+        static::assertEquals($map, $stored->jsonSerialize());
+    }
+
+    #[TestDox('refuses the persisted update-element-properties route to a user holding only the read and translate privileges, without writing')]
+    public function testUpdatePropertiesIsForbiddenToATranslator(): void
+    {
+        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'];
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', $map)]);
+        $this->actAs(['content_layout:read', 'content_layout:translate']);
+
+        $this->request('update-element-properties', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Winter sale']],
+            'expectedVersion' => null,
+        ]);
+
+        $this->assertMissingPrivilege('content_layout:update');
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
+        static::assertNotNull($stored);
+        static::assertEquals($map, $stored->jsonSerialize());
+    }
+
+    #[TestDox('refuses the persisted translate-element route to a layout editor without the translate privilege, without writing')]
+    public function testTranslateIsForbiddenWithoutTheTranslatePrivilege(): void
+    {
+        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'];
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', $map)]);
+        $this->actAs(['content_layout:read', 'content_layout:update']);
+
+        $this->request('translate-element', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Winter sale']],
+            'expectedVersion' => null,
+        ]);
+
+        $this->assertMissingPrivilege('content_layout:translate');
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
+        static::assertNotNull($stored);
+        static::assertEquals($map, $stored->jsonSerialize());
+    }
+
+    #[TestDox('rejects a persisted translate-element request with an empty values map with a 400 carrying the values count violation, without writing')]
+    public function testTranslateRejectsEmptyValues(): void
+    {
+        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'];
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', $map)]);
+
+        $this->request('translate-element', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => [],
+            'expectedVersion' => null,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        // values carries the request's only Count constraint, so this message is the values violation
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(['This collection should contain 1 element or more.'], array_column($body['errors'], 'detail'));
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
+        static::assertNotNull($stored);
+        static::assertEquals($map, $stored->jsonSerialize());
+    }
+
+    #[TestDox('rejects an unknown request field on the persisted translate-element with a 400 and the unknownRequestField code without writing')]
+    public function testTranslateRejectsUnknownRequestField(): void
+    {
+        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'];
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', $map)]);
+
+        $this->request('translate-element', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => ['label' => [Defaults::LANGUAGE_SYSTEM => 'Winter sale']],
+            'expectedVersion' => null,
+            'entityType' => 'product',
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::UNKNOWN_REQUEST_FIELD, array_column($body['errors'], 'code'));
+        // the reported field name, not just the code: a rejection naming any other field must fail here
+        static::assertContains(
+            'The request contains unknown field(s): entityType. This endpoint rejects fields it does not declare.',
+            array_column($body['errors'], 'detail'),
+        );
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
+        static::assertNotNull($stored);
+        static::assertEquals($map, $stored->jsonSerialize());
+    }
+
+    #[TestDox('rejects a translation that drops the anchor entry of a required translatable property at the committing write gate, without writing')]
+    public function testTranslateRejectsDroppingTheAnchorEntryOfARequiredTranslatableProperty(): void
+    {
+        $secondLanguageId = $this->secondLanguageId();
+        $map = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $secondLanguageId => 'Herbstschlussverkauf'];
+        $layoutId = $this->createLayout([$this->translatableElement('block-a', $map)]);
+        $this->bindCategory($layoutId);
+
+        // TranslateElement accepts a map without the anchor entry; only ContentLayoutWriteValidator on the
+        // system-scoped update() can refuse it, so this 400 proves the scope does not bypass that gate
+        $this->request('translate-element', $layoutId, [
+            'elementId' => 'block-a',
+            'values' => ['label' => [$secondLanguageId => 'Herbstschlussverkauf']],
+            'expectedVersion' => null,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ViolationCode::UnresolvedRequired->value, array_column($body['errors'], 'code'));
+
+        $stored = $this->reload($layoutId)->getLayout()[0]->property('label');
+        static::assertNotNull($stored);
+        static::assertEquals($map, $stored->jsonSerialize());
+    }
+
+    /**
+     * Replaces the default admin browser with one authenticated as a non-admin user holding exactly $privileges, so
+     * every later request in the test runs through the route ACL.
+     *
+     * @param list<string> $privileges
+     */
+    private function actAs(array $privileges): void
+    {
+        $this->resetBrowser();
+        $this->getBrowser(true, [], $privileges);
+    }
+
+    private function assertMissingPrivilege(string $privilege): void
+    {
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(MissingPrivilegeException::MISSING_PRIVILEGE_ERROR, $body['errors'][0]['code']);
+
+        $detail = json_decode($body['errors'][0]['detail'], true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame([$privilege], $detail['missingPrivileges']);
     }
 
     /**

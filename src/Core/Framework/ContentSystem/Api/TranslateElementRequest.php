@@ -2,31 +2,26 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Api;
 
-use Shopware\Core\Framework\ContentSystem\Api\Validation\UpdateElementPropertiesNotEmpty;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Envelope DTO for the update-element-properties mutation action.
+ * Envelope DTO for the translate-element mutation action.
  *
  * @internal
  */
 #[Package('framework')]
-#[UpdateElementPropertiesNotEmpty]
-final class UpdateElementPropertiesRequest
+final class TranslateElementRequest
 {
     /**
      * @param array<int|string, mixed> $layout
      * @param array<array-key, mixed> $values
-     * @param list<string> $removeKeys
      */
     public function __construct(
         public readonly string $elementId,
         public readonly array $layout = [],
+        #[Assert\Count(min: 1)]
         public readonly array $values = [],
-        #[Assert\All([new Assert\Type('string'), new Assert\NotBlank()])]
-        #[Assert\Unique]
-        public readonly array $removeKeys = [],
         public readonly ?string $rootSource = null,
     ) {
     }

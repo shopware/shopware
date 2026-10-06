@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 final class ContentLayoutUpdateElementPropertiesRequest
 {
     /**
-     * @param array<string, mixed> $values
+     * @param array<array-key, mixed> $values
      * @param list<string> $removeKeys
      */
     public function __construct(

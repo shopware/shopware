@@ -3,6 +3,7 @@
 namespace Shopware\Core\Content\Product\SalesChannel\Search;
 
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Product\Extension\ProductSearchRouteExtension;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
@@ -10,6 +11,7 @@ use Shopware\Core\Content\Product\SalesChannel\ProductAvailableFilter;
 use Shopware\Core\Content\Product\SearchKeyword\ProductSearchBuilderInterface;
 use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -27,7 +29,8 @@ class ProductSearchRoute extends AbstractProductSearchRoute
      */
     public function __construct(
         private readonly ProductSearchBuilderInterface $searchBuilder,
-        private readonly ProductListingLoader $productListingLoader
+        private readonly ProductListingLoader $productListingLoader,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -43,6 +46,15 @@ class ProductSearchRoute extends AbstractProductSearchRoute
         defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ProductDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
     )]
     public function load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
+    {
+        return $this->extensions->publish(
+            name: ProductSearchRouteExtension::NAME,
+            extension: new ProductSearchRouteExtension($request, $context, $criteria),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(Request $request, SalesChannelContext $context, Criteria $criteria): ProductSearchRouteResponse
     {
         $criteria->addState(Criteria::STATE_ELASTICSEARCH_AWARE);
 

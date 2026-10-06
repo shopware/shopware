@@ -21,4 +21,13 @@
             margin-bottom: 0;
         }
     }
+
+    &__visibility-link {
+        display: inline-flex;
+        column-gap: var(--scale-size-4);
+        align-items: center;
+        justify-content: flex-end;
+        width: 100%;
+        text-align: right;
+    }
 }

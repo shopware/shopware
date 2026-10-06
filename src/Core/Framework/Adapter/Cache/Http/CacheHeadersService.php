@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Adapter\Cache\Http\Extension\CacheHashRequiredExtens
 use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Cookie;
@@ -91,19 +90,16 @@ class CacheHeadersService
         $ruleIds = array_unique($ruleIds);
         sort($ruleIds);
 
+        // Must not depend on the route scope: storefront and Store API share the sw-cache-hash cookie on a domain,
+        // so a Store API client on a storefront page would otherwise overwrite the storefront's cookie on every call.
         $parts = [
             HttpCacheCookieEvent::RULE_IDS => $ruleIds,
             HttpCacheCookieEvent::VERSION_ID => $context->getVersionId(),
             HttpCacheCookieEvent::CURRENCY_ID => $context->getCurrencyId(),
             HttpCacheCookieEvent::TAX_STATE => $context->getTaxState(),
             HttpCacheCookieEvent::LOGGED_IN_STATE => $context->getCustomer() ? 'logged-in' : 'not-logged-in',
+            HttpCacheCookieEvent::LANGUAGE_ID => $context->getLanguageId(),
         ];
-
-        // Storefront language is already encoded in the resolved domain URL, while Store API
-        // can serve different languages for the same URL through the sw-language-id header.
-        if ($this->isStoreApi($request)) {
-            $parts[HttpCacheCookieEvent::LANGUAGE_ID] = $context->getLanguageId();
-        }
 
         foreach ($this->cookies as $cookie) {
             if ($request->cookies->has($cookie)) {
@@ -154,12 +150,9 @@ class CacheHeadersService
             return true;
         }
 
-        // Storefront language is already encoded in the resolved domain URL, while Store API can serve different
-        // languages for the same URL through a language persisted via the context switch route or
-        // dynamically defined in the sw-language-id header. The header language override is part of the cache key/vary header,
-        // so only persisted context language should influence the hash.
-        if ($this->isStoreApi($request)
-            && $salesChannelContext->getLanguageId() !== $salesChannelContext->getSalesChannel()->getLanguageId()
+        // sw-language-id is part of the cache key, so only a persisted context language needs the hash.
+        // Storefront requests always carry the header, set from their domain.
+        if ($salesChannelContext->getLanguageId() !== $salesChannelContext->getSalesChannel()->getLanguageId()
             && $salesChannelContext->getLanguageId() !== (string) $request->headers->get(PlatformRequest::HEADER_LANGUAGE_ID, '')
         ) {
             return true;
@@ -173,14 +166,5 @@ class CacheHeadersService
         }
 
         return false;
-    }
-
-    private function isStoreApi(Request $request): bool
-    {
-        return \in_array(
-            StoreApiRouteScope::ID,
-            $request->attributes->all(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE),
-            true
-        );
     }
 }

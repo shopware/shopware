@@ -7,7 +7,6 @@ use PHPStan\Symfony\FakeServiceMap;
 use PHPStan\Symfony\ServiceMap;
 use PHPStan\Symfony\XmlServiceMapFactory;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\BCChangeAttributeUsageRule;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\ClassAliasMap;
 use Shopware\Core\Framework\Log\Package;
@@ -30,7 +29,6 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
      */
     private array $classAliases = [];
 
-    #[RunInSeparateProcess]
     public function testStructurallyImpossibleBCChangesAreReported(): void
     {
         $this->analyse([__DIR__ . '/data/BCChangeAttributeUsageRule/BCChangeAttributeUsage.php'], [
@@ -201,7 +199,6 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
         ]);
     }
 
-    #[RunInSeparateProcess]
     public function testClassMoveWithoutRegisteredAliasIsReported(): void
     {
         $fixture = __DIR__ . '/data/BCChangeAttributeUsageRule/ClassMovedAttributeUsage.php';
@@ -215,7 +212,6 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
         ]);
     }
 
-    #[RunInSeparateProcess]
     public function testMovedServiceWithoutDeprecatedServiceAliasIsReported(): void
     {
         $fixture = __DIR__ . '/data/BCChangeAttributeUsageRule/ClassMovedAttributeUsage.php';
@@ -237,7 +233,6 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
         ]);
     }
 
-    #[RunInSeparateProcess]
     public function testMovedServiceWithDeprecatedServiceAliasIsAccepted(): void
     {
         $fixture = __DIR__ . '/data/BCChangeAttributeUsageRule/ClassMovedAttributeUsage.php';
@@ -254,7 +249,6 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
         $this->analyse([$fixture], []);
     }
 
-    #[RunInSeparateProcess]
     public function testMovedDecoratedServiceWithDeprecatedServiceAliasIsAccepted(): void
     {
         $fixture = __DIR__ . '/data/BCChangeAttributeUsageRule/ClassMovedAttributeUsage.php';
@@ -271,7 +265,6 @@ class BCChangeAttributeUsageRuleTest extends RuleTestCase
         $this->analyse([$fixture], []);
     }
 
-    #[RunInSeparateProcess]
     public function testRegisteredAliasWithoutClassMovedAttributeIsReported(): void
     {
         $fixture = __DIR__ . '/data/BCChangeAttributeUsageRule/ClassMovedAttributeUsage.php';

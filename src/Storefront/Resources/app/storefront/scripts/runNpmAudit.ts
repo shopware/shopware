@@ -17,5 +17,8 @@ import { runNpmAudit } from '../../../../../../.github/bin/js/run-npm-audit.ts';
  *   'https://github.com/advisories/GHSA-xxxx-xxxx-xxxx', // pkg-name issue, severity, devDep only, no fix available
  */
 runNpmAudit({
-    ignoredGHSAs: [],
+    ignoredGHSAs: [
+        'https://github.com/advisories/GHSA-vfj7-8cjw-p6xm', // braces stack-exhaustion DoS, only used by build and test tooling (patch-package, jest, stylelint, webpack-dev-server) and never shipped to the browser; no patched braces release exists
+        'https://github.com/advisories/GHSA-hp3w-g68c-fv3c', // sprintf-js unbounded precision DoS, moderate, devDep only (jest via argparse/js-yaml 3); no patched sprintf-js release exists
+    ],
 });

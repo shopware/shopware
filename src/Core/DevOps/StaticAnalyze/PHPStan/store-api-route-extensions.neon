@@ -50,7 +50,7 @@ parameters:
         - Shopware\Core\Checkout\Customer\SalesChannel\SendPasswordRecoveryMailRoute::sendRecoveryMail
         - Shopware\Core\Checkout\Customer\SalesChannel\SwitchDefaultAddressRoute::swap
         - Shopware\Core\Checkout\Customer\SalesChannel\UpsertAddressRoute::upsert
-        - Shopware\Core\Checkout\Document\SalesChannel\DocumentRoute::download
+        - Shopware\Core\Checkout\DocumentV2\SalesChannel\DocumentRoute::download
         - Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRoute::load
         - Shopware\Core\Checkout\Order\SalesChannel\CancelOrderRoute::cancel
         - Shopware\Core\Checkout\Order\SalesChannel\OrderRoute::load

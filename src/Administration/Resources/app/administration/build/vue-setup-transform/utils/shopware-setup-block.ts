@@ -23,12 +23,17 @@ type ShopwareSetupTemplate = {
  *
  * Base files use `<name>.vue` or `index.vue`; override files use `<name>.override.vue` or
  * `index.override.vue`. The component name is what runtime registration and overrides share.
+ *
+ * `moduleScript` is the one plain `<script>` an SFC may carry beside the setup block - the migration
+ * codemod's `data-sfc-migration-module` prelude. Lowering needs it because Vue allows no second plain
+ * script block, so generated module-eval code has to go inside this one when it exists.
  */
 type ShopwareSetupBlock = ScriptBlock & {
     mode: ShopwareSetupMode;
     componentName: string;
     lang: string | null;
     template: ShopwareSetupTemplate | null;
+    moduleScript: ScriptBlock | null;
 };
 
 type InferredShopwareSetup = {
@@ -92,7 +97,10 @@ function inferShopwareSetupFromFilename(filename: string): InferredShopwareSetup
 /**
  * Turns a generic script setup block into the filename-inferred base/override Shopware mode.
  */
-function normalizeShopwareSetupBlock(block: ScriptBlock, filename: string): Omit<ShopwareSetupBlock, 'template'> {
+function normalizeShopwareSetupBlock(
+    block: ScriptBlock,
+    filename: string,
+): Omit<ShopwareSetupBlock, 'template' | 'moduleScript'> {
     const inferred = inferShopwareSetupFromFilename(filename);
 
     return {

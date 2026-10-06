@@ -57,12 +57,12 @@ async function createVueFile(source: string, fileName = 'component.vue') {
  * Returns the raw `resolveId` promise, so a test can assert a rejection; use
  * {@link resolveAndLoadVueFile} when the file is expected to compile and load.
  */
-function resolveVueFile(plugin: CallableSetupPlugin, vueFile: string, importerFileName = 'entry.js') {
+function resolveVueFile(plugin: CallableSetupPlugin, vueFile: string) {
     const context = {
         resolve: jest.fn().mockResolvedValue({ id: vueFile }),
     };
 
-    return plugin.resolveId.call(context, `./${path.basename(vueFile)}`, path.join(path.dirname(vueFile), importerFileName));
+    return plugin.resolveId.call(context, `./${path.basename(vueFile)}`, path.join(path.dirname(vueFile), 'entry.js'));
 }
 
 async function resolveAndLoadVueFile(plugin: CallableSetupPlugin, vueFile: string) {

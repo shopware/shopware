@@ -505,6 +505,7 @@ The trigger event select in the mail template detail sidebars is now preselected
 ### Extension component aliases work in the dev server
 
 The unified Storefront component dev server now applies aliases from each extension's `vite.components.config.mts` only to that extension's components. Extensions can use the same alias name for different module paths in development and production builds.
+
 ### Anonymous index components use their directory name
 
 Asset entry names for index components were not resolved correctly to the directory name and still used "index" in their names. Storefront components using an `index.js` or `index.ts` layout are now registered under their directory name, for example `Sw:Comp`. The former `Sw:Comp:index` import-map key is no longer generated, including for existing build manifests. If you used `data-component="Sw:Comp:index"` as a workaround, change it to `data-component="Sw:Comp"`.

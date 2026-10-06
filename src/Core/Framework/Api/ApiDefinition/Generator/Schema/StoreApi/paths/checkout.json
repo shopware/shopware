@@ -432,6 +432,10 @@
                         "$ref": "#/components/responses/401",
                         "description": "The `sw-access-key` header is missing."
                     },
+                    "403": {
+                        "$ref": "#/components/responses/403",
+                        "description": "No customer is logged in."
+                    },
                     "404": {
                         "$ref": "#/components/responses/404",
                         "description": "The `orderId` does not reference an order of the logged-in customer in this sales channel."
@@ -439,7 +443,8 @@
                 },
                 "security": [
                     {
-                        "ApiKey": []
+                        "ApiKey": [],
+                        "ContextToken": []
                     }
                 ]
             }

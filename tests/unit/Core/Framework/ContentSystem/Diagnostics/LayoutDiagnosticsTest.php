@@ -1034,19 +1034,35 @@ class LayoutDiagnosticsTest extends TestCase
     }
 
     #[DataProvider('acceptsAnchorTranslationProvider')]
-    #[TestDox('treats a required translatable property whose anchor entry carries a string as resolvable')]
-    public function testRequiredTranslatableWithAnchorEntryResolves(string $anchorTranslation): void
+    #[TestDox('treats a required translatable property whose anchor entry matches the declared primitive as resolvable: $_dataName')]
+    public function testRequiredTranslatableWithAnchorEntryResolves(string $declaredType, string|int|bool $anchorTranslation): void
     {
         $element = StoredElementBuilder::create('Sw:Block', 'el-1')
             ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => $anchorTranslation])
             ->build();
 
         $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', required: true, translatable: true)->build()],
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', $declaredType, required: true, translatable: true)->build()],
             languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
         )->analyze([$element], [])->report;
 
         static::assertSame([], $report->bindingErrors());
+    }
+
+    #[DataProvider('rejectsWrongPrimitiveAnchorProvider')]
+    #[TestDox('produces an unresolved_required binding error for a required translatable property whose anchor entry is $_dataName')]
+    public function testRequiredTranslatableWithWrongPrimitiveAnchorEntryIsUnresolved(string $declaredType, string|int|bool $anchorTranslation): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => $anchorTranslation])
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', $declaredType, required: true, translatable: true)->build()],
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
+        )->analyze([$element], [])->report;
+
+        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
     }
 
     #[TestDox('produces an unresolved_required binding error for a required translatable property whose anchor entry holds the null variant')]
@@ -1116,6 +1132,51 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
         static::assertSame('productId', $error->key);
         static::assertSame('Required property "product" is wired from "productId", which has no value.', $error->message);
+    }
+
+    /**
+     * @param array<string, int|bool>|int $storedValue
+     */
+    #[DataProvider('rejectsInputOutsideReferencedTypeProvider')]
+    #[TestDox('emits one unfilled_required_input keyed on the input property when the stored-wired input holds a value its string config key never hands the loader: $_dataName')]
+    public function testStoredRequiredReferenceWithInputOutsideReferencedTypeGates(string $inputType, bool $translatable, array|int $storedValue): void
+    {
+        $element = $this->mediaLoaderWiredElement(['productId' => $storedValue]);
+
+        $report = $this->analyzeMediaLoaderWiring($element, $inputType, $translatable);
+
+        // Pins the state this case turns on: the stored value conforms to its declaration, so the stored-value
+        // rule alone credits it as filled, while the loader is handed null for it.
+        static::assertSame([], $report->intrinsicErrors());
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
+        static::assertSame('productId', $error->key);
+    }
+
+    #[TestDox('emits one unfilled_required_input when the stored-wired translatable integer input carries a string anchor entry its declaration rejects, though the string key would admit it')]
+    public function testStoredRequiredReferenceWithDeclarationRejectedAnchorInputGates(): void
+    {
+        $element = $this->mediaLoaderWiredElement(['productId' => [Defaults::LANGUAGE_SYSTEM => 'a-product-id']]);
+
+        $report = $this->analyzeMediaLoaderWiring($element, 'integer', true);
+
+        // Pins the state this case turns on: the anchor entry is a string, which the string key admits, while
+        // the integer declaration rejects it (an intrinsic error), so only the stored-value rule leaves it unfilled.
+        static::assertSame(ViolationCode::MismatchedPropertyType, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
+        static::assertSame('productId', $error->key);
+    }
+
+    #[TestDox('emits no unfilled_required_input when the stored-wired translatable string input carries a string anchor entry')]
+    public function testStoredRequiredReferenceWithTranslatableStringAnchorInputIsResolvable(): void
+    {
+        $element = $this->mediaLoaderWiredElement(['productId' => [Defaults::LANGUAGE_SYSTEM => 'a-product-id']]);
+
+        $report = $this->analyzeMediaLoaderWiring($element, 'string', true);
+
+        static::assertTrue($report->isResolvable());
+        static::assertSame([], $report->bindingErrors());
     }
 
     /**
@@ -1261,12 +1322,36 @@ class LayoutDiagnosticsTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string}>
+     * @return iterable<string, array{string, bool, array<string, int|bool>|int}>
+     */
+    public static function rejectsInputOutsideReferencedTypeProvider(): iterable
+    {
+        yield 'an untranslated integer' => ['integer', false, 42];
+        yield 'a translatable integer anchor entry' => ['integer', true, [Defaults::LANGUAGE_SYSTEM => 42]];
+        yield 'a translatable boolean anchor entry' => ['boolean', true, [Defaults::LANGUAGE_SYSTEM => true]];
+    }
+
+    /**
+     * The satisfaction test is a type test, never truthiness: each empty-looking entry of its primitive satisfies.
+     *
+     * @return iterable<string, array{string, string|int|bool}>
      */
     public static function acceptsAnchorTranslationProvider(): iterable
     {
-        yield 'a non-empty anchor translation' => ['Hallo'];
-        yield 'an empty anchor translation (null is the sole empty sentinel)' => [''];
+        yield 'a non-empty anchor translation' => ['string', 'Hallo'];
+        yield 'an empty anchor translation (null is the sole empty sentinel)' => ['string', ''];
+        yield 'a false anchor entry on a translatable boolean' => ['boolean', false];
+        yield 'a zero anchor entry on a translatable integer' => ['integer', 0];
+    }
+
+    /**
+     * @return iterable<string, array{string, string|int|bool}>
+     */
+    public static function rejectsWrongPrimitiveAnchorProvider(): iterable
+    {
+        // A string anchor entry on a non-string declaration: a string-only satisfaction test credits it.
+        yield 'a string on a translatable integer' => ['integer', '0'];
+        yield 'an integer on a translatable string' => ['string', 0];
     }
 
     /**
@@ -1313,18 +1398,23 @@ class LayoutDiagnosticsTest extends TestCase
             ->build();
     }
 
-    private function analyzeMediaLoaderWiring(StoredElement $element): DiagnosticsReport
+    /**
+     * Analyzes an element from {@see mediaLoaderWiredElement()} against a type declaring `productId` as the given
+     * primitive. The installation knows the anchor language, so a translatable input carries no dangling entry.
+     */
+    private function analyzeMediaLoaderWiring(StoredElement $element, string $inputType = 'string', bool $translatable = false): DiagnosticsReport
     {
         return $this->diagnostics(
             ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
                 ->reference('product', SalesChannelProductEntity::class, required: true)
-                ->primitive('productId', 'string')
+                ->primitive('productId', $inputType, translatable: $translatable)
                 ->build()],
             $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
                 new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
             ])),
             $this->encodingSerializers(['property' => 'productId']),
             $this->storedLoaderProvider(SalesChannelProductEntity::class),
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
         )->analyze([$element], [])->report;
     }
 

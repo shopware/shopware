@@ -6,6 +6,7 @@ use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\ContentSystem\Output\PartialRenderer;
 use Shopware\Core\Framework\ContentSystem\PlaceholderValues;
 use Shopware\Core\Framework\ContentSystem\Rendering\ElementLowering;
@@ -49,7 +50,7 @@ final class StoredTreePreparer
         SalesChannelContext $salesChannelContext,
     ): TreePreparationResult {
         // Placeholders substitute into string values and never descend into a map, so they see a translatable
-        // property only once reduction has collapsed it to the selected string.
+        // property only once reduction has collapsed it to the selected entry.
         if ($mode === RenderingMode::FULL) {
             $tree = $this->reduceTreeLanguage($tree, $salesChannelContext);
             $tree = $this->resolveTreePlaceholders($tree, $specification);
@@ -123,8 +124,10 @@ final class StoredTreePreparer
         $properties = [];
 
         foreach ($element->properties() as $key => $value) {
-            $properties[$key] = isset($declared[$key]) && $declared[$key]->type()->translatable()
-                ? $this->selectTranslation($element->id, $key, $value, $chain)
+            $type = isset($declared[$key]) ? $declared[$key]->type() : null;
+
+            $properties[$key] = $type !== null && $type->translatable()
+                ? $this->selectTranslation($element->id, $key, $type, $value, $chain)
                 : $value;
         }
 
@@ -136,12 +139,13 @@ final class StoredTreePreparer
      * selected, so a dangling language id cannot reach serving, and a map carrying no chain entry collapses
      * to the null variant, which the rendered-tree mint skips.
      *
-     * Anything but a map variant, and a selected entry that is not a string, is an internal fault: every
-     * client-supplied path rejects both on a translatable property before a render can reach one.
+     * Anything but a map variant, and a selected entry that does not match the declared primitive, is an
+     * internal fault: every client-supplied path rejects both on a translatable property before a render can
+     * reach one.
      *
      * @param non-empty-list<string> $languageIdChain
      */
-    private function selectTranslation(string $elementId, string $key, StoredValue $value, array $languageIdChain): StoredValue
+    private function selectTranslation(string $elementId, string $key, PropertyType $type, StoredValue $value, array $languageIdChain): StoredValue
     {
         if (!$value->isMap()) {
             $raw = $value->jsonSerialize();
@@ -149,6 +153,7 @@ final class StoredTreePreparer
             throw ContentSystemException::translationShapeInvalid(
                 $elementId,
                 $key,
+                $type->describe(),
                 \is_array($raw) ? 'list' : get_debug_type($raw)
             );
         }
@@ -162,10 +167,16 @@ final class StoredTreePreparer
 
             $selected = $map[$languageId];
 
-            // The map shape alone does not make every downstream stage see a plain string: the entry is what
-            // is served, so a non-string entry is the same internal fault as a non-map value.
-            if (!$selected->isString()) {
-                throw ContentSystemException::translationShapeInvalid($elementId, $key, 'a map with a non-string entry');
+            // The map shape alone does not make every downstream stage see a plain value of the declared
+            // primitive: the entry is what is served, so an entry of another shape is the same internal fault
+            // as a non-map value.
+            if (!$type->admitsMapEntry($selected)) {
+                throw ContentSystemException::translationShapeInvalid(
+                    $elementId,
+                    $key,
+                    $type->describe(),
+                    'a map whose selected entry is ' . get_debug_type($selected->jsonSerialize())
+                );
             }
 
             return $selected;

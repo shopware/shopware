@@ -301,11 +301,10 @@ class ReplaceElementTest extends TestCase
     #[TestDox('reports a wiring key dropped from two channels only once')]
     public function testReplaceReportsAKeyDroppedFromBothWiringChannelsOnce(): void
     {
-        // droppedWiringKeys() at ReplaceElement.php:214 is array_values(array_unique(array_diff($oldKeys,
-        // $keptKeys))). Every other dropped-wiring test uses distinct key names per channel, so array_diff never
-        // produces a duplicate for array_unique to collapse. Wiring 'legacy' as both a data requirement and a
-        // context consumer makes it appear twice in $oldKeys; without array_unique(), droppedWiring() would report
-        // it twice.
+        // droppedWiringKeys() is array_values(array_unique(array_diff($oldKeys, $keptKeys))). Every other
+        // dropped-wiring test uses distinct key names per channel, so array_diff never produces a duplicate for
+        // array_unique to collapse. Wiring 'legacy' as both a data requirement and a context consumer makes it
+        // appear twice in $oldKeys; without array_unique(), droppedWiring() would report it twice.
         $requirement = new DataRequirement('legacy', 'entity', static::createStub(AbstractContentDataLoaderConfig::class));
         $definitions = new ContextDefinitions([], ['legacy' => new ContextConsumer(ContextType::Single, true)]);
         $tree = new StoredTree([new StoredElement('el', 'Sw:Old', ['legacy' => $requirement], [], [], $definitions)]);
@@ -346,7 +345,7 @@ class ReplaceElementTest extends TestCase
     #[TestDox('excludes an orphaned slot child from the affected set')]
     public function testReplaceAffectedExcludesOrphanedChildren(): void
     {
-        // $this->affected = $this->subtreeIds($replacement) at ReplaceElement.php:94 walks the REPLACEMENT node.
+        // apply() sets $this->affected = $this->subtreeIds($replacement), which walks the REPLACEMENT node.
         // testReplaceOrphansAbsentSlotChildren already drops this same 'legacy' child but only asserts orphaned(),
         // never affected(); testReplaceAffectedCoversKeptSubtree uses a slot the new type keeps, so the original
         // node and the replacement are indistinguishable there. Computing affected() over the pre-replace node
@@ -422,6 +421,22 @@ class ReplaceElementTest extends TestCase
 
         static::assertNull($result->roots[0]->property('headline'));
         static::assertSame(['headline' => $authored], $this->rawDrops($replace->droppedProperties()));
+    }
+
+    /**
+     * @param array<string, mixed> $expectedDrops
+     */
+    #[DataProvider('translatableDeclaredPrimitiveProvider')]
+    #[TestDox('judges a carried language map by the declared primitive of the new type, keeping a matching map and dropping a mismatched one')]
+    public function testReplaceJudgesTranslatableMapByDeclaredPrimitiveEntry(mixed $authored, mixed $expectedValue, array $expectedDrops): void
+    {
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('count', $authored)->build()]);
+
+        $replace = new ReplaceElement($this->translatableRegistry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertSame($expectedValue, $result->roots[0]->property('count')?->jsonSerialize());
+        static::assertSame($expectedDrops, $this->rawDrops($replace->droppedProperties()));
     }
 
     #[TestDox('fills an absent translatable key with the anchor language map rather than the bare scalar default')]
@@ -578,6 +593,28 @@ class ReplaceElementTest extends TestCase
     }
 
     /**
+     * @return iterable<string, array{array<string, mixed>, mixed, array<string, mixed>}>
+     */
+    public static function translatableDeclaredPrimitiveProvider(): iterable
+    {
+        // count is a declared translatable integer, and carryProperties() consults only the NEW type's declaration
+        // (its isPrimitive() and admits() gate on a declared key): an integer entry clears the declared primitive,
+        // so the whole map carries verbatim; a string entry fails it, so the whole map is dropped and reported.
+        // The pair is the falsifier set: the first row fails if the entry check were string-only, the second if it
+        // admitted any scalar regardless of the declared primitive.
+        yield 'integer entries onto a translatable integer carried verbatim' => [
+            [Defaults::LANGUAGE_SYSTEM => 28, 'language-de' => 30],
+            [Defaults::LANGUAGE_SYSTEM => 28, 'language-de' => 30],
+            [],
+        ];
+        yield 'string entries onto a translatable integer dropped and reported' => [
+            [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'],
+            null,
+            ['count' => [Defaults::LANGUAGE_SYSTEM => 'Autumn sale']],
+        ];
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function rawProperties(StoredElement $element): array
@@ -630,6 +667,7 @@ class ReplaceElementTest extends TestCase
     {
         return TestElementTypeRegistry::of(['Sw:New' => ContentSystemElementTypeSpecificationBuilder::create('Sw:New')
             ->primitive('text', 'string', default: 'Default text', translatable: true)
+            ->primitive('count', 'integer', translatable: true)
             ->build()]);
     }
 

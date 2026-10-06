@@ -320,6 +320,39 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame('anchor copy', $prepared[0]->property('headline')?->asString());
     }
 
+    /**
+     * The selected entry is served verbatim in its declared primitive. The anchor heads each map and the selected
+     * entry trails it, so map order cannot produce the answer.
+     *
+     * @param array<string, int|float|bool> $map
+     */
+    #[DataProvider('typedTranslationProvider')]
+    #[TestDox('selects the chain language entry of a $_dataName')]
+    public function testPrepareSelectsTheChainLanguageEntryOfATypedTranslatableProperty(string $key, array $map, int|float|bool $expected): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty($key, $map)
+            ->build();
+
+        $prepared = $this->prepare([$element], [], ['language-child', Defaults::LANGUAGE_SYSTEM]);
+
+        static::assertSame($expected, $prepared[0]->property($key)?->jsonSerialize());
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, int|float|bool>, int|float|bool}>
+     */
+    public static function typedTranslationProvider(): iterable
+    {
+        // The same integer entry the translatable string `headline` rejects below.
+        yield 'translatable integer' => ['count', [Defaults::LANGUAGE_SYSTEM => 3, 'language-child' => 7], 7];
+
+        // `false` is a value to serve, not an absent one: a truthiness test would fall through to the anchor.
+        yield 'translatable boolean holding false' => ['visible', [Defaults::LANGUAGE_SYSTEM => true, 'language-child' => false], false];
+
+        yield 'translatable number holding an integer entry' => ['ratio', [Defaults::LANGUAGE_SYSTEM => 1.5, 'language-child' => 2], 2];
+    }
+
     #[TestDox('leaves a declared non-translatable property whole, a language-map-shaped value included')]
     public function testPrepareLeavesADeclaredNonTranslatablePropertyWhole(): void
     {
@@ -382,14 +415,14 @@ class StoredTreePreparerTest extends TestCase
     }
 
     /**
-     * @param string|array<array-key, mixed> $value
+     * @param string|int|array<array-key, mixed> $value
      */
     #[DataProvider('nonMapTranslatableValueProvider')]
     #[TestDox('rejects a $_dataName on a translatable property as an internal fault')]
-    public function testPrepareRejectsANonMapValueOnATranslatableProperty(string|array $value, string $expectedType): void
+    public function testPrepareRejectsANonMapValueOnATranslatableProperty(string $key, string|int|array $value, string $expectedDeclaredType, string $expectedType): void
     {
         $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty('headline', $value)
+            ->withProperty($key, $value)
             ->build();
 
         try {
@@ -400,7 +433,9 @@ class StoredTreePreparerTest extends TestCase
             static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
             static::assertSame(
                 \sprintf(
-                    'Property "headline" of element "root-id" is translatable and must hold a language map, but holds %s.',
+                    'Property "%s" of element "root-id" is declared %s and must hold a language map of its primitive, but holds %s.',
+                    $key,
+                    $expectedDeclaredType,
                     $expectedType
                 ),
                 $exception->getMessage()
@@ -412,15 +447,19 @@ class StoredTreePreparerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{string|array<array-key, mixed>, string}>
+     * @return iterable<string, array{string, string|int|array<array-key, mixed>, string, string}>
      */
     public static function nonMapTranslatableValueProvider(): iterable
     {
-        yield 'bare string' => ['plain copy', 'string'];
-        yield 'list' => [['anchor copy'], 'list'];
+        yield 'bare string' => ['headline', 'plain copy', 'string (translatable)', 'string'];
+        yield 'bare integer on a translatable integer' => ['count', 7, 'integer (translatable)', 'int'];
+        yield 'list' => ['headline', ['anchor copy'], 'string (translatable)', 'list'];
         // The outer shape is a map; the selected entry is what reaches the encoders, so it is judged too.
-        yield 'map with a nested-map entry' => [[Defaults::LANGUAGE_SYSTEM => ['inner' => 'copy']], 'a map with a non-string entry'];
-        yield 'map with an integer entry' => [[Defaults::LANGUAGE_SYSTEM => 7], 'a map with a non-string entry'];
+        yield 'map with a nested-map entry' => ['headline', [Defaults::LANGUAGE_SYSTEM => ['inner' => 'copy']], 'string (translatable)', 'a map whose selected entry is array'];
+        // Declared-type-dependent: the same entry on the translatable integer `count` is selected above.
+        yield 'map with an integer entry' => ['headline', [Defaults::LANGUAGE_SYSTEM => 7], 'string (translatable)', 'a map whose selected entry is int'];
+        yield 'map with a string entry on a translatable integer' => ['count', [Defaults::LANGUAGE_SYSTEM => '7'], 'integer (translatable)', 'a map whose selected entry is string'];
+        yield 'map with a null entry' => ['headline', [Defaults::LANGUAGE_SYSTEM => null], 'string (translatable)', 'a map whose selected entry is null'];
 
         // An empty map is the shape a writer reaches for to mean "no translations", and reduction refuses it:
         // absence of the key is that meaning. The raw `[]` arrives as the list variant, because
@@ -428,7 +467,7 @@ class StoredTreePreparerTest extends TestCase
         // array is such a sequence, so the reported type is `list` rather than get_debug_type([])'s `array`. The
         // benign contrast, a non-empty map that merely lacks the chain language, is pinned above: it collapses
         // to the null variant instead of throwing.
-        yield 'empty map' => [[], 'list'];
+        yield 'empty map' => ['headline', [], 'string (translatable)', 'list'];
     }
 
     private function preparer(): StoredTreePreparer
@@ -441,9 +480,10 @@ class StoredTreePreparerTest extends TestCase
     }
 
     /**
-     * Only `text` is registered, and it declares the three keys the reduction cases read: one plain string
-     * and two translatable ones differing in the required flag. Every other key these fixtures store is
-     * undeclared, and `section` names no type at all, which is the shape the virtual root is in too.
+     * Only `text` is registered, and it declares the keys the reduction cases read: one plain string, two
+     * translatable strings differing in the required flag, and one translatable key per other primitive. Every
+     * other key these fixtures store is undeclared, and `section` names no type at all, which is the shape the
+     * virtual root is in too.
      */
     private function typeRegistry(): AbstractContentSystemElementTypeRegistry
     {
@@ -452,6 +492,9 @@ class StoredTreePreparerTest extends TestCase
                 ->primitive('title', 'string')
                 ->primitive('headline', 'string', translatable: true)
                 ->primitive('requiredHeadline', 'string', required: true, translatable: true)
+                ->primitive('count', 'integer', translatable: true)
+                ->primitive('visible', 'boolean', translatable: true)
+                ->primitive('ratio', 'number', translatable: true)
                 ->build(),
         ]);
     }

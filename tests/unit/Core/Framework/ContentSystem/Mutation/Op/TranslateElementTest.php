@@ -41,6 +41,34 @@ class TranslateElementTest extends TestCase
         static::assertEquals($map, $this->propertiesOf($result, 'block-a')['label']);
     }
 
+    /**
+     * @param array<string, int|bool> $map
+     */
+    #[DataProvider('typedLanguageMapProvider')]
+    #[TestDox('writes $_dataName exactly as supplied')]
+    public function testWritesATypedLanguageMapAsSupplied(string $key, array $map): void
+    {
+        $result = (new TranslateElement($this->registry(), 'block-a', [$key => $map]))->apply(new StoredTree([$this->target()]));
+
+        static::assertSame($map, $this->propertiesOf($result, 'block-a')[$key]);
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, int|bool>}>
+     */
+    public static function typedLanguageMapProvider(): iterable
+    {
+        yield 'an integer language map on a translatable integer' => [
+            'columns',
+            [Defaults::LANGUAGE_SYSTEM => 3, Uuid::fromStringToHex('language-german') => 0],
+        ];
+
+        yield 'a boolean language map on a translatable boolean' => [
+            'visible',
+            [Defaults::LANGUAGE_SYSTEM => true, Uuid::fromStringToHex('language-german') => false],
+        ];
+    }
+
     #[TestDox('carries every key not in the request verbatim and overlays no type default')]
     public function testCarriesTheRestAndOverlaysNoDefault(): void
     {
@@ -211,9 +239,21 @@ class TranslateElementTest extends TestCase
             ContentSystemException::mutationPropertyValueRejected('block-a', 'label', 'array'),
         ];
 
-        yield 'a language map carrying a non-string entry' => [
+        // The entry is judged against the declared primitive: each map below is admitted under a key of the
+        // primitive its entry carries.
+        yield 'a language map carrying an integer entry under a translatable string' => [
             ['label' => [Defaults::LANGUAGE_SYSTEM => 5]],
             ContentSystemException::mutationPropertyValueRejected('block-a', 'label', 'array'),
+        ];
+
+        yield 'a language map carrying a string entry under a translatable integer' => [
+            ['columns' => [Defaults::LANGUAGE_SYSTEM => '3']],
+            ContentSystemException::mutationPropertyValueRejected('block-a', 'columns', 'array'),
+        ];
+
+        yield 'a language map carrying an integer entry under a translatable boolean' => [
+            ['visible' => [Defaults::LANGUAGE_SYSTEM => 1]],
+            ContentSystemException::mutationPropertyValueRejected('block-a', 'visible', 'array'),
         ];
     }
 
@@ -329,6 +369,8 @@ class TranslateElementTest extends TestCase
                 ->primitive('label', 'string', translatable: true)
                 ->primitive('teaser', 'string', translatable: true)
                 ->primitive('7', 'string', translatable: true)
+                ->primitive('columns', 'integer', translatable: true)
+                ->primitive('visible', 'boolean', translatable: true)
                 ->primitive('headline', 'string')
                 // absent from the target, so a default overlay would surface in the full written property map
                 ->primitive('tag', 'string', default: 'h1')

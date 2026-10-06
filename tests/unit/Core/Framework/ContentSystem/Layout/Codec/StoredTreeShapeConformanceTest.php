@@ -729,8 +729,34 @@ class StoredTreeShapeConformanceTest extends TestCase
             self::TYPE_BLIND_DECODE,
         ];
 
-        yield 'a non-string entry in a language map' => [
+        // The entry type follows the declared primitive: an integer entry is a defect under the translatable
+        // string and the accepted shape under the translatable integer.
+        yield 'an integer entry in a translatable string language map' => [
             self::translatableForest([Defaults::LANGUAGE_SYSTEM => 5]),
+            self::DESCRIPTOR_ONLY,
+            self::TYPE_BLIND_DECODE,
+        ];
+
+        yield 'an integer language map on a translatable integer property' => [
+            self::translatableForest([Defaults::LANGUAGE_SYSTEM => 5], key: 'count'),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a string entry in a translatable integer language map' => [
+            self::translatableForest([Defaults::LANGUAGE_SYSTEM => '5'], key: 'count'),
+            self::DESCRIPTOR_ONLY,
+            self::TYPE_BLIND_DECODE,
+        ];
+
+        yield 'a boolean language map on a translatable boolean property' => [
+            self::translatableForest([Defaults::LANGUAGE_SYSTEM => false], key: 'visible'),
+            self::ACCEPTED,
+            '',
+        ];
+
+        yield 'a string entry in a translatable boolean language map' => [
+            self::translatableForest([Defaults::LANGUAGE_SYSTEM => 'false'], key: 'visible'),
             self::DESCRIPTOR_ONLY,
             self::TYPE_BLIND_DECODE,
         ];
@@ -750,16 +776,17 @@ class StoredTreeShapeConformanceTest extends TestCase
 
     /**
      * A single-root forest whose one element names the only component the type registry knows, carrying
-     * `$value` under that type's translatable `text` property.
+     * `$value` under one of that type's translatable properties: `text` (string), `count` (integer) or
+     * `visible` (boolean).
      *
      * @return array<array-key, mixed>
      */
-    private static function translatableForest(mixed $value): array
+    private static function translatableForest(mixed $value, string $key = 'text'): array
     {
         return [[
             'id' => 'root-1',
             'component' => self::TRANSLATABLE_COMPONENT,
-            'properties' => ['text' => $value],
+            'properties' => [$key => $value],
         ]];
     }
 
@@ -871,6 +898,8 @@ class StoredTreeShapeConformanceTest extends TestCase
     {
         $translatable = ContentSystemElementTypeSpecificationBuilder::create(self::TRANSLATABLE_COMPONENT)
             ->primitive('text', 'string', translatable: true)
+            ->primitive('count', 'integer', translatable: true)
+            ->primitive('visible', 'boolean', translatable: true)
             ->build();
 
         $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);

@@ -32,6 +32,17 @@ class ContentSystemExceptionTest extends TestCase
         static::assertStringContainsString($expectedMessageFragment, $exception->getMessage());
     }
 
+    #[TestDox('renders the declared type and the actual shape into the whole translation-shape message')]
+    public function testTranslationShapeInvalidRendersTheWholeMessage(): void
+    {
+        $exception = ContentSystemException::translationShapeInvalid('el-1', 'count', 'integer (translatable)', 'a map whose selected entry is string');
+
+        static::assertSame(
+            'Property "count" of element "el-1" is declared integer (translatable) and must hold a language map of its primitive, but holds a map whose selected entry is string.',
+            $exception->getMessage()
+        );
+    }
+
     #[DataProvider('classifiesClientDefectProvider')]
     #[TestDox('classifies $_dataName')]
     public function testIsClientDefect(ContentSystemException $exception, bool $isClientDefect): void
@@ -178,7 +189,7 @@ class ContentSystemExceptionTest extends TestCase
         yield 'a duplicate element id as an internal fault' => [ContentSystemException::duplicateElementId('repeated-id'), false];
         // Every client-supplied path rejects a non-map value on a translatable property before serving, so a
         // value reaching language reduction with one is an internal fault on the same argument.
-        yield 'an invalid translation shape as an internal fault' => [ContentSystemException::translationShapeInvalid('el-1', 'text', 'string'), false];
+        yield 'an invalid translation shape as an internal fault' => [ContentSystemException::translationShapeInvalid('el-1', 'text', 'string (translatable)', 'string'), false];
         // The two halves of the split: an HTTP 500 that is nonetheless a client defect, so the strict draft
         // decode turns it into a 400 and the lintable one collects it as a 200 violation, while the
         // stored-column read keeps the fault status.
@@ -266,10 +277,10 @@ class ContentSystemExceptionTest extends TestCase
         ];
 
         yield 'invalid translation shape' => [
-            ContentSystemException::translationShapeInvalid('el-1', 'text', 'string'),
+            ContentSystemException::translationShapeInvalid('el-1', 'text', 'integer (translatable)', 'a map whose selected entry is string'),
             Response::HTTP_INTERNAL_SERVER_ERROR,
             'CONTENT_SYSTEM__TRANSLATION_SHAPE_INVALID',
-            'Property "text" of element "el-1" is translatable and must hold a language map, but holds string.',
+            'Property "text" of element "el-1" is declared integer (translatable) and must hold a language map of its primitive, but holds a map whose selected entry is string.',
         ];
 
         yield 'layout assignment not found' => [

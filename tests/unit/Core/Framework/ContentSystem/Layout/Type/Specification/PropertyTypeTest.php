@@ -38,7 +38,7 @@ class PropertyTypeTest extends TestCase
             StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Willkommen')]),
         ];
 
-        // Pairs with the rejected `non-string entry after a valid one` row: together they pin that the entry
+        // Pairs with the rejected `wrong-primitive entry after a valid one` row: together they pin that the entry
         // loop judges every entry and admits on entry count alone. Without this row, a rejection keyed on
         // `count > 1` rather than on entry type passes the whole class.
         yield 'multi-entry language map on a translatable string' => [
@@ -52,6 +52,32 @@ class PropertyTypeTest extends TestCase
         yield 'language map holding an empty string entry on a translatable string' => [
             new PropertyType('string', true, null, null),
             StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('')]),
+        ];
+
+        // The entry type follows the declared primitive: the same integer entry the translatable string rejects.
+        yield 'language map holding integer entries on a translatable integer' => [
+            new PropertyType('integer', true, null, null),
+            StoredValue::ofMap([
+                Defaults::LANGUAGE_SYSTEM => StoredValue::ofInt(3),
+                'language-de' => StoredValue::ofInt(0),
+            ]),
+        ];
+
+        yield 'language map holding boolean entries on a translatable boolean' => [
+            new PropertyType('boolean', true, null, null),
+            StoredValue::ofMap([
+                Defaults::LANGUAGE_SYSTEM => StoredValue::ofBool(false),
+                'language-de' => StoredValue::ofBool(true),
+            ]),
+        ];
+
+        // `number` admits an integer entry beside a float one, the same rule a non-translatable `number` applies.
+        yield 'language map holding an integer and a float entry on a translatable number' => [
+            new PropertyType('number', true, null, null),
+            StoredValue::ofMap([
+                Defaults::LANGUAGE_SYSTEM => StoredValue::ofInt(3),
+                'language-de' => StoredValue::ofFloat(3.5),
+            ]),
         ];
 
         // A bare `object`, an FQCN and a union carrying either constrain nothing, so a map stays admissible
@@ -142,14 +168,36 @@ class PropertyTypeTest extends TestCase
             StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofNull()]),
         ];
 
-        yield 'language map holding an integer entry' => [
+        // Declared-type-dependent: the translatable integer admits this entry.
+        yield 'language map holding an integer entry on a translatable string' => [
             new PropertyType('string', true, null, null),
             StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofInt(3)]),
         ];
 
+        // `integer` admits no float, inside a language map as outside one.
+        yield 'language map holding a float entry on a translatable integer' => [
+            new PropertyType('integer', true, null, null),
+            StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofFloat(3.5)]),
+        ];
+
+        yield 'language map holding a string entry on a translatable boolean' => [
+            new PropertyType('boolean', true, null, null),
+            StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('true')]),
+        ];
+
+        yield 'language map holding a boolean entry on a translatable number' => [
+            new PropertyType('number', true, null, null),
+            StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofBool(true)]),
+        ];
+
+        yield 'bare boolean on a translatable boolean' => [
+            new PropertyType('boolean', true, null, null),
+            StoredValue::ofBool(false),
+        ];
+
         // The only row whose first entry is a valid string: it pins that the entry loop judges every entry
         // rather than the first one, which every other rejected map row would still admit.
-        yield 'language map holding a non-string entry after a valid one' => [
+        yield 'language map holding a wrong-primitive entry after a valid one' => [
             new PropertyType('string', true, null, null),
             StoredValue::ofMap([
                 Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Willkommen'),
@@ -212,6 +260,18 @@ class PropertyTypeTest extends TestCase
             [Defaults::LANGUAGE_SYSTEM => 'Willkommen'],
         ];
 
+        // A false default still seeds the anchor entry: the null test is an identity check on the translatable
+        // branch too.
+        yield 'translatable boolean keys a false default under the anchor language' => [
+            new PropertyType('boolean', true, null, false),
+            [Defaults::LANGUAGE_SYSTEM => false],
+        ];
+
+        yield 'translatable integer keys its default under the anchor language' => [
+            new PropertyType('integer', true, null, 0),
+            [Defaults::LANGUAGE_SYSTEM => 0],
+        ];
+
         yield 'non-translatable string keeps the bare scalar' => [
             new PropertyType('string', false, null, 'auto-fit'),
             'auto-fit',
@@ -265,6 +325,85 @@ class PropertyTypeTest extends TestCase
         yield 'translatable string spells out the flag' => [
             new PropertyType('string', true, null, null),
             'string (translatable)',
+        ];
+
+        yield 'translatable integer spells out the flag' => [
+            new PropertyType('integer', true, null, null),
+            'integer (translatable)',
+        ];
+    }
+
+    #[DataProvider('admittedMapEntryProvider')]
+    #[TestDox('admits a language-map entry matching the declared primitive: $_dataName')]
+    public function testAdmitsMapEntryMatchingTheDeclaredPrimitive(PropertyType $type, StoredValue $entry): void
+    {
+        static::assertTrue($type->admitsMapEntry($entry));
+    }
+
+    /**
+     * @return iterable<string, array{PropertyType, StoredValue}>
+     */
+    public static function admittedMapEntryProvider(): iterable
+    {
+        yield 'string entry on a translatable string' => [
+            new PropertyType('string', true, null, null),
+            StoredValue::ofString('Willkommen'),
+        ];
+
+        yield 'false entry on a translatable boolean' => [
+            new PropertyType('boolean', true, null, null),
+            StoredValue::ofBool(false),
+        ];
+
+        yield 'integer entry on a translatable number' => [
+            new PropertyType('number', true, null, null),
+            StoredValue::ofInt(3),
+        ];
+    }
+
+    #[DataProvider('rejectedMapEntryProvider')]
+    #[TestDox('refuses a language-map entry the declaration cannot hold: $_dataName')]
+    public function testRefusesMapEntryTheDeclarationCannotHold(PropertyType $type, StoredValue $entry): void
+    {
+        static::assertFalse($type->admitsMapEntry($entry));
+    }
+
+    /**
+     * The first two rows refuse on the entry. The rest carry a string entry a translatable string admits, so the
+     * declaration alone decides their refusal.
+     *
+     * @return iterable<string, array{PropertyType, StoredValue}>
+     */
+    public static function rejectedMapEntryProvider(): iterable
+    {
+        yield 'wrong-primitive entry on a translatable integer' => [
+            new PropertyType('integer', true, null, null),
+            StoredValue::ofString('3'),
+        ];
+
+        yield 'null entry on a translatable string' => [
+            new PropertyType('string', true, null, null),
+            StoredValue::ofNull(),
+        ];
+
+        yield 'string entry on a translatable single-member union' => [
+            new PropertyType(['string'], true, null, null),
+            StoredValue::ofString('Willkommen'),
+        ];
+
+        yield 'string entry on a translatable FQCN declaration' => [
+            new PropertyType(SalesChannelProductEntity::class, true, null, null),
+            StoredValue::ofString('Willkommen'),
+        ];
+
+        yield 'string entry on a translatable bare object declaration' => [
+            new PropertyType('object', true, null, null),
+            StoredValue::ofString('Willkommen'),
+        ];
+
+        yield 'string entry on a non-translatable string' => [
+            new PropertyType('string', false, null, null),
+            StoredValue::ofString('Willkommen'),
         ];
     }
 

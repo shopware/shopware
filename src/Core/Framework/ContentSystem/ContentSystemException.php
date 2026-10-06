@@ -406,20 +406,21 @@ class ContentSystemException extends HttpException
 
     /**
      * A translatable property holds one value per language as a language map, and serving collapses that map
-     * to the request language before any rendering step runs. A value that is not a map of strings where the
-     * collapse runs is an internal fault rather than a client defect, and is deliberately absent from
-     * {@see self::CLIENT_DEFECT_CODES} — the same reading {@see invalidElementId()} and
-     * {@see duplicateElementId()} state. Every client-supplied path rejects the wrong shape earlier, the
-     * strict write with a 400 and the draft routes with a reported violation, so a wrong shape here means the
-     * write constraints were bypassed or a preparation listener introduced it after a conforming read.
+     * to the request language before any rendering step runs. Where the collapse runs, a value that is not a
+     * language map, or whose selected entry does not match the declared primitive, is an internal fault rather
+     * than a client defect, and is deliberately absent from {@see self::CLIENT_DEFECT_CODES} — the same reading
+     * {@see invalidElementId()} and {@see duplicateElementId()} state. Every client-supplied path rejects the
+     * wrong shape earlier, the strict write with a 400 and the draft routes with a reported violation, so a wrong
+     * shape here means the write constraints were bypassed or a preparation listener introduced it after a
+     * conforming read.
      */
-    public static function translationShapeInvalid(string $elementId, string $key, string $actualType): self
+    public static function translationShapeInvalid(string $elementId, string $key, string $declaredType, string $actualType): self
     {
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::TRANSLATION_SHAPE_INVALID,
-            'Property "{{ key }}" of element "{{ elementId }}" is translatable and must hold a language map, but holds {{ actualType }}.',
-            ['elementId' => $elementId, 'key' => $key, 'actualType' => $actualType]
+            'Property "{{ key }}" of element "{{ elementId }}" is declared {{ declaredType }} and must hold a language map of its primitive, but holds {{ actualType }}.',
+            ['elementId' => $elementId, 'key' => $key, 'declaredType' => $declaredType, 'actualType' => $actualType]
         );
     }
 

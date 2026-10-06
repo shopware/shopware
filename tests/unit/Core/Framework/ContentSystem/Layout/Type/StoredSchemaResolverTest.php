@@ -56,6 +56,24 @@ class StoredSchemaResolverTest extends TestCase
         ], $this->resolver([])->resolve($type));
     }
 
+    /**
+     * The flag beside a non-string `type` reads "a language map of that primitive", the shape PropertyType::admits()
+     * accepts for the same declaration, so the fold has to carry the declared primitive unchanged.
+     */
+    #[TestDox('marks a translatable non-string property entry with the flag beside its declared primitive')]
+    public function testResolveMarksATranslatableNonStringPropertyEntryBesideItsDeclaredPrimitive(): void
+    {
+        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Banner')
+            ->primitive('visible', 'boolean', default: false, translatable: true)
+            ->primitive('columns', 'integer', translatable: true)
+            ->build();
+
+        static::assertSame([
+            'visible' => ['kind' => 'property', 'type' => 'boolean', 'required' => false, 'default' => false, 'translatable' => true],
+            'columns' => ['kind' => 'property', 'type' => 'integer', 'required' => false, 'translatable' => true],
+        ], $this->resolver([])->resolve($type));
+    }
+
     #[TestDox('omits a declared FQCN property from the storage schema, because nothing is stored under the reference key')]
     public function testResolveOmitsDeclaredReferencePropertyFromEntries(): void
     {

@@ -47,7 +47,7 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
         $dto = new BindingSpecificationDto(
             'Sw:Media:Image',
             'Extension parity binding',
-            ['media' => [TestMultiReferenceGatingLoader::SOURCE => ['property' => 'maxImageWidth', 'secondProperty' => 'height']]],
+            ['media' => [TestMultiReferenceGatingLoader::SOURCE => ['property' => 'loading', 'secondProperty' => 'height']]],
             [],
         );
 
@@ -61,7 +61,7 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
 
         $config = $media['config'] ?? null;
         static::assertIsArray($config);
-        static::assertSame('maxImageWidth', $config['property'] ?? null, 'The authored propertyReference key must survive canonicalization.');
+        static::assertSame('loading', $config['property'] ?? null, 'The authored propertyReference key must survive canonicalization.');
         static::assertSame('height', $config['secondProperty'] ?? null, 'The second authored propertyReference key must survive canonicalization.');
         static::assertSame('media', $config['entity'] ?? null, 'FQCN derivation must fill the required entityName key from the MediaEntity reference.');
     }
@@ -72,7 +72,7 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
         $dto = new BindingSpecificationDto(
             'Sw:Media:Image',
             'Extension parity binding',
-            ['media' => [TestMultiReferenceGatingLoader::SOURCE => ['property' => 'maxImageWidth', 'secondProperty' => 'height', 'activeProperty' => 'fetchpriority']]],
+            ['media' => [TestMultiReferenceGatingLoader::SOURCE => ['property' => 'loading', 'secondProperty' => 'height', 'activeProperty' => 'fetchpriority']]],
             [],
         );
 
@@ -81,9 +81,9 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
         $inputs = $result->inputs;
         static::assertIsArray($inputs);
 
-        $maxImageWidthInput = $inputs['maxImageWidth'] ?? null;
-        static::assertIsArray($maxImageWidthInput);
-        static::assertTrue($maxImageWidthInput['required'], 'A required propertyReference key wiring a required reference makes its input required.');
+        $loadingInput = $inputs['loading'] ?? null;
+        static::assertIsArray($loadingInput);
+        static::assertTrue($loadingInput['required'], 'A required propertyReference key wiring a required reference makes its input required.');
 
         $heightInput = $inputs['height'] ?? null;
         static::assertIsArray($heightInput);
@@ -108,7 +108,7 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
             'Both required propertyReference keys gate; the defaulted activeProperty key never does, even with its own target unfilled.',
         );
         static::assertEqualsCanonicalizing(
-            ['maxImageWidth', 'height'],
+            ['loading', 'height'],
             array_map(static fn (Violation $violation): ?string => $violation->key, $errors),
         );
     }
@@ -116,7 +116,7 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
     #[TestDox('raises no unfilled_required_input for the test loader wiring once both required inputs carry a value')]
     public function testNoUnfilledRequiredInputWhenTestLoaderInputsFilled(): void
     {
-        $report = $this->diagnostics()->analyze([$this->wiredImage(['maxImageWidth' => 1920, 'height' => 'auto'])], [])->report;
+        $report = $this->diagnostics()->analyze([$this->wiredImage(['loading' => 'eager', 'height' => 'auto'])], [])->report;
 
         static::assertTrue($report->isResolvable());
         static::assertSame([], $report->bindingErrors());
@@ -128,7 +128,7 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
     private function wiredImage(array $properties): StoredElement
     {
         return StoredElementBuilder::create('Sw:Media:Image', 'el-1')
-            ->withDataRequirement('media', TestMultiReferenceGatingLoader::SOURCE, new TestMultiReferenceGatingLoaderConfig('media', 'maxImageWidth', 'height', 'fetchpriority'))
+            ->withDataRequirement('media', TestMultiReferenceGatingLoader::SOURCE, new TestMultiReferenceGatingLoaderConfig('media', 'loading', 'height', 'fetchpriority'))
             ->withProperties($properties)
             ->build();
     }

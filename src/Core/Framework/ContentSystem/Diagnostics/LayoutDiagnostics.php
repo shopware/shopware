@@ -6,11 +6,14 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextPathResolver;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderInputResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\PropertyTypeConformance;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ConsumerScope;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -304,7 +307,7 @@ class LayoutDiagnostics
      * key existence is not a write constraint, reduction never selects a key outside the request's language
      * chain, and the layout serves correctly with the entry sitting unread.
      *
-     * Only a map variant is walked. A bare string, a list (the wire shape of an empty map included) and the
+     * Only a map variant is walked. A bare value, a list (the wire shape of an empty map included) and the
      * null variant are wrong shapes for a translatable property, already reported as
      * {@see ViolationCode::MismatchedPropertyType}, and carry no language keys.
      *
@@ -511,16 +514,22 @@ class LayoutDiagnostics
             // + the write-boundary seeder), not a render-time fallback, and so is not consulted here. A stored
             // explicit null counts as no value (it renders empty), so a required primitive authored as null is
             // reported unresolved.
-            if ($resolution->required && !$this->hasStoredValue($element, $resolution->key)) {
-                return new Violation(
-                    ViolationCode::UnresolvedRequired,
-                    $element->id,
-                    $resolution->key,
-                    \sprintf('Required property "%s" has no value.', $resolution->key),
-                );
+            if (!$resolution->required) {
+                return null;
             }
 
-            return null;
+            $type = $this->declaredProperty($element->component, $resolution->key)?->type();
+
+            if ($this->hasStoredValue($this->loaderReadValue($element->property($resolution->key), $type), $type)) {
+                return null;
+            }
+
+            return new Violation(
+                ViolationCode::UnresolvedRequired,
+                $element->id,
+                $resolution->key,
+                \sprintf('Required property "%s" has no value.', $resolution->key),
+            );
         }
 
         if ($resolution->resolved !== null) {
@@ -554,10 +563,10 @@ class LayoutDiagnostics
     /**
      * A required reference satisfied by its own stored wiring (a {@see CandidateOrigin::Stored} pick) is
      * resolvable, but the loader still needs a value for each element property its config references. Every
-     * required propertyReference config key whose configured property holds no value would serve an empty
-     * element; each is one unfilled required input. Only a Stored resolution reaches this rule: a reference
-     * satisfied by parent context or picked from a loader candidate never does, so those never gate, and an
-     * optional or defaulted reference never gates either.
+     * required propertyReference config key whose configured property holds no value the loader is handed would
+     * serve an empty element; each is one unfilled required input. Only a Stored resolution reaches this rule: a
+     * reference satisfied by parent context or picked from a loader candidate never does, so those never gate,
+     * and an optional or defaulted reference never gates either.
      *
      * @return list<Violation>
      */
@@ -603,7 +612,7 @@ class LayoutDiagnostics
                 continue;
             }
 
-            $violation = $this->unfilledInputViolation($element, $resolution->key, $configured);
+            $violation = $this->unfilledInputViolation($element, $resolution->key, $configKey, $configured);
 
             if ($violation !== null) {
                 $violations[] = $violation;
@@ -621,15 +630,23 @@ class LayoutDiagnostics
      * pre-fill state before the value is set and saved; a typo'd key is indistinguishable and reads the same
      * way. Emptiness is the same rule the strict primitive check above uses ({@see hasStoredValue()}): a stored
      * explicit null counts as no value, and a translatable property counts as filled only through its anchor
-     * entry.
+     * entry. A stored value also has to be one the loader is handed: {@see LoaderInputResolver} passes on only a
+     * value {@see ConfigKeySpecification::admitsReferencedValue()} admits and nulls any other, so a stored integer
+     * or boolean under a `string` key reads as unfilled too. Only a lone primitive declaration is value-bearing
+     * here: a union answers false to {@see PropertyType::isPrimitive()} even though the serving side treats every
+     * non-reference declaration as authored ({@see RenderedElementFactory}), so a union-typed input property takes
+     * the reference-property keying.
      */
-    private function unfilledInputViolation(StoredElement $element, string $referenceKey, string $configuredProperty): ?Violation
+    private function unfilledInputViolation(StoredElement $element, string $referenceKey, ConfigKeySpecification $configKey, string $configuredProperty): ?Violation
     {
-        if ($this->hasStoredValue($element, $configuredProperty)) {
+        $type = $this->declaredProperty($element->component, $configuredProperty)?->type();
+        $read = $this->loaderReadValue($element->property($configuredProperty), $type);
+
+        if ($this->hasStoredValue($read, $type) && $configKey->admitsReferencedValue($read->jsonSerialize())) {
             return null;
         }
 
-        if ($this->isDeclaredPrimitiveProperty($element->component, $configuredProperty)) {
+        if ($type?->isPrimitive() ?? false) {
             return new Violation(
                 ViolationCode::UnfilledRequiredInput,
                 $element->id,
@@ -647,9 +664,9 @@ class LayoutDiagnostics
     }
 
     /**
-     * The one statement of "the element holds a value for this key", called from both satisfaction rules above.
-     * The rule is type-aware, so the key's declaration is read through the element-type registry; an
-     * unregistered component and an undeclared key both take the untranslated rule.
+     * The one statement of "the element holds a value for this key", called from both satisfaction rules above
+     * with the value {@see loaderReadValue()} resolves and the key's declaration, read through the element-type
+     * registry; an unregistered component and an undeclared key (a null declaration) take the untranslated rule.
      *
      * Untranslated, a value counts when the key is present AND its variant is not null.
      * {@see StoredElement::property()} separates the two empty cases the older model conflated: `null` means the
@@ -657,30 +674,50 @@ class LayoutDiagnostics
      * `isNull()`. Both are "no value", so a single-term `property($key) === null` test would silently credit an
      * authored null.
      *
-     * Translatable, a value counts when its language map carries the anchor entry `Defaults::LANGUAGE_SYSTEM`
-     * and that entry's value is a string variant. The anchor terminates every language chain a
-     * `SalesChannelContext` is built with, so an anchor entry resolves on every request while any other entry
-     * may not. An empty string satisfies, as it does for any other primitive. An anchor entry holding the null
-     * variant does not satisfy and an absent anchor key does not satisfy; the two are distinct stored states
+     * Translatable, a value counts when it is a language map carrying the anchor entry
+     * `Defaults::LANGUAGE_SYSTEM` and that entry matches the declared primitive, judged by
+     * {@see PropertyType::admitsMapEntry()}. The anchor terminates every language chain a `SalesChannelContext`
+     * is built with, so an anchor entry resolves on every request while any other entry may not. The test is a
+     * type test, never truthiness: an empty string, `false` and `0` each satisfy. An anchor entry holding the
+     * null variant does not satisfy and an absent anchor key does not satisfy; the two are distinct stored states
      * that this rule maps to the same answer.
+     *
+     * @phpstan-assert-if-true !null $read
      */
-    private function hasStoredValue(StoredElement $element, string $key): bool
+    private function hasStoredValue(?StoredValue $read, ?PropertyType $type): bool
     {
-        $value = $element->property($key);
-
-        if ($value === null) {
+        if ($read === null) {
             return false;
         }
 
-        if (!$this->isTranslatableProperty($element->component, $key)) {
-            return !$value->isNull();
+        if ($type === null || !$type->translatable()) {
+            return !$read->isNull();
         }
 
-        $raw = $value->jsonSerialize();
+        return $type->admitsMapEntry($read);
+    }
 
-        // A list variant cannot carry the anchor key, so recognising the map variant separately would add a
-        // term this lookup already decides.
-        return \is_array($raw) && \is_string($raw[Defaults::LANGUAGE_SYSTEM] ?? null);
+    /**
+     * The stored value that stands in for what a loader reads for the key: the stored value itself, or for a
+     * translatable property its `Defaults::LANGUAGE_SYSTEM` anchor entry, the one entry that resolves on every
+     * request. At render time the loader can be handed another translation or a placeholder-substituted string
+     * instead; neither changes the verdict of {@see ConfigKeySpecification::admitsReferencedValue()}. Substitution
+     * yields a string from a string, and every entry of a map {@see PropertyType::admits()} accepts matches the one
+     * declared primitive, so under a `string` declaration every entry is a string and under any other every entry
+     * is a non-string scalar. Null when the key is absent, or when a translatable property's stored value is not a
+     * language map or carries no anchor entry; an untranslated stored explicit null comes back as the null variant.
+     */
+    private function loaderReadValue(?StoredValue $value, ?PropertyType $type): ?StoredValue
+    {
+        if ($value === null || $type === null || !$type->translatable()) {
+            return $value;
+        }
+
+        if (!$value->isMap()) {
+            return null;
+        }
+
+        return $value->asMap()[Defaults::LANGUAGE_SYSTEM] ?? null;
     }
 
     /**
@@ -714,22 +751,6 @@ class LayoutDiagnostics
         $property = $properties[$key] ?? null;
 
         return $property instanceof PropertySpecification ? $property : null;
-    }
-
-    private function isTranslatableProperty(string $component, string $key): bool
-    {
-        return $this->declaredProperty($component, $key)?->type()->translatable() ?? false;
-    }
-
-    /**
-     * True only for a single-primitive declared type: a union answers false here even though the serving
-     * side treats every non-reference declaration as authored ({@see RenderedElementFactory}). The one
-     * consequence is keying — a union-typed configured input property takes the reference-property
-     * fallback at the call site instead of being keyed on itself.
-     */
-    private function isDeclaredPrimitiveProperty(string $component, string $key): bool
-    {
-        return $this->declaredProperty($component, $key)?->type()->isPrimitive() ?? false;
     }
 
     /**

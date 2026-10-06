@@ -77,7 +77,7 @@ class StoredTreeTest extends TestCase
     public function testLocateReportsADeeplyNestedElement(): void
     {
         // 'grandchild-1' is not a direct child of a root, so this only resolves through locateUnder()'s second,
-        // recursive loop at StoredTree.php:180-188; deleting that loop would leave this locate() call returning
+        // recursive loop over the slot children; deleting that loop would leave this locate() call returning
         // null even though the fixture carries the id two levels down.
         $location = $this->tree()->locate('grandchild-1');
 
@@ -158,7 +158,7 @@ class StoredTreeTest extends TestCase
     #[TestDox('insertAtRoot appends when the index is negative')]
     public function testInsertAtRootAppendsWhenTheIndexIsNegative(): void
     {
-        // splice()'s compound guard at StoredTree.php:306 ORs in `$index < 0`; every other insertAtRoot test uses
+        // splice()'s compound append guard ORs in `$index < 0`; every other insertAtRoot test uses
         // null or an out-of-range positive index, so this operand alone discriminates it. Deleting it would send a
         // negative index down the array_slice branch instead, inserting before the last element rather than
         // appending.
@@ -171,9 +171,9 @@ class StoredTreeTest extends TestCase
     public function testInsertIntoSlotPlacesNodesUnderANestedParent(): void
     {
         // Every other insertIntoSlot test targets a root-level parent ('root-1', 'root-2'), so the recursive
-        // descent in insertInto() at StoredTree.php:254 never runs against a matching subtree. Targeting 'child-a',
-        // which is nested under root-1, forces that recursive branch; replacing it with a plain pass-through would
-        // leave 'child-a' unmodified and this insert would silently not happen.
+        // descent in insertInto() (its mapSlots() pass over a non-matching node) never runs against a matching
+        // subtree. Targeting 'child-a', which is nested under root-1, forces that recursive branch; replacing it
+        // with a plain pass-through would leave 'child-a' unmodified and this insert would silently not happen.
         $inserted = $this->tree()->insertIntoSlot('child-a', 'inner', null, [$this->element('grandchild-2')]);
 
         static::assertSame(

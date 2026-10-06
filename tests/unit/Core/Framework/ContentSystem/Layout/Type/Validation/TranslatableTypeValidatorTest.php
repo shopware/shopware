@@ -40,8 +40,25 @@ class TranslatableTypeValidatorTest extends TestCase
             new PropertySpecificationDto('text', 'string', false, true, 'Text', 'Text content.', null, null, null),
         ];
 
+        yield 'translatable on integer type' => [
+            new PropertySpecificationDto('count', 'integer', false, true, 'Count', 'A count.', null, null, null),
+        ];
+
+        yield 'translatable on boolean type' => [
+            new PropertySpecificationDto('visible', 'boolean', false, true, 'Visible', 'Visibility.', null, null, null),
+        ];
+
+        yield 'translatable on number type' => [
+            new PropertySpecificationDto('ratio', 'number', false, true, 'Ratio', 'A ratio.', null, null, null),
+        ];
+
         yield 'non-translatable on integer type' => [
             new PropertySpecificationDto('count', 'integer', false, false, 'Count', 'A count.', null, null, null),
+        ];
+
+        // The flag is the only trigger: a declaration that may not carry it passes while the flag is off.
+        yield 'non-translatable on union type' => [
+            new PropertySpecificationDto('label', ['string', 'integer'], false, false, 'Label', 'A label.', null, null, null),
         ];
     }
 
@@ -60,11 +77,6 @@ class TranslatableTypeValidatorTest extends TestCase
      */
     public static function rejectsInvalidSpecificationProvider(): iterable
     {
-        yield 'translatable on integer type' => [
-            new PropertySpecificationDto('count', 'integer', false, true, 'Count', 'A count.', null, null, null),
-            'translatable',
-        ];
-
         yield 'translatable on FQCN type' => [
             new PropertySpecificationDto('product', 'Shopware\Core\Content\Product\ProductEntity', false, true, 'Product', 'A product.', null, null, null),
             'translatable',
@@ -75,8 +87,8 @@ class TranslatableTypeValidatorTest extends TestCase
             'translatable',
         ];
 
-        // The lone scalar declaration only: a single-member list still declares a union, which the stored
-        // language map is not a shape of.
+        // A lone primitive only: a single-member list still declares a union, which the stored language map is
+        // not a shape of.
         yield 'translatable on a single-member list of string' => [
             new PropertySpecificationDto('text', ['string'], false, true, 'Text', 'Text content.', null, null, null),
             'translatable',

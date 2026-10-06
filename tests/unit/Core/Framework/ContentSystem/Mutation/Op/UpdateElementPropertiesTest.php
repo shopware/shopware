@@ -64,6 +64,35 @@ class UpdateElementPropertiesTest extends TestCase
         static::assertSame($map, $this->propertiesOf($result, 'block-a')['label']);
     }
 
+    /**
+     * @param array<string, int|float|bool> $map
+     */
+    #[DataProvider('typedLanguageMapProvider')]
+    #[TestDox('writes $_dataName exactly as supplied')]
+    public function testWritesATypedLanguageMapAsSupplied(string $key, array $map): void
+    {
+        $result = (new UpdateElementProperties($this->registry(), 'block-a', [$key => $map], []))->apply(new StoredTree([$this->target()]));
+
+        static::assertSame($map, $this->propertiesOf($result, 'block-a')[$key]);
+    }
+
+    /**
+     * @return iterable<string, array{string, array<string, int|float|bool>}>
+     */
+    public static function typedLanguageMapProvider(): iterable
+    {
+        yield 'a boolean language map on a translatable boolean' => [
+            'visible',
+            [Defaults::LANGUAGE_SYSTEM => false, Uuid::fromStringToHex('language-german') => true],
+        ];
+
+        // `number` admits an integer entry beside a float one.
+        yield 'a number language map holding an integer and a float on a translatable number' => [
+            'ratio',
+            [Defaults::LANGUAGE_SYSTEM => 2, Uuid::fromStringToHex('language-german') => 2.5],
+        ];
+    }
+
     #[TestDox('writes a present null under a non-translatable primitive')]
     public function testWritesAPresentNull(): void
     {
@@ -241,10 +270,27 @@ class UpdateElementPropertiesTest extends TestCase
 
         // 'label' is declared `string` and translatable, so this same bare string would be admitted on the
         // non-translatable branch of PropertyType::admits(); only the translatable branch, which requires a
-        // non-list array of strings, refuses it.
+        // language map, refuses it.
         yield 'a bare string under a translatable key, which only a language map admits' => [
             ['label' => 'Autumn sale'],
             ContentSystemException::mutationPropertyValueRejected('block-a', 'label', 'string'),
+        ];
+
+        yield 'a bare boolean under a translatable boolean, which only a language map admits' => [
+            ['visible' => false],
+            ContentSystemException::mutationPropertyValueRejected('block-a', 'visible', 'bool'),
+        ];
+
+        // The entry is judged against the declared primitive, so a string entry fails the translatable boolean.
+        yield 'a language map carrying a string entry under a translatable boolean' => [
+            ['visible' => [Defaults::LANGUAGE_SYSTEM => 'false']],
+            ContentSystemException::mutationPropertyValueRejected('block-a', 'visible', 'array'),
+        ];
+
+        // `number` admits an integer, never a boolean.
+        yield 'a language map carrying a boolean entry under a translatable number' => [
+            ['ratio' => [Defaults::LANGUAGE_SYSTEM => true]],
+            ContentSystemException::mutationPropertyValueRejected('block-a', 'ratio', 'array'),
         ];
 
         // No translations is the key being absent and never an empty map. StoredValue::fromDecoded([]) yields
@@ -327,8 +373,8 @@ class UpdateElementPropertiesTest extends TestCase
             ContentSystemException::mutationPropertyUnknown('block-a', 'ghost'),
         ];
 
-        // A non-string entry fails PropertyType::admits() before the key rule reads the map, so the value
-        // rejection reports even though the same map also carries a non-language key.
+        // An integer entry under the translatable string fails PropertyType::admits() before the key rule reads
+        // the map, so the value rejection reports even though the same map also carries a non-language key.
         yield 'the value rejection ahead of the language-key rejection it also carries' => [
             ['label' => ['de' => 5]],
             [],
@@ -363,6 +409,8 @@ class UpdateElementPropertiesTest extends TestCase
                 ->primitive('headline', 'string')
                 ->primitive('tag', 'string', default: 'h1')
                 ->primitive('label', 'string', translatable: true)
+                ->primitive('visible', 'boolean', translatable: true)
+                ->primitive('ratio', 'number', translatable: true)
                 ->primitive('columns', 'integer')
                 ->reference('media', StubStruct::class)
                 ->build(),

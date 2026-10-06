@@ -40,4 +40,32 @@ final readonly class ConfigKeySpecification
         public ?string $mergesInto = null,         // name of another declared key this key's resolved list is unioned into
     ) {
     }
+
+    /**
+     * Whether a dereferenced stored value matches `$referencedType`: a string for `string`, a list of strings for
+     * `list<string>`. The one statement of that match: {@see LoaderInputResolver} hands the loader only a value
+     * this admits, and the diagnostics count a required input as filled only on the same answer.
+     */
+    public function admitsReferencedValue(mixed $value): bool
+    {
+        return match ($this->referencedType) {
+            'string' => \is_string($value),
+            'list<string>' => \is_array($value) && array_is_list($value) && array_filter($value, 'is_string') === $value,
+            default => false,
+        };
+    }
+
+    /**
+     * Whether a property declared as the lone primitive `$primitive` can hold a value {@see admitsReferencedValue()}
+     * admits. A lone primitive holds one scalar (a translatable one, one scalar per language) and never a list, so
+     * a `string` declaration qualifies for `string` and no declaration qualifies for `list<string>`.
+     */
+    public function admitsDeclaredPrimitive(string $primitive): bool
+    {
+        return match ($this->referencedType) {
+            'string' => $primitive === 'string',
+            'list<string>' => false,
+            default => false,
+        };
+    }
 }

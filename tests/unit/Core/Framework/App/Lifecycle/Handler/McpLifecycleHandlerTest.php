@@ -18,10 +18,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Notification\AppMcpCapabilityDetector;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotificationSet;
 use Shopware\Core\Framework\Mcp\Notification\McpListChangedNotifier;
-use Shopware\Core\Framework\Mcp\Notification\McpSessionRegistry;
 use Shopware\Core\Framework\Util\Filesystem;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
-use Symfony\Component\Cache\Psr16Cache;
 
 /**
  * @internal
@@ -184,13 +181,8 @@ class McpLifecycleHandlerTest extends TestCase
             }
         };
 
-        $notifier = new class(new McpSessionRegistry(new Psr16Cache(new ArrayAdapter()))) extends McpListChangedNotifier {
+        $notifier = new class(null) extends McpListChangedNotifier {
             public ?McpListChangedNotificationSet $notifications = null;
-
-            public function __construct(McpSessionRegistry $sessionRegistry)
-            {
-                parent::__construct(null, $sessionRegistry);
-            }
 
             public function notify(McpListChangedNotificationSet $notifications): void
             {

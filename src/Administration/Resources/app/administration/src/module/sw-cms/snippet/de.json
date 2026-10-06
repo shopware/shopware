@@ -11,7 +11,7 @@
       "deleteDisabledProductToolTip": "Das Layout ist noch mindestens einem Produkt zugewiesen.",
       "deleteDisabledLandingPageToolTip": "Das Layout ist noch mindestens einer Landingpage zugewiesen.",
       "disabledAddingBlocksToolTip": "Blöcke können nur in der System-Standardsprache hinzugefügt werden.",
-      "privacyNotice": "Ich habe die <a href=\"%privacyUrl%\">Datenschutzbestimmungen</a> zur Kenntnis genommen und die <a href=\"%tosUrl%\">AGB</a> gelesen und bin mit ihnen einverstanden."
+      "privacyNotice": "Ich habe die <a href=\"%privacyUrl%\">Datenschutzhinweise</a> zur Kenntnis genommen und die <a href=\"%tosUrl%\">AGB</a> gelesen und bin mit ihnen einverstanden."
     },
     "inherit": {
       "tooltip": "Dieses Feld existiert nicht im Basis-Layout und kann nicht vererbt werden.",

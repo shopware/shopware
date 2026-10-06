@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Adapter\Request\RequestParamHelper;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\MaintenanceModeResolver;
+use Shopware\Core\Framework\Routing\SessionContextTokenAccessor;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
@@ -123,6 +124,17 @@ class CacheResponseSubscriber implements EventSubscriberInterface
 
         // Preventing applying cache headers to the routes that are marked for caching, but feature flag is disabled
         if ($area === self::POLICY_AREA_STORE_API && !Feature::isActive('CACHE_REWORK')) {
+            // a request resolved from the storefront session changes the page's context, so the page's cache cookies follow it
+            if ($request->attributes->getBoolean(SessionContextTokenAccessor::ATTRIBUTE_TOKEN_FROM_SESSION)) {
+                $cart = $this->cartService->getCart($context->getToken(), $context);
+
+                if (!Feature::isActive('PERFORMANCE_TWEAKS')) {
+                    $this->updateSystemState($cart, $context, $request, $response);
+                }
+
+                $this->cacheHeadersService->applyCacheHash($request, $context, $cart, $response);
+            }
+
             $this->noCache($request, $response, $area);
 
             return;

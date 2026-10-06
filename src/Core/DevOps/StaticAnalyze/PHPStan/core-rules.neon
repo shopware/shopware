@@ -7,6 +7,7 @@ parameters:
 
 parametersSchema:
     shopwareLegacyStoreApiRouteMethods: listOf(string())
+    shopwareStoreApiRouteMethodsWithAbstractContract: listOf(string())
     shopwareTaggedServiceContractTagContracts: arrayOf(anyOf(string(), listOf(string())), string())
     shopwareTaggedServiceContractAdditionalTagContracts: arrayOf(anyOf(string(), listOf(string())), string())
 
@@ -58,6 +59,7 @@ services:
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\StoreApiRouteExtensionRule
         arguments:
             legacyRouteMethods: %shopwareLegacyStoreApiRouteMethods%
+            abstractContractRouteMethods: %shopwareStoreApiRouteMethodsWithAbstractContract%
         tags:
             - phpstan.rules.rule
 

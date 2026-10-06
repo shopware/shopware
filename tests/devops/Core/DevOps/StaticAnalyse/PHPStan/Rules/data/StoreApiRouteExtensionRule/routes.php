@@ -216,3 +216,55 @@ class MethodScopedValidRoute
         return 'named arguments may be reordered';
     }
 }
+
+abstract class AbstractMigratedRoute
+{
+    abstract public function getDecorated(): self;
+
+    abstract public function load(): string;
+}
+
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+class AbstractContractRoute extends AbstractMigratedRoute
+{
+    public function __construct(private readonly ExtensionDispatcher $extensions)
+    {
+    }
+
+    public function getDecorated(): AbstractMigratedRoute
+    {
+        return $this;
+    }
+
+    #[Route('/abstract-contract')]
+    public function load(): string
+    {
+        return $this->extensions->publish(TestExtension::NAME, new TestExtension(), $this->body(...));
+    }
+
+    #[Route('/abstract-contract-new')]
+    public function newEndpoint(): string
+    {
+        return $this->extensions->publish(TestExtension::NAME, new TestExtension(), $this->body(...));
+    }
+
+    private function body(): string
+    {
+        return 'kept abstract contract';
+    }
+}
+
+#[Route(defaults: ['_routeScope' => ['store-api']])]
+class UnpublishedAbstractContractRoute extends AbstractMigratedRoute
+{
+    public function getDecorated(): AbstractMigratedRoute
+    {
+        return $this;
+    }
+
+    #[Route('/unpublished-abstract-contract')]
+    public function load(): string
+    {
+        return 'a kept abstract contract still has to publish';
+    }
+}

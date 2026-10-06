@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\Configuration;
 use Shopware\Core\Framework\Log\Package;
@@ -67,16 +68,8 @@ class ConfigurationTest extends TestCase
         static::assertSame('v6.8.0.0', $config['feature']['flags']['JSON_LD_DATA']['major']);
     }
 
-    /**
-     * @return iterable<string, array{bool}>
-     */
-    public static function invalidMajorDataProvider(): iterable
-    {
-        yield 'true is not a parent version' => [true];
-        yield 'false is not a parent version' => [false];
-    }
-
-    #[DataProvider('invalidMajorDataProvider')]
+    #[TestWith([true])]
+    #[TestWith([false])]
     public function testFeatureRejectsBooleanMajor(bool $major): void
     {
         static::expectException(InvalidConfigurationException::class);

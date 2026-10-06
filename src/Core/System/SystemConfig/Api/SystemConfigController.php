@@ -8,7 +8,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
-use Shopware\Core\System\SystemConfig\Service\SystemConfigDefinitionService;
 use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Validation\SystemConfigValidator;
@@ -26,11 +25,7 @@ class SystemConfigController extends AbstractController
      * @internal
      */
     public function __construct(
-        /**
-         * @deprecated tag:v6.8.0 - Parameter $configurationService will be removed
-         */
-        private readonly ?ConfigurationService $configurationService,
-        private readonly SystemConfigDefinitionService $systemConfigDefinitionService,
+        private readonly ConfigurationService $configurationService,
         private readonly SystemConfigService $systemConfig,
         private readonly SystemConfigValidator $systemConfigValidator
     ) {
@@ -50,7 +45,7 @@ class SystemConfigController extends AbstractController
             throw SystemConfigException::missingRequestParameter('domain');
         }
 
-        return new JsonResponse($this->systemConfigDefinitionService->checkConfiguration($domain, $context));
+        return new JsonResponse($this->configurationService->checkConfiguration($domain, $context));
     }
 
     /**
@@ -75,9 +70,6 @@ class SystemConfigController extends AbstractController
             throw SystemConfigException::missingRequestParameter('domain');
         }
 
-        // The 6.8 guard above throws before this service can be used when its definition is removed.
-        \assert($this->configurationService !== null);
-
         return Feature::silent('v6.8.0.0', fn () => new JsonResponse($this->configurationService->getConfiguration($domain, $context)));
     }
 
@@ -95,7 +87,7 @@ class SystemConfigController extends AbstractController
             throw SystemConfigException::missingRequestParameter('domain');
         }
 
-        return new JsonResponse($this->systemConfigDefinitionService->getConfiguration($domain, $context));
+        return new JsonResponse($this->configurationService->getSystemConfigDefinition($domain, $context));
     }
 
     #[Route(

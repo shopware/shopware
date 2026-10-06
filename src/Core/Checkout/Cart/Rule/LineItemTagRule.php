@@ -42,6 +42,10 @@ class LineItemTagRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('tagIds', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchTags($lineItem)) {
                 return true;
             }
@@ -74,10 +78,6 @@ class LineItemTagRule extends Rule
 
     private function matchTags(LineItem $lineItem): bool
     {
-        if ($lineItem->getType() !== LineItem::PRODUCT_LINE_ITEM_TYPE) {
-            return false;
-        }
-
         return RuleComparison::uuids($this->extractTagIds($lineItem), $this->identifiers, $this->operator);
     }
 

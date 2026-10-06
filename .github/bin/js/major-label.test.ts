@@ -2,7 +2,11 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
     FEATURE_REGISTRY_PATH,
+    MAJOR_PATHS_PATH,
+    detectMajorLabels,
+    diffFromFiles,
     evaluateMajorLabels,
+    isDiffTooLarge,
     globToRegExp,
     labelNamesFor,
     labelsForDiff,
@@ -11,7 +15,9 @@ import {
     parseMajorPaths,
     pendingMajorFlags,
     resolveInFlightMajors,
+    isReleaseBranch,
     shouldDetect,
+    withoutRemovedLabels,
 } from './major-label.ts';
 
 const REGISTRY = `shopware:
@@ -125,10 +131,69 @@ test('an UPGRADE entry for a later major is not', () => {
     assert.deepEqual(evaluate('UPGRADE-6.9.md', '+## Something breaks'), { behaviour: false, cleanup: false });
 });
 
-test('a stabilising experimental annotation is a behaviour change', () => {
+test('removing an experimental annotation stabilises the API, a behaviour change', () => {
+    assert.deepEqual(
+        evaluate('src/Core/Checkout/Cart/Cart.php', '- * @experimental stableVersion:v6.8.0 feature:CACHE_REWORK'),
+        { behaviour: true, cleanup: false },
+    );
+});
+
+test('adding an experimental annotation leaves the stabilisation behind as cleanup', () => {
     assert.deepEqual(
         evaluate('src/Core/Checkout/Cart/Cart.php', '+ * @experimental stableVersion:v6.8.0 feature:CACHE_REWORK'),
+        { behaviour: false, cleanup: true },
+    );
+});
+
+test('an experimental annotation in an internal docblock counts for nothing', () => {
+    for (const docblock of [
+        '+/**\n+ * @experimental stableVersion:v6.8.0\n+ *\n+ * @internal\n+ */',
+        '+/**\n+ * @internal\n+ * @experimental stableVersion:v6.8.0\n+ */',
+        ' /**\n- * @experimental stableVersion:v6.8.0\n  * @internal\n  */',
+    ]) {
+        assert.deepEqual(evaluate('src/Core/Framework/Mcp/Resolver.php', docblock), { behaviour: false, cleanup: false });
+    }
+});
+
+test('an internal docblock does not shield the next one', () => {
+    assert.deepEqual(
+        evaluate('src/Core/Framework/Mcp/Resolver.php', '+/**\n+ * @internal\n+ */\n+/**\n+ * @experimental stableVersion:v6.8.0\n+ */'),
+        { behaviour: false, cleanup: true },
+    );
+});
+
+test('a flag line that is only reworded is not a change to the flag', () => {
+    assert.deepEqual(
+        evaluate(
+            'tests/integration/Core/Framework/Webhook/Service/WebhookManagerTest.php',
+            "-        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client): void {\n+        Feature::withFeatureDisabled('WEBHOOKS_REWORK', function () use ($client, $bus): void {",
+        ),
+        { behaviour: false, cleanup: false },
+    );
+});
+
+test('swapping one flag for another on the same line is a change', () => {
+    assert.deepEqual(
+        evaluate('src/Core/Cart.php', "-        if (Feature::isActive('v6.8.0.0')) {\n+        if (Feature::isActive('WEBHOOKS_REWORK')) {"),
         { behaviour: true, cleanup: false },
+    );
+});
+
+test('moving a flag check to another file is a change in both', () => {
+    const diff =
+        diffFor('src/Core/A.php', "-        if (Feature::isActive('WEBHOOKS_REWORK')) {") +
+        '\n' +
+        diffFor('src/Core/B.php', "+        if (Feature::isActive('WEBHOOKS_REWORK')) {");
+    assert.deepEqual(evaluateMajorLabels({ diff, flags: FLAGS, targetMajor: '6.8', majorPaths: PATHS, isNextMajor: true }), {
+        behaviour: true,
+        cleanup: false,
+    });
+});
+
+test('a rewritten deprecation message leaves no new cleanup behind', () => {
+    assert.deepEqual(
+        evaluate('src/Core/Framework/Feature.php', '-     * @deprecated tag:v6.8.0 - Will be removed\n+     * @deprecated tag:v6.8.0 - Will be removed, use Bar'),
+        { behaviour: false, cleanup: false },
     );
 });
 
@@ -331,7 +396,10 @@ test('labelNamesFor emits only the earned labels', () => {
     assert.deepEqual(labelNamesFor('6.8', { behaviour: false, cleanup: false }), []);
 });
 
-const detectionContext = (action: string, eventName = 'pull_request_target') => ({ eventName, payload: { action } });
+const detectionContext = (action: string, eventName = 'pull_request_target', base = 'trunk') => ({
+    eventName,
+    payload: { action, pull_request: { base: { ref: base } } },
+});
 
 test('shouldDetect accepts the triggering pull request actions', () => {
     for (const action of ['opened', 'reopened', 'synchronize', 'ready_for_review']) {
@@ -346,13 +414,43 @@ test('shouldDetect rejects other actions and events', () => {
     assert.equal(shouldDetect(detectionContext('opened', 'issues')), false);
 });
 
+test('shouldDetect rejects pull requests into a release branch', () => {
+    assert.equal(shouldDetect(detectionContext('opened', 'pull_request_target', '6.7.14.x')), false);
+    assert.equal(shouldDetect(detectionContext('synchronize', 'pull_request_target', '6.6.x')), false);
+});
+
+test('shouldDetect accepts a stacked pull request, which reaches trunk without a new trigger', () => {
+    assert.equal(shouldDetect(detectionContext('opened', 'pull_request_target', 'codex/major-feature-inheritance')), true);
+});
+
+test('isReleaseBranch knows the maintenance and security branch names', () => {
+    for (const ref of ['6.6.x', '6.7.x', '6.7.14.x', '6.7.14.1']) {
+        assert.equal(isReleaseBranch(ref), true, ref);
+    }
+    for (const ref of ['trunk', 'feat/intra-eu-tax-calculation', 'next-6.8', 'release/6.7.x', '6.x-cleanup']) {
+        assert.equal(isReleaseBranch(ref), false, ref);
+    }
+});
+
+test('withoutRemovedLabels keeps a label off once anyone has removed it', () => {
+    const events = [
+        { event: 'labeled', label: { name: 'major/6.8' } },
+        { event: 'unlabeled', label: { name: 'major/6.8' } },
+        { event: 'labeled', label: { name: 'domain/checkout' } },
+        { event: 'unlabeled', label: { name: 'domain/checkout' } },
+        { event: 'review_requested' },
+    ];
+    assert.deepEqual(withoutRemovedLabels(['major/6.8', 'major/6.8-cleanup'], events), ['major/6.8-cleanup']);
+    assert.deepEqual(withoutRemovedLabels(['major/6.8'], []), ['major/6.8']);
+});
+
 test('missingLabels drops labels the pull request already carries', () => {
     const context = {
         eventName: 'pull_request_target',
         repo: { owner: 'shopware', repo: 'shopware' },
         payload: {
             action: 'synchronize',
-            pull_request: { number: 1, labels: [{ name: 'major/6.8' }, { name: 'domain/checkout' }] },
+            pull_request: { number: 1, base: { ref: 'trunk' }, labels: [{ name: 'major/6.8' }, { name: 'domain/checkout' }] },
         },
     };
     assert.deepEqual(missingLabels(context, ['major/6.8', 'major/6.8-cleanup']), ['major/6.8-cleanup']);
@@ -435,4 +533,131 @@ test('labelsForDiff emits nothing when no major is in flight', () => {
         labelsForDiff({ diff: diffFor('UPGRADE-6.8.md', '+## Anything'), flags: shipped, majorPaths: PATHS }),
         [],
     );
+});
+
+const tooLarge = Object.assign(new Error('Sorry, the diff exceeded the maximum number of files (300).'), {
+    status: 406,
+    response: { data: { errors: [{ resource: 'PullRequest', field: 'diff', code: 'too_large' }] } },
+});
+
+test('isDiffTooLarge recognises only the too_large refusal', () => {
+    assert.equal(isDiffTooLarge(tooLarge), true);
+    assert.equal(isDiffTooLarge(Object.assign(new Error('Not Acceptable'), { status: 406 })), false);
+    assert.equal(isDiffTooLarge(Object.assign(new Error('other side closed'), { status: 500 })), false);
+    assert.equal(isDiffTooLarge(undefined), false);
+});
+
+test('diffFromFiles rebuilds a diff the detection reads like the native one', () => {
+    const diff = diffFromFiles([
+        { filename: 'src/Core/Framework/Feature.php', patch: '@@ -1,1 +1,1 @@\n+     * @deprecated tag:v6.8.0 - Will be removed' },
+        { filename: 'src/Core/Checkout/DocumentV2/Huge.php' },
+    ]);
+    assert.deepEqual(evaluateMajorLabels({ diff, flags: FLAGS, targetMajor: '6.8', majorPaths: PATHS, isNextMajor: true }), {
+        behaviour: true,
+        cleanup: true,
+    });
+});
+
+const detect = (github: object, labels: Array<{ name: string }> = []) => {
+    const warnings: string[] = [];
+    const files: Record<string, string> = { [FEATURE_REGISTRY_PATH]: REGISTRY, [MAJOR_PATHS_PATH]: PATH_MAP };
+    const run = detectMajorLabels(
+        {
+            github: github as Parameters<typeof detectMajorLabels>[0]['github'],
+            core: { info: () => {}, warning: (message) => warnings.push(message) },
+            context: {
+                eventName: 'pull_request_target',
+                repo: { owner: 'shopware', repo: 'shopware' },
+                payload: {
+                    action: 'synchronize',
+                    pull_request: { number: 1, base: { ref: 'trunk' }, labels },
+                },
+            },
+        },
+        (path) => files[path],
+    );
+
+    return { run, warnings };
+};
+
+test('a diff too large for the diff format is read through the files endpoint', async () => {
+    const listFiles = async () => ({ data: [] });
+    const listEvents = async () => ({ data: [] });
+    const { run, warnings } = detect({
+        paginate: async (route: unknown, options: object) => {
+            if (route === listEvents) {
+                return [];
+            }
+            assert.equal(route, listFiles);
+            assert.deepEqual(options, { owner: 'shopware', repo: 'shopware', pull_number: 1, per_page: 100 });
+
+            return [
+                { filename: 'UPGRADE-6.8.md', patch: '@@ -1,1 +1,1 @@\n+## Something breaks' },
+                { filename: 'src/Core/Huge.php' },
+            ];
+        },
+        rest: {
+            pulls: {
+                get: async () => {
+                    throw tooLarge;
+                },
+                listFiles,
+            },
+            issues: { listEvents },
+        },
+    });
+
+    assert.deepEqual(await run, ['major/6.8']);
+    assert.deepEqual(warnings, [
+        'diff too large, read 2 file(s) through the files endpoint instead; 1 without a patch are matched by path only',
+    ]);
+});
+
+test('any other diff failure still fails the run', async () => {
+    const outage = Object.assign(new Error('other side closed'), { status: 500 });
+    const { run } = detect({
+        paginate: async () => assert.fail('must not fall back on an outage'),
+        rest: {
+            pulls: {
+                get: async () => {
+                    throw outage;
+                },
+                listFiles: async () => ({ data: [] }),
+            },
+        },
+    });
+
+    await assert.rejects(run, outage);
+});
+
+const upgradeDiff = diffFor('UPGRADE-6.8.md', '+## Something breaks');
+
+test('a label someone removed is not added back on the next push', async () => {
+    const listEvents = async () => ({ data: [] });
+    const { run } = detect({
+        paginate: async (route: unknown, options: object) => {
+            assert.equal(route, listEvents);
+            assert.deepEqual(options, { owner: 'shopware', repo: 'shopware', issue_number: 1, per_page: 100 });
+
+            return [
+                { event: 'labeled', label: { name: 'major/6.8' } },
+                { event: 'unlabeled', label: { name: 'major/6.8' } },
+            ];
+        },
+        rest: { pulls: { get: async () => ({ data: upgradeDiff }) }, issues: { listEvents } },
+    });
+
+    assert.deepEqual(await run, []);
+});
+
+test('the event history is only read when a label is missing', async () => {
+    const { run } = detect(
+        {
+            paginate: async () => assert.fail('no label is missing, so no history is needed'),
+            rest: { pulls: { get: async () => ({ data: upgradeDiff }) }, issues: { listEvents: async () => ({ data: [] }) } },
+        },
+        [{ name: 'major/6.8' }],
+    );
+
+    assert.deepEqual(await run, []);
 });

@@ -26,6 +26,7 @@ const path = require('node:path');
 const fs = require('node:fs');
 const { spawn } = require('node:child_process');
 const { createRequire } = require('node:module');
+const { normalizeComponentEntryName, warnForDuplicateEntryNames } = require('./component-entry-name.cjs');
 
 // ---------------------------------------------------------------------------
 // Paths
@@ -332,7 +333,7 @@ async function main() {
 
         // Generic build: config constructed inline — no env var sharing across
         // parallel builds.
-        const isExtension = bundleName !== 'Storefront';
+        const isExtensionBundle = bundleName !== 'Storefront';
         const namespace = bundleName;
 
         // Core Storefront's app/storefront directory — used as vendor fallback for extensions.
@@ -357,14 +358,19 @@ async function main() {
         // with a same-named JS entry (e.g. Dusel.js + Dusel.scss would both map to 'Dusel'
         // without the extension and the object spread would silently drop the JS entry).
         // The assetFileNames function below strips the extension from the output filename.
-        const makeJsEntryName = (file) => {
-            const name = file.replace(/\.(js|ts)$/, '');
-            return isExtension ? `${namespace}/${name}` : name;
+        const makeEntryName = (file, preserveExtension = false) => {
+            const name = normalizeComponentEntryName(file, preserveExtension);
+
+            return isExtensionBundle ? `${namespace}/${name}` : name;
         };
-        const makeScssEntryName = (file) =>
-            isExtension ? `${namespace}/${file}` : file;
-        const makeCssEntryName = (file) =>
-            isExtension ? `${namespace}/${file}` : file;
+
+        warnForDuplicateEntryNames(jsFiles, makeEntryName, `[build-components] ${bundleName}`, 'JavaScript');
+        warnForDuplicateEntryNames(
+            [...scssFiles, ...cssFiles],
+            file => makeEntryName(file, true),
+            `[build-components] ${bundleName}`,
+            'Style',
+        );
 
         // Virtual-CSS-module bridge for plain .css entries.
         //
@@ -390,7 +396,7 @@ async function main() {
         /** @type {Array<[string, string]>} [entryKey, virtualId] for Rolldown input */
         const plainCssEntries = [];
         for (const cssFile of cssFiles) {
-            const entryKey  = makeCssEntryName(cssFile);           // e.g. Ns/Foo.css
+            const entryKey  = makeEntryName(cssFile, true);        // e.g. Ns/Foo.css
             const virtualId = `${plainCssShimPrefix}${entryKey}`;   // ends in .css
             plainCssShims.set(virtualId, path.join(componentRoot, cssFile));
             plainCssEntries.push([entryKey, virtualId]);
@@ -410,10 +416,10 @@ async function main() {
 
         const entries = {
             ...Object.fromEntries(
-                jsFiles.map(file => [makeJsEntryName(file), path.join(componentRoot, file)]),
+                jsFiles.map(file => [makeEntryName(file), path.join(componentRoot, file)]),
             ),
             ...Object.fromEntries(
-                scssFiles.map(file => [makeScssEntryName(file), path.join(componentRoot, file)]),
+                scssFiles.map(file => [makeEntryName(file, true), path.join(componentRoot, file)]),
             ),
             ...Object.fromEntries(plainCssEntries),
         };
@@ -440,7 +446,7 @@ async function main() {
                     output: {
                         format: 'es',
                         entryFileNames: '[name]-[hash].js',
-                        chunkFileNames: isExtension
+                        chunkFileNames: isExtensionBundle
                             ? `${namespace}/vendor/[name]-[hash].js`
                             : 'vendor/[name]-[hash].js',
                         // SCSS entry keys keep the .scss extension to avoid key collisions.
@@ -457,7 +463,7 @@ async function main() {
                 },
             },
             plugins: [
-                ...(isExtension ? [extensionNodeModulesPlugin(storefrontAppDir)] : []),
+                ...(isExtensionBundle ? [extensionNodeModulesPlugin(storefrontAppDir)] : []),
                 componentMapPlugin(),
                 plainCssShimPlugin,
             ],

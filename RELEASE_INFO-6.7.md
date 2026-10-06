@@ -298,6 +298,16 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
+### Sorting by `product.price` works with Elasticsearch
+
+The product index now contains the product's own price as `price.c_<currencyId>.gross` / `.net`, inherited from the parent for a variant. Only `product.cheapestPrice` used to be indexed, so a sorting on the plain `product.price` - the "Default price" criteria of a listing sorting (Settings > Products > Sorting options) - addressed a field that does not exist and failed with `No mapping found for [price.c_....gross] in order to sort on`. With the default `SHOPWARE_ES_THROW_EXCEPTION=1` that surfaces as an error instead of falling back to the database, so the category page broke. Filters and aggregations on `product.price` return values now as well, instead of matching nothing and returning `0`.
+
+**Run `bin/console es:index` after deploying.** The mapping is added to the live index, but existing documents carry no price until they are reindexed, and a sorting on `product.price` keeps failing with the error above until then. Every currency of the shop is mapped explicitly, so a price is a `double` and keeps its cents. A currency that is created after the index was built is covered by a dynamic template.
+
+Two limitations remain, both unchanged from before: a price is only resolved for the currency of the context, so a product without an explicit price in that currency is treated as having no price instead of falling back to the default currency price multiplied by the currency factor the way the database does; and the `listPrice` / `percentage` sub accessors are not indexed.
+
+Note that `product.price` is the plain price of the product record itself: it ignores advanced (rule) prices and the prices of sibling variants, and is therefore not the "from" price the storefront displays for a variant listing item. `product.cheapestPrice` remains the criteria that matches the displayed price.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation
@@ -1567,16 +1577,6 @@ The new `shopware.cdn.path_cache_buster` setting defaults to `true`, preserving 
 ### `product-export:generate --force` now regenerates scheduler-managed exports
 
 `--force` promises to ignore the cache and force generation, but for scheduler-managed exports it was a no-op. This aligns the flag with its documented behavior.
-
-### Sorting by `product.price` works with Elasticsearch
-
-The product index now contains the product's own price as `price.c_<currencyId>.gross` / `.net`, inherited from the parent for a variant. Only `product.cheapestPrice` used to be indexed, so a sorting on the plain `product.price` - the "Default price" criteria of a listing sorting (Settings > Products > Sorting options) - addressed a field that does not exist and failed with `No mapping found for [price.c_....gross] in order to sort on`. With the default `SHOPWARE_ES_THROW_EXCEPTION=1` that surfaces as an error instead of falling back to the database, so the category page broke. Filters and aggregations on `product.price` return values now as well, instead of matching nothing and returning `0`.
-
-**Run `bin/console es:index` after deploying.** The mapping is added to the live index, but existing documents carry no price until they are reindexed, and a sorting on `product.price` keeps failing with the error above until then. Every currency of the shop is mapped explicitly, so a price is a `double` and keeps its cents. A currency that is created after the index was built is covered by a dynamic template.
-
-Two limitations remain, both unchanged from before: a price is only resolved for the currency of the context, so a product without an explicit price in that currency is treated as having no price instead of falling back to the default currency price multiplied by the currency factor the way the database does; and the `listPrice` / `percentage` sub accessors are not indexed.
-
-Note that `product.price` is the plain price of the product record itself: it ignores advanced (rule) prices and the prices of sibling variants, and is therefore not the "from" price the storefront displays for a variant listing item. `product.cheapestPrice` remains the criteria that matches the displayed price.
 
 ### Elasticsearch index updates schedule a reindex when analysis settings change
 

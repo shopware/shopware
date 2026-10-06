@@ -15,6 +15,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\JsonStreamer\JsonStreamWriter;
 
 /**
  * @internal
@@ -35,7 +36,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
             )
             ->willReturn($this->records());
 
-        $tester = new CommandTester(new ExportCookieConsentLogCommand($storage));
+        $tester = new CommandTester($this->command($storage));
         $exitCode = $tester->execute([
             '--from' => '2026-01-01',
             '--to' => '2026-07-01',
@@ -49,7 +50,44 @@ class ExportCookieConsentLogCommandTest extends TestCase
         static::assertCount(2, $output);
         static::assertSame('visitor-a', $output[0]['consentId']);
         static::assertSame(['cookie.groupStatistical' => 'accepted'], $output[0]['groupDecisions']);
+        static::assertSame(['lorem', 'ipsum'], $output[0]['acceptedCookies']);
+        static::assertSame('accept_all', $output[0]['consentAction']);
+        static::assertSame('2026-07-13T12:00:00.000+00:00', $output[0]['createdAt']);
         static::assertSame('visitor-b', $output[1]['consentId']);
+    }
+
+    public function testJsonLargerThanOneBlockStaysOneValidArray(): void
+    {
+        // About 300 bytes per record, so this spans several blocks
+        $records = (function () {
+            for ($i = 0; $i < 1000; ++$i) {
+                yield $this->record('visitor-' . $i, ['lorem']);
+            }
+        })();
+
+        $storage = static::createStub(AbstractCookieConsentLogStorage::class);
+        $storage->method('iterate')->willReturn($records);
+
+        $tester = new CommandTester($this->command($storage));
+        $tester->execute([]);
+
+        $output = json_decode($tester->getDisplay(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($output);
+        static::assertCount(1000, $output);
+        static::assertSame('visitor-999', $output[999]['consentId']);
+    }
+
+    public function testJsonValuesAreNotChangedByTheConsoleFormatter(): void
+    {
+        $storage = static::createStub(AbstractCookieConsentLogStorage::class);
+        $storage->method('iterate')->willReturn([$this->record('visitor-a', ['<info>lorem</info>'])]);
+
+        $tester = new CommandTester($this->command($storage));
+        $tester->execute([]);
+
+        $output = json_decode($tester->getDisplay(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsArray($output);
+        static::assertSame(['<info>lorem</info>'], $output[0]['acceptedCookies']);
     }
 
     public function testAnEmptyRangeIsAnEmptyJsonArray(): void
@@ -57,7 +95,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
         $storage = static::createStub(AbstractCookieConsentLogStorage::class);
         $storage->method('iterate')->willReturn([]);
 
-        $tester = new CommandTester(new ExportCookieConsentLogCommand($storage));
+        $tester = new CommandTester($this->command($storage));
         $tester->execute([]);
 
         static::assertSame("[]\n", $tester->getDisplay());
@@ -68,7 +106,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
         $storage = static::createStub(AbstractCookieConsentLogStorage::class);
         $storage->method('iterate')->willReturn($this->records());
 
-        $tester = new CommandTester(new ExportCookieConsentLogCommand($storage));
+        $tester = new CommandTester($this->command($storage));
         $exitCode = $tester->execute(['--format' => 'csv']);
 
         static::assertSame(Command::SUCCESS, $exitCode);
@@ -91,7 +129,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
         $storage = static::createStub(AbstractCookieConsentLogStorage::class);
         $storage->method('iterate')->willReturn([$this->record('visitor-a', ['<info>lorem</info>'])]);
 
-        $tester = new CommandTester(new ExportCookieConsentLogCommand($storage));
+        $tester = new CommandTester($this->command($storage));
         $tester->execute(['--format' => 'csv']);
 
         // The console formatter would strip the <info> style tag. The closing tag is JSON-escaped in the cell.
@@ -109,7 +147,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
         $storage = static::createStub(AbstractCookieConsentLogStorage::class);
         $storage->method('iterate')->willReturn($records);
 
-        $tester = new CommandTester(new ExportCookieConsentLogCommand($storage));
+        $tester = new CommandTester($this->command($storage));
         $tester->execute(['--format' => 'csv']);
 
         $lines = explode("\n", trim($tester->getDisplay()));
@@ -125,7 +163,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
         $storage->method('iterate')->willReturn([$this->record('visitor-a', ['<info>lorem</info>'])]);
 
         $output = new BufferedOutput();
-        $exitCode = (new ExportCookieConsentLogCommand($storage))->run(new ArrayInput(['--format' => 'csv']), $output);
+        $exitCode = $this->command($storage)->run(new ArrayInput(['--format' => 'csv']), $output);
 
         static::assertSame(Command::SUCCESS, $exitCode);
 
@@ -141,7 +179,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
         $storage = $this->createMock(AbstractCookieConsentLogStorage::class);
         $storage->expects($this->never())->method('iterate');
 
-        $tester = new CommandTester(new ExportCookieConsentLogCommand($storage));
+        $tester = new CommandTester($this->command($storage));
         $exitCode = $tester->execute(['--format' => 'xml']);
 
         static::assertSame(Command::INVALID, $exitCode);
@@ -153,7 +191,7 @@ class ExportCookieConsentLogCommandTest extends TestCase
         $storage = $this->createMock(AbstractCookieConsentLogStorage::class);
         $storage->expects($this->never())->method('iterate');
 
-        $tester = new CommandTester(new ExportCookieConsentLogCommand($storage));
+        $tester = new CommandTester($this->command($storage));
         $exitCode = $tester->execute(['--sales-channel' => 'not-a-uuid']);
 
         static::assertSame(Command::INVALID, $exitCode);
@@ -165,10 +203,15 @@ class ExportCookieConsentLogCommandTest extends TestCase
         $storage = $this->createMock(AbstractCookieConsentLogStorage::class);
         $storage->expects($this->never())->method('iterate');
 
-        $tester = new CommandTester(new ExportCookieConsentLogCommand($storage));
+        $tester = new CommandTester($this->command($storage));
         $exitCode = $tester->execute(['--from' => 'yesterday-ish']);
 
         static::assertSame(Command::INVALID, $exitCode);
+    }
+
+    private function command(AbstractCookieConsentLogStorage $storage): ExportCookieConsentLogCommand
+    {
+        return new ExportCookieConsentLogCommand($storage, JsonStreamWriter::create());
     }
 
     /**

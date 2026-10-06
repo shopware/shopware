@@ -11,6 +11,9 @@ use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\JsonStreamer\StreamWriterInterface;
+use Symfony\Component\JsonStreamer\ValueTransformer\DateTimeToStringValueTransformer;
+use Symfony\Component\TypeInfo\Type;
 
 /**
  * Streams the consent log to stdout for compliance exports, e.g.
@@ -32,8 +35,15 @@ class ExportCookieConsentLogCommand extends Command
 
     private const CSV_FLUSH_SIZE = 1000;
 
-    public function __construct(private readonly AbstractCookieConsentLogStorage $storage)
-    {
+    private const JSON_BLOCK_SIZE = 65536;
+
+    /**
+     * @param StreamWriterInterface<array{include_null_properties?: bool, ...<string, mixed>}> $jsonWriter
+     */
+    public function __construct(
+        private readonly AbstractCookieConsentLogStorage $storage,
+        private readonly StreamWriterInterface $jsonWriter,
+    ) {
         parent::__construct();
     }
 
@@ -86,15 +96,22 @@ class ExportCookieConsentLogCommand extends Command
      */
     private function writeJson(OutputInterface $output, iterable $records): void
     {
-        $output->write('[');
+        $chunks = $this->jsonWriter->write(
+            $records,
+            Type::iterable(Type::object(CookieConsentRecord::class), Type::int()),
+            [DateTimeToStringValueTransformer::FORMAT_KEY => \DateTimeInterface::RFC3339_EXTENDED],
+        );
 
-        $first = true;
-        foreach ($records as $record) {
-            $output->write(($first ? '' : ',') . json_encode($record, \JSON_THROW_ON_ERROR | \JSON_UNESCAPED_SLASHES));
-            $first = false;
+        $block = '';
+        foreach ($chunks as $chunk) {
+            $block .= $chunk;
+            if (\strlen($block) >= self::JSON_BLOCK_SIZE) {
+                $output->write($block, false, OutputInterface::OUTPUT_RAW);
+                $block = '';
+            }
         }
 
-        $output->writeln(']');
+        $output->writeln($block, OutputInterface::OUTPUT_RAW);
     }
 
     /**

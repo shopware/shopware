@@ -99,6 +99,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ExportCookieConsentLogCommand::class)
         ->args([
             service(AbstractCookieConsentLogStorage::class),
+            service('json_streamer.stream_writer'),
         ])
         ->tag('console.command');
 };

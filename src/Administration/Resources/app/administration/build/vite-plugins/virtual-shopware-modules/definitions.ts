@@ -10,10 +10,10 @@ import type { ShopwareClass } from 'src/core/shopware';
 /**
  * @private
  *
- * `Utils` and `Data` keep their exact `ShopwareClass` types. The registry methods accept strings because
- * their keys come from `shopware-modules.json`.
+ * `Utils`, `Data` and `Composables` keep their exact `ShopwareClass` types. The registry methods accept
+ * strings because their keys come from `shopware-modules.json`.
  */
-export type VirtualModuleGlobal = Pick<ShopwareClass, 'Utils' | 'Data'> & {
+export type VirtualModuleGlobal = Pick<ShopwareClass, 'Utils' | 'Data' | 'Composables'> & {
     Mixin: { getByName: (name: string) => unknown };
     Store: { get: (id: string) => unknown };
 };
@@ -39,6 +39,14 @@ export type ModuleRegistry = Record<string, ModuleRegistryEntry>;
  * every `emit` and compares it with the matching `read`.
  */
 type Branch = {
+    /**
+     * The Shopware version that added the branch to the global object. Only a branch newer than the
+     * `shopware:*` modules needs it: a prebuilt extension bundle can run on an Administration that has none.
+     *
+     * It covers the branch as a whole. A member added to the branch later still reads as `undefined` on
+     * an older Administration that has the branch.
+     */
+    readonly since?: string;
     readonly root: {
         readonly emit: () => string;
         readonly read: (shopware: VirtualModuleGlobal) => unknown;
@@ -76,6 +84,17 @@ const BRANCHES: Record<string, Branch> = {
         subpath: {
             emit: (subpath) => `shopware.Data[${JSON.stringify(subpath)}]`,
             read: (shopware, subpath) => readOwn(shopware.Data, subpath, 'Shopware.Data'),
+        },
+    },
+    'shopware:composables': {
+        since: '6.7.16.0',
+        root: {
+            emit: () => 'shopware.Composables',
+            read: (shopware) => shopware.Composables,
+        },
+        subpath: {
+            emit: (subpath) => `shopware.Composables[${JSON.stringify(subpath)}]`,
+            read: (shopware, subpath) => readOwn(shopware.Composables, subpath, 'Shopware.Composables'),
         },
     },
     'shopware:mixins': {
@@ -170,6 +189,33 @@ export function allSpecifiers(registry: ModuleRegistry): string[] {
             ...Object.keys(entry.subpaths).map((key) => `${family}/${key}`),
         ],
     );
+}
+
+/**
+ * @private
+ *
+ * The statements an extension module runs before it reads a branch that older Administrations lack.
+ * Without them, reading a member of the missing branch fails with a bare TypeError.
+ *
+ * Only a plugin bundle can get here, and the plugin lifecycle enforces its composer.json requirements,
+ * so the message names that fix. The installed version is in the context, because the plugin bundles
+ * are loaded from the same config response.
+ */
+export function branchGuard(parsed: ParsedSpecifier): string[] {
+    const since = Object.hasOwn(BRANCHES, parsed.family) ? BRANCHES[parsed.family].since : undefined;
+
+    if (since === undefined) {
+        return [];
+    }
+
+    const required = `"${parsed.family}" requires Shopware ${since} or later, but the installed version is `;
+    const fix = `. Require shopware/administration >=${since} in the composer.json of the extension.`;
+
+    return [
+        `if (!${BRANCHES[parsed.family].root.emit()}) {`,
+        `    throw new Error(${JSON.stringify(required)} + shopware.Context?.app?.config?.version + ${JSON.stringify(fix)});`,
+        '}',
+    ];
 }
 
 /** @private The generated expression for a specifier's default export. */

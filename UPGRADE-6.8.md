@@ -22,6 +22,10 @@ Symfony components were updated from 7.4 to 8.x. Resolve Symfony deprecations in
 
 Twig was updated from 3.x to 4.x, and Symfony UX Twig Component from 2.x to 3.x. Review deprecations in custom templates and Twig extensions against the [Twig deprecations guide](https://twig.symfony.com/doc/3.x/deprecated.html). Shopware's components were migrated as part of the upgrade; migrate custom components and test extensions that override or consume Shopware components against the [Symfony UX 3 upgrade guide](https://github.com/symfony/ux/blob/3.x/UPGRADE-3.0.md#twigcomponent).
 
+## PHPUnit 13
+
+PHPUnit was upgraded to version 13. Update your extension's test dependencies to PHPUnit 13 and check your test suites and PHPUnit configuration for compatibility before upgrading to Shopware 6.8.
+
 # Changed Functionality
 
 <details>

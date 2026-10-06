@@ -4,7 +4,8 @@
 
 One section per operation in `Op/`: what it does, its constructor, the errors it throws, and the result channels it
 fills. A channel an operation is not named for stays empty. Constructor types are named short; the binding types
-live in `Binding/`. `ReplaceElement` carries enough carry-over rules to need its own file and routes there.
+live in `Binding/`. `ReplaceElement` and `TranslateElement` carry enough rules to need their own files and route
+there.
 
 ## InsertElement
 
@@ -134,3 +135,10 @@ every key of a translatable property's language map must be a language id in low
 rule the DAL write path enforces in `PropertyTypeConformanceValidator`, while key existence stays a
 `dangling_language` diagnostics warning. `affected = [elementId]`; `created` stays the empty default;
 `orphaned`/`droppedWiring`/`droppedProperties` stay empty.
+
+## TranslateElement
+
+Replaces the language maps of properties the element's type declares translatable, and its own edit changes nothing else
+in the tree, writing in system scope on the persisted route once the caller's `content_layout:translate` privilege is
+checked. Key gate, rejection order and write privilege:
+[translate-element.md](translate-element.md).

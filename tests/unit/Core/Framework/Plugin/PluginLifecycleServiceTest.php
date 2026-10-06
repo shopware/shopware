@@ -30,7 +30,6 @@ use Shopware\Core\Framework\Plugin\Event\PluginPreDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreInstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUninstallEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPreUpdateEvent;
-use Shopware\Core\Framework\Plugin\Exception\ExceptionCollection;
 use Shopware\Core\Framework\Plugin\Exception\PluginBaseClassNotFoundException;
 use Shopware\Core\Framework\Plugin\Exception\PluginComposerJsonInvalidException;
 use Shopware\Core\Framework\Plugin\Exception\PluginHasActiveDependantsException;
@@ -62,6 +61,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
  * @internal
@@ -485,10 +485,22 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService->updatePlugin($plugin, $context);
     }
 
-    public function testUninstallPluginWithComposerCommandExecutionDisabledAfterUpdateWithoutCli(): void
+    /**
+     * The service registers its response listener once per process, so this is the only test that uninstalls a
+     * plugin outside the CLI: a second one would find the listener already registered by the first.
+     */
+    public function testUninstallOutsideCliDefersComposerRemovalToTheResponseOfTheOriginalDispatcher(): void
     {
+        $steps = new \ArrayObject();
+
         $commandExecutor = $this->createMock(CommandExecutor::class);
-        $commandExecutor->expects($this->never())->method('remove');
+        $commandExecutor->expects($this->once())
+            ->method('remove')
+            ->willReturnCallback(static function (string $package, string $appName) use ($steps): void {
+                $steps->append('composer remove');
+                static::assertSame('swag/mock-plugin', $package);
+                static::assertSame('MockPlugin', $appName);
+            });
 
         $pluginLifecycleService = $this->createServiceOutsideCli($commandExecutor, $this->pluginServiceMock);
 
@@ -514,8 +526,22 @@ class PluginLifecycleServiceTest extends TestCase
 
         $pluginLifecycleService->uninstallPlugin($plugin, Context::createDefaultContext());
 
+        // the kernel reboot replaced the dispatcher; the listener must sit on the one that answers this request
         static::assertEmpty($replacedEventDispatcher->getListeners());
-        static::assertCount(1, $this->eventDispatcher->getListeners());
+        // registered first, before any other response listener
+        $responseListeners = $this->eventDispatcher->getListeners(KernelEvents::RESPONSE);
+        static::assertSame([\PHP_INT_MAX], array_keys($responseListeners));
+        static::assertIsArray($responseListeners[\PHP_INT_MAX]);
+        static::assertCount(1, $responseListeners[\PHP_INT_MAX]);
+        $onResponse = $responseListeners[\PHP_INT_MAX][0];
+        static::assertIsCallable($onResponse);
+
+        $steps->append('response');
+        $onResponse();
+        // the scheduled removal is consumed, a second response must not remove the dependency again
+        $onResponse();
+
+        static::assertSame(['response', 'composer remove'], $steps->getArrayCopy(), 'Outside the CLI the composer removal must wait for the response');
     }
 
     public function testUpdatePluginWithComposerCommandExecutionDisabledAfterUpdateButInstalledViaComposerDirectly(): void
@@ -1009,50 +1035,6 @@ class PluginLifecycleServiceTest extends TestCase
         $this->pluginLifecycleService = $this->createService(commandExecutor: $commandExecutor, pluginService: $pluginService);
 
         $this->pluginLifecycleService->onResponse();
-    }
-
-    public function testOnResponseRemovesComposerDependencyOfPluginUninstalledOutsideCli(): void
-    {
-        $context = Context::createDefaultContext();
-        $steps = new \ArrayObject();
-
-        $commandExecutor = $this->createMock(CommandExecutor::class);
-        $commandExecutor->expects($this->once())
-            ->method('remove')
-            ->willReturnCallback(static function (string $package, string $appName) use ($steps): void {
-                $steps->append('composer remove');
-                static::assertSame('MockPluginComposerName', $package);
-                static::assertSame('MockPlugin', $appName);
-            });
-
-        $pluginService = $this->createMock(PluginService::class);
-        $pluginService->expects($this->once())
-            ->method('refreshPlugins')
-            ->willReturnCallback(static function (Context $actualContext) use ($context): ExceptionCollection {
-                static::assertSame($context, $actualContext);
-
-                return new ExceptionCollection();
-            });
-
-        $pluginLifecycleService = $this->createServiceOutsideCli($commandExecutor, $pluginService);
-
-        $plugin = $this->getPluginEntityMock();
-        $plugin->setInstalledAt(new \DateTime());
-        $plugin->setActive(false);
-        $plugin->setComposerName('MockPluginComposerName');
-
-        $this->pluginMock->expects($this->once())->method('uninstall');
-        $this->pluginMock->expects($this->once())->method('executeComposerCommands')->willReturn(true);
-
-        $pluginLifecycleService->uninstallPlugin($plugin, $context);
-
-        $steps->append('response');
-        $pluginLifecycleService->onResponse();
-
-        // The marker is consumed, a second response must not remove the dependency again
-        $pluginLifecycleService->onResponse();
-
-        static::assertSame(['response', 'composer remove'], $steps->getArrayCopy(), 'Outside the CLI the composer removal must wait for the response');
     }
 
     public function testActivatePluginClosesSession(): void

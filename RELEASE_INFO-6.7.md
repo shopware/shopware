@@ -304,6 +304,10 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 `AccountEditOrderPageLoader` and `SetPaymentOrderRoute` take `OrderRestorer` instead of `OrderConverter` and `CartService` in their constructors; the restored cart they pass to the checkout gateway now carries the order's deliveries.
 
+### Reduced remote thumbnail URL generation overhead
+
+Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation
@@ -511,6 +515,10 @@ migrate it to `useCmsElement` by hand.
 The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
 
 ## Storefront
+
+### Anonymous index components use their directory name
+
+Asset entry names for index components were not resolved correctly to the directory name and still used "index" in their names. Storefront components using an `index.js` or `index.ts` layout are now registered under their directory name, for example `Sw:Comp`. The former `Sw:Comp:index` import-map key is no longer generated, including for existing build manifests. If you used `data-component="Sw:Comp:index"` as a workaround, change it to `data-component="Sw:Comp"`.
 
 ### New line item reference price block
 

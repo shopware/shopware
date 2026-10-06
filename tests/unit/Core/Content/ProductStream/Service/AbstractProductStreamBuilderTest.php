@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\Content\ProductStream\Service;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
-use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -36,7 +35,6 @@ class AbstractProductStreamBuilderTest extends TestCase
             }
         };
 
-        static::assertInstanceOf(ProductStreamBuilderInterface::class, $builder);
         static::assertSame([$filter], $builder->buildFilters('stream-id', Context::createDefaultContext()));
     }
 

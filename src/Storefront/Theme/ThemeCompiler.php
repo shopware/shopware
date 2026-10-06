@@ -348,7 +348,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            $entryName = preg_replace('/\.(scss|css)$/', '', $entry['name']) ?? $entry['name'];
+            $entryName = $this->normalizeComponentEntryName($entry['name']);
             $outputFile = $entry['file'];
             $tag = str_replace('/', ':', $entryName);
 
@@ -390,11 +390,18 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
             if (isset($entry['css']) && $entry['css'] !== []) {
-                $jsToCssFiles[$entry['name']] = $entry['css'];
+                $jsToCssFiles[$this->normalizeComponentEntryName($entry['name'])] = $entry['css'];
             }
         }
 
         return $jsToCssFiles;
+    }
+
+    private function normalizeComponentEntryName(string $entryName): string
+    {
+        $entryName = preg_replace('/\.(scss|css)$/', '', $entryName) ?? $entryName;
+
+        return preg_replace('~/index$~', '', $entryName) ?? $entryName;
     }
 
     /**

@@ -162,7 +162,7 @@ class CreateAppCommand extends Command
                 'description' => 'The name of your app. Used for the folder structure.',
                 'default' => 'MyExampleApp',
                 'validator' => self::makeRegexValidator(
-                    '/^[A-Za-z]\w{3,}$/',
+                    '/^[A-Za-z]\w{3,}$/D',
                     'The app name is too short (min 4 characters), contains invalid characters'
                 ),
                 'normaliser' => static fn (string $name): string => u($name)->replace('_', ' ')->camel()->title()->toString(),
@@ -173,7 +173,7 @@ class CreateAppCommand extends Command
                 'description' => 'The label for your app.',
                 'default' => 'My Example App',
                 'validator' => self::makeRegexValidator(
-                    '/[\w\s]+$/',
+                    '/[\w\s]+$/D',
                     'The app label contains invalid characters. Only alphanumerics and whitespaces are allowed.'
                 ),
             ],
@@ -183,7 +183,7 @@ class CreateAppCommand extends Command
                 'description' => 'The description for your app.',
                 'default' => 'A description',
                 'validator' => self::makeRegexValidator(
-                    '/[\w\s]+$/',
+                    '/[\w\s]+$/D',
                     'The app description contains invalid characters. Only alphanumerics and whitespaces are allowed.'
                 ),
             ],
@@ -204,7 +204,7 @@ class CreateAppCommand extends Command
                 'prompt' => 'Please enter the version of your app',
                 'description' => 'The version of your app.',
                 'default' => '1.0.0',
-                'validator' => self::makeRegexValidator('/^\d+\.\d+\.\d+$/', 'App version must be a valid Semver string.'),
+                'validator' => self::makeRegexValidator('/^\d+\.\d+\.\d+$/D', 'App version must be a valid Semver string.'),
             ],
             [
                 'name' => 'icon',

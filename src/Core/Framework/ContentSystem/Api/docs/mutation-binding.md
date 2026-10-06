@@ -1,6 +1,6 @@
 # Applying a Binding Through a Mutation
 
-These are the two draft mutation actions that apply a binding specification onto an element, plus the automatic default the scaffold applies without any client action.
+`bind-element` and `insert-element` are the draft mutation actions that apply a binding specification onto an element, plus the automatic default the scaffold applies without any client action.
 
 `bind-element` applies `bindingSpecificationId`'s wiring onto `elementId`: each `resolves` entry becomes a data requirement, merged into the element's existing wiring and overwriting the same key (re-applying a binding over an already-bound key replaces its wiring, it does not fail); each `inputs` entry with a default seeds that primitive property only into a key the element does not already carry; every wired key's attribution is recorded (see the [Binding/](../../Binding/README.md) module). Adds wiring only — it never detaches or drops anything.
 

@@ -74,7 +74,7 @@ The reasoning behind how classes in this module are named starts at [`NAMING.md`
 
 ## Administration API
 
-Admin-facing endpoints (layout preview, resolve-and-diagnose, the draft mutation actions, and the persisted mutation actions) are documented in [Api/README.md](Api/README.md), which also routes on to the four type-introspection endpoints the Administration consumes.
+Admin-facing endpoints (layout preview, resolve-and-diagnose, the draft mutation actions, and the persisted mutation actions) are documented in [Api/README.md](Api/README.md), which also routes on to the type-introspection endpoints the Administration consumes.
 
 ## Subdirectories
 

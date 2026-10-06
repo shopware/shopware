@@ -40,8 +40,9 @@ class McpToolResultParser
     private function success(mixed $data, array $meta): McpToolResult
     {
         // A result too large to return inline: McpToolResponse stored it and put the pointer in `_meta`.
+        // Only that pointer becomes a link; another `resourceUri` of an extension stays plain metadata.
         $uri = $meta['resourceUri'] ?? null;
-        if (!\is_string($uri) || $uri === '') {
+        if (!\is_string($uri) || !str_starts_with($uri, McpToolResultPointer::URI_PREFIX)) {
             return new McpToolResult(data: $data, meta: $meta);
         }
 

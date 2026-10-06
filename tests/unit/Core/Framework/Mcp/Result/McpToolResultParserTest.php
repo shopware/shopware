@@ -59,6 +59,15 @@ class McpToolResultParserTest extends TestCase
         static::assertNull($result->summary);
     }
 
+    public function testAnotherResourceUriStaysMetadata(): void
+    {
+        $result = (new McpToolResultParser())->parse('{"success":true,"data":{"id":"a"},"_meta":{"resourceUri":"acme://report/1"}}');
+
+        static::assertInstanceOf(McpToolResult::class, $result);
+        static::assertSame([], $result->links);
+        static::assertSame(['resourceUri' => 'acme://report/1'], $result->meta);
+    }
+
     public function testParsesAStringErrorWithItsCode(): void
     {
         $result = (new McpToolResultParser())->parse('{"success":false,"error":"Missing privilege: product:read","code":"missing_privilege"}');

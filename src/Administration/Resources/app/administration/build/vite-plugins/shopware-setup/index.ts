@@ -70,17 +70,36 @@ type TransformFailure = {
 };
 
 /**
+ * Reads the location a transform diagnostic carries, for reporting it to Vite.
+ *
+ * Use it instead of `instanceof ShopwareSetupTransformError`: the lazily required transform module may
+ * throw from another realm, where `instanceof` fails. `loc` and `frame` are `null` for any other error.
+ *
+ * @example
+ * const { message, loc } = readTransformErrorLocation(error); // loc: { file, line, column } | null
+ */
+function readTransformErrorLocation(error: unknown): {
+    message: string;
+    loc: ShopwareSetupTransformError['loc'] | null;
+    frame: string | null;
+} {
+    const { message, loc, frame } = (error ?? {}) as { message?: unknown } & Partial<
+        Pick<ShopwareSetupTransformError, 'loc' | 'frame'>
+    >;
+
+    return {
+        message: typeof message === 'string' ? message : String(error),
+        loc: loc ?? null,
+        frame: frame ?? null,
+    };
+}
+
+/**
  * Renders a transform diagnostic as `file:line:column`, its message and code frame, for the terminal and
  * the error overlay alike, so editors can jump to it. Line and column are Vite's: 1-based and 0-based.
  */
 function formatTransformError(error: unknown, fileName: string): TransformFailure {
-    // Duck-typed: the lazily required transform module may throw from another realm, where `instanceof` fails.
-    const {
-        message: rawMessage,
-        loc,
-        frame,
-    } = (error ?? {}) as { message?: unknown } & Partial<Pick<ShopwareSetupTransformError, 'loc' | 'frame'>>;
-    const message = typeof rawMessage === 'string' ? rawMessage : String(error);
+    const { message, loc, frame } = readTransformErrorLocation(error);
     const position = loc ? `:${loc.line}:${loc.column}` : '';
 
     return {
@@ -102,12 +121,11 @@ const PLUGIN_NAME = 'shopware-vite-plugin-shopware-setup';
  * through the importer's sourcemap.
  *
  * Vite's plugin context skips its own `id`/`loc`/`frame` attribution for an error that carries
- * `pluginCode`; `plugin` keeps the "Plugin:" line in the terminal. Duck-typed like
- * {@link formatTransformError}, because the transform module may throw from another realm.
+ * `pluginCode`; `plugin` keeps the "Plugin:" line in the terminal.
  */
 function asReportedTransformError(error: unknown, source: string): unknown {
-    if (error && typeof error === 'object' && 'loc' in error && error.loc) {
-        Object.assign(error, { pluginCode: source, plugin: PLUGIN_NAME });
+    if (readTransformErrorLocation(error).loc) {
+        Object.assign(error as object, { pluginCode: source, plugin: PLUGIN_NAME });
     }
 
     return error;
@@ -145,23 +163,20 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
      * Transforms a `.vue` file read from disk.
      *
      * The virtual-filename path (`resolveId`/`load`) hands us only an id, not the file's source, so the
-     * plugin reads it itself. The in-hand-code variant is {@link transformSource}, used by `transform`
-     * where Rollup already supplies the module code.
+     * plugin reads it itself and returns the source alongside the result.
      */
     async function transformFile(
         fileName: string,
     ): Promise<{ source: string; result: ShopwareSetupTransformResult | null }> {
-        const transformShopwareSetupSfc = await loadShopwareSetupTransform();
         const source = await fs.readFile(fileName, 'utf8');
 
-        try {
-            return { source, result: transformShopwareSetupSfc(source, fileName) };
-        } catch (error) {
-            throw asReportedTransformError(error, source);
-        }
+        return { source, result: await transformSource(source, fileName) };
     }
 
-    /** Transforms already-loaded module code; see {@link transformFile} for the read-from-disk variant. */
+    /**
+     * Transforms SFC code and marks a located failure as attributed to `fileName`, see
+     * {@link asReportedTransformError}.
+     */
     async function transformSource(code: string, fileName: string): Promise<ShopwareSetupTransformResult | null> {
         const transformShopwareSetupSfc = await loadShopwareSetupTransform();
 

@@ -51,15 +51,22 @@ async function createVueFile(source: string, fileName = 'component.vue') {
     return vueFile;
 }
 
-async function resolveAndLoadVueFile(plugin: CallableSetupPlugin, vueFile: string) {
+/**
+ * Resolves `vueFile` the way an importer next to it would, with Vite's own resolution mocked to return it.
+ *
+ * Returns the raw `resolveId` promise, so a test can assert a rejection; use
+ * {@link resolveAndLoadVueFile} when the file is expected to compile and load.
+ */
+function resolveVueFile(plugin: CallableSetupPlugin, vueFile: string, importerFileName = 'entry.js') {
     const context = {
         resolve: jest.fn().mockResolvedValue({ id: vueFile }),
     };
-    const resolvedId = await plugin.resolveId.call(
-        context,
-        `./${path.basename(vueFile)}`,
-        path.join(path.dirname(vueFile), 'entry.js'),
-    );
+
+    return plugin.resolveId.call(context, `./${path.basename(vueFile)}`, path.join(path.dirname(vueFile), importerFileName));
+}
+
+async function resolveAndLoadVueFile(plugin: CallableSetupPlugin, vueFile: string) {
+    const resolvedId = await resolveVueFile(plugin, vueFile);
     expect(resolvedId).not.toBeNull();
 
     const loadContext = {
@@ -87,4 +94,4 @@ function spyOnTransform() {
 /**
  * @private
  */
-export { type HotUpdateOptions, createPlugin, createVueFile, resolveAndLoadVueFile, spyOnTransform };
+export { type HotUpdateOptions, createPlugin, createVueFile, resolveAndLoadVueFile, resolveVueFile, spyOnTransform };

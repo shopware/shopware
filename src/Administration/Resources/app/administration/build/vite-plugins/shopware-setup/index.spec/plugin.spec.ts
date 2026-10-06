@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { createPlugin, createVueFile, resolveAndLoadVueFile, spyOnTransform } from './helpers';
+import { createPlugin, createVueFile, resolveAndLoadVueFile, resolveVueFile, spyOnTransform } from './helpers';
 
 type ProbePosition = { line: number; column: number };
 type ProbeSide = {
@@ -319,13 +319,8 @@ swDefinePublic({});
         it('when the error surfaces through an importer resolve', async () => {
             const plugin = createPlugin();
             const vueFile = await createVueFile(brokenSource, 'sw-broken-component.vue');
-            const context = {
-                resolve: jest.fn().mockResolvedValue({ id: vueFile }),
-            };
 
-            const error = await plugin.resolveId
-                .call(context, `./${path.basename(vueFile)}`, path.join(path.dirname(vueFile), 'entry.ts'))
-                .catch((reason: unknown) => reason);
+            const error = await resolveVueFile(plugin, vueFile).catch((reason: unknown) => reason);
 
             expectAttributedToSfc(error, vueFile);
         });
@@ -338,14 +333,8 @@ swDefinePublic({});
 </script>`,
                 'sw-broken-component.vue',
             );
-            const context = {
-                resolve: jest.fn().mockResolvedValue({ id: vueFile }),
-            };
-            const resolvedId = await plugin.resolveId.call(
-                context,
-                `./${path.basename(vueFile)}`,
-                path.join(path.dirname(vueFile), 'entry.ts'),
-            );
+            const resolvedId = await resolveVueFile(plugin, vueFile);
+            // The SFC must compile at resolve time, or resolveId throws before load runs.
             await fs.writeFile(vueFile, brokenSource);
 
             const error = await plugin.load

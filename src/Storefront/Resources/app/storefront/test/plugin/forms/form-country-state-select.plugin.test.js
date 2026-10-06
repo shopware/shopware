@@ -986,7 +986,8 @@ describe('Form country state select plugin', () => {
                         <label class="form-label" for="vatIds">VAT Reg.No.</label>
                         <input type="text" name="vatIds[]" id="vatIds" class="form-name" value="${value}"
                                aria-describedby="vatIds-feedback"
-                               data-vat-id-format-warning="Unusual VAT ID format">
+                               data-vat-id-format-warning="Unusual VAT ID format"
+                               data-eu-vat-id-patterns='["ATU[0-9]{8}","DE[0-9]{9}"]'>
                         <div id="vatIds-feedback"></div>
                     </div>
 
@@ -998,6 +999,9 @@ describe('Form country state select plugin', () => {
                     </select>
                 </form>
             `;
+
+            // Mocking `checkVisibility` method, because Jest does not support it.
+            document.querySelector('#vatIds').checkVisibility = () => true;
         }
 
         function typeVatId(value, event = 'change') {
@@ -1023,16 +1027,39 @@ describe('Form country state select plugin', () => {
             expect(hint().classList.contains('d-none')).toBe(true);
         });
 
-        it('should not enforce the pattern of an EU country, because other member states are accepted too', async () => {
+        it('should enforce the patterns of every member state for an EU country without a hint', async () => {
             renderForm('data-vat-id-pattern="DE[0-9]{9}" data-check-vat-id-pattern="1" data-is-eu="1"');
             createPlugin();
             await new Promise(process.nextTick);
 
             const vatIdInput = typeVatId('ATU12345678');
 
-            expect(vatIdInput.hasAttribute('pattern')).toBe(false);
-            expect(window.formValidation.validateField(vatIdInput)).toBe(true);
-            expect(hint().classList.contains('d-none')).toBe(false);
+            expect(window.formValidation.validateField(vatIdInput)).toEqual([]);
+            expect(hint().classList.contains('d-none')).toBe(true);
+
+            typeVatId('DE12');
+
+            expect(window.formValidation.validateField(vatIdInput)).toEqual(['pattern']);
+            expect(vatIdInput.classList.contains('is-invalid')).toBe(true);
+            expect(hint().classList.contains('d-none')).toBe(true);
+        });
+
+        it('should not accept the VAT ID of a member state for a country outside the EU', async () => {
+            renderForm('data-vat-id-pattern="CHE[0-9]{9}" data-check-vat-id-pattern="1" data-is-eu=""');
+            createPlugin();
+            await new Promise(process.nextTick);
+
+            expect(window.formValidation.validateField(typeVatId('ATU12345678'))).toEqual(['pattern']);
+        });
+
+        it('should not warn about the VAT ID of another member state', async () => {
+            renderForm('data-vat-id-pattern="DE[0-9]{9}" data-check-vat-id-pattern="" data-is-eu="1"');
+            createPlugin();
+            await new Promise(process.nextTick);
+
+            typeVatId('atu 1234 5678');
+
+            expect(hint().classList.contains('d-none')).toBe(true);
         });
 
         it('should show the hint only while the VAT ID does not match the usual format', async () => {
@@ -1076,13 +1103,36 @@ describe('Form country state select plugin', () => {
         });
 
         it('should not warn about a pattern the browser cannot compile', async () => {
-            renderForm('data-vat-id-pattern="DE([0-9]{9}" data-check-vat-id-pattern="" data-is-eu="1"');
+            renderForm('data-vat-id-pattern="CHE([0-9]{9}" data-check-vat-id-pattern="" data-is-eu=""');
             createPlugin();
             await new Promise(process.nextTick);
 
             typeVatId('DE12');
 
             expect(hint().classList.contains('d-none')).toBe(true);
+        });
+
+        it('should validate against the country rendered onto the field when there is no country select', async () => {
+            document.body.innerHTML = `
+                <form id="profileForm">
+                    <label class="form-label" for="vatIds">VAT Reg.No.</label>
+                    <input type="text" name="vatIds[]" id="vatIds" data-country-state-select="true"
+                           data-vat-id-required="1" data-vat-id-pattern="DE[0-9]{9}" data-check-vat-id-pattern="1" data-is-eu="1"
+                           data-eu-vat-id-patterns='["ATU[0-9]{8}","DE[0-9]{9}"]'>
+                </form>
+            `;
+
+            const vatIdInput = document.querySelector('#vatIds');
+            vatIdInput.checkVisibility = () => true;
+            new FormCountryStateSelectPlugin(vatIdInput);
+
+            expect(vatIdInput.getAttribute('data-validation')).toBe('required');
+            expect(window.formValidation.validateField(typeVatId('ATU12345678'))).toEqual([]);
+
+            typeVatId('de 123 456 789', 'input');
+
+            expect(vatIdInput.value).toBe('DE123456789');
+            expect(window.formValidation.validateField(typeVatId('D'))).toEqual(['pattern']);
         });
     });
 });

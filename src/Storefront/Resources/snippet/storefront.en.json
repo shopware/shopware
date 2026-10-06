@@ -412,7 +412,7 @@
     "companyNameLabel": "Company",
     "companyDepartmentLabel": "Department",
     "companyVatLabel": "VAT Registration Number",
-    "companyVatFormatWarning": "The VAT Reg.No. does not match the usual format of the selected country. Please check it."
+    "companyVatFormatWarning": "The VAT Reg.No. does not have the usual format. Please check it."
   },
   "checkout": {
     "itemCounter": "{1} 1 item|[0,Inf[ %count% items",

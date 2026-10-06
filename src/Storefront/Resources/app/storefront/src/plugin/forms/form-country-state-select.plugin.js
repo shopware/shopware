@@ -19,6 +19,7 @@ export default class CountryStateSelectPlugin extends Plugin {
         vatIdPattern: 'data-vat-id-pattern',
         checkVatIdPattern: 'data-check-vat-id-pattern',
         isEu: 'data-is-eu',
+        euVatIdPatterns: 'data-eu-vat-id-patterns',
         vatIdFormatWarning: 'data-vat-id-format-warning',
         vatIdFormatHintClass: 'vat-id-format-hint',
         stateRequired: 'data-state-required',
@@ -51,6 +52,12 @@ export default class CountryStateSelectPlugin extends Plugin {
 
         const { countrySelectSelector, countryStateSelectSelector, initialCountryAttribute, initialCountryStateAttribute } = CountryStateSelectPlugin.options;
         const countrySelect = this.scopeElement.querySelector(countrySelectSelector);
+
+        if (!countrySelect) {
+            this._initVatIdFieldWithoutCountrySelect();
+            return;
+        }
+
         const countryStateSelect = this.scopeElement.querySelector(countryStateSelectSelector);
         const initialCountryId = countrySelect.getAttribute(initialCountryAttribute);
         const initialCountryStateId = countryStateSelect.getAttribute(initialCountryStateAttribute);
@@ -132,9 +139,29 @@ export default class CountryStateSelectPlugin extends Plugin {
     }
 
     /**
+     * Forms without a country select, like the customer profile, render the settings of the country
+     * the VAT ID is validated against onto the VAT ID field itself.
+     *
+     * @private
+     */
+    _initVatIdFieldWithoutCountrySelect() {
+        const vatIdInput = this.el;
+
+        this._bindVatIdNormalization(vatIdInput);
+        this._updateVatIdField(
+            vatIdInput,
+            !!vatIdInput.getAttribute(this.options.vatIdRequired),
+            vatIdInput.getAttribute(this.options.vatIdPattern),
+            vatIdInput.getAttribute(this.options.checkVatIdPattern) === '1',
+            vatIdInput.getAttribute(this.options.isEu) === '1',
+        );
+    }
+
+    /**
      * Updates the required state and pattern validation of the VAT id field.
      *
-     * An EU country also accepts VAT IDs of other member states, so its pattern only drives the format hint.
+     * Like the server, an EU country also accepts the VAT ID of any other member state. A country that does not
+     * check the pattern only shows a hint.
      *
      * @param {HTMLElement} vatIdFieldInput
      * @param {boolean} vatIdRequired
@@ -154,17 +181,40 @@ export default class CountryStateSelectPlugin extends Plugin {
             window.formValidation.setFieldNotRequired(vatIdFieldInput);
         }
 
-        const enforcePattern = !!(checkVatIdPattern && vatIdPattern && !isEu);
+        const acceptedPattern = this._getAcceptedVatIdPattern(vatIdFieldInput, vatIdPattern, isEu);
 
-        if (enforcePattern) {
-            vatIdFieldInput.setAttribute('pattern', vatIdPattern);
+        if (checkVatIdPattern && acceptedPattern) {
+            vatIdFieldInput.setAttribute('pattern', acceptedPattern);
         } else {
             vatIdFieldInput.removeAttribute('pattern');
         }
 
-        this._vatIdHintPattern = !enforcePattern && vatIdPattern ? vatIdPattern : null;
+        this._vatIdHintPattern = checkVatIdPattern ? null : acceptedPattern;
         this._registerVatIdFormatHint(vatIdFieldInput);
         this._updateVatIdFormatHint(vatIdFieldInput);
+    }
+
+    /**
+     * @param {HTMLElement} vatIdFieldInput
+     * @param {string|null} vatIdPattern
+     * @param {boolean} isEu
+     * @returns {string|null} matches every VAT ID the country accepts, null if it accepts any
+     * @private
+     */
+    _getAcceptedVatIdPattern(vatIdFieldInput, vatIdPattern, isEu) {
+        if (!vatIdPattern) {
+            return null;
+        }
+
+        const euPatterns = isEu ? JSON.parse(vatIdFieldInput.getAttribute(this.options.euVatIdPatterns) || '[]') : [];
+        // Merchants can edit the patterns, so a single broken one must not break the others
+        const patterns = [vatIdPattern, ...euPatterns].filter(pattern => this._compiles(pattern));
+
+        if (patterns.length <= 1) {
+            return patterns[0] ?? null;
+        }
+
+        return patterns.map(pattern => `(?:${pattern})`).join('|');
     }
 
     /**
@@ -184,7 +234,7 @@ export default class CountryStateSelectPlugin extends Plugin {
     }
 
     /**
-     * Shows a non-blocking hint when the VAT ID does not match the country's pattern.
+     * Shows a non-blocking hint when the VAT ID does not match any pattern the country accepts.
      *
      * @param {HTMLElement} vatIdFieldInput
      * @private
@@ -212,8 +262,9 @@ export default class CountryStateSelectPlugin extends Plugin {
             .split(' ')
             .filter(id => id && id !== hintId);
 
-        const value = vatIdFieldInput.value.trim();
-        const showHint = !!(this._vatIdHintPattern && value && !this._matchesPattern(this._vatIdHintPattern, value));
+        // Normalized like the server does before it validates
+        const value = vatIdFieldInput.value.replace(/\s+/gu, '').toUpperCase();
+        const showHint = !!(this._vatIdHintPattern && value && !new RegExp(`^(?:${this._vatIdHintPattern})$`).test(value));
 
         hint.classList.toggle('d-none', !showHint);
 
@@ -226,16 +277,14 @@ export default class CountryStateSelectPlugin extends Plugin {
 
     /**
      * @param {string} pattern
-     * @param {string} value
      * @returns {boolean}
      * @private
      */
-    _matchesPattern(pattern, value) {
+    _compiles(pattern) {
         try {
-            return new RegExp(`^(?:${pattern})$`).test(value);
+            return !!new RegExp(pattern);
         } catch {
-            // Don't warn about every VAT ID because of a broken pattern
-            return true;
+            return false;
         }
     }
 

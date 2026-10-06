@@ -276,7 +276,7 @@ Invoices, cancellation invoices and credit notes print the intra-community deliv
 Independently of the setting:
 
 - A customer counts as a business based on `accountType` instead of a non-empty `company`.
-- `store-api/account/register` and `store-api/account/change-profile` accept a VAT ID of any EU member state for an EU billing country with *Check VAT ID pattern* enabled. The Storefront registration form no longer enforces the pattern for those countries.
+- `store-api/account/register` and `store-api/account/change-profile` accept a VAT ID of any EU member state for an EU billing country with *Check VAT ID pattern* enabled. The Storefront registration and profile forms check the same rule while the customer types.
 - The Administration blocks saving a business customer whose VAT ID is missing although required, or does not match with *Check VAT ID pattern* enabled.
 
 For extension developers:
@@ -285,7 +285,8 @@ For extension developers:
 - Custom invoice renderers should call the new `AbstractDocumentRenderer::isDomesticSupply()` next to `isAllowIntraCommunityDelivery()`.
 - `TaxDetector` has a new constructor argument. Decorate `AbstractTaxDetector` instead of replacing the service.
 - Templates overriding the `document_recipient` block should read `customer.vatIds` instead of `customer.customer.vatIds`.
-- The Storefront form validation reads `data-form-validation-<rule>-message` before `data-form-validation-error-message`. Themes overriding `address-personal-vat-id.html.twig` should switch to `data-form-validation-pattern-message`.
+- The Storefront form validation reads `data-form-validation-<rule>-message` before `data-form-validation-error-message`. Themes overriding `address-personal-vat-id.html.twig` should switch to `data-form-validation-pattern-message` and keep the new `data-eu-vat-id-patterns` attribute.
+- The new Twig function `sw_eu_vat_id_patterns()` returns the VAT ID patterns of all EU member states.
 - `CountryStateSelectPlugin::_getFormFieldToggleInstance()` and `_onFormFieldToggleChange()` are deprecated and will be removed in 6.8.0.
 
 ### Customers store the EU member state of their VAT ID

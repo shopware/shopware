@@ -69,7 +69,7 @@ function transformShopwareSetupSfc(source: string, filename = 'anonymous.vue'): 
             lang: block.lang,
             scriptOffset: block.contentStart,
         });
-        templateAnalysis = analysis.mode === 'base' ? analyzeBaseTemplate(block) : analyzeOverrideTemplate(block, analysis);
+        templateAnalysis = analysis.mode === 'base' ? analyzeBaseTemplate(block) : analyzeOverrideTemplate(block);
 
         edits = lowerShopwareSetupBlock(block, analysis, templateAnalysis);
     } catch (error) {

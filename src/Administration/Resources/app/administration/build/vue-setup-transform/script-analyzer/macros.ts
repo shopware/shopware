@@ -16,16 +16,9 @@ import { absoluteRange } from './utils';
 type ShopwareSetupMacroName = 'swDefinePublic' | 'swDefineOverride';
 type ShopwareSetupEntryType = 'public' | 'override';
 
-const RESERVED_OVERRIDE_STATE_NAME = '__swOverride';
-
 // Every binding the transform generates is prefixed with this, so reserving it lets generated names
 // stay deterministic and collision-free without renaming user code.
 const SHOPWARE_SETUP_INTERNAL_PREFIX = '__swSetup';
-
-// Module-root binding holding an override file's unique `Symbol()`, used as the computed key its
-// override-local state is filed under. One per override module, so the name can be fixed - the Symbol
-// value, not the name, is what makes it unique across overrides.
-const OVERRIDE_NAMESPACE_BINDING = '__swSetupNamespace';
 
 /**
  * Enforces the single object-literal shape of `swDefinePublic({...})`.
@@ -83,13 +76,6 @@ function extractStaticObjectMarker(
 
         const localName = property.key.name;
 
-        if (localName === RESERVED_OVERRIDE_STATE_NAME) {
-            throw new ShopwareSetupTransformError(
-                `"${localName}" is reserved for Shopware override-private state and cannot be exposed with ${macroName}().`,
-                absoluteRange(property, scriptOffset),
-            );
-        }
-
         if (seenKeys.has(localName)) {
             throw new ShopwareSetupTransformError(
                 `Duplicate ${entryType} Shopware setup binding key "${localName}".`,
@@ -125,8 +111,6 @@ function isWithDefaultsCall(node: BabelNode): node is CallExpression {
 export {
     type ShopwareSetupEntryType,
     type ShopwareSetupMacroName,
-    OVERRIDE_NAMESPACE_BINDING,
-    RESERVED_OVERRIDE_STATE_NAME,
     SHOPWARE_SETUP_INTERNAL_PREFIX,
     extractStaticObjectMarker,
     isWithDefaultsCall,

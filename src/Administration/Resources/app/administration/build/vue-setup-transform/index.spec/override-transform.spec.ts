@@ -20,7 +20,7 @@ import {
 } from './helpers';
 
 describe('build/vue-setup-transform override transforms', () => {
-    it('pins the whole generated output for an override with an <sw-block extends> and forwarded locals', () => {
+    it('pins the whole generated output for an override with an <sw-block extends> and its locals', () => {
         const source = stripIndent`
             <template>
                 <sw-block extends="sw_example_headline">
@@ -43,11 +43,10 @@ describe('build/vue-setup-transform override transforms', () => {
         // The leading plain <script> is the extension-targets registry: it runs at module eval, which is
         // what puts the block names in place before the Twig templates are resolved.
         //
-        // The one end-to-end assertion for override lowering, covering the three generated constructs that
-        // only co-occur on the <sw-block extends> path: the module-root Symbol() namespace, the
-        // `__swOverride` payload keyed by it, and the `#default` slot scope that forwards the
-        // override-local `suffix` into the block content. Imports are lifted out of the callback; the
-        // author body is preserved inside it.
+        // The one end-to-end assertion for override lowering, covering the generated constructs that only
+        // co-occur on the <sw-block extends> path: the destructured bindings the template content reads,
+        // and the grouped return that hydrates them. Imports are lifted out of the callback; the author
+        // body is preserved inside it.
         //
         // Whitespace-insensitive on both sides - the transform does not beautify its output, so its
         // blank-line residue is not behaviour. The Vue round-trip below guards the token sequence.
@@ -61,16 +60,14 @@ describe('build/vue-setup-transform override transforms', () => {
             });
             </script>
             <template>
-                <sw-block sw-internal-component-name='sw-example' extends="sw_example_headline" #default="{ __swOverride: { [__swSetupNamespace]: { suffix } }, headline }">
+                <sw-block sw-internal-component-name='sw-example' extends="sw_example_headline">
                     <h1>{{ headline }} - {{ suffix }}</h1>
                 </sw-block>
             </template>
             <script setup lang="ts">
             import { computed } from 'vue';
 
-            const __swSetupNamespace = Symbol('sw-example.override');
-
-            Shopware.Component.overrideComponentSetup()('sw-example', (__swSetupPreviousState, __swSetupProps, __swSetupContext) => {
+            const { suffix, previousState, headline } = Shopware.Component.overrideComponentSetup()('sw-example', (__swSetupPreviousState, __swSetupProps, __swSetupContext) => {
             const useSwPreviousState = () => __swSetupPreviousState;
             const useSwProps = () => __swSetupProps;
             const useSwContext = () => __swSetupContext;
@@ -80,12 +77,8 @@ describe('build/vue-setup-transform override transforms', () => {
             const headline = computed(() => previousState.title.value);
 
             return {
-                headline,
-                __swOverride: {
-                    [__swSetupNamespace]: {
-                        suffix,
-                    },
-                },
+                override: { headline },
+                local: { suffix, previousState },
             };
             });
             </script>
@@ -119,7 +112,7 @@ describe('build/vue-setup-transform override transforms', () => {
         expect(result).toContain('const useSwPreviousState = () => __swSetupPreviousState;');
         expect(result).toContain('const useSwProps = () => __swSetupProps;');
         expect(result).toContain('const useSwContext = () => __swSetupContext;');
-        expect(result).toContain('return {};');
+        expect(stripWhitespace(result)).toContain('return { override: {}, local: {}, };');
         expectVueCompilerScriptToCompile(result, 'sw-my-component.override.vue');
     });
 
@@ -224,7 +217,8 @@ describe('build/vue-setup-transform override transforms', () => {
 
         expect(stripWhitespace(result)).toContain(stripWhitespace`
             return {
-                doubled,
+                override: { doubled },
+                local: {},
             };
         `);
         expect(result).not.toContain('computed,');
@@ -280,12 +274,9 @@ describe('build/vue-setup-transform override transforms', () => {
 
         expect(stripWhitespace(result)).toContain(stripWhitespace`
             return {
-                body,
-                localHeadline,
-                localFooter,
+                override: { body, localHeadline, localFooter },
+                local: {},
             };
         `);
-        expect(result).not.toContain('__swOverride');
-        expect(result).not.toContain('localInfo,');
     });
 });

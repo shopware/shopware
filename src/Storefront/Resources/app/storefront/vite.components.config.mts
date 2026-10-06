@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { defineConfig, type UserConfig } from 'vite';
+import { defineConfig, type Alias, type UserConfig } from 'vite';
 import { buildComponentEntries, buildComponentStyleEntries } from './build/vite/component-entries';
 import { componentMapPlugin } from './build/vite/component-map-plugin';
 import { devImportMapPlugin } from './build/vite/dev-import-map-plugin';
@@ -8,7 +8,10 @@ import { extensionModuleResolverPlugin } from './build/vite/extension-module-res
 import { plainCssShimPlugin } from './build/vite/plain-css-shim-plugin';
 import { scopedSubpathExportsPlugin } from './build/vite/scoped-subpath-exports-plugin';
 import { themeScssWatcherPlugin } from './build/vite/theme-scss-watcher-plugin';
-import { loadExtensionComponentAliases } from './build/vite/extension-component-aliases';
+import {
+    extensionComponentAliasesPlugin,
+    loadExtensionComponentAliases,
+} from './build/vite/extension-component-aliases';
 
 // Allow the dev server to serve files from the Resources/ tree and the
 // project root (needed for /@fs/ URLs to extension component sources).
@@ -43,6 +46,20 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => {
     const { scssEntries, plainCssEntries, plainCssShims } = await buildComponentStyleEntries();
     const entries = { ...jsEntries, ...scssEntries, ...plainCssEntries };
     const isServe = command === 'serve';
+    const coreAliases: Alias[] = [
+        // Mirror webpack's resolve.alias so that main.js and plugin entries
+        // that use bare 'src/…', 'scss/…', 'assets/…', 'vendor/…' imports
+        // resolve correctly when served by the Vite dev server.
+        { find: 'src', replacement: path.resolve(import.meta.dirname, 'src') },
+        { find: 'assets', replacement: path.resolve(import.meta.dirname, 'assets') },
+        { find: 'scss', replacement: path.resolve(import.meta.dirname, 'src/scss') },
+        { find: 'vendor', replacement: path.resolve(import.meta.dirname, 'vendor') },
+        // In dev server mode resolve 'shopware' to the actual source file
+        // so Vite can transform /@fs/ component files that import from it.
+        // In production builds 'shopware' stays external (resolved via
+        // the runtime import map).
+        ...(isServe ? [{ find: 'shopware', replacement: path.resolve(import.meta.dirname, 'src/shopware.ts') }] : []),
+    ];
     return {
         // Public URL base for built assets. Component chunks are served via
         // Shopware's standard bundle asset pipeline from
@@ -100,6 +117,7 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => {
             },
         },
         plugins: [
+            extensionComponentAliasesPlugin(extensionAliases, coreAliases),
             componentMapPlugin(),
             devImportMapPlugin(projectRoot, scssLoadPaths),
             devServerNoticePlugin(),
@@ -108,25 +126,6 @@ export default defineConfig(async ({ command }): Promise<UserConfig> => {
             plainCssShimPlugin(plainCssShims),
             themeScssWatcherPlugin(projectRoot),
         ],
-        resolve: {
-            alias: [
-                ...Object.entries({
-                    // Mirror webpack's resolve.alias so that main.js and plugin entries
-                    // that use bare 'src/…', 'scss/…', 'assets/…', 'vendor/…' imports
-                    // resolve correctly when served by the Vite dev server.
-                    src:    path.resolve(import.meta.dirname, 'src'),
-                    assets: path.resolve(import.meta.dirname, 'assets'),
-                    scss:   path.resolve(import.meta.dirname, 'src/scss'),
-                    vendor: path.resolve(import.meta.dirname, 'vendor'),
-                    // In dev server mode resolve 'shopware' to the actual source file
-                    // so Vite can transform /@fs/ component files that import from it.
-                    // In production builds 'shopware' stays external (resolved via
-                    // the runtime import map).
-                    ...(isServe ? { shopware: path.resolve(import.meta.dirname, 'src/shopware.ts') } : {}),
-                }).map(([find, replacement]) => ({ find, replacement })),
-                ...extensionAliases,
-            ],
-        },
         server: {
             port: Number(process.env.STOREFRONT_VITE_PORT ?? 5175),
             host: storefrontViteHost ?? 'localhost',

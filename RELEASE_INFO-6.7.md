@@ -399,6 +399,10 @@ migrate it to `useCmsElement` by hand.
 
 ## Storefront
 
+### Extension component aliases work in the dev server
+
+The unified Storefront component dev server now applies aliases from each extension's `vite.components.config.mts` only to that extension's components. Extensions can use the same alias name for different module paths in development and production builds.
+
 ### Display the complete legal guarantee notice at checkout
 
 Cart settings now offer `core.cart.showLegalGuaranteeNoticeInline` to display the complete localized legal guarantee notice below the checkout terms and conditions. The setting is disabled by default and requires `core.cart.showLegalGuaranteeNotice` to be enabled. Themes can customize its placement through the `page_checkout_confirm_legal_guarantee_notice_inline` and `page_checkout_confirm_legal_guarantee_notice_inline_bottom` blocks.

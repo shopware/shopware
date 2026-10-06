@@ -7,10 +7,6 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 
 /**
  * @internal
- *
- * @codeCoverageIgnore
- *
- * @see \Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal\ForeignKeyConstraintViolationExceptionHandlerTest
  */
 #[Package('framework')]
 class InvalidForeignKeyReferenceException extends WriteConstraintViolationException

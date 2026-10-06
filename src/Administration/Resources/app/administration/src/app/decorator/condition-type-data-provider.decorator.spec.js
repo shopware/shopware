@@ -100,6 +100,7 @@ const EXPECTED_CONDITION_TYPES = [
     'customerCreatedByAdmin',
     'customerSalutation',
     'cartLineItemProductType',
+    'daysSinceOrderPlaced',
     'orderTag',
     'orderTrackingCode',
     'orderDeliveryStatus',
@@ -146,6 +147,22 @@ describe('app/decorator/condition-type-data-provider.decorator', () => {
 
         expect(registered).toHaveLength(expected.length);
         expect([...registered].sort()).toEqual([...expected].sort());
+    });
+
+    it('offers the order age condition with the generic editor in the order group', () => {
+        const condition = service.getByType('daysSinceOrderPlaced');
+
+        expect(condition.component).toBe('sw-condition-generic');
+        expect(condition.group).toBe('order');
+        expect(service.getConditions(['flow'])).toContainEqual(condition);
+        expect(
+            service.getConditions([
+                'checkout',
+                'cart',
+                'lineItem',
+                'global',
+            ]),
+        ).not.toContainEqual(condition);
     });
 
     it('should register exactly the expected awareness configurations', () => {

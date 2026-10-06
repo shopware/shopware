@@ -88,6 +88,7 @@ use Shopware\Core\Checkout\Customer\Rule\ShippingCountryRule;
 use Shopware\Core\Checkout\Customer\Rule\ShippingStateRule;
 use Shopware\Core\Checkout\Customer\Rule\ShippingStreetRule;
 use Shopware\Core\Checkout\Customer\Rule\ShippingZipCodeRule;
+use Shopware\Core\Checkout\Order\Rule\DaysSinceOrderPlacedRule;
 use Shopware\Core\Checkout\Promotion\Rule\PromotionCodeOfTypeRule;
 use Shopware\Core\Checkout\Promotion\Rule\PromotionLineItemRule;
 use Shopware\Core\Checkout\Promotion\Rule\PromotionsInCartCountRule;
@@ -147,6 +148,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(NumberOfReviewsRule::class)->tag('shopware.rule.definition');
     $services->set(OrderCountRule::class)->tag('shopware.rule.definition');
     $services->set(DaysSinceLastOrderRule::class)->tag('shopware.rule.definition');
+    $services->set(DaysSinceOrderPlacedRule::class)->tag('shopware.rule.definition');
     $services->set(LineItemTagRule::class)->tag('shopware.rule.definition');
     $services->set(AlwaysValidRule::class)->tag('shopware.rule.definition');
     $services->set(LineItemPropertyRule::class)->tag('shopware.rule.definition');

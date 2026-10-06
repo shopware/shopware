@@ -19,6 +19,7 @@
                     "title": "Agentic Commerce installed",
                     "description": "Install the Agentic Commerce extension to get started.",
                     "action": "Install extension",
+                    "missingPermissionTooltip": "You do not have permission to install extensions.",
                     "installError": "The Agentic Commerce extension could not be installed. Please try again."
                 },
                 "prepareSalesChannels": {

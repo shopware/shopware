@@ -36,7 +36,7 @@ let services: ReturnType<typeof createServices>;
 // Core renders the static "extension not installed" state — it never inspects the
 // installed bundles. The SwagAgenticCommerce plugin override drives the installed /
 // prepared / ready states (covered by the plugin's own tests).
-async function createWrapper(myExtensions: MyExtension[] = []) {
+async function createWrapper(myExtensions: MyExtension[] = [], canInstall = true) {
     services = createServices(myExtensions);
 
     return mount(
@@ -45,7 +45,10 @@ async function createWrapper(myExtensions: MyExtension[] = []) {
         }),
         {
             global: {
-                provide: services,
+                provide: {
+                    ...services,
+                    acl: { can: (key: string) => (key === 'system.plugin_maintain' ? canInstall : true) },
+                },
                 mocks: {
                     $t: (path: string, values?: Record<string, unknown>) => {
                         if (values) {
@@ -143,6 +146,38 @@ describe('module/sw-settings-agentic-commerce/page/sw-settings-agentic-commerce'
 
             expect(wrapper.vm.extensionStatusLabel).toBe('sw-settings-agentic-commerce.shopReadiness.extensionNotInstalled');
             expect(wrapper.text()).toContain('sw-settings-agentic-commerce.shopReadiness.extensionNotInstalled');
+        });
+    });
+
+    describe('install permission', () => {
+        function findInstallButton(wrapper: Awaited<ReturnType<typeof createWrapper>>) {
+            return wrapper
+                .findAll('button')
+                .find((button) => button.text().includes('sw-settings-agentic-commerce.readiness.steps.extension.action'));
+        }
+
+        it('enables the install button with the system.plugin_maintain privilege', async () => {
+            const wrapper = await createWrapper([], true);
+
+            expect(wrapper.vm.canInstallExtension).toBe(true);
+            expect(findInstallButton(wrapper)?.attributes('disabled')).toBeUndefined();
+        });
+
+        it('disables the install button without the system.plugin_maintain privilege', async () => {
+            const wrapper = await createWrapper([], false);
+
+            expect(wrapper.vm.canInstallExtension).toBe(false);
+            expect(findInstallButton(wrapper)?.attributes('disabled')).toBeDefined();
+        });
+
+        it('keeps the prepare-button tooltip off by default (plugin fills it in)', async () => {
+            const wrapper = await createWrapper();
+
+            expect(wrapper.vm.prepareSalesChannelsTooltip).toEqual({
+                message: '',
+                disabled: true,
+                showOnDisabledElements: true,
+            });
         });
     });
 

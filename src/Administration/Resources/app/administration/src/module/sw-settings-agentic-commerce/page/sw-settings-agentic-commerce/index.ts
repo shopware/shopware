@@ -19,7 +19,12 @@ interface ReadinessStep {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: ['shopwareExtensionService', 'extensionStoreActionService', 'cacheApiService'],
+    inject: [
+        'shopwareExtensionService',
+        'extensionStoreActionService',
+        'cacheApiService',
+        'acl',
+    ],
 
     mixins: [Mixin.getByName('notification')],
 
@@ -82,6 +87,16 @@ export default Shopware.Component.wrapComponentConfig({
 
         extensionStatusLabel(): string {
             return this.$t('sw-settings-agentic-commerce.shopReadiness.extensionNotInstalled');
+        },
+
+        canInstallExtension(): boolean {
+            return this.acl.can('system.plugin_maintain');
+        },
+
+        // Generic, overridable tooltip for the prepare button. Off by default; the
+        // SwagAgenticCommerce plugin fills it in to explain a missing ucp.editor privilege.
+        prepareSalesChannelsTooltip(): { message: string; disabled: boolean; showOnDisabledElements: boolean } {
+            return { message: '', disabled: true, showOnDisabledElements: true };
         },
     },
 

@@ -4,13 +4,13 @@ namespace Shopware\Core\Framework\App\Command;
 
 use Shopware\Core\Framework\App\AppException;
 use Shopware\Core\Framework\App\AppService;
-use Shopware\Core\Framework\App\Exception\AppValidationException;
 use Shopware\Core\Framework\App\Exception\UserAbortedCommandException;
 use Shopware\Core\Framework\App\Lifecycle\Parameters\AppInstallParameters;
 use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -48,11 +48,13 @@ class RefreshAppCommand extends Command
                 'a',
                 InputOption::VALUE_NONE,
                 'Activate the app after installing it'
-            )->addOption(
+            )
+            /** @deprecated tag:v6.8.0 - the pre-flight report will always run */
+            ->addOption(
                 'no-validate',
                 null,
                 InputOption::VALUE_NONE,
-                'Skip app validation.'
+                '[DEPRECATED] Skip the pre-flight validation report. Blocking findings still refuse an app during the refresh itself.'
             );
     }
 
@@ -85,6 +87,13 @@ class RefreshAppCommand extends Command
             }
         }
 
+        if ($input->getOption('no-validate')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--no-validate" option of the "app:refresh" command is deprecated and will be removed in v6.8.0.'
+            );
+        }
+
         if (!$input->getOption('no-validate')) {
             $hasViolations = $this->validateRefreshableApps($refreshableApps, $io, $context);
 
@@ -115,10 +124,13 @@ class RefreshAppCommand extends Command
         // validate refreshable apps
         $invalids = [];
         foreach ($refreshableManifests as $refreshableManifest) {
-            try {
-                $this->manifestValidator->validate($refreshableManifest, $context);
-            } catch (AppValidationException $e) {
-                $invalids[] = $e->getMessage();
+            $result = $this->manifestValidator->validate($refreshableManifest, $context);
+
+            if (!$result->isOk()) {
+                $invalids[] = AppException::validationFailed(
+                    $refreshableManifest->getMetadata()->getName(),
+                    $result->errors
+                )->getMessage();
             }
         }
 

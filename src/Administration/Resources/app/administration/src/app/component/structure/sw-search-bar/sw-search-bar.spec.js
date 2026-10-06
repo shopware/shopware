@@ -96,9 +96,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
                                 data: {
                                     foo: {
                                         total: 1,
-                                        data: [
-                                            { name: 'Baz', id: '12345' },
-                                        ],
+                                        data: [{ name: 'Baz', id: '12345' }],
                                     },
                                 },
                             };
@@ -113,9 +111,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
                                         total: 1,
                                         index: 'admin-es-foo-listing',
                                         indexer: 'es-foo-listing',
-                                        data: [
-                                            { name: 'ES Baz', id: 'es-12345' },
-                                        ],
+                                        data: [{ name: 'ES Baz', id: 'es-12345' }],
                                     },
                                 },
                             };
@@ -137,9 +133,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
 
                                     foo: {
                                         total: 1,
-                                        data: [
-                                            { name: 'Baz', id: '12345' },
-                                        ],
+                                        data: [{ name: 'Baz', id: '12345' }],
                                     },
                                 },
                             }),
@@ -483,10 +477,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(wrapper.vm.isSearchBarShown).toBe(true);
 
         // Fire the registered media query listener like a real breakpoint change would.
-        const [
-            ,
-            changeHandler,
-        ] = wrapper.vm.collapseQuery.addEventListener.mock.calls.find(([event]) => event === 'change');
+        const [, changeHandler] = wrapper.vm.collapseQuery.addEventListener.mock.calls.find(([event]) => event === 'change');
 
         wrapper.vm.collapseQuery.matches = true;
         changeHandler();
@@ -851,10 +842,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
                 initialSearch: '',
             },
             searchTypeServiceTypes,
-            [
-                'order.viewer',
-                'order.creator',
-            ],
+            ['order.viewer', 'order.creator'],
         );
 
         // open search
@@ -973,10 +961,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
                 initialSearch: '',
             },
             searchTypeServiceTypes,
-            [
-                'sales_channel.viewer',
-                'sales_channel.creator',
-            ],
+            ['sales_channel.viewer', 'sales_channel.creator'],
         );
 
         // open search
@@ -1004,11 +989,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         expect(module.entities[0].route.name).toBe('sw.sales.channel.create');
     });
 
-    [
-        'order',
-        'product',
-        'customer',
-    ].forEach((term) => {
+    ['order', 'product', 'customer'].forEach((term) => {
         it(`should search for module and action with the term "${term}" when the ACL privilege is missing`, async () => {
             register(`sw-${term}`, {
                 title: `${term}s`,
@@ -1062,11 +1043,7 @@ describe('src/app/component/structure/sw-search-bar', () => {
         });
     });
 
-    [
-        'order',
-        'product',
-        'customer',
-    ].forEach((term) => {
+    ['order', 'product', 'customer'].forEach((term) => {
         it(`should search for module and action with the term "${term}" when the ACL is can view`, async () => {
             register(`sw-${term}`, {
                 title: `${term}s`,
@@ -1492,17 +1469,10 @@ describe('src/app/component/structure/sw-search-bar', () => {
             ]),
         };
 
-        wrapper = await createWrapper(
-            {},
-            searchTypeServiceTypes,
-            [
-                'product:read',
-            ],
-            {
-                userActivityApiService: customUserActivityApiMock,
-                recentlySearchService: customRecentlySearchMock,
-            },
-        );
+        wrapper = await createWrapper({}, searchTypeServiceTypes, ['product:read'], {
+            userActivityApiService: customUserActivityApiMock,
+            recentlySearchService: customRecentlySearchMock,
+        });
 
         const moduleFilterSelect = wrapper.find('.sw-search-bar__type--v2');
 

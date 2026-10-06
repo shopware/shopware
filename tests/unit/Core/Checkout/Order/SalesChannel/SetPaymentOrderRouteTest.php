@@ -20,12 +20,14 @@ use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
+use Shopware\Core\Checkout\Order\Extension\SetPaymentOrderRouteExtension;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderDefinition;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Checkout\Order\SalesChannel\OrderService;
 use Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRoute;
+use Shopware\Core\Checkout\Order\SalesChannel\SetPaymentOrderRouteResponse;
 use Shopware\Core\Checkout\Payment\PaymentMethodCollection;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Shopware\Core\Checkout\Shipping\ShippingMethodCollection;
@@ -36,12 +38,14 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Event\NestedEventCollection;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -65,7 +69,8 @@ class SetPaymentOrderRouteTest extends TestCase
             static::createStub(CartService::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(InitialStateIdLoader::class),
-            static::createStub(AbstractCheckoutGatewayRoute::class)
+            static::createStub(AbstractCheckoutGatewayRoute::class),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $paymentOrderRoute->setPayment($request, static::createStub(SalesChannelContext::class));
@@ -83,7 +88,8 @@ class SetPaymentOrderRouteTest extends TestCase
             static::createStub(CartService::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(InitialStateIdLoader::class),
-            static::createStub(AbstractCheckoutGatewayRoute::class)
+            static::createStub(AbstractCheckoutGatewayRoute::class),
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $customer = new CustomerEntity();
@@ -120,7 +126,8 @@ class SetPaymentOrderRouteTest extends TestCase
             static::createStub(CartService::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(InitialStateIdLoader::class),
-            $gatewayRoute
+            $gatewayRoute,
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $customer = new CustomerEntity();
@@ -172,7 +179,8 @@ class SetPaymentOrderRouteTest extends TestCase
             static::createStub(CartService::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(InitialStateIdLoader::class),
-            $gatewayRoute
+            $gatewayRoute,
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $customer = new CustomerEntity();
@@ -227,7 +235,8 @@ class SetPaymentOrderRouteTest extends TestCase
             static::createStub(CartService::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(InitialStateIdLoader::class),
-            $gatewayRoute
+            $gatewayRoute,
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $customer = new CustomerEntity();
@@ -310,7 +319,8 @@ class SetPaymentOrderRouteTest extends TestCase
             static::createStub(CartService::class),
             static::createStub(EventDispatcherInterface::class),
             static::createStub(InitialStateIdLoader::class),
-            $gatewayRoute
+            $gatewayRoute,
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $request = self::getRequest(['paymentMethodId' => $paymentMethod->getId(), 'orderId' => Uuid::randomHex()]);
@@ -451,12 +461,42 @@ class SetPaymentOrderRouteTest extends TestCase
             $cartService,
             static::createStub(EventDispatcherInterface::class),
             static::createStub(InitialStateIdLoader::class),
-            $gatewayRoute
+            $gatewayRoute,
+            new ExtensionDispatcher(new EventDispatcher())
         );
 
         $request = self::getRequest(['paymentMethodId' => $paymentMethod->getId(), 'orderId' => Uuid::randomHex()]);
 
         $paymentOrderRoute->setPayment($request, $context);
+    }
+
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $response = new SetPaymentOrderRouteResponse();
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('set-payment-order-route.set-payment.pre', static function (SetPaymentOrderRouteExtension $extension) use ($request, $context, $response): void {
+            static::assertSame(['request' => $request, 'context' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new SetPaymentOrderRoute(
+            static::createStub(OrderService::class),
+            static::createStub(EntityRepository::class),
+            static::createStub(OrderConverter::class),
+            static::createStub(CartRuleLoader::class),
+            static::createStub(CartService::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(InitialStateIdLoader::class),
+            static::createStub(AbstractCheckoutGatewayRoute::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->setPayment($request, $context));
     }
 
     /**

@@ -18,10 +18,7 @@ interface CmsSlotOverrides {
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-        'cmsPageTypeService',
-    ],
+    inject: ['repositoryFactory', 'cmsPageTypeService'],
 
     props: {
         cmsPageId: {

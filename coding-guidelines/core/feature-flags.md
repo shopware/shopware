@@ -2,7 +2,7 @@
 Feature flags enable the developer to create new code which is hidden behind the flag and merge it into the trunk branch, even when the code is not finalized.
 We use this functionality to merge breaks into the trunk early, without them already being switched active. To learn more about breaking changes and backward compability take a look to our [Backward Compatibility Guide](https://developer.shopware.com/docs/resources/guidelines/code/backward-compatibility.html)
 
-Related ADR: [Feature flags for major versions](../../adr/2022-01-20-feature-flags-for-major-versions.md).
+Related ADRs: [Feature flags for major versions](../../adr/2022-01-20-feature-flags-for-major-versions.md) and [Major feature flag inheritance](../../adr/2026-09-25-major-feature-flag-inheritance.md).
 
 ### Activating the flag
 To switch flags on and off you can use the ***.env*** to configure each feature flag. Using dots inside an env variable are not allowed, so we use underscore instead:
@@ -11,36 +11,28 @@ V6_5_0_0=1
 ```
 
 ### Activating whole groups of flags
-`FEATURE_ALL` switches a group on at once, which is how the test lanes run:
+Any truthy `FEATURE_ALL` value enables every registered feature. To activate only one major and its
+sub-features, set the version flag directly, for example `V6_8_0_0=1`. Explicit environment values
+and persisted toggles for individual features win over both `FEATURE_ALL` and the parent major.
 
-| Value | Active flags |
-|---|---|
-| `1`, `minor`, any truthy value except `false` | every non-major flag |
-| `major` | every major flag |
-| `v6.8.0.0` | the major flags arriving in v6.8.0.0 or earlier |
-
-A flag configured in the environment always wins over `FEATURE_ALL`.
-
-A major flag named after its major (`v6.8.0.0`) carries the major it arrives in. One that is not
-(`JSON_LD_DATA`, `BREADCRUMB_REWORK`) belongs to every major, so it is active in every major lane;
-declare `majorVersion` when the flag may only be active from a later major on:
+Standalone major flags are identified by their version-shaped name (for example `v6.8.0.0`).
+Omit `major` unless the flag is a sub-feature; in that case, set it to the parent version flag:
 
 ```yaml
       - name: JSON_LD_DATA
         default: false
-        major: true
-        majorVersion: v6.9.0.0
+        major: v6.8.0.0
         toggleable: true
 ```
 
-## While two majors are in flight
+## Major CI
 
-Trunk then carries the flags of both majors, and "all majors on" no longer describes any release
-state: 6.9 changes decide the outcome of a 6.8 assertion. CI therefore runs one lane per unreleased
-major (`FEATURE_ALL=v6.8.0.0`, `FEATURE_ALL=v6.9.0.0`) in `integration-major.yml` and in the major
-arm of `acceptance.yml`. The lanes come from `feature.yaml` itself — a `major: true` flag named after
-its version and still `default: false` is a lane, see `.github/bin/lib/feature-flags.php` — so
-registering the next major flag adds its lane, with nothing to maintain in the workflows.
+`FEATURE_ALL=1` does not describe a release state: it also activates unrelated experimental
+features. Major CI sets the upcoming version flag directly (`V6_8_0_0=1`) in
+`integration-major.yml`, the major arm of `acceptance.yml`, and the migration suite in `php.yml`.
+Update these three workflow settings when the target major changes.
+The migration suite also sets its Composer root version to that major. Migration namespace
+selection follows the installed Composer version; the feature flag only controls flagged behavior.
 
 The unit suite is the exception: its bootstrap activates every registered flag regardless of
 `FEATURE_ALL`, so a unit test always sees the newest major and has to pin itself explicitly — see
@@ -49,11 +41,26 @@ The unit suite is the exception: its bootstrap activates every registered flag r
 ## Using flags in PHP
 The feature flag can be used in PHP to make specific code parts only executable when the flag is active.
 
+Version-shaped feature flag IDs use four parts, such as `v6.8.0.0`. Pass that full ID to `Feature` methods. The three-part release label in `@deprecated tag:v6.8.0` is not a feature flag ID; PHPStan rejects it in feature checks.
+
+### Using flags for services
+
+Service configuration runs before the feature registry is initialized. Do not branch on `Feature::isActive()` in a PHP service configuration file. Tag a service that must disappear when a major flag is active instead:
+
+```php
+$services->set(LegacyService::class)
+    ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
+```
+
+The compiler pass removes the service definition when the flag is active. `shopware.feature` has the inverse meaning: it removes the service while the flag is inactive. Changing `FEATURE_ALL` or an environment flag named like a major version (for example, `V6_8_0_0`) selects a separate container cache on a fresh kernel boot or explicit reboot when the default build directory is used. With `APP_BUILD_DIR`, the caller must select a different build directory for each major mode. Already booted kernels keep their compiled container until they are rebooted or replaced.
+
+Symfony service aliases cannot be tagged. For an alias scheduled for removal, add an adjacent `// @deprecated tag:vX.Y.Z` comment and list its ID under the matching `vX.Y.Z.0` key in `FeatureFlagCompilerPass::ALIASES_TO_REMOVE`. The compiler pass removes listed aliases when the flag is active, and PHPStan checks that annotated aliases are listed under the correct flag. Keep `->deprecate(...)` for Symfony's deprecation notice; its version argument is when the deprecation was introduced, not the removal version.
+
 ### Using flags in methods
 When there is no option via the container you can use additional helper functions:
 ```php
 use Shopware\Core\Framework\Feature;
- 
+
 class ApiController
 {
 
@@ -74,7 +81,7 @@ class ApiController
 You can also do it in a callback:
 ```php
 use Shopware\Core\Framework\Feature;
- 
+
 class ApiController
 {
   public function indexAction(Request $request)
@@ -91,7 +98,7 @@ class ApiController
 And you can use it for conditions:
 ```php
 use Shopware\Core\Framework\Feature;
- 
+
 class ApiController
 {
   public function indexAction(Request $request)
@@ -110,7 +117,7 @@ Putting the old behaviuor inside the if block makes it easier to remove the feat
 And you can use it simply to throw exceptions:
 ```php
 use Shopware\Core\Framework\Feature;
- 
+
 /**
  * @deprecated tag:v6.5.0 - Class is deprecated, use ... instead
  */
@@ -122,6 +129,36 @@ class ApiController
   }
 }
 ```
+
+### Announcing a deprecation before its replacement is stable
+
+A deprecation whose replacement only ships behind a major flag would warn about something that
+cannot be migrated to yet. Announce it anyway and mark it with `silentUntil`, naming the flag that
+makes the replacement available:
+
+```php
+use Shopware\Core\Framework\Feature;
+
+/**
+ * @deprecated tag:v6.9.0 - Remove with the legacy document implementation
+ */
+public function getDocumentMediaFile(): ?MediaEntity
+{
+    Feature::triggerDeprecationOrThrow(
+        'v6.9.0.0',
+        Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.9.0.0', 'getDocumentFiles()'),
+        silentUntil: 'v6.8.0.0',
+    );
+
+    return $this->documentMediaFile;
+}
+```
+
+Until `v6.8.0.0` is active the call returns without doing anything, so there is no need to exclude
+the method from `DeprecatedMethodsThrowDeprecationRule` via a `reason:*` annotation. Once the flag
+is active the deprecation is emitted, and it throws as usual as soon as `v6.9.0.0` is active. A
+marked deprecation may name a major flag that is not registered yet, it only warns until that flag
+exists.
 
 ## Planning public API changes
 
@@ -150,10 +187,36 @@ Use a `vX.Y.Z` version, parameter names without `$`, `::class` for class referen
 actual default value for `NewOptionalParameter`. PHPStan validates these conventions and rejects
 attributes that do not describe a real future change.
 
+### Moving a class
+
+Use `#[ClassMoved]` when a supported class keeps its implementation but moves to a new fully qualified class name:
+
+```php
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
+
+#[ClassMoved(
+    version: 'v6.8.0',
+    previousClassName: 'Shopware\OldNamespace\ExampleClass',
+)]
+class ExampleClass
+{
+}
+```
+
+Move the implementation to the canonical namespace and register the previous and canonical names in `ClassAliasRegistry::ALIASES`.
+Use a string literal for `previousClassName`: the previous name is compatibility metadata and must not become a new Core source reference.
+Update all Core callers to the canonical name.
+
+When the moved class is a dependency-injection service, keep the previous class name as a deprecated service alias of the canonical service.
+Add release information for the available replacement and an upgrade entry for removing the alias in the announced version.
+
+Do not retain a compatibility subclass or duplicate the implementation. `class_alias()` preserves one runtime class identity.
+PHPStan validates the attribute, runtime alias, optional service alias, and canonical Core references.
+
 ### Using flags in tests
 In unit tests, current major feature flags are active by default. Test legacy/off behavior by disabling the relevant flag with the `#[DisabledFeatures]` attribute instead of calling `Feature::fake()` just to activate the current major flag.
 
-`#[DisabledFeatures]` only works in the unit suite: the feature-flag test extension processes `Shopware\Tests\Unit\` (plus namespaces registered via `FeatureFlagExtension::addTestNamespace()`). In integration tests the flag state comes from the job configuration (`FEATURE_ALL`), the attribute has no effect, and the test runner rejects it — a test carrying it fails the run. When an integration test must not run under a specific flag state, skip it at runtime with `Feature::skipTestIfActive()` / `Feature::skipTestIfInActive()`.
+`#[DisabledFeatures]` only works in the unit suite: the feature-flag test extension processes `Shopware\Tests\Unit\` (plus namespaces registered via `FeatureFlagExtension::addTestNamespace()`). In integration tests the flag state comes from the job configuration (the version flag in each major lane), the attribute has no effect, and the test runner rejects it — a test carrying it fails the run. When an integration test must not run under a specific flag state, skip it at runtime with `Feature::skipTestIfActive()` / `Feature::skipTestIfInActive()`.
 
 ```php
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -192,7 +255,7 @@ Also in the JavaScript code of the administration the flags can be used in vario
 ### Using flags for modules
 You can also hide complete admin modules behind a flag:
 ```javascript
- 
+
 Module.register('sw-awesome', {
     flag: 'v6.5.0.0',
     ...

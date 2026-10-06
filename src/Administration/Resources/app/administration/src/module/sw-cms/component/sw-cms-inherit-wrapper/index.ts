@@ -45,13 +45,8 @@ const BASE_FIELD_FALLBACK = {
 export default Shopware.Component.wrapComponentConfig({
     template,
     inject: ['cmsService'],
-    mixins: [
-        Shopware.Mixin.getByName('cms-state'),
-    ],
-    emits: [
-        EVENTS.RESTORE,
-        EVENTS.REMOVE,
-    ],
+    mixins: [Shopware.Mixin.getByName('cms-state')],
+    emits: [EVENTS.RESTORE, EVENTS.REMOVE],
     props: {
         element: {
             type: Object as PropType<

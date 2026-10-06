@@ -14,14 +14,9 @@ export default Component.wrapComponentConfig({
 
     inject: ['updateService'],
 
-    emits: [
-        'update-started',
-        'update-stopped',
-    ],
+    emits: ['update-started', 'update-stopped'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data(): {
         updateInfo: {
@@ -233,10 +228,7 @@ export default Component.wrapComponentConfig({
                     return;
                 }
 
-                const [
-                    licenseCheck,
-                    extensions,
-                ] = await Promise.all([
+                const [licenseCheck, extensions] = await Promise.all([
                     this.updateService.checkLicense(),
                     this.updateService.extensionCompatibility(),
                 ]);
@@ -316,16 +308,14 @@ export default Component.wrapComponentConfig({
 
                     if (context.code === 'FRAMEWORK__PLUGIN_HAS_DEPENDANTS') {
                         this.createNotificationWarning({
-                            // @ts-expect-error
-                            message: this.$t('sw-extension.errors.messageDeactivationFailedDependencies', null, null, {
+                            message: this.$t('sw-extension.errors.messageDeactivationFailedDependencies', {
                                 dependency: context.meta.parameters.dependency,
                                 dependantNames: context.meta.parameters.dependantNames,
                             }),
                         });
                     } else if (context.code === 'THEME__THEME_ASSIGNMENT') {
                         this.createNotificationWarning({
-                            // @ts-expect-error
-                            message: this.$t('sw-extension.errors.messageDeactivationFailedThemeAssignment', null, null, {
+                            message: this.$t('sw-extension.errors.messageDeactivationFailedThemeAssignment', {
                                 themeName: context.meta.parameters.themeName,
                                 assignments: context.meta.parameters.assignments,
                             }),

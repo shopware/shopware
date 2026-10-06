@@ -6,6 +6,7 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 
@@ -13,6 +14,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
  * @phpstan-type SearchConfig array{and_logic: string, excluded_terms: array<string>, min_search_length: int, field: string, tokenize: int, ranking: float, use_exact_subfield: int}
  */
 #[Package('framework')]
+#[ClassMoved(version: 'v6.8.0', previousClassName: 'Shopware\Elasticsearch\Product\SearchConfigLoader')]
 class SearchConfigLoader
 {
     private const NOT_SUPPORTED_FIELDS = [

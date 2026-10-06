@@ -44,10 +44,7 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
     });
 
     it('getFavoriteBlockNames > should return favorites from internal state', () => {
-        const expected = [
-            'foo',
-            'bar',
-        ];
+        const expected = ['foo', 'bar'];
         service.state.favorites = expected;
 
         expect(service.getFavoriteBlockNames()).toEqual(expected);
@@ -55,10 +52,7 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
 
     it('isFavorite > checks if given string is included in favorites', () => {
         const expected = 'bar';
-        service.state.favorites = [
-            'foo',
-            'bar',
-        ];
+        service.state.favorites = ['foo', 'bar'];
 
         expect(service.isFavorite(expected)).toBeTruthy();
     });
@@ -67,10 +61,7 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
         const newItem = 'biz';
 
         service.saveUserConfig = jest.fn();
-        service.state.favorites = [
-            'foo',
-            'bar',
-        ];
+        service.state.favorites = ['foo', 'bar'];
 
         service.update(true, newItem);
 
@@ -82,10 +73,7 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
         const removedItem = 'bar';
 
         service.saveUserConfig = jest.fn();
-        service.state.favorites = [
-            'foo',
-            'bar',
-        ];
+        service.state.favorites = ['foo', 'bar'];
 
         service.update(false, removedItem);
 
@@ -97,10 +85,7 @@ describe('module/sw-cms/service/cms-block-favorites.service.spec.js', () => {
         const existingItem = 'foo';
         const nonExistingItem = 'biz';
 
-        service.state.favorites = [
-            'foo',
-            'bar',
-        ];
+        service.state.favorites = ['foo', 'bar'];
 
         service.update(false, nonExistingItem);
         expect(service.isFavorite(nonExistingItem)).toBeFalsy();

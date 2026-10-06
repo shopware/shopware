@@ -15,10 +15,7 @@ const PENDING_CHECK_INTERVAL = 10000;
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     inject: [
         'repositoryFactory',
@@ -128,13 +125,7 @@ export default {
             const checkId = this.activeCheckId;
 
             try {
-                const [
-                    pendingThemeId,
-                    liveThemeId,
-                ] = await Promise.all([
-                    this.loadPendingThemeId(),
-                    this.loadLiveThemeId(),
-                ]);
+                const [pendingThemeId, liveThemeId] = await Promise.all([this.loadPendingThemeId(), this.loadLiveThemeId()]);
 
                 if (checkId !== this.activeCheckId) {
                     return;

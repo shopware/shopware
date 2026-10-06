@@ -74,6 +74,9 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     public function testHandleThemeInstallOrUpdateWillRecompileThemeIfNecessary(): void
     {
+        // the registry is only consulted on uninstall, after the deactivation succeeded
+        $this->configurationRegistryMock->expects($this->never())->method(static::anything());
+
         $installConfig = $this->configFactory->createFromBundle(new SimplePlugin(true, __DIR__ . '/fixtures/SimplePlugin'));
 
         $this->themeServiceMock->expects($this->once())
@@ -95,6 +98,9 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     public function testHandleThemeInstallOrUpdateWillRecompilePluginWithSubBundles(): void
     {
+        // the registry is only consulted on uninstall, after the deactivation succeeded
+        $this->configurationRegistryMock->expects($this->never())->method(static::anything());
+
         $installConfig = $this->configFactory->createFromBundle(new PluginWithAdditionalBundles(true, __DIR__ . '/fixtures/PluginWithSubBundles'));
 
         $this->themeServiceMock->expects($this->once())
@@ -116,6 +122,12 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     public function testHandleThemeInstallOrUpdateWithInheritance(): void
     {
+        // the registry is only consulted on uninstall, after the deactivation succeeded
+        $this->configurationRegistryMock->expects($this->never())->method(static::anything());
+
+        // the fixture theme ships no files to compile, so nothing reaches the theme service
+        $this->themeServiceMock->expects($this->never())->method(static::anything());
+
         $installConfig = $this->configFactory->createFromBundle(new InheritanceWithConfig());
 
         $configs = new StorefrontPluginConfigurationCollection([
@@ -139,6 +151,9 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     public function testHandleThemeInstallOrUpdateWillRecompileOnlyTouchedTheme(): void
     {
+        // the registry is only consulted on uninstall, after the deactivation succeeded
+        $this->configurationRegistryMock->expects($this->never())->method(static::anything());
+
         $salesChannelId = $this->createSalesChannel();
         $themeId = $this->createTheme('SimpleTheme', $salesChannelId);
         $installConfig = $this->configFactory->createFromBundle(new SimpleTheme());
@@ -212,6 +227,9 @@ class ThemeLifecycleHandlerTest extends TestCase
 
     public function testHandleThemeUninstallWillThrowExceptionIfThemeIsStillInUse(): void
     {
+        // the registry is only consulted on uninstall, after the deactivation succeeded
+        $this->configurationRegistryMock->expects($this->never())->method(static::anything());
+
         $uninstalledConfig = $this->configFactory->createFromBundle(new SimpleTheme());
         $uninstalledConfig->setStyleFiles(new FileCollection());
         $uninstalledConfig->setScriptFiles(new FileCollection());

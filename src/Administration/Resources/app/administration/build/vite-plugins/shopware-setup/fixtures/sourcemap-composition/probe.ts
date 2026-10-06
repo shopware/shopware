@@ -64,23 +64,18 @@ const probes: Record<string, ProbeSpec> = {
 
 const results: Record<string, ProbeResult> = {};
 
-Object.entries(probes).forEach(
-    ([
-        name,
-        probe,
-    ]) => {
-        const generatedIndex = code.indexOf(probe.marker);
-        const authoredSource = fs.readFileSync(path.join(here, probe.file), 'utf8');
-        const authoredIndex = authoredSource.indexOf(probe.marker);
+Object.entries(probes).forEach(([name, probe]) => {
+    const generatedIndex = code.indexOf(probe.marker);
+    const authoredSource = fs.readFileSync(path.join(here, probe.file), 'utf8');
+    const authoredIndex = authoredSource.indexOf(probe.marker);
 
-        results[name] = {
-            generatedIndex,
-            authoredIndex,
-            authoredPosition: authoredIndex < 0 ? null : positionForIndex(authoredSource, authoredIndex),
-            mappedPosition: generatedIndex < 0 ? null : consumer.originalPositionFor(positionForIndex(code, generatedIndex)),
-        };
-    },
-);
+    results[name] = {
+        generatedIndex,
+        authoredIndex,
+        authoredPosition: authoredIndex < 0 ? null : positionForIndex(authoredSource, authoredIndex),
+        mappedPosition: generatedIndex < 0 ? null : consumer.originalPositionFor(positionForIndex(code, generatedIndex)),
+    };
+});
 
 process.stdout.write(
     JSON.stringify({

@@ -99,10 +99,7 @@ export default class CacheService {
     }
 
     invalidateCaches({ cacheKey }: InvalidateOptions): void {
-        for (const [
-            cacheId,
-            entry,
-        ] of this.entries.entries()) {
+        for (const [cacheId, entry] of this.entries.entries()) {
             if (this.matchesKey(entry.key, cacheKey)) {
                 this.entries.delete(cacheId);
             }
@@ -126,10 +123,7 @@ export default class CacheService {
     }
 
     private removeExpiredEntries(): void {
-        for (const [
-            cacheId,
-            entry,
-        ] of this.entries.entries()) {
+        for (const [cacheId, entry] of this.entries.entries()) {
             if (!entry.pending && entry.ttl !== undefined && !this.isFresh(entry, entry.ttl)) {
                 this.entries.delete(cacheId);
             }
@@ -144,10 +138,7 @@ export default class CacheService {
         let oldestEntryId: string | undefined;
         let oldestLoadedAt = Infinity;
 
-        for (const [
-            cacheId,
-            entry,
-        ] of this.entries.entries()) {
+        for (const [cacheId, entry] of this.entries.entries()) {
             if (!entry.pending && entry.loadedAt < oldestLoadedAt) {
                 oldestEntryId = cacheId;
                 oldestLoadedAt = entry.loadedAt;

@@ -17,10 +17,7 @@ export default Shopware.Component.wrapComponentConfig({
          * For providing backwards compatibility with the old sw-colorpicker component
          */
         value: {
-            type: [
-                Number,
-                String,
-            ],
+            type: [Number, String],
             required: false,
             default: null,
         },

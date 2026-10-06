@@ -149,9 +149,7 @@ async function createWrapper(privileges = []) {
                 },
             },
         },
-        mixins: [
-            notificationMixin,
-        ],
+        mixins: [notificationMixin],
     });
 }
 
@@ -232,11 +230,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
         await flushPromises();
 
         expect(wrapper.vm.swOrderDetailOnSaveAndReload).toHaveBeenCalledTimes(1);
-        expect(wrapper.vm.promotionCodeTags).toEqual([
-            { code: 'Redeem3456' },
-            { code: 'Redeem23' },
-            { code: 'Redeem675' },
-        ]);
+        expect(wrapper.vm.promotionCodeTags).toEqual([{ code: 'Redeem3456' }, { code: 'Redeem23' }, { code: 'Redeem675' }]);
         expect(wrapper.emitted('reload-entity-data')).toBeTruthy();
         expect(wrapper.emitted('error')).toBeUndefined();
     });
@@ -255,10 +249,7 @@ describe('src/module/sw-order/component/sw-order-promotion-field', () => {
             .map((item) => item.id);
 
         expect(wrapper.vm.swOrderDetailOnSaveAndReload).toHaveBeenCalledTimes(1);
-        expect(autoPromotions).toEqual([
-            '05b5decd-072f-437e-84a3-8be5fb5e5fa7',
-            'auto-applied-promotion',
-        ]);
+        expect(autoPromotions).toEqual(['05b5decd-072f-437e-84a3-8be5fb5e5fa7', 'auto-applied-promotion']);
         expect(wrapper.emitted('error')).toBeUndefined();
         expect(wrapper.emitted('reload-entity-data')).toBeTruthy();
     });

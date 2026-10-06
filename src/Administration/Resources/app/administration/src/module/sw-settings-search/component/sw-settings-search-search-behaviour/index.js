@@ -8,9 +8,7 @@ import './sw-settings-search-search-behaviour.scss';
 export default {
     template,
 
-    inject: [
-        'acl',
-    ],
+    inject: ['acl'],
 
     props: {
         searchBehaviourConfigs: {

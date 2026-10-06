@@ -74,17 +74,12 @@ async function createWrapper(order = {}, { routeName = 'sw.order.detail.general'
                 'sw-tabs': {
                     name: 'sw-tabs',
                     template: '<div class="sw-tabs"><slot></slot></div>',
-                    props: [
-                        'positionIdentifier',
-                    ],
+                    props: ['positionIdentifier'],
                 },
                 'sw-tabs-item': {
                     name: 'sw-tabs-item',
                     template: '<div class="sw-tabs-item"></div>',
-                    props: [
-                        'route',
-                        'title',
-                    ],
+                    props: ['route', 'title'],
                 },
                 'mt-tabs': {
                     name: 'mt-tabs',
@@ -139,9 +134,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         wrapper = await createWrapper();
         await flushPromises();
 
-        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
-            wrapper.vm.orderId,
-        ]);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([wrapper.vm.orderId]);
     });
 
     it('should deselect the order for app action buttons when leaving the detail page while editing', async () => {
@@ -156,9 +149,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         // The leave page warning takes over, so the navigation is not continued yet
         expect(next).not.toHaveBeenCalled();
         expect(wrapper.vm.isDisplayingLeavePageWarning).toBe(true);
-        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([
-            wrapper.vm.orderId,
-        ]);
+        expect(Shopware.Store.get('shopwareApps').selectedIds).toEqual([wrapper.vm.orderId]);
 
         wrapper.unmount();
 
@@ -193,6 +184,46 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         expect(wrapper.vm.orderRepository.deleteVersionWithKeepalive).not.toHaveBeenCalled();
         expect(wrapper.vm.hasNewVersionId).toBe(true);
+    });
+
+    it('should not discard the version while it is being merged', async () => {
+        const lineItem = {
+            id: 'lineItemId',
+            type: 'product',
+            referencedId: 'productId',
+            quantity: 1,
+            productId: 'productId',
+            payload: {},
+        };
+
+        wrapper = await createWrapper({
+            versionId: 'orderVersionId',
+            lineItems: [lineItem],
+            deliveries: [],
+        });
+
+        await flushPromises();
+
+        let resolveMerge;
+        const merging = new Promise((resolve) => {
+            resolveMerge = resolve;
+        });
+
+        wrapper.vm.orderRepository.mergeVersion = jest.fn(() => merging);
+        wrapper.vm.orderRepository.deleteVersionWithKeepalive = jest.fn(() => Promise.resolve());
+
+        const saving = wrapper.vm.onSaveEdits();
+        await flushPromises();
+
+        expect(wrapper.vm.orderRepository.mergeVersion).toHaveBeenCalledWith('orderVersionId');
+        expect(wrapper.vm.hasNewVersionId).toBe(false);
+
+        window.dispatchEvent(new Event('pagehide'));
+
+        expect(wrapper.vm.orderRepository.deleteVersionWithKeepalive).not.toHaveBeenCalled();
+
+        resolveMerge();
+        await saving;
     });
 
     it('should not contain manual label', async () => {
@@ -406,11 +437,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         };
 
         wrapper = await createWrapper({
-            lineItems: [
-                lineItemWithMissingProduct,
-                lineItemWithExistingProduct,
-                previouslyConvertedLineItem,
-            ],
+            lineItems: [lineItemWithMissingProduct, lineItemWithExistingProduct, previouslyConvertedLineItem],
         });
         await flushPromises();
 
@@ -453,10 +480,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         wrapper = await createWrapper({
             primaryOrderDeliveryId: 'deliveryId',
-            lineItems: [
-                lineItemWithExistingProduct,
-                promotionLineItem,
-            ],
+            lineItems: [lineItemWithExistingProduct, promotionLineItem],
             deliveries,
         });
 
@@ -503,10 +527,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
 
         wrapper = await createWrapper({
             primaryOrderDeliveryId: 'deliveryId',
-            lineItems: [
-                lineItemWithExistingProduct,
-                promotionLineItem,
-            ],
+            lineItems: [lineItemWithExistingProduct, promotionLineItem],
             deliveries,
         });
 
@@ -556,10 +577,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
         ];
 
         wrapper = await createWrapper({
-            lineItems: [
-                lineItemWithExistingProduct,
-                promotionLineItem,
-            ],
+            lineItems: [lineItemWithExistingProduct, promotionLineItem],
             deliveries,
         });
 
@@ -787,10 +805,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
     });
 
     it.each([
-        [
-            'onSaveEdits',
-            (vm) => (vm.orderRepository.save = jest.fn(() => Promise.reject(apiError('save failed')))),
-        ],
+        ['onSaveEdits', (vm) => (vm.orderRepository.save = jest.fn(() => Promise.reject(apiError('save failed'))))],
         [
             'onCancelEditing',
             (vm) =>
@@ -803,10 +818,7 @@ describe('src/module/sw-order/page/sw-order-detail', () => {
             'onRecalculateAndReload',
             (vm) => (vm.orderService.recalculateOrder = jest.fn(() => Promise.reject(apiError('recalculate failed')))),
         ],
-        [
-            'saveAndReload',
-            (vm) => (vm.orderRepository.save = jest.fn(() => Promise.reject(apiError('save failed')))),
-        ],
+        ['saveAndReload', (vm) => (vm.orderRepository.save = jest.fn(() => Promise.reject(apiError('save failed'))))],
     ])('should forward the real API error detail from %s to the notification', async (methodName, rejectWith) => {
         wrapper = await createWrapper({
             lineItems: [{ id: 'lineItem1' }],

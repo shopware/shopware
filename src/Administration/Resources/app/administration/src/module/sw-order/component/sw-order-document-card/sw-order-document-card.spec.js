@@ -345,10 +345,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should not have an disabled create new button', async () => {
-        global.activeAclRoles = [
-            'order.editor',
-            'document.viewer',
-        ];
+        global.activeAclRoles = ['order.editor', 'document.viewer'];
 
         wrapper = await createWrapper();
 
@@ -393,14 +390,86 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         expect(wrapper.emitted('document-save')).toBeTruthy();
     });
 
+    it('should offer creating a document once the last document of the order was deleted', async () => {
+        global.activeAclRoles = [
+            'order.editor',
+            'document.viewer',
+        ];
+
+        wrapper = await createWrapper({
+            ...defaultProps,
+            order: {
+                ...orderFixture,
+                documents: [documentFixture],
+            },
+        });
+        await flushPromises();
+
+        documentSearchMock.mockResolvedValue(getCollection('document', []));
+        await wrapper.vm.onDeleteDocument(documentFixture.id);
+        await flushPromises();
+
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
+        expect(wrapper.vm.showCreateDocumentButton).toBe(true);
+        expect(wrapper.vm.showCardFilter).toBe(false);
+        expect(wrapper.vm.emptyStateTitle).toBe('sw-order.documentCard.messageEmptyTitle');
+        expect(wrapper.find('.sw-order-document-card__empty-state .mt-button').exists()).toBe(true);
+    });
+
+    it('should show the empty state right after the listing deleted the last document', async () => {
+        global.activeAclRoles = [
+            'order.editor',
+            'document.viewer',
+        ];
+
+        wrapper = await createWrapper({
+            ...defaultProps,
+            order: {
+                ...orderFixture,
+                documents: [documentFixture],
+            },
+        });
+        await flushPromises();
+        await wrapper.setData({
+            documents: getCollection('document', [documentFixture]),
+        });
+
+        const listing = wrapper.findComponent('.sw-order-document-card__grid');
+        expect(listing.exists()).toBe(true);
+
+        documentSearchMock.mockResolvedValue(getCollection('document', []));
+        listing.vm.$emit('delete-item-finish', documentFixture.id);
+        await flushPromises();
+
+        expect(wrapper.find('.sw-order-document-card__grid').exists()).toBe(false);
+        expect(wrapper.find('.mt-empty-state').exists()).toBe(true);
+        expect(wrapper.vm.showCreateDocumentButton).toBe(true);
+        expect(wrapper.vm.showCardFilter).toBe(false);
+    });
+
+    it('should keep the search when a search term matches no document', async () => {
+        wrapper = await createWrapper({
+            ...defaultProps,
+            order: {
+                ...orderFixture,
+                documents: [documentFixture],
+            },
+        });
+        await flushPromises();
+
+        wrapper.vm.onSearchTermChange('no-match');
+        await flushPromises();
+
+        expect(wrapper.vm.showCardFilter).toBe(true);
+        expect(wrapper.vm.showCreateDocumentButton).toBe(false);
+        expect(wrapper.vm.emptyStateTitle).toBe('sw-order.documentCard.messageNoDocumentFound');
+    });
+
     // Legacy document generation remains supported while DOCUMENT_GENERATION_REWORK is toggleable.
     it.deprecated('DOCUMENT_GENERATION_REWORK')(
         'should show the select document type modal after clicking on the create new button',
         async () => {
-            global.activeAclRoles = [
-                'order.editor',
-                'document.viewer',
-            ];
+            global.activeAclRoles = ['order.editor', 'document.viewer'];
 
             wrapper = await createWrapper();
 
@@ -414,10 +483,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     it.activeFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
         'should show the reworked create document modal when the feature flag is active',
         async () => {
-            global.activeAclRoles = [
-                'order.editor',
-                'document.viewer',
-            ];
+            global.activeAclRoles = ['order.editor', 'document.viewer'];
 
             wrapper = await createWrapper();
 
@@ -432,10 +498,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     it.activeFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
         'should show the upload document modal from the generate button dropdown',
         async () => {
-            global.activeAclRoles = [
-                'order.editor',
-                'document.viewer',
-            ];
+            global.activeAclRoles = ['order.editor', 'document.viewer'];
 
             wrapper = await createWrapper();
 
@@ -449,17 +512,12 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     it.activeFeatureFlags(['DOCUMENT_GENERATION_REWORK'])(
         'should show Send document modal when click on Send document option',
         async () => {
-            global.activeAclRoles = [
-                'api_send_email',
-                'document.viewer',
-            ];
+            global.activeAclRoles = ['api_send_email', 'document.viewer'];
 
             wrapper = await createWrapper(defaultProps, 'sw.order.detail.details', actionMenuStubs);
 
             await wrapper.setData({
-                documents: getCollection('document', [
-                    documentFixture,
-                ]),
+                documents: getCollection('document', [documentFixture]),
             });
             expect(wrapper.find('.sw-data-grid').exists()).toBeTruthy();
 
@@ -479,9 +537,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents');
 
         await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
+            documents: getCollection('document', [documentFixture]),
         });
 
         const columns = wrapper.findAll('.sw-data-grid__cell--header');
@@ -564,9 +620,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             wrapper = await createWrapper();
 
             await wrapper.setData({
-                documents: getCollection('document', [
-                    documentFixture,
-                ]),
+                documents: getCollection('document', [documentFixture]),
             });
 
             expect(wrapper.find('sw-context-menu-item.sw-order-document-card__context-button-open-pdf').exists()).toBe(true);
@@ -579,9 +633,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             wrapper = await createWrapper();
 
             await wrapper.setData({
-                documents: getCollection('document', [
-                    documentFixture,
-                ]),
+                documents: getCollection('document', [documentFixture]),
             });
 
             await wrapper.find('.sw-order-document-card__actions-button').trigger('click');
@@ -602,9 +654,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             wrapper = await createWrapper(defaultProps, 'sw.order.detail.details', actionMenuStubs);
 
             await wrapper.setData({
-                documents: getCollection('document', [
-                    documentFixture,
-                ]),
+                documents: getCollection('document', [documentFixture]),
             });
 
             await wrapper.find('.sw-order-document-card__context-button-open-format').trigger('click');
@@ -627,9 +677,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             wrapper = await createWrapper();
 
             await wrapper.setData({
-                documents: getCollection('document', [
-                    documentFixture,
-                ]),
+                documents: getCollection('document', [documentFixture]),
             });
 
             await wrapper.find('.sw-order-document-card__context-button-open-pdf').trigger('click');
@@ -656,9 +704,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             wrapper = await createWrapper(defaultProps, 'sw.order.detail.details', actionMenuStubs);
 
             await wrapper.setData({
-                documents: getCollection('document', [
-                    documentFixture,
-                ]),
+                documents: getCollection('document', [documentFixture]),
             });
 
             await wrapper.find('.sw-order-document-card__context-button-download-format').trigger('click');
@@ -681,9 +727,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             wrapper = await createWrapper();
 
             await wrapper.setData({
-                documents: getCollection('document', [
-                    documentFixture,
-                ]),
+                documents: getCollection('document', [documentFixture]),
             });
 
             await wrapper.find('.sw-order-document-card__context-button-download-pdf').trigger('click');
@@ -752,10 +796,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             createDocumentV2Mock.mockResolvedValueOnce({
                 documentId: '1234',
                 deepLinkCode: '12341234',
-                formats: [
-                    'html',
-                    'pdf',
-                ],
+                formats: ['html', 'pdf'],
             });
 
             await wrapper.setData({
@@ -769,10 +810,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                     documentComment: '',
                     documentDate: '2026-07-06T00:00:00.000Z',
                     documentNumber: '1000',
-                    requestedFileFormats: [
-                        'html',
-                        'pdf',
-                    ],
+                    requestedFileFormats: ['html', 'pdf'],
                 },
                 'download',
             );
@@ -781,10 +819,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             expect(createDocumentV2Mock).toHaveBeenCalledWith(
                 '1234',
                 'invoice',
-                [
-                    'html',
-                    'pdf',
-                ],
+                ['html', 'pdf'],
                 '1000',
                 '2026-07-06T00:00:00.000Z',
                 '',
@@ -938,9 +973,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         wrapper = await createWrapper();
 
         await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
+            documents: getCollection('document', [documentFixture]),
         });
 
         let columns = wrapper.findAll('.sw-data-grid__cell--header');
@@ -965,16 +998,12 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
 
         await wrapper.setProps({
             order: {
-                documents: getCollection('document', [
-                    documentFixture,
-                ]),
+                documents: getCollection('document', [documentFixture]),
             },
         });
 
         await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
+            documents: getCollection('document', [documentFixture]),
         });
 
         expect(wrapper.find('sw-card-filter').exists()).toBeTruthy();
@@ -988,9 +1017,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             wrapper = await createWrapper(defaultProps, 'sw.order.detail.details', actionMenuStubs);
 
             await wrapper.setData({
-                documents: getCollection('document', [
-                    documentFixture,
-                ]),
+                documents: getCollection('document', [documentFixture]),
             });
 
             expect(wrapper.find('.sw-data-grid__cell--sent sw-data-grid-column-boolean').attributes('value')).toBe('true');
@@ -1209,10 +1236,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
     });
 
     it('should show order unsaved tooltip message on Create document button correctly', async () => {
-        global.activeAclRoles = [
-            'order.editor',
-            'document.viewer',
-        ];
+        global.activeAclRoles = ['order.editor', 'document.viewer'];
 
         wrapper = await createWrapper();
 
@@ -1255,6 +1279,16 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
                 },
             },
         ]);
+    });
+
+    it('should label a document with the translated document type when the current language has no name', async () => {
+        const wrapper = await createWrapper();
+
+        expect(
+            wrapper.vm.documentTypeLabel({
+                documentType: { name: null, technicalName: 'invoice', translated: { name: 'Invoice' } },
+            }),
+        ).toBe('Invoice');
     });
 
     it('should exclude app-provided document types from documentTypeCriteria', async () => {
@@ -1324,9 +1358,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             wrapper = await createWrapper(defaultProps, 'sw.order.detail.details', actionMenuStubs);
 
             await wrapper.setData({
-                documents: getCollection('document', [
-                    documentFixture,
-                ]),
+                documents: getCollection('document', [documentFixture]),
             });
 
             const deleteButton = wrapper.find(buttonDeleteClassDocumentCard);
@@ -1347,9 +1379,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
         );
 
         await wrapper.setData({
-            documents: getCollection('document', [
-                documentFixture,
-            ]),
+            documents: getCollection('document', [documentFixture]),
         });
 
         const deleteButton = wrapper.find(buttonDeleteClassEntityListing);
@@ -1365,9 +1395,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             wrapper = await createWrapper(defaultProps, 'sw.order.detail.documents', actionMenuStubs);
 
             await wrapper.setData({
-                documents: getCollection('document', [
-                    documentFixture,
-                ]),
+                documents: getCollection('document', [documentFixture]),
             });
 
             const deleteButton = wrapper.find(buttonDeleteClassDocumentCard);
@@ -1384,9 +1412,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             wrapper = await createWrapper(defaultProps, 'sw.order.detail.details', actionMenuStubs);
 
             await wrapper.setData({
-                documents: getCollection('document', [
-                    documentFixture,
-                ]),
+                documents: getCollection('document', [documentFixture]),
             });
 
             expect(wrapper.find('.sw-modal').exists()).toBe(false);
@@ -1415,9 +1441,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             wrapper = await createWrapper(defaultProps, 'sw.order.detail.details', actionMenuStubs);
 
             await wrapper.setData({
-                documents: getCollection('document', [
-                    documentFixture,
-                ]),
+                documents: getCollection('document', [documentFixture]),
             });
 
             documentSearchMock.mockResolvedValue(getCollection('document', []));
@@ -1445,9 +1469,7 @@ describe('src/module/sw-order/component/sw-order-document-card', () => {
             wrapper = await createWrapper(defaultProps, 'sw.order.detail.details', actionMenuStubs);
 
             await wrapper.setData({
-                documents: getCollection('document', [
-                    documentFixture,
-                ]),
+                documents: getCollection('document', [documentFixture]),
             });
 
             documentDeleteMock.mockRejectedValue({

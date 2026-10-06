@@ -40,14 +40,8 @@ describe('Jest feature flag extensions with a major baseline', () => {
     });
 
     it.activeFeatureFlags(['EXPERIMENTAL_FEATURE'])('adds per-test flags without replacing the major baseline', () => {
-        expect(globalThis.activeFeatureFlags).toEqual([
-            'V6_8_0_0',
-            'EXPERIMENTAL_FEATURE',
-        ]);
-        expect(featureFlagsInSetup).toEqual([
-            'V6_8_0_0',
-            'EXPERIMENTAL_FEATURE',
-        ]);
+        expect(globalThis.activeFeatureFlags).toEqual(['V6_8_0_0', 'EXPERIMENTAL_FEATURE']);
+        expect(featureFlagsInSetup).toEqual(['V6_8_0_0', 'EXPERIMENTAL_FEATURE']);
         expect(Shopware.Feature.isActive('v6.8.0.0')).toBeTruthy();
     });
 });

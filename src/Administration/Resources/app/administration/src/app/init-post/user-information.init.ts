@@ -7,10 +7,7 @@ import useTheme from 'src/app/composables/use-theme';
 import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 
 function loadUserPreferences(): Promise<unknown> {
-    return Promise.allSettled([
-        useTheme().loadUserTheme(),
-        useModuleIconColors().loadUserModuleIconColors(),
-    ]);
+    return Promise.allSettled([useTheme().loadUserTheme(), useModuleIconColors().loadUserModuleIconColors()]);
 }
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations

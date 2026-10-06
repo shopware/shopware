@@ -6,23 +6,23 @@ use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\StreamInterface;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
-use Shopware\Core\Checkout\Document\DocumentCollection;
 use Shopware\Core\Checkout\Document\DocumentConfiguration;
 use Shopware\Core\Checkout\Document\DocumentConfigurationFactory;
-use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\DocumentException;
 use Shopware\Core\Checkout\Document\DocumentIdStruct;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
 use Shopware\Core\Checkout\Document\Renderer\StornoRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer;
 use Shopware\Core\Checkout\Document\Service\PdfRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentPersister;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\File\FileLoader;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -141,8 +141,6 @@ class DocumentGeneratorTest extends TestCase
 
     public function testPreviewWithIncorrectDeepLinkCode(): void
     {
-        $this->expectException(DocumentException::class);
-
         /** @var OrderEntity $order */
         $order = static::getContainer()->get('order.repository')->search(new Criteria([$this->orderId]), $this->context)->getEntities()->first();
 
@@ -155,6 +153,8 @@ class DocumentGeneratorTest extends TestCase
         static::assertNotEmpty($documentStruct->getContent());
 
         $operation = new DocumentGenerateOperation(Uuid::randomHex());
+
+        $this->expectExceptionObject(DocumentException::generationError());
 
         $this->documentGenerator->preview(InvoiceRenderer::TYPE, $operation, '', $this->context);
     }
@@ -452,8 +452,6 @@ class DocumentGeneratorTest extends TestCase
     {
         $documentId = Uuid::randomHex();
 
-        $this->expectExceptionObject(DocumentException::documentNotFound($documentId));
-
         /** @var FilesystemOperator $fileSystem */
         $fileSystem = static::getContainer()->get('shopware.filesystem.private');
 
@@ -504,6 +502,8 @@ class DocumentGeneratorTest extends TestCase
         $fileSystem->write($filePath, 'test123');
 
         static::assertTrue($fileSystem->has($filePath));
+
+        $this->expectExceptionObject(DocumentException::documentNotFound($documentId));
 
         $this->documentGenerator->readDocument($document->getId(), $this->context, 'wrong code');
     }

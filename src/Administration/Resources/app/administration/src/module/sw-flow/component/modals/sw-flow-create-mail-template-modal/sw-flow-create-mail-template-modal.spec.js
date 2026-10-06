@@ -75,10 +75,7 @@ async function createWrapper(privileges = []) {
                     },
                     'sw-highlight-text': await wrapTestComponent('sw-highlight-text'),
                     'sw-select-result': {
-                        props: [
-                            'item',
-                            'index',
-                        ],
+                        props: ['item', 'index'],
                         template: `
                         <li class="sw-select-result" @click.stop="onClickResult">
                             <slot></slot>

@@ -136,12 +136,7 @@ export async function checkExtensions(options: CheckExtensionsOptions): Promise<
     }
 
     const eslintBaseArguments =
-        readEslintMajorVersion(administrationRoot) < 10
-            ? [
-                  '--flag',
-                  'v10_config_lookup_from_file',
-              ]
-            : [];
+        readEslintMajorVersion(administrationRoot) < 10 ? ['--flag', 'v10_config_lookup_from_file'] : [];
     const maxWorkers = options.maxWorkers ?? Math.max(1, Math.min(4, os.cpus().length - 1));
     const limit = createLimiter(maxWorkers);
     const vueTscPath = path.join(administrationRoot, 'node_modules', 'vue-tsc', 'bin', 'vue-tsc.js');

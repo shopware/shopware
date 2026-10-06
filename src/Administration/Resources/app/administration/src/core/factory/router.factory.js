@@ -256,10 +256,7 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         });
 
         // Merge the module core routes with the routes from the routes file
-        core = [
-            ...core,
-            ...moduleRootRoutes,
-        ];
+        core = [...core, ...moduleRootRoutes];
         return core;
     }
 
@@ -399,23 +396,18 @@ export default function createRouter(Router, View, moduleFactory, LoginService) 
         };
 
         // Writing an unchanged attribute makes the browser drop the icon and flash the default one.
-        Object.entries(attributes).forEach(
-            ([
-                name,
-                value,
-            ]) => {
-                if (value === null) {
-                    if (favRef.hasAttribute(name)) {
-                        favRef.removeAttribute(name);
-                    }
-                    return;
+        Object.entries(attributes).forEach(([name, value]) => {
+            if (value === null) {
+                if (favRef.hasAttribute(name)) {
+                    favRef.removeAttribute(name);
                 }
+                return;
+            }
 
-                if (favRef.getAttribute(name) !== value) {
-                    favRef.setAttribute(name, value);
-                }
-            },
-        );
+            if (favRef.getAttribute(name) !== value) {
+                favRef.setAttribute(name, value);
+            }
+        });
 
         return !!moduleInfo;
     }

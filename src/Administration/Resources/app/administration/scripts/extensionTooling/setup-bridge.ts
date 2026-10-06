@@ -30,14 +30,7 @@ interface AliasSource {
 }
 
 function dedupeAliasSources(sources: AliasSource[]): AliasSource[] {
-    return [
-        ...new Map(
-            sources.map((source) => [
-                source.aliasesPath,
-                source,
-            ]),
-        ).values(),
-    ];
+    return [...new Map(sources.map((source) => [source.aliasesPath, source])).values()];
 }
 
 /**
@@ -67,10 +60,7 @@ function buildShimPaths(
     const presetDir = path.dirname(presetPath);
     const mergedPaths: Record<string, string[]> = {};
 
-    for (const [
-        moduleName,
-        targets,
-    ] of Object.entries(preset.compilerOptions?.paths ?? {})) {
+    for (const [moduleName, targets] of Object.entries(preset.compilerOptions?.paths ?? {})) {
         mergedPaths[moduleName] = targets.map((target) =>
             asRelativeSpecifier(shimTsconfigPath, path.resolve(presetDir, target)),
         );
@@ -79,10 +69,7 @@ function buildShimPaths(
     for (const source of presentSources) {
         const aliases = JSON.parse(fs.readFileSync(source.aliasesPath, 'utf8')) as Record<string, string[] | string>;
 
-        for (const [
-            alias,
-            targets,
-        ] of Object.entries(aliases)) {
+        for (const [alias, targets] of Object.entries(aliases)) {
             mergedPaths[alias] = (Array.isArray(targets) ? targets : [targets]).map((target) =>
                 asRelativeSpecifier(shimTsconfigPath, path.resolve(source.baseDir, target)),
             );
@@ -238,10 +225,7 @@ function bridgeDirs(
     const grouped = new Map<string, string[]>();
 
     for (const target of project.targets) {
-        const ownedDirs = [
-            target.tsconfig,
-            target.eslintConfig,
-        ]
+        const ownedDirs = [target.tsconfig, target.eslintConfig]
             .filter((config): config is OwnedConfig => config !== null)
             .map((config) => path.dirname(path.resolve(context.projectRoot, config.path)));
         const dirs =
@@ -250,10 +234,7 @@ function bridgeDirs(
                 : [...new Set(ownedDirs.length > 0 ? ownedDirs : [path.resolve(context.projectRoot, target.adminFolder)])];
 
         for (const dir of dirs) {
-            grouped.set(dir, [
-                ...(grouped.get(dir) ?? []),
-                target.sourcePath,
-            ]);
+            grouped.set(dir, [...(grouped.get(dir) ?? []), target.sourcePath]);
         }
     }
 
@@ -277,10 +258,7 @@ export function createBridges(
         }
 
         try {
-            for (const [
-                dir,
-                sourcePaths,
-            ] of bridgeDirs(context, project, rootConfigDirs[project.name])) {
+            for (const [dir, sourcePaths] of bridgeDirs(context, project, rootConfigDirs[project.name])) {
                 const aliasSources = dedupeAliasSources(
                     [
                         dir,

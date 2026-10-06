@@ -112,22 +112,12 @@ type ComposableDescriptor = {
 
 /** Members that are plain methods on both sides — the common case. */
 function methodMembers(names: string[]): Record<string, ComposableMember> {
-    return Object.fromEntries(
-        names.map((name) => [
-            name,
-            { kind: 'method' as const },
-        ]),
-    );
+    return Object.fromEntries(names.map((name) => [name, { kind: 'method' as const }]));
 }
 
 /** Members a mixin held as reactive state or a computed, which a composable returns as a ref. */
 function refMembers(names: string[]): Record<string, ComposableMember> {
-    return Object.fromEntries(
-        names.map((name) => [
-            name,
-            { kind: 'ref' as const },
-        ]),
-    );
+    return Object.fromEntries(names.map((name) => [name, { kind: 'ref' as const }]));
 }
 
 export {

@@ -14,11 +14,7 @@ const FlatTree = Shopware.Helper.FlatTreeHelper;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'domainLinkService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'domainLinkService'],
 
     data() {
         return {
@@ -78,10 +74,7 @@ export default {
                     'domains',
                 ],
                 sales_channel_type: ['iconName'],
-                sales_channel_domain: [
-                    'url',
-                    'languageId',
-                ],
+                sales_channel_domain: ['url', 'languageId'],
             });
 
             criteria.addSorting(Criteria.sort('sales_channel.name', 'ASC'));
@@ -196,7 +189,7 @@ export default {
         registerListener() {
             Shopware.Utils.EventBus.on('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
             Shopware.Utils.EventBus.on('sw-language-switch-change-application-language', this.loadEntityData);
-            Shopware.Utils.EventBus.on('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
+            Shopware.Utils.EventBus.on('sw-sales-channel-detail-base-sales-channel-change', this.loadEntityData);
             Shopware.Utils.EventBus.on('sw-sales-channel-list-add-new-channel', this.openSalesChannelModal);
         },
 
@@ -204,7 +197,7 @@ export default {
             this.mobileViewportQuery?.removeEventListener('change', this.syncMobileViewport);
             Shopware.Utils.EventBus.off('sw-sales-channel-detail-sales-channel-change', this.loadEntityData);
             Shopware.Utils.EventBus.off('sw-language-switch-change-application-language', this.loadEntityData);
-            Shopware.Utils.EventBus.off('sw-sales-channel-detail-base-sales-channel-change', this.openSalesChannelModal);
+            Shopware.Utils.EventBus.off('sw-sales-channel-detail-base-sales-channel-change', this.loadEntityData);
             Shopware.Utils.EventBus.off('sw-sales-channel-list-add-new-channel', this.openSalesChannelModal);
         },
 

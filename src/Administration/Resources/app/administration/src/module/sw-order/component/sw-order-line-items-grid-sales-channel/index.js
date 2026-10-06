@@ -13,10 +13,7 @@ const { get, format } = Utils;
 export default {
     template,
 
-    emits: [
-        'on-save-item',
-        'on-remove-items',
-    ],
+    emits: ['on-save-item', 'on-remove-items'],
 
     props: {
         salesChannelId: {
@@ -84,6 +81,10 @@ export default {
 
                 return keyWords.every((key) => item.label.toLowerCase().includes(key.toLowerCase()));
             });
+        },
+
+        lineItemIds() {
+            return this.cart.lineItems.map((item) => item.id);
         },
 
         lineItemTypes() {
@@ -178,6 +179,14 @@ export default {
 
         currencyFilter() {
             return Shopware.Filter.getByName('currency');
+        },
+    },
+
+    watch: {
+        lineItemIds(lineItemIds) {
+            Object.values(this.selectedItems)
+                .filter((item) => !lineItemIds.includes(item.id))
+                .forEach((item) => this.$refs.dataGrid?.selectItem(false, item));
         },
     },
 

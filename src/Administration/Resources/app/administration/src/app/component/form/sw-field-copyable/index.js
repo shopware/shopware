@@ -12,9 +12,7 @@ const domUtils = Shopware.Utils.dom;
 export default {
     template,
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         copyableText: {

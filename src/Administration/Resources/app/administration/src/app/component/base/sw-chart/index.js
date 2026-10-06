@@ -90,9 +90,7 @@ export default {
         apexchart: VueApexCharts,
     },
 
-    inject: [
-        'feature',
-    ],
+    inject: ['feature'],
 
     props: {
         type: {
@@ -133,11 +131,7 @@ export default {
             required: false,
             default: null,
             validator(givenValue) {
-                return [
-                    'minute',
-                    'hour',
-                    'day',
-                ].includes(givenValue);
+                return ['minute', 'hour', 'day'].includes(givenValue);
             },
         },
 
@@ -163,12 +157,7 @@ export default {
         },
 
         mergedLabels() {
-            return this.options.labels
-                ? [
-                      ...this.options.labels,
-                      ...this.generatedLabels,
-                  ]
-                : this.generatedLabels;
+            return this.options.labels ? [...this.options.labels, ...this.generatedLabels] : this.generatedLabels;
         },
 
         optimizedSeries() {
@@ -228,12 +217,7 @@ export default {
         },
 
         needOneDimensionalArray() {
-            return (
-                [
-                    'pie',
-                    'donut',
-                ].indexOf(this.type) >= 0
-            );
+            return ['pie', 'donut'].indexOf(this.type) >= 0;
         },
 
         defaultLocale() {
@@ -255,9 +239,7 @@ export default {
                     },
 
                     defaultLocale: this.defaultLocale,
-                    locales: [
-                        ...(this.localeConfig ? [this.localeConfig] : []),
-                    ],
+                    locales: [...(this.localeConfig ? [this.localeConfig] : [])],
                     zoom: false,
                 },
 

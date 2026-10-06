@@ -148,6 +148,38 @@ class FileFetcherTest extends TestCase
         static::assertSame($expectedExtension, $media->getFileExtension());
     }
 
+    public function testFetchFileFromURLAppliesConfiguredTimeout(): void
+    {
+        $capturedOptions = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$capturedOptions): MockResponse {
+            $capturedOptions = $options;
+
+            return new MockResponse((string) file_get_contents(self::IMAGE_URL_WITH_EXTENSION));
+        });
+
+        $fileFetcher = $this->createFileFetcher(httpClient: $httpClient, urlUploadTimeout: 1.5);
+
+        $fileFetcher->fetchFromURL('https://example.com/image.jpg', self::TEMP_FILE, self::IMAGE_EXTENSION);
+
+        static::assertSame(1.5, $capturedOptions['max_duration']);
+    }
+
+    public function testFetchFileFromURLDoesNotApplyTimeoutByDefault(): void
+    {
+        $capturedOptions = [];
+        $httpClient = new MockHttpClient(function (string $method, string $url, array $options) use (&$capturedOptions): MockResponse {
+            $capturedOptions = $options;
+
+            return new MockResponse((string) file_get_contents(self::IMAGE_URL_WITH_EXTENSION));
+        });
+
+        $fileFetcher = $this->createFileFetcher(httpClient: $httpClient);
+
+        $fileFetcher->fetchFromURL('https://example.com/image.jpg', self::TEMP_FILE, self::IMAGE_EXTENSION);
+
+        static::assertTrue(!isset($capturedOptions['max_duration']) || $capturedOptions['max_duration'] <= 0);
+    }
+
     public static function fetchFileFromUrlDataProvider(): \Generator
     {
         yield 'image resource without an extension' => [
@@ -417,6 +449,7 @@ class FileFetcherTest extends TestCase
         bool $enableUploadFeature = true,
         bool $enableValidation = true,
         int $maxFileSize = 0,
+        float $urlUploadTimeout = 0.0,
     ): FileFetcher {
         if ($validator === null) {
             $validator = static::createStub(FileUrlValidatorInterface::class);
@@ -436,6 +469,7 @@ class FileFetcherTest extends TestCase
             $enableUploadFeature,
             $enableValidation,
             $maxFileSize,
+            $urlUploadTimeout,
         );
     }
 

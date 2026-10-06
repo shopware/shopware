@@ -41,10 +41,7 @@ describe('src/module/sw-users-permissions/acl/index.js', () => {
         const registeredRoles = addPrivilegeMappingEntryMock.mock.calls[0][0].roles;
 
         expect(registeredRoles.viewer.privileges).toEqual(
-            expect.arrayContaining([
-                'api_acl_privileges_additional_get',
-                'media_folder:read',
-            ]),
+            expect.arrayContaining(['api_acl_privileges_additional_get', 'media_folder:read']),
         );
     });
 });

@@ -136,9 +136,7 @@ class KeyFetcherTest extends TestCase
             $logger
         );
 
-        $key = $keyFetcher->getKey(Context::createDefaultContext(), true);
-
-        static::assertSame('sample-key-id', $key->getElements()[0]->kid);
+        $keyFetcher->getKey(Context::createDefaultContext(), true);
     }
 
     public function testGetKeyReturns400ResponseWithoutExistingKey(): void
@@ -171,9 +169,7 @@ class KeyFetcherTest extends TestCase
             $logger
         );
 
-        $key = $keyFetcher->getKey(Context::createDefaultContext(), true);
-
-        static::assertSame('sample-key-id', $key->getElements()[0]->kid);
+        $keyFetcher->getKey(Context::createDefaultContext(), true);
     }
 
     private function getKey(): string

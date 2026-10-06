@@ -30,11 +30,7 @@ async function createWrapper() {
                             @input="$emit('update:modelValue', $event.target.value)"
                         />
                     `,
-                    props: [
-                        'modelValue',
-                        'placeholder',
-                        'disabled',
-                    ],
+                    props: ['modelValue', 'placeholder', 'disabled'],
                 },
                 'sw-text-field': true,
                 'sw-cms-mapping-field': await wrapTestComponent('sw-cms-mapping-field'),

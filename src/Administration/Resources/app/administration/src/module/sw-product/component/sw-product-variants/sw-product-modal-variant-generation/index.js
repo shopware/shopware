@@ -20,15 +20,9 @@ export default {
         'swProductDetailLoadAll',
     ],
 
-    emits: [
-        'modal-close',
-        'variations-finish-generate',
-    ],
+    emits: ['modal-close', 'variations-finish-generate'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     props: {
         product: {

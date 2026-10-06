@@ -128,6 +128,11 @@ class DebugMcpCommand extends Command
             $toolsAllowlist = $allowlist->tools;
             if ($toolsAllowlist === null) {
                 $io->note(\sprintf('Integration "%s": no tool restriction (all tools allowed).', $integration));
+            } elseif ($toolsAllowlist === []) {
+                $io->note(\sprintf(
+                    'Integration "%s": no tools allowed. Integrations have no administrator bypass, so an unset MCP allowlist grants nothing.',
+                    $integration,
+                ));
             } else {
                 $io->note(\sprintf('Integration "%s": %d tool(s) allowed.', $integration, \count($toolsAllowlist)));
             }

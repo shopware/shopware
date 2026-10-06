@@ -6,12 +6,18 @@ use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Api\Sync\AbstractFkResolver;
 use Shopware\Core\Framework\Api\Sync\FkReference;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Log\Package;
 
 /**
  * @internal
  */
 #[Package('framework')]
+#[ExperimentalReplacement(
+    version: 'v6.9.0',
+    feature: 'DOCUMENT_GENERATION_REWORK',
+    description: 'Document types are code-registered strings in DocumentV2. Read document.typeName instead of resolving the document_type foreign key.',
+)]
 class DocumentTypeTechnicalNameFkResolver extends AbstractFkResolver
 {
     public function __construct(private readonly Connection $connection)

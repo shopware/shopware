@@ -264,10 +264,7 @@ describe('cartStoreService', () => {
         clientMock.onPost(`_proxy/store-api/${saleChannelId}/checkout/cart/line-item`).reply((config) => {
             payload = JSON.parse(config.data);
 
-            return [
-                200,
-                {},
-            ];
+            return [200, {}];
         });
 
         await cartStoreService.addMultipleLineItems(saleChannelId, 'context-token', [

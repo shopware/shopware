@@ -107,14 +107,8 @@ function optionLabel(flag: FlagSpec): string {
 export function renderHelp(spec: CommandSpec): string {
     const usageEntries = spec.flags.map(optionLabel);
     const optionRows: Array<[string, string]> = [
-        ...spec.flags.map((flag): [string, string] => [
-            optionLabel(flag),
-            flag.description,
-        ]),
-        [
-            '-h, --help',
-            'This help.',
-        ],
+        ...spec.flags.map((flag): [string, string] => [optionLabel(flag), flag.description]),
+        ['-h, --help', 'This help.'],
     ];
     const optionWidth = Math.max(...optionRows.map(([option]) => option.length));
 
@@ -125,12 +119,7 @@ export function renderHelp(spec: CommandSpec): string {
         `  composer ${spec.command} -- [options]`,
         '',
         'Options:',
-        ...optionRows.map(
-            ([
-                option,
-                description,
-            ]) => `  ${option.padEnd(optionWidth, ' ')}  ${description}`,
-        ),
+        ...optionRows.map(([option, description]) => `  ${option.padEnd(optionWidth, ' ')}  ${description}`),
         '',
         `Example: composer ${spec.command} -- ${usageEntries[0] ?? '--help'}`,
     ].join('\n');

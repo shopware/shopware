@@ -464,7 +464,7 @@ class RegisterRouteTest extends TestCase
 
         $response = $this->browser->getResponse();
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             static::assertNull($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
         } else {
             static::assertSame(
@@ -912,6 +912,38 @@ class RegisterRouteTest extends TestCase
         static::assertSame('VIOLATION::NO_SUCH_CHOICE_ERROR', $response['errors'][0]['code']);
     }
 
+    public function testRegistrationRequiresBirthdayWhenConfigured(): void
+    {
+        $this->systemConfigService->set('core.loginRegistration.showBirthdayField', true);
+        $this->systemConfigService->set('core.loginRegistration.birthdayFieldRequired', true);
+
+        $registrationData = $this->getRegistrationData();
+        unset($registrationData['birthdayDay'], $registrationData['birthdayMonth'], $registrationData['birthdayYear']);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        $codesByPointer = array_column(
+            array_map(static fn (array $error): array => ['pointer' => $error['source']['pointer'], 'code' => $error['code']], $response['errors']),
+            'code',
+            'pointer'
+        );
+
+        static::assertSame('VIOLATION::IS_BLANK_ERROR', $codesByPointer['/birthdayDay'] ?? null);
+        static::assertSame('VIOLATION::IS_BLANK_ERROR', $codesByPointer['/birthdayMonth'] ?? null);
+        static::assertSame('VIOLATION::IS_BLANK_ERROR', $codesByPointer['/birthdayYear'] ?? null);
+    }
+
     public function testRegistrationWithoutAccountTypeIsEmptyString(): void
     {
         $additionalData = [
@@ -1225,6 +1257,73 @@ class RegisterRouteTest extends TestCase
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
         static::assertNotEmpty($contextToken);
+    }
+
+    public function testRegistrationBusinessAccountWithVatIdsIsNormalizedBeforeMatchingRegex(): void
+    {
+        static::getContainer()->get(Connection::class)
+            ->executeStatement('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}" WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->getValidCountryId($this->ids->get('sales-channel')))]);
+
+        $additionalData = [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'billingAddress' => [
+                'company' => 'Test Company',
+                'department' => 'Test Department',
+            ],
+            'vatIds' => [
+                'de 123456789',
+            ],
+        ];
+
+        $registrationData = array_merge_recursive($this->getRegistrationData(), $additionalData);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame('customer', $response['apiAlias']);
+        static::assertSame(['DE123456789'], $response['vatIds']);
+    }
+
+    public function testRegistrationBusinessAccountWithScalarVatIdsReturnsValidationError(): void
+    {
+        static::getContainer()->get(Connection::class)
+            ->executeStatement('UPDATE `country` SET `check_vat_id_pattern` = 1, `vat_id_pattern` = "(DE)?[0-9]{9}" WHERE id = :id', ['id' => Uuid::fromHexToBytes($this->getValidCountryId($this->ids->get('sales-channel')))]);
+
+        $additionalData = [
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'billingAddress' => [
+                'company' => 'Test Company',
+                'department' => 'Test Department',
+            ],
+            'vatIds' => 'abc',
+        ];
+
+        $registrationData = array_merge_recursive($this->getRegistrationData(), $additionalData);
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        static::assertSame(Response::HTTP_BAD_REQUEST, $this->browser->getResponse()->getStatusCode());
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('errors', $response);
     }
 
     public function testRegistrationCommercialAccountWithDifferentCommercialAddress(): void
@@ -1617,6 +1716,80 @@ class RegisterRouteTest extends TestCase
         static::assertSame('VIOLATION::TOO_LONG_ERROR', $error['code']);
         static::assertSame('/password', $error['source']['pointer']);
         static::assertSame(':PASSWORD_IS_TOO_LONG', $error['detail']);
+    }
+
+    public function testRegisterWithHtmlInFirstName(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        $registrationData['firstName'] = '<John';
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+        static::assertArrayHasKey('errors', $response);
+
+        $error = $response['errors'][0];
+
+        static::assertSame('VIOLATION::CONTAINS_HTML_ERROR', $error['code']);
+        static::assertSame('/firstName', $error['source']['pointer']);
+    }
+
+    public function testRegisterWithHtmlInBillingAddressStreet(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        $registrationData['billingAddress']['street'] = '<Main';
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(400, $this->browser->getResponse()->getStatusCode());
+        static::assertArrayHasKey('errors', $response);
+
+        $error = $response['errors'][0];
+
+        static::assertSame('VIOLATION::CONTAINS_HTML_ERROR', $error['code']);
+        static::assertSame('/billingAddress/street', $error['source']['pointer']);
+    }
+
+    public function testRegisterWithLessThanSignThatDoesNotOpenATag(): void
+    {
+        $registrationData = $this->getRegistrationData();
+        $registrationData['firstName'] = 'Jo <3';
+
+        $this->browser
+            ->request(
+                'POST',
+                '/store-api/account/register',
+                [],
+                [],
+                ['CONTENT_TYPE' => 'application/json'],
+                json_encode($registrationData, \JSON_THROW_ON_ERROR)
+            );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(200, $this->browser->getResponse()->getStatusCode(), (string) $this->browser->getResponse()->getContent());
+        static::assertSame('customer', $response['apiAlias']);
+        static::assertSame('Jo <3', $response['firstName']);
     }
 
     private function createSalesChannelBrowserWithoutDomains(): KernelBrowser

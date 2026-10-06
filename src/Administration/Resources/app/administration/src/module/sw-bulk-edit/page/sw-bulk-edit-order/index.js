@@ -19,11 +19,10 @@ export default {
         // @deprecated tag:v6.9.0 - orderDocumentApiService will be removed.
         'orderDocumentApiService',
         'feature',
+        'customFieldDataProviderService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -61,10 +60,12 @@ export default {
             return this.repositoryFactory.create('order');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
             const criteria = new Criteria(1, null);
 
@@ -101,9 +102,7 @@ export default {
             let restrictedFields = [];
 
             if (this.$route.params.excludeDelivery === '1') {
-                restrictedFields = restrictedFields.concat([
-                    'orderDeliveries',
-                ]);
+                restrictedFields = restrictedFields.concat(['orderDeliveries']);
             }
 
             return restrictedFields;
@@ -316,11 +315,7 @@ export default {
         },
 
         loadBulkEditData() {
-            const bulkEditFormGroups = [
-                this.statusFormFields,
-                this.documentsFormFields,
-                this.tagsFormFields,
-            ];
+            const bulkEditFormGroups = [this.statusFormFields, this.documentsFormFields, this.tagsFormFields];
 
             bulkEditFormGroups.forEach((bulkEditForms) => {
                 bulkEditForms.forEach((bulkEditForm) => {
@@ -474,50 +469,41 @@ export default {
                 syncData: [],
             };
 
-            const dataPush = [
-                'orderTransactions',
-                'orderDeliveries',
-                'orders',
-            ];
+            const dataPush = ['orderTransactions', 'orderDeliveries', 'orders'];
 
-            Object.entries(this.bulkEditData).forEach(
-                ([
-                    key,
-                    item,
-                ]) => {
-                    if (item.isChanged || (key === 'customFields' && item.value)) {
-                        const payload = {
-                            field: key,
-                            type: item.type,
-                            value: item.value,
-                        };
+            Object.entries(this.bulkEditData).forEach(([key, item]) => {
+                if (item.isChanged || (key === 'customFields' && item.value)) {
+                    const payload = {
+                        field: key,
+                        type: item.type,
+                        value: item.value,
+                    };
 
-                        if (dataPush.includes(key)) {
-                            const documentTypes = this.order?.documents?.documentType;
+                    if (dataPush.includes(key)) {
+                        const documentTypes = this.order?.documents?.documentType;
 
-                            if (this.bulkEditData?.documents?.isChanged) {
-                                const selectedDocumentTypes = Object.keys(documentTypes).filter(
-                                    (documentTypeName) => documentTypes[documentTypeName] === true,
-                                );
+                        if (this.bulkEditData?.documents?.isChanged) {
+                            const selectedDocumentTypes = Object.keys(documentTypes).filter(
+                                (documentTypeName) => documentTypes[documentTypeName] === true,
+                            );
 
-                                if (selectedDocumentTypes.length > 0) {
-                                    payload.documentTypes = selectedDocumentTypes;
-                                    payload.skipSentDocuments = this.order.documents.skipSentDocuments;
-                                }
+                            if (selectedDocumentTypes.length > 0) {
+                                payload.documentTypes = selectedDocumentTypes;
+                                payload.skipSentDocuments = this.order.documents.skipSentDocuments;
                             }
-
-                            payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
-                            payload.internalComment = this.bulkEditData?.transitionInternalComment?.isChanged
-                                ? this.bulkEditData?.transitionInternalComment?.value?.trim() || null
-                                : null;
-                            payload.value = this.order?.[key];
-                            data.statusData.push(payload);
-                        } else if (key !== 'documents' && key !== 'statusMails' && key !== 'delete' && key !== 'download') {
-                            data.syncData.push(payload);
                         }
+
+                        payload.sendMail = this.bulkEditData?.statusMails?.isChanged;
+                        payload.internalComment = this.bulkEditData?.transitionInternalComment?.isChanged
+                            ? this.bulkEditData?.transitionInternalComment?.value?.trim() || null
+                            : null;
+                        payload.value = this.order?.[key];
+                        data.statusData.push(payload);
+                    } else if (key !== 'documents' && key !== 'statusMails' && key !== 'delete' && key !== 'download') {
+                        data.syncData.push(payload);
                     }
-                },
-            );
+                }
+            });
 
             return data;
         },
@@ -587,7 +573,7 @@ export default {
         },
 
         loadCustomFieldSets() {
-            return this.customFieldSetRepository.search(this.customFieldSetCriteria).then((res) => {
+            return this.customFieldDataProviderService.getCustomFieldSets('order', false, null).then((res) => {
                 this.customFieldSets = res;
             });
         },

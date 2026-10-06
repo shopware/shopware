@@ -40,13 +40,7 @@ export default {
             }
 
             const componentName = this.currentCustomField.config.componentName;
-            if (
-                !componentName ||
-                ![
-                    'sw-single-select',
-                    'sw-multi-select',
-                ].includes(componentName)
-            ) {
+            if (!componentName || !['sw-single-select', 'sw-multi-select'].includes(componentName)) {
                 this.currentCustomField.config.componentName = 'sw-single-select';
             }
 

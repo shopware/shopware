@@ -7,8 +7,6 @@
             "PropertyGroupOption": {
                 "description": "Added since version: 6.0.0.0",
                 "required": [
-                    "group",
-                    "option",
                     "translated",
                     "id",
                     "groupId",
@@ -65,9 +63,6 @@
                     },
                     "group": {
                         "$ref": "#/components/schemas/PropertyGroup"
-                    },
-                    "option": {
-                        "type": "string"
                     }
                 },
                 "type": "object"

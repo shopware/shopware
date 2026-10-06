@@ -14,14 +14,9 @@ const { cloneDeep } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: [
-        'bulkEditApiFactory',
-        'repositoryFactory',
-    ],
+    inject: ['bulkEditApiFactory', 'repositoryFactory', 'customFieldDataProviderService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -46,6 +41,7 @@ export default {
             return Shopware.Store.get('swBulkEdit').selectedIds;
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
@@ -54,6 +50,7 @@ export default {
             return this.repositoryFactory.create('customer');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldSetCriteria() {
             const criteria = new Criteria(1, null);
 
@@ -197,10 +194,7 @@ export default {
         },
 
         loadBulkEditData() {
-            const bulkEditFormGroups = [
-                this.accountFormFields,
-                this.tagsFormFields,
-            ];
+            const bulkEditFormGroups = [this.accountFormFields, this.tagsFormFields];
 
             bulkEditFormGroups.forEach((bulkEditForms) => {
                 bulkEditForms.forEach((bulkEditForm) => {
@@ -215,7 +209,7 @@ export default {
         },
 
         loadCustomFieldSets() {
-            return this.customFieldSetRepository.search(this.customFieldSetCriteria).then((res) => {
+            return this.customFieldDataProviderService.getCustomFieldSets('customer', false, null).then((res) => {
                 this.customFieldSets = res;
             });
         },

@@ -12,9 +12,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'modal-close',
-    ],
+    emits: ['modal-close'],
 
     props: {
         conditionDataProviderService: {
@@ -72,10 +70,7 @@ export default {
     methods: {
         onConditionsChanged({ conditions, deletedIds }) {
             this.childConditions = conditions;
-            this.deletedIds = [
-                ...this.deletedIds,
-                ...deletedIds,
-            ];
+            this.deletedIds = [...this.deletedIds, ...deletedIds];
         },
 
         deleteAndClose() {

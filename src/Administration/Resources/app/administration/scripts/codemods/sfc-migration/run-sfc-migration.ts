@@ -86,12 +86,7 @@ function buildIndexShim(originalSource: string, componentName: string): string {
     const visibility = PUBLIC_ANNOTATION.test(sourceDocblock) ? '@public' : '@private';
     const docblock = [
         '/**',
-        ...(packageMatch
-            ? [
-                  ` * @sw-package ${packageMatch[1]}`,
-                  ' *',
-              ]
-            : []),
+        ...(packageMatch ? [` * @sw-package ${packageMatch[1]}`, ' *'] : []),
         ` * ${visibility}`,
         ' */',
     ].join('\n');
@@ -179,11 +174,12 @@ function findDirtyPaths(targetDir: string): string[] {
 
 async function runMigration(
     targetDir: string,
-    options: { write?: boolean; replaceOriginals?: boolean; scanRoot?: string } = {},
+    options: { write?: boolean; replaceOriginals?: boolean; scanRoot?: string; adminSrc?: string } = {},
 ): Promise<MigrationResult> {
     const write = options.write ?? false;
     const replaceOriginals = options.replaceOriginals ?? false;
-    const scanRoot = options.scanRoot ?? (isContained(ADMIN_SRC, targetDir) ? ADMIN_SRC : targetDir);
+    const adminSrc = options.adminSrc ?? ADMIN_SRC;
+    const scanRoot = options.scanRoot ?? (isContained(adminSrc, targetDir) ? adminSrc : targetDir);
     const index = collectComponentSourceIndex(scanRoot);
     const indexFiles = [...index.files.keys()]
         .filter(
@@ -324,6 +320,8 @@ async function runMigration(
                     vuePath,
                     lang: indexFile.endsWith('.ts') ? 'ts' : 'js',
                     templateImportRange: component.template.importRange,
+                    // Per component: a target above `src/` holds Administration and extension components alike.
+                    extensionTarget: !isContained(adminSrc, dir),
                 });
             } catch (error) {
                 report(name, dir, 'error', [errorText(error)]);
@@ -354,10 +352,7 @@ async function runMigration(
                 name,
             });
 
-            report(name, dir, written.ok ? outcome : 'error', [
-                ...converted.reasons,
-                ...written.reasons,
-            ]);
+            report(name, dir, written.ok ? outcome : 'error', [...converted.reasons, ...written.reasons]);
         } catch (error) {
             report(name, dir, 'error', [`unexpected failure: ${errorText(error)}`]);
         }
@@ -390,10 +385,7 @@ function printReport(result: MigrationResult, targetDir: string, write: boolean,
     if (histogram.size > 0) {
         console.log('\nReasons (by frequency):');
 
-        for (const [
-            reason,
-            count,
-        ] of [...histogram.entries()].sort((a, b) => b[1] - a[1])) {
+        for (const [reason, count] of [...histogram.entries()].sort((a, b) => b[1] - a[1])) {
             console.log(`  ${String(count).padStart(4)}  ${reason}`);
         }
     }

@@ -43,10 +43,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
     });
 
     it('getFavoriteIds > should return favorites from internal state', async () => {
-        const expected = [
-            'foo',
-            'bar',
-        ];
+        const expected = ['foo', 'bar'];
         service.state.favorites = expected;
 
         expect(service.getFavoriteIds()).toEqual(expected);
@@ -54,10 +51,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
 
     it('isFavorite > checks if given string is included in favorites', async () => {
         const expected = 'bar';
-        service.state.favorites = [
-            'foo',
-            'bar',
-        ];
+        service.state.favorites = ['foo', 'bar'];
 
         expect(service.isFavorite(expected)).toBeTruthy();
     });
@@ -66,10 +60,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
         const newItem = 'biz';
 
         service.saveUserConfig = jest.fn();
-        service.state.favorites = [
-            'foo',
-            'bar',
-        ];
+        service.state.favorites = ['foo', 'bar'];
 
         service.update(true, newItem);
 
@@ -81,10 +72,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
         const removedItem = 'bar';
 
         service.saveUserConfig = jest.fn();
-        service.state.favorites = [
-            'foo',
-            'bar',
-        ];
+        service.state.favorites = ['foo', 'bar'];
 
         service.update(false, removedItem);
 
@@ -96,10 +84,7 @@ describe('module/sw-sales-channel/service/sales-channel-favorites.service.spec.j
         const existingItem = 'foo';
         const nonExistingItem = 'biz';
 
-        service.state.favorites = [
-            'foo',
-            'bar',
-        ];
+        service.state.favorites = ['foo', 'bar'];
 
         service.update(false, nonExistingItem);
         expect(service.isFavorite(nonExistingItem)).toBeFalsy();

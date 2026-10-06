@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStat
 use Shopware\Core\Content\Media\File\TrustedUrlResolver;
 use Shopware\Core\Content\Test\Category\Service\CountingEntityReader;
 use Shopware\Core\Content\Test\Category\Service\CountingEntitySearcher;
+use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\App\Payment\Handler\AppPaymentHandler;
 use Shopware\Core\Framework\App\Payment\Payload\PaymentPayloadService;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
@@ -185,6 +186,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('shopware.app_system.guzzle', Client::class)
         ->args([
             [
+                'allow_redirects' => AuthMiddleware::ALLOW_REDIRECTS,
                 'handler' => inline_service(HandlerStack::class)
                     ->factory([HandlerStack::class, 'create'])
                     ->args([
@@ -221,6 +223,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set('shopware.webhook.guzzle', Client::class)
         ->args([
             [
+                'allow_redirects' => AuthMiddleware::ALLOW_REDIRECTS,
                 'handler' => inline_service(HandlerStack::class)
                     ->factory([HandlerStack::class, 'create'])
                     ->args([

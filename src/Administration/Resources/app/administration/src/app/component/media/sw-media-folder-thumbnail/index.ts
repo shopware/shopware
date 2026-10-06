@@ -20,11 +20,7 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: 'default',
             validator(value: string): boolean {
-                return [
-                    'default',
-                    'back',
-                    'back-breadcrumb',
-                ].includes(value);
+                return ['default', 'back', 'back-breadcrumb'].includes(value);
             },
         },
 

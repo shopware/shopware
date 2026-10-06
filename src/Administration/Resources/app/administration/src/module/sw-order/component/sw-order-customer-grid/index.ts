@@ -38,14 +38,9 @@ type ApiErrorResponse = {
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('listing'),
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('listing'), Mixin.getByName('notification')],
 
     data(): {
         customers: EntityCollection<'customer'> | null;
@@ -158,6 +153,7 @@ export default Component.wrapComponentConfig({
             return Store.get('swOrder').cart;
         },
 
+        /** @deprecated tag:v6.8.0 - Will be removed, use Shopware.Filter.getByName('asset') instead. */
         assetFilter() {
             return Shopware.Filter.getByName('asset');
         },

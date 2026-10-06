@@ -72,13 +72,13 @@ class MailServiceTest extends TestCase
             static::getContainer()->get(DataValidator::class),
             $renderer,
             static::getContainer()->get(MailFactory::class),
-            $this->createMock(AbstractMailSender::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(AbstractMailSender::class),
+            static::createStub(EntityRepository::class),
             static::getContainer()->get('sales_channel.repository'),
             static::getContainer()->get(SystemConfigService::class),
             static::getContainer()->get('event_dispatcher'),
-            $this->createMock(LoggerInterface::class),
-            $this->createMock(LanguageLocaleCodeProvider::class),
+            static::createStub(LoggerInterface::class),
+            static::createStub(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(MailTemplateContentBuilder::class),
             static::getContainer()->get(MailMetricsInstrumentor::class),
             static::createStub(AbstractTranslator::class),
@@ -138,7 +138,7 @@ class MailServiceTest extends TestCase
             $systemConfig->set('core.basicInformation.email', $basicInformationEmail);
         }
 
-        $languageLocaleProvider = $this->createMock(LanguageLocaleCodeProvider::class);
+        $languageLocaleProvider = static::createStub(LanguageLocaleCodeProvider::class);
         $languageLocaleProvider
             ->method('getLocaleForLanguageId')
             ->willReturn('en-GB');
@@ -149,11 +149,11 @@ class MailServiceTest extends TestCase
             static::getContainer()->get(StringTemplateRenderer::class),
             static::getContainer()->get(MailFactory::class),
             $mailSender,
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             static::getContainer()->get('sales_channel.repository'),
             $systemConfig,
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(EventDispatcher::class),
+            static::createStub(LoggerInterface::class),
             $languageLocaleProvider,
             static::getContainer()->get(MailTemplateContentBuilder::class),
             static::getContainer()->get(MailMetricsInstrumentor::class),
@@ -202,15 +202,15 @@ class MailServiceTest extends TestCase
         $mailSender = $this->createMock(AbstractMailSender::class);
         $mailService = new MailService(
             static::getContainer()->get(DataValidator::class),
-            $this->createMock(StringTemplateRenderer::class),
+            static::createStub(StringTemplateRenderer::class),
             static::getContainer()->get(MailFactory::class),
             $mailSender,
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             static::getContainer()->get('sales_channel.repository'),
             static::getContainer()->get(SystemConfigService::class),
             $eventDispatcher,
-            $this->createMock(LoggerInterface::class),
-            $this->createMock(LanguageLocaleCodeProvider::class),
+            static::createStub(LoggerInterface::class),
+            static::createStub(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(MailTemplateContentBuilder::class),
             static::getContainer()->get(MailMetricsInstrumentor::class),
             static::createStub(AbstractTranslator::class),
@@ -242,18 +242,18 @@ class MailServiceTest extends TestCase
     public function testMailSendingInTestMode(): void
     {
         $mailSender = $this->createMock(AbstractMailSender::class);
-        $templateRenderer = $this->createMock(StringTemplateRenderer::class);
+        $templateRenderer = static::createStub(StringTemplateRenderer::class);
         $mailService = new MailService(
             $this->getContainer()->get(DataValidator::class),
             $templateRenderer,
             static::getContainer()->get(MailFactory::class),
             $mailSender,
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             static::getContainer()->get('sales_channel.repository'),
             static::getContainer()->get(SystemConfigService::class),
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(LoggerInterface::class),
-            $this->createMock(LanguageLocaleCodeProvider::class),
+            static::createStub(EventDispatcher::class),
+            static::createStub(LoggerInterface::class),
+            static::createStub(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(MailTemplateContentBuilder::class),
             static::getContainer()->get(MailMetricsInstrumentor::class),
             static::createStub(AbstractTranslator::class),
@@ -304,18 +304,18 @@ class MailServiceTest extends TestCase
 
     public function testHtmlEscaping(): void
     {
-        $mailSender = $this->createMock(AbstractMailSender::class);
+        $mailSender = static::createStub(AbstractMailSender::class);
         $mailService = new MailService(
             static::getContainer()->get(DataValidator::class),
             static::getContainer()->get(StringTemplateRenderer::class),
             static::getContainer()->get(MailFactory::class),
             $mailSender,
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             static::getContainer()->get('sales_channel.repository'),
             static::getContainer()->get(SystemConfigService::class),
-            $this->createMock(EventDispatcher::class),
-            $this->createMock(LoggerInterface::class),
-            $this->createMock(LanguageLocaleCodeProvider::class),
+            static::createStub(EventDispatcher::class),
+            static::createStub(LoggerInterface::class),
+            static::createStub(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(MailTemplateContentBuilder::class),
             static::getContainer()->get(MailMetricsInstrumentor::class),
             static::createStub(AbstractTranslator::class),
@@ -355,11 +355,11 @@ class MailServiceTest extends TestCase
             static::getContainer()->get(StringTemplateRenderer::class),
             static::getContainer()->get(MailFactory::class),
             $mailSender,
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             static::getContainer()->get('sales_channel.repository'),
             static::getContainer()->get(SystemConfigService::class),
             static::getContainer()->get('event_dispatcher'),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             static::getContainer()->get(LanguageLocaleCodeProvider::class),
             static::getContainer()->get(MailTemplateContentBuilder::class),
             static::getContainer()->get(MailMetricsInstrumentor::class),

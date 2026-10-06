@@ -212,10 +212,7 @@ function globalMountOptions(options: RuntimeMountOptions, useConvertedTemplate: 
 
     return {
         components,
-        plugins: [
-            BlockDataScopePlugin,
-            ...(options.plugins ?? []),
-        ],
+        plugins: [BlockDataScopePlugin, ...(options.plugins ?? [])],
         provide: options.provide,
     };
 }
@@ -272,10 +269,7 @@ function mountGenerated(fixture: RuntimeFixture, result: ConvertResult, options:
 function mountOriginalPair(fixture: RuntimeFixture, options: RuntimeMountOptions = {}): [VueWrapper, VueWrapper] {
     const component = compileOptionsComponent(fixture);
 
-    return [
-        mountComponent(component, options, false),
-        mountComponent(component, options, false),
-    ];
+    return [mountComponent(component, options, false), mountComponent(component, options, false)];
 }
 
 function mountGeneratedPair(

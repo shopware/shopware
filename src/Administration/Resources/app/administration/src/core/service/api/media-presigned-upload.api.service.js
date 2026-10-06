@@ -165,10 +165,7 @@ class MediaPresignedUploadApiService extends ApiService {
                 let result = null;
 
                 try {
-                    const [
-                        prepareResult,
-                        dimensions,
-                    ] = await Promise.all([
+                    const [prepareResult, dimensions] = await Promise.all([
                         this.prepareUpload({
                             fileName,
                             extension,

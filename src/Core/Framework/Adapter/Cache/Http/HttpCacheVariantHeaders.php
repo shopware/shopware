@@ -26,6 +26,7 @@ final readonly class HttpCacheVariantHeaders
         PlatformRequest::HEADER_ACCESS_KEY,
         PlatformRequest::HEADER_LANGUAGE_ID,
         PlatformRequest::HEADER_CURRENCY_ID,
+        PlatformRequest::HEADER_INCLUDE_SEO_URLS,
         HttpCacheKeyGenerator::CONTEXT_CACHE_COOKIE,
     ];
 }

@@ -96,6 +96,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\ChildCountUpdater;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\TreeUpdater;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
@@ -188,6 +189,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('shopware.media.enable_url_upload_feature'),
             param('shopware.media.enable_url_validation'),
             param('shopware.media.url_upload_max_size'),
+            param('shopware.media.url_upload_timeout'),
         ]);
 
     $services->set(FileUrlValidatorInterface::class, FileUrlValidator::class)
@@ -437,6 +439,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(FileUrlValidatorInterface::class),
             service(TrustedUrlResolver::class),
             param('shopware.media.enable_url_validation'),
+            param('shopware.media.external_link_timeout'),
         ]);
 
     $services->set(VideoCoverService::class)
@@ -645,6 +648,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('media.repository'),
             service(CacheTagCollector::class),
+            service(ExtensionDispatcher::class),
         ]);
     // endregion Routes
 

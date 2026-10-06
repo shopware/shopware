@@ -11,14 +11,9 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'cacheApiService',
-        'feature',
-    ],
+    inject: ['cacheApiService', 'feature'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {
@@ -95,6 +90,14 @@ export default {
 
         indexers() {
             return this.cacheInfo?.indexers ?? {};
+        },
+
+        isIndexSelectionComplete() {
+            if (this.indexingMethod === 'skip') {
+                return true;
+            }
+
+            return (this.indexingMethod === 'only') === this.indexerSelection.length > 0;
         },
     },
 
@@ -203,7 +206,7 @@ export default {
 
             if (this.indexingMethod === 'skip') {
                 skip = this.indexerSelection;
-            } else {
+            } else if (this.indexingMethod === 'only') {
                 this.createOnlySelection(only);
             }
 

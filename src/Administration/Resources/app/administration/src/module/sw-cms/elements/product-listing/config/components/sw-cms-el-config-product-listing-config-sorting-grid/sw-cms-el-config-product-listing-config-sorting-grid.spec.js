@@ -94,9 +94,7 @@ async function createWrapper(productSortings = [], defaultSorting = {}) {
                     return param;
                 },
             },
-            mixins: [
-                Shopware.Mixin.getByName('sw-inline-snippet'),
-            ],
+            mixins: [Shopware.Mixin.getByName('sw-inline-snippet')],
         },
         props: {
             modelValue: productSortings,
@@ -177,9 +175,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
     });
 
     it('should forward inline edit events', async () => {
-        const productSortings = new EntityCollection('', '', {}, {}, [
-            { id: 'foo', locked: false, priority: 5 },
-        ]);
+        const productSortings = new EntityCollection('', '', {}, {}, [{ id: 'foo', locked: false, priority: 5 }]);
         const wrapper = await createWrapper(productSortings);
 
         await wrapper.find('.inline-edit-save').trigger('click');
@@ -205,10 +201,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
             },
             {
                 id: 'bar',
-                fields: [
-                    { field: 'product.price' },
-                    { field: 'custom_field_0' },
-                ],
+                fields: [{ field: 'product.price' }, { field: 'custom_field_0' }],
                 locked: false,
                 priority: 3,
             },
@@ -244,10 +237,7 @@ describe('src/module/sw-cms/elements/product-listing/config/components/sw-cms-el
             },
             {
                 id: 'bar',
-                fields: [
-                    { field: 'product.price' },
-                    { field: 'custom_field_0' },
-                ],
+                fields: [{ field: 'product.price' }, { field: 'custom_field_0' }],
                 locked: false,
                 priority: 3,
             },

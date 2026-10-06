@@ -119,7 +119,7 @@
         "scssphp/scssphp": "v1.12.0",
         "setasign/fpdi": "^2.3.7",
         "setasign/tfpdf": "^1.33",
-        "shopware/conflicts": "0.6.2",
+        "shopware/conflicts": "0.6.3",
         "shyim/opensearch-php-dsl": "^1.1.4",
         "squirrelphp/twig-php-syntax": "^1.13.0",
         "symfony/asset": "~7.4.0",
@@ -183,7 +183,7 @@
         "symfony/yaml": "~7.4.12",
         "twig/intl-extra": "^3.26.0",
         "twig/string-extra": "^3.24.0",
-        "twig/twig": "^3.26.0",
+        "twig/twig": "^3.29.0",
         "zircote/swagger-php": "^6.4"
     },
     "require-dev": {
@@ -257,12 +257,13 @@
         "admin:generate-data-set-list": "Generate the list of all data sets. Used to track breaking changes.",
         "admin:generate-entity-schema-types": "Generate the Typescript definition for the entity schema",
         "admin:generate-position-identifier-list": "Generate the list of all position identifiers. Used to track breaking changes.",
+        "admin:generate-shopware-modules": "Generate the shopware:* module registry and its ambient declarations.",
         "admin:lint:snippets": "Checks that no admin snippet duplicates a global.default translation in every locale.",
         "admin:lint:snippets:all": "Like admin:lint:snippets but ignores the allow list, listing every duplicate including the allowed ones.",
         "admin:setup-extension-tooling": "[EXPERIMENTAL] Generates TypeScript/ESLint configs for installed Administration extensions",
         "admin:setup-extension-tooling:check": "[EXPERIMENTAL] Read-only dry-run of admin:setup-extension-tooling (exit 1 on drift)",
         "admin:unit": "Launches the jest unit test-suite for the Admin",
-        "admin:unit:major": "Launches the jest unit test-suite for the Admin with all major feature flags enabled",
+        "admin:unit:major": "Launches the jest unit test-suite for the Admin with the upcoming major feature flag enabled",
         "admin:unit:watch": "Launches the interactive jest unit test-suite watcher for the Admin",
         "bc-check": "Checks for backwards compatibility breaks in the current branch",
         "build:js": "Builds Administration & Storefront",
@@ -363,6 +364,7 @@
         "admin:generate-position-identifier-list": [
             "@npm:admin run generate-position-identifier-list"
         ],
+        "admin:generate-shopware-modules": "@npm:admin run generate-shopware-modules",
         "admin:lint:snippets": "@npm:admin run lint:snippets",
         "admin:lint:snippets:all": "@npm:admin run lint:snippets:all",
         "admin:setup-extension-tooling": "@npm:admin:bin npm run extension-tooling:setup --",
@@ -375,7 +377,7 @@
         ],
         "admin:unit:major": [
             "Composer\\Config::disableProcessTimeout",
-            "@putenv FEATURE_ALL=major",
+            "@putenv V6_8_0_0=1",
             "@framework:schema:dump",
             "@npm:admin run unit-setup",
             "@npm:admin run unit"
@@ -611,7 +613,8 @@
     },
     "autoload": {
         "files": [
-            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php"
+            "src/Core/Framework/Adapter/Doctrine/Patch/AbstractAsset.php",
+            "src/Core/Framework/Deprecation/class_aliases.php"
         ],
         "psr-4": {
             "Shopware\\": "src/"

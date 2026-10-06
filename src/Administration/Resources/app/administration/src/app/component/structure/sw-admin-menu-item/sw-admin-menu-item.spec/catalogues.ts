@@ -8,7 +8,7 @@
 export default {
     id: 'sw-catalogue',
     moduleType: 'core',
-    label: 'global.sw-admin-menu.navigation.mainMenuItemCatalogue',
+    label: 'global.sw-admin-menu.navigation.mainMenuItemProducts',
     color: 'var(--sw-color-module-green-default)',
     icon: 'regular-products',
     position: 20,
@@ -17,7 +17,7 @@ export default {
         {
             id: 'sw-product',
             moduleType: 'core',
-            label: 'sw-product.general.mainMenuItemGeneral',
+            label: 'sw-product.general.mainMenuItemOverview',
             color: 'var(--sw-color-module-green-default)',
             path: 'sw.product.index',
             icon: 'regular-products',
@@ -44,7 +44,7 @@ export default {
             path: 'sw.category.index',
             label: 'sw-category.general.mainMenuItemIndex',
             parent: 'sw-catalogue',
-            position: 20,
+            position: 25,
             children: [],
             level: 2,
         },

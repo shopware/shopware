@@ -42,7 +42,7 @@ class ProductNameTypeCmsElementResolverTest extends TestCase
 
     public function testCollect(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
 
         $slot = new CmsSlotEntity();
         $slot->setUniqueIdentifier('id');
@@ -55,7 +55,7 @@ class ProductNameTypeCmsElementResolverTest extends TestCase
 
     public function testEnrichWithoutContext(): void
     {
-        $resolverContext = new ResolverContext($this->createMock(SalesChannelContext::class), new Request());
+        $resolverContext = new ResolverContext(static::createStub(SalesChannelContext::class), new Request());
         $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();
@@ -75,7 +75,7 @@ class ProductNameTypeCmsElementResolverTest extends TestCase
         $product = new SalesChannelProductEntity();
         $product->setId('product_01');
         $product->setName('Product 01');
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), static::getContainer()->get(SalesChannelProductDefinition::class), $product);
+        $resolverContext = new EntityResolverContext(static::createStub(SalesChannelContext::class), new Request(), static::getContainer()->get(SalesChannelProductDefinition::class), $product);
         $result = new ElementDataCollection();
 
         $slot = new CmsSlotEntity();
@@ -98,7 +98,7 @@ class ProductNameTypeCmsElementResolverTest extends TestCase
         $category = new CategoryEntity();
         $category->setName('TextCategory');
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(CategoryDefinition::class), $category);
+        $resolverContext = new EntityResolverContext(static::createStub(SalesChannelContext::class), new Request(), static::createStub(CategoryDefinition::class), $category);
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();
@@ -123,7 +123,7 @@ class ProductNameTypeCmsElementResolverTest extends TestCase
         $category = new CategoryEntity();
         $category->setName('TextCategory');
 
-        $resolverContext = new EntityResolverContext($this->createMock(SalesChannelContext::class), new Request(), $this->createMock(CategoryDefinition::class), $category);
+        $resolverContext = new EntityResolverContext(static::createStub(SalesChannelContext::class), new Request(), static::createStub(CategoryDefinition::class), $category);
         $result = new ElementDataCollection();
 
         $fieldConfig = new FieldConfigCollection();

@@ -25,13 +25,9 @@ export default Shopware.Component.wrapComponentConfig({
         });
     },
 
-    inject: [
-        'shopwareExtensionService',
-    ],
+    inject: ['shopwareExtensionService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         namespace: {

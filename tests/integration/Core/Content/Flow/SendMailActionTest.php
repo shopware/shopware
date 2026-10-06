@@ -12,13 +12,13 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Event\CustomerRegisterEvent;
-use Shopware\Core\Checkout\Document\DocumentCollection;
-use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
 use Shopware\Core\Checkout\Document\Renderer\DeliveryNoteRenderer;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\DocumentCollection;
+use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -151,7 +151,7 @@ class SendMailActionTest extends TestCase
         }
 
         $transportDecorator = new MailerTransportDecorator(
-            $this->createMock(TransportInterface::class),
+            static::createStub(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
             static::getContainer()->get('shopware.filesystem.public'),
             static::getContainer()->get('document.repository')
@@ -581,10 +581,12 @@ class SendMailActionTest extends TestCase
         $flow = $flowFactory->create($event);
         $flow->setConfig($config);
 
-        $subscriber->handleFlow($flow);
-
-        static::assertIsObject($mailFilterEvent);
-        static::assertSame(1, $mailService->calls);
+        try {
+            $subscriber->handleFlow($flow);
+        } finally {
+            static::assertNull($mailFilterEvent);
+            static::assertSame(0, $mailService->calls);
+        }
     }
 
     #[DataProvider('updateTemplateDataProvider')]
@@ -721,7 +723,7 @@ class SendMailActionTest extends TestCase
         $sequencesConfig = $this->createFlowSequencesConfig($mailTemplateId, $documentTypes);
 
         $transportDecorator = new MailerTransportDecorator(
-            $this->createMock(TransportInterface::class),
+            static::createStub(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
             static::getContainer()->get('shopware.filesystem.public'),
             $this->documentRepository
@@ -796,7 +798,7 @@ class SendMailActionTest extends TestCase
         $flow = $flowFactory->create($event);
 
         $transportDecorator = new MailerTransportDecorator(
-            $this->createMock(TransportInterface::class),
+            static::createStub(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
             static::getContainer()->get('shopware.filesystem.public'),
             $this->documentRepository
@@ -898,7 +900,7 @@ class SendMailActionTest extends TestCase
         );
 
         $transportDecorator = new MailerTransportDecorator(
-            $this->createMock(TransportInterface::class),
+            static::createStub(TransportInterface::class),
             static::getContainer()->get(MailAttachmentsBuilder::class),
             static::getContainer()->get('shopware.filesystem.public'),
             $this->documentRepository

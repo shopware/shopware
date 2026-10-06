@@ -388,6 +388,8 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('url_upload_max_size')->defaultValue(0)
                     ->validate()->always()->then(static fn ($value) => abs(MemorySizeCalculator::convertToBytes((string) $value)))->end()
                 ->end()
+                ->floatNode('url_upload_timeout')->defaultValue(0.0)->min(0)->end()
+                ->floatNode('external_link_timeout')->defaultValue(0.0)->min(0)->end()
                 ->arrayNode('presigned_upload')
                     ->addDefaultsIfNotSet()
                     ->children()
@@ -659,10 +661,12 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('name')->end()
                         ->booleanNode('default')->defaultFalse()->end()
-                        ->booleanNode('major')->defaultFalse()->end()
-                        // Only for a major flag that is not named after its major: the major it
-                        // arrives in, so FEATURE_ALL=v6.8.0.0 can leave out a later major's flags.
-                        ->scalarNode('majorVersion')->end()
+                        ->stringNode('major')->cannotBeEmpty()
+                            ->validate()
+                                ->ifTrue(static fn (string $major): bool => !\preg_match('/^v\d+\.\d+\.0\.0$/', $major))
+                                ->thenInvalid('The parent major must be a canonical version flag such as "v6.8.0.0".')
+                            ->end()
+                        ->end()
                         ->booleanNode('toggleable')->defaultFalse()->end()
                         ->scalarNode('description')->end()
                     ->end()
@@ -682,6 +686,18 @@ class Configuration implements ConfigurationInterface
 
                         return $flags;
                     })
+                    ->end()
+                ->validate()
+                    ->ifTrue(static function (array $flags): bool {
+                        foreach ($flags as $name => $flag) {
+                            if (isset($flag['major']) && Feature::isMajorVersionFlag((string) $name)) {
+                                return true;
+                            }
+                        }
+
+                        return false;
+                    })
+                    ->thenInvalid('A major version flag cannot declare a parent major.')
                     ->end()
             ->end();
 
@@ -1315,7 +1331,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode = $treeBuilder->getRootNode();
         $rootNode
-            ->arrayPrototype()->scalarPrototype()->end()
+            ->arrayPrototype()->variablePrototype()->end()
             ->end()
             ->validate()
             ->ifFalse(

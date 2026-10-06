@@ -4,10 +4,9 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Service;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeEntity;
-use Shopware\Core\Checkout\Document\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileCollection;
 use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentFile\DocumentFileEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\Service\DocumentFileResolver;
 use Shopware\Core\Checkout\DocumentV2\Struct\ResolvedDocumentFile;
 use Shopware\Core\Content\Media\MediaEntity;
@@ -223,12 +222,7 @@ class DocumentFileResolverTest extends TestCase
         $document->setDocumentFiles(new DocumentFileCollection($documentFiles));
         $document->setDocumentMediaFile($legacyMedia);
         $document->setDocumentA11yMediaFile($legacyA11yMedia);
-
-        if ($documentType !== null) {
-            $type = new DocumentTypeEntity();
-            $type->setTechnicalName($documentType);
-            $document->setDocumentType($type);
-        }
+        $document->setTypeName($documentType);
 
         return $document;
     }

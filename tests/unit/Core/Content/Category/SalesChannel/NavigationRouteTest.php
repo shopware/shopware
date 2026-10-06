@@ -9,17 +9,21 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\Exception\CategoryNotFoundException;
+use Shopware\Core\Content\Category\Extension\NavigationRouteExtension;
 use Shopware\Core\Content\Category\SalesChannel\NavigationRoute;
+use Shopware\Core\Content\Category\SalesChannel\NavigationRouteResponse;
 use Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoader;
 use Shopware\Core\Content\Category\Tree\CategoryTreePathResolver;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -185,6 +189,35 @@ class NavigationRouteTest extends TestCase
         );
     }
 
+    public function testPublishesExtension(): void
+    {
+        $activeId = Uuid::randomHex();
+        $rootId = Uuid::randomHex();
+        $request = new Request();
+        $criteria = new Criteria();
+        $response = static::createStub(NavigationRouteResponse::class);
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('navigation-route.load.pre', function (NavigationRouteExtension $extension) use ($activeId, $rootId, $request, $criteria, $response): void {
+            static::assertSame([
+                'activeId' => $activeId,
+                'rootId' => $rootId,
+                'request' => $request,
+                'context' => $this->salesChannelContext,
+                'criteria' => $criteria,
+            ], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $this->connection->expects($this->never())->method('fetchAllAssociative');
+
+        $route = $this->createRoute(extensions: new ExtensionDispatcher($dispatcher));
+
+        static::assertSame($response, $route->load($activeId, $rootId, $request, $this->salesChannelContext, $criteria));
+    }
+
     /**
      * @param (SalesChannelRepository<CategoryCollection>&MockObject)|null $categoryRepository
      */
@@ -192,6 +225,7 @@ class NavigationRouteTest extends TestCase
         ?SalesChannelRepository $categoryRepository = null,
         ?CacheTagCollector $cacheTagCollector = null,
         ?CategoryTreePathResolver $categoryTreePathResolver = null,
+        ?ExtensionDispatcher $extensions = null,
     ): NavigationRoute {
         return new NavigationRoute(
             $this->connection,
@@ -199,6 +233,7 @@ class NavigationRouteTest extends TestCase
             $cacheTagCollector ?? $this->cacheTagCollector,
             $categoryTreePathResolver ?? $this->categoryTreePathResolver,
             $this->defaultCategoryLevelLoader,
+            $extensions ?? new ExtensionDispatcher(new EventDispatcher()),
         );
     }
 }

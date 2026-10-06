@@ -100,10 +100,7 @@ async function createWrapper(privileges = [], languageId = null, stubTranslation
                         items: [],
                     }),
                     getMeta: jest.fn().mockResolvedValue({
-                        builtInLocales: [
-                            'de-DE',
-                            'en-GB',
-                        ],
+                        builtInLocales: ['de-DE', 'en-GB'],
                     }),
                     install: jest.fn().mockResolvedValue(undefined),
                 },
@@ -197,11 +194,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
     });
 
     it('should be able to save the language', async () => {
-        const wrapper = await createWrapper([
-            'language.editor',
-            null,
-            false,
-        ]);
+        const wrapper = await createWrapper(['language.editor', null, false]);
         await flushPromises();
 
         const saveButton = wrapper.find('.sw-settings-language-detail__save-action');
@@ -268,13 +261,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
     });
 
     it('should load language data again after create new language', async () => {
-        const wrapper = await createWrapper(
-            [
-                'language.editor',
-            ],
-            null,
-            false,
-        );
+        const wrapper = await createWrapper(['language.editor'], null, false);
         await flushPromises();
 
         const actionLoadEntitySpy = jest.spyOn(wrapper.vm, 'loadEntityData');
@@ -303,10 +290,7 @@ describe('module/sw-settings-language/page/sw-settings-language-detail', () => {
         const wrapper = await createWrapper();
         await flushPromises();
 
-        wrapper.vm.builtInLocales = [
-            'de-DE',
-            'en-GB',
-        ];
+        wrapper.vm.builtInLocales = ['de-DE', 'en-GB'];
         wrapper.vm.language = { locale: { code: 'de-DE' } };
         expect(wrapper.vm.snippetUpdateState).toBe('builtIn');
 

@@ -50,7 +50,7 @@ class CartPersisterTest extends TestCase
     public function testLoadWithNotExistingToken(): void
     {
         $connection = $this->createMock(Connection::class);
-        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
         $eventDispatcher = new EventDispatcher();
         $connection->expects($this->once())
             ->method('fetchAssociative')
@@ -72,7 +72,7 @@ class CartPersisterTest extends TestCase
     public function testLoadWithExistingToken(): void
     {
         $connection = $this->createMock(Connection::class);
-        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
         $eventDispatcher = new EventDispatcher();
         $connection->expects($this->once())
             ->method('fetchAssociative')
@@ -92,7 +92,7 @@ class CartPersisterTest extends TestCase
     public function testEmptyCartShouldNotBeSaved(): void
     {
         $connection = $this->createMock(Connection::class);
-        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
 
         $eventDispatcher = new EventDispatcher();
 
@@ -354,7 +354,7 @@ class CartPersisterTest extends TestCase
     public function testCartVerifyPersistEventIsFiredAndNotPersisted(): void
     {
         $connection = $this->createMock(Connection::class);
-        $cartSerializationCleaner = $this->createMock(CartSerializationCleaner::class);
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
         $eventDispatcher = new EventDispatcher();
 
         $this->expectSqlQuery($connection, 'DELETE FROM `cart`');

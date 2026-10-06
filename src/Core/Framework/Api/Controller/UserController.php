@@ -293,7 +293,7 @@ class UserController extends AbstractController
             $data['id'] = $roleId;
         }
 
-        $events = $context->scope(Context::SYSTEM_SCOPE, fn (Context $context) => $this->roleRepository->upsert([$data], $context));
+        $events = $this->roleRepository->upsert([$data], $context);
         $eventIds = $events->getEventByEntityName(AclRoleDefinition::ENTITY_NAME)?->getIds() ?? [];
         $entityId = array_last($eventIds);
         \assert($entityId !== null);
@@ -348,9 +348,7 @@ class UserController extends AbstractController
     {
         $this->validateScope($request);
 
-        $context->scope(Context::SYSTEM_SCOPE, function (Context $context) use ($roleId): void {
-            $this->roleRepository->delete([['id' => $roleId]], $context);
-        });
+        $this->roleRepository->delete([['id' => $roleId]], $context);
 
         return $factory->createRedirectResponse($this->roleRepository->getDefinition(), $roleId, $request, $context);
     }

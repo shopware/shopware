@@ -10,10 +10,7 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'acl'],
 
     emits: [
         'config-add',
@@ -22,10 +19,7 @@ export default {
         'config-delete',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('sw-inline-snippet'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('sw-inline-snippet')],
 
     props: {
         isEmpty: {
@@ -90,11 +84,7 @@ export default {
                 return criteria;
             }
 
-            criteria.addFilter(
-                Criteria.not('AND', [
-                    Criteria.equalsAny('id', this.addedCustomFieldIds),
-                ]),
-            );
+            criteria.addFilter(Criteria.not('AND', [Criteria.equalsAny('id', this.addedCustomFieldIds)]));
 
             return criteria;
         },

@@ -151,10 +151,7 @@ async function createWrapper(defaultFolderId, privileges = []) {
                 },
                 'sw-text-field': true,
                 'sw-media-folder-thumbnail': {
-                    props: [
-                        'color',
-                        'variant',
-                    ],
+                    props: ['color', 'variant'],
                     template: '<svg class="sw-media-folder-thumbnail"></svg>',
                 },
                 'sw-media-modal-folder-settings': true,
@@ -173,22 +170,10 @@ describe('components/media/sw-media-folder-item', () => {
     });
 
     it.each([
-        [
-            'product module',
-            ID_PRODUCTS_FOLDER,
-        ],
-        [
-            'mail template module',
-            ID_MAILTEMPLATE_FOLDER,
-        ],
-        [
-            'cms module',
-            ID_CONTENT_FOLDER,
-        ],
-        [
-            'fallback',
-            undefined,
-        ],
+        ['product module', ID_PRODUCTS_FOLDER],
+        ['mail template module', ID_MAILTEMPLATE_FOLDER],
+        ['cms module', ID_CONTENT_FOLDER],
+        ['fallback', undefined],
     ])('should use the blue folder thumbnail for %s', async (_, defaultFolderId) => {
         const wrapper = await createWrapper(defaultFolderId);
         await wrapper.vm.$nextTick();
@@ -245,9 +230,7 @@ describe('components/media/sw-media-folder-item', () => {
     });
 
     it('should be able to delete', async () => {
-        const aclWrapper = await createWrapper(null, [
-            'media.deleter',
-        ]);
+        const aclWrapper = await createWrapper(null, ['media.deleter']);
         await aclWrapper.vm.$nextTick();
 
         const deleteMenuItem = aclWrapper.find('.sw-media-context-item__delete-folder-action');
@@ -263,9 +246,7 @@ describe('components/media/sw-media-folder-item', () => {
     });
 
     it('should be able to edit', async () => {
-        const aclWrapper = await createWrapper(null, [
-            'media.editor',
-        ]);
+        const aclWrapper = await createWrapper(null, ['media.editor']);
         await aclWrapper.vm.$nextTick();
 
         const editMenuItem = aclWrapper.find('.sw-media-context-item__move-folder-action');

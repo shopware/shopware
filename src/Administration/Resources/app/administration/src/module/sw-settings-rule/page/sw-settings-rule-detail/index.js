@@ -21,9 +21,7 @@ export default {
         'acl',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -158,10 +156,7 @@ export default {
             return getAllConditions(this.conditionTree);
         },
 
-        ...mapPropertyErrors('rule', [
-            'name',
-            'priority',
-        ]),
+        ...mapPropertyErrors('rule', ['name', 'priority']),
     },
 
     watch: {
@@ -394,10 +389,7 @@ export default {
 
         conditionsChanged({ conditions, deletedIds }) {
             this.conditionTree = conditions;
-            this.deletedIds = [
-                ...this.deletedIds,
-                ...deletedIds,
-            ];
+            this.deletedIds = [...this.deletedIds, ...deletedIds];
         },
 
         validateRuleAwareness() {

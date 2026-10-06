@@ -15,10 +15,7 @@ const COUNTRY_DEPENDENT_FIELDS = {
     zipcode: 'postalCodeRequired',
 };
 
-const MANAGED_REQUIRED_FIELDS = [
-    'company',
-    ...Object.keys(COUNTRY_DEPENDENT_FIELDS),
-];
+const MANAGED_REQUIRED_FIELDS = ['company', ...Object.keys(COUNTRY_DEPENDENT_FIELDS)];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -122,11 +119,7 @@ export default {
         salutationCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(
-                Criteria.not('or', [
-                    Criteria.equals('id', Defaults.defaultSalutationId),
-                ]),
-            );
+            criteria.addFilter(Criteria.not('or', [Criteria.equals('id', Defaults.defaultSalutationId)]));
 
             return criteria;
         },
@@ -180,20 +173,15 @@ export default {
         country: {
             immediate: true,
             handler(country, previousCountry) {
-                Object.entries(COUNTRY_DEPENDENT_FIELDS).forEach(
-                    ([
-                        field,
-                        countryProperty,
-                    ]) => {
-                        const isRequired = Boolean(country?.[countryProperty]);
+                Object.entries(COUNTRY_DEPENDENT_FIELDS).forEach(([field, countryProperty]) => {
+                    const isRequired = Boolean(country?.[countryProperty]);
 
-                        this.setFieldRequired(field, isRequired);
+                    this.setFieldRequired(field, isRequired);
 
-                        if (!isRequired && previousCountry !== undefined) {
-                            this.removeRequiredFieldError(field);
-                        }
-                    },
-                );
+                    if (!isRequired && previousCountry !== undefined) {
+                        this.removeRequiredFieldError(field);
+                    }
+                });
             },
         },
     },

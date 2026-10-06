@@ -15,16 +15,11 @@ const Criteria = Shopware.Data.Criteria;
 export default {
     template,
 
-    inject: [
-        'feature',
-        'repositoryFactory',
-    ],
+    inject: ['feature', 'repositoryFactory'],
 
     emits: ['element-update'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data() {
         return {

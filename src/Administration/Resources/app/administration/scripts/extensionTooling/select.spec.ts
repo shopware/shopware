@@ -45,10 +45,7 @@ describe('scripts/extensionTooling/select parseSelection', () => {
 
     it('selects only writable (non-vendor) extensions with "w"', () => {
         expect(parseSelection('w', projects)).toEqual({
-            names: [
-                'Alpha',
-                'Charlie',
-            ],
+            names: ['Alpha', 'Charlie'],
         });
     });
 
@@ -61,26 +58,16 @@ describe('scripts/extensionTooling/select parseSelection', () => {
     it('resolves single numbers and comma lists to names', () => {
         expect(parseSelection('1', projects)).toEqual({ names: ['Alpha'] });
         expect(parseSelection('1,3', projects)).toEqual({
-            names: [
-                'Alpha',
-                'Charlie',
-            ],
+            names: ['Alpha', 'Charlie'],
         });
     });
 
     it('resolves ranges and de-duplicates into ascending order', () => {
         expect(parseSelection('2-4', projects)).toEqual({
-            names: [
-                'Bravo',
-                'Charlie',
-                'Delta',
-            ],
+            names: ['Bravo', 'Charlie', 'Delta'],
         });
         expect(parseSelection('3,1,1', projects)).toEqual({
-            names: [
-                'Alpha',
-                'Charlie',
-            ],
+            names: ['Alpha', 'Charlie'],
         });
     });
 

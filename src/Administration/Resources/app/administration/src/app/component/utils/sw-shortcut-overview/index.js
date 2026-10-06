@@ -22,10 +22,7 @@ export default {
 
     inject: ['shortcutService'],
 
-    emits: [
-        'shortcut-open',
-        'shortcut-close',
-    ],
+    emits: ['shortcut-open', 'shortcut-close'],
 
     props: {
         showModal: {

@@ -7,26 +7,11 @@ import type { ScriptBlock } from './sfc-script-block';
 
 describe('build/vue-setup-transform/utils/shopware-setup-block', () => {
     it.each([
-        [
-            'src/module/sw-example.vue',
-            { mode: 'base', componentName: 'sw-example' },
-        ],
-        [
-            'src/module/sw-example.override.vue',
-            { mode: 'override', componentName: 'sw-example' },
-        ],
-        [
-            'src/module/sw-example/index.vue',
-            { mode: 'base', componentName: 'sw-example' },
-        ],
-        [
-            'src\\module\\sw-example\\index.override.vue',
-            { mode: 'override', componentName: 'sw-example' },
-        ],
-        [
-            'src/module/sw-example.vue?vue&type=script&setup=true',
-            { mode: 'base', componentName: 'sw-example' },
-        ],
+        ['src/module/sw-example.vue', { mode: 'base', componentName: 'sw-example' }],
+        ['src/module/sw-example.override.vue', { mode: 'override', componentName: 'sw-example' }],
+        ['src/module/sw-example/index.vue', { mode: 'base', componentName: 'sw-example' }],
+        ['src\\module\\sw-example\\index.override.vue', { mode: 'override', componentName: 'sw-example' }],
+        ['src/module/sw-example.vue?vue&type=script&setup=true', { mode: 'base', componentName: 'sw-example' }],
     ])('infers Shopware setup mode and component name from %s', (filename, expected) => {
         expect(inferShopwareSetupFromFilename(filename)).toEqual(expected);
     });

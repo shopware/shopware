@@ -14,9 +14,7 @@ const createId = Shopware.Utils.createId;
 export default Shopware.Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
     props: {
         ogTitle: {

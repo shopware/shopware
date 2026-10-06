@@ -12,18 +12,11 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'loginService',
-    ],
+    inject: ['loginService'],
 
-    emits: [
-        'verified',
-        'close',
-    ],
+    emits: ['verified', 'close'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {

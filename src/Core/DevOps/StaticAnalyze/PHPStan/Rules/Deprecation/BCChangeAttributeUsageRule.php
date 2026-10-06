@@ -18,6 +18,7 @@ use PHPStan\Reflection\ReflectionProvider;
 use PHPStan\Rules\IdentifierRuleError;
 use PHPStan\Rules\Rule;
 use PHPStan\Rules\RuleErrorBuilder;
+use PHPStan\Symfony\ServiceMap;
 use PHPStan\Type\ObjectType;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
@@ -25,7 +26,9 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
 use Shopware\Core\Framework\Deprecation\BCChange\CallSiteCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassMoved;
 use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
+use Shopware\Core\Framework\Deprecation\BCChange\ExperimentalReplacement;
 use Shopware\Core\Framework\Deprecation\BCChange\ExtenderCompatibilityChange;
 use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Deprecation\BCChange\NewRequiredParameter;
@@ -56,6 +59,8 @@ use Shopware\Core\Framework\Log\Package;
 class BCChangeAttributeUsageRule implements Rule
 {
     private const VERSION_PATTERN = '/^v\d+\.\d+\.\d+$/';
+
+    private const FEATURE_FLAG_PATTERN = '/^[A-Z]+(_[A-Z]+)*$/';
 
     private const BC_CHANGE_NAMESPACE_PREFIX = 'Shopware\\Core\\Framework\\Deprecation\\BCChange\\';
 
@@ -105,8 +110,17 @@ class BCChangeAttributeUsageRule implements Rule
         'Shopware\\Core\\Content\\Product\\SalesChannel\\Review\\ProductReviewResult' => true,
     ];
 
-    public function __construct(private readonly ReflectionProvider $reflectionProvider)
-    {
+    /**
+     * @var array<string, true>|null
+     */
+    private ?array $deprecatedServiceAliases = null;
+
+    public function __construct(
+        private readonly ReflectionProvider $reflectionProvider,
+        private readonly ServiceMap $serviceMap,
+        private readonly ?string $containerXmlPath,
+        private readonly ClassAliasMap $classAliasMap,
+    ) {
     }
 
     public function getNodeType(): string
@@ -151,11 +165,16 @@ class BCChangeAttributeUsageRule implements Rule
             if ($specific === [] && $attribute->getName() === ClassHierarchyChange::class) {
                 $specific = $this->validateClassHierarchyChange($attribute, $node->getClassReflection(), $methodNodes, $classLine);
             }
+            if ($specific === [] && $attribute->getName() === ClassMoved::class) {
+                $specific = $this->validateClassMoved($attribute, $class, $classLine);
+            }
             if ($specific === [] && $classIsFinal) {
                 $specific = $this->validateExtenderOnlyOnFinal($attribute, $class->getShortName(), 'class', $classLine);
             }
             $errors = [...$errors, ...$specific];
         }
+
+        $errors = [...$errors, ...$this->validateRegisteredClassAliases($class, $classLine)];
 
         foreach ($class->getMethods() as $method) {
             if ($method->getDeclaringClass()->getName() !== $class->getName()) {
@@ -263,7 +282,162 @@ class BCChangeAttributeUsageRule implements Rule
             return [$this->error($line, \sprintf('BecomesInternal on "%s": the class is already @internal.', $symbol))];
         }
 
+        if ($attribute->getName() === ExperimentalReplacement::class) {
+            return $this->validateExperimentalReplacement($attribute, $symbol, $line);
+        }
+
         return [];
+    }
+
+    /**
+     * @return list<IdentifierRuleError>
+     */
+    private function validateExperimentalReplacement(ReflectionAttribute|FakeReflectionAttribute $attribute, string $symbol, int $line): array
+    {
+        $feature = $this->argument($attribute, 'feature', 1);
+
+        if (!\is_string($feature) || preg_match(self::FEATURE_FLAG_PATTERN, $feature) !== 1) {
+            return [$this->error($line, \sprintf(
+                'ExperimentalReplacement on "%s": feature "%s" must be the ALL_CAPS name of the experimental feature flag.',
+                $symbol,
+                \is_scalar($feature) ? (string) $feature : \gettype($feature)
+            ))];
+        }
+
+        $replacement = $this->argument($attribute, 'replacement', 2);
+        $description = $this->argument($attribute, 'description', 3);
+
+        if ($replacement === null && (!\is_string($description) || \trim($description) === '')) {
+            return [$this->error($line, \sprintf(
+                'ExperimentalReplacement on "%s": name a replacement class or describe what supersedes the symbol.',
+                $symbol
+            ))];
+        }
+
+        if ($replacement === null) {
+            return [];
+        }
+
+        if (!\is_string($replacement) || !$this->reflectionProvider->hasClass($replacement)) {
+            return [$this->error($line, \sprintf(
+                'ExperimentalReplacement on "%s": replacement "%s" is not a resolvable class. Reference the replacement via ::class.',
+                $symbol,
+                \is_scalar($replacement) ? (string) $replacement : \gettype($replacement)
+            ))];
+        }
+
+        $replacementDoc = (string) $this->reflectionProvider->getClass($replacement)->getNativeReflection()->getDocComment();
+        $experimentalPattern = \sprintf('/@experimental\b[^\n]*\bfeature:%s\b/', preg_quote($feature, '/'));
+
+        if (preg_match($experimentalPattern, $replacementDoc) !== 1) {
+            return [$this->error($line, \sprintf(
+                'ExperimentalReplacement on "%s": replacement "%s" is not marked @experimental for feature "%s". Once the replacement is stable, turn this attribute into a real @deprecated annotation.',
+                $symbol,
+                $this->shortClassName($replacement),
+                $feature
+            ))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @param \ReflectionClass<object> $class
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function validateClassMoved(ReflectionAttribute|FakeReflectionAttribute $attribute, \ReflectionClass $class, int $line): array
+    {
+        $previousClassName = $this->argument($attribute, 'previousClassName', 1);
+        $symbol = $class->getShortName();
+
+        if (!\is_string($previousClassName) || $previousClassName === '') {
+            return [$this->error($line, \sprintf(
+                'ClassMoved on "%s": previousClassName must be a non-empty class name.',
+                $symbol
+            ))];
+        }
+
+        $currentClassName = $class->getName();
+        if ($this->classAliasMap->canonicalClassName($previousClassName) !== $currentClassName) {
+            return [$this->error($line, \sprintf(
+                'ClassMoved on "%s": add the class alias "%s" => "%s" to ClassAliasRegistry::ALIASES in Platform or register it with ClassAliasRegistry::registerAliases() from the extension Composer autoload file.',
+                $symbol,
+                $previousClassName,
+                $currentClassName
+            ))];
+        }
+
+        $currentService = $this->serviceMap->getService($currentClassName);
+        $effectiveCurrentServiceId = $currentService?->getAlias() ?? $currentClassName;
+
+        if ($currentService !== null
+            && ($this->serviceMap->getService($previousClassName)?->getAlias() !== $effectiveCurrentServiceId
+                || !$this->isDeprecatedServiceAlias($previousClassName))
+        ) {
+            return [$this->error($line, \sprintf(
+                'ClassMoved on "%s": register the deprecated service alias "%s" => "%s".',
+                $symbol,
+                $previousClassName,
+                $currentClassName
+            ))];
+        }
+
+        return [];
+    }
+
+    /**
+     * @param \ReflectionClass<object> $class
+     *
+     * @return list<IdentifierRuleError>
+     */
+    private function validateRegisteredClassAliases(\ReflectionClass $class, int $line): array
+    {
+        $declaredAliases = [];
+        foreach ($class->getAttributes(ClassMoved::class) as $attribute) {
+            $previousClassName = $attribute->newInstance()->previousClassName;
+            $declaredAliases[\strtolower($previousClassName)] = true;
+        }
+
+        $currentClassName = $class->getName();
+        $errors = [];
+        foreach ($this->classAliasMap->aliasesForCanonicalClassName($currentClassName) as $registeredAlias) {
+            if (isset($declaredAliases[\strtolower($registeredAlias)])) {
+                continue;
+            }
+
+            $errors[] = $this->error($line, \sprintf(
+                'Class alias registry entry "%s" => "%s" must be declared with #[ClassMoved(previousClassName: "%s")] on "%s".',
+                $registeredAlias,
+                $currentClassName,
+                $registeredAlias,
+                $class->getShortName()
+            ));
+        }
+
+        return $errors;
+    }
+
+    private function isDeprecatedServiceAlias(string $serviceId): bool
+    {
+        if ($this->deprecatedServiceAliases === null) {
+            $this->deprecatedServiceAliases = [];
+            $content = $this->containerXmlPath === null ? false : @file_get_contents($this->containerXmlPath);
+            $container = $content === false ? false : @simplexml_load_string($content);
+
+            if ($container !== false) {
+                foreach ($container->services->service as $service) {
+                    $attributes = $service->attributes();
+                    if ($attributes === null || !isset($attributes['id'], $attributes['alias']) || !isset($service->deprecated)) {
+                        continue;
+                    }
+
+                    $this->deprecatedServiceAliases[(string) $attributes['id']] = true;
+                }
+            }
+        }
+
+        return isset($this->deprecatedServiceAliases[$serviceId]);
     }
 
     /**

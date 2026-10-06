@@ -43,6 +43,7 @@ function classificationCtx(source: string, componentName: string): Ctx {
         helpers: new Set(),
         inferredEmits: [],
         reports: [],
+        extensionTarget: false,
     };
 }
 
@@ -124,10 +125,7 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
 
         expect(result).toEqual({
             outcome: 'skipped',
-            reasons: [
-                "no composable registered for mixin 'sw-form-field'",
-                "unsupported mixins entry 'swListMixin'",
-            ],
+            reasons: ["no composable registered for mixin 'sw-form-field'", "unsupported mixins entry 'swListMixin'"],
             sfc: null,
         });
     });
@@ -137,8 +135,8 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
 
         expect(result.outcome).toBe('full');
         expect(result.reasons).toEqual([]);
-        expect(result.sfc).toContain("import useNotification from 'src/app/composables/use-notification';");
-        expect(result.sfc).toContain("import useSalutation from 'src/app/composables/use-salutation';");
+        expect(result.sfc).toContain("import { useNotification, useSalutation } from 'shopware:composables';");
+        expect(result.sfc).not.toContain('src/app/composables');
         expect(result.sfc).toContain('const { createNotificationSuccess } = useNotification();');
 
         // `salutation` appears in the template only, so nothing rewrote a reference to it — the
@@ -148,6 +146,36 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
 
         // Members the component never touches are not destructured.
         expect(result.sfc).not.toContain('createNotificationError');
+    });
+
+    it('imports a composable shopware:composables does not publish from its Administration file', async () => {
+        const result = await convertFixture('sw-mixin-cms-element-scaffold');
+
+        expect(result.outcome).toBe('partial');
+        expect(result.sfc).toContain(
+            "import useCmsElementDeprecated from 'src/app/composables/use-cms-element-deprecated';",
+        );
+        expect(result.sfc).not.toContain('shopware:composables');
+    });
+
+    describe('extension targets', () => {
+        it('imports the composables the same way the Administration does', async () => {
+            const administration = await convertFixture('sw-mixin-composable');
+            const extension = await convertFixture('sw-mixin-composable', { extensionTarget: true });
+
+            expect(extension.outcome).toBe('full');
+            expect(extension.sfc).toBe(administration.sfc);
+        });
+
+        it('refuses a mixin whose composable is not published to extensions', async () => {
+            const result = await convertFixture('sw-mixin-cms-element-scaffold', { extensionTarget: true });
+
+            expect(result.outcome).toBe('skipped');
+            expect(result.reasons).toContain(
+                "useCmsElementDeprecated() replaces the 'cms-element' mixin but is not published to extensions through shopware:composables",
+            );
+            expect(result.sfc).toBeNull();
+        });
     });
 
     it('resolves the string form and lets a component member shadow an unmapped mixin member', async () => {
@@ -190,26 +218,14 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
     });
 
     it.each([
-        [
-            'sw-mixin-override',
-            "component redefines 'createNotificationSuccess' from the 'notification' mixin",
-        ],
+        ['sw-mixin-override', "component redefines 'createNotificationSuccess' from the 'notification' mixin"],
         [
             'sw-mixin-internal-override',
             "component redefines 'createNotification', which the 'notification' composable calls internally",
         ],
-        [
-            'sw-mixin-unmapped',
-            "'salutationFilter' is read but the 'salutation' composable does not provide it",
-        ],
-        [
-            'sw-mixin-cms-element-service',
-            "'cmsService' is read but the 'cms-element' composable does not provide it",
-        ],
-        [
-            'sw-mixin-template-collision',
-            "'salutation' is read in the template and its binding name is already taken",
-        ],
+        ['sw-mixin-unmapped', "'salutationFilter' is read but the 'salutation' composable does not provide it"],
+        ['sw-mixin-cms-element-service', "'cmsService' is read but the 'cms-element' composable does not provide it"],
+        ['sw-mixin-template-collision', "'salutation' is read in the template and its binding name is already taken"],
     ])('skips %s, whose mixin members the composable cannot stand in for', async (name, reason) => {
         const result = await convertFixture(name);
 
@@ -335,10 +351,7 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
                 'sw-mixin-emits-object',
                 "emits is not a plain list of event names, so the 'media-sidebar-modal' mixin's events cannot be merged",
             ],
-            [
-                'sw-mixin-missing-prop',
-                "component does not declare the 'item' prop the 'video-cover' mixin reads",
-            ],
+            ['sw-mixin-missing-prop', "component does not declare the 'item' prop the 'video-cover' mixin reads"],
             [
                 'sw-mixin-missing-callback',
                 "component does not define 'selectableItems', which the 'media-grid-listener' composable calls",
@@ -423,10 +436,7 @@ describe('scripts/codemods/sfc-migration mixin composables', () => {
         });
 
         it.each([
-            [
-                'sw-mixin-listing-no-get-list',
-                "component does not define 'getList', which the 'listing' composable calls",
-            ],
+            ['sw-mixin-listing-no-get-list', "component does not define 'getList', which the 'listing' composable calls"],
             [
                 'sw-mixin-listing-wrapped-get-list',
                 "'getList' is declared in a shape that cannot be handed to the 'listing' composable",

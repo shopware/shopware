@@ -435,11 +435,7 @@ describe('src/app/service/privileges.service.js', () => {
         privilegesService.addPrivilegeMappingEntry(privilegeMappingOne);
         privilegesService.addPrivilegeMappingEntry(privilegeMappingTwo);
 
-        const testPrivileges = [
-            'system.clear_cache',
-            'system:clear:cache',
-            'orders:read',
-        ];
+        const testPrivileges = ['system.clear_cache', 'system:clear:cache', 'orders:read'];
 
         expect(privilegesService.filterPrivilegesRoles(testPrivileges)).toContain('system.clear_cache');
         expect(privilegesService.filterPrivilegesRoles(testPrivileges)).not.toContain('system:clear:cache.');
@@ -476,14 +472,9 @@ describe('src/app/service/privileges.service.js', () => {
         privilegesService.addPrivilegeMappingEntry(privilegeMappingOne);
         privilegesService.addPrivilegeMappingEntry(privilegeMappingTwo);
 
-        const testPrivileges = [
-            'system.clear_cache',
-            'system.clear_cache',
-        ];
+        const testPrivileges = ['system.clear_cache', 'system.clear_cache'];
 
-        expect(privilegesService.filterPrivilegesRoles(testPrivileges)).toStrictEqual([
-            'system.clear_cache',
-        ]);
+        expect(privilegesService.filterPrivilegesRoles(testPrivileges)).toStrictEqual(['system.clear_cache']);
     });
 
     it('should return the function getPrivilegesWithDependencies without adding admin identifier', async () => {
@@ -513,16 +504,11 @@ describe('src/app/service/privileges.service.js', () => {
                 },
                 editor: {
                     privileges: ['rule:update'],
-                    dependencies: [
-                        'rule.viewer',
-                    ],
+                    dependencies: ['rule.viewer'],
                 },
                 creator: {
                     privileges: ['rule:create'],
-                    dependencies: [
-                        'rule.viewer',
-                        'rule.editor',
-                    ],
+                    dependencies: ['rule.viewer', 'rule.editor'],
                 },
             },
         };
@@ -537,22 +523,12 @@ describe('src/app/service/privileges.service.js', () => {
                     dependencies: [],
                 },
                 editor: {
-                    privileges: [
-                        'promotion:update',
-                    ],
-                    dependencies: [
-                        'promotion.viewer',
-                    ],
+                    privileges: ['promotion:update'],
+                    dependencies: ['promotion.viewer'],
                 },
                 creator: {
-                    privileges: [
-                        'promotion:create',
-                        privilegesService.getPrivileges('rule.creator'),
-                    ],
-                    dependencies: [
-                        'promotion.viewer',
-                        'promotion.editor',
-                    ],
+                    privileges: ['promotion:create', privilegesService.getPrivileges('rule.creator')],
+                    dependencies: ['promotion.viewer', 'promotion.editor'],
                 },
             },
         };
@@ -560,9 +536,7 @@ describe('src/app/service/privileges.service.js', () => {
         privilegesService.addPrivilegeMappingEntry(privilegeMappingRule);
         privilegesService.addPrivilegeMappingEntry(privilegeMappingPromotion);
 
-        const allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys([
-            'rule.editor',
-        ]);
+        const allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys(['rule.editor']);
         expect(allPrivilegesWithDependencies).toStrictEqual(
             [
                 'rule.editor',
@@ -587,16 +561,11 @@ describe('src/app/service/privileges.service.js', () => {
                 },
                 editor: {
                     privileges: ['rule:update'],
-                    dependencies: [
-                        'rule.viewer',
-                    ],
+                    dependencies: ['rule.viewer'],
                 },
                 creator: {
                     privileges: ['rule:create'],
-                    dependencies: [
-                        'rule.viewer',
-                        'rule.editor',
-                    ],
+                    dependencies: ['rule.viewer', 'rule.editor'],
                 },
             },
         };
@@ -611,22 +580,12 @@ describe('src/app/service/privileges.service.js', () => {
                     dependencies: [],
                 },
                 editor: {
-                    privileges: [
-                        'promotion:update',
-                    ],
-                    dependencies: [
-                        'promotion.viewer',
-                    ],
+                    privileges: ['promotion:update'],
+                    dependencies: ['promotion.viewer'],
                 },
                 creator: {
-                    privileges: [
-                        'promotion:create',
-                        privilegesService.getPrivileges('rule.creator'),
-                    ],
-                    dependencies: [
-                        'promotion.viewer',
-                        'promotion.editor',
-                    ],
+                    privileges: ['promotion:create', privilegesService.getPrivileges('rule.creator')],
+                    dependencies: ['promotion.viewer', 'promotion.editor'],
                 },
             },
         };
@@ -634,9 +593,7 @@ describe('src/app/service/privileges.service.js', () => {
         privilegesService.addPrivilegeMappingEntry(privilegeMappingRule);
         privilegesService.addPrivilegeMappingEntry(privilegeMappingPromotion);
 
-        const allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys([
-            'promotion.creator',
-        ]);
+        const allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys(['promotion.creator']);
         expect(allPrivilegesWithDependencies).toStrictEqual(
             [
                 'promotion.viewer',
@@ -661,19 +618,13 @@ describe('src/app/service/privileges.service.js', () => {
             key: 'product',
             roles: {
                 viewer: {
-                    privileges: [
-                        'product:read',
-                        'currency:read',
-                        'country:read',
-                    ],
+                    privileges: ['product:read', 'currency:read', 'country:read'],
                     dependencies: [],
                 },
             },
         });
 
-        const allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys([
-            'product.viewer',
-        ]);
+        const allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys(['product.viewer']);
 
         expect(allPrivilegesWithDependencies).toStrictEqual(
             [
@@ -699,19 +650,11 @@ describe('src/app/service/privileges.service.js', () => {
                 },
                 editor: {
                     privileges: ['product:update'],
-                    dependencies: [
-                        'product.viewer',
-                    ],
+                    dependencies: ['product.viewer'],
                 },
                 creator: {
-                    privileges: [
-                        'product:create',
-                        privilegesService.getPrivileges('promotion.creator'),
-                    ],
-                    dependencies: [
-                        'product.viewer',
-                        'product.editor',
-                    ],
+                    privileges: ['product:create', privilegesService.getPrivileges('promotion.creator')],
+                    dependencies: ['product.viewer', 'product.editor'],
                 },
             },
         };
@@ -726,20 +669,12 @@ describe('src/app/service/privileges.service.js', () => {
                     dependencies: [],
                 },
                 editor: {
-                    privileges: [
-                        'rule:update',
-                        privilegesService.getPrivileges('product.creator'),
-                    ],
-                    dependencies: [
-                        'rule.viewer',
-                    ],
+                    privileges: ['rule:update', privilegesService.getPrivileges('product.creator')],
+                    dependencies: ['rule.viewer'],
                 },
                 creator: {
                     privileges: ['rule:create'],
-                    dependencies: [
-                        'rule.viewer',
-                        'rule.editor',
-                    ],
+                    dependencies: ['rule.viewer', 'rule.editor'],
                 },
             },
         };
@@ -754,22 +689,12 @@ describe('src/app/service/privileges.service.js', () => {
                     dependencies: [],
                 },
                 editor: {
-                    privileges: [
-                        'promotion:update',
-                    ],
-                    dependencies: [
-                        'promotion.viewer',
-                    ],
+                    privileges: ['promotion:update'],
+                    dependencies: ['promotion.viewer'],
                 },
                 creator: {
-                    privileges: [
-                        'promotion:create',
-                        privilegesService.getPrivileges('rule.creator'),
-                    ],
-                    dependencies: [
-                        'promotion.viewer',
-                        'promotion.editor',
-                    ],
+                    privileges: ['promotion:create', privilegesService.getPrivileges('rule.creator')],
+                    dependencies: ['promotion.viewer', 'promotion.editor'],
                 },
             },
         };
@@ -778,9 +703,7 @@ describe('src/app/service/privileges.service.js', () => {
         privilegesService.addPrivilegeMappingEntry(privilegeMappingRule);
         privilegesService.addPrivilegeMappingEntry(privilegeMappingPromotion);
 
-        const allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys([
-            'promotion.creator',
-        ]);
+        const allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys(['promotion.creator']);
         expect(allPrivilegesWithDependencies).toStrictEqual(
             [
                 'promotion.viewer',
@@ -817,10 +740,7 @@ describe('src/app/service/privileges.service.js', () => {
                 },
                 creator: {
                     privileges: ['product:create'],
-                    dependencies: [
-                        'product.viewer',
-                        'product.editor',
-                    ],
+                    dependencies: ['product.viewer', 'product.editor'],
                 },
             },
         };
@@ -844,9 +764,7 @@ describe('src/app/service/privileges.service.js', () => {
 
         privilegesService.addPrivilegeMappingEntry(privilegeMappingCore);
 
-        let allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys([
-            'product.editor',
-        ]);
+        let allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys(['product.editor']);
         expect(allPrivilegesWithDependencies).toStrictEqual(
             [
                 'product.editor',
@@ -858,9 +776,7 @@ describe('src/app/service/privileges.service.js', () => {
 
         privilegesService.addPrivilegeMappingEntry(privilegeMappingPlugin);
 
-        allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys([
-            'product.editor',
-        ]);
+        allPrivilegesWithDependencies = privilegesService.getPrivilegesForAdminPrivilegeKeys(['product.editor']);
         expect(allPrivilegesWithDependencies).toStrictEqual(
             [
                 'plugin:update',

@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\CascadeDelete;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ResetOnClone;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\JsonField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ListField;
@@ -299,6 +300,28 @@ class VersionManagerTest extends TestCase
         array $expectedData
     ): void {
         $this->assertCloneOverwriteResult($definitionClass, $entityName, $originalData, $overwriteData, $expectedData);
+    }
+
+    public function testCloneOmitsFieldsMarkedAsResetOnClone(): void
+    {
+        $this->assertCloneOverwriteResult(
+            VersionManagerResetOnCloneTestDefinition::class,
+            'reset_on_clone_test',
+            ['name' => 'Original', 'resetValue' => 'Derived from original'],
+            [],
+            ['name' => 'Original']
+        );
+    }
+
+    public function testCloneAllowsExplicitOverwriteForResetOnCloneField(): void
+    {
+        $this->assertCloneOverwriteResult(
+            VersionManagerResetOnCloneTestDefinition::class,
+            'reset_on_clone_test',
+            ['name' => 'Original', 'resetValue' => 'Derived from original'],
+            ['resetValue' => 'Explicit overwrite'],
+            ['name' => 'Original', 'resetValue' => 'Explicit overwrite']
+        );
     }
 
     /**
@@ -671,6 +694,26 @@ class VersionManagerTestDefinition extends EntityDefinition
     {
         return new FieldCollection([
             (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class VersionManagerResetOnCloneTestDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'reset_on_clone_test';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            new StringField('name', 'name'),
+            (new StringField('reset_value', 'resetValue'))->addFlags(new ResetOnClone()),
         ]);
     }
 }

@@ -120,17 +120,11 @@ export default Shopware.Mixin.register(
                  */
                 const merged: { [slotId: EntityKey<'cms_slot'>]: CmsSlotConfig } = {};
 
-                for (const [
-                    slotId,
-                    fields,
-                ] of Object.entries(parentSlotConfig ?? {})) {
+                for (const [slotId, fields] of Object.entries(parentSlotConfig ?? {})) {
                     merged[slotId as EntityKey<'cms_slot'>] = { ...fields };
                 }
 
-                for (const [
-                    slotId,
-                    fields,
-                ] of Object.entries(currentSlotConfig ?? {})) {
+                for (const [slotId, fields] of Object.entries(currentSlotConfig ?? {})) {
                     merged[slotId as EntityKey<'cms_slot'>] = {
                         ...(merged[slotId as EntityKey<'cms_slot'>] ?? {}),
                         ...fields,

@@ -77,12 +77,7 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
     // every unwired extension, including the ones whose extends was already
     // there and whose real problem was an own "files" array.
     it('gives each unwired config the fix for its own defect', () => {
-        const output = setupReport(
-            setupResult([
-                unwired,
-                unwiredNoExtends,
-            ]),
-        );
+        const output = setupReport(setupResult([unwired, unwiredNoExtends]));
         const unwiredBlock = output.slice(output.indexOf('Unwired: own "files" array'), output.indexOf('UnwiredBare:'));
 
         expect(unwiredBlock).toContain('remove the own "files" array');
@@ -264,12 +259,7 @@ describe('scripts/extensionTooling/report renderSetupReport', () => {
             basePath: 'src/Storefront',
             eslintConfig: owned('src/Storefront/Resources/app/administration/eslint.config.mjs', 'drift'),
         });
-        const output = setupReport(
-            setupResult([
-                managed,
-                storefront,
-            ]),
-        );
+        const output = setupReport(setupResult([managed, storefront]));
 
         expect(output).toContain('— 1 extension(s)');
         expect(output).toContain('platform  Storefront');

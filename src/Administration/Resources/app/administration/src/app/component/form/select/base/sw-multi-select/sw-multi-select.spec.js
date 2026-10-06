@@ -95,9 +95,7 @@ describe('components/sw-multi-select', () => {
 
         await entryOne.trigger('click');
         await flushPromises();
-        expect(swMultiSelect.emitted('update:value')).toEqual([
-            [['entryOneValue']],
-        ]);
+        expect(swMultiSelect.emitted('update:value')).toEqual([[['entryOneValue']]]);
     });
 
     it('should emit the second option', async () => {
@@ -110,9 +108,7 @@ describe('components/sw-multi-select', () => {
 
         await entryTwo.trigger('click');
         await flushPromises();
-        expect(swMultiSelect.emitted('update:value')).toEqual([
-            [['entryTwoValue']],
-        ]);
+        expect(swMultiSelect.emitted('update:value')).toEqual([[['entryTwoValue']]]);
     });
 
     it('should emit two options', async () => {
@@ -133,14 +129,7 @@ describe('components/sw-multi-select', () => {
         await entryTwo.trigger('click');
         await flushPromises();
 
-        expect(swMultiSelect.emitted('update:value')).toEqual([
-            [
-                [
-                    'entryOneValue',
-                    'entryTwoValue',
-                ],
-            ],
-        ]);
+        expect(swMultiSelect.emitted('update:value')).toEqual([[['entryOneValue', 'entryTwoValue']]]);
     });
 
     it('should not close the result list after clicking an item', async () => {
@@ -189,10 +178,7 @@ describe('components/sw-multi-select', () => {
     it('should show multiple labels for the selected values properties', async () => {
         const swMultiSelect = await createMultiSelect({
             props: {
-                value: [
-                    'entryOneValue',
-                    'entryThreeValue',
-                ],
+                value: ['entryOneValue', 'entryThreeValue'],
                 options: [
                     {
                         label: 'Entry 1',

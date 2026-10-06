@@ -13,9 +13,7 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         disabled: {
@@ -73,10 +71,7 @@ export default {
         getMediaDefaultFolderId() {
             return this.mediaDefaultFolderRepository
                 .search(this.mediaDefaultFolderCriteria, {
-                    cacheKey: [
-                        'media-default-folder',
-                        'product',
-                    ],
+                    cacheKey: ['media-default-folder', 'product'],
                 })
                 .then((mediaDefaultFolder) => {
                     const defaultFolder = mediaDefaultFolder.first();

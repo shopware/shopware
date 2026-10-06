@@ -12,14 +12,8 @@ import { stripIndent, transformOrFail, transformShopwareSetupSfc } from './helpe
 
 describe('build/vue-setup-transform unsupported macros', () => {
     it.each([
-        [
-            'defineModel()',
-            'Vue macro defineModel() is not supported inside Shopware setup blocks.',
-        ],
-        [
-            'defineExpose({})',
-            'defineExpose() is not supported inside Shopware setup blocks.',
-        ],
+        ['defineModel()', 'Vue macro defineModel() is not supported inside Shopware setup blocks.'],
+        ['defineExpose({})', 'defineExpose() is not supported inside Shopware setup blocks.'],
     ])('rejects unsupported Vue macro %s', (macro, expectedMessage) => {
         const source = stripIndent`
             <script setup>

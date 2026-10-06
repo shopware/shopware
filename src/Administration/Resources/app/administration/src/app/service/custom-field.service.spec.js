@@ -96,4 +96,20 @@ describe('src/app/service/custom-field.service.js', () => {
         expect(await customFieldService.getCustomFieldSets('customer')).toEqual(customerSets);
         expect(searchMock).toHaveBeenCalledTimes(3);
     });
+
+    it('keeps cached custom field sets separate by limit', async () => {
+        const searchMock = jest
+            .fn()
+            .mockResolvedValueOnce([{ id: 'default-limit-set', customFields: [{ id: 'field' }] }])
+            .mockResolvedValueOnce([{ id: 'large-limit-set', customFields: [{ id: 'field' }] }]);
+
+        jest.spyOn(Shopware.Service('repositoryFactory'), 'create').mockReturnValue({ search: searchMock });
+
+        await customFieldService.getCustomFieldSets('sales_channel');
+        await customFieldService.getCustomFieldSets('sales_channel', false, 100);
+
+        expect(searchMock).toHaveBeenCalledTimes(2);
+        expect(searchMock.mock.calls[0][0].limit).toBe(25);
+        expect(searchMock.mock.calls[1][0].limit).toBe(100);
+    });
 });

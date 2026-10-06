@@ -525,12 +525,13 @@ class EntityExtensionTest extends TestCase
 
     public function testICantAddScalarExtensions(): void
     {
-        $this->expectExceptionObject(DataAbstractionLayerException::wrongFieldTypeForExtension());
-
         $this->registerDefinitionWithExtensions(ExtendableDefinition::class, ScalarExtension::class);
         $definition = static::getContainer()->get(ExtendableDefinition::class);
 
         static::assertInstanceOf(ExtendableDefinition::class, $definition);
+
+        $this->expectExceptionObject(DataAbstractionLayerException::wrongFieldTypeForExtension());
+
         $definition->getFields()->has('test');
     }
 

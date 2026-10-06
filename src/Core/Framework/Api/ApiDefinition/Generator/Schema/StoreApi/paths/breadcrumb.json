@@ -70,6 +70,9 @@
                             }
                         }
                     },
+                    "204": {
+                        "description": "The product has no main category in this sales channel, so no breadcrumb can be built."
+                    },
                     "400": {
                         "$ref": "#/components/responses/400"
                     },

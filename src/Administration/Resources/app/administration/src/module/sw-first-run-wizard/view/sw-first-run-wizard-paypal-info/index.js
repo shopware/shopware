@@ -10,10 +10,7 @@ export default {
 
     inject: ['extensionStoreActionService'],
 
-    emits: [
-        'frw-set-title',
-        'buttons-update',
-    ],
+    emits: ['frw-set-title', 'buttons-update'],
 
     data() {
         return {

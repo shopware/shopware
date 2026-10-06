@@ -16,17 +16,9 @@ const FILE_SIZE_LIMIT = 52428800; // 50 MB
 export default Component.wrapComponentConfig({
     template,
 
-    inject: [
-        'documentV2Service',
-        'numberRangeService',
-        'repositoryFactory',
-    ],
+    inject: ['documentV2Service', 'numberRangeService', 'repositoryFactory'],
 
-    emits: [
-        'document-upload',
-        'page-leave',
-        'update:documentType',
-    ],
+    emits: ['document-upload', 'page-leave', 'update:documentType'],
 
     mixins: [Mixin.getByName('notification')],
 

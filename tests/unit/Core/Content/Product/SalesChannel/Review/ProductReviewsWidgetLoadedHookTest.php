@@ -92,9 +92,9 @@ class ProductReviewsWidgetLoadedHookTest extends TestCase
             static::createStub(SalesChannelContext::class)
         );
 
-        static::assertInstanceOf(ProductReviewsWidgetLoadedHook::class, $this->controller->calledHook);
+        static::assertInstanceOf(ProductReviewsWidgetLoadedHook::class, $this->controller->recorder()->calledHook);
 
-        $productReviewsWidgetLoadedHook = $this->controller->calledHook;
+        $productReviewsWidgetLoadedHook = $this->controller->recorder()->calledHook;
 
         static::assertSame($reviewResult, $productReviewsWidgetLoadedHook->getReviews());
     }

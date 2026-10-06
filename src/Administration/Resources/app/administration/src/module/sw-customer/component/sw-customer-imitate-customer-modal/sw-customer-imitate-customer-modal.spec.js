@@ -83,9 +83,7 @@ describe('module/sw-customer-imitate-customer-modal', () => {
     let wrapper;
 
     beforeEach(() => {
-        mockSalesChannelDomains([
-            domain('sales-channel-domain-id', 'sales-channel-id', 'http://localhost:8000'),
-        ]);
+        mockSalesChannelDomains([domain('sales-channel-domain-id', 'sales-channel-id', 'http://localhost:8000')]);
     });
 
     it('should fetch all sales channel domains', async () => {

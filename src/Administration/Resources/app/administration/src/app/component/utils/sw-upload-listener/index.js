@@ -46,14 +46,9 @@ function isIllegalUrlException(error) {
 export default {
     template: '<div style="display: none"></div>',
 
-    inject: [
-        'repositoryFactory',
-        'mediaService',
-    ],
+    inject: ['repositoryFactory', 'mediaService'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         uploadTag: {

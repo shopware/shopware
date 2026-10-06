@@ -107,9 +107,7 @@ async function createWrapper(extension) {
             mocks: {
                 $t: translateSnippet,
             },
-            mixins: [
-                Shopware.Mixin.getByName('sw-extension-error'),
-            ],
+            mixins: [Shopware.Mixin.getByName('sw-extension-error')],
             stubs: {
                 'sw-meteor-card': await wrapTestComponent('sw-meteor-card', { sync: true }),
 
@@ -669,6 +667,50 @@ describe('src/module/sw-extension/component/sw-extension-card-bought', () => {
         await flushPromises();
 
         expect(wrapper.get('.sw-extension-card-bought__info-price').text()).toBe('Current subscription billing text');
+    });
+
+    it('should ask for confirmation before deactivating a rented extension', async () => {
+        const deactivateExtension = jest
+            .spyOn(Shopware.Service('shopwareExtensionService'), 'deactivateExtension')
+            .mockResolvedValue();
+        const wrapper = await createWrapper(createExtension({ storeLicense: { expirationDate: null } }));
+
+        await wrapper.vm.changeExtensionStatus();
+        await flushPromises();
+
+        const modal = wrapper.find('sw-extension-deactivation-modal-stub');
+        expect(modal.exists()).toBe(true);
+        expect(modal.attributes('extension-name')).toBe('Test extension label');
+        expect(modal.attributes('is-licensed')).toBe('true');
+        expect(deactivateExtension).not.toHaveBeenCalled();
+    });
+
+    it('should deactivate a rented extension with a cancelled subscription right away', async () => {
+        const deactivateExtension = jest
+            .spyOn(Shopware.Service('shopwareExtensionService'), 'deactivateExtension')
+            .mockResolvedValue();
+        const wrapper = await createWrapper(
+            createExtension({ storeLicense: { expirationDate: '2026-12-01T00:00:00.000+00:00' } }),
+        );
+
+        await wrapper.vm.changeExtensionStatus();
+        await flushPromises();
+
+        expect(wrapper.find('sw-extension-deactivation-modal-stub').exists()).toBe(false);
+        expect(deactivateExtension).toHaveBeenCalledWith('Test extension', 'app');
+    });
+
+    it('should deactivate an extension without a rent license right away', async () => {
+        const deactivateExtension = jest
+            .spyOn(Shopware.Service('shopwareExtensionService'), 'deactivateExtension')
+            .mockResolvedValue();
+        const wrapper = await createWrapper(createExtension({ storeLicense: { variant: 'buy' } }));
+
+        await wrapper.vm.changeExtensionStatus();
+        await flushPromises();
+
+        expect(wrapper.find('sw-extension-deactivation-modal-stub').exists()).toBe(false);
+        expect(deactivateExtension).toHaveBeenCalledWith('Test extension', 'app');
     });
 
     describe('test display of rent and trail phase information', () => {

@@ -9,7 +9,7 @@
                     "Experimental"
                 ],
                 "summary": "Save MCP allowlist for an integration",
-                "description": "Saves the per-integration MCP allowlist covering tools, resources, and prompts. Pass `null` as the top-level value to allow all capabilities unrestricted. Pass an object with `tools`, `resources`, and `prompts` keys where each key is either `null` (unrestricted for that type) or a list of allowed names/URIs (empty array = deny all of that type). Requires `integration_mcp.editor` privilege. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "description": "Saves the per-integration MCP allowlist covering tools, resources, and prompts. Pass an object with `tools`, `resources`, and `prompts` keys, each a list of allowed names/URIs; an empty array denies that type. Integrations have no administrator bypass, so anything not listed is denied: `null` as the top-level value, a missing key and an explicit `null` per-type value all deny that type. Requires `integration_mcp.editor` privilege. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "saveMcpAllowlist",
                 "parameters": [
                     {
@@ -38,31 +38,31 @@
                                         "oneOf": [
                                             {
                                                 "type": "object",
-                                                "description": "Per-type allowlist. Each key is null (unrestricted) or a list of allowed names/URIs.",
+                                                "description": "Per-type allowlist. Each key is a list of allowed names/URIs. A missing key or an explicit null denies that type, except for administrator users, who bypass the allowlist.",
                                                 "properties": {
                                                     "tools": {
                                                         "oneOf": [
                                                             {"type": "array", "items": {"type": "string"}, "description": "List of allowed tool names. Empty array = no tools allowed."},
-                                                            {"type": "null", "description": "Null = all tools allowed."}
+                                                            {"type": "null", "description": "Null denies all tools, except for administrator users, who bypass the allowlist."}
                                                         ]
                                                     },
                                                     "resources": {
                                                         "oneOf": [
                                                             {"type": "array", "items": {"type": "string"}, "description": "List of allowed resource URIs. Empty array = no resources allowed."},
-                                                            {"type": "null", "description": "Null = all resources allowed."}
+                                                            {"type": "null", "description": "Null denies all resources, except for administrator users, who bypass the allowlist."}
                                                         ]
                                                     },
                                                     "prompts": {
                                                         "oneOf": [
                                                             {"type": "array", "items": {"type": "string"}, "description": "List of allowed prompt names. Empty array = no prompts allowed."},
-                                                            {"type": "null", "description": "Null = all prompts allowed."}
+                                                            {"type": "null", "description": "Null denies all prompts, except for administrator users, who bypass the allowlist."}
                                                         ]
                                                     }
                                                 }
                                             },
                                             {
                                                 "type": "null",
-                                                "description": "Null = all capabilities unrestricted."
+                                                "description": "Null = no explicit selection. Administrator users bypass the allowlist and keep every capability; every other principal is denied all capabilities."
                                             }
                                         ]
                                     }
@@ -97,7 +97,7 @@
                     "Experimental"
                 ],
                 "summary": "Save MCP allowlist for a user",
-                "description": "Saves the per-user MCP allowlist covering tools, resources, and prompts. Pass `null` as the top-level value to allow all capabilities unrestricted. Pass an object with `tools`, `resources`, and `prompts` keys where each key is either `null` (unrestricted for that type) or a list of allowed names/URIs (empty array = deny all of that type). Requires `users_and_permissions.editor` privilege. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
+                "description": "Saves the per-user MCP allowlist covering tools, resources, and prompts. Pass an object with `tools`, `resources`, and `prompts` keys, each a list of allowed names/URIs; an empty array denies that type. For a non-administrator user anything not listed is denied: `null` as the top-level value, a missing key and an explicit `null` per-type value all deny that type. Administrator users bypass the allowlist entirely. Requires `users_and_permissions.editor` privilege. Experimental API, not part of our backwards compatibility promise, thus this API can introduce breaking changes at any time.",
                 "operationId": "saveMcpAllowlistUser",
                 "parameters": [
                     {
@@ -126,31 +126,31 @@
                                         "oneOf": [
                                             {
                                                 "type": "object",
-                                                "description": "Per-type allowlist. Each key is null (unrestricted) or a list of allowed names/URIs.",
+                                                "description": "Per-type allowlist. Each key is a list of allowed names/URIs. A missing key or an explicit null denies that type, except for administrator users, who bypass the allowlist.",
                                                 "properties": {
                                                     "tools": {
                                                         "oneOf": [
                                                             {"type": "array", "items": {"type": "string"}, "description": "List of allowed tool names. Empty array = no tools allowed."},
-                                                            {"type": "null", "description": "Null = all tools allowed."}
+                                                            {"type": "null", "description": "Null denies all tools, except for administrator users, who bypass the allowlist."}
                                                         ]
                                                     },
                                                     "resources": {
                                                         "oneOf": [
                                                             {"type": "array", "items": {"type": "string"}, "description": "List of allowed resource URIs. Empty array = no resources allowed."},
-                                                            {"type": "null", "description": "Null = all resources allowed."}
+                                                            {"type": "null", "description": "Null denies all resources, except for administrator users, who bypass the allowlist."}
                                                         ]
                                                     },
                                                     "prompts": {
                                                         "oneOf": [
                                                             {"type": "array", "items": {"type": "string"}, "description": "List of allowed prompt names. Empty array = no prompts allowed."},
-                                                            {"type": "null", "description": "Null = all prompts allowed."}
+                                                            {"type": "null", "description": "Null denies all prompts, except for administrator users, who bypass the allowlist."}
                                                         ]
                                                     }
                                                 }
                                             },
                                             {
                                                 "type": "null",
-                                                "description": "Null = all capabilities unrestricted."
+                                                "description": "Null = no explicit selection. Administrator users bypass the allowlist and keep every capability; every other principal is denied all capabilities."
                                             }
                                         ]
                                     }

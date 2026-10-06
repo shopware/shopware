@@ -56,6 +56,7 @@ PluginManager.register('SearchWidget', () => import('src/plugin/header/search-wi
 PluginManager.register('CartWidget', () => import('src/plugin/header/cart-widget.plugin'), '[data-cart-widget]');
 PluginManager.register('AccountGuestAbortButton', () => import('src/plugin/header/account-guest-abort-button.plugin'), '[data-account-guest-abort-button]');
 PluginManager.register('CheckoutCustomerStorage', () => import('src/plugin/checkout/checkout-customer-storage.plugin'), '[data-checkout-customer-storage]');
+PluginManager.register('CheckoutCustomerStorageReset', () => import('src/plugin/checkout/checkout-customer-storage-reset.plugin'), '[data-checkout-customer-storage-reset]');
 PluginManager.register('OffCanvasCart', () => import('src/plugin/offcanvas-cart/offcanvas-cart.plugin'), '[data-off-canvas-cart]');
 PluginManager.register('AddToCart', () => import('src/plugin/add-to-cart/add-to-cart.plugin'), '[data-add-to-cart]');
 PluginManager.register('CollapseFooterColumns', () => import('src/plugin/collapse/collapse-footer-columns.plugin'), '[data-collapse-footer-columns]');

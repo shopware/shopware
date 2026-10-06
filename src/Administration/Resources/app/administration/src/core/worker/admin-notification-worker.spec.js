@@ -57,18 +57,9 @@ describe('src/core/worker/admin-notification-worker', () => {
     });
 
     it.each([
-        [
-            'info',
-            'global.default.info',
-        ],
-        [
-            'warning',
-            'global.default.warning',
-        ],
-        [
-            'positive',
-            'global.default.success',
-        ],
+        ['info', 'global.default.info'],
+        ['warning', 'global.default.warning'],
+        ['positive', 'global.default.success'],
     ])('should derive the title key "%s" -> "%s" from the notification status', (status, expectedTitle) => {
         const createNotification = jest.fn();
         jest.spyOn(Shopware.Store, 'get').mockReturnValue({ createNotification });

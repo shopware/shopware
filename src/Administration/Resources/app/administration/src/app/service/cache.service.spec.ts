@@ -68,10 +68,7 @@ describe('src/app/service/cache.service.ts', () => {
 
         for (let index = 0; index <= 100; index += 1) {
             await cacheService.query({
-                key: [
-                    'search',
-                    index,
-                ],
+                key: ['search', index],
                 fn: jest.fn().mockResolvedValue(index),
             });
         }
@@ -79,10 +76,7 @@ describe('src/app/service/cache.service.ts', () => {
         const oldestFn = jest.fn().mockResolvedValue('reloaded');
         await expect(
             cacheService.query({
-                key: [
-                    'search',
-                    0,
-                ],
+                key: ['search', 0],
                 fn: oldestFn,
             }),
         ).resolves.toBe('reloaded');
@@ -136,10 +130,7 @@ describe('src/app/service/cache.service.ts', () => {
 
         await cacheService.query({ key: ['user-config'], fn: rootFn });
         await cacheService.query({
-            key: [
-                'user-config',
-                'current-user',
-            ],
+            key: ['user-config', 'current-user'],
             fn: childFn,
         });
 
@@ -148,10 +139,7 @@ describe('src/app/service/cache.service.ts', () => {
         await expect(cacheService.query({ key: ['user-config'], fn: rootFn })).resolves.toBe('root-reloaded');
         await expect(
             cacheService.query({
-                key: [
-                    'user-config',
-                    'current-user',
-                ],
+                key: ['user-config', 'current-user'],
                 fn: childFn,
             }),
         ).resolves.toBe('child-reloaded');

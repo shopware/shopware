@@ -1,6 +1,13 @@
 # Changelog
 This is the official changelog index of Shopware 6. Here you find a registry of all Shopware 6 releases with a reference to the detailed changelog of each version. If you want to know more about how the changelog is created have a look [here](/adr/workflow/2020-08-03-implement-New-Changelog.md).
 
+## 6.6.10.29
+*  [#20294 - fix(framework): use native redirects for app system requests](https://github.com/shopware/shopware/issues/20294)
+*  [20681 - Fix storefront URL encoding of non-ASCII characters](./changelog/release-6-6-10-29/2026-09-28-fix-storefront-url-encoding-of-non-ascii-characters.md)
+*  [20681 - Keep non-ASCII characters in uploaded media file names](./changelog/release-6-6-10-29/2026-09-28-keep-non-ascii-characters-in-uploaded-media-file-names.md)
+*  [20983 - Pass GARAN mail labels as template data instead of a Twig filter](./changelog/release-6-6-10-29/2026-10-02-pass-garan-mail-labels-as-template-data.md)
+*  [21150 - Log system activities on a dedicated Monolog channel](./changelog/release-6-6-10-29/2026-10-05-log-system-activities.md)
+
 ## 6.6.10.28
 *  [#20334 - fix(inventory): keep GARAN label values inside the artwork (backport: 6.6.x)](https://github.com/shopware/shopware/issues/20334)
 *  [#20943 - fix(administration): allow saving and duplicating new products (backport: 6.6.x)](https://github.com/shopware/shopware/issues/20943)

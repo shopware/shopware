@@ -1,3 +1,9 @@
+# 6.6.10.29
+## GARAN labels in mails come from the `garanLabels` template variable
+The order confirmation mail reads the GARAN label from the new `garanLabels` template variable. The `sw_garan_label_mail` Twig filter keeps working. A migration updates the template for shops that never edited it.
+
+If you customized the order confirmation mail, we recommend to replace `nestedItem.productId|sw_garan_label_mail(context)` with `garanLabels[nestedItem.productId] ?? null`, and `lineItem.productId|sw_garan_label_mail(context)` with `garanLabels[lineItem.productId] ?? null` in the plain text version. `garanLabels` is passed to every mail template that references it and has an `order` in its data.
+
 # 6.6.10.28
 ## GARAN label in the order confirmation mail is embedded as an inline PNG
 The order confirmation mail now attaches the GARAN label as an inline PNG instead of an SVG `data:` URI, which Gmail and Outlook do not display. If you customized that template, replace `sw_garan_label_nested_uri` with the new `sw_garan_label_mail` filter as shown in `src/Core/Migration/Fixtures/mails/order_confirmation_mail/en-html.html.twig`.

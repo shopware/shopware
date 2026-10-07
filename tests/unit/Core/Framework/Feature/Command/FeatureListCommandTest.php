@@ -42,7 +42,6 @@ class FeatureListCommandTest extends TestCase
                 'default' => true,
                 'toggleable' => true,
                 'active' => true,
-                'major' => true,
                 'description' => 'This is a test feature',
             ],
             'FEATURE_TWO' => [
@@ -50,7 +49,6 @@ class FeatureListCommandTest extends TestCase
                 'default' => true,
                 'toggleable' => true,
                 'active' => false,
-                'major' => true,
                 'description' => 'This is another feature',
             ],
             'FEATURE_THREE' => [
@@ -58,7 +56,6 @@ class FeatureListCommandTest extends TestCase
                 'default' => true,
                 'toggleable' => true,
                 'active' => true,
-                'major' => true,
             ],
         ]);
         $command = new FeatureListCommand();

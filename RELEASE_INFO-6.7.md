@@ -511,6 +511,10 @@ migrate it to `useCmsElement` by hand.
 
 The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
 
+### The dev server picks up new and deleted `*.override.vue` files
+
+While `composer watch:admin` runs, adding or deleting an `*.override.vue` file in a plugin now registers or unregisters the override and reloads the Administration. Restarting the watcher is no longer necessary.
+
 ## Storefront
 
 ### Extension component aliases work in the dev server

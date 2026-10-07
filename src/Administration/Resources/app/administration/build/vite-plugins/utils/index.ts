@@ -25,35 +25,6 @@ function isPortFree(port: number): Promise<boolean | Error> {
 /**
  * @private
  */
-export function findFilesRecursively(dir: string, pattern: RegExp): string[] {
-    let results = [] as string[];
-
-    // Read directory contents
-    const items = fs.readdirSync(dir, { withFileTypes: true });
-
-    items.forEach((item) => {
-        const fullPath = path.join(dir, item.name);
-
-        if (item.isDirectory()) {
-            // Skip node_modules
-            if (item.name === 'node_modules') {
-                return;
-            }
-
-            // Recurse into subdirectories
-            results = results.concat(findFilesRecursively(fullPath, pattern));
-        } else if (item.isFile() && pattern.test(item.name)) {
-            // Add matching files
-            results.push(fullPath);
-        }
-    });
-
-    return results;
-}
-
-/**
- * @private
- */
 export function copyDir(src: string, dest: string): void {
     // Create destination directory
     if (!fs.existsSync(dest)) {

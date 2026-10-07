@@ -76,7 +76,6 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
             AssetCssPostprocessPlugin(`/bundles/${extension.technicalFolderName}/administration/assets/`),
             svgLoader(),
             OverrideComponentRegisterPlugin({
-                root: extension.path,
                 pluginEntryFile: extension.filePath,
             }),
             ShopwareSetupPlugin({

@@ -1,127 +1,95 @@
 /**
  * @sw-package framework
  */
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import overrideComponentRegisterPlugin from './index';
-import path from 'path';
-import { parse } from '@babel/parser';
 
 /**
- * The plugin's hooks as the spec drives them: plain callables.
- *
- * Vite types every hook as an optional `ObjectHook` - a union of function and `{ handler }` - so hooks
- * are not directly callable through `Plugin`. Narrowing once here keeps the assertion out of each test.
+ * The plugin hooks are typed as Vite's `ObjectHook` unions, which aren't directly callable in tests.
+ * This narrows the returned object to the plain-function shape the plugin actually provides.
  */
 type CallableOverridePlugin = {
     name: string;
-    configResolved(): void;
     transform(code: string, id: string): { code: string } | null;
 };
 
-function createPlugin(options: { root: string; pluginEntryFile: string }): CallableOverridePlugin {
-    return overrideComponentRegisterPlugin(options) as unknown as CallableOverridePlugin;
+/**
+ * What `fixtures/registration/probe.ts` reports after building the fixture with the real Vite:
+ * the `Shopware` calls the bundle made, in order, and where the entry's marker maps back to.
+ */
+type ProbeResult = {
+    calls: string[];
+    entryMarker: {
+        authoredLine: number;
+        mapped: { source: string; line: number } | null;
+    };
+};
+
+const execFileAsync = promisify(execFile);
+
+function createPlugin(): CallableOverridePlugin {
+    return overrideComponentRegisterPlugin({ pluginEntryFile: 'plugin' }) as unknown as CallableOverridePlugin;
+}
+
+/**
+ * Builds a copy of `fixtures/registration` in a child process, where Vite's ESM build can load.
+ * `extraFiles` go into the copy first - for files git cannot hold, such as anything below `node_modules`.
+ */
+async function buildFixture(extraFiles: Record<string, string>): Promise<ProbeResult> {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'sw-override-register-'));
+
+    await fs.cp(path.join(__dirname, 'fixtures/registration'), root, { recursive: true });
+    await Promise.all(
+        Object.entries(extraFiles).map(async ([file, content]) => {
+            await fs.mkdir(path.dirname(path.join(root, file)), { recursive: true });
+            await fs.writeFile(path.join(root, file), content);
+        }),
+    );
+
+    // jiti runs the TypeScript probe on every supported node; native type stripping needs node >= 22.6.
+    const jitiDir = path.dirname(require.resolve('jiti/package.json'));
+    const jitiPackage = JSON.parse(await fs.readFile(path.join(jitiDir, 'package.json'), 'utf8')) as {
+        bin: { jiti: string };
+    };
+    const { stdout } = await execFileAsync(
+        process.execPath,
+        [path.join(jitiDir, jitiPackage.bin.jiti), path.join(root, 'probe.ts')],
+        { cwd: process.cwd(), env: { ...process.env, SHOPWARE_ADMIN_ROOT: process.cwd() } },
+    );
+
+    return JSON.parse(stdout) as ProbeResult;
 }
 
 describe('build/vite-plugins/override-component-register', () => {
-    it('should be a function with 1 optional argument', () => {
-        expect(typeof overrideComponentRegisterPlugin).toBe('function');
-
-        // check that the function takes 1 argument
-        expect(overrideComponentRegisterPlugin).toHaveLength(1);
+    it('is named so Vite can identify it', () => {
+        expect(createPlugin().name).toBe('shopware-vite-plugin-override-component');
     });
 
-    it('should return an object with a name, configResolved and transform property', () => {
-        const plugin = createPlugin({
-            root: 'root',
-            pluginEntryFile: 'plugin',
+    it('leaves every module but the entry untouched', () => {
+        expect(createPlugin().transform('code', 'other')).toBeNull();
+    });
+
+    it('registers every override below the Vite root, sorted and before the entry code runs', async () => {
+        const { calls } = await buildFixture({
+            'src/node_modules/some-dependency/sw-dependency.override.vue': '<template><div /></template>\n',
         });
 
-        // Identify plugin by name
-        expect(plugin).toHaveProperty('name');
-        expect(plugin.name).toBe('shopware-vite-plugin-override-component');
+        // Same-named files in different folders must both register; `node_modules` must not.
+        expect(calls).toEqual([
+            'register src/first/sw-same-name.override.vue',
+            'register src/second/sw-same-name.override.vue',
+            'entry',
+        ]);
+    }, 60000);
 
-        // Check if the plugin has all methods
-        expect(plugin).toHaveProperty('configResolved');
-        expect(plugin).toHaveProperty('transform');
-    });
+    it('keeps the entry sourcemap pointing at the authored lines', async () => {
+        const { entryMarker } = await buildFixture({});
 
-    it('returns null for non-entry ids and before any overrides are discovered', () => {
-        const plugin = createPlugin({
-            root: 'root',
-            pluginEntryFile: 'plugin',
-        });
-
-        // Non-entry ids are never transformed.
-        expect(plugin.transform('code', 'other')).toBeNull();
-        // The entry itself is left untouched until configResolved() populates the override list.
-        expect(plugin.transform('code', 'plugin')).toBeNull();
-    });
-
-    it('should transform entry file correctly', () => {
-        const plugin = createPlugin({
-            root: path.resolve(__dirname, './_fixtures'),
-            pluginEntryFile: 'plugin',
-        });
-
-        // Call configResolved to find all override files
-        plugin.configResolved();
-
-        const mainEntryCode = `
-            import { createApp } from 'vue';
-            import App from './App.vue';
-            import './assets/style.scss';
-
-            createApp(App).mount('#app');
-        `;
-
-        const result = plugin.transform(mainEntryCode, 'plugin');
-
-        // Check if the code was transformed correctly
-        expect(result).toHaveProperty('code');
-        expect(result?.code).toContain('/* Start: auto generated by Shopware */');
-        expect(result?.code).toContain(
-            "from './build/vite-plugins/override-component-register/_fixtures/sw-spec_foo.override.vue';",
-        );
-        expect(result?.code).toContain(
-            "from './build/vite-plugins/override-component-register/_fixtures/sw-setup-example.override.vue';",
-        );
-        expect(result?.code).toMatch(/import _swOverride\d+ from/);
-        expect(result?.code).toMatch(/Shopware\.Component\.registerOverrideComponent\(_swOverride\d+\);/);
-        expect(result?.code).toContain('/* End: auto generated by Shopware */');
-    });
-
-    it('registers same-named overrides from different directories with distinct bindings', () => {
-        const plugin = createPlugin({
-            root: path.resolve(__dirname, './_fixtures'),
-            pluginEntryFile: 'plugin',
-        });
-
-        plugin.configResolved();
-
-        const result = plugin.transform('// entry', 'plugin');
-
-        // Overrides that share a basename (first/ and second/sw-same-name.override.vue) must both
-        // be imported, and the generated module must parse - a repeated binding would be a SyntaxError.
-        expect(result!.code).toContain('first/sw-same-name.override.vue');
-        expect(result!.code).toContain('second/sw-same-name.override.vue');
-        expect(() => parse(result!.code, { sourceType: 'module' })).not.toThrow();
-    });
-
-    it('emits a stable order so the generated entry does not depend on filesystem walk order', () => {
-        const plugin = createPlugin({
-            root: path.resolve(__dirname, './_fixtures'),
-            pluginEntryFile: 'plugin',
-        });
-
-        plugin.configResolved();
-
-        const first = plugin.transform('// entry', 'plugin');
-        const second = plugin.transform('// entry', 'plugin');
-
-        expect(first!.code).toBe(second!.code);
-
-        // Imports are numbered in the sorted file order, so the paths appear sorted too.
-        const paths = [...first!.code.matchAll(/import _swOverride\d+ from '\.\/(.+?)';/g)].map((match) => match[1]);
-
-        expect(paths).toEqual([...paths].sort());
-    });
+        expect(entryMarker.mapped?.source).toContain('src/main.ts');
+        expect(entryMarker.mapped?.line).toBe(entryMarker.authoredLine);
+    }, 60000);
 });

@@ -46,8 +46,8 @@ use Shopware\Core\System\DeliveryTime\DeliveryTimeEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\Stub\Rule\TrueRule;
@@ -61,7 +61,6 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 class CreditNoteRendererTest extends TestCase
 {
     use DocumentTrait;
-    use EventHookBehaviour;
     use SnapshotTesting;
 
     private SalesChannelContext $salesChannelContext;
@@ -248,7 +247,7 @@ class CreditNoteRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        $this->onEvent(CreditNoteOrdersEvent::class, static function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CreditNoteOrdersEvent::class, static function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
@@ -544,7 +543,7 @@ class CreditNoteRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        $this->onEvent(CreditNoteOrdersEvent::class, static function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CreditNoteOrdersEvent::class, static function (CreditNoteOrdersEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 

@@ -46,7 +46,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
@@ -58,7 +58,6 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 #[Package('after-sales')]
 class GrantDownloadAccessActionTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -129,7 +128,7 @@ class GrantDownloadAccessActionTest extends TestCase
                 $flowEvent = $event;
             }
         };
-        $this->onEvent(FlowSendMailActionEvent::class, $flowListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, $flowListener);
 
         $mailEvent = null;
         $mailListener = function (MailBeforeSentEvent $event) use (&$mailEvent): void {
@@ -139,7 +138,7 @@ class GrantDownloadAccessActionTest extends TestCase
                 $mailEvent = $event;
             }
         };
-        $this->onEvent(MailBeforeSentEvent::class, $mailListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MailBeforeSentEvent::class, $mailListener);
 
         $this->changeTransactionStateToPaid($orderId);
 
@@ -165,7 +164,7 @@ class GrantDownloadAccessActionTest extends TestCase
                 $flowEvent = $event;
             }
         };
-        $this->onEvent(FlowSendMailActionEvent::class, $flowListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, $flowListener);
 
         $mailEvent = null;
         $mailListener = function (MailBeforeSentEvent $event) use (&$mailEvent): void {
@@ -175,7 +174,7 @@ class GrantDownloadAccessActionTest extends TestCase
                 $mailEvent = $event;
             }
         };
-        $this->onEvent(MailBeforeSentEvent::class, $mailListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MailBeforeSentEvent::class, $mailListener);
 
         $orderId = $this->placeOrder($productDownloads);
 

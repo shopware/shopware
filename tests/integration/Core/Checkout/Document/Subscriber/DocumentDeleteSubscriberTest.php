@@ -29,7 +29,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,7 +44,6 @@ class DocumentDeleteSubscriberTest extends TestCase
     use AdminApiTestBehaviour;
     use DatabaseTransactionBehaviour;
     use DocumentTrait;
-    use EventHookBehaviour;
     use KernelTestBehaviour;
 
     private Context $context;
@@ -104,7 +103,7 @@ class DocumentDeleteSubscriberTest extends TestCase
 
         $deletedDocumentIds = [];
         $deletedMediaIds = [];
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             EntityDeleteEvent::class,
             function (EntityDeleteEvent $event) use (&$deletedDocumentIds, &$deletedMediaIds): void {
                 $deletedDocumentIds = [...$deletedDocumentIds, ...$event->getIds(DocumentDefinition::ENTITY_NAME)];

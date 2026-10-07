@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -22,7 +22,6 @@ use Symfony\Component\HttpFoundation\Response;
 #[Group('store-api')]
 class NewsletterUnsubscribeRouteTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -56,7 +55,7 @@ class NewsletterUnsubscribeRouteTest extends TestCase
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
-        $this->onEvent(NewsletterUnsubscribeEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(NewsletterUnsubscribeEvent::class, $listener);
 
         $this->browser
             ->request(

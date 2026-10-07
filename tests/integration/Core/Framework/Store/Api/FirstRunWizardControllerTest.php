@@ -21,7 +21,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\QueryDataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 
 /**
  * @internal
@@ -29,7 +29,6 @@ use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 #[Package('fundamentals@after-sales')]
 class FirstRunWizardControllerTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use StoreClientBehaviour;
 
@@ -47,7 +46,7 @@ class FirstRunWizardControllerTest extends TestCase
         // Response for request of TrackingEventClient::fireTrackingEvent()
         $this->getStoreRequestHandler()->append(new Response());
 
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             FirstRunWizardStartedEvent::class,
             static function (FirstRunWizardStartedEvent $event) use (&$dispatchedEvent): void {
                 $dispatchedEvent = $event;
@@ -105,7 +104,7 @@ class FirstRunWizardControllerTest extends TestCase
         // an already completed FRW keeps the finished event from compiling the storefront theme
         static::getContainer()->get(SystemConfigService::class)->set('core.frw.completedAt', '2022-12-01T00:00:00+00:00');
 
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             FirstRunWizardFinishedEvent::class,
             static function (FirstRunWizardFinishedEvent $event) use (&$dispatchedEvent): void {
                 $dispatchedEvent = $event;

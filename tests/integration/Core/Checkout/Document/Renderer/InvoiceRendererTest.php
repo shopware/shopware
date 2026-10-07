@@ -34,7 +34,7 @@ use Shopware\Core\System\Currency\CurrencyFormatter;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
@@ -46,7 +46,6 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 class InvoiceRendererTest extends TestCase
 {
     use DocumentTrait;
-    use EventHookBehaviour;
     use SnapshotTesting;
 
     private SalesChannelContext $salesChannelContext;
@@ -174,12 +173,12 @@ class InvoiceRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        $this->onEvent(InvoiceOrdersEvent::class, static function (InvoiceOrdersEvent $event) use (&$caughtEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(InvoiceOrdersEvent::class, static function (InvoiceOrdersEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
         if ($beforeRenderHook instanceof \Closure) {
-            $beforeRenderHook($operationInvoice, static::getContainer(), $this->onEvent(...));
+            $beforeRenderHook($operationInvoice, static::getContainer(), EventHookDispatcher::fromContainer(static::getContainer())->on(...));
         }
 
         $processedTemplate = $this->invoiceRenderer->render(

@@ -12,7 +12,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Exception\InvalidUuidException;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Tests\Integration\Core\Content\ImportExport\AbstractImportExportTestCase;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Messenger\TraceableMessageBus;
@@ -23,8 +23,6 @@ use Symfony\Component\Messenger\TraceableMessageBus;
 #[Package('fundamentals@after-sales')]
 class ImportExportHandlerTest extends AbstractImportExportTestCase
 {
-    use EventHookBehaviour;
-
     public function testImportExportHandlerDispatchesMessage(): void
     {
         $messageBus = static::getContainer()->get('messenger.default_bus');
@@ -113,7 +111,7 @@ class ImportExportHandlerTest extends AbstractImportExportTestCase
 
         $events = [];
 
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             ImportExportExceptionImportExportHandlerEvent::class,
             static function (ImportExportExceptionImportExportHandlerEvent $event) use (&$events): void {
                 $events[] = $event;

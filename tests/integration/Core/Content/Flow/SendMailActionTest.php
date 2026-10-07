@@ -58,7 +58,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Mime\Email;
@@ -70,7 +70,6 @@ use Symfony\Component\Mime\Part\DataPart;
 #[Package('after-sales')]
 class SendMailActionTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     /**
@@ -172,7 +171,7 @@ class SendMailActionTest extends TestCase
         );
 
         $mailFilterEvent = null;
-        $this->onEvent(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
@@ -326,7 +325,7 @@ class SendMailActionTest extends TestCase
         );
 
         $mailFilterEvent = null;
-        $this->onEvent(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
@@ -393,7 +392,7 @@ class SendMailActionTest extends TestCase
         );
 
         $mailFilterEvent = null;
-        $this->onEvent(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
@@ -465,7 +464,7 @@ class SendMailActionTest extends TestCase
         );
 
         $mailFilterEvent = null;
-        $this->onEvent(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
@@ -573,7 +572,7 @@ class SendMailActionTest extends TestCase
         );
 
         $mailFilterEvent = null;
-        $this->onEvent(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 
@@ -630,7 +629,7 @@ class SendMailActionTest extends TestCase
         );
 
         $mailFilterEvent = null;
-        $this->onEvent(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, static function ($event) use (&$mailFilterEvent): void {
             $mailFilterEvent = $event;
         });
 

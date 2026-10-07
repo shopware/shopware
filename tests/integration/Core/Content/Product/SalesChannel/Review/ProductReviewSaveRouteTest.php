@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Response;
@@ -32,7 +32,6 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Group('store-api')]
 class ProductReviewSaveRouteTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -194,7 +193,7 @@ class ProductReviewSaveRouteTest extends TestCase
         ]);
 
         $caughtEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             MailBeforeSentEvent::class,
             static function (MailBeforeSentEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;

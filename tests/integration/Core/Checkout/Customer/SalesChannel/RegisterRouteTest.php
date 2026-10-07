@@ -36,6 +36,7 @@ use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelD
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -50,6 +51,7 @@ use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 class RegisterRouteTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
+    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -144,7 +146,7 @@ class RegisterRouteTest extends TestCase
         static::getContainer()->get('rule.repository')->create([$rule], Context::createDefaultContext());
 
         $ruleIds = null;
-        static::getContainer()->get('event_dispatcher')->addListener(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
+        $this->onEvent(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
             $ruleIds = $event->getSalesChannelContext()->getRuleIds();
         });
 
@@ -192,7 +194,7 @@ class RegisterRouteTest extends TestCase
         static::getContainer()->get('rule.repository')->create([$rule], Context::createDefaultContext());
 
         $ruleIds = null;
-        static::getContainer()->get('event_dispatcher')->addListener(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
+        $this->onEvent(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
             $ruleIds = $event->getSalesChannelContext()->getRuleIds();
         });
 
@@ -532,7 +534,7 @@ class RegisterRouteTest extends TestCase
         static::getContainer()->get('rule.repository')->create([$rule], Context::createDefaultContext());
 
         $ruleIds = null;
-        static::getContainer()->get('event_dispatcher')->addListener(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
+        $this->onEvent(CustomerRegisterEvent::class, static function (CustomerRegisterEvent $event) use (&$ruleIds): void {
             $ruleIds = $event->getSalesChannelContext()->getRuleIds();
         });
 

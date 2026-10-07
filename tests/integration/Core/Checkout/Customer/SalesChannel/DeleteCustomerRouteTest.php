@@ -135,8 +135,6 @@ class DeleteCustomerRouteTest extends TestCase
         static::assertArrayHasKey(CustomerDeletedEvent::class, $this->events);
         $customerDeletedEvent = $this->events[CustomerDeletedEvent::class];
         static::assertInstanceOf(CustomerDeletedEvent::class, $customerDeletedEvent);
-
-        $dispatcher->removeListener(CustomerDeletedEvent::class, $this->callbackFn);
     }
 
     public function testDeleteGuestUser(): void

@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -38,6 +39,7 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('checkout')]
 class OrderStateChangeEventListenerTest extends TestCase
 {
+    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     public function testTriggerTransactionEvents(): void
@@ -112,9 +114,7 @@ class OrderStateChangeEventListenerTest extends TestCase
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
-        static::getContainer()
-            ->get('event_dispatcher')
-            ->addListener($event, $listener);
+        $this->onEvent($event, $listener);
     }
 
     private function createOrder(IdsCollection $ids): void

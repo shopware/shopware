@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -27,6 +28,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 class AddWishlistProductRouteTest extends TestCase
 {
     use CustomerTestTrait;
+    use EventHookBehaviour;
 
     private KernelBrowser $browser;
 
@@ -73,14 +75,11 @@ class AddWishlistProductRouteTest extends TestCase
     public function testAddProductShouldReturnSuccess(): void
     {
         $productData = $this->createProduct($this->context);
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $eventWasThrown = false;
+        $addedEvent = null;
 
-        $listener = static function (WishlistProductAddedEvent $event) use ($productData, &$eventWasThrown): void {
-            static::assertSame($productData[0], $event->getProductId());
-            $eventWasThrown = true;
-        };
-        $dispatcher->addListener(WishlistProductAddedEvent::class, $listener);
+        $this->onEvent(WishlistProductAddedEvent::class, static function (WishlistProductAddedEvent $event) use (&$addedEvent): void {
+            $addedEvent = $event;
+        });
 
         $this->browser
             ->request(
@@ -90,9 +89,8 @@ class AddWishlistProductRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
         static::assertTrue($response['success']);
-        static::assertTrue($eventWasThrown);
-
-        $dispatcher->removeListener(WishlistProductAddedEvent::class, $listener);
+        static::assertInstanceOf(WishlistProductAddedEvent::class, $addedEvent);
+        static::assertSame($productData[0], $addedEvent->getProductId());
     }
 
     public function testAddProductShouldThrowCustomerWishlistNotActivatedException(): void

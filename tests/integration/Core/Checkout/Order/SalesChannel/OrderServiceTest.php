@@ -169,8 +169,6 @@ class OrderServiceTest extends TestCase
         );
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
     }
 
@@ -225,8 +223,6 @@ class OrderServiceTest extends TestCase
             new RequestDataBag(['sendMail' => false]),
             $this->salesChannelContext->getContext()
         );
-
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertFalse($eventDidRun, 'The mail.sent Event did run');
     }
@@ -288,8 +284,6 @@ class OrderServiceTest extends TestCase
             Context::createDefaultContext() // DefaultContext is intended to test if the language of the order is used
         );
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
-
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertNotNull($innerEvent);
         $textHtml = $innerEvent->getContents()['text/html'];
@@ -381,8 +375,6 @@ class OrderServiceTest extends TestCase
         );
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
     }
 
@@ -436,8 +428,6 @@ class OrderServiceTest extends TestCase
             new RequestDataBag(['sendMail' => false]),
             $this->salesChannelContext->getContext()
         );
-
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertFalse($eventDidRun, 'The mail.sent Event did not run');
     }
@@ -518,8 +508,6 @@ class OrderServiceTest extends TestCase
         $this->orderService->createOrder($data, $this->salesChannelContext);
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
     }
 
@@ -577,8 +565,6 @@ class OrderServiceTest extends TestCase
         $this->orderService->orderStateTransition($orderId, 'cancel', new ParameterBag(), $this->salesChannelContext->getContext());
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
     }
 
@@ -628,8 +614,6 @@ class OrderServiceTest extends TestCase
         $this->orderService->createOrder($data, $this->salesChannelContext);
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
     }
 
@@ -661,8 +645,6 @@ class OrderServiceTest extends TestCase
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
-
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
     }

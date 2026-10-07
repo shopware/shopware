@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -45,6 +46,7 @@ use Symfony\Component\HttpFoundation\Response;
 class AccountOrderControllerTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
+    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use OrderFixture;
     use StorefrontControllerTestBehaviour;
@@ -114,8 +116,7 @@ class AccountOrderControllerTest extends TestCase
 
         $browser->request('GET', $_SERVER['APP_URL'] . '/widgets/account/order/detail/' . $orderId);
 
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-        $eventDispatcher->addListener(OrderRouteRequestEvent::class, static function (OrderRouteRequestEvent $event): void {
+        $this->onEvent(OrderRouteRequestEvent::class, static function (OrderRouteRequestEvent $event): void {
             $event->getCriteria()->addAssociation('lineItems.product');
         });
 

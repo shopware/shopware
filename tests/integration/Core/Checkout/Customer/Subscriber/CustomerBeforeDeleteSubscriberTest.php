@@ -10,6 +10,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -20,6 +21,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class CustomerBeforeDeleteSubscriberTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
+    use EventHookBehaviour;
 
     /**
      * @var EntityRepository<CustomerCollection>
@@ -47,7 +49,7 @@ class CustomerBeforeDeleteSubscriberTest extends TestCase
             $caughtEvents[] = $event;
         };
 
-        static::getContainer()->get('event_dispatcher')->addListener(CustomerDeletedEvent::class, $listenerClosure);
+        $this->onEvent(CustomerDeletedEvent::class, $listenerClosure);
 
         $this->customerRepository->delete([
             ['id' => $customerId1],

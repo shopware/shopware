@@ -432,8 +432,6 @@ class OrderRouteTest extends TestCase
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
 
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
-
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
     }
 
@@ -461,8 +459,6 @@ class OrderRouteTest extends TestCase
 
         static::assertArrayHasKey('success', $response, print_r($response, true));
         static::assertTrue($response['success'], print_r($response, true));
-
-        $dispatcher->removeListener(MailSentEvent::class, $this->handleMailSentEvent(...));
 
         static::assertSame(0, $this->mailSentEventCounter, 'Resubmitting the unchanged payment method must not notify the customer');
     }

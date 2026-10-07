@@ -182,9 +182,16 @@ export default {
         },
 
         criteriaCollection() {
-            return {
-                product: new Criteria(1, this.searchLimit + 1).addAssociation('options.group'),
-            };
+            const collection = {};
+
+            // Search types can supply their own criteria via `searchTypeService.upsertType`
+            Object.values(this.searchTypeService.getTypes()).forEach((type) => {
+                if (type.entityName && typeof type.criteria === 'function') {
+                    collection[type.entityName] = type.criteria(this.searchLimit + 1);
+                }
+            });
+
+            return collection;
         },
 
         currentUser() {

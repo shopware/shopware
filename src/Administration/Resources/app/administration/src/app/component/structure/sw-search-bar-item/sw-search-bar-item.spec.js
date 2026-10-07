@@ -49,7 +49,7 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
     let spyOnClickSearchResult;
     let spyRecentlySearchServiceAdd;
 
-    async function createWrapper(props, mocks = {}) {
+    async function createWrapper(props, mocks = {}, searchTypes = searchTypeServiceTypes) {
         swSearchBarItemComponent = await wrapTestComponent('sw-search-bar-item', { sync: true });
         spyOnClickSearchResult = jest.spyOn(swSearchBarItemComponent.methods, 'onClickSearchResult');
         jest.spyOn(swSearchBarItemComponent.methods, 'registerEvents').mockImplementation(() => {});
@@ -71,7 +71,7 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
                 provide: {
                     recentlySearchService,
                     searchTypeService: {
-                        getTypes: () => searchTypeServiceTypes,
+                        getTypes: () => searchTypes,
                     },
                 },
             },
@@ -291,5 +291,31 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
         });
 
         expect(wrapper.vm.mediaNameFilter).toEqual(expect.any(Function));
+    });
+
+    it('should link to the custom item route supplied by the search type', async () => {
+        wrapper = await createWrapper(
+            {
+                entityIconName: 'regular-tag',
+                entityIconColor: 'blue',
+                column: 1,
+                index: 1,
+                type: 'custom_entity',
+                item: { id: 'itemId', name: 'Custom item', parentId: 'parentId' },
+            },
+            {},
+            {
+                custom_entity: {
+                    entityName: 'custom_entity',
+                    itemRoute: (item) => ({ name: 'custom.detail', params: { id: item.parentId } }),
+                },
+            },
+        );
+
+        expect(wrapper.vm.customItemRoute).toEqual({ name: 'custom.detail', params: { id: 'parentId' } });
+        expect(wrapper.findComponent('.sw-router-link').props('to')).toEqual(wrapper.vm.customItemRoute);
+
+        await wrapper.find('.sw-router-link').trigger('click');
+        expect(spyOnClickSearchResult).toHaveBeenCalledWith('custom_entity', 'itemId');
     });
 });

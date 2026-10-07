@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RequestStackTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Page\Navigation\NavigationPage;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
@@ -22,6 +23,7 @@ use Symfony\Component\HttpFoundation\Response;
 class StorefrontRoutingTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
+    use EventHookBehaviour;
     use KernelTestBehaviour;
     use RequestStackTestBehaviour;
     use SessionTestBehaviour;
@@ -29,10 +31,10 @@ class StorefrontRoutingTest extends TestCase
 
     public function testForwardFromAddPromotionToHomePage(): void
     {
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        $renderedParameters = [];
+        $this->onEvent(
             StorefrontRenderEvent::class,
-            static function (StorefrontRenderEvent $event): void {
+            static function (StorefrontRenderEvent $event) use (&$renderedParameters): void {
                 $skippedViews = [
                     '@Storefront/storefront/layout/header.html.twig',
                     '@Storefront/storefront/layout/footer.html.twig',
@@ -41,10 +43,7 @@ class StorefrontRoutingTest extends TestCase
                     return;
                 }
 
-                $data = $event->getParameters();
-                static::assertInstanceOf(NavigationPage::class, $data['page']);
-                static::assertInstanceOf(CmsPageEntity::class, $data['page']->getCmsPage());
-                static::assertSame('Default listing layout', $data['page']->getCmsPage()->getName());
+                $renderedParameters[] = $event->getParameters();
             }
         );
 
@@ -57,6 +56,11 @@ class StorefrontRoutingTest extends TestCase
         );
 
         static::assertSame(200, $response->getStatusCode());
+        static::assertCount(1, $renderedParameters);
+        $page = $renderedParameters[0]['page'];
+        static::assertInstanceOf(NavigationPage::class, $page);
+        static::assertInstanceOf(CmsPageEntity::class, $page->getCmsPage());
+        static::assertSame('Default listing layout', $page->getCmsPage()->getName());
     }
 
     public function testForwardFromAddPromotionToApiFails(): void

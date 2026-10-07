@@ -26,6 +26,7 @@ use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegis
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -34,6 +35,7 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('discovery')]
 class SalesChannelDefinitionTest extends TestCase
 {
+    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     private SalesChannelDefinitionInstanceRegistry $registry;
@@ -127,10 +129,9 @@ class SalesChannelDefinitionTest extends TestCase
 
         $this->apiRepository->create([$data], Context::createDefaultContext());
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, 'sales_channel.product.loaded', $listener);
+        $this->onEvent('sales_channel.product.loaded', $listener);
 
         $context = $this->factory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 

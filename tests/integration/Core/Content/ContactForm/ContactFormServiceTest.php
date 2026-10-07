@@ -47,7 +47,7 @@ class ContactFormServiceTest extends TestCase
 
         $validationEventName = 'framework.validation.contact_form.create';
 
-        $this->addEventListener(static::getContainer()->get('event_dispatcher'), $validationEventName, $validationListenerClosure);
+        $this->onEvent($validationEventName, $validationListenerClosure);
 
         $systemConfig = static::getContainer()->get(SystemConfigService::class);
         $systemConfig->set('core.basicInformation.firstNameFieldRequired', true);

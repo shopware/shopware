@@ -6,7 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Storefront\Checkout\Cart\AnalyticsLineItemPriceCalculator;
+use Shopware\Storefront\Framework\Analytics\AnalyticsLineItemPriceCalculator;
 use Shopware\Storefront\Framework\Twig\Extension\AnalyticsLineItemPriceExtension;
 
 /**

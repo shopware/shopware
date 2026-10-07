@@ -2,11 +2,14 @@
  * @sw-package framework
  */
 
-import type { Plugin } from 'vite';
+import type { ErrorPayload, Plugin } from 'vite';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import type { transformShopwareSetupSfc as transformShopwareSetupSfcRuntime } from '../../vue-setup-transform';
+import type {
+    ShopwareSetupTransformError,
+    transformShopwareSetupSfc as transformShopwareSetupSfcRuntime,
+} from '../../vue-setup-transform';
 import { createVirtualSetupSourcemapContext } from './virtual-sfc-sourcemap';
 
 type ShopwareSetupTransformModule = {
@@ -58,19 +61,76 @@ async function importShopwareSetupTransform(administrationRoot: string): Promise
     return transformModule.transformShopwareSetupSfc;
 }
 
-/** Renders a transform diagnostic as `file:line:column` plus its message, so editors can jump to it. */
-function formatTransformError(error: unknown, fileName: string, source: string): string {
-    // Duck-typed: the lazily required transform module may throw from another realm, where `instanceof` fails.
-    const { message: rawMessage, index } = (error ?? {}) as { message?: unknown; index?: unknown };
-    const message = typeof rawMessage === 'string' ? rawMessage : String(error);
+/**
+ * A transform failure in the two shapes the dev server reports it: a terminal line and an overlay payload.
+ */
+type TransformFailure = {
+    log: string;
+    overlay: ErrorPayload['err'];
+};
 
-    if (typeof index !== 'number') {
-        return `[shopware-setup] ${fileName}\n${message}`;
+/**
+ * Reads the message, location and code frame a transform diagnostic carries, for reporting it to Vite.
+ *
+ * Use it instead of `instanceof ShopwareSetupTransformError`: the lazily required transform module may
+ * throw from another realm, where `instanceof` fails. `loc` and `frame` are `null` for any other error.
+ *
+ * @example
+ * const { message, loc, frame } = readTransformDiagnostic(error); // loc: { file, line, column } | null
+ */
+function readTransformDiagnostic(error: unknown): {
+    message: string;
+    loc: ShopwareSetupTransformError['loc'];
+    frame: string | null;
+} {
+    const { message, loc, frame } = (error ?? {}) as { message?: unknown } & Partial<
+        Pick<ShopwareSetupTransformError, 'loc' | 'frame'>
+    >;
+
+    return {
+        message: typeof message === 'string' ? message : String(error),
+        loc: loc ?? null,
+        frame: frame ?? null,
+    };
+}
+
+/**
+ * Renders a transform diagnostic as `file:line:column`, its message and code frame, for the terminal and
+ * the error overlay alike. Line and column are Vite's (1-based, 0-based), so a save reports the position
+ * Vite prints when a page load hits the same error.
+ */
+function formatTransformError(error: unknown, fileName: string): TransformFailure {
+    const { message, loc, frame } = readTransformDiagnostic(error);
+    const position = loc ? `:${loc.line}:${loc.column}` : '';
+
+    return {
+        log: `[shopware-setup] ${fileName}${position}\n${message}${frame ? `\n${frame}` : ''}`,
+        overlay: {
+            message,
+            stack: '',
+            id: fileName,
+            loc: loc ?? undefined,
+            frame: frame ?? undefined,
+        },
+    };
+}
+
+const PLUGIN_NAME = 'shopware-vite-plugin-shopware-setup';
+
+/**
+ * Marks a located transform error as already attributed, which stops Vite from re-tracing its `loc`
+ * through the importer's sourcemap.
+ *
+ * Vite's plugin context skips its own `id`/`loc`/`frame` attribution for an error that carries
+ * `pluginCode`; `plugin` keeps the "Plugin:" line in the terminal. Dev server only: Rollup, which runs
+ * `vite build`, reads `pluginCode` as the plugin's error code instead.
+ */
+function asReportedTransformError(error: unknown, source: string): unknown {
+    if (readTransformDiagnostic(error).loc) {
+        Object.assign(error as object, { pluginCode: source, plugin: PLUGIN_NAME });
     }
 
-    const lines = source.slice(0, index).split('\n');
-
-    return `[shopware-setup] ${fileName}:${lines.length}:${lines[lines.length - 1].length + 1}\n${message}`;
+    return error;
 }
 
 /**
@@ -92,6 +152,8 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     const resolvedTransforms = new Map<string, { source: string; result: ShopwareSetupTransformResult }>();
     // Set from the resolved Vite config; the remap is pointless when the build emits no maps.
     let sourcemapsEnabled = true;
+    // Set from the resolved Vite config; see asReportedTransformError for why only the dev server marks errors.
+    let isDevServer = false;
     // caveat: also rejections are cached
     let transformPromise: Promise<typeof transformShopwareSetupSfcRuntime> | null = null;
 
@@ -105,31 +167,37 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
      * Transforms a `.vue` file read from disk.
      *
      * The virtual-filename path (`resolveId`/`load`) hands us only an id, not the file's source, so the
-     * plugin reads it itself. The in-hand-code variant is {@link transformSource}, used by `transform`
-     * where Rollup already supplies the module code.
+     * plugin reads it itself and returns the source alongside the result.
      */
     async function transformFile(
         fileName: string,
     ): Promise<{ source: string; result: ShopwareSetupTransformResult | null }> {
-        const transformShopwareSetupSfc = await loadShopwareSetupTransform();
         const source = await fs.readFile(fileName, 'utf8');
 
-        return { source, result: transformShopwareSetupSfc(source, fileName) };
-    }
-
-    /** Transforms already-loaded module code; see {@link transformFile} for the read-from-disk variant. */
-    async function transformSource(code: string, fileName: string): Promise<ShopwareSetupTransformResult | null> {
-        const transformShopwareSetupSfc = await loadShopwareSetupTransform();
-
-        return transformShopwareSetupSfc(code, fileName);
+        return { source, result: await transformSource(source, fileName) };
     }
 
     /**
-     * Transforms a saved file and returns its formatted diagnostic, or `null` when it compiles.
+     * Transforms SFC code and, in the dev server, marks a located failure as attributed to `fileName`, see
+     * {@link asReportedTransformError}.
+     */
+    async function transformSource(code: string, fileName: string): Promise<ShopwareSetupTransformResult | null> {
+        const transformShopwareSetupSfc = await loadShopwareSetupTransform();
+
+        try {
+            return transformShopwareSetupSfc(code, fileName);
+        } catch (error) {
+            throw isDevServer ? asReportedTransformError(error, code) : error;
+        }
+    }
+
+    /**
+     * Transforms a saved file and returns its failure for the terminal and the overlay, or `null` when it
+     * compiles.
      *
      * A successful result is stashed for the `load` the hot update triggers, so a save is transformed once.
      */
-    async function transformChangedFile(fileName: string, source: string): Promise<string | null> {
+    async function transformChangedFile(fileName: string, source: string): Promise<TransformFailure | null> {
         try {
             const result = await transformSource(source, fileName);
 
@@ -139,7 +207,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
 
             return null;
         } catch (error) {
-            return formatTransformError(error, fileName, source);
+            return formatTransformError(error, fileName);
         }
     }
 
@@ -178,7 +246,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
     }
 
     return {
-        name: 'shopware-vite-plugin-shopware-setup',
+        name: PLUGIN_NAME,
         enforce: 'pre',
 
         /**
@@ -312,8 +380,8 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
                 const failure = await transformChangedFile(file, await read());
 
                 if (failure) {
-                    this.environment.logger.error(failure);
-                    this.environment.hot.send({ type: 'error', err: { message: failure, stack: '' } });
+                    this.environment.logger.error(failure.log);
+                    this.environment.hot.send({ type: 'error', err: failure.overlay });
 
                     // Without a pushed update nothing drops the cached transform, so a reload would serve stale code.
                     if (virtualModule) {
@@ -344,6 +412,7 @@ export default function shopwareSetupPlugin(options: Options): Plugin {
             // from GENERATE_SOURCEMAPS / SHOPWARE_ADMIN_SKIP_SOURCEMAP_GENERATION. Reading it here keeps
             // this plugin on par with the rest of the build instead of re-interpreting those variables.
             sourcemapsEnabled = Boolean(config.build?.sourcemap);
+            isDevServer = config.command === 'serve';
         },
 
         /**

@@ -31,15 +31,28 @@ type CallableSetupPlugin = {
     transform(code: string, id: string): Promise<LoadedModule | null>;
     hotUpdate(options: HotUpdateOptions): Promise<HotUpdateModule[] | undefined>;
     watchChange(id: string, change: { event: 'create' | 'delete' | 'update' }): void;
+    configResolved(config: { command: ViteCommand }): void;
     generateBundle: unknown;
 };
+type ViteCommand = 'serve' | 'build';
 
-const pluginOptions = {
-    administrationRoot: process.cwd(),
-};
+/**
+ * Creates the plugin for the administration under test.
+ *
+ * Pass `command` to resolve it the way Vite does for the dev server (`serve`) or `vite build`; without
+ * it the plugin runs as in a toolchain that calls its hooks directly.
+ */
+function createPlugin({
+    administrationRoot = process.cwd(),
+    command,
+}: { administrationRoot?: string; command?: ViteCommand } = {}): CallableSetupPlugin {
+    const plugin = shopwareSetupPlugin({ administrationRoot }) as unknown as CallableSetupPlugin;
 
-function createPlugin(options: { administrationRoot: string } = pluginOptions): CallableSetupPlugin {
-    return shopwareSetupPlugin(options) as unknown as CallableSetupPlugin;
+    if (command) {
+        plugin.configResolved({ command });
+    }
+
+    return plugin;
 }
 
 async function createVueFile(source: string, fileName = 'component.vue') {
@@ -51,15 +64,22 @@ async function createVueFile(source: string, fileName = 'component.vue') {
     return vueFile;
 }
 
-async function resolveAndLoadVueFile(plugin: CallableSetupPlugin, vueFile: string) {
+/**
+ * Resolves `vueFile` the way an importer next to it would, with Vite's own resolution mocked to return it.
+ *
+ * Returns the raw `resolveId` promise, so a test can assert a rejection; use
+ * {@link resolveAndLoadVueFile} when the file is expected to compile and load.
+ */
+function resolveVueFile(plugin: CallableSetupPlugin, vueFile: string) {
     const context = {
         resolve: jest.fn().mockResolvedValue({ id: vueFile }),
     };
-    const resolvedId = await plugin.resolveId.call(
-        context,
-        `./${path.basename(vueFile)}`,
-        path.join(path.dirname(vueFile), 'entry.js'),
-    );
+
+    return plugin.resolveId.call(context, `./${path.basename(vueFile)}`, path.join(path.dirname(vueFile), 'entry.js'));
+}
+
+async function resolveAndLoadVueFile(plugin: CallableSetupPlugin, vueFile: string) {
+    const resolvedId = await resolveVueFile(plugin, vueFile);
     expect(resolvedId).not.toBeNull();
 
     const loadContext = {
@@ -87,4 +107,4 @@ function spyOnTransform() {
 /**
  * @private
  */
-export { type HotUpdateOptions, createPlugin, createVueFile, resolveAndLoadVueFile, spyOnTransform };
+export { type HotUpdateOptions, createPlugin, createVueFile, resolveAndLoadVueFile, resolveVueFile, spyOnTransform };

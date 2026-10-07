@@ -56,6 +56,10 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Automatically taken over SEO URLs are no longer write-protected
+
+When indexing generates an SEO URL that another entity already uses as its canonical URL, the generated URL takes it over and the other entity falls back to its oldest remaining SEO URL. That fallback is no longer marked as modified, so the entity gets its own URL back with its next indexing. A takeover by an SEO URL set in the Administration or via the API still write-protects the fallback, so later indexing does not undo the manual change.
+
 ### Product stream builders can migrate without dropping the legacy contract
 
 `AbstractProductStreamBuilder` now implements the deprecated `ProductStreamBuilderInterface` and forwards `buildFilters()` to `enrichCriteria()`. Extensions can therefore migrate their implementations to the abstract class while remaining compatible with code that still consumes the legacy interface.

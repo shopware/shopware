@@ -83,6 +83,7 @@ class SeoUrlPersister
         $processed = [];
 
         $seoPathInfos = [];
+        $writesModifiedSeoUrl = false;
 
         $salesChannelId = $salesChannel->getId();
         $updates = [];
@@ -144,6 +145,7 @@ class SeoUrlPersister
             $insert['route_name'] = $routeName;
             $insert['is_canonical'] = ($seoUrl['isCanonical'] ?? true) ? 1 : null;
             $insert['is_modified'] = ($seoUrl['isModified'] ?? false) ? 1 : 0;
+            $writesModifiedSeoUrl = $writesModifiedSeoUrl || $insert['is_modified'] === 1;
             $insert['is_deleted'] = ($seoUrl['isDeleted'] ?? true) ? 1 : 0;
 
             $insert['created_at'] = $dateTime;
@@ -166,9 +168,10 @@ class SeoUrlPersister
 
         // When a seoPathInfo is added that is already associated with a foreignKey, EX: Entity A,
         // the existing row is seamlessly taken over by the ON DUPLICATE KEY UPDATE part configured on the MultiInsertQueryQueue above.
-        // Hence, we have to find the default seoUrls for Entity A and update it accordingly to set is_canonical and is_modified to true,
+        // Hence, we have to find the default seoUrls for Entity A and update it accordingly to set is_canonical to true,
         // thereby preserving the canonical SEO URL for Entity A.
-        $this->updateCanonicalSeoUrls($inuseSeoUrls, $languageId);
+        // Only an explicit change write-protects it, so regenerating Entity A cannot undo that change.
+        $this->updateCanonicalSeoUrls($inuseSeoUrls, $languageId, $overwrite || $writesModifiedSeoUrl);
 
         $this->eventDispatcher->dispatch(new SeoUrlUpdateEvent($updates, $context));
     }
@@ -278,7 +281,7 @@ class SeoUrlPersister
      *
      * @param array<array<string, mixed>> $seoUrls
      */
-    private function updateCanonicalSeoUrls(array $seoUrls, string $languageId): void
+    private function updateCanonicalSeoUrls(array $seoUrls, string $languageId, bool $writeProtect): void
     {
         if ($seoUrls === []) {
             return;
@@ -323,10 +326,10 @@ class SeoUrlPersister
             return;
         }
 
-        RetryableQuery::retryable($this->connection, function () use ($ids): void {
+        RetryableQuery::retryable($this->connection, function () use ($ids, $writeProtect): void {
             $this->connection->executeStatement(
-                'UPDATE seo_url SET is_canonical = 1, is_modified = 1 WHERE id IN (:ids)',
-                ['ids' => $ids],
+                'UPDATE seo_url SET is_canonical = 1, is_modified = :isModified WHERE id IN (:ids)',
+                ['ids' => $ids, 'isModified' => (int) $writeProtect],
                 ['ids' => ArrayParameterType::BINARY]
             );
         });

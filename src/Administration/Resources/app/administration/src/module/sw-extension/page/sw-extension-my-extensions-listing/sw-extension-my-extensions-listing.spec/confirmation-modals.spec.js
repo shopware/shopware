@@ -81,7 +81,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
     });
 
     describe('bulk operations: deactivation confirmation', () => {
-        function rentedExtension(name) {
+        function rentedExtension(name, expirationDate = null) {
             return {
                 name,
                 label: name,
@@ -91,7 +91,7 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
                 active: true,
                 allowDisable: true,
                 updatedAt: null,
-                storeLicense: { variant: 'rent', expired: false },
+                storeLicense: { variant: 'rent', expired: false, expirationDate },
             };
         }
 
@@ -110,6 +110,20 @@ describe('src/module/sw-extension/page/sw-extension-my-extensions-listing', () =
             expect(shopwareService.deactivateExtension).not.toHaveBeenCalled();
             expect(reload).not.toHaveBeenCalled();
             expect(wrapper.vm.isBulkRunning).toBe(true);
+        });
+
+        it('should deactivate a rented extension with a cancelled subscription without the confirmation', async () => {
+            setMyExtensions([rentedExtension('Cancelled', '2026-12-01T00:00:00.000+00:00')]);
+            const wrapper = await createWrapper();
+            await flushPromises();
+
+            jest.spyOn(wrapper.vm, '_reloadPage').mockImplementation(() => {});
+
+            wrapper.vm.onSelectChange({ name: 'Cancelled' }, true);
+            await wrapper.vm.runBulkAction('deactivate');
+
+            expect(wrapper.vm.showBulkDeactivationModal).toBe(false);
+            expect(shopwareService.deactivateExtension).toHaveBeenCalledWith('Cancelled', 'app');
         });
 
         it('should list only the rented extensions in the modal for a mixed batch', async () => {

@@ -243,6 +243,10 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
+### Product reviews will require an author and a rating
+
+With `v6.8.0.0`, `POST /store-api/product/{productId}/review` rejects a review without `points`, and the `product_review` entity marks `externalUser` and `points` as required, so creating a review through the Admin API, the Sync API or a repository without them fails. The 6.8 update also fills `product_review.external_user` for existing reviews without an author, with the first name of the review's customer or an empty string, and makes the column `NOT NULL`. `points` stays nullable in the database, so existing reviews without a rating are kept. Integrations, imports and headless frontends that create reviews should send both fields now; enable the `v6.8.0.0` feature flag to test it.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation

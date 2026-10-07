@@ -262,7 +262,9 @@ Enable the `SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION` feature flag in 6.7 to pre
 
 `POST /store-api/product/{productId}/review` rejects a request without `points`, or with `"points": null`, with `400` and a `VIOLATION::IS_BLANK_ERROR` on `/points`. Before, such a review was saved without a rating. Headless frontends that let customers skip the rating have to send `points` between 1 and 5.
 
-The `product_review` entity marks `externalUser` and `points` as required, so creating a review through the Admin API, the Sync API or a repository without them fails. Integrations and imports that create reviews have to send both fields. Existing reviews without them stay readable and can still be updated.
+The `product_review` entity marks `externalUser` and `points` as required, so creating a review through the Admin API, the Sync API or a repository without them fails. Integrations and imports that create reviews have to send both fields.
+
+The column `product_review.external_user` becomes `NOT NULL`. The update fills it for existing reviews without an author, with the first name of the review's customer or an empty string for reviews without a customer. `points` stays nullable in the database, so existing reviews without a rating are kept and still ignored by the rating average.
 
 ## Type-based number range preview Admin API removed
 

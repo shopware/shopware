@@ -41,6 +41,7 @@ rules:
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoKernelLifecycleManagerInUnitTestsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoKernelBootInSetUpBeforeClassRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoMockBuilderConstructorBypassRule
+    - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoRuntimeListenerOnSharedEventDispatcherRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\NoUnreachableAssertionAfterExpectExceptionRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitClassAttributesOverAnnotationsRule
     - Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests\PHPUnitMethodAttributesOverAnnotationsRule

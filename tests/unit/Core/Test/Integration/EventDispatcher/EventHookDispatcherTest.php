@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
+use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -100,6 +101,45 @@ class EventHookDispatcherTest extends TestCase
 
         static::assertSame(1, $calls);
         static::assertFalse($dispatcher->hasListeners(Event::class));
+    }
+
+    public function testFromContainerReturnsTheRegisteredDispatcher(): void
+    {
+        $dispatcher = new EventHookDispatcher(new EventDispatcher());
+        $container = new Container();
+        $container->set(EventHookDispatcher::class, $dispatcher);
+
+        static::assertSame($dispatcher, EventHookDispatcher::fromContainer($container));
+    }
+
+    public function testFromContainerRejectsAnotherService(): void
+    {
+        $container = new Container();
+        $container->set(EventHookDispatcher::class, new \stdClass());
+
+        $this->expectExceptionObject(new \LogicException(EventHookDispatcher::class . ' is only registered in the test environment.'));
+
+        EventHookDispatcher::fromContainer($container);
+    }
+
+    public function testFromContainerRejectsAContainerWithoutTheDispatcher(): void
+    {
+        $this->expectExceptionObject(new \LogicException(EventHookDispatcher::class . ' is only registered in the test environment.'));
+
+        EventHookDispatcher::fromContainer(new Container());
+    }
+
+    public function testResetCurrentClearsTheHooksOfTheLatestDispatcher(): void
+    {
+        $older = new EventHookDispatcher(new EventDispatcher());
+        $older->on(Event::class, static function (): void {});
+        $latest = new EventHookDispatcher(new EventDispatcher());
+        $latest->on(Event::class, static function (): void {});
+
+        EventHookDispatcher::resetCurrent();
+
+        static::assertFalse($latest->hasListeners(Event::class));
+        static::assertTrue($older->hasListeners(Event::class));
     }
 
     public function testResetClearsAllHooks(): void

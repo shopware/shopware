@@ -21,6 +21,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Helper\MailEventListener;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -32,7 +33,6 @@ use Shopware\Core\Test\TestDefaults;
  */
 trait TestShortHands
 {
-    use EventHookBehaviour;
     use KernelTestBehaviour;
 
     /**
@@ -150,11 +150,11 @@ trait TestShortHands
 
         $listener = new MailEventListener($mapping);
 
-        $this->onEvent(FlowSendMailActionEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(FlowSendMailActionEvent::class, $listener);
 
         $result = $closure($listener);
 
-        $this->removeEventHook(FlowSendMailActionEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->off(FlowSendMailActionEvent::class, $listener);
 
         return $result;
     }

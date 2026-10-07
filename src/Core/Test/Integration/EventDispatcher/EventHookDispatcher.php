@@ -4,6 +4,7 @@ namespace Shopware\Core\Test\Integration\EventDispatcher;
 
 use Psr\EventDispatcher\StoppableEventInterface;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -13,8 +14,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * dispatcher. Hooks run after the dispatcher's own listeners and are skipped once propagation is stopped.
  * It decorates closest to the base dispatcher, so nested events re-dispatched by outer decorators reach it.
  *
- * Use it through {@see \Shopware\Core\Test\Integration\Traits\EventHookBehaviour}, which clears the hooks
- * after each test.
+ * Tests get it with {@see self::fromContainer()}. The EventHookExtension (phpunit.xml.dist) clears the hooks after
+ * each test.
  *
  * @internal
  */
@@ -26,8 +27,32 @@ final class EventHookDispatcher implements EventDispatcherInterface
      */
     private array $hooks = [];
 
+    /**
+     * @var \WeakReference<self>|null
+     */
+    private static ?\WeakReference $current = null;
+
     public function __construct(private readonly EventDispatcherInterface $inner)
     {
+        self::$current = \WeakReference::create($this);
+    }
+
+    public static function fromContainer(ContainerInterface $container): self
+    {
+        $dispatcher = $container->has(self::class) ? $container->get(self::class) : null;
+        if (!$dispatcher instanceof self) {
+            throw new \LogicException(\sprintf('%s is only registered in the test environment.', self::class));
+        }
+
+        return $dispatcher;
+    }
+
+    /**
+     * Clears the hooks of the dispatcher of the current kernel, if one was built.
+     */
+    public static function resetCurrent(): void
+    {
+        self::$current?->get()?->reset();
     }
 
     public function on(string $eventName, callable $hook, bool $once = false): void

@@ -27,6 +27,15 @@
       "three/webgpu": ["./node_modules/@types/three/build/three.webgpu.d.ts"],
       "@tiptap/vue-3": ["./node_modules/@tiptap/vue-3/dist/index.d.ts", "./node_modules/@shopware-ag/meteor-component-library/node_modules/@tiptap/vue-3/dist/index.d.ts"],
       "@tiptap/extension-link": ["./node_modules/@tiptap/extension-link/dist/index.d.ts", "./node_modules/@shopware-ag/meteor-component-library/node_modules/@tiptap/extension-link/dist/index.d.ts"],
+      // Vite 8 and @vitejs/plugin-vue 6 are ESM-only and expose their types solely through the
+      // "exports" map, which "node" resolution ignores. Vite's own declarations additionally use the
+      // "#types/*" package import and Rolldown's subpath exports, so these are mapped as well.
+      "vite": ["./node_modules/vite/dist/node/index.d.ts"],
+      "@vitejs/plugin-vue": ["./node_modules/@vitejs/plugin-vue/dist/index.d.mts"],
+      "#types/*": ["./node_modules/vite/types/*"],
+      "rolldown/parseAst": ["./node_modules/rolldown/dist/parse-ast-index.d.mts"],
+      "rolldown/plugins": ["./node_modules/rolldown/dist/plugins-index.d.mts"],
+      "rolldown/utils": ["./node_modules/rolldown/dist/utils-index.d.mts"],
     },
     // The base empties "types" so extension programs stay runner-free; the
     // admin program does include its specs and needs the jest globals.

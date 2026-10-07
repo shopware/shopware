@@ -534,6 +534,17 @@ Check your Administration extensions for these changes:
 - The search input of `mt-select` gets the field's `name`, or a generated id, as its `id` and opts out of browser autofill.
 - Text-entry fields forward the `autocomplete` attribute to the native input.
 
+### Administration build tooling updated to Vite 8
+
+The Administration and the extension builds that run through `composer build:js:admin` / `composer watch:admin` now use Vite `8.3.3`, which bundles with Rolldown instead of Rollup and esbuild. Together with it, `@vitejs/plugin-vue` was updated to `6.0.9`, `vite-plugin-symfony` to `8.2.4` and `vite-plugin-node-polyfills` to `0.28.0`.
+
+Check your Administration extensions for these changes:
+
+- Building the Administration requires Node.js `20.19` or `22.12` and newer.
+- Built JavaScript targets the "Baseline Widely Available" browsers (Chrome 111, Edge 111, Firefox 114, Safari 16.4). Syntax these browsers support natively is no longer transpiled.
+- CSS is minified by Lightning CSS. Invalid CSS that esbuild kept is now dropped from the output and reported as a `[lightningcss minify]` warning during the build.
+- The generated `.vite/entrypoints.json` and `.vite/manifest.json` keep their format, so templates and the Symfony integration need no change.
+
 ## Storefront
 
 ### Extension component aliases work in the dev server

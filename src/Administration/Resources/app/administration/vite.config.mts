@@ -167,6 +167,15 @@ export default defineConfig(({ command }) => {
             ];
         })(),
 
+        css: {
+            lightningcss: {
+                // Lightning CSS minifies the CSS output and, unlike esbuild before it, aborts the build on
+                // invalid CSS. Third-party stylesheets (e.g. an empty nested rule in the Meteor Component
+                // Library) are not ours to fix, so invalid rules are dropped with a warning instead.
+                errorRecovery: true,
+            },
+        },
+
         resolve: {
             alias: [
                 {
@@ -204,22 +213,24 @@ export default defineConfig(({ command }) => {
                 'date-fns-tz',
             ],
             // DIVE ships Vite-only import queries (`?raw`, `?url`) in its published build.
-            // esbuild cannot resolve those while pre-bundling, so the dependency has to stay
-            // in Vite's own pipeline.
+            // The dependency optimizer cannot resolve those while pre-bundling, so the dependency
+            // has to stay in Vite's own pipeline.
             exclude: ['@shopware-ag/dive'],
             // This avoids full-page reload but the browser can't process more requests in parallel
             holdUntilCrawlEnd: true,
-            esbuildOptions: {
-                // Node.js global to browser globalThis
-                define: {
-                    global: 'globalThis',
+            rolldownOptions: {
+                transform: {
+                    // Node.js global to browser globalThis
+                    define: {
+                        global: 'globalThis',
+                    },
                 },
             },
         },
 
         worker: {
             format: 'es',
-            rollupOptions: {
+            rolldownOptions: {
                 output: {
                     format: 'iife',
                 },
@@ -237,7 +248,7 @@ export default defineConfig(({ command }) => {
             // generate .vite/manifest.json in outDir
             manifest: true,
             sourcemap: useSourceMap,
-            rollupOptions: {
+            rolldownOptions: {
                 // overwrite default .html entry
                 input: {
                     administration: 'src/index.ts',

@@ -101,6 +101,14 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
             ...(isDev ? [] : [symfonyPlugin()]),
         ],
 
+        css: {
+            lightningcss: {
+                // Keep extension builds as tolerant of invalid third-party CSS as the esbuild minifier was:
+                // Lightning CSS drops the invalid rule with a warning instead of failing the build.
+                errorRecovery: true,
+            },
+        },
+
         resolve: {
             alias: [
                 {
@@ -133,9 +141,11 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
                           'date-fns-tz',
                       ],
                       holdUntilCrawlEnd: true,
-                      esbuildOptions: {
-                          define: {
-                              global: 'globalThis',
+                      rolldownOptions: {
+                          transform: {
+                              define: {
+                                  global: 'globalThis',
+                              },
                           },
                       },
                   },
@@ -146,7 +156,7 @@ const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
             emptyOutDir: true,
             manifest: true,
             sourcemap: useSourceMap,
-            rollupOptions: {
+            rolldownOptions: {
                 input: {
                     [extension.technicalName]: extension.filePath,
                 },

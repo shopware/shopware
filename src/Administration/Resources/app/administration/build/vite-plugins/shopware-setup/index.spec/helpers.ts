@@ -6,7 +6,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { createRequire } from 'node:module';
-import type { SourceMap } from 'rollup';
+import type { Rolldown } from 'vite';
 import shopwareSetupPlugin from '../index';
 
 /**
@@ -15,7 +15,7 @@ import shopwareSetupPlugin from '../index';
  * Vite types every hook as an optional `ObjectHook` - a union of function and `{ handler }` - so hooks
  * are not directly callable through `Plugin`. Narrowing once here keeps the assertion out of each test.
  */
-type LoadedModule = { code: string; map: SourceMap };
+type LoadedModule = { code: string; map: Rolldown.SourceMap };
 type HotUpdateModule = { id: string };
 type HotUpdateOptions = {
     file: string;

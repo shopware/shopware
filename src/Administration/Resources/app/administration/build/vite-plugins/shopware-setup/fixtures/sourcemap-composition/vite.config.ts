@@ -40,7 +40,7 @@ export default (async () => {
             emptyOutDir: true,
             sourcemap: true,
             minify: false,
-            rollupOptions: {
+            rolldownOptions: {
                 input: path.join(here, 'src/Entry.ts'),
                 external: ['vue'],
             },

@@ -41,7 +41,7 @@ function isDependencyFile(fileName: string): boolean {
  * Keep the CommonJS transform out of Vite's config bundle.
  *
  * The shared transform is intentionally still CommonJS because the Jest transformer and
- * the ESLint rule consume it synchronously. Vite bundles `vite.config.mts` with esbuild
+ * the ESLint rule consume it synchronously. Vite bundles `vite.config.mts` with Rolldown
  * by default; if the transform is statically imported there, its `require()` calls are
  * inlined into an ESM config bundle and fail at runtime.
  */

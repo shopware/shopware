@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Shopware\Tests\Integration\Core\Framework\Api\Controller;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Defaults;
@@ -152,6 +153,26 @@ class ApiControllerVersionTest extends TestCase
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(ApiException::deleteLiveVersion()->getErrorCode(), $content['errors'][0]['code']);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function malformedDeleteVersionPathProvider(): iterable
+    {
+        $id = Uuid::randomHex();
+
+        yield 'malformed version id' => [\sprintf('/api/_action/version/not-a-uuid/product/%s', $id)];
+        yield 'malformed entity id' => [\sprintf('/api/_action/version/%s/product/not-a-uuid', $id)];
+    }
+
+    #[DataProvider('malformedDeleteVersionPathProvider')]
+    public function testDeleteVersionWithAMalformedIdIsNotRouted(string $path): void
+    {
+        $browser = $this->getBrowser();
+        $browser->jsonRequest('POST', $path);
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
     }
 
     public function testMergeCannotResurrectADiscardedVersion(): void

@@ -765,7 +765,7 @@ class SeoUrlPersisterTest extends TestCase
 
         static::assertNotNull($product1NewCanonical, 'Product 1 should have a canonical URL');
         static::assertStringContainsString('Awesome-Product', $product1NewCanonical['seoPathInfo']);
-        static::assertEmpty($product1ObsoleteUrls);
+        static::assertCount(0, $product1ObsoleteUrls);
 
         $product2Canonical = null;
         foreach ($product2SeoUrlsAfterConflict as $seoUrl) {

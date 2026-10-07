@@ -181,7 +181,8 @@ class CustomerGroupSubscriberTest extends TestCase
         static::assertNotNull($url);
         static::assertSame($s1, $url->getSalesChannelId());
         static::assertSame($id, $url->getForeignKey());
-        static::assertSame('store-api.customer-group-registration', $url->getRouteName());
+        static::assertSame('store-api.customer-group-registration.config', $url->getRouteName());
+        static::assertSame('/store-api/customer-group-registration/config/' . $id, $url->getPathInfo());
         static::assertSame('test', $url->getSeoPathInfo());
     }
 

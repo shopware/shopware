@@ -34,7 +34,7 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
 {
     private const ROUTE_NAME = 'frontend.account.customer-group-registration.page';
 
-    private const HEADLESS_ROUTE_NAME = 'store-api.customer-group-registration';
+    private const HEADLESS_ROUTE_NAME = 'store-api.customer-group-registration.config';
 
     /**
      * @internal
@@ -191,7 +191,9 @@ class CustomerGroupSubscriber implements EventSubscriberInterface
                         'salesChannelId' => $registrationSalesChannel->getId(),
                         'foreignKey' => $group->getId(),
                         'routeName' => $routeName,
-                        'pathInfo' => '/customer-group-registration/' . $group->getId(),
+                        'pathInfo' => $isHeadless
+                            ? '/store-api/customer-group-registration/config/' . $group->getId()
+                            : '/customer-group-registration/' . $group->getId(),
                         'isCanonical' => true,
                         'isDeleted' => false,
                         'seoPathInfo' => '/' . $this->slugify->slugify($title),

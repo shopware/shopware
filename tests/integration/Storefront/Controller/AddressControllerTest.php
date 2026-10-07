@@ -25,7 +25,7 @@ use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AddressController;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
@@ -43,7 +43,6 @@ use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 #[Package('checkout')]
 class AddressControllerTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
     use StorefrontSalesChannelTestHelper;
@@ -571,7 +570,7 @@ class AddressControllerTest extends TestCase
         ]);
 
         $renderEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             StorefrontRenderEvent::class,
             static function (StorefrontRenderEvent $event) use (&$renderEvent): void {
                 $renderEvent = $event;

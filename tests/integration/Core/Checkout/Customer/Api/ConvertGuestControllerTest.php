@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -29,7 +29,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('checkout')]
 class ConvertGuestControllerTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -101,7 +100,7 @@ class ConvertGuestControllerTest extends TestCase
         $customerId = $this->createCustomer(guest: true);
 
         $caughtEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CustomerAccountRecoverRequestEvent::EVENT_NAME,
             function (CustomerAccountRecoverRequestEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
@@ -124,7 +123,7 @@ class ConvertGuestControllerTest extends TestCase
         $customerId = $this->createCustomer('test@test.com', guest: true);
 
         $caughtEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CustomerAccountRecoverRequestEvent::EVENT_NAME,
             function (CustomerAccountRecoverRequestEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;

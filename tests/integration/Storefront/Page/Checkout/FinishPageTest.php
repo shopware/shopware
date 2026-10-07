@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\Order\OrderException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPage;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoadedEvent;
 use Shopware\Storefront\Page\Checkout\Finish\CheckoutFinishPageLoader;
@@ -50,7 +51,7 @@ class FinishPageTest extends TestCase
         $criteria = new Criteria([$orderId]);
 
         $criteriaEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CheckoutFinishPageOrderCriteriaEvent::class,
             static function (CheckoutFinishPageOrderCriteriaEvent $event) use (&$criteriaEvent): void {
                 $criteriaEvent = $event;

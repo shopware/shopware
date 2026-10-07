@@ -26,7 +26,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -37,7 +37,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 #[Group('store-api')]
 class CartLoadRouteTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -168,7 +167,7 @@ class CartLoadRouteTest extends TestCase
             $loadedCarts[] = $event->getCart()->getToken();
         };
 
-        $this->onEvent(CartLoadedEvent::class, $tracker);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CartLoadedEvent::class, $tracker);
 
         $this->browser->request('GET', '/store-api/checkout/cart');
 

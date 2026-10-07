@@ -34,7 +34,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Assert\Serialization;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Clock\NativeClock;
@@ -46,7 +46,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[Package('checkout')]
 class CartPersisterTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     public function testLoadWithNotExistingToken(): void
@@ -320,7 +319,7 @@ class CartPersisterTest extends TestCase
     public function testCartSavedEventIsFired(): void
     {
         $caughtEvent = null;
-        $this->onEvent(CartSavedEvent::class, static function (CartSavedEvent $event) use (&$caughtEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CartSavedEvent::class, static function (CartSavedEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
@@ -380,7 +379,7 @@ class CartPersisterTest extends TestCase
     public function testCartVerifyPersistEventIsFiredAndPersisted(): void
     {
         $caughtEvent = null;
-        $this->onEvent(CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
@@ -405,7 +404,7 @@ class CartPersisterTest extends TestCase
     public function testCartVerifyPersistEventIsFiredAndModified(): void
     {
         $caughtEvent = null;
-        $this->onEvent(CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CartVerifyPersistEvent::class, static function (CartVerifyPersistEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
             $event->setShouldPersist(false);
         });

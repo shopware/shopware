@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 
@@ -21,7 +21,6 @@ use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviou
 #[Package('checkout')]
 class PromotionCartEventTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use PromotionIntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
@@ -55,7 +54,7 @@ class PromotionCartEventTest extends TestCase
 
         $addListener = $this->createMock(CallableClass::class);
         $addListener->expects($this->exactly(1 + \count($codes)))->method('__invoke');
-        $this->onEvent(BeforeLineItemAddedEvent::class, $addListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(BeforeLineItemAddedEvent::class, $addListener);
 
         $cart = $this->cartService->getCart($this->getContext()->getToken(), $this->getContext());
 
@@ -85,7 +84,7 @@ class PromotionCartEventTest extends TestCase
 
         $removeListener = $this->createMock(CallableClass::class);
         $removeListener->expects($this->once())->method('__invoke');
-        $this->onEvent(BeforeLineItemRemovedEvent::class, $removeListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(BeforeLineItemRemovedEvent::class, $removeListener);
 
         $cart = $this->cartService->getCart($this->getContext()->getToken(), $this->getContext());
 

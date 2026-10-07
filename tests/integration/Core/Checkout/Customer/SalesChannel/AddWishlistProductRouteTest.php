@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -28,7 +28,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 class AddWishlistProductRouteTest extends TestCase
 {
     use CustomerTestTrait;
-    use EventHookBehaviour;
 
     private KernelBrowser $browser;
 
@@ -77,7 +76,7 @@ class AddWishlistProductRouteTest extends TestCase
         $productData = $this->createProduct($this->context);
         $addedEvent = null;
 
-        $this->onEvent(WishlistProductAddedEvent::class, static function (WishlistProductAddedEvent $event) use (&$addedEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(WishlistProductAddedEvent::class, static function (WishlistProductAddedEvent $event) use (&$addedEvent): void {
             $addedEvent = $event;
         });
 

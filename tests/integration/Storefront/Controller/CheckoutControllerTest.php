@@ -48,8 +48,8 @@ use Shopware\Core\SalesChannelRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\Error\PaymentMethodChangedError;
 use Shopware\Storefront\Checkout\Cart\Error\ShippingMethodChangedError;
@@ -74,7 +74,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 #[Package('checkout')]
 class CheckoutControllerTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use StorefrontSalesChannelTestHelper;
 
@@ -573,7 +572,7 @@ class CheckoutControllerTest extends TestCase
             $loadedCarts[] = $event->getCart()->getToken();
         };
 
-        $this->onEvent(CartLoadedEvent::class, $tracker);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CartLoadedEvent::class, $tracker);
 
         $browser->request('GET', '/checkout/cart.json');
 

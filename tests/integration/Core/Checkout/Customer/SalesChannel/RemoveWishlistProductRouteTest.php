@@ -15,8 +15,8 @@ use Shopware\Core\Framework\Util\Random;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -28,7 +28,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 class RemoveWishlistProductRouteTest extends TestCase
 {
     use CustomerTestTrait;
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     private KernelBrowser $browser;
@@ -83,7 +82,7 @@ class RemoveWishlistProductRouteTest extends TestCase
 
         $this->createCustomerWishlist($this->context, $this->customerId, $productId);
 
-        $this->onEvent(WishlistProductRemovedEvent::class, static function (WishlistProductRemovedEvent $event) use (&$removedEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(WishlistProductRemovedEvent::class, static function (WishlistProductRemovedEvent $event) use (&$removedEvent): void {
             $removedEvent = $event;
         });
 

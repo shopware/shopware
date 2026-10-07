@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\Debug\TraceableEventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,7 +28,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('checkout')]
 class CustomerGroupRegistrationActionControllerTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -44,7 +43,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $controller = $this->createController($eventDispatcher);
 
         $caughtEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CustomerGroupRegistrationAccepted::class,
             static function (CustomerGroupRegistrationAccepted $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
@@ -77,7 +76,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $controller = $this->createController($eventDispatcher);
 
         $caughtEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CustomerGroupRegistrationDeclined::class,
             static function (CustomerGroupRegistrationDeclined $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
@@ -138,7 +137,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $controller = $this->createController($eventDispatcher);
 
         $caughtEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CustomerGroupRegistrationAccepted::class,
             static function (CustomerGroupRegistrationAccepted $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
@@ -191,7 +190,7 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $controller = $this->createController($eventDispatcher);
 
         $caughtEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CustomerGroupRegistrationDeclined::class,
             static function (CustomerGroupRegistrationDeclined $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;

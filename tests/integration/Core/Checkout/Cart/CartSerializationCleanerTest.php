@@ -24,7 +24,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -33,7 +33,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[Package('checkout')]
 class CartSerializationCleanerTest extends TestCase
 {
-    use EventHookBehaviour;
     use KernelTestBehaviour;
 
     /**
@@ -48,7 +47,7 @@ class CartSerializationCleanerTest extends TestCase
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
-        $this->onEvent(CartBeforeSerializationEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CartBeforeSerializationEvent::class, $listener);
 
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->once())->method('fetchFirstColumn')->willReturn($allowed);

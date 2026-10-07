@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -31,7 +31,6 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('checkout')]
 class AccountServiceEventTest extends TestCase
 {
-    use EventHookBehaviour;
     use SalesChannelFunctionalTestBehaviour;
 
     private AccountService $accountService;
@@ -82,7 +81,7 @@ class AccountServiceEventTest extends TestCase
 
     public function testLoginBeforeEventNotDispatchedIfNoCredentialsGivenViaLoginRoute(): void
     {
-        $this->onEvent(CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
 
         $dataBag = new DataBag();
         $dataBag->add([
@@ -101,7 +100,7 @@ class AccountServiceEventTest extends TestCase
 
     public function testLoginBeforeEventNotDispatchedIfNoCredentialsGivenViaAccountService(): void
     {
-        $this->onEvent(CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
 
         $this->expectExceptionObject(new BadCredentialsException());
 
@@ -114,7 +113,7 @@ class AccountServiceEventTest extends TestCase
 
     public function testCustomerBeforeLoginEventDispatchedViaLoginRoute(): void
     {
-        $this->onEvent(CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
 
         $dataBag = new DataBag();
         $dataBag->add([
@@ -128,7 +127,7 @@ class AccountServiceEventTest extends TestCase
 
     public function testCustomerBeforeLoginEventDispatchedViaAccountService(): void
     {
-        $this->onEvent(CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
 
         $this->accountService->loginByCredentials('info@example.com', 'shopware', $this->salesChannelContext);
         static::assertSame('info@example.com', $this->caughtEmail, 'Event "' . CustomerBeforeLoginEvent::class . '" did not run');
@@ -136,7 +135,7 @@ class AccountServiceEventTest extends TestCase
 
     public function testCustomerLoginEventDispatchedViaLoginRoute(): void
     {
-        $this->onEvent(CustomerLoginEvent::class, $this->customerListenerClosure);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CustomerLoginEvent::class, $this->customerListenerClosure);
 
         $dataBag = new DataBag();
         $dataBag->add([
@@ -150,7 +149,7 @@ class AccountServiceEventTest extends TestCase
 
     public function testCustomerLoginEventDispatchedViaAccountService(): void
     {
-        $this->onEvent(CustomerLoginEvent::class, $this->customerListenerClosure);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CustomerLoginEvent::class, $this->customerListenerClosure);
 
         $this->accountService->loginByCredentials('info@example.com', 'shopware', $this->salesChannelContext);
         static::assertSame('info@example.com', $this->caughtEmail, 'Event "' . CustomerLoginEvent::class . '" did not run');
@@ -160,7 +159,7 @@ class AccountServiceEventTest extends TestCase
     {
         $email = 'info@example.com';
 
-        $this->onEvent(CustomerLogoutEvent::class, $this->customerListenerClosure);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CustomerLogoutEvent::class, $this->customerListenerClosure);
 
         $customer = $this->customerRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('email', $email)),

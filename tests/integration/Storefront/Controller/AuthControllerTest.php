@@ -41,7 +41,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
@@ -70,7 +70,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 #[Package('checkout')]
 class AuthControllerTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use LineItemTestFixtureBehaviour;
     use StorefrontControllerTestBehaviour;
@@ -260,7 +259,7 @@ class AuthControllerTest extends TestCase
      */
     public function testLogoutSendsClearSiteDataWhenDirectivesAreConfigured(): void
     {
-        $this->onEvent(StorefrontRouteScope::ID . '.scope.response', (new ClearSiteDataListener(['cache', 'storage']))->onResponse(...));
+        EventHookDispatcher::fromContainer(static::getContainer())->on(StorefrontRouteScope::ID . '.scope.response', (new ClearSiteDataListener(['cache', 'storage']))->onResponse(...));
 
         $browser = $this->login();
         $browser->setServerParameter('HTTP_SEC_FETCH_SITE', 'same-origin');
@@ -449,7 +448,7 @@ class AuthControllerTest extends TestCase
         ]);
         $testSubscriber = new AuthTestSubscriber();
 
-        $this->hookSubscriber($testSubscriber);
+        EventHookDispatcher::fromContainer(static::getContainer())->subscribe($testSubscriber);
 
         $customer = $this->createCustomer();
         static::assertNotNull($customer);
@@ -518,7 +517,7 @@ class AuthControllerTest extends TestCase
 
         $testSubscriber = new AuthTestSubscriber();
 
-        $this->hookSubscriber($testSubscriber);
+        EventHookDispatcher::fromContainer(static::getContainer())->subscribe($testSubscriber);
 
         $response = $controller->resetPasswordForm($request, $this->salesChannelContext);
 

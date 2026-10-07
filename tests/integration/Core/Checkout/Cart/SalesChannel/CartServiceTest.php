@@ -37,6 +37,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AccountOrderController;
 
@@ -95,7 +96,7 @@ class CartServiceTest extends TestCase
     public function testCreateNewWithEvent(): void
     {
         $caughtEvent = null;
-        $this->onEvent(CartCreatedEvent::class, static function (CartCreatedEvent $event) use (&$caughtEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CartCreatedEvent::class, static function (CartCreatedEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
@@ -113,7 +114,7 @@ class CartServiceTest extends TestCase
     public function testLineItemAddedEventFired(): void
     {
         $isMerged = null;
-        $this->onEvent(BeforeLineItemAddedEvent::class, static function (BeforeLineItemAddedEvent $addedEvent) use (&$isMerged): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(BeforeLineItemAddedEvent::class, static function (BeforeLineItemAddedEvent $addedEvent) use (&$isMerged): void {
             $isMerged = $addedEvent->isMerged();
         });
 
@@ -147,7 +148,7 @@ class CartServiceTest extends TestCase
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
-        $this->onEvent(AfterLineItemAddedEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AfterLineItemAddedEvent::class, $listener);
 
         $cartService = static::getContainer()->get(CartService::class);
 
@@ -167,7 +168,7 @@ class CartServiceTest extends TestCase
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
-        $this->onEvent(BeforeLineItemRemovedEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(BeforeLineItemRemovedEvent::class, $listener);
 
         $cartService = static::getContainer()->get(CartService::class);
 
@@ -191,7 +192,7 @@ class CartServiceTest extends TestCase
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
-        $this->onEvent(AfterLineItemRemovedEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AfterLineItemRemovedEvent::class, $listener);
 
         $cartService = static::getContainer()->get(CartService::class);
 
@@ -215,7 +216,7 @@ class CartServiceTest extends TestCase
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
-        $this->onEvent(BeforeLineItemQuantityChangedEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(BeforeLineItemQuantityChangedEvent::class, $listener);
 
         $cartService = static::getContainer()->get(CartService::class);
 
@@ -237,7 +238,7 @@ class CartServiceTest extends TestCase
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
-        $this->onEvent(AfterLineItemQuantityChangedEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AfterLineItemQuantityChangedEvent::class, $listener);
 
         $cartService = static::getContainer()->get(CartService::class);
 

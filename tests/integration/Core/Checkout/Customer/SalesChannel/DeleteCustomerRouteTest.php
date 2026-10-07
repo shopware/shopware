@@ -14,8 +14,8 @@ use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Contracts\EventDispatcher\Event;
@@ -28,7 +28,6 @@ use Symfony\Contracts\EventDispatcher\Event;
 class DeleteCustomerRouteTest extends TestCase
 {
     use CustomerTestTrait;
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     private KernelBrowser $browser;
@@ -87,7 +86,7 @@ class DeleteCustomerRouteTest extends TestCase
 
     public function testDeleteAValidCustomer(): void
     {
-        $this->onEvent(CustomerDeletedEvent::class, $this->callbackFn);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(CustomerDeletedEvent::class, $this->callbackFn);
 
         static::assertArrayNotHasKey(
             CustomerDeletedEvent::class,

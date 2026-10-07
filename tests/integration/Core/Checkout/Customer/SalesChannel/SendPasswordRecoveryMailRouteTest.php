@@ -17,7 +17,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -29,7 +29,6 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 #[Group('store-api')]
 class SendPasswordRecoveryMailRouteTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -151,7 +150,7 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $this->addDomain($domainUrlTest['domain']);
 
         $caughtEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CustomerAccountRecoverRequestEvent::EVENT_NAME,
             static function (CustomerAccountRecoverRequestEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
@@ -183,14 +182,14 @@ class SendPasswordRecoveryMailRouteTest extends TestCase
         $systemConfigService->set('core.loginRegistration.pwdRecoverUrl', '/test/rec/password/%%RECOVERHASH%%"');
 
         $caughtEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             CustomerAccountRecoverRequestEvent::EVENT_NAME,
             static function (CustomerAccountRecoverRequestEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
             }
         );
 
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             PasswordRecoveryUrlEvent::class,
             static function (PasswordRecoveryUrlEvent $event): void {
                 $event->setRecoveryUrl($event->getRecoveryUrl() . '/?somethingSpecial=1');

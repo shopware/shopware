@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\RouteRequest\OrderRouteRequestEvent;
@@ -46,7 +46,6 @@ use Symfony\Component\HttpFoundation\Response;
 class AccountOrderControllerTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use OrderFixture;
     use StorefrontControllerTestBehaviour;
@@ -98,7 +97,7 @@ class AccountOrderControllerTest extends TestCase
         $orderRepo->create($orderData, $context);
 
         $renderEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             StorefrontRenderEvent::class,
             static function (StorefrontRenderEvent $event) use (&$renderEvent): void {
                 $renderEvent = $event;
@@ -115,12 +114,12 @@ class AccountOrderControllerTest extends TestCase
             static::assertNull($orderLineItemEntity->getProduct());
         }
 
-        $this->onEvent(OrderRouteRequestEvent::class, static function (OrderRouteRequestEvent $event): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(OrderRouteRequestEvent::class, static function (OrderRouteRequestEvent $event): void {
             $event->getCriteria()->addAssociation('lineItems.product');
         });
 
         $renderEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             StorefrontRenderEvent::class,
             static function (StorefrontRenderEvent $event) use (&$renderEvent): void {
                 $renderEvent = $event;
@@ -170,7 +169,7 @@ class AccountOrderControllerTest extends TestCase
         $browser->followRedirects();
 
         $renderEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             StorefrontRenderEvent::class,
             static function (StorefrontRenderEvent $event) use (&$renderEvent): void {
                 $renderEvent = $event;
@@ -260,7 +259,7 @@ class AccountOrderControllerTest extends TestCase
         $browser->followRedirects();
 
         $renderEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             StorefrontRenderEvent::class,
             static function (StorefrontRenderEvent $event) use (&$renderEvent): void {
                 $renderEvent = $event;
@@ -278,7 +277,7 @@ class AccountOrderControllerTest extends TestCase
         static::assertSame($differentShippingMethodId, $renderEvent->getSalesChannelContext()->getShippingMethod()->getId());
 
         $renderEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             StorefrontRenderEvent::class,
             static function (StorefrontRenderEvent $event) use (&$renderEvent): void {
                 $renderEvent = $event;

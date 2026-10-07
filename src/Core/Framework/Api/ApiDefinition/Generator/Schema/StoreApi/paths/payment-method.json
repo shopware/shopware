@@ -45,7 +45,7 @@
                                                 "type": "boolean"
                                             },
                                             "orderId": {
-                                                "description": "Evaluates the availability for this order of the current customer instead of the current session.",
+                                                "description": "Evaluates the availability for this order of the current customer instead of the current session. The availability filter is only applied together with `onlyAvailable`.",
                                                 "type": "string",
                                                 "pattern": "^[0-9a-f]{32}$"
                                             }
@@ -90,7 +90,7 @@
                     {
                         "name": "orderId",
                         "in": "query",
-                        "description": "Evaluates the availability for this order of the current customer instead of the current session.",
+                        "description": "Evaluates the availability for this order of the current customer instead of the current session. The availability filter is only applied together with `onlyAvailable`.",
                         "required": false,
                         "schema": {
                             "type": "string",

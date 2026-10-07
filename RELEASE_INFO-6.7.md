@@ -346,7 +346,7 @@ The `indexing-behavior` header now supports `use-queue-indexing` and `disable-in
 
 ### Store API payment, shipping and checkout gateway routes accept an `orderId`
 
-`/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` (query or body). They then evaluate availability for that order instead of the session: the order's currency, language, customer, addresses and stored rule IDs, without re-evaluating rules. The order must be loadable through `/store-api/order` for the logged-in customer or guest; unknown and foreign orders both answer `CHECKOUT__ORDER_ORDER_NOT_FOUND`. These responses are not cacheable. `POST /store-api/order/payment` validates on the same basis.
+`/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` (query or body). Combined with `onlyAvailable`, they evaluate availability for that order instead of the session: the order's currency, language, customer, addresses and stored rule IDs, without re-evaluating rules. The order must be loadable through `/store-api/order` for the logged-in customer or guest; unknown and foreign orders both answer `CHECKOUT__ORDER_ORDER_NOT_FOUND`. These responses are not cacheable. `POST /store-api/order/payment` validates on the same basis.
 
 ## Administration
 

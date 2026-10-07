@@ -56,6 +56,7 @@ class PaymentMethodRoute extends AbstractPaymentMethodRoute
      * Though this is a GET route, caching was not added as the output may be altered depending on dynamic rules,
      * which is not taken into account during the cache hash calculation.
      * Given an `orderId`, the route evaluates an existing order of the customer instead of the current session.
+     * Filtering by availability still requires `onlyAvailable`.
      */
     #[Route(
         path: '/store-api/payment-method',

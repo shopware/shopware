@@ -58,8 +58,8 @@ class OrderRestorationListener implements EventSubscriberInterface
             throw OrderException::customerNotLoggedIn();
         }
 
-        if (!\is_string($orderId) || !Uuid::isValid($orderId)) {
-            throw OrderException::invalidUuid(\is_scalar($orderId) ? (string) $orderId : '');
+        if (!Uuid::isValid($orderId)) {
+            throw OrderException::invalidUuid($orderId);
         }
 
         $criteria = $this->orderRestorer->addRequiredAssociations(new Criteria([$orderId]));
@@ -78,11 +78,11 @@ class OrderRestorationListener implements EventSubscriberInterface
         $request->attributes->set('orderId', $orderId);
     }
 
-    private function getOrderId(Request $request): mixed
+    private function getOrderId(Request $request): ?string
     {
         foreach ([$request->attributes, $request->query, $request->request] as $parameters) {
             if ($parameters->has('orderId')) {
-                return $parameters->get('orderId');
+                return $parameters->getString('orderId');
             }
         }
 

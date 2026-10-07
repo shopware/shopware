@@ -101,14 +101,6 @@ class OrderRestorationListenerTest extends TestCase
             ],
         )];
 
-        yield 'order id sent as null' => [new Request(
-            request: ['orderId' => null],
-            attributes: [
-                PlatformRequest::ATTRIBUTE_ALLOW_ORDER_RESTORATION => true,
-                PlatformRequest::ATTRIBUTE_SALES_CHANNEL_CONTEXT_OBJECT => $context,
-            ],
-        )];
-
         yield 'request outside of a sales channel' => [new Request(
             query: ['orderId' => $orderId],
             attributes: [
@@ -197,6 +189,8 @@ class OrderRestorationListenerTest extends TestCase
         yield 'empty string' => [new Request(query: ['orderId' => '']), ''];
 
         yield 'integer in the body' => [new Request(request: ['orderId' => 42]), '42'];
+
+        yield 'null in the body' => [new Request(request: ['orderId' => null]), ''];
 
         yield 'empty path value does not fall back to the query' => [
             new Request(query: ['orderId' => Uuid::randomHex()], attributes: ['orderId' => '']),

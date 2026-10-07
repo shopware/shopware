@@ -65,6 +65,9 @@ Administration and storefront snippets are now also loaded from the private file
 
 They form the lowest-priority layer, so snippet files shipped by the core, plugins or apps always win; use them for keys nobody else provides. The source directory becomes the author and technical name of storefront snippets. Files survive updates and deployments and are never cleaned up by Shopware, except for the administration subdirectories it writes itself for themes, which are named after the theme's technical name, so pick a different source name. Run `cache:clear` after adding or changing a file (for administration snippets, invalidating the `admin-snippet` cache tag is enough). The constants live in `Shopware\Core\System\Snippet\Files\FilesystemAdministrationSnippets` and `FilesystemStorefrontSnippets`; `snippet:validate` ignores these files.
 
+### Feature flags can belong to a major version
+
+Feature flags such as `JSON_LD_DATA` and `CACHE_REWORK` now activate automatically when `V6_8_0_0=1` is set. An explicit setting for the individual flag still takes precedence, so `JSON_LD_DATA=0` keeps that feature off. Standalone major flags are recognized by their version-shaped names; the `major` field is only for sub-features and must name a parent version flag. Flags without a parent omit `major` from their metadata and the feature-flag API response. `FEATURE_ALL` now activates every registered feature for any truthy value; use a version flag to test only that major's changes.
 ### Unlimited DAL searches with next-pages totals
 
 Database-backed DAL searches using `Criteria::TOTAL_COUNT_MODE_NEXT_PAGES` without a limit now return all matching entities after the requested offset and report the exact total, as `TOTAL_COUNT_MODE_EXACT` does.
@@ -154,6 +157,10 @@ The deprecated endpoint `GET /api/_action/system-config/schema` and its successo
 
 The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` are deprecated and will be removed in Shopware 6.8.
 Use `getSystemConfigDefinition()` and `getResolvedSystemConfigDefinition()`, respectively.
+
+### Property sorting keeps its default locale
+
+The BC attribute for `PropertyGroupCollection::sortByConfig()` now correctly marks the upcoming `localeCode` parameter as optional, with the default `'en_GB'`. Calls without arguments remain compatible with 6.8. Overrides need to declare the optional parameter when the parent signature changes.
 
 ### Array values in static system configuration
 
@@ -306,6 +313,10 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 ### Customer login publishes an extension event
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
+
+### Reduced remote thumbnail URL generation overhead
+
+Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
 
 ## API
 
@@ -516,6 +527,10 @@ The trigger event select in the mail template detail sidebars is now preselected
 Themes that still define `label` or `helpText` in their `theme.json` show their labels in the theme manager again. On `theme:refresh`, plugin installation and plugin update, Shopware generates the matching administration snippets from those properties into the private filesystem (`snippets/administration/<technicalName>/<locale>.json`, see "Snippets can be provided through the private filesystem") and loads them as the lowest-priority snippet layer, so snippet files shipped by the theme always win. A warning is logged while a theme relies on the generated snippets; the fallback is planned for removal in a later major version.
 
 The new command `theme:migrate-translations <technicalName>` writes the snippets into `Resources/app/administration/src/snippet/<locale>.json` of the theme and keeps every snippet the theme already maintains there. Use `--strip` to also remove the deprecated properties from the `theme.json`, and `--dry-run` to preview the result.
+### Extension component aliases work in the dev server
+
+The unified Storefront component dev server now applies aliases from each extension's `vite.components.config.mts` only to imports from that extension's resource tree. Extensions can use the same alias name for different module paths, including imports between modules under `Resources/app/storefront/src`, in development and production builds.
+
 ### Anonymous index components use their directory name
 
 Asset entry names for index components were not resolved correctly to the directory name and still used "index" in their names. Storefront components using an `index.js` or `index.ts` layout are now registered under their directory name, for example `Sw:Comp`. The former `Sw:Comp:index` import-map key is no longer generated, including for existing build manifests. If you used `data-component="Sw:Comp:index"` as a workaround, change it to `data-component="Sw:Comp"`.

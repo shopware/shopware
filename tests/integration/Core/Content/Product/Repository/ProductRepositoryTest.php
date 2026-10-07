@@ -48,9 +48,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -58,6 +58,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('inventory')]
 class ProductRepositoryTest extends TestCase
 {
+    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
 
@@ -70,8 +71,6 @@ class ProductRepositoryTest extends TestCase
      */
     private EntityRepository $repository;
 
-    private EventDispatcherInterface $eventDispatcher;
-
     private Connection $connection;
 
     private Context $context;
@@ -79,7 +78,6 @@ class ProductRepositoryTest extends TestCase
     protected function setUp(): void
     {
         $this->repository = static::getContainer()->get('product.repository');
-        $this->eventDispatcher = static::getContainer()->get('event_dispatcher');
         $this->connection = static::getContainer()->get(Connection::class);
         $this->context = Context::createDefaultContext();
     }
@@ -625,8 +623,8 @@ class ProductRepositoryTest extends TestCase
         // check nested events are triggered
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->exactly(2))->method('__invoke');
-        $this->eventDispatcher->addListener('product.written', $listener);
-        $this->eventDispatcher->addListener('product_manufacturer.written', $listener);
+        $this->onEvent('product.written', $listener);
+        $this->onEvent('product_manufacturer.written', $listener);
 
         $this->repository->create([
             [
@@ -643,8 +641,8 @@ class ProductRepositoryTest extends TestCase
         // validate that nested events are triggered
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->exactly(2))->method('__invoke');
-        $this->eventDispatcher->addListener('product.loaded', $listener);
-        $this->eventDispatcher->addListener('product_manufacturer.loaded', $listener);
+        $this->onEvent('product.loaded', $listener);
+        $this->onEvent('product_manufacturer.loaded', $listener);
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('manufacturer');

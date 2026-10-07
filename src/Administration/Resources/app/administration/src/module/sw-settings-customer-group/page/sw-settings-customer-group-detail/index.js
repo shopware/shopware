@@ -1,6 +1,5 @@
 import './sw-settings-customer-group-detail.scss';
 import template from './sw-settings-customer-group-detail.html.twig';
-import { getEffectivePriceBasis } from '../../helper/price-basis.helper';
 
 /**
  * @sw-package discovery
@@ -164,28 +163,6 @@ export default {
                     description: this.$t('sw-settings-customer-group.detail.priceBasis.netDescription'),
                 },
             ];
-        },
-
-        displayGross: {
-            get() {
-                return !!this.customerGroup?.displayGross;
-            },
-            set(value) {
-                const priceBasis = this.priceBasis;
-
-                this.customerGroup.displayGross = value;
-                this.customerGroup.priceBasis = priceBasis;
-            },
-        },
-
-        priceBasis: {
-            get() {
-                return getEffectivePriceBasis(this.customerGroup);
-            },
-            set(value) {
-                this.customerGroup.displayGross = this.displayGross;
-                this.customerGroup.priceBasis = value;
-            },
         },
 
         entityDescription() {

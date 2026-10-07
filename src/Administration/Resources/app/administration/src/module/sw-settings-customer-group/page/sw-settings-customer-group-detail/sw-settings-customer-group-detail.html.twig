@@ -96,7 +96,7 @@
 
                         {% block sw_settings_customer_group_detail_content_card_tax_display %}
                         <sw-radio-field
-                            v-model:value="displayGross"
+                            v-model:value="customerGroup.displayGross"
                             name="sw-field--customerGroup-displayGross"
                             class="sw-settings-customer-group-detail__tax-display"
                             block
@@ -108,7 +108,7 @@
 
                         {% block sw_settings_customer_group_detail_content_card_price_basis %}
                         <sw-radio-field
-                            v-model:value="priceBasis"
+                            v-model:value="customerGroup.priceBasis"
                             name="sw-field--customerGroup-priceBasis"
                             class="sw-settings-customer-group-detail__price-basis"
                             block

@@ -13,7 +13,7 @@ const customerGroupRepository = {
             id: '',
             name: '',
             displayGross: false,
-            priceBasis: null,
+            priceBasis: 'net',
             isNew: () => true,
         };
     },
@@ -23,7 +23,7 @@ const customerGroupRepository = {
             id: '1',
             name: 'Net price customer group',
             displayGross: false,
-            priceBasis: null,
+            priceBasis: 'net',
             registrationActive: true,
             registrationTitle: 'Foobar',
             registrationSalesChannels: new EntityCollection(
@@ -342,80 +342,63 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
             );
         });
 
-        it('should leave both fields untouched as long as nobody selects anything', async () => {
-            expect(wrapper.vm.customerGroup.displayGross).toBe(false);
-            expect(wrapper.vm.customerGroup.priceBasis).toBeNull();
-        });
-
         it.each([
             [
                 false,
-                null,
+                'net',
+                'net',
                 'net',
             ],
             [
                 true,
-                null,
+                'gross',
+                'gross',
                 'gross',
             ],
             [
                 false,
                 'gross',
+                'net',
                 'gross',
             ],
             [
                 true,
                 'net',
+                'gross',
                 'net',
             ],
         ])(
-            'should show the effective basis for displayGross %s and stored basis %s',
-            async (displayGross, storedBasis, effectiveBasis) => {
+            'should check the stored values for displayGross %s and price basis %s',
+            async (displayGross, priceBasis, checkedTaxDisplay, checkedPriceBasis) => {
                 wrapper.vm.customerGroup.displayGross = displayGross;
-                wrapper.vm.customerGroup.priceBasis = storedBasis;
+                wrapper.vm.customerGroup.priceBasis = priceBasis;
                 await flushPromises();
 
-                expect(wrapper.vm.priceBasis).toBe(effectiveBasis);
+                expect(
+                    wrapper
+                        .find('.sw-settings-customer-group-detail__tax-display')
+                        .find('.sw-field__radio-option-checked .sw-field__radio-option-label span')
+                        .text(),
+                ).toBe(`sw-settings-customer-group.detail.taxDisplay.${checkedTaxDisplay}Label`);
                 expect(
                     wrapper
                         .find('.sw-settings-customer-group-detail__price-basis')
                         .find('.sw-field__radio-option-checked .sw-field__radio-option-label span')
                         .text(),
-                ).toBe(`sw-settings-customer-group.detail.priceBasis.${effectiveBasis}Label`);
+                ).toBe(`sw-settings-customer-group.detail.priceBasis.${checkedPriceBasis}Label`);
             },
         );
 
-        it.each([
-            [
-                false,
-                0,
-                true,
-                'net',
-            ],
-            [
-                true,
-                1,
-                false,
-                'gross',
-            ],
-        ])(
-            'should materialise the effective basis when the tax display of displayGross %s changes',
-            async (displayGross, optionIndex, expectedDisplayGross, expectedBasis) => {
-                wrapper.vm.customerGroup.displayGross = displayGross;
-                wrapper.vm.customerGroup.priceBasis = null;
-                await flushPromises();
+        it('should write the tax display without touching the basis', async () => {
+            await wrapper.findAll('input[name="sw-field--customerGroup-displayGross"]').at(0).setValue();
+            await flushPromises();
 
-                await wrapper.findAll('input[name="sw-field--customerGroup-displayGross"]').at(optionIndex).setValue();
-                await flushPromises();
+            expect(wrapper.vm.customerGroup.displayGross).toBe(true);
+            expect(wrapper.vm.customerGroup.priceBasis).toBe('net');
+        });
 
-                expect(wrapper.vm.customerGroup.displayGross).toBe(expectedDisplayGross);
-                expect(wrapper.vm.customerGroup.priceBasis).toBe(expectedBasis);
-            },
-        );
-
-        it('should write the basis without touching the tax display when the basis changes', async () => {
-            const grossPriceBasis = wrapper.findAll('input[name="sw-field--customerGroup-priceBasis"]').at(0);
-            await grossPriceBasis.setValue();
+        it('should write the basis without touching the tax display', async () => {
+            await wrapper.findAll('input[name="sw-field--customerGroup-priceBasis"]').at(0).setValue();
             await flushPromises();
 
             expect(wrapper.vm.customerGroup.priceBasis).toBe('gross');

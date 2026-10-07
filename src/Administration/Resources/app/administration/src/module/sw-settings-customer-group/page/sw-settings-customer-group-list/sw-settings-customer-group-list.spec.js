@@ -11,7 +11,7 @@ const defaultCustomerGroups = [
         id: '1',
         name: 'Net price customer group',
         displayGross: false,
-        priceBasis: null,
+        priceBasis: 'net',
         registrationActive: false,
     },
 ];
@@ -168,44 +168,23 @@ describe('src/module/sw-settings-customer-group/page/sw-settings-customer-group-
 
     it.each([
         [
-            'derives the gross basis from a gross tax display',
-            { priceBasis: null, displayGross: true },
-            'sw-settings-customer-group.detail.priceBasis.grossLabel',
-        ],
-        [
-            'derives the net basis from a net tax display',
-            { priceBasis: null, displayGross: false },
-            'sw-settings-customer-group.detail.priceBasis.netLabel',
-        ],
-        [
-            'keeps an explicit gross basis with a net tax display',
+            'gross',
             { priceBasis: 'gross', displayGross: false },
             'sw-settings-customer-group.detail.priceBasis.grossLabel',
         ],
         [
-            'keeps an explicit net basis with a gross tax display',
+            'net',
             { priceBasis: 'net', displayGross: true },
             'sw-settings-customer-group.detail.priceBasis.netLabel',
         ],
-    ])('should show the effective price basis: %s', async (_description, customerGroup, expectedLabel) => {
+    ])('should label the %s price basis independent of the tax display', async (_basis, customerGroup, expectedLabel) => {
         const wrapper = await createWrapper();
 
         expect(wrapper.vm.getPriceBasisLabel(customerGroup)).toBe(expectedLabel);
     });
 
-    it('should render the effective price basis in the grid', async () => {
-        const wrapper = await createWrapper(
-            [],
-            [
-                {
-                    id: '1',
-                    name: 'Legacy net customer group',
-                    displayGross: false,
-                    priceBasis: null,
-                    registrationActive: false,
-                },
-            ],
-        );
+    it('should render the price basis in the grid', async () => {
+        const wrapper = await createWrapper();
         await flushPromises();
 
         const priceBasisCell = wrapper.find('.sw-entity-listing__column-price-basis');

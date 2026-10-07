@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@currents/playwright": "2.3.3",
-    "@shopware-ag/acceptance-test-suite": "git+https://github.com/shopware/acceptance-test-suite.git#3d4cc233bf39381763f59d46e1e9cf01e436711f",
+    "@shopware-ag/acceptance-test-suite": "git+https://github.com/shopware/acceptance-test-suite.git#f6ad0540ad361a1e59761ece4a27921663bcb6f2",
     "@shopware/api-client": "1.4.0",
     "lighthouse": "12.6.1",
     "playwright-lighthouse": "4.0.0"
@@ -43,7 +43,7 @@
     "minimatch": "10.2.5",
     "nanoid": "3.3.18",
     "brace-expansion": "5.0.12",
-    "basic-ftp": "^5.3.1",
+    "basic-ftp": "6.2.2",
     "flatted": "3.4.2",
     "defu": "6.1.5",
     "lodash": "4.18.1",

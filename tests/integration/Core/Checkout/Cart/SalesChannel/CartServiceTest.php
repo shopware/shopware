@@ -39,7 +39,6 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\AccountOrderController;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
  * @internal
@@ -457,7 +456,6 @@ class CartServiceTest extends TestCase
 
         $systemConfigService->set('core.basicInformation.email', 'test@example.org');
 
-        /** @var EventDispatcher $dispatcher */
         $dispatcher = static::getContainer()->get('event_dispatcher');
 
         $eventDidRun = false;
@@ -472,8 +470,6 @@ class CartServiceTest extends TestCase
 
         $cartService->order($cart, $context, new RequestDataBag());
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
-
-        $dispatcher->removeListener(MailSentEvent::class, $listenerClosure);
 
         static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
     }

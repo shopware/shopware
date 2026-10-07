@@ -140,7 +140,7 @@ Rules:
 
 The envelope above is the text block. `McpToolResultReferenceHandler` wraps the SDK reference handler of both servers (`McpToolResultRendererCompilerPass`), parses the envelope into a `McpToolResult` and renders it with `McpToolResultRenderer` into a `CallToolResult`:
 - `structuredContent` holds `data`. On the handshake era it must be an object, so a list or scalar is wrapped as `{"result": ...}`. A failure becomes `{"error": {"code": ..., "message": ...}}` and sets `isError: true`
-- `structuredContent` is left out when the text is larger than 50 KB, so a large result is not sent twice
+- `structuredContent` and the text copy are both sent, as the spec asks. Size is limited only by the 100 KB offload in `McpToolResponse::success()`. Moving that decision into the renderer is phase 2 of the result format ADR
 - `_meta["shopware/generatedAt"]` is always set
 - With `v6.8.0.0` active, the text block holds the plain data (or the error message) instead of the envelope, and the envelope `_meta` moves to the result `_meta` with a `shopware/` prefix
 

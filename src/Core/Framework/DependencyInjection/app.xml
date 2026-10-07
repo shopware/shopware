@@ -346,7 +346,7 @@
         </service>
 
         <service id="shopware.app_system.trusted_url_resolver" class="Shopware\Core\Content\Media\File\TrustedUrlResolver">
-            <argument/>
+            <argument>null</argument>
             <argument>true</argument>
             <argument>%shopware.app_system.allowed_private_ip_addresses%</argument>
             <tag name="kernel.reset" method="reset"/>

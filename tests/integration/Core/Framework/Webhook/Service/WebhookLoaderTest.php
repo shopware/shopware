@@ -9,7 +9,10 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\Store\ExtensionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestIntegration;
+use Shopware\Core\Framework\Test\TestCaseHelper\TestUser;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Webhook\Authorization\Ownership\OwnerType;
 use Shopware\Core\Framework\Webhook\Service\WebhookLoader;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
@@ -27,10 +30,16 @@ class WebhookLoaderTest extends TestCase
 
     private Connection $connection;
 
+    private string $adminId;
+
     protected function setUp(): void
     {
         $this->ids = new IdsCollection();
         $this->connection = static::getContainer()->get(Connection::class);
+
+        $adminId = $this->connection->fetchOne('SELECT LOWER(HEX(id)) FROM user WHERE username = :username', ['username' => 'admin']);
+        static::assertIsString($adminId);
+        $this->adminId = $adminId;
     }
 
     public function testGetWebhooksForEvent(): void
@@ -40,6 +49,7 @@ class WebhookLoaderTest extends TestCase
             'name' => 'hook1',
             'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
             'url' => 'https://test.com',
+            'owner_user_id' => Uuid::fromHexToBytes($this->adminId),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
@@ -48,6 +58,7 @@ class WebhookLoaderTest extends TestCase
             'name' => 'hook2',
             'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
             'url' => 'https://test2.com',
+            'owner_user_id' => Uuid::fromHexToBytes($this->adminId),
             'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
@@ -69,7 +80,7 @@ class WebhookLoaderTest extends TestCase
                     false,
                     null,
                     null,
-                    null,
+                    ownerType: OwnerType::Admin,
                 ),
                 new Webhook(
                     $this->ids->get('wh-2'),
@@ -83,7 +94,7 @@ class WebhookLoaderTest extends TestCase
                     false,
                     null,
                     null,
-                    null,
+                    ownerType: OwnerType::Admin,
                 ),
             ],
             $webhooks
@@ -136,7 +147,8 @@ class WebhookLoaderTest extends TestCase
                     false,
                     '1.0.0',
                     'dont_tell',
-                    Uuid::fromBytesToHex($aclRoleId),
+                    ownerType: OwnerType::Restricted,
+                    ownerRoleIds: [Uuid::fromBytesToHex($aclRoleId)],
                 ),
                 new Webhook(
                     $this->ids->get('wh-2'),
@@ -150,7 +162,8 @@ class WebhookLoaderTest extends TestCase
                     false,
                     '1.0.0',
                     'dont_tell',
-                    Uuid::fromBytesToHex($aclRoleId),
+                    ownerType: OwnerType::Restricted,
+                    ownerRoleIds: [Uuid::fromBytesToHex($aclRoleId)],
                 ),
             ],
             $webhooks
@@ -183,5 +196,67 @@ class WebhookLoaderTest extends TestCase
         static::assertTrue($permissions[$aclRoleId]->isAllowed('customer', 'read'));
         static::assertTrue($permissions[$aclRoleId]->isAllowed('customer', 'create'));
         static::assertTrue($permissions[$aclRoleId]->isAllowed('category', 'read'));
+    }
+
+    public function testAnAdminUserIsAnAdminOwner(): void
+    {
+        $this->insertWebhook(ownerUserId: $this->adminId);
+
+        static::assertSame(OwnerType::Admin, $this->loadWebhook()->ownerType);
+    }
+
+    public function testANonAdminUserIsARestrictedOwnerWithItsRole(): void
+    {
+        $user = TestUser::createNewTestUser($this->connection, ['product:read']);
+        $this->insertWebhook(ownerUserId: $user->getUserId());
+
+        $webhook = $this->loadWebhook();
+        static::assertSame(OwnerType::Restricted, $webhook->ownerType);
+        static::assertSame([$user->getAclRoleId()], $webhook->ownerRoleIds);
+    }
+
+    public function testAnAdminIntegrationIsAnAdminOwner(): void
+    {
+        $this->insertWebhook(ownerIntegrationId: TestIntegration::createAdmin($this->connection)->getId());
+
+        static::assertSame(OwnerType::Admin, $this->loadWebhook()->ownerType);
+    }
+
+    public function testANonAdminIntegrationIsARestrictedOwnerWithItsRole(): void
+    {
+        $integration = TestIntegration::create($this->connection, ['product:read']);
+        $this->insertWebhook(ownerIntegrationId: $integration->getId());
+
+        $webhook = $this->loadWebhook();
+        static::assertSame(OwnerType::Restricted, $webhook->ownerType);
+        static::assertSame([$integration->getAclRoleId()], $webhook->ownerRoleIds);
+    }
+
+    public function testGetWebhooksSkipsWebhooksWithoutAnOwner(): void
+    {
+        $this->insertWebhook();
+
+        static::assertSame([], static::getContainer()->get(WebhookLoader::class)->getWebhooks());
+    }
+
+    private function insertWebhook(?string $ownerUserId = null, ?string $ownerIntegrationId = null): void
+    {
+        $this->connection->insert('webhook', [
+            'id' => $this->ids->getBytes('wh-1'),
+            'name' => 'hook1',
+            'event_name' => CustomerBeforeLoginEvent::EVENT_NAME,
+            'url' => 'https://test.com',
+            'owner_user_id' => $ownerUserId ? Uuid::fromHexToBytes($ownerUserId) : null,
+            'owner_integration_id' => $ownerIntegrationId ? Uuid::fromHexToBytes($ownerIntegrationId) : null,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+    }
+
+    private function loadWebhook(): Webhook
+    {
+        $webhooks = static::getContainer()->get(WebhookLoader::class)->getWebhooks();
+        static::assertCount(1, $webhooks);
+
+        return $webhooks[0];
     }
 }

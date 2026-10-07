@@ -517,6 +517,14 @@ The trigger event select in the mail template detail sidebars is now preselected
 
 ## Storefront
 
+### Link categories no longer get new SEO URLs
+
+Link categories no longer get new SEO URLs during category indexing, so a link category named like its target does not take over the target's SEO URL anymore. Their existing SEO URLs are kept and still redirect to the link target.
+
+When several canonical SEO URLs match a request, the storefront now resolves the one stored exactly as requested. This ends the endless redirect between a link category and its target when their URLs differ only in case or a trailing slash.
+
+If category indexing ran on 6.7.13.0 or later, a target category can still show under a fallback URL. Find affected categories with the query in [#21106](https://github.com/shopware/shopware/issues/21106) and set their SEO URL again in the Administration.
+
 ### Extension component aliases work in the dev server
 
 The unified Storefront component dev server now applies aliases from each extension's `vite.components.config.mts` only to imports from that extension's resource tree. Extensions can use the same alias name for different module paths, including imports between modules under `Resources/app/storefront/src`, in development and production builds.

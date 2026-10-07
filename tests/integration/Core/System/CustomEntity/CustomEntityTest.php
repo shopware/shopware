@@ -284,7 +284,7 @@ class CustomEntityTest extends TestCase
     public function testInvalidDefaultTypesParsedCorrectly(): void
     {
         static::expectException(CustomEntityXmlParsingException::class);
-        CustomEntityXmlSchema::createFromXmlFile(__DIR__ . '/_fixtures/default-value/Resources/invalid-default-value-entities.xml');
+        CustomEntityXmlSchema::createFromXmlFile(__DIR__ . '/_fixtures/default-value/custom-entity-test/Resources/invalid-default-value-entities.xml');
     }
 
     public function testDefaultValueIsRegistered(): void

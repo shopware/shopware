@@ -36,40 +36,42 @@ class ForeignKeyConstraintViolationExceptionHandler implements ExceptionHandlerI
         }
 
         if (!\preg_match('/CONSTRAINT [`"]fk(?<separator>\.|__)(?<entity>.+?)\\k<separator>(?<field>[^`"]+)[`"] FOREIGN KEY/i', $e->getMessage(), $matches)) {
-            return $this->createException(null, null, null);
+            return $this->createGenericException();
         }
 
         try {
             $definition = $this->registry->getByEntityName($matches['entity']);
             $field = $definition->getFields()->getByStorageName($matches['field']);
         } catch (\Throwable) {
-            return $this->createException(null, null, null);
+            return $this->createGenericException();
         }
 
         if (!$field instanceof FkField) {
-            return $this->createException(null, null, null);
+            return $this->createGenericException();
         }
 
-        return $this->createException(
+        return $this->createSpecificException(
             $matches['entity'],
             $field->getPropertyName(),
             $field->getReferenceDefinition()->getEntityName(),
         );
     }
 
-    private function createException(?string $entity, ?string $field, ?string $referencedEntity): InvalidForeignKeyReferenceException
+    private function createGenericException(): InvalidForeignKeyReferenceException
     {
-        if ($entity === null || $field === null || $referencedEntity === null) {
-            $message = 'A referenced entity or version does not exist.';
-            $template = $message;
-            $parameters = [];
-            $propertyPath = '';
-        } else {
-            $message = \sprintf('The field "%s" on "%s" references a missing "%s" entity or version.', $field, $entity, $referencedEntity);
-            $template = 'The field "{{ field }}" on "{{ entity }}" references a missing "{{ reference }}" entity or version.';
-            $parameters = ['{{ field }}' => $field, '{{ entity }}' => $entity, '{{ reference }}' => $referencedEntity];
-            $propertyPath = '/' . $field;
-        }
+        $message = 'A referenced entity or version does not exist.';
+
+        return new InvalidForeignKeyReferenceException(new ConstraintViolationList([
+            new ConstraintViolation($message, $message, [], null, '', null, null, 'FRAMEWORK__INVALID_FOREIGN_KEY_REFERENCE'),
+        ]));
+    }
+
+    private function createSpecificException(string $entity, string $field, string $referencedEntity): InvalidForeignKeyReferenceException
+    {
+        $message = \sprintf('The field "%s" on "%s" references a missing "%s" entity or version.', $field, $entity, $referencedEntity);
+        $template = 'The field "{{ field }}" on "{{ entity }}" references a missing "{{ reference }}" entity or version.';
+        $parameters = ['{{ field }}' => $field, '{{ entity }}' => $entity, '{{ reference }}' => $referencedEntity];
+        $propertyPath = '/' . $field;
 
         return new InvalidForeignKeyReferenceException(new ConstraintViolationList([
             new ConstraintViolation($message, $template, $parameters, null, $propertyPath, null, null, 'FRAMEWORK__INVALID_FOREIGN_KEY_REFERENCE'),

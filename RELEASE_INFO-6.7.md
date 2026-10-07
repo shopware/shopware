@@ -564,6 +564,14 @@ The new `CheckoutCustomerStorageReset` plugin drops that data and is bound via `
 
 The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
 
+### Google Analytics reports prices after the promotion discount
+
+**Shops that use promotions will see lower revenue figures in Google Analytics. The previous figures were too high.**
+
+Promotion discounts are separate line items, so the reported item prices did not include them and every ecommerce event overstated its value by the discount. Product items now report the unit price after the discount as `price` and the discount per unit as the new `discount` property. The discount is allocated to the products using the composition the promotion already stores. Shipping discounts are not allocated, as they already reduce `shipping`.
+
+Themes that override the block `component_hidden_line_item_information` and read `data-price` or `gaPrice` now get the discounted unit price. The new `data-total` attribute carries the discounted line total, which the event value is summed from. The allocation is exposed through the new Twig function `sw_analytics_line_item_prices(lineItems, context)`.
+
 ### Storefront session handling moved to Core
 
 `Shopware\Core\Framework\Routing\SessionContextTokenSubscriber` now starts the storefront session, keeps its context token and follows token rotations on login, registration, logout and password changes; `Shopware\Storefront\Framework\Routing\StorefrontSubscriber` no longer handles the session. The `sw-sales-channel-id` session key is no longer written. With `core.systemWideLoginRegistration.isCustomerBoundToSalesChannel` enabled, a password change now updates the sales channel bound session token instead of leaving a revoked one behind.

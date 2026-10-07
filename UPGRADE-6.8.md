@@ -2685,6 +2685,8 @@ bin/console theme:migrate-translations <technicalName> --strip
 
 The command writes `Resources/app/administration/src/snippet/<locale>.json` (`en-GB.json`, `de-DE.json`, ...), taking the locales over from the `theme.json` as they are, keeps every snippet the theme already maintains in those files, and offers `--dry-run` to preview the result. App themes are not supported by the command; add the snippets to `Resources/app/administration/snippet` of the app instead.
 
+If the theme already maintains `<language>.json` files, the generated `<locale>.json` files are loaded after them in the administration and override matching keys; the command warns about this. Compare both files and remove the duplicates, or run the command with `--strip` to drop the legacy translations.
+
 The snippet keys are constructed as follows.
 The mentioned `technicalName` implies the `technicalName` property of the theme, or its respective parent theme name, since snippets are inherited from the parent theme as well.
 Also, please notice that unnamed tabs, blocks or sections will be accessible via `default`.

@@ -76,6 +76,7 @@ class ThemeMigrateTranslationsCommand extends Command
         }
 
         $rows = [];
+        $shadowedLanguageFiles = [];
         foreach ($snippets as $locale => $content) {
             $relativePath = \sprintf('%s/%s', self::SNIPPET_DIRECTORY, $this->generator->fileName($locale));
             $path = Path::join($themeDirectory, $relativePath);
@@ -84,12 +85,24 @@ class ThemeMigrateTranslationsCommand extends Command
             $merged = array_replace_recursive($content, $this->readJson($path));
             $rows[] = [$locale, $relativePath, $this->countSnippets($content)];
 
+            $languageFile = \sprintf('%s/%s', self::SNIPPET_DIRECTORY, $this->generator->fileName(explode('-', $locale)[0]));
+            if ($languageFile !== $relativePath && $this->filesystem->exists(Path::join($themeDirectory, $languageFile))) {
+                $shadowedLanguageFiles[] = \sprintf('%s is loaded after %s and overrides its matching keys', $relativePath, $languageFile);
+            }
+
             if (!$dryRun) {
                 $this->filesystem->dumpFile($path, $this->generator->encode($merged));
             }
         }
 
         $io->table(['Locale', 'File', 'Generated snippets'], $rows);
+
+        if ($shadowedLanguageFiles !== []) {
+            $io->warning([
+                'The theme already maintains language snippet files. The administration loads locale files after language files, so the generated keys win over the maintained ones. Compare the files and remove the duplicates, or drop the legacy translations with --strip.',
+                ...$shadowedLanguageFiles,
+            ]);
+        }
 
         if ($input->getOption('strip')) {
             $themeJsonPath = Path::join($themeDirectory, self::THEME_JSON);

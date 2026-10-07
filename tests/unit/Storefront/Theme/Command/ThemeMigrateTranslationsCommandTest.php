@@ -131,6 +131,30 @@ class ThemeMigrateTranslationsCommandTest extends TestCase
         );
     }
 
+    public function testWarnsWhenTheThemeAlreadyMaintainsALanguageFile(): void
+    {
+        $this->writeThemeJson(['sw-logo' => ['label' => ['en-GB' => 'Logo', 'de-DE' => 'Logo DE']]]);
+        $this->filesystem->dumpFile($this->themeDirectory . '/Resources/app/administration/src/snippet/en.json', '{}');
+
+        $exitCode = $this->commandTester->execute(['technical-name' => 'SwagTheme']);
+        $display = $this->commandTester->getDisplay();
+
+        static::assertSame(Command::SUCCESS, $exitCode);
+        static::assertStringContainsString('[WARNING]', $display);
+        static::assertStringContainsString('en-GB.json', $display);
+        static::assertStringContainsString('en.json', $display);
+        static::assertStringNotContainsString('de.json', $display);
+    }
+
+    public function testDoesNotWarnWithoutMaintainedLanguageFiles(): void
+    {
+        $this->writeThemeJson(['sw-logo' => ['label' => ['en-GB' => 'Logo']]]);
+
+        $this->commandTester->execute(['technical-name' => 'SwagTheme']);
+
+        static::assertStringNotContainsString('[WARNING]', $this->commandTester->getDisplay());
+    }
+
     public function testDryRunWritesNothing(): void
     {
         $themeJson = $this->writeThemeJson(['sw-logo' => ['label' => ['en-GB' => 'Logo']]]);

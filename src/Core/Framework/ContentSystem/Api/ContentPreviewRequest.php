@@ -20,7 +20,6 @@ final class ContentPreviewRequest
      * @param array<string, mixed> $queryParameters
      */
     public function __construct(
-        #[Assert\NotBlank]
         public readonly array $layout,
         #[Assert\NotBlank]
         public readonly string $entityType,

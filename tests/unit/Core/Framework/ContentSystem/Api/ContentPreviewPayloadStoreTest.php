@@ -54,6 +54,22 @@ class ContentPreviewPayloadStoreTest extends TestCase
         );
     }
 
+    #[TestDox('accepts an envelope whose layout is empty, as a preview requested before any element exists')]
+    public function testLoadAcceptsAnEmptyLayout(): void
+    {
+        $store = self::storeHolding(self::envelope(['layout' => []]));
+
+        static::assertEquals(
+            new ContentPreviewRequest(
+                layout: [],
+                entityType: 'product',
+                entityId: 'prod-1',
+                salesChannelId: 'sales-channel-1',
+            ),
+            $store->load('stored'),
+        );
+    }
+
     #[TestDox('returns null for a token that addresses no entry')]
     public function testLoadReturnsNullForUnknownToken(): void
     {
@@ -104,11 +120,6 @@ class ContentPreviewPayloadStoreTest extends TestCase
         yield 'layout not an array' => [
             self::envelope(['layout' => 'garbage']),
             ContentSystemException::previewPayloadInvalid('layout', 'array', 'string'),
-        ];
-
-        yield 'layout empty' => [
-            self::envelope(['layout' => []]),
-            self::constraintViolation('layout'),
         ];
 
         yield 'entityType null' => [

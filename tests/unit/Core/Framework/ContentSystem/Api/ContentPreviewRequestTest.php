@@ -22,6 +22,19 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(ContentPreviewRequest::class)]
 class ContentPreviewRequestTest extends TestCase
 {
+    #[TestDox('accepts an empty layout, as a preview requested before any element exists')]
+    public function testAcceptsAnEmptyLayout(): void
+    {
+        $request = new ContentPreviewRequest(
+            layout: [],
+            entityType: 'product',
+            entityId: 'prod-1',
+            salesChannelId: 'sales-channel-1',
+        );
+
+        static::assertCount(0, $this->validator()->validate($request));
+    }
+
     /**
      * PHP casts a JSON member name to an integer array key only in canonical decimal form, so this stays a
      * string key and the constraint's `is_string($key)` branch never fires — the same branch an ordinary

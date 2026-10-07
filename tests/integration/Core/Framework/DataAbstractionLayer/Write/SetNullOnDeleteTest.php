@@ -22,11 +22,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Fixture\SetNullOnDelete\SetNullOnDeleteChildDefinition;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Fixture\SetNullOnDelete\SetNullOnDeleteManyToOneDefinition;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Fixture\SetNullOnDelete\SetNullOnDeleteParentDefinition;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -34,6 +34,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class SetNullOnDeleteTest extends TestCase
 {
+    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     private EntityWriter $writer;
@@ -288,29 +289,25 @@ class SetNullOnDeleteTest extends TestCase
             Context::createDefaultContext()
         );
 
-        $eventWasThrown = false;
-
-        /** @var EventDispatcherInterface $eventDispatcher */
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-        $eventDispatcher->addListener(
+        $writtenEvent = null;
+        $this->onEvent(
             SetNullOnDeleteChildDefinition::ENTITY_NAME . '.written',
-            static function (EntityWrittenEvent $event) use ($childId, &$eventWasThrown): void {
-                static::assertCount(1, $event->getPayloads());
-                static::assertSame(
-                    [
-                        'id' => $childId,
-                        'setNullOnDeleteParentId' => null,
-                        'setNullOnDeleteParentVersionId' => null,
-                    ],
-                    $event->getPayloads()[0]
-                );
-
-                $eventWasThrown = true;
+            static function (EntityWrittenEvent $event) use (&$writtenEvent): void {
+                $writtenEvent = $event;
             }
         );
 
         $this->repository->delete([['id' => $id]], Context::createDefaultContext());
 
-        static::assertTrue($eventWasThrown);
+        static::assertInstanceOf(EntityWrittenEvent::class, $writtenEvent);
+        static::assertCount(1, $writtenEvent->getPayloads());
+        static::assertSame(
+            [
+                'id' => $childId,
+                'setNullOnDeleteParentId' => null,
+                'setNullOnDeleteParentVersionId' => null,
+            ],
+            $writtenEvent->getPayloads()[0]
+        );
     }
 }

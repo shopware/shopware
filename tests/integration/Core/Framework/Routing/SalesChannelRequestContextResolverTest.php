@@ -84,8 +84,6 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
         $resolver->resolve($request);
 
-        $dispatcher->removeListener(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
-
         static::assertTrue($eventDidRun, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
     }
 
@@ -120,8 +118,6 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
         $resolver->resolve($request);
 
-        $dispatcher->removeListener(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
-
         static::assertTrue($eventDidRun, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
     }
 
@@ -155,8 +151,6 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
 
         $resolver->resolve($request);
-
-        $dispatcher->removeListener(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
 
         static::assertTrue($eventDidRun, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
     }
@@ -252,8 +246,6 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
 
         $resolver->resolve($request);
-
-        $dispatcher->removeListener(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
 
         static::assertTrue($eventDidRun, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
     }

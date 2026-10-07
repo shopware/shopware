@@ -7,11 +7,13 @@ use Shopware\Core\Framework\Event\EventData\MailRecipientStruct;
 use Shopware\Core\Framework\Event\MailAware;
 use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Symfony\Contracts\EventDispatcher\Event;
 
 trait MailTemplateTestBehaviour
 {
     use EventDispatcherBehaviour;
+    use EventHookBehaviour;
 
     /**
      * @param class-string<object> $expectedClass
@@ -38,8 +40,7 @@ trait MailTemplateTestBehaviour
      */
     protected function catchEvent(string $eventName, ?object &$eventResult): void
     {
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-        $this->addEventListener($eventDispatcher, $eventName, static function ($event) use (&$eventResult): void {
+        $this->onEvent($eventName, static function (object $event) use (&$eventResult): void {
             $eventResult = $event;
         });
     }

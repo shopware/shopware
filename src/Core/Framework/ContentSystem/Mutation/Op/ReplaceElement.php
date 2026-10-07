@@ -135,7 +135,8 @@ final class ReplaceElement extends AbstractLayoutMutation
 
             $type = $newTypeProperties[$key]->type();
 
-            if (!$type->isPrimitive() || !$type->admits($value)) {
+            // Under `object` or an FQCN nothing can check the value's shape, so it drops rather than cross unexamined.
+            if ($type->enforceableTypes() === null || !$type->admits($value)) {
                 $this->droppedProperties[$key] = $value;
 
                 continue;

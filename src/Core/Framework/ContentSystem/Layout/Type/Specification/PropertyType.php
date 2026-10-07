@@ -145,7 +145,7 @@ final readonly class PropertyType
             return true;
         }
 
-        $enforceable = $this->enforceablePrimitives();
+        $enforceable = $this->enforceableTypes();
 
         if ($enforceable === null) {
             return true;
@@ -184,6 +184,34 @@ final readonly class PropertyType
     }
 
     /**
+     * The primitive types a value must satisfy at least one of, or `null` when the declaration constrains
+     * nothing: a bare `object` or an FQCN admits whatever the client authored, and so does a union carrying
+     * either, because that member alone accepts every value. A union's declared type is an array, so
+     * {@see isPrimitive()} answers false for every one of them; the members are tested against
+     * {@see PRIMITIVE_TYPES} here instead.
+     *
+     * @return list<string>|null
+     */
+    public function enforceableTypes(): ?array
+    {
+        if (\is_string($this->type)) {
+            return \in_array($this->type, self::PRIMITIVE_TYPES, true) ? [$this->type] : null;
+        }
+
+        if ($this->type === []) {
+            return null;
+        }
+
+        foreach ($this->type as $member) {
+            if (!\in_array($member, self::PRIMITIVE_TYPES, true)) {
+                return null;
+            }
+        }
+
+        return $this->type;
+    }
+
+    /**
      * Only a map variant whose every entry matches the declared primitive ({@see admitsMapEntry()}). Emptiness
      * needs no test of its own: the empty map is unrepresentable ({@see StoredValue::ofMap()}), and the wire's
      * empty `[]` decodes to the list variant.
@@ -201,32 +229,6 @@ final readonly class PropertyType
         }
 
         return true;
-    }
-
-    /**
-     * The primitives a value must satisfy at least one of, or `null` when the declaration constrains nothing.
-     * A union's declared type is an array, so {@see isPrimitive()} answers false for every one of them; the
-     * members are tested against {@see PRIMITIVE_TYPES} here instead.
-     *
-     * @return list<string>|null
-     */
-    private function enforceablePrimitives(): ?array
-    {
-        if (\is_string($this->type)) {
-            return \in_array($this->type, self::PRIMITIVE_TYPES, true) ? [$this->type] : null;
-        }
-
-        if ($this->type === []) {
-            return null;
-        }
-
-        foreach ($this->type as $member) {
-            if (!\in_array($member, self::PRIMITIVE_TYPES, true)) {
-                return null;
-            }
-        }
-
-        return $this->type;
     }
 
     /**

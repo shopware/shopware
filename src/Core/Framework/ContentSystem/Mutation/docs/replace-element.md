@@ -8,14 +8,19 @@ rules rather than a placement. The other operations are in [operations.md](opera
 ## What it carries over
 
 Swaps an element's component to `$newType`, keeping the same id. `requireRegistered($newType)`; the element must
-exist (`mutationTargetNotFound`); carries over primitive properties whose key and type match, wiring (data
-requirements, providers, consumers) keyed to a non-primitive new-type property, and children of slots present in the
+exist (`mutationTargetNotFound`); carries over properties whose key matches and whose declared type is a primitive or
+a union of primitives that admits the value, wiring (data
+requirements, providers, consumers) keyed to a new-type property whose declared type is not a lone primitive, and children of slots present in the
 new type, then seeds the new type's primitive defaults for any key it does not carry (a carried or authored value
 wins).
 
 "Type match" is `Layout/Type/Specification/PropertyType::admits()`, the one conformance predicate the write path and the
-diagnostics also read, behind an `isPrimitive()` pre-gate on the new type's declaration. Two consequences follow from
-the predicate rather than from any rule of this operation's own. A translatable property carries its whole language map
+diagnostics also read, behind a pre-gate that the new type's declaration is enforceable
+(`PropertyType::enforceableTypes()` is not `null`). A value is carried when the declaration is enforceable and
+`admits()` accepts it; a bare `object`, an FQCN, or a union carrying either is not enforceable, so its value is dropped
+and reported rather than crossing unexamined. A lone primitive and an all-primitive union are enforceable, so a value
+matching any member of the union is carried. Two consequences follow from the predicate rather than from any rule of
+this operation's own. A translatable property carries its whole language map
 across, provided the new type declares that key translatable and its declared primitive admits the map's entries — a
 bare value under a translatable key is not carryable, because `admits()` rejects it. And an authored present `null`
 under a non-translatable primitive carries rather than being dropped: `admits()` admits the null variant for every such

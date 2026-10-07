@@ -243,6 +243,53 @@ class PropertyTypeTest extends TestCase
         ];
     }
 
+    /**
+     * @param list<string>|null $expected
+     */
+    #[DataProvider('enforceableTypesProvider')]
+    #[TestDox('reports the primitives a value must satisfy, or null when the declaration constrains nothing: $_dataName')]
+    public function testEnforceableTypesReportsThePrimitivesAValueMustSatisfy(PropertyType $type, ?array $expected): void
+    {
+        static::assertSame($expected, $type->enforceableTypes());
+    }
+
+    /**
+     * @return iterable<string, array{PropertyType, list<string>|null}>
+     */
+    public static function enforceableTypesProvider(): iterable
+    {
+        yield 'lone primitive lists itself' => [
+            new PropertyType('string', false, null, null),
+            ['string'],
+        ];
+
+        yield 'all-primitive union lists its members in declared order' => [
+            new PropertyType(['string', 'integer'], false, null, null),
+            ['string', 'integer'],
+        ];
+
+        // One non-primitive member accepts every value, so the whole union constrains nothing.
+        yield 'union carrying object constrains nothing' => [
+            new PropertyType(['string', 'object'], false, null, null),
+            null,
+        ];
+
+        yield 'bare object constrains nothing' => [
+            new PropertyType('object', false, null, null),
+            null,
+        ];
+
+        yield 'FQCN constrains nothing' => [
+            new PropertyType(SalesChannelProductEntity::class, false, null, null),
+            null,
+        ];
+
+        yield 'empty union constrains nothing' => [
+            new PropertyType([], false, null, null),
+            null,
+        ];
+    }
+
     #[DataProvider('storedDefaultProvider')]
     #[TestDox('resolves the declared default to its stored shape: $_dataName')]
     public function testStoredDefaultResolvesDeclaredDefaultToItsStoredShape(PropertyType $type, mixed $expected): void

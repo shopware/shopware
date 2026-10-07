@@ -439,6 +439,22 @@ class ReplaceElementTest extends TestCase
         static::assertSame($expectedDrops, $this->rawDrops($replace->droppedProperties()));
     }
 
+    /**
+     * @param array<string, mixed> $expectedDrops
+     */
+    #[DataProvider('allPrimitiveUnionCarryOverProvider')]
+    #[TestDox('judges a carried value against the members of an all-primitive union: $_dataName')]
+    public function testReplaceJudgesCarriedValueAgainstAllPrimitiveUnionMembers(mixed $authored, mixed $expectedValue, array $expectedDrops): void
+    {
+        $tree = new StoredTree([StoredElementBuilder::create('Sw:Old', 'el')->withProperty('level', $authored)->build()]);
+
+        $replace = new ReplaceElement($this->unionRegistry(), 'el', 'Sw:New', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $replace->apply($tree);
+
+        static::assertSame($expectedValue, $result->roots[0]->property('level')?->jsonSerialize());
+        static::assertSame($expectedDrops, $this->rawDrops($replace->droppedProperties()));
+    }
+
     #[TestDox('fills an absent translatable key with the anchor language map rather than the bare scalar default')]
     public function testReplaceSeedsTranslatableDefaultAsAnchorMap(): void
     {
@@ -598,7 +614,7 @@ class ReplaceElementTest extends TestCase
     public static function translatableDeclaredPrimitiveProvider(): iterable
     {
         // count is a declared translatable integer, and carryProperties() consults only the NEW type's declaration
-        // (its isPrimitive() and admits() gate on a declared key): an integer entry clears the declared primitive,
+        // (its enforceableTypes() and admits() gate on a declared key): an integer entry clears the declared primitive,
         // so the whole map carries verbatim; a string entry fails it, so the whole map is dropped and reported.
         // The pair is the falsifier set: the first row fails if the entry check were string-only, the second if it
         // admitted any scalar regardless of the declared primitive.
@@ -612,6 +628,19 @@ class ReplaceElementTest extends TestCase
             null,
             ['count' => [Defaults::LANGUAGE_SYSTEM => 'Autumn sale']],
         ];
+    }
+
+    /**
+     * @return iterable<string, array{mixed, mixed, array<string, mixed>}>
+     */
+    public static function allPrimitiveUnionCarryOverProvider(): iterable
+    {
+        // level is declared `[string, integer]`, which answers false to isPrimitive(). The two carried rows match
+        // one member each, so a check that only the first member counts, or that rejects every union, fails here.
+        yield 'string matching the first member carried' => ['wide', 'wide', []];
+        yield 'integer matching the second member carried' => [5, 5, []];
+        yield 'float matching no member dropped and reported' => [1.5, null, ['level' => 1.5]];
+        yield 'boolean matching no member dropped and reported' => [true, null, ['level' => true]];
     }
 
     /**
@@ -660,6 +689,13 @@ class ReplaceElementTest extends TestCase
             ->primitive('headline', 'string', required: true, default: 'Default headline')
             ->primitive('count', 'integer', required: true, default: 7)
             ->primitive('tagline', 'string', required: true, default: 'Default tagline')
+            ->build()]);
+    }
+
+    private function unionRegistry(): AbstractContentSystemElementTypeRegistry
+    {
+        return TestElementTypeRegistry::of(['Sw:New' => ContentSystemElementTypeSpecificationBuilder::create('Sw:New')
+            ->declared('level', ['string', 'integer'])
             ->build()]);
     }
 

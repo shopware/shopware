@@ -525,30 +525,10 @@ What to adjust:
 * The hidden line items and the analytics attributes of the buy widget are only rendered for a sales channel with active analytics.
 * Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class, which `view_item` reads.
 
-Google Tag Manager configurations that remap parameters from `eventModel` should remove that workaround and use the standard `ecommerce` data layer variable. Configurations that consume the previous `id`, `name`, or `brand` item properties should switch to their `item_*` equivalents. Storefront analytics configured with a Google tag ID continue to use `gtag('event', ...)`, with the same GA4-compliant parameter normalization.
-
-`add_to_cart` on the product detail page reports the unit price of the graduated price that applies to the added quantity. It used the `product:price:amount` meta tag, which carries the cheapest tier. When the page rendered the cart, for example after an earlier add, the tier is selected for the quantity the cart line will hold, as the cart prices it. Without the cart markup the added quantity is used, because nothing is requested for it. The buy widget exposes the tiers as `data-product-prices`.
-
-`add_shipping_info` and `add_payment_info` are now reported once per selected method instead of on every load of the confirm page. Because the shipping and payment forms auto-submit, selecting a method reloaded the page and reported the event again. A reload that keeps the method stays silent, while switching the method reports the new one, so the counts drop without losing the method the customer actually chose.
-
-`remove_from_cart` is no longer reported for line items that are not products, such as a removed discount. Those reported the line item id as `item_id`, where every other event reports a product number.
-
-`remove_from_cart` matches the removed line item by its id, which the hidden line item now carries as `data-line-item-id`. A product that a Store API client or an extension added under its own line item id was not reported before.
-
-A product box on the product detail page, such as cross selling or a product slider, now reports its own product for `add_to_cart` instead of the product of the page. It reports no breadcrumb categories, because the breadcrumb of the page is the path of the page product.
-
-The container `.hidden-line-items-information` no longer carries `data-value`. The event value is derived from the reported items instead, so it always matches them. Themes and plugins that read the attribute should sum `data-price` times `data-quantity` of the `.hidden-line-item` elements. The container and the `data-product-variant` / `data-product-prices` attributes of the buy widget are only rendered for a sales channel with analytics, because only the analytics script reads them.
-
-Variant products report their selected options as `item_variant`, for example `Red, L`. `item_id` keeps the variant's product number, because that is the sellable unit and matches product feeds. The value comes from the line item payload in the cart, checkout, and purchase events, and from the product itself on the detail page and in product listings. Products without variant options do not report the property.
-
-`begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped. Note that `value` is still the sum of the undiscounted item prices.
-
-`add_to_wishlist` and `remove_from_wishlist` report the category path of the product. Both events previously fell back to the page breadcrumb, which describes the wishlist on the wishlist page and the listing category on a listing, so the reported categories were wrong or missing. For the product of a product detail page the breadcrumb is still used, because it is the path of that product. A product box on that page, such as cross selling, is handled like any other product box.
-
-Everywhere else the events request the path when the heart is clicked, from the new storefront route `frontend.analytics.product-categories` (`GET /widgets/analytics/product-categories?productId=`). It resolves the path through the Store API breadcrumb route and is HTTP cached. No page loads additional associations for it, so listings, sliders, Shopping Experience pages, and the wishlist pages keep their query count. The route is only linked for a sales channel with analytics, only requested by the analytics script after consent, and answers `404` for a sales channel without analytics and `400` for an invalid product ID. The events are sent once the request has answered and fall back to the page breadcrumb when it fails. Removing a product on the wishlist page waits for the event at most one second before the form is submitted.
-
-`view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. With `JSON_LD_DATA` active it reads the product from the JSON-LD script, and without it from `.product-detail-ordernumber` and the `product:brand` meta tag, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
 The events also report more accurate data: `item_variant`, the promotion `coupon`, graduated prices in `add_to_cart`, brand and category for products added from a product box, and `add_shipping_info` / `add_payment_info` once per selected method instead of on every page load. Discounts and other line items that are not products are no longer reported as items.
+
+`add_to_wishlist` and `remove_from_wishlist` now report the category path of the product instead of the page breadcrumb. Outside the product's own detail page the path is requested on click from the new storefront route `frontend.analytics.product-categories` (`GET /widgets/analytics/product-categories?productId=`), which uses the Store API breadcrumb route and is HTTP cached. The route answers `404` for a sales channel without analytics.
+
 ### Extension component aliases work in the dev server
 
 The unified Storefront component dev server now applies aliases from each extension's `vite.components.config.mts` only to imports from that extension's resource tree. Extensions can use the same alias name for different module paths, including imports between modules under `Resources/app/storefront/src`, in development and production builds.

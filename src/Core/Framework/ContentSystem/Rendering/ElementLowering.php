@@ -29,13 +29,16 @@ use Symfony\Component\HttpFoundation\Request;
  * rather than resolving them itself, and this class is what fills that argument.
  *
  * THE PAGE-LEVEL DATA IS RESOLVED HERE TOO, and separately. It belongs to the rendering specification rather
- * than to any element, so it arrives as an argument beside the forest and is run once per render against the
+ * than to any element, so it arrives as an argument beside the forest and is run against the
  * {@see VirtualRootWrapper} element, whose placeholder values are what its loaders' `propertyReference` inputs
- * dereference against. The resulting map is handed to {@see ContextDeliveryResolver::resolve()} as the
- * root-ambient context, which is the only route by which it reaches an element. It is an explicit input on
- * that call rather than something read off the tree, so the partial prune cannot take root context with it.
- * The same map is also filed into the forest's loader values under the wrapper's own id, which on a partial
- * render that pruned the wrapper away addresses no element of that forest and is read by nothing.
+ * dereference against. Only the requirements a root-scoped consumer on the page reads are resolved: one no
+ * consumer reads never loads, so it runs no query and contributes no cache tag. Consumption is judged over the
+ * wrapper's pre-prune forest, so a partial render resolves the same set as the full render. The resulting map
+ * is handed to {@see ContextDeliveryResolver::resolve()} as the root-ambient context, which is the only route
+ * by which it reaches an element. It is an explicit input on that call rather than something read off the tree,
+ * so the partial prune cannot take root context with it. The same map is also filed into the forest's loader
+ * values under the wrapper's own id, which on a partial render that pruned the wrapper away addresses no
+ * element of that forest and is read by nothing.
  *
  * The data walk is pre-order and descends slot by slot: an element loads before the elements under it, and
  * each slot's children load in declaration order. What that order buys is narrower than it looks:
@@ -87,9 +90,11 @@ final readonly class ElementLowering
         $loaderValues = $this->resolveLoaderValues($forest, $context, $request, $cacheContext);
         $ambient = [];
 
-        // No wrapper or no page-level requirements: nothing ambient to resolve.
+        // No wrapper, or no page-level requirement a root-scoped consumer reads: nothing ambient to resolve.
+        // The wrapper comes from the pre-prune forest, so consumption is judged over the whole page and a
+        // partial render loads the same requirements as the full render.
         if ($virtualRoot !== null) {
-            $consumed = $this->consumedRequirements($forest, $pageDataRequirements);
+            $consumed = $this->consumedRequirements([$virtualRoot], $pageDataRequirements);
 
             if ($consumed !== []) {
                 $ambient = $this->dataResolver->resolveRequirements(
@@ -142,10 +147,6 @@ final readonly class ElementLowering
      */
     private function consumedRequirements(array $forest, array $pageDataRequirements): array
     {
-        if ($pageDataRequirements === []) {
-            return [];
-        }
-
         $rootConsumerKeys = $this->rootConsumerKeys($forest);
 
         return array_values(array_filter(
@@ -155,6 +156,10 @@ final readonly class ElementLowering
     }
 
     /**
+     * Uses the predicate {@see ContextDeliveryResolver::overlayRootContext()} delivers by: the same resolver
+     * call with the same argument order, over root-scoped consumers only. Any other predicate can drop a
+     * requirement that delivery would have handed to a consumer.
+     *
      * @param list<string> $rootConsumerKeys
      */
     private function isConsumed(DataRequirement $requirement, array $rootConsumerKeys): bool
@@ -178,17 +183,14 @@ final readonly class ElementLowering
         $keys = [];
 
         foreach ($elements as $element) {
-            $keys = array_merge(
-                $keys,
-                $element->contextDefinitions->getConsumerKeysByScope(ConsumerScope::Root),
-                ...array_map(
-                    fn (array $children): array => $this->rootConsumerKeys($children),
-                    array_values($element->slots)
-                ),
-            );
+            $keys[] = $element->contextDefinitions->getConsumerKeysByScope(ConsumerScope::Root);
+
+            foreach ($element->slots as $children) {
+                $keys[] = $this->rootConsumerKeys($children);
+            }
         }
 
-        return array_values(array_unique($keys));
+        return array_values(array_unique(array_merge([], ...$keys)));
     }
 
     /**

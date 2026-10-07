@@ -321,6 +321,99 @@ class ElementLoweringTest extends TestCase
     }
 
     /**
+     * The match must keep the dot boundary: a `productId` consumer is not reading a path into the `product`
+     * requirement, so the requirement stays unconsumed and must not load. A plain prefix match would wrongly
+     * pull it in.
+     */
+    #[TestDox('does not resolve a page-level requirement a root consumer only prefix-matches without the dot boundary')]
+    public function testFullModeDoesNotResolveARequirementPrefixMatchedWithoutTheDotBoundary(): void
+    {
+        $loader = $this->loader();
+        $loader->expects($this->never())->method('load');
+
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [
+                StoredElementBuilder::create('Sw:Box', 'child-1')
+                    ->withConsumer('productId', ContextType::Single, scope: ConsumerScope::Root)
+                    ->build(),
+            ])
+            ->build();
+        $wrapper = $this->virtualRoot($root);
+
+        $this->lower(
+            $loader,
+            [$wrapper],
+            [new DataRequirement('product', 'entity', new StubLoaderConfig())],
+            $wrapper
+        );
+    }
+
+    /**
+     * Only a root-scoped consumer marks a page-level requirement consumed. A parent-scoped consumer of the
+     * same key takes its value off the parent chain, never the root-ambient map, so the requirement must not
+     * load on its account.
+     */
+    #[TestDox('does not resolve a page-level requirement read only by a parent-scoped consumer')]
+    public function testFullModeDoesNotResolveARequirementReadOnlyByAParentScopedConsumer(): void
+    {
+        $loader = $this->loader();
+        $loader->expects($this->never())->method('load');
+
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [
+                StoredElementBuilder::create('Sw:Box', 'child-1')
+                    ->withConsumer('product', ContextType::Single)
+                    ->build(),
+            ])
+            ->build();
+        $wrapper = $this->virtualRoot($root);
+
+        $this->lower(
+            $loader,
+            [$wrapper],
+            [new DataRequirement('product', 'entity', new StubLoaderConfig())],
+            $wrapper
+        );
+    }
+
+    /**
+     * Per requirement, not all-or-nothing: a page declaring two requirements where a root-scoped consumer
+     * reads only one loads exactly that one, and its value is the one delivered to the consumer. The
+     * unconsumed requirement never reaches a loader.
+     */
+    #[TestDox('resolves only the consumed requirement when a page declares several')]
+    public function testFullModeResolvesOnlyTheConsumedOfSeveralRequirements(): void
+    {
+        $consumed = new StubStruct();
+        $loader = $this->loader();
+        $loader->expects($this->once())
+            ->method('load')
+            ->willReturn(ContentDataLoaderResult::cached($consumed));
+
+        $root = StoredElementBuilder::create('Sw:Section', 'root-1')
+            ->withSlot('main', [
+                StoredElementBuilder::create('Sw:Box', 'child-1')
+                    ->withConsumer('configuratorSettings', ContextType::Single, scope: ConsumerScope::Root)
+                    ->build(),
+            ])
+            ->build();
+        $wrapper = $this->virtualRoot($root);
+
+        $tree = $this->lower(
+            $loader,
+            [$wrapper],
+            [
+                new DataRequirement('product', 'entity', new StubLoaderConfig()),
+                new DataRequirement('configuratorSettings', 'entity', new StubLoaderConfig()),
+            ],
+            $wrapper
+        );
+
+        $delivered = $tree[0]->slots['__page_roots__'][0]->slots['main'][0];
+        static::assertSame(['configuratorSettings' => $consumed], $delivered->properties);
+    }
+
+    /**
      * Why the wrapper is the input source rather than an arbitrary element: a page-level requirement's
      * `propertyReference` input names a stored key, and the keys it can name are the placeholder values the
      * wrapper carries. The loader receives the placeholder's VALUE, so a run that dereferenced against

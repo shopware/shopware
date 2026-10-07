@@ -36,6 +36,8 @@ final readonly class ContextDefinitions
     }
 
     /**
+     * @internal
+     *
      * @return list<string>
      */
     public function getConsumerKeysByScope(ConsumerScope $scope): array

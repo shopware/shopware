@@ -513,6 +513,22 @@ The trigger event select in the mail template detail sidebars is now preselected
 
 ## Storefront
 
+### Google Tag Manager events use the GA4 ecommerce data layer format
+
+Storefront analytics now send GA4-compliant ecommerce events. With a `GTM-` tracking ID they are pushed under the `ecommerce` key of the data layer, and the previous ecommerce object is cleared before each event. With a Google tag ID they still use `gtag('event', ...)`.
+
+What to adjust:
+
+* Google Tag Manager setups that remap parameters from `eventModel` should use the standard `ecommerce` data layer variable instead.
+* Item properties are named `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`.
+* `.hidden-line-items-information` no longer carries `data-value`. Sum `data-price` times `data-quantity` of the `.hidden-line-item` elements instead.
+* The hidden line items and the analytics attributes of the buy widget are only rendered for a sales channel with active analytics.
+* Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class, which `view_item` reads.
+
+The events also report more accurate data: `item_variant`, the promotion `coupon`, graduated prices in `add_to_cart`, brand and category for products added from a product box, and `add_shipping_info` / `add_payment_info` once per selected method instead of on every page load. Discounts and other line items that are not products are no longer reported as items.
+
+`add_to_wishlist` and `remove_from_wishlist` now report the category path of the product instead of the page breadcrumb. Outside the product's own detail page the path is requested on click from the new storefront route `frontend.analytics.product-categories` (`GET /widgets/analytics/product-categories?productId=`), which uses the Store API breadcrumb route and is HTTP cached. The route answers `404` for a sales channel without analytics.
+
 ### Extension component aliases work in the dev server
 
 The unified Storefront component dev server now applies aliases from each extension's `vite.components.config.mts` only to imports from that extension's resource tree. Extensions can use the same alias name for different module paths, including imports between modules under `Resources/app/storefront/src`, in development and production builds.
@@ -550,6 +566,26 @@ The new `CheckoutCustomerStorageReset` plugin drops that data and is bound via `
 ### Separate legal guarantee notice
 
 The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
+
+### Google Analytics reports prices after the promotion discount
+
+**Shops that use promotions will see lower revenue figures in Google Analytics. The previous figures were too high.**
+
+Promotion discounts are separate line items, so the reported item prices did not include them and every ecommerce event overstated its value by the discount. Product items now report the unit price after the discount as `price` and the discount per unit as the new `discount` property. The discount is allocated to the products using the composition the promotion already stores. Shipping discounts are not allocated, as they already reduce `shipping`.
+
+Themes that override the block `component_hidden_line_item_information` and read `data-price` or `gaPrice` now get the discounted unit price. The new `data-total` attribute carries the discounted line total, which the event value is summed from. The allocation is exposed through the new Twig function `sw_analytics_line_item_prices(lineItems, context)`.
+### Google Analytics reports `select_item` and the list a product was presented in
+
+Following a product link in a listing, search result, slider, cross selling tab, or the wishlist now reports `select_item`. `view_item_list` and `select_item` report the list as `item_list_id` and `item_list_name` and the position as `index`, and `view_item` repeats the list the product was selected from. `view_item_list` now only reports the products of the product listing, and saving the cookie preferences again no longer registers every event twice.
+
+The list identifiers are a contract that Google Tag Manager triggers can rely on:
+
+* A category listing reports the category id, or the CMS slot id without a category, and the category name.
+* Search results report `search` and `Search results`.
+* The wishlist reports `wishlist` and `Wishlist`.
+* A cross selling tab reports the id and the name of the cross selling group.
+
+Themes can set them on their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or with `data-list-id` and `data-list-name` on any element containing product boxes. These attributes are only rendered for a sales channel with active analytics, and themes should use the same condition, `storefrontAnalytics and storefrontAnalytics.isActive()`.
 
 ### Storefront session handling moved to Core
 

@@ -134,6 +134,20 @@
                                                                 <input type="hidden"
                                                                        name="lineItems[{{ lineItem.identifier }}][quantity]"
                                                                        value="{{ lineItem.quantity }}">
+
+                                                                {# analytics reads brand and category from the line item payload, so the reorder keeps those of the original order #}
+                                                                {% if storefrontAnalytics and storefrontAnalytics.isActive() %}
+                                                                    {% if lineItem.payload.manufacturerName|default('') is not empty %}
+                                                                        <input type="hidden"
+                                                                               name="lineItems[{{ lineItem.identifier }}][payload][manufacturerName]"
+                                                                               value="{{ lineItem.payload.manufacturerName }}">
+                                                                    {% endif %}
+                                                                    {% for index, categoryName in lineItem.payload.categoryNames|default([]) %}
+                                                                        <input type="hidden"
+                                                                               name="lineItems[{{ lineItem.identifier }}][payload][categoryNames][{{ index }}]"
+                                                                               value="{{ categoryName }}">
+                                                                    {% endfor %}
+                                                                {% endif %}
                                                             {% endif %}
                                                         {% endblock %}
                                                     {% endfor %}

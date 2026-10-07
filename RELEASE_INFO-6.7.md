@@ -313,6 +313,12 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
+### Sorting by `product.price` works with Elasticsearch
+
+The product index now contains `product.price`, so sorting, filtering and aggregating on it work with Elasticsearch. Before, a sorting on `product.price` (e.g. the "Default price" listing sorting) failed with `No mapping found for [price.c_....gross]`.
+
+Run `bin/console es:index` after deploying. Existing documents have no price until they are reindexed.
+
 ### Reduced remote thumbnail URL generation overhead
 
 Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
@@ -518,6 +524,19 @@ migrate it to `useCmsElement` by hand.
 ### Mail template trigger event is preselected
 
 The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
+
+### Meteor Component Library updated to 5.8.0
+
+The Administration now uses Meteor Component Library `5.8.0`, Meteor Admin SDK `6.15.0` and Meteor Icon Kit `5.11.0`.
+Autofilled form fields are now readable in dark mode.
+
+Check your Administration extensions for these changes:
+
+- The global font settings changed, so some glyphs look different and text renders slightly narrower, for example a single-storey `a` and closed digits.
+- `mt-select` centers its content, and small selects (`size="small"`) have a height of 32px. Remove custom paddings that only compensated for the previous alignment.
+- The time zone hint of datetime `mt-datepicker` fields is rendered by `mt-field-hint`. Styles targeting `.mt-datepicker__hint-icon` or `.mt-datepicker__hint p` no longer apply; `data-testid="time-zone-hint"` is unchanged.
+- The search input of `mt-select` gets the field's `name`, or a generated id, as its `id` and opts out of browser autofill.
+- Text-entry fields forward the `autocomplete` attribute to the native input.
 
 ## Storefront
 

@@ -56,10 +56,6 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
-### Preview deferred cart errors with the 6.8 flag
-
-`DEFERRED_CART_ERRORS` now activates with `V6_8_0_0=1` unless explicitly disabled with `DEFERRED_CART_ERRORS=0`. It can still be enabled independently. Errors deferred during sales-channel context creation are returned on the next cart read and are then removed from the persisted cart, rather than repeated on subsequent reads.
-
 ### Product stream builders can migrate without dropping the legacy contract
 
 `AbstractProductStreamBuilder` now implements the deprecated `ProductStreamBuilderInterface` and forwards `buildFilters()` to `enrichCriteria()`. Extensions can therefore migrate their implementations to the abstract class while remaining compatible with code that still consumes the legacy interface.

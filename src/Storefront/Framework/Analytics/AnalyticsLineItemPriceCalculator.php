@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Storefront\Checkout\Cart;
+namespace Shopware\Storefront\Framework\Analytics;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\CashRounding;
@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscountEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\FloatComparator;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 /**
@@ -46,7 +47,7 @@ class AnalyticsLineItemPriceCalculator
      *                                                               includes the component without
      *                                                               a cart, which gets no prices.
      *
-     * @return array<string, array{price: float, discount: float, total: float}> keyed by line item id
+     * @return array<string, AnalyticsLineItemPrice> keyed by line item id
      */
     public function calculate(?iterable $lineItems, SalesChannelContext $context): array
     {
@@ -76,26 +77,26 @@ class AnalyticsLineItemPriceCalculator
                 continue;
             }
 
-            $lines[$lineItem->getId()] = [
-                'total' => $price->getTotalPrice(),
-                'quantity' => $quantity,
-                'discount' => $discounts[$this->getCartLineItemId($lineItem)] ?? 0.0,
-            ];
+            $lines[$lineItem->getId()] = new AnalyticsLineAllocation(
+                $price->getTotalPrice(),
+                $quantity,
+                $discounts[$this->getCartLineItemId($lineItem)] ?? 0.0,
+            );
         }
 
-        $lines = $this->allocate($lines);
+        $this->allocate($lines);
         $totals = $this->roundTotals($lines, $rounding, $cash);
 
         $prices = [];
 
         foreach ($lines as $id => $line) {
-            $prices[$id] = [
-                'price' => $this->round(($line['total'] - $line['discount']) / $line['quantity'], $rounding, $cash),
-                'discount' => $this->round($line['discount'] / $line['quantity'], $rounding, $cash),
+            $prices[$id] = new AnalyticsLineItemPrice(
+                price: $this->round($line->discountedTotal() / $line->quantity, $rounding, $cash),
+                discount: $this->round($line->discount / $line->quantity, $rounding, $cash),
                 // The rounded unit price times the quantity can miss the paid line total by a cent,
                 // 20.00 split over three units reports 6.67, so the event value uses this instead.
-                'total' => $totals[$id],
-            ];
+                total: $totals[$id],
+            );
         }
 
         return $prices;
@@ -110,39 +111,35 @@ class AnalyticsLineItemPriceCalculator
      * would report more revenue than was paid. It is spread over the remaining line totals in
      * proportion, which keeps the reported value equal to the paid goods total.
      *
-     * @param array<string, array{total: float, quantity: int, discount: float}> $lines
-     *
-     * @return array<string, array{total: float, quantity: int, discount: float}>
+     * @param array<string, AnalyticsLineAllocation> $lines
      */
-    private function allocate(array $lines): array
+    private function allocate(array $lines): void
     {
         $overflow = 0.0;
 
-        foreach ($lines as $id => $line) {
-            $capped = min($line['discount'], $line['total']);
-            $overflow += $line['discount'] - $capped;
-            $lines[$id]['discount'] = $capped;
+        foreach ($lines as $line) {
+            $capped = min($line->discount, $line->total);
+            $overflow += $line->discount - $capped;
+            $line->discount = $capped;
         }
 
-        if ($overflow <= 0.0) {
-            return $lines;
+        if (FloatComparator::lessThanOrEquals($overflow, 0.0)) {
+            return;
         }
 
-        $remaining = array_sum(array_map(static fn (array $line) => $line['total'] - $line['discount'], $lines));
+        $remaining = array_sum(array_map(static fn (AnalyticsLineAllocation $line) => $line->discountedTotal(), $lines));
 
-        if ($remaining <= 0.0) {
-            return $lines;
+        if (FloatComparator::lessThanOrEquals($remaining, 0.0)) {
+            return;
         }
 
         // the cart total caps every promotion, so the overflow never exceeds what is left, but a
         // share is still capped at its line in case the cart was calculated differently
         $share = min(1.0, $overflow / $remaining);
 
-        foreach ($lines as $id => $line) {
-            $lines[$id]['discount'] += ($line['total'] - $line['discount']) * $share;
+        foreach ($lines as $line) {
+            $line->discount += $line->discountedTotal() * $share;
         }
-
-        return $lines;
     }
 
     /**
@@ -153,13 +150,13 @@ class AnalyticsLineItemPriceCalculator
      * The difference to the rounded sum is corrected one rounding step at a time on the lines whose
      * rounding moved them the furthest, the largest remainder method.
      *
-     * @param array<string, array{total: float, quantity: int, discount: float}> $lines
+     * @param array<string, AnalyticsLineAllocation> $lines
      *
      * @return array<string, float>
      */
     private function roundTotals(array $lines, CashRoundingConfig $rounding, bool $cash): array
     {
-        $exact = array_map(static fn (array $line) => $line['total'] - $line['discount'], $lines);
+        $exact = array_map(static fn (AnalyticsLineAllocation $line) => $line->discountedTotal(), $lines);
         $totals = array_map(fn (float $total) => $this->round($total, $rounding, $cash), $exact);
 
         if ($totals === []) {
@@ -188,7 +185,7 @@ class AnalyticsLineItemPriceCalculator
             }
 
             $adjusted = $totals[$id] + ($steps > 0 ? $step : -$step);
-            if ($adjusted < 0.0 || $adjusted > $lines[$id]['total']) {
+            if (FloatComparator::lessThan($adjusted, 0.0) || FloatComparator::greaterThan($adjusted, $lines[$id]->total)) {
                 continue;
             }
 

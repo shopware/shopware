@@ -54,8 +54,9 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: generate-matrix
         run: |
-          # The major arm is a PR opt-in via the `major-acceptance` label (or `major-tests`, the umbrella label that enables every major arm).
-          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.profile }}" "${{ contains(github.event.pull_request.labels.*.name, 'major-acceptance') || contains(github.event.pull_request.labels.*.name, 'major-tests') }}" "${{ inputs.major }}")
+          # PR major runs enter through acceptance-major.yml with major: only. Keep this
+          # ordinary PR/merge-queue matrix independent of labels to avoid duplicate major runs.
+          MATRIX=$(php .github/bin/generate-acceptance-matrix.php "${{ inputs.profile }}" "false" "${{ inputs.major }}")
           jq . <<<"$MATRIX"
           {
             echo "matrix<<EOF"
@@ -65,6 +66,8 @@ jobs:
 
   acceptance:
     runs-on: ubuntu-24.04
+    env:
+      V6_8_0_0: ${{ matrix.major && '1' || '' }}
     permissions:
       contents: read
       id-token: write
@@ -401,6 +404,7 @@ jobs:
   # this allows us to specify just one required job/check
   # this is not practical with matrix jobs directly, because you've to specify all permutations
   acceptance-check:
+    name: ${{ inputs.major == 'only' && github.event_name == 'pull_request' && 'acceptance-major-check' || 'acceptance-check' }}
     if: always()
     needs:
       - acceptance-code-style
@@ -416,6 +420,7 @@ jobs:
           # allow markdown-only PRs to skip the expensive jobs, and the major-only nightly to skip
           # the jobs that are irrelevant to it, but fail on unexpected skips otherwise
           allowed-skips: >-
-            ${{ inputs.major == 'only' && 'acceptance-code-style, acceptance-update'
+            ${{ inputs.major == 'only' && (needs.markdown-only-changes.outputs.docs_only == 'true'
+                && 'acceptance-code-style, acceptance-update, acceptance' || 'acceptance-code-style, acceptance-update')
               || (needs.markdown-only-changes.outputs.docs_only == 'true' && 'acceptance, acceptance-update' || '') }}
           jobs: ${{ toJSON(needs) }}

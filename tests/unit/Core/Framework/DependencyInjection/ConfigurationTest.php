@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\DependencyInjection;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DependencyInjection\Configuration;
 use Shopware\Core\Framework\Log\Package;
@@ -12,6 +13,7 @@ use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\BooleanNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\IntegerNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\ScalarNodeDefinition;
+use Symfony\Component\Config\Definition\Builder\StringNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\VariableNodeDefinition;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
@@ -49,6 +51,86 @@ class ConfigurationTest extends TestCase
         static::assertArrayHasKey('enable', $nodes);
         $node = $nodes['enable'];
         static::assertInstanceOf(BooleanNodeDefinition::class, $node);
+    }
+
+    public function testFeatureCanDeclareItsParentMajor(): void
+    {
+        $config = (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'v6.8.0.0'],
+                    ['name' => 'JSON_LD_DATA', 'major' => 'v6.8.0.0'],
+                ],
+            ],
+        ]]);
+
+        static::assertArrayNotHasKey('major', $config['feature']['flags']['v6.8.0.0']);
+        static::assertSame('v6.8.0.0', $config['feature']['flags']['JSON_LD_DATA']['major']);
+    }
+
+    #[TestWith([true])]
+    #[TestWith([false])]
+    public function testFeatureRejectsBooleanMajor(bool $major): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'FEATURE_NEXT_123', 'major' => $major],
+                ],
+            ],
+        ]]);
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function invalidParentMajorDataProvider(): iterable
+    {
+        yield 'incomplete version' => ['v6.8.0'];
+        yield 'patch version' => ['v6.8.1.0'];
+        yield 'environment variable name' => ['V6_8_0_0'];
+    }
+
+    #[DataProvider('invalidParentMajorDataProvider')]
+    public function testFeatureRejectsInvalidParentMajor(string $major): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'JSON_LD_DATA', 'major' => $major],
+                ],
+            ],
+        ]]);
+    }
+
+    public function testFeatureCannotBeItsOwnParentMajor(): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'v6.8.0.0', 'major' => 'v6.8.0.0'],
+                ],
+            ],
+        ]]);
+    }
+
+    public function testMajorVersionFlagCannotBeAnotherMajorSubFeature(): void
+    {
+        static::expectException(InvalidConfigurationException::class);
+
+        (new Processor())->processConfiguration(new Configuration(), [[
+            'feature' => [
+                'flags' => [
+                    ['name' => 'v6.9.0.0', 'major' => 'v6.8.0.0'],
+                ],
+            ],
+        ]]);
     }
 
     public function testCdnPathCacheBusterDefaultsToTrue(): void
@@ -239,7 +321,7 @@ class ConfigurationTest extends TestCase
 
         static::assertArrayHasKey('major', $nodes);
         $node = $nodes['major'];
-        static::assertInstanceOf(BooleanNodeDefinition::class, $node);
+        static::assertInstanceOf(StringNodeDefinition::class, $node);
 
         static::assertArrayHasKey('toggleable', $nodes);
         $node = $nodes['toggleable'];

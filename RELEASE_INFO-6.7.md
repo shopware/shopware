@@ -593,6 +593,23 @@ The meta title and meta description fields of the category and product SEO forms
 - Product: 56 characters for the meta title and 155 for the meta description, as named in their help texts. Inherited values are counted as well.
 
 Extensions can customize the hints through the new Twig blocks `sw_category_seo_form_meta_title_hint` and `sw_category_seo_form_meta_description_hint` for categories, and `sw_product_seo_form_meta_title_hint` and `sw_product_seo_form_meta_description_hint` for products.
+Extensions can customize the hints through the new Twig blocks `sw_category_seo_form_meta_title_hint` and `sw_category_seo_form_meta_description_hint`.
+### Search types can supply their own criteria and result link
+
+Extensions that add an entity to the Administration search bar can now configure how its results are loaded and linked through `searchTypeService.upsertType`, without overriding `sw-search-bar` or `sw-search-bar-item`. Before, only `product` could get custom criteria, and results of other entities could only link to the detail route of their module.
+
+- `criteria`: a function that receives the result limit and returns the `Criteria` for the entity, for example to add associations. It applies to the global search and to recently searched items.
+- `itemRoute`: a function that receives the result item and returns the route location its search result links to.
+
+```js
+Shopware.Service('searchTypeService').upsertType('my_entity', {
+    entityName: 'my_entity',
+    criteria: (limit) => new Shopware.Data.Criteria(1, limit).addAssociation('parent'),
+    itemRoute: (item) => ({ name: 'my.entity.detail', params: { id: item.parentId } }),
+});
+```
+
+Results with an `itemRoute` use the new Twig block `sw_search_bar_item_custom_route` in `sw-search-bar-item`. Entities without a module manifest no longer break the result label.
 
 ### Admin list and card empty states use `mt-empty-state`
 

@@ -238,7 +238,7 @@ class ThemeCompilerTest extends TestCase
 
     public function testOutputsPluginCss(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/noThemeCustomCss');
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/SwagNoThemeCustomCss');
 
         $testScss = <<<PHP_EOL
 .test-selector-plugin {

@@ -37,6 +37,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -47,6 +48,7 @@ use Shopware\Core\Test\TestDefaults;
 class StockStorageTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
+    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
 
@@ -222,12 +224,10 @@ class StockStorageTest extends TestCase
 
         $context = Context::createDefaultContext();
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->exactly($triggered))->method('__invoke');
 
-        $this->addEventListener($dispatcher, ProductNoLongerAvailableEvent::class, $listener);
+        $this->onEvent(ProductNoLongerAvailableEvent::class, $listener);
 
         $product = (new ProductBuilder($ids, 'p1'))
             ->price(10)
@@ -313,11 +313,10 @@ class StockStorageTest extends TestCase
 
         $this->productRepository->create([$product], $context);
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
         $listener = $this->createMock(CallableClass::class);
 
         $listener->expects($this->exactly($triggered))->method('__invoke');
-        $this->addEventListener($dispatcher, ProductNoLongerAvailableEvent::class, $listener);
+        $this->onEvent(ProductNoLongerAvailableEvent::class, $listener);
 
         $this->productRepository->update([['id' => $product['id'], 'stock' => $after]], $context);
     }

@@ -857,7 +857,7 @@ class FlowExecutorTest extends TestCase
 
         $this->flowExecutor->executeAction($actionSequence, $flow);
 
-        static::assertEmpty($flow->getConfig());
+        static::assertCount(0, $flow->getConfig());
     }
 
     public function testExitActionExecutionIfFlowStopIsSet(): void
@@ -879,7 +879,7 @@ class FlowExecutorTest extends TestCase
 
         $this->flowExecutor->executeAction($actionSequence, $flow);
 
-        static::assertEmpty($flow->getConfig());
+        static::assertCount(0, $flow->getConfig());
     }
 
     public function testExitActionExecutionIfFlowIsDelayed(): void
@@ -913,7 +913,7 @@ class FlowExecutorTest extends TestCase
         $this->createFlowExecutor([self::ACTION_ADD_ORDER_TAG => $addOrderTagAction])
             ->executeAction($actionSequence, $flow);
 
-        static::assertNotEmpty($flow->getConfig());
+        static::assertNotCount(0, $flow->getConfig());
     }
 
     public function testExitActionExecutionIfNextActionIsNull(): void
@@ -945,7 +945,7 @@ class FlowExecutorTest extends TestCase
         $this->createFlowExecutor([self::ACTION_ADD_ORDER_TAG => $addOrderTagAction])
             ->executeAction($actionSequence, $flow);
 
-        static::assertNotEmpty($flow->getConfig());
+        static::assertNotCount(0, $flow->getConfig());
     }
 
     public function testSetCurrentSequenceInFlowStateForActionExecution(): void
@@ -1001,7 +1001,7 @@ class FlowExecutorTest extends TestCase
         $this->createFlowExecutor([self::ACTION_ADD_ORDER_TAG => $addOrderTagAction])
             ->executeAction($actionSequence, $flow);
 
-        static::assertNotEmpty($flow->getConfig());
+        static::assertNotCount(0, $flow->getConfig());
     }
 
     public function testExecuteStopsOnFlowStateReachesStop(): void

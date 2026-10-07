@@ -1593,9 +1593,9 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
         static::assertSame('PRICE_ASC', $firstDiscount->getSorterKey());
         static::assertSame('ALL', $firstDiscount->getApplierKey());
         static::assertSame('ALL', $firstDiscount->getUsageKey());
-        static::assertEmpty($firstDiscount->getPickerKey());
+        static::assertSame('', $firstDiscount->getPickerKey());
         static::assertInstanceOf(RuleCollection::class, $firstDiscountRules = $firstDiscount->getDiscountRules());
-        static::assertEmpty($firstDiscountRules->getIds());
+        static::assertCount(0, $firstDiscountRules->getIds());
 
         $lastDiscount = $discounts->last();
         static::assertInstanceOf(PromotionDiscountEntity::class, $lastDiscount);

@@ -51,6 +51,6 @@ class CacheFlowLoaderTest extends TestCase
             'active' => true,
         ]], Context::createDefaultContext());
 
-        static::assertEmpty($property->getValue($flowLoader));
+        static::assertNull($property->getValue($flowLoader));
     }
 }

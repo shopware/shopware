@@ -229,7 +229,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $this->assertNewsletterResponse($this->browser->getResponse());
 
         $row = $connection->fetchAssociative('SELECT * FROM newsletter_recipient WHERE email = \'test@example.com\'');
-        static::assertNotEmpty($row);
+        static::assertNotFalse($row);
         static::assertSame('optIn', $row['status']);
         static::assertNotNull($row['confirmed_at']);
         // the confirmation date should have changed

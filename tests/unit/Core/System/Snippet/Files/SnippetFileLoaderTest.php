@@ -567,7 +567,7 @@ class SnippetFileLoaderTest extends TestCase
         $snippetFileLoader->loadSnippetFilesIntoCollection($collection);
 
         $files = $collection->getElements();
-        static::assertEmpty($files);
+        static::assertCount(0, $files);
     }
 
     public function testLoadShippedSnippetsSkipsLocalFileOnlyForLocaleWithCoreTranslation(): void

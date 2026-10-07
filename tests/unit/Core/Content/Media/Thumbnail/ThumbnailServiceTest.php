@@ -495,7 +495,7 @@ class ThumbnailServiceTest extends TestCase
         $result = $this->thumbnailService->generate(new MediaCollection([$media]), $this->context);
 
         static::assertSame(0, $result);
-        static::assertEmpty($this->thumbnailRepository->deletes);
+        static::assertCount(0, $this->thumbnailRepository->deletes);
     }
 
     public function testUpdateThumbnailsSkipsExternalMedia(): void
@@ -515,7 +515,7 @@ class ThumbnailServiceTest extends TestCase
         $result = $this->thumbnailService->updateThumbnails($media, $this->context, false);
 
         static::assertSame(0, $result);
-        static::assertEmpty($this->thumbnailRepository->deletes);
+        static::assertCount(0, $this->thumbnailRepository->deletes);
     }
 
     public function testGenerateDispatchesThumbnailGeneratedEvent(): void

@@ -109,7 +109,7 @@ class ManufacturerLogoTypeCmsResolverTest extends TestCase
         /** @var ManufacturerLogoStruct|null $manufacturerLogoStruct */
         $manufacturerLogoStruct = $slot->getData();
         static::assertInstanceOf(ManufacturerLogoStruct::class, $manufacturerLogoStruct);
-        static::assertNotEmpty($manufacturerLogoStruct->getManufacturer());
+        static::assertNotNull($manufacturerLogoStruct->getManufacturer());
         static::assertSame('manufacturer_01', $manufacturerLogoStruct->getManufacturer()->getId());
         static::assertSame('media_01', $manufacturerLogoStruct->getMediaId());
     }

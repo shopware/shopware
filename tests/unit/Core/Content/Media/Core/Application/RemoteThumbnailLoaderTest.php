@@ -388,10 +388,10 @@ class RemoteThumbnailLoaderTest extends TestCase
         );
 
         $loader->load([$entity]);
-        static::assertNotEmpty((new \ReflectionProperty(RemoteThumbnailLoader::class, 'mediaFolderThumbnailSizes'))->getValue($loader));
+        static::assertNotCount(0, (new \ReflectionProperty(RemoteThumbnailLoader::class, 'mediaFolderThumbnailSizes'))->getValue($loader));
 
         $loader->reset();
-        static::assertEmpty((new \ReflectionProperty(RemoteThumbnailLoader::class, 'mediaFolderThumbnailSizes'))->getValue($loader));
+        static::assertNull((new \ReflectionProperty(RemoteThumbnailLoader::class, 'mediaFolderThumbnailSizes'))->getValue($loader));
     }
 
     public function testExtensionSkipThumbnail(): void

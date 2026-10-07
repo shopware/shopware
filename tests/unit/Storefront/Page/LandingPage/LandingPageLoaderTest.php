@@ -91,7 +91,7 @@ class LandingPageLoaderTest extends TestCase
         $product = $this->getProduct($productId);
         $cmsPage = $this->getCmsPage($product);
 
-        $landingPageLoader = $this->getLandingPageLoaderWithProduct($landingPageId, $cmsPage, $request, $salesChannelContext);
+        $landingPageLoader = $this->getLandingPageLoaderWithProduct($landingPageId, $cmsPage);
 
         $page = $landingPageLoader->load($request, $salesChannelContext);
 
@@ -120,7 +120,7 @@ class LandingPageLoaderTest extends TestCase
             'metaKeywords' => $translated['keywords'],
         ];
 
-        $landingPageLoader = $this->getLandingPageLoaderWithTranslated($landingPageId, $translated, $request, $salesChannelContext);
+        $landingPageLoader = $this->getLandingPageLoaderWithTranslated($landingPageId, $translated);
 
         $page = $landingPageLoader->load($request, $salesChannelContext);
         $metaInformation = $page->getMetaInformation();
@@ -147,7 +147,7 @@ class LandingPageLoaderTest extends TestCase
             'metaKeywords' => '',
         ];
 
-        $landingPageLoader = $this->getLandingPageLoaderWithTranslated($landingPageId, $translated, $request, $salesChannelContext);
+        $landingPageLoader = $this->getLandingPageLoaderWithTranslated($landingPageId, $translated);
 
         $page = $landingPageLoader->load($request, $salesChannelContext);
         $metaInformation = $page->getMetaInformation();
@@ -158,7 +158,7 @@ class LandingPageLoaderTest extends TestCase
         static::assertSame($metaInformation->getMetaKeywords(), $expected['metaKeywords']);
     }
 
-    private function getLandingPageLoaderWithProduct(string $landingPageId, CmsPageEntity $cmsPage, Request $request, SalesChannelContext $salesChannelContext): LandingPageLoader
+    private function getLandingPageLoaderWithProduct(string $landingPageId, CmsPageEntity $cmsPage): LandingPageLoader
     {
         $landingPage = new LandingPageEntity();
         $landingPage->setId($landingPageId);
@@ -179,7 +179,7 @@ class LandingPageLoaderTest extends TestCase
     /**
      * @param array<string> $translated
      */
-    private function getLandingPageLoaderWithTranslated(string $landingPageId, array $translated, Request $request, SalesChannelContext $salesChannelContext): LandingPageLoader
+    private function getLandingPageLoaderWithTranslated(string $landingPageId, array $translated): LandingPageLoader
     {
         $productId = Uuid::randomHex();
         $product = $this->getProduct($productId);

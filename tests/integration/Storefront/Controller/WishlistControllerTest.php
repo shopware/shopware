@@ -154,7 +154,7 @@ class WishlistControllerTest extends TestCase
         $response = $browser->getResponse();
 
         static::assertSame(200, $response->getStatusCode(), (string) $response->getContent());
-        static::assertEmpty(json_decode((string) $response->getContent(), false, 512, \JSON_THROW_ON_ERROR));
+        static::assertSame([], json_decode((string) $response->getContent(), false, 512, \JSON_THROW_ON_ERROR));
     }
 
     public function testAjaxListWithoutLoggedInCustomerReturnsForbidden(): void
@@ -182,7 +182,7 @@ class WishlistControllerTest extends TestCase
 
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($content);
+        static::assertIsArray($content);
         static::assertTrue($content['success']);
     }
 
@@ -217,7 +217,7 @@ class WishlistControllerTest extends TestCase
 
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertNotEmpty($content);
+        static::assertIsArray($content);
         static::assertTrue($content['success']);
     }
 
@@ -240,12 +240,12 @@ class WishlistControllerTest extends TestCase
         static::assertInstanceOf(Session::class, $session);
         $flashBag = $session->getFlashBag();
 
-        static::assertNotEmpty($successFlash = $flashBag->get('success'));
+        static::assertNotCount(0, $successFlash = $flashBag->get('success'));
         static::assertSame('You have successfully added the product to your wishlist.', $successFlash[0]);
 
         $browser->request('GET', '/wishlist/add-after-login/' . $productId);
 
-        static::assertNotEmpty($warningFlash = $flashBag->get('warning'));
+        static::assertNotCount(0, $warningFlash = $flashBag->get('warning'));
         static::assertSame('Product has already been added to your wishlist.', $warningFlash[0]);
     }
 

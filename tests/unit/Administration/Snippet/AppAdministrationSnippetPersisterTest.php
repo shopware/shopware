@@ -205,9 +205,6 @@ class AppAdministrationSnippetPersisterTest extends TestCase
                     ],
                 ],
                 [],
-                [
-                    ['id' => 'snippetId'],
-                ],
             ],
             [
                 [
@@ -236,9 +233,6 @@ class AppAdministrationSnippetPersisterTest extends TestCase
                         'appId' => 'appId',
                         'localeId' => 'en-GB',
                     ],
-                ],
-                [
-                    ['id' => 'snippetToDelete'],
                 ],
             ],
             [
@@ -275,7 +269,6 @@ class AppAdministrationSnippetPersisterTest extends TestCase
                         'localeId' => 'en-GB',
                     ],
                 ],
-                [],
                 true, // checks if snippets are updated (no new snippet id is used)
             ],
             [
@@ -323,11 +316,10 @@ class AppAdministrationSnippetPersisterTest extends TestCase
     /**
      * @param array<int, array<string, string>> $snippetsFromApp
      * @param array<int, array<string, string>> $newSnippets
-     * @param array<int, array<string, string>> $deletesSnippetIds
      *
      * @return EntityRepository<AppAdministrationSnippetCollection>
      */
-    private function getAppAdministrationSnippetRepository(array $snippetsFromApp = [], array $newSnippets = [], array $deletesSnippetIds = [], bool $updatedSnippets = false): EntityRepository
+    private function getAppAdministrationSnippetRepository(array $snippetsFromApp = [], array $newSnippets = [], bool $updatedSnippets = false): EntityRepository
     {
         $repository = static::createStub(EntityRepository::class);
 

@@ -170,7 +170,7 @@ class ThemeCompilerTest extends TestCase
         }
         // No variables should be added when a DB exception occurs
         static::assertNull($exception, 'No exception should be thrown, found: ' . $exception);
-        static::assertEmpty($event->getVariables());
+        static::assertCount(0, $event->getVariables());
     }
 
     /**

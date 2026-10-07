@@ -600,7 +600,7 @@ json
                 continue;
             }
 
-            static::assertEmpty($snippetSetData['value']);
+            static::assertSame('', $snippetSetData['value']);
         }
     }
 
@@ -1054,7 +1054,7 @@ json
         $result = $this->getSnippetService($snippetFile)->getList(1, 25, Context::createDefaultContext(), ['term' => 'asdf'], []);
 
         static::assertSame(0, $result['total']);
-        static::assertEmpty($result['data']);
+        static::assertCount(0, $result['data']);
     }
 
     public function testTermFilterLargeSnippetMatches(): void
@@ -1108,7 +1108,7 @@ json
     ): void {
         foreach ($result['data'][$translationKey] ?? [] as $snippetSetData) {
             if ($snippetSetData['setId'] !== Uuid::fromBytesToHex($snippetSetId)) {
-                static::assertEmpty($snippetSetData['value']);
+                static::assertSame('', $snippetSetData['value']);
             } else {
                 static::assertSame($value, $snippetSetData['value']);
                 static::assertSame($originValue, $snippetSetData['origin']);

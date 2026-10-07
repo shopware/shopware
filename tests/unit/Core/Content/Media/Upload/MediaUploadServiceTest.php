@@ -201,7 +201,7 @@ class MediaUploadServiceTest extends TestCase
         );
 
         $tmpDir = sys_get_temp_dir();
-        static::assertNotEmpty($tmpDir);
+        static::assertNotSame('', $tmpDir);
 
         $fileFetcher = $this->createMock(FileFetcher::class);
         $fileFetcher

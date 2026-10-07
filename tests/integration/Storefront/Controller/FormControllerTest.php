@@ -70,7 +70,7 @@ class FormControllerTest extends TestCase
 
         static::assertInstanceOf(JsonResponse::class, $response);
         static::assertSame(200, $response->getStatusCode());
-        static::assertEmpty($content);
+        static::assertSame([], $content);
     }
 
     public function testHandleNewsletterUsesProperSalesChannelUrl(): void

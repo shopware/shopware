@@ -51,7 +51,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $this->assertCmsPage1($elements['page-1']);
 
         // empty cms page without sections
-        static::assertEmpty($elements['page-2']->getSections());
+        static::assertNull($elements['page-2']->getSections());
     }
 
     public function testLoadWithOverriddenConfig(): void
@@ -126,7 +126,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $currentSection = array_shift($sections);
         static::assertSame('section-2', $currentSection['id']);
         static::assertSame(1, $currentSection['position']);
-        static::assertEmpty($currentSection['blocks']);
+        static::assertNull($currentSection['blocks']);
 
         $currentSection = array_shift($sections);
         static::assertSame('section-1', $currentSection['id']);
@@ -146,7 +146,7 @@ class SalesChannelCmsPageLoaderTest extends TestCase
         $currentBlock = array_shift($blocks);
         static::assertSame('block-3', $currentBlock['id']);
         static::assertSame(2, $currentBlock['position']);
-        static::assertEmpty($currentBlock['slots']);
+        static::assertNull($currentBlock['slots']);
 
         $currentBlock = array_shift($blocks);
         static::assertSame('block-1', $currentBlock['id']);

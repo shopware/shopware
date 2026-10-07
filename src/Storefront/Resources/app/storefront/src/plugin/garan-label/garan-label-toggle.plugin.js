@@ -37,6 +37,13 @@ export default class GaranLabelTogglePlugin extends Plugin {
 
     _registerEvents() {
         this._trigger.addEventListener('click', this._onClickTrigger.bind(this));
+        this._preview.addEventListener('click', this._onClickPreview.bind(this));
+    }
+
+    _onClickPreview() {
+        this._onClickTrigger();
+        // The preview is hidden now, so keep the focus on a visible element
+        this._trigger.focus();
     }
 
     _onClickTrigger() {

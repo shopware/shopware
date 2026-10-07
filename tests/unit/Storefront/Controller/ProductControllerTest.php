@@ -364,4 +364,15 @@ class ProductControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
     }
+
+    public function testGaranLabelRendersModal(): void
+    {
+        $productId = Uuid::randomHex();
+
+        $response = $this->controller->garanLabel($productId);
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        static::assertSame('@Storefront/storefront/component/product/garan-label-modal.html.twig', $this->controller->recorder()->renderStorefrontView);
+        static::assertSame(['productId' => $productId], $this->controller->recorder()->renderStorefrontParameters);
+    }
 }

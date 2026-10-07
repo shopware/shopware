@@ -312,19 +312,28 @@
                     <div class="product-detail-garan-label-wrapper" data-garan-label-toggle="true">
                         {% block buy_widget_garan_label_preview %}
                             <div class="product-detail-garan-label">
-                                {% sw_include '@Framework/garan/nested-label.svg.twig' with {
-                                    guarantee: garanGuarantee
-                                } only %}
+                                <button type="button"
+                                        class="garan-label-button"
+                                        aria-label="{{ 'detail.garanLabelTitle'|trans|striptags }}">
+                                    {% sw_include '@Framework/garan/nested-label.svg.twig' with {
+                                        guarantee: garanGuarantee
+                                    } only %}
+                                </button>
                             </div>
                         {% endblock %}
 
                         {% block buy_widget_garan_label_full %}
                             <div class="product-detail-garan-label-full d-none">
-                                {% sw_include '@Framework/garan/label.svg.twig' with {
-                                    manufacturer: garanManufacturer,
-                                    productNumber: garanModelIdentifier,
-                                    guarantee: garanGuarantee
-                                } only %}
+                                <a href="{{ 'detail.garanLabelYourEuropeUrl'|trans|striptags }}"
+                                   target="_blank"
+                                   rel="noopener">
+                                    {% sw_include '@Framework/garan/label.svg.twig' with {
+                                        manufacturer: garanManufacturer,
+                                        productNumber: garanModelIdentifier,
+                                        guarantee: garanGuarantee
+                                    } only %}
+                                    <span class="visually-hidden">{{ 'detail.garanLabelYourEuropeLink'|trans|sw_sanitize }}</span>
+                                </a>
                             </div>
                         {% endblock %}
 

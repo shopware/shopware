@@ -254,4 +254,15 @@ class ProductController extends StorefrontController
             'maxPurchase' => $result->getMaxPurchase(),
         ]);
     }
+
+    #[Route(
+        path: '/product/{productId}/garan-label',
+        name: 'frontend.product.garan-label',
+        defaults: ['XmlHttpRequest' => true],
+        methods: [Request::METHOD_GET]
+    )]
+    public function garanLabel(string $productId): Response
+    {
+        return $this->renderStorefront('@Storefront/storefront/component/product/garan-label-modal.html.twig', ['productId' => $productId]);
+    }
 }

@@ -42,7 +42,7 @@ const host = process.env.VITE_HOST || 'localhost';
 const extensionEntries = loadExtensions();
 
 // Common configuration shared between dev and build
-const getBaseConfig = (extension: ExtensionDefinition, isProd = false) => {
+const getBaseConfig = (extension: ExtensionDefinition, isProd: boolean) => {
     const extensionInfoDebug = debug(`vite:${extension.isPlugin ? 'plugin' : 'app'}:${extension.technicalName}`);
     const configInfoDebug = debug('vite:config');
     const useSourceMap =
@@ -225,7 +225,7 @@ const main = async () => {
             } else {
                 // For plugins
                 server = await createServer({
-                    ...getBaseConfig(extension),
+                    ...getBaseConfig(extension, false),
                     base: `/_internal_ext/${extension.technicalName}/`,
                     server: {
                         host: '127.0.0.1',
@@ -268,7 +268,7 @@ const main = async () => {
                 } else {
                     console.log(colors.green(`# Building plugin "${extension.name}"`));
                     // For plugins
-                    await build(getBaseConfig(extension));
+                    await build(getBaseConfig(extension, true));
                 }
             } catch (error) {
                 hasFailedBuilds = true;

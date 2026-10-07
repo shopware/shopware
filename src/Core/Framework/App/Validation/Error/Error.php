@@ -8,7 +8,20 @@ use Shopware\Core\Framework\Log\Package;
  * @internal only for use by the app-system
  */
 #[Package('framework')]
-abstract class Error extends \Exception
+interface Error
 {
-    abstract public function getMessageKey(): string;
+    public function getMessage(): string;
+
+    public function getErrorCode(): string;
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getParameters(): array;
+
+    /**
+     * Whether this error refuses an installation. Advisory errors are reported but let the install
+     * proceed, so that one manifest can target several Shopware versions.
+     */
+    public function isBlocking(): bool;
 }

@@ -3,7 +3,7 @@
 namespace Shopware\Core\Framework\App\Validation;
 
 use Shopware\Core\Framework\App\Manifest\Manifest;
-use Shopware\Core\Framework\App\Validation\Error\ErrorCollection;
+use Shopware\Core\Framework\App\Validation\Error\Error;
 use Shopware\Core\Framework\App\Validation\Error\MissingPermissionError;
 use Shopware\Core\Framework\App\Validation\Error\NotHookableError;
 use Shopware\Core\Framework\App\Validation\Error\WebhookNotPermittedError;
@@ -22,14 +22,16 @@ class HookableValidator extends AbstractManifestValidator
     {
     }
 
-    public function validate(Manifest $manifest, Context $context): ErrorCollection
+    /**
+     * @return list<Error>
+     */
+    public function validate(Manifest $manifest, Context $context): array
     {
-        $errors = new ErrorCollection();
         $webhooks = $manifest->getWebhooks();
         $webhooks = $webhooks ? $webhooks->getWebhooks() : [];
 
         if (!$webhooks) {
-            return $errors;
+            return [];
         }
 
         $appPrivileges = $manifest->getPermissions();
@@ -42,16 +44,18 @@ class HookableValidator extends AbstractManifestValidator
 
         $refusals = $this->subscriptionValidator->validate($subscriptions, $appPrivileges, Subscriber::app($manifest), $context);
 
+        $errors = [];
+
         if ($refusals->notHookable !== []) {
-            $errors->add(new NotHookableError($refusals->notHookable));
+            $errors[] = new NotHookableError($refusals->notHookable);
         }
 
         if ($refusals->notPermitted !== []) {
-            $errors->add(new WebhookNotPermittedError($refusals->notPermitted));
+            $errors[] = new WebhookNotPermittedError($refusals->notPermitted);
         }
 
         if ($refusals->allMissingPrivileges !== []) {
-            $errors->add(new MissingPermissionError($refusals->allMissingPrivileges));
+            $errors[] = new MissingPermissionError($refusals->allMissingPrivileges);
         }
 
         return $errors;

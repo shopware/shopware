@@ -14,15 +14,14 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
-use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraints\NotBlank;
 
@@ -33,7 +32,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 #[Group('store-api')]
 class ProductReviewSaveRouteTest extends TestCase
 {
-    use EventDispatcherBehaviour;
+    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -194,11 +193,8 @@ class ProductReviewSaveRouteTest extends TestCase
             SalesChannelContextService::CUSTOMER_ID => $customerId,
         ]);
 
-        /** @var EventDispatcherInterface $dispatcher */
-        $dispatcher = static::getContainer()->get('event_dispatcher');
         $caughtEvent = null;
-        $this->addEventListener(
-            $dispatcher,
+        $this->onEvent(
             MailBeforeSentEvent::class,
             static function (MailBeforeSentEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;
@@ -216,8 +212,6 @@ class ProductReviewSaveRouteTest extends TestCase
             $salesChannelContext
         );
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
-
-        $this->resetEventDispatcher();
 
         static::assertInstanceOf(MailBeforeSentEvent::class, $caughtEvent);
         $bodyText = $caughtEvent->getMessage()->getTextBody();

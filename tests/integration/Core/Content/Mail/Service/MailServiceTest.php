@@ -26,6 +26,7 @@ use Shopware\Core\Framework\Validation\DataValidator;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\Mime\Email;
@@ -37,6 +38,7 @@ use Twig\Environment;
 #[Package('after-sales')]
 class MailServiceTest extends TestCase
 {
+    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -92,8 +94,7 @@ class MailServiceTest extends TestCase
             'subject' => 'Test subject & content',
         ];
 
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        $this->onEvent(
             MailBeforeValidateEvent::class,
             static function (MailBeforeValidateEvent $event): void {
                 $event->setTemplateData(
@@ -367,8 +368,7 @@ class MailServiceTest extends TestCase
         );
 
         $snippetSetIdWhileRendering = null;
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        $this->onEvent(
             MailTemplateRenderContextEvent::class,
             static function () use ($translator, &$snippetSetIdWhileRendering): void {
                 $snippetSetIdWhileRendering = $translator->getSnippetSetId();

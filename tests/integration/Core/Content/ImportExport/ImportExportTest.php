@@ -147,13 +147,13 @@ class ImportExportTest extends AbstractImportExportTestCase
         $beforeExportRecordCalled = false;
         $exceptionExportRecordCalled = false;
 
-        $this->addEventListener($this->listener, EnrichExportCriteriaEvent::class, static function () use (&$enrichExportCriteriaCalled): void {
+        $this->onEvent(EnrichExportCriteriaEvent::class, static function () use (&$enrichExportCriteriaCalled): void {
             $enrichExportCriteriaCalled = true;
         });
-        $this->addEventListener($this->listener, ImportExportBeforeExportRecordEvent::class, static function () use (&$beforeExportRecordCalled): void {
+        $this->onEvent(ImportExportBeforeExportRecordEvent::class, static function () use (&$beforeExportRecordCalled): void {
             $beforeExportRecordCalled = true;
         });
-        $this->addEventListener($this->listener, ImportExportExceptionExportRecordEvent::class, static function () use (&$exceptionExportRecordCalled): void {
+        $this->onEvent(ImportExportExceptionExportRecordEvent::class, static function () use (&$exceptionExportRecordCalled): void {
             $exceptionExportRecordCalled = true;
         });
 
@@ -178,13 +178,13 @@ class ImportExportTest extends AbstractImportExportTestCase
         $afterImportRecordCalled = false;
         $exceptionImportRecordCalled = false;
 
-        $this->addEventListener($this->listener, ImportExportBeforeImportRecordEvent::class, static function () use (&$beforeImportRecordCalled): void {
+        $this->onEvent(ImportExportBeforeImportRecordEvent::class, static function () use (&$beforeImportRecordCalled): void {
             $beforeImportRecordCalled = true;
         });
-        $this->addEventListener($this->listener, ImportExportAfterImportRecordEvent::class, static function () use (&$afterImportRecordCalled): void {
+        $this->onEvent(ImportExportAfterImportRecordEvent::class, static function () use (&$afterImportRecordCalled): void {
             $afterImportRecordCalled = true;
         });
-        $this->addEventListener($this->listener, ImportExportExceptionImportRecordEvent::class, static function () use (&$exceptionImportRecordCalled): void {
+        $this->onEvent(ImportExportExceptionImportRecordEvent::class, static function () use (&$exceptionImportRecordCalled): void {
             $exceptionImportRecordCalled = true;
         });
 
@@ -1320,7 +1320,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             $mailSent = true;
         };
 
-        $this->addEventListener($this->listener, MailSentEvent::class, $listenerClosure);
+        $this->onEvent(MailSentEvent::class, $listenerClosure);
 
         $profile = $this->cloneDefaultProfile(CustomerDefinition::ENTITY_NAME);
         $mapping = $profile->getMapping();

@@ -29,6 +29,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,6 +44,7 @@ class DocumentDeleteSubscriberTest extends TestCase
     use AdminApiTestBehaviour;
     use DatabaseTransactionBehaviour;
     use DocumentTrait;
+    use EventHookBehaviour;
     use KernelTestBehaviour;
 
     private Context $context;
@@ -100,48 +102,26 @@ class DocumentDeleteSubscriberTest extends TestCase
         static::assertTrue($this->hasMediaEntity($mediaId));
         static::assertTrue($this->hasMediaEntity($a11yMediaId));
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $documentDeleteEventDispatched = false;
-        $mediaDeleteEventDispatched = false;
-        $this->addEventListener(
-            $dispatcher,
+        $deletedDocumentIds = [];
+        $deletedMediaIds = [];
+        $this->onEvent(
             EntityDeleteEvent::class,
-            function (EntityDeleteEvent $event) use (
-                $documentId,
-                $mediaId,
-                $a11yMediaId,
-                &$documentDeleteEventDispatched,
-                &$mediaDeleteEventDispatched
-            ): void {
-                $documentIds = $event->getIds(DocumentDefinition::ENTITY_NAME);
-                $mediaIds = $event->getIds(MediaDefinition::ENTITY_NAME);
-
-                if ($documentIds !== []) {
-                    static::assertContains($documentId, $documentIds);
-                    $documentDeleteEventDispatched = true;
-                }
-
-                if ($mediaIds !== []) {
-                    static::assertContains($mediaId, $mediaIds);
-                    static::assertContains($a11yMediaId, $mediaIds);
-
-                    $mediaDeleteEventDispatched = true;
-                }
+            function (EntityDeleteEvent $event) use (&$deletedDocumentIds, &$deletedMediaIds): void {
+                $deletedDocumentIds = [...$deletedDocumentIds, ...$event->getIds(DocumentDefinition::ENTITY_NAME)];
+                $deletedMediaIds = [...$deletedMediaIds, ...$event->getIds(MediaDefinition::ENTITY_NAME)];
             }
         );
 
         $this->documentRepository->delete([['id' => $documentGenerationResult->getId()]], $this->context);
 
-        static::assertTrue(
-            $documentDeleteEventDispatched,
+        static::assertContains(
+            $documentId,
+            $deletedDocumentIds,
             'DocumentDeleteSubscriber should be triggered to delete media entities.'
         );
 
-        static::assertTrue(
-            $mediaDeleteEventDispatched,
-            'MediaDeletionSubscriber should be triggered and delete media files.'
-        );
+        static::assertContains($mediaId, $deletedMediaIds, 'MediaDeletionSubscriber should be triggered and delete media files.');
+        static::assertContains($a11yMediaId, $deletedMediaIds, 'MediaDeletionSubscriber should be triggered and delete media files.');
 
         static::assertFalse($this->hasMediaEntity($mediaId), 'Media entity should be deleted when document is deleted.');
         static::assertFalse($this->hasMediaEntity($a11yMediaId), 'Media entity should be deleted when document is deleted.');

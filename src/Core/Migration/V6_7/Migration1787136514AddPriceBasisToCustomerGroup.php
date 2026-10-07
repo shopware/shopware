@@ -20,10 +20,10 @@ class Migration1787136514AddPriceBasisToCustomerGroup extends MigrationStep
 
     public function update(Connection $connection): void
     {
-        if ($this->columnExists($connection, CustomerGroupDefinition::ENTITY_NAME, 'price_basis')) {
+        if (!$this->addColumn($connection, CustomerGroupDefinition::ENTITY_NAME, 'price_basis', 'VARCHAR(255)', false, '\'gross\'')) {
             return;
         }
 
-        $this->addColumn($connection, CustomerGroupDefinition::ENTITY_NAME, 'price_basis', 'VARCHAR(255)');
+        $connection->executeStatement('UPDATE `customer_group` SET `price_basis` = \'net\' WHERE `display_gross` = 0');
     }
 }

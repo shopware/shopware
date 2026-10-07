@@ -23,32 +23,41 @@ class CustomerGroupDefaultsTest extends TestCase
 
     public function testACreateWithoutTheTaxDisplayAndPriceBasisGetsTheDefaultPairing(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
-        $customerGroup = $this->createGroupWithoutPriceFields();
+        $customerGroup = $this->createGroup([]);
 
         static::assertTrue($customerGroup->getDisplayGross());
         static::assertSame(CustomerGroupEntity::PRICE_BASIS_GROSS, $customerGroup->getPriceBasis());
     }
 
-    public function testACreateWithoutThePriceBasisKeepsItNullBeforeTheMajor(): void
+    public function testANetDisplayCreateWithoutABasisDerivesTheNetBasisBeforeTheMajor(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
 
-        $customerGroup = $this->createGroupWithoutPriceFields();
+        $customerGroup = $this->createGroup(['displayGross' => false]);
 
-        static::assertTrue($customerGroup->getDisplayGross());
-        static::assertNull($customerGroup->getPriceBasis());
+        static::assertSame(CustomerGroupEntity::PRICE_BASIS_NET, $customerGroup->getPriceBasis());
     }
 
-    private function createGroupWithoutPriceFields(): CustomerGroupEntity
+    public function testANetDisplayCreateWithoutABasisGetsTheGrossDefaultWithTheMajor(): void
+    {
+        Feature::skipTestIfInActive('v6.8.0.0', $this);
+
+        $customerGroup = $this->createGroup(['displayGross' => false]);
+
+        static::assertSame(CustomerGroupEntity::PRICE_BASIS_GROSS, $customerGroup->getPriceBasis());
+    }
+
+    /**
+     * @param array<string, mixed> $payload
+     */
+    private function createGroup(array $payload): CustomerGroupEntity
     {
         $id = Uuid::randomHex();
         $context = Context::createDefaultContext();
 
         /** @var EntityRepository<CustomerGroupCollection> $repository */
         $repository = static::getContainer()->get('customer_group.repository');
-        $repository->create([['id' => $id, 'name' => 'field unaware group']], $context);
+        $repository->create([['id' => $id, 'name' => 'field unaware group', ...$payload]], $context);
 
         $customerGroup = $repository->search(new Criteria([$id]), $context)->getEntities()->first();
         static::assertNotNull($customerGroup);

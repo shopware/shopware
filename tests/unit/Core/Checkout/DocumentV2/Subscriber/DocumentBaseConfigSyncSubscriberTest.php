@@ -51,7 +51,7 @@ class DocumentBaseConfigSyncSubscriberTest extends TestCase
 
     public function testNoSubscribersWhenRemovalFlagIsActive(): void
     {
-        Feature::registerFeature('v6.9.0.0', ['major' => true]);
+        Feature::registerFeature('v6.9.0.0');
         Feature::setActive('v6.9.0.0', true);
 
         static::assertSame([], DocumentBaseConfigSyncSubscriber::getSubscribedEvents());
@@ -62,7 +62,7 @@ class DocumentBaseConfigSyncSubscriberTest extends TestCase
      */
     public function testDirectInvocationThrowsWhenRemovalFlagIsActive(): void
     {
-        Feature::registerFeature('v6.9.0.0', ['major' => true]);
+        Feature::registerFeature('v6.9.0.0');
         Feature::setActive('v6.9.0.0', true);
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())->method('fetchOne');

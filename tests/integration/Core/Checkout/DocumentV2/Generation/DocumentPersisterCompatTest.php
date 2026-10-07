@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Integration\Core\Checkout\DocumentV2\Generation;
 
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Document\DocumentEntity;
+use Shopware\Core\Checkout\DocumentV2\DocumentEntity;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;

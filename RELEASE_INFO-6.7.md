@@ -616,6 +616,10 @@ This applies to all translated app texts, including flow actions and their confi
 
 The app events `app.installed`, `app.updated`, `app.activated`, `app.deactivated`, `app.deleted`, `app.permissions.updated` and `app.config.changed` are now only delivered to app webhooks. Webhooks created through the Admin API no longer receive them. Apps keep subscribing to them in their manifest, as before.
 
+### App MCP capabilities use generic feature storage
+
+App-declared MCP tools, prompts, and resources are now persisted through the generic app feature storage. Installed apps do not need to change their `mcp.xml`, but their existing MCP tools, prompts, and resources are not migrated. Reinstall or update affected apps after upgrading to re-register them.
+
 # 6.7.15.0
 
 ## Features

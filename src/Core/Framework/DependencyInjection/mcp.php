@@ -13,10 +13,11 @@ use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceDefinitio
 use Shopware\Core\Framework\App\Aggregate\AppMcpResourceTranslation\AppMcpResourceTranslationDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppMcpToolTranslation\AppMcpToolTranslationDefinition;
-use Shopware\Core\Framework\App\Lifecycle\Handler\McpLifecycleHandler;
-use Shopware\Core\Framework\App\Lifecycle\Persister\McpPromptPersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\McpResourcePersister;
-use Shopware\Core\Framework\App\Lifecycle\Persister\McpToolPersister;
+use Shopware\Core\Framework\App\AppSecretResolver;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\App\Mcp\Feature\McpPromptFeatureDefinition;
+use Shopware\Core\Framework\App\Mcp\Feature\McpResourceFeatureDefinition;
+use Shopware\Core\Framework\App\Mcp\Feature\McpToolFeatureDefinition;
 use Shopware\Core\Framework\App\ShopId\ShopIdProvider;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\Event\BusinessEventCollector;
@@ -80,6 +81,7 @@ use Shopware\Core\Framework\Mcp\Tool\ToolsetEnableTool;
 use Shopware\Core\Framework\Mcp\Tool\ToolsetsListTool;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiContextTool;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolSearchTool;
 use Shopware\Core\System\SalesChannel\Mcp\Tool\StoreApiToolsetEnableTool;
@@ -121,7 +123,7 @@ return static function (ContainerConfigurator $container): void {
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(AppMcpCapabilityDetector::class)
-        ->args([service(Connection::class)]);
+        ->args([service(AppFeatureStorage::class)]);
 
     $services->set(AppMcpCapabilityLifecycleSubscriber::class)
         ->args([
@@ -269,8 +271,7 @@ return static function (ContainerConfigurator $container): void {
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(AppMcpPrivilegeProvider::class)
-        ->args([service(Connection::class), service('logger')])
-        ->tag('monolog.logger', ['channel' => 'mcp']);
+        ->args([service(AppFeatureStorage::class)]);
 
     $services->set(McpCapabilityCatalog::class)
         ->args([
@@ -549,13 +550,15 @@ return static function (ContainerConfigurator $container): void {
             service('kernel'),
             service('request_stack'),
             service('router'),
+            service(AppSecretResolver::class),
         ])
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set(AppMcpToolLoader::class)
         ->args([
-            service(Connection::class),
+            service(AppFeatureStorage::class),
             service(AppMcpCapabilityExecutor::class),
+            service(LanguageLocaleCodeProvider::class),
             service('logger'),
             param('shopware.mcp.allowed_tools'),
         ])
@@ -563,8 +566,9 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(AppMcpPromptLoader::class)
         ->args([
-            service(Connection::class),
+            service(AppFeatureStorage::class),
             service(AppMcpCapabilityExecutor::class),
+            service(LanguageLocaleCodeProvider::class),
             service('logger'),
         ])
         ->tag('mcp.loader')
@@ -572,31 +576,22 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(AppMcpResourceLoader::class)
         ->args([
-            service(Connection::class),
+            service(AppFeatureStorage::class),
             service(AppMcpCapabilityExecutor::class),
+            service(LanguageLocaleCodeProvider::class),
             service('logger'),
         ])
         ->tag('mcp.loader')
         ->tag('monolog.logger', ['channel' => 'mcp']);
 
-    $services->set(McpToolPersister::class)
-        ->args([service('app_mcp_tool.repository')]);
+    $services->set(McpToolFeatureDefinition::class)
+        ->tag('shopware.app_feature.definition');
 
-    $services->set(McpPromptPersister::class)
-        ->args([service('app_mcp_prompt.repository')]);
+    $services->set(McpPromptFeatureDefinition::class)
+        ->tag('shopware.app_feature.definition');
 
-    $services->set(McpResourcePersister::class)
-        ->args([service('app_mcp_resource.repository')]);
-
-    $services->set(McpLifecycleHandler::class)
-        ->args([
-            service(McpToolPersister::class),
-            service(McpPromptPersister::class),
-            service(McpResourcePersister::class),
-            service(AppMcpCapabilityDetector::class),
-            service(McpListChangedNotifier::class),
-        ])
-        ->tag('shopware.app_lifecycle.handler', ['priority' => -1300]);
+    $services->set(McpResourceFeatureDefinition::class)
+        ->tag('shopware.app_feature.definition');
 
     // DAL definitions
     $services->set(AppMcpToolDefinition::class)

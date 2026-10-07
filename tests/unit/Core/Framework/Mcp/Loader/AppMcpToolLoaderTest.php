@@ -2,8 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Loader;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Exception as DBALException;
 use Mcp\Capability\Registry\ToolReference;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\JsonRpc\Request;
@@ -15,10 +13,15 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use Shopware\Core\Framework\App\Feature\AppFeature;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
+use Shopware\Core\Framework\App\Feature\TranslatedString;
+use Shopware\Core\Framework\App\Mcp\Feature\McpToolConfig;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Loader\AbstractAppMcpLoader;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpCapabilityExecutor;
 use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
+use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 
 /**
  * @internal
@@ -28,426 +31,206 @@ use Shopware\Core\Framework\Mcp\Loader\AppMcpToolLoader;
 #[CoversClass(AbstractAppMcpLoader::class)]
 class AppMcpToolLoaderTest extends TestCase
 {
-    private Connection&Stub $connection;
+    private AppFeatureStorage&Stub $storage;
 
     private AppMcpCapabilityExecutor&Stub $executor;
+
+    private LanguageLocaleCodeProvider&Stub $localeProvider;
 
     private AppMcpToolLoader $loader;
 
     protected function setUp(): void
     {
-        $this->connection = static::createStub(Connection::class);
+        $this->storage = static::createStub(AppFeatureStorage::class);
         $this->executor = static::createStub(AppMcpCapabilityExecutor::class);
-        $this->loader = new AppMcpToolLoader($this->connection, $this->executor, new NullLogger());
+        $this->localeProvider = static::createStub(LanguageLocaleCodeProvider::class);
+        $this->localeProvider->method('getLocaleForLanguageId')->willReturn('en-GB');
+        $this->loader = new AppMcpToolLoader($this->storage, $this->executor, $this->localeProvider, new NullLogger());
     }
 
-    public function testLoadWithDBALExceptionRegistersNoTools(): void
+    public function testAToolIsRegisteredUnderItsAppName(): void
     {
-        $exception = new class('DB error') extends \Exception implements DBALException {};
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->toolConfig())]);
 
-        $this->connection->method('fetchAllAssociative')
-            ->willThrowException($exception);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->never())->method('registerTool');
-
-        $this->loader->load($registry);
+        static::assertEquals([
+            new Tool(
+                name: 'my-app-sync-orders',
+                title: 'Sync Orders',
+                inputSchema: ['type' => 'object', 'properties' => [], 'required' => []],
+                description: 'Imports new orders from the ERP',
+                annotations: null,
+            ),
+        ], $this->registeredTools($this->loader));
     }
 
-    public function testLoadWithOneToolRegistersToolWithCorrectName(): void
+    public function testTheInputSchemaBecomesAJsonSchema(): void
     {
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'test-secret',
-            'version' => '0.0.0',
-            'label' => 'Sync Orders',
-            'description' => 'Syncs orders',
-        ];
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->toolConfig(inputSchema: [
+            'since' => ['type' => 'string', 'description' => 'ISO date', 'required' => true],
+            'limit' => ['type' => 'integer'],
+        ]))]);
 
-        $this->connection->method('fetchAllAssociative')
-            ->willReturn([$toolRow]);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->once())
-            ->method('registerTool')
-            ->with(
-                static::callback(function (Tool $tool): bool {
-                    static::assertSame('my-app-sync-orders', $tool->name);
-                    static::assertSame('Sync Orders', $tool->title);
-                    static::assertSame('Syncs orders', $tool->description);
-                    static::assertSame('object', $tool->inputSchema['type']);
-                    static::assertSame([], $tool->inputSchema['required']);
-                    // mcp/sdk normalizes an empty properties map to an object in the Tool
-                    // constructor, so it serializes as {} rather than [] — strict clients reject the
-                    // array form.
-                    static::assertInstanceOf(\stdClass::class, $tool->inputSchema['properties']);
-                    static::assertSame([], (array) $tool->inputSchema['properties']);
-
-                    return true;
-                }),
-                static::isCallable(),
-            );
-
-        $this->loader->load($registry);
+        static::assertEquals([
+            new Tool(
+                name: 'my-app-sync-orders',
+                title: 'Sync Orders',
+                inputSchema: [
+                    'type' => 'object',
+                    'properties' => [
+                        'since' => ['type' => 'string', 'description' => 'ISO date'],
+                        'limit' => ['type' => 'integer'],
+                    ],
+                    'required' => ['since'],
+                ],
+                description: 'Imports new orders from the ERP',
+                annotations: null,
+            ),
+        ], $this->registeredTools($this->loader));
     }
 
-    public function testTitleIsNullWhenLabelIsEmpty(): void
+    public function testAnEmptyDescriptionFallsBackToTheLabel(): void
     {
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'version' => '0.0.0',
-            'label' => '',
-            'description' => 'Syncs orders',
-        ];
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->toolConfig(description: ['en-GB' => '']))]);
 
-        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->once())
-            ->method('registerTool')
-            ->with(
-                static::callback(function (Tool $tool): bool {
-                    static::assertNull($tool->title);
-                    static::assertSame('Syncs orders', $tool->description);
-
-                    return true;
-                }),
-                static::isCallable(),
-            );
-
-        $this->loader->load($registry);
+        static::assertSame('Sync Orders', $this->registeredTools($this->loader)[0]->description);
     }
 
-    public function testLoadWithInputSchemaRegistersToolWithCorrectInputSchema(): void
+    public function testAToolWithAnEmptyLabelAndDescriptionIsDescribedByItsName(): void
     {
-        $inputSchemaJson = json_encode([
-            'since' => [
-                'type' => 'string',
-                'description' => 'ISO date',
-                'required' => true,
-            ],
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->toolConfig(label: ['en-GB' => ''], description: []))]);
+
+        $tool = $this->registeredTools($this->loader)[0];
+
+        static::assertNull($tool->title);
+        static::assertSame('my-app-sync-orders', $tool->description);
+    }
+
+    public function testOnlyAllowedToolsAreRegistered(): void
+    {
+        $this->storage->method('forActiveApps')->willReturn([
+            $this->feature($this->toolConfig(name: 'sync-orders')),
+            $this->feature($this->toolConfig(name: 'stock-check')),
         ]);
+        $loader = new AppMcpToolLoader($this->storage, $this->executor, $this->localeProvider, new NullLogger(), ['my-app-sync-orders']);
 
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => $inputSchemaJson,
-            'app_name' => 'my-app',
-            'app_secret' => 'test-secret',
-            'version' => '0.0.0',
-            'label' => 'Sync Orders',
-            'description' => 'Syncs orders',
-        ];
+        $tools = $this->registeredTools($loader);
 
-        $this->connection->method('fetchAllAssociative')
-            ->willReturn([$toolRow]);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->once())
-            ->method('registerTool')
-            ->with(
-                static::callback(function (Tool $tool): bool {
-                    static::assertSame('my-app-sync-orders', $tool->name);
-                    // A populated properties map stays an array; mcp/sdk only swaps an empty one for
-                    // an object so it serializes as {}.
-                    static::assertIsArray($tool->inputSchema['properties']);
-                    static::assertArrayHasKey('since', $tool->inputSchema['properties']);
-                    static::assertSame('string', $tool->inputSchema['properties']['since']['type']);
-                    static::assertSame('ISO date', $tool->inputSchema['properties']['since']['description']);
-                    static::assertIsArray($tool->inputSchema['required']);
-                    static::assertContains('since', $tool->inputSchema['required']);
-
-                    return true;
-                }),
-                static::isCallable(),
-            );
-
-        $this->loader->load($registry);
+        static::assertCount(1, $tools);
+        static::assertSame('my-app-sync-orders', $tools[0]->name);
     }
 
-    public function testLoadWithEmptyAllowlistRegistersAllAppTools(): void
+    public function testAToolNamedWithTheShopwarePrefixIsSkipped(): void
     {
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'version' => '0.0.0',
-            'label' => 'Sync',
-            'description' => 'Sync',
-        ];
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->toolConfig(name: 'orders'), appName: 'shopware')]);
 
-        $this->connection->method('fetchAllAssociative')
-            ->willReturn([$toolRow]);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->once())->method('registerTool');
-
-        $loader = new AppMcpToolLoader($this->connection, $this->executor, new NullLogger(), []);
-        $loader->load($registry);
+        static::assertSame([], $this->registeredTools($this->loader));
     }
 
-    public function testLoadWithAllowlistRegistersOnlyAllowedAppTools(): void
+    public function testAnExternalToolOfAnAppWithoutSecretIsSkipped(): void
     {
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'version' => '0.0.0',
-            'label' => 'Sync',
-            'description' => 'Sync',
-        ];
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->toolConfig(), appHasSecret: false)]);
 
-        $this->connection->method('fetchAllAssociative')
-            ->willReturn([$toolRow]);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->once())
-            ->method('registerTool')
-            ->with(
-                static::callback(fn (Tool $tool): bool => $tool->name === 'my-app-sync-orders'),
-                static::isCallable(),
-            );
-
-        $loader = new AppMcpToolLoader($this->connection, $this->executor, new NullLogger(), ['my-app-sync-orders']);
-        $loader->load($registry);
+        static::assertSame([], $this->registeredTools($this->loader));
     }
 
-    public function testInvalidInputSchemaJsonFallsBackToEmptySchema(): void
+    public function testAnInternalToolOfAnAppWithoutSecretIsRegistered(): void
     {
-        $toolRow = [
-            'name' => 'broken-tool',
-            'url' => 'https://app.example.com/mcp/broken',
-            'input_schema' => 'not-valid-json',
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'version' => '0.0.0',
-            'label' => 'Broken',
-            'description' => 'Broken tool',
-        ];
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->toolConfig(url: '/api/script/my-app-sync'), appHasSecret: false)]);
 
-        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->once())
-            ->method('registerTool')
-            ->with(
-                static::callback(function (Tool $tool): bool {
-                    static::assertSame('object', $tool->inputSchema['type']);
-                    static::assertSame([], $tool->inputSchema['required']);
-                    // mcp/sdk normalizes an empty properties map to an object in the Tool
-                    // constructor, so it serializes as {} rather than [] — strict clients reject the
-                    // array form.
-                    static::assertInstanceOf(\stdClass::class, $tool->inputSchema['properties']);
-                    static::assertSame([], (array) $tool->inputSchema['properties']);
-
-                    return true;
-                }),
-                static::isCallable(),
-            );
-
-        $this->loader->load($registry);
+        static::assertCount(1, $this->registeredTools($this->loader));
     }
 
-    public function testDescriptionFallsBackToToolNameWhenNoLabelOrDescription(): void
+    public function testCallingAToolSendsItsArgumentsToTheApp(): void
     {
-        $toolRow = [
-            'name' => 'mystery-tool',
-            'url' => 'https://app.example.com/mcp/mystery',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'version' => '0.0.0',
-            'label' => null,
-            'description' => null,
-        ];
-
-        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->once())
-            ->method('registerTool')
-            ->with(
-                static::callback(function (Tool $tool): bool {
-                    static::assertNull($tool->title);
-                    static::assertSame('my-app-mystery-tool', $tool->description);
-
-                    return true;
-                }),
-                static::isCallable(),
-            );
-
-        $this->loader->load($registry);
-    }
-
-    public function testRegisteredCallbackInvokesExecutorWithArguments(): void
-    {
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'test-secret',
-            'version' => '2.1.0',
-            'label' => 'Sync Orders',
-            'description' => 'Syncs orders',
-        ];
-
-        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
-
         $executor = $this->createMock(AppMcpCapabilityExecutor::class);
         $executor->expects($this->once())
             ->method('execute')
-            ->with('my-app-sync-orders', 'test-secret', 'https://app.example.com/mcp/sync', ['since' => '2025-01-01'], '2.1.0')
+            ->with('my-app-sync-orders', 'my-app', 'https://app.example.com/mcp/sync', ['since' => '2025-01-01'], '2.1.0')
             ->willReturn('{"success":true}');
-        $loader = new AppMcpToolLoader($this->connection, $executor, new NullLogger());
 
-        $capturedCallback = null;
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->once())
-            ->method('registerTool')
-            ->willReturnCallback(function (Tool $tool, callable $callback) use (&$capturedCallback): ToolReference {
-                $capturedCallback = $callback;
-
-                return static::createStub(ToolReference::class);
-            });
-
-        $loader->load($registry);
-
-        static::assertNotNull($capturedCallback);
-
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->toolConfig(), appVersion: '2.1.0')]);
+        $loader = new AppMcpToolLoader($this->storage, $executor, $this->localeProvider, new NullLogger());
         $request = new CallToolRequest('my-app-sync-orders', ['since' => '2025-01-01']);
-        $context = new RequestContext(static::createStub(SessionInterface::class), $request);
 
-        $result = ($capturedCallback)($context);
+        $result = $this->registeredHandler($loader)(new RequestContext(static::createStub(SessionInterface::class), $request));
+
         static::assertSame('{"success":true}', $result);
     }
 
-    public function testRegisteredCallbackWithNonCallToolRequestPassesEmptyArguments(): void
+    public function testARequestThatIsNoToolCallSendsNoArguments(): void
     {
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'test-secret',
-            'version' => '0.0.0',
-            'label' => 'Sync Orders',
-            'description' => 'Syncs orders',
-        ];
-
-        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
-
         $executor = $this->createMock(AppMcpCapabilityExecutor::class);
         $executor->expects($this->once())
             ->method('execute')
-            ->with('my-app-sync-orders', 'test-secret', 'https://app.example.com/mcp/sync', [], '0.0.0')
+            ->with('my-app-sync-orders', 'my-app', 'https://app.example.com/mcp/sync', [], '0.0.0')
             ->willReturn('{"success":true}');
-        $loader = new AppMcpToolLoader($this->connection, $executor, new NullLogger());
 
-        $capturedCallback = null;
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->once())
-            ->method('registerTool')
-            ->willReturnCallback(function (Tool $tool, callable $callback) use (&$capturedCallback): ToolReference {
-                $capturedCallback = $callback;
-
-                return static::createStub(ToolReference::class);
-            });
-
-        $loader->load($registry);
-
-        static::assertNotNull($capturedCallback);
-
+        $this->storage->method('forActiveApps')->willReturn([$this->feature($this->toolConfig())]);
+        $loader = new AppMcpToolLoader($this->storage, $executor, $this->localeProvider, new NullLogger());
         $request = static::createStub(Request::class);
-        $context = new RequestContext(static::createStub(SessionInterface::class), $request);
 
-        $result = ($capturedCallback)($context);
+        $result = $this->registeredHandler($loader)(new RequestContext(static::createStub(SessionInterface::class), $request));
+
         static::assertSame('{"success":true}', $result);
     }
 
-    public function testLoadWithAllowlistSkipsAppToolNotInList(): void
+    /**
+     * @return list<Tool>
+     */
+    private function registeredTools(AppMcpToolLoader $loader): array
     {
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'version' => '0.0.0',
-            'label' => 'Sync',
-            'description' => 'Sync',
-        ];
+        $tools = [];
 
-        $this->connection->method('fetchAllAssociative')
-            ->willReturn([$toolRow]);
+        $registry = static::createStub(RegistryInterface::class);
+        $registry->method('registerTool')->willReturnCallback(function (Tool $tool) use (&$tools): ToolReference {
+            $tools[] = $tool;
 
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->never())->method('registerTool');
+            return static::createStub(ToolReference::class);
+        });
 
-        $loader = new AppMcpToolLoader($this->connection, $this->executor, new NullLogger(), ['other-tool-only']);
         $loader->load($registry);
+
+        return $tools;
     }
 
-    public function testEmptyStringDescriptionFallsBackToLabel(): void
+    private function registeredHandler(AppMcpToolLoader $loader): callable
     {
-        $toolRow = [
-            'name' => 'sync-orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'my-app',
-            'app_secret' => 'secret',
-            'version' => '0.0.0',
-            'label' => 'Sync Orders',
-            'description' => '',
-        ];
+        $handler = null;
 
-        $this->connection->method('fetchAllAssociative')->willReturn([$toolRow]);
+        $registry = static::createStub(RegistryInterface::class);
+        $registry->method('registerTool')->willReturnCallback(function (Tool $tool, callable $registered) use (&$handler): ToolReference {
+            $handler = $registered;
 
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->once())
-            ->method('registerTool')
-            ->with(
-                static::callback(function (Tool $tool): bool {
-                    static::assertSame('Sync Orders', $tool->description);
+            return static::createStub(ToolReference::class);
+        });
 
-                    return true;
-                }),
-                static::isCallable(),
-            );
+        $loader->load($registry);
 
-        $this->loader->load($registry);
+        static::assertNotNull($handler);
+
+        return $handler;
     }
 
-    public function testLoadSkipsReservedShopwarePrefixedToolName(): void
+    /**
+     * @param array<string, array{type: string, description?: string, required?: bool}>|null $inputSchema
+     * @param array<string, string> $label
+     * @param array<string, string> $description
+     */
+    private function toolConfig(
+        string $name = 'sync-orders',
+        string $url = 'https://app.example.com/mcp/sync',
+        ?array $inputSchema = null,
+        array $label = ['en-GB' => 'Sync Orders'],
+        array $description = ['en-GB' => 'Imports new orders from the ERP'],
+    ): McpToolConfig {
+        return new McpToolConfig($name, $url, [], $inputSchema, new TranslatedString($label), new TranslatedString($description));
+    }
+
+    /**
+     * @return AppFeature<McpToolConfig>
+     */
+    private function feature(McpToolConfig $config, string $appName = 'my-app', string $appVersion = '0.0.0', bool $appHasSecret = true): AppFeature
     {
-        $toolRow = [
-            'name' => 'orders',
-            'url' => 'https://app.example.com/mcp/sync',
-            'input_schema' => null,
-            'app_name' => 'shopware',
-            'app_secret' => 'secret',
-            'version' => '0.0.0',
-            'label' => 'Sync',
-            'description' => 'Sync',
-        ];
-
-        $this->connection->method('fetchAllAssociative')
-            ->willReturn([$toolRow]);
-
-        $registry = $this->createMock(RegistryInterface::class);
-        $registry->expects($this->never())->method('registerTool');
-
-        $this->loader->load($registry);
+        return new AppFeature('0189aaaabbbbcccc0000000000000001', $appName, true, $appVersion, $appHasSecret, new \DateTimeImmutable(), $config);
     }
 }

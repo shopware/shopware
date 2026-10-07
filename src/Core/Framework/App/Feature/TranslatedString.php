@@ -7,13 +7,13 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * A value translated per locale (locale code => value).
  *
- * @codeCoverageIgnore
- *
  * @internal
  */
 #[Package('framework')]
 final readonly class TranslatedString
 {
+    private const FALLBACK_LOCALE = 'en-GB';
+
     /**
      * @param array<string, string> $translations locale code => value
      */
@@ -21,9 +21,15 @@ final readonly class TranslatedString
     {
     }
 
+    /**
+     * The value for the locale; when it is not translated, the en-GB value, otherwise the first one given.
+     */
     public function forLocale(string $locale): ?string
     {
-        return $this->translations[$locale] ?? null;
+        return $this->translations[$locale]
+            ?? $this->translations[self::FALLBACK_LOCALE]
+            ?? array_values($this->translations)[0]
+            ?? null;
     }
 
     /**

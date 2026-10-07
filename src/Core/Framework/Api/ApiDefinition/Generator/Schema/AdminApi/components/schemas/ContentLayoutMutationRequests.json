@@ -347,8 +347,9 @@
                         "required": ["elementId"],
                         "properties": {
                             "elementId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$",
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" }
+                                ],
                                 "description": "Id of the element whose property values are updated."
                             },
                             "values": {
@@ -382,8 +383,9 @@
                         "required": ["elementId", "values"],
                         "properties": {
                             "elementId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$",
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" }
+                                ],
                                 "description": "Id of the element whose language maps are replaced."
                             },
                             "values": {
@@ -678,8 +680,9 @@
                         "required": ["elementId"],
                         "properties": {
                             "elementId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$",
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" }
+                                ],
                                 "description": "Id of the element whose property values are updated."
                             },
                             "values": {
@@ -713,8 +716,9 @@
                         "required": ["elementId", "values"],
                         "properties": {
                             "elementId": {
-                                "type": "string",
-                                "pattern": "^[0-9a-f]{32}$",
+                                "allOf": [
+                                    { "$ref": "#/components/schemas/ContentElementId" }
+                                ],
                                 "description": "Id of the element whose language maps are replaced."
                             },
                             "values": {

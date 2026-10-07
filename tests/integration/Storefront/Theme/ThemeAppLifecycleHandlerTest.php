@@ -100,7 +100,7 @@ class ThemeAppLifecycleHandlerTest extends TestCase
 
     private function installThemeApp(): AppEntity
     {
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/fixtures/Apps/theme/manifest.xml');
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/fixtures/Apps/SwagTheme/manifest.xml');
         $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
 
         $app = $this->appRepository->search(new Criteria(), $this->context)->getEntities()->first();

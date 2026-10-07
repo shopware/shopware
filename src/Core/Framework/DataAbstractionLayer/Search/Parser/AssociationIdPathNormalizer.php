@@ -25,6 +25,7 @@ final class AssociationIdPathNormalizer
             return $fieldName;
         }
 
+        // `id` is popped above; pop the association too, so `$parts` keeps only the parent path
         $association = array_pop($parts);
         if ($association === null) {
             return $fieldName;

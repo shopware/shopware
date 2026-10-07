@@ -1709,6 +1709,13 @@ Extensibility of the `buy-widget-form.html.twig` template has been improved for 
 Themes that still define `label` or `helpText` in their `theme.json` show their labels in the theme manager again. On `theme:refresh`, plugin installation and plugin update, Shopware generates the matching administration snippets from those properties into the private filesystem (`snippets/administration/<technicalName>/<locale>.json`, see "Snippets can be provided through the private filesystem") and loads them as the lowest-priority snippet layer, so snippet files shipped by the theme always win. A warning is logged while a theme relies on the generated snippets. Snippet files shipped with the theme are the recommended way to provide these translations. The `labels` and `helpTexts` fields of the `theme` and `theme_translation` entities, which carried the legacy translations, are deprecated and will be removed in 6.8.
 
 The new command `theme:migrate-translations <technicalName>` writes the snippets into `Resources/app/administration/src/snippet/<locale>.json` of the theme and keeps every snippet the theme already maintains there. Use `--strip` to also remove the deprecated properties from the `theme.json`, and `--dry-run` to preview the result.
+### Link categories no longer get new SEO URLs
+
+Link categories no longer get new SEO URLs during category indexing, so a link category named like its target does not take over the target's SEO URL anymore. Their existing SEO URLs are kept and still redirect to the link target.
+
+When several canonical SEO URLs match a request, the storefront now resolves the one stored exactly as requested. This ends the endless redirect between a link category and its target when their URLs differ only in case or a trailing slash.
+
+If category indexing ran on 6.7.13.0 or later, a target category can still show under a fallback URL. Find affected categories with the query in [#21106](https://github.com/shopware/shopware/issues/21106) and set their SEO URL again in the Administration.
 
 ### Extension component aliases work in the dev server
 

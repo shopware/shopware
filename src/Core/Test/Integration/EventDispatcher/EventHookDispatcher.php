@@ -14,8 +14,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * dispatcher. Hooks run after the dispatcher's own listeners and are skipped once propagation is stopped.
  * It decorates closest to the base dispatcher, so nested events re-dispatched by outer decorators reach it.
  *
- * Tests get it with {@see self::fromContainer()}. The EventHookExtension (phpunit.xml.dist) clears the hooks after
- * each test.
+ * Tests get it with {@see self::fromContainer()}. The test bootstrap registers a PHPUnit subscriber that clears the
+ * hooks after each test.
  *
  * @internal
  */

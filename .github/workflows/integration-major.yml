@@ -17,7 +17,9 @@ env:
 
 jobs:
   phpunit-matrix:
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-tests')
+    # A label event only counts when the label just added is a major label: without that, any later label
+    # (domain, milestone, waiting-on) re-runs the whole suite. phpunit-major needs this job, so it skips with it.
+    if: (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-tests')) && (github.event.action != 'labeled' || contains(fromJSON('["major-php", "major-js", "major-tests"]'), github.event.label.name))
     runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
@@ -52,7 +54,7 @@ jobs:
       OPENSEARCH_URL: 127.0.0.1:9200
       ADMIN_OPENSEARCH_URL: 127.0.0.1:9200
       BLUE_GREEN_DEPLOYMENT: 1
-      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
+      PUPPETEER_SKIP_DOWNLOAD: "true"
       COMPOSER_ROOT_VERSION: 6.7.9999999-dev
 
     services:
@@ -103,7 +105,8 @@ jobs:
 
   jest-admin-major:
     name: "Jest Admin (major)"
-    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')
+    # same label-event filter as phpunit-matrix
+    if: (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')) && (github.event.action != 'labeled' || contains(fromJSON('["major-php", "major-js", "major-tests"]'), github.event.label.name))
     runs-on: ubuntu-24.04
     env:
       NODE_VERSION: 'lts/*'
@@ -142,7 +145,8 @@ jobs:
   # single required/monitorable status for the whole major matrix
   integration-major-check:
     # Skip cleanly on unlabeled PRs so they don't get a confusing status; otherwise aggregate the matrix result.
-    if: always() && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests'))
+    # same label-event filter as the arms, so it skips with them
+    if: always() && (github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'major-php') || contains(github.event.pull_request.labels.*.name, 'major-js') || contains(github.event.pull_request.labels.*.name, 'major-tests')) && (github.event.action != 'labeled' || contains(fromJSON('["major-php", "major-js", "major-tests"]'), github.event.label.name))
     needs:
       - phpunit-major
       - jest-admin-major

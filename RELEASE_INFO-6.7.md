@@ -62,6 +62,10 @@ Asset installation now overwrites existing files without deleting their director
 
 Deactivating a plugin now removes its asset manifest entry but retains its public files until uninstall. This avoids a pending directory deletion removing files uploaded after reactivation. Uninstall still removes the plugin's public files.
 
+### Product stream builders can migrate without dropping the legacy contract
+
+`AbstractProductStreamBuilder` now implements the deprecated `ProductStreamBuilderInterface` and forwards `buildFilters()` to `enrichCriteria()`. Extensions can therefore migrate their implementations to the abstract class while remaining compatible with code that still consumes the legacy interface.
+
 ### Feature flags can belong to a major version
 
 Feature flags such as `JSON_LD_DATA` and `CACHE_REWORK` now activate automatically when `V6_8_0_0=1` is set. An explicit setting for the individual flag still takes precedence, so `JSON_LD_DATA=0` keeps that feature off. Standalone major flags are recognized by their version-shaped names; the `major` field is only for sub-features and must name a parent version flag. Flags without a parent omit `major` from their metadata and the feature-flag API response. `FEATURE_ALL` now activates every registered feature for any truthy value; use a version flag to test only that major's changes.
@@ -310,6 +314,12 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 ### Customer login publishes an extension event
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
+
+### Sorting by `product.price` works with Elasticsearch
+
+The product index now contains `product.price`, so sorting, filtering and aggregating on it work with Elasticsearch. Before, a sorting on `product.price` (e.g. the "Default price" listing sorting) failed with `No mapping found for [price.c_....gross]`.
+
+Run `bin/console es:index` after deploying. Existing documents have no price until they are reindexed.
 
 ### Reduced remote thumbnail URL generation overhead
 

@@ -19,12 +19,11 @@ use Shopware\Core\Framework\App\Validation\ManifestValidator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Tests\Integration\Core\Framework\App\AppFixture;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -32,7 +31,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class InstallAppCommandTest extends TestCase
 {
-    use EventDispatcherBehaviour;
+    use EventHookBehaviour;
     use GuzzleTestClientBehaviour;
 
     private const RECOVERY_APP_DIR = __DIR__ . '/../Manifest/_fixtures/test';
@@ -193,9 +192,7 @@ class InstallAppCommandTest extends TestCase
         $this->appendNewResponse(new Response(200));
 
         $installedEvents = 0;
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-        static::assertInstanceOf(EventDispatcherInterface::class, $eventDispatcher);
-        $this->addEventListener($eventDispatcher, AppInstalledEvent::class, static function () use (&$installedEvents): void {
+        $this->onEvent(AppInstalledEvent::class, static function () use (&$installedEvents): void {
             ++$installedEvents;
         });
 

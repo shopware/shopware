@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToOne
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -38,6 +39,7 @@ class VersionManagerTest extends TestCase
     use DataAbstractionLayerFieldTestBehaviour {
         tearDown as protected tearDownDefinitions;
     }
+    use EventHookBehaviour;
     use KernelTestBehaviour;
 
     private const PRODUCT_ID = 'product-1';
@@ -142,26 +144,25 @@ class VersionManagerTest extends TestCase
             ->update([['id' => $ids->get('p1'), 'name' => 'test']], $versionContext);
 
         // now ensure that we get a validate event for the merge request
-        $called = false;
+        $mergeScopes = [];
 
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        $this->onEvent(
             PreWriteValidationEvent::class,
-            static function (PreWriteValidationEvent $event) use (&$called): void {
+            static function (PreWriteValidationEvent $event) use (&$mergeScopes): void {
                 // we also get a validation event for the version tables
                 if (!$event->getPrimaryKeys('product')) {
                     return;
                 }
 
-                $called = true;
-                // some validators depend on that to disable insert/update validation for merge requests
-                static::assertTrue($event->getWriteContext()->hasState(VersionManager::MERGE_SCOPE));
+                $mergeScopes[] = $event->getWriteContext()->hasState(VersionManager::MERGE_SCOPE);
             }
         );
 
         static::getContainer()->get('product.repository')->merge($versionId, $context);
 
-        static::assertTrue($called);
+        static::assertNotEmpty($mergeScopes);
+        // some validators depend on that to disable insert/update validation for merge requests
+        static::assertNotContains(false, $mergeScopes);
     }
 
     public function testMergeKeepsInsertOperationForEntityCreatedAndUpdatedInVersion(): void
@@ -189,8 +190,7 @@ class VersionManagerTest extends TestCase
 
         $pageWriteResult = null;
 
-        $this->addEventListener(
-            static::getContainer()->get('event_dispatcher'),
+        $this->onEvent(
             'cms_page.written',
             static function (EntityWrittenEvent $event) use (&$pageWriteResult, $pageId): void {
                 foreach ($event->getWriteResults() as $writeResult) {

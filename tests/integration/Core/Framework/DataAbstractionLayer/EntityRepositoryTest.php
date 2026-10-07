@@ -54,6 +54,7 @@ use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Locale\LocaleDefinition;
 use Shopware\Core\System\Locale\LocaleEntity;
 use Shopware\Core\System\Snippet\SnippetDefinition;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -63,6 +64,7 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('framework')]
 class EntityRepositoryTest extends TestCase
 {
+    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     /**
@@ -485,15 +487,13 @@ class EntityRepositoryTest extends TestCase
 
         $id = Uuid::randomHex();
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
+        $listener = $this->createMock(CallableClass::class);
+        $listener->expects($this->once())->method('__invoke');
+        $this->onEvent('locale.written', $listener);
 
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, 'locale.written', $listener);
-
-        $listener = $this->createMock(CallableClass::class);
-        $listener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, 'locale_translation.written', $listener);
+        $this->onEvent('locale_translation.written', $listener);
 
         $repository->create(
             [
@@ -553,11 +553,9 @@ class EntityRepositoryTest extends TestCase
             $context
         );
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, 'locale.loaded', $listener);
+        $this->onEvent('locale.loaded', $listener);
 
         $criteria = new Criteria([$id]);
         $locale = $repository->search($criteria, $context);
@@ -611,15 +609,13 @@ class EntityRepositoryTest extends TestCase
             $context
         );
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
+        $listener = $this->createMock(CallableClass::class);
+        $listener->expects($this->once())->method('__invoke');
+        $this->onEvent('product.loaded', $listener);
 
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, 'product.loaded', $listener);
-
-        $listener = $this->createMock(CallableClass::class);
-        $listener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, 'product_manufacturer.loaded', $listener);
+        $this->onEvent('product_manufacturer.loaded', $listener);
 
         $criteria = new Criteria([$id, $id2]);
         $criteria->addAssociation('manufacturer');
@@ -660,27 +656,25 @@ class EntityRepositoryTest extends TestCase
         $id = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
+        $listener = $this->createMock(CallableClass::class);
+        $listener->expects($this->once())->method('__invoke');
+        $this->onEvent('product.written', $listener);
 
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, 'product.written', $listener);
+        $this->onEvent('product_manufacturer.written', $listener);
 
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, 'product_manufacturer.written', $listener);
+        $this->onEvent('tax.written', $listener);
 
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, 'tax.written', $listener);
+        $this->onEvent('product_price.written', $listener);
 
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, 'product_price.written', $listener);
-
-        $listener = $this->createMock(CallableClass::class);
-        $listener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, 'rule.written', $listener);
+        $this->onEvent('rule.written', $listener);
 
         $repository->create(
             [
@@ -746,15 +740,15 @@ class EntityRepositoryTest extends TestCase
 
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, 'product.loaded', $listener);
+        $this->onEvent('product.loaded', $listener);
 
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, 'product_manufacturer.loaded', $listener);
+        $this->onEvent('product_manufacturer.loaded', $listener);
 
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, 'product_price.loaded', $listener);
+        $this->onEvent('product_price.loaded', $listener);
 
         $criteria = new Criteria([$id, $id2]);
         $criteria->addAssociation('prices');

@@ -64,8 +64,7 @@ class UserRecoveryServiceTest extends TestCase
         ]);
 
         $eventDispatched = false;
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $this->addEventListener($dispatcher, UserRecoveryRequestEvent::EVENT_NAME, static function (UserRecoveryRequestEvent $event) use (&$eventDispatched): void {
+        $this->onEvent(UserRecoveryRequestEvent::EVENT_NAME, static function (UserRecoveryRequestEvent $event) use (&$eventDispatched): void {
             $eventDispatched = true;
         });
 

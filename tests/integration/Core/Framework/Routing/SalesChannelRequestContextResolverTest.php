@@ -28,6 +28,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterfac
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,6 +42,7 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 class SalesChannelRequestContextResolverTest extends TestCase
 {
     use CustomerTestTrait;
+    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     private IdsCollection $ids;
@@ -71,20 +73,18 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $request->attributes->set(SalesChannelRequest::ATTRIBUTE_DOMAIN_CURRENCY_ID, $currencyId);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $eventDidRun = false;
-        $listenerContextEventClosure = static function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $currencyId): void {
-            $eventDidRun = true;
-            static::assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
-            static::assertInstanceOf(SalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
+        $resolvedContext = null;
+        $listenerContextEventClosure = static function (SalesChannelContextResolvedEvent $event) use (&$resolvedContext): void {
+            $resolvedContext = $event->getSalesChannelContext();
         };
 
-        $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
+        $this->onEvent(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
 
         $resolver->resolve($request);
 
-        static::assertTrue($eventDidRun, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
+        static::assertInstanceOf(SalesChannelContext::class, $resolvedContext, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
+        static::assertSame($currencyId, $resolvedContext->getContext()->getCurrencyId());
+        static::assertInstanceOf(SalesChannelApiSource::class, $resolvedContext->getContext()->getSource());
     }
 
     public function testRequestSalesChannelCurrencyDoesNotOverwriteContextData(): void
@@ -105,20 +105,18 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
         $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $this->ids->get('token'));
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $eventDidRun = false;
-        $listenerContextEventClosure = static function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $eurCurrencyId): void {
-            $eventDidRun = true;
-            static::assertSame($eurCurrencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
-            static::assertInstanceOf(SalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
+        $resolvedContext = null;
+        $listenerContextEventClosure = static function (SalesChannelContextResolvedEvent $event) use (&$resolvedContext): void {
+            $resolvedContext = $event->getSalesChannelContext();
         };
 
-        $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
+        $this->onEvent(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
 
         $resolver->resolve($request);
 
-        static::assertTrue($eventDidRun, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
+        static::assertInstanceOf(SalesChannelContext::class, $resolvedContext, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
+        static::assertSame($eurCurrencyId, $resolvedContext->getContext()->getCurrencyId());
+        static::assertInstanceOf(SalesChannelApiSource::class, $resolvedContext->getContext()->getSource());
     }
 
     public function testRequestCurrencyHeaderDoesOverwriteContextData(): void
@@ -139,20 +137,18 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
         $request->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $this->ids->get('token'));
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $eventDidRun = false;
-        $listenerContextEventClosure = static function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $currencyId): void {
-            $eventDidRun = true;
-            static::assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
-            static::assertInstanceOf(SalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
+        $resolvedContext = null;
+        $listenerContextEventClosure = static function (SalesChannelContextResolvedEvent $event) use (&$resolvedContext): void {
+            $resolvedContext = $event->getSalesChannelContext();
         };
 
-        $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
+        $this->onEvent(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
 
         $resolver->resolve($request);
 
-        static::assertTrue($eventDidRun, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
+        static::assertInstanceOf(SalesChannelContext::class, $resolvedContext, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
+        static::assertSame($currencyId, $resolvedContext->getContext()->getCurrencyId());
+        static::assertInstanceOf(SalesChannelApiSource::class, $resolvedContext->getContext()->getSource());
     }
 
     #[DataProvider('domainData')]
@@ -234,20 +230,18 @@ class SalesChannelRequestContextResolverTest extends TestCase
         $request->attributes->set(PlatformRequest::ATTRIBUTE_ROUTE_SCOPE, [StoreApiRouteScope::ID]);
         $request->attributes->set(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT, Context::createDefaultContext());
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $eventDidRun = false;
-        $listenerContextEventClosure = static function (SalesChannelContextResolvedEvent $event) use (&$eventDidRun, $currencyId): void {
-            $eventDidRun = true;
-            static::assertSame($currencyId, $event->getSalesChannelContext()->getContext()->getCurrencyId());
-            static::assertInstanceOf(AdminSalesChannelApiSource::class, $event->getSalesChannelContext()->getContext()->getSource());
+        $resolvedContext = null;
+        $listenerContextEventClosure = static function (SalesChannelContextResolvedEvent $event) use (&$resolvedContext): void {
+            $resolvedContext = $event->getSalesChannelContext();
         };
 
-        $this->addEventListener($dispatcher, SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
+        $this->onEvent(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
 
         $resolver->resolve($request);
 
-        static::assertTrue($eventDidRun, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
+        static::assertInstanceOf(SalesChannelContext::class, $resolvedContext, 'The "' . SalesChannelContextResolvedEvent::class . '" Event did not run');
+        static::assertSame($currencyId, $resolvedContext->getContext()->getCurrencyId());
+        static::assertInstanceOf(AdminSalesChannelApiSource::class, $resolvedContext->getContext()->getSource());
     }
 
     public function testImitatingUserIdWithCustomer(): void

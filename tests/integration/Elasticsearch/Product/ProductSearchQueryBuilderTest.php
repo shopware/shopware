@@ -24,6 +24,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
 use Shopware\Core\System\CustomField\CustomFieldService;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Elasticsearch\Event\ElasticsearchCustomFieldsMappingEvent;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
@@ -39,6 +40,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 {
     use CacheTestBehaviour;
     use ElasticsearchTestTestBehaviour;
+    use EventHookBehaviour;
     use FilesystemBehaviour;
     use KernelTestBehaviour;
     use QueueTestBehaviour;
@@ -440,9 +442,7 @@ class ProductSearchQueryBuilderTest extends TestCase
 
     private function registerCustomFieldsMapping(): void
     {
-        $eventDispatcher = static::getContainer()->get('event_dispatcher');
-
-        $this->addEventListener($eventDispatcher, ElasticsearchCustomFieldsMappingEvent::class, static function (ElasticsearchCustomFieldsMappingEvent $event): void {
+        $this->onEvent(ElasticsearchCustomFieldsMappingEvent::class, static function (ElasticsearchCustomFieldsMappingEvent $event): void {
             $event->setMapping('evolvesTo', CustomFieldTypes::SELECT);
             $event->setMapping('evolvesText', CustomFieldTypes::TEXT);
         });

@@ -3,7 +3,9 @@
 namespace Shopware\Tests\Unit\Core\System\SalesChannel\Context;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\InvalidationRaceAwareCache;
@@ -37,6 +39,33 @@ class CachedSalesChannelContextFactoryTest extends TestCase
         );
 
         static::assertSame($context, $factory->create('token', 'sales-channel-id', $options));
+    }
+
+    #[DataProvider('injectedAddressOptionProvider')]
+    public function testContextWithInjectedAddressIsNotCached(string $option): void
+    {
+        $context = Generator::generateSalesChannelContext();
+        $options = [$option => new CustomerAddressEntity()];
+
+        $inner = $this->createMock(SalesChannelContextFactory::class);
+        $inner->expects($this->exactly(2))
+            ->method('create')
+            ->with('token', 'sales-channel-id', $options)
+            ->willReturn($context);
+
+        $factory = new CachedSalesChannelContextFactory(
+            $inner,
+            new InvalidationRaceAwareCache(new TagAwareAdapter(new ArrayAdapter())),
+        );
+
+        $factory->create('token', 'sales-channel-id', $options);
+        $factory->create('token', 'sales-channel-id', $options);
+    }
+
+    public static function injectedAddressOptionProvider(): \Generator
+    {
+        yield 'injected billing address' => [SalesChannelContextService::BILLING_ADDRESS];
+        yield 'injected shipping address' => [SalesChannelContextService::SHIPPING_ADDRESS];
     }
 
     public function testFreshlyBuiltContextIsReturnedDirectly(): void

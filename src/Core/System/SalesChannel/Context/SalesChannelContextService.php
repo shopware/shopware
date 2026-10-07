@@ -61,6 +61,16 @@ class SalesChannelContextService implements SalesChannelContextServiceInterface
     final public const AREA_RULE_IDS = 'sw-rule-area-ids';
 
     /**
+     * @internal only used to assemble the context of an existing order from its own billing address.
+     */
+    final public const BILLING_ADDRESS = 'sw-billing-address';
+
+    /**
+     * @internal only used to assemble the context of an existing order from its own shipping address.
+     */
+    final public const SHIPPING_ADDRESS = 'sw-shipping-address';
+
+    /**
      * @internal
      */
     public function __construct(

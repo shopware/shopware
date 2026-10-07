@@ -66,7 +66,7 @@ class ResponseHeaderListenerTest extends TestCase
         $browser->request('GET', '/store-api/checkout/cart');
         $response = $browser->getResponse();
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         } else {
             static::assertSame('1234', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));

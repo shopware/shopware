@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Tests\Unit\Core\Test\PHPUnit\Extension\EventHook;
+namespace Shopware\Tests\Unit\Core\Test\PHPUnit\EventHook;
 
 use PHPUnit\Event\Code\Phpt;
 use PHPUnit\Event\Test\Finished;
@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
-use Shopware\Core\Test\PHPUnit\Extension\EventHook\Subscriber\ResetEventHooksSubscriber;
+use Shopware\Core\Test\PHPUnit\EventHook\ResetEventHooksSubscriber;
 use Shopware\Tests\Unit\Core\Test\PHPUnit\TelemetryInfoFactory;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Contracts\EventDispatcher\Event;

@@ -154,6 +154,128 @@ describe('plugin/google-analytics/product-page.helper', () => {
         expect(ProductPageHelper.getCurrency()).toBe('GBP');
     });
 
+    describe('mapCategories', () => {
+        test('maps a category path to the GA4 properties', () => {
+            expect(ProductPageHelper.mapCategories(['Clothing', 'Shirts', 'Crew'])).toEqual({
+                item_category: 'Clothing',
+                item_category2: 'Shirts',
+                item_category3: 'Crew',
+            });
+        });
+
+        test('reports at most five levels', () => {
+            const path = ['One', 'Two', 'Three', 'Four', 'Five', 'Six'];
+
+            expect(Object.keys(ProductPageHelper.mapCategories(path))).toEqual([
+                'item_category',
+                'item_category2',
+                'item_category3',
+                'item_category4',
+                'item_category5',
+            ]);
+        });
+
+        test('returns nothing without a path', () => {
+            expect(ProductPageHelper.mapCategories(undefined)).toEqual({});
+            expect(ProductPageHelper.mapCategories([])).toEqual({});
+        });
+    });
+
+    describe('getProductCardData', () => {
+        function renderCard(information) {
+            document.body.innerHTML = `
+                <div class="product-box" data-product-information='${JSON.stringify(information)}'>
+                    <div class="product-wishlist-product-123"></div>
+                </div>
+            `;
+        }
+
+        test('returns the data of the card', () => {
+            renderCard({ id: 'product-123', name: 'Shirt', price: 19.99, sku: 'SW10000' });
+
+            expect(ProductPageHelper.getProductCardData('product-123')).toEqual({
+                id: 'SW10000',
+                name: 'Shirt',
+                brand: undefined,
+                variant: undefined,
+                value: 19.99,
+            });
+        });
+
+        test('returns nothing without a card', () => {
+            expect(ProductPageHelper.getProductCardData('product-123')).toEqual({});
+        });
+    });
+
+    describe('resolveCategories', () => {
+        const breadcrumb = `
+            <nav aria-label="breadcrumb">
+                <span class="breadcrumb-title">Listing</span>
+            </nav>
+        `;
+
+        beforeEach(() => {
+            window.router = { 'frontend.analytics.product-categories': '/widgets/analytics/product-categories' };
+            window.activeRoute = 'frontend.navigation.page';
+            document.body.innerHTML = breadcrumb;
+        });
+
+        afterEach(() => {
+            delete window.router;
+            delete window.activeRoute;
+            delete global.fetch;
+        });
+
+        test('requests the path of the product instead of using the breadcrumb of a listing', async () => {
+            global.fetch = jest.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(['Damen', 'Schuhe']) });
+
+            await expect(ProductPageHelper.resolveCategories('product-123')).resolves.toEqual({
+                item_category: 'Damen',
+                item_category2: 'Schuhe',
+            });
+            expect(global.fetch).toHaveBeenCalledWith(
+                '/widgets/analytics/product-categories?productId=product-123',
+                expect.objectContaining({ headers: { 'X-Requested-With': 'XMLHttpRequest' } }),
+            );
+        });
+
+        test('reports no category for a product without one, rather than the listing', async () => {
+            global.fetch = jest.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve([]) });
+
+            await expect(ProductPageHelper.resolveCategories('product-123')).resolves.toEqual({});
+        });
+
+        test('uses the breadcrumb on the product detail page without a request', async () => {
+            window.activeRoute = 'frontend.detail.page';
+            global.fetch = jest.fn();
+
+            await expect(ProductPageHelper.resolveCategories('product-123')).resolves.toEqual({ item_category: 'Listing' });
+            expect(global.fetch).not.toHaveBeenCalled();
+        });
+
+        test.each([
+            ['the request fails', () => Promise.reject(new Error('offline'))],
+            ['the response is an error', () => Promise.resolve({ ok: false })],
+        ])('falls back to the breadcrumb when %s', async (label, response) => {
+            global.fetch = jest.fn(response);
+
+            await expect(ProductPageHelper.resolveCategories('product-123')).resolves.toEqual({ item_category: 'Listing' });
+        });
+
+        test('requests the path of a product box on the product detail page', async () => {
+            window.activeRoute = 'frontend.detail.page';
+            document.body.innerHTML = `${breadcrumb}
+                <div class="product-box" data-product-information='{ "id": "slider-id" }'>
+                    <button class="product-wishlist-slider-id"></button>
+                </div>
+            `;
+            global.fetch = jest.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(['Damen']) });
+
+            await expect(ProductPageHelper.resolveCategories('slider-id')).resolves.toEqual({ item_category: 'Damen' });
+            expect(global.fetch).toHaveBeenCalled();
+        });
+    });
+
     describe('on a product detail page with a product box', () => {
         beforeEach(() => {
             document.body.innerHTML = `

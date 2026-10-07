@@ -526,6 +526,9 @@ What to adjust:
 * Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class, which `view_item` reads.
 
 The events also report more accurate data: `item_variant`, the promotion `coupon`, graduated prices in `add_to_cart`, brand and category for products added from a product box, and `add_shipping_info` / `add_payment_info` once per selected method instead of on every page load. Discounts and other line items that are not products are no longer reported as items.
+
+`add_to_wishlist` and `remove_from_wishlist` now report the category path of the product instead of the page breadcrumb. Outside the product's own detail page the path is requested on click from the new storefront route `frontend.analytics.product-categories` (`GET /widgets/analytics/product-categories?productId=`), which uses the Store API breadcrumb route and is HTTP cached. The route answers `404` for a sales channel without analytics.
+
 ### Extension component aliases work in the dev server
 
 The unified Storefront component dev server now applies aliases from each extension's `vite.components.config.mts` only to imports from that extension's resource tree. Extensions can use the same alias name for different module paths, including imports between modules under `Resources/app/storefront/src`, in development and production builds.

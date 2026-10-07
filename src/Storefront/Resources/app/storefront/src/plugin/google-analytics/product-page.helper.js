@@ -104,6 +104,62 @@ export default class ProductPageHelper {
     }
 
     /**
+     * The GA4 category properties of a product the page does not carry a path for.
+     *
+     * On the product detail page the breadcrumb is the path of the product itself. Anywhere else,
+     * such as a listing, a slider or a Shopping Experience page, and for a product box on the
+     * detail page, such as cross selling, the breadcrumb describes the page,
+     * so the path is requested from the storefront, which resolves it through the Store API
+     * breadcrumb route. Product boxes do not carry it, because loading every category of every
+     * product would slow down each render for an event that only fires on a click. The
+     * breadcrumb is only used as a fallback when that request fails.
+     *
+     * @param {string} productId
+     * @param {HTMLElement|null} element the element the interaction started from, if any
+     * @returns {Promise<Object>}
+     */
+    static async resolveCategories(productId, element = null) {
+        const url = window.router?.['frontend.analytics.product-categories'];
+        const isPageProduct = window.activeRoute === 'frontend.detail.page'
+            && !ProductPageHelper.getProductCard(productId, element);
+
+        if (isPageProduct || !url || !productId) {
+            return ProductPageHelper.getCategories();
+        }
+
+        try {
+            const response = await fetch(`${url}?productId=${encodeURIComponent(productId)}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+
+            if (!response.ok) {
+                return ProductPageHelper.getCategories();
+            }
+
+            return ProductPageHelper.mapCategories(await response.json());
+        } catch {
+            return ProductPageHelper.getCategories();
+        }
+    }
+
+    /**
+     * Maps a category path, ordered from the top level down, to the GA4 category properties.
+     * @param {string[]|undefined} names
+     * @returns {Object}
+     */
+    static mapCategories(names) {
+        const categories = {};
+
+        (names ?? []).slice(0, 5).forEach((name, index) => {
+            if (name) {
+                categories[index === 0 ? 'item_category' : `item_category${index + 1}`] = name;
+            }
+        });
+
+        return categories;
+    }
+
+    /**
      * Gets the product name from the product detail page
      * @returns {string|undefined}
      */

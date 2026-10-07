@@ -45,7 +45,20 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
             return;
         }
 
-        this._sendEvent(productId, form);
+        // Another handler already submits the form without leaving the page, so nothing is lost.
+        if (event.defaultPrevented) {
+            return this._sendEvent(productId, form);
+        }
+
+        // The wishlist page removes a product with a plain form submit, which leaves the page before
+        // the category path of the product could be requested. The submit is held back until the
+        // event is sent, at most for a second so a slow request never blocks the removal.
+        event.preventDefault();
+
+        return Promise.race([
+            this._sendEvent(productId, form),
+            new Promise(resolve => setTimeout(resolve, 1000)),
+        ]).finally(() => form.submit());
     }
 
     _onProductRemoved(event) {
@@ -58,7 +71,7 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
             return;
         }
 
-        this._sendEvent(productId);
+        return this._sendEvent(productId);
     }
 
     /**
@@ -79,16 +92,26 @@ export default class RemoveFromWishlistEvent extends AnalyticsEvent
      * @param {HTMLFormElement|null} form
      * @private
      */
-    _sendEvent(productId, form = null) {
+    async _sendEvent(productId, form = null) {
         // Try to get product data from product detail/listing page first
         let productData = ProductPageHelper.getProductData(productId, form);
-        let categories = ProductPageHelper.getCategoriesFor(productId, form);
+        let categories = {};
 
         // Fallback to line item data (cart/checkout/finish pages)
         const lineItemData = LineItemHelper.getProductData(productId);
         if (!productData.name && lineItemData) {
             productData = lineItemData;
             categories = lineItemData.categories || {};
+        }
+
+        // a product box on a listing, a slider or a Shopping Experience page carries no path
+        if (Object.keys(categories).length === 0) {
+            categories = await ProductPageHelper.resolveCategories(productId, form);
+        }
+
+        // the shopper can revoke the tracking consent while the categories are requested
+        if (!this.active) {
+            return;
         }
 
         this.pushEvent('remove_from_wishlist', {

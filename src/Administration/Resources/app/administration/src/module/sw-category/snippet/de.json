@@ -94,7 +94,8 @@
         "labelKeywords": "Schlüsselwörter",
         "placeholderMetaTitle": "Gib einen Meta-Titel ein ...",
         "placeholderMetaDescription": "Gib eine Beschreibung ein ...",
-        "placeholderKeywords": "Gib ein oder mehrere Schlüsselwörter ein ..."
+        "placeholderKeywords": "Gib ein oder mehrere Schlüsselwörter ein ...",
+        "recommendedLength": "{count}/{max} Zeichen empfohlen"
       },
       "menu": {
         "title": "Menü-Einstellungen",

@@ -199,7 +199,7 @@ describe('module/sw-experience-studio/util/box-spacing.util', () => {
         ).toBe('8px 16px');
     });
 
-    it('normalizes legacy numeric values to explicit four-value CSS strings', () => {
+    it('normalizes numeric values to explicit four-value CSS strings', () => {
         expect(normalizeBoxSpacingCSSValue(20)).toBe('20px 20px 20px 20px');
         expect(normalizeBoxSpacingCSSValue('30px')).toBe('30px 30px 30px 30px');
         expect(normalizeBoxSpacingCSSValue('30')).toBe('30px 30px 30px 30px');

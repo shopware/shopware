@@ -7,7 +7,6 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingResult;
-use Shopware\Core\Content\Product\SalesChannel\Review\ProductReviewResult;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\LoaderBinding;
@@ -151,37 +150,37 @@ class StoredSchemaResolverTest extends TestCase
     #[TestDox('prefers the resolvedByStorage entry over a config entry naming the same stored key')]
     public function testResolvePrefersResolvedByStorageEntryOverConfigEntryOnSameStoredKey(): void
     {
-        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Product:Reviews')
-            ->reference('reviews', ProductReviewResult::class)
+        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Product:Listing')
+            ->reference('products', ProductListingResult::class)
             ->build();
 
         // The default specification is listed first, so a plain last-write-wins traversal would leave the
-        // authored specification's config entry as the winner on 'productId'.
+        // authored specification's config entry as the winner on 'navigationId'.
         $default = new BindingSpecification(
-            'Sw:Product:Reviews',
-            'Sw:Product:Reviews',
-            'Reviews',
-            ['reviews' => new LoaderBinding('product_review', ['property' => 'productId'])],
+            'Sw:Product:Listing',
+            'Sw:Product:Listing',
+            'Listing',
+            ['products' => new LoaderBinding('product_listing', ['property' => 'navigationId'])],
             [],
             'core',
         );
 
         $authored = new BindingSpecification(
-            'reviews-with-associations',
-            'Sw:Product:Reviews',
-            'Reviews With Associations',
-            ['reviews' => new LoaderBinding('product_review', ['associationOverride' => 'productId'])],
+            'listing-with-config',
+            'Sw:Product:Listing',
+            'Listing With Config',
+            ['products' => new LoaderBinding('product_listing', ['associationOverride' => 'navigationId'])],
             [],
             'core',
         );
 
-        // The losing candidate on 'productId' is a config entry of type list<string>; the winner is string.
+        // The losing candidate on 'navigationId' is a config entry of type list<string>; the winner is string.
         static::assertSame([
             'associations' => ['kind' => 'config', 'type' => 'list<string>', 'required' => false],
-            'productId' => ['kind' => 'resolvedByStorage', 'type' => 'string', 'required' => false],
+            'navigationId' => ['kind' => 'resolvedByStorage', 'type' => 'string', 'required' => false],
         ], $this->resolver(
-            ['core:Sw:Product:Reviews' => $default, 'core:reviews-with-associations' => $authored],
-            $this->reviewLoaderKeys(),
+            ['core:Sw:Product:Listing' => $default, 'core:listing-with-config' => $authored],
+            $this->listingLoaderKeys(),
         )->resolve($type));
     }
 
@@ -260,19 +259,6 @@ class StoredSchemaResolverTest extends TestCase
     {
         return [
             new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: 'navigationId'),
-            new ConfigKeySpecification('associationOverride', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: 'associations', referencedType: 'list<string>'),
-        ];
-    }
-
-    /**
-     * The two propertyReference keys ProductReviewDataLoader declares.
-     *
-     * @return list<ConfigKeySpecification>
-     */
-    private function reviewLoaderKeys(): array
-    {
-        return [
-            new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: 'productId'),
             new ConfigKeySpecification('associationOverride', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true, default: 'associations', referencedType: 'list<string>'),
         ];
     }

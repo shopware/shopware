@@ -8,6 +8,7 @@ use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductContentLayout\ProductContentLayoutCollection;
+use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\ContentSystem\Adapter\Entity\AbstractContentLayoutAssignableDefinition;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutContextFactory;
 use Shopware\Core\Framework\ContentSystem\Adapter\FactoryHelper\EntityLayoutResolver;
@@ -18,6 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -27,19 +29,21 @@ use Symfony\Component\HttpFoundation\Request;
 #[CoversClass(EntityLayoutContextFactory::class)]
 class EntityLayoutContextFactoryTest extends TestCase
 {
+    private const DEFAULT_LAYOUT_CONFIG_KEY = 'core.content_system.default_product_content_layout';
+
     private EntityLayoutResolver&Stub $layoutResolver;
 
     private EntityLayoutContextFactory $factory;
+
+    private StaticSystemConfigService $systemConfigService;
 
     private IdsCollection $ids;
 
     protected function setUp(): void
     {
         $this->layoutResolver = static::createStub(EntityLayoutResolver::class);
-        $this->factory = new EntityLayoutContextFactory(
-            $this->layoutResolver,
-            static::createStub(RootContextMapper::class),
-        );
+        $this->systemConfigService = new StaticSystemConfigService();
+        $this->factory = $this->createFactory(static::createStub(CacheTagCollector::class));
         $this->ids = new IdsCollection();
     }
 
@@ -69,6 +73,114 @@ class EntityLayoutContextFactoryTest extends TestCase
         $result = $this->factory->resolveLayoutId('/product/' . $entityId, $context, $repository, $definition);
 
         static::assertSame($layoutId, $result);
+    }
+
+    #[TestDox('prefers the explicit layout assignment over the default layout of the entity type')]
+    public function testResolveLayoutIdPrefersExplicitAssignmentOverDefault(): void
+    {
+        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
+        $definition->method('getContentLayoutDefaultConfigKey')->willReturn(self::DEFAULT_LAYOUT_CONFIG_KEY);
+        $this->systemConfigService->set(self::DEFAULT_LAYOUT_CONFIG_KEY, $this->ids->get('default-layout'));
+
+        $this->layoutResolver->method('findLayoutId')
+            ->willReturn($this->ids->get('explicit-layout'));
+
+        $result = $this->factory->resolveLayoutId(
+            '/product/' . $this->ids->get('entity'),
+            Generator::generateSalesChannelContext(),
+            $this->createRepository(),
+            $definition,
+        );
+
+        static::assertSame($this->ids->get('explicit-layout'), $result);
+    }
+
+    #[TestDox('uses the assignment of the first fallback entity with one before the default layout')]
+    public function testResolveLayoutIdTriesFallbackEntitiesBeforeDefault(): void
+    {
+        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
+        $definition->method('getContentLayoutDefaultConfigKey')->willReturn(self::DEFAULT_LAYOUT_CONFIG_KEY);
+        $this->systemConfigService->set(self::DEFAULT_LAYOUT_CONFIG_KEY, $this->ids->get('default-layout'));
+
+        $this->layoutResolver->method('findLayoutId')
+            ->willReturnCallback(fn (string $field, string $entityId) => $entityId === $this->ids->get('parent')
+                ? $this->ids->get('parent-layout')
+                : null);
+
+        $result = $this->factory->resolveLayoutId(
+            '/product/' . $this->ids->get('entity'),
+            Generator::generateSalesChannelContext(),
+            $this->createRepository(),
+            $definition,
+            [$this->ids->get('parent')],
+        );
+
+        static::assertSame($this->ids->get('parent-layout'), $result);
+    }
+
+    #[TestDox('falls back to the default layout of the entity type when no explicit assignment exists')]
+    public function testResolveLayoutIdFallsBackToDefaultLayout(): void
+    {
+        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
+        $definition->method('getContentLayoutDefaultConfigKey')->willReturn(self::DEFAULT_LAYOUT_CONFIG_KEY);
+        $this->systemConfigService->set(self::DEFAULT_LAYOUT_CONFIG_KEY, $this->ids->get('default-layout'));
+
+        $this->layoutResolver->method('findLayoutId')
+            ->willReturn(null);
+
+        $result = $this->factory->resolveLayoutId(
+            '/product/' . $this->ids->get('entity'),
+            Generator::generateSalesChannelContext(),
+            $this->createRepository(),
+            $definition,
+        );
+
+        static::assertSame($this->ids->get('default-layout'), $result);
+    }
+
+    #[TestDox('prefers the sales channel default layout over the global default layout')]
+    public function testResolveLayoutIdPrefersSalesChannelDefaultLayout(): void
+    {
+        $context = Generator::generateSalesChannelContext();
+
+        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
+        $definition->method('getContentLayoutDefaultConfigKey')->willReturn(self::DEFAULT_LAYOUT_CONFIG_KEY);
+        $this->systemConfigService->set(self::DEFAULT_LAYOUT_CONFIG_KEY, $this->ids->get('global-default-layout'));
+        $this->systemConfigService->set(self::DEFAULT_LAYOUT_CONFIG_KEY, $this->ids->get('channel-default-layout'), $context->getSalesChannelId());
+
+        $this->layoutResolver->method('findLayoutId')
+            ->willReturn(null);
+
+        $result = $this->factory->resolveLayoutId(
+            '/product/' . $this->ids->get('entity'),
+            $context,
+            $this->createRepository(),
+            $definition,
+        );
+
+        static::assertSame($this->ids->get('channel-default-layout'), $result);
+    }
+
+    #[TestDox('throws when the default layout key is configured but empty')]
+    public function testResolveLayoutIdThrowsWhenDefaultLayoutIsEmpty(): void
+    {
+        $entityId = $this->ids->get('entity');
+        $context = Generator::generateSalesChannelContext();
+
+        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
+        $definition->method('getContentLayoutDefaultConfigKey')->willReturn(self::DEFAULT_LAYOUT_CONFIG_KEY);
+        $this->systemConfigService->set(self::DEFAULT_LAYOUT_CONFIG_KEY, '');
+
+        $this->layoutResolver->method('findLayoutId')
+            ->willReturn(null);
+
+        $this->expectExceptionObject(ContentSystemException::layoutAssignmentNotFound(
+            'product',
+            $entityId,
+            $context->getSalesChannel()->getId()
+        ));
+
+        $this->factory->resolveLayoutId('/product/' . $entityId, $context, $this->createRepository(), $definition);
     }
 
     #[TestDox('resolves specification data without requiring a layout assignment')]
@@ -117,6 +229,55 @@ class EntityLayoutContextFactoryTest extends TestCase
         $result = $this->factory->resolveCacheTags('/product/' . $entityId, $definition);
 
         static::assertSame(['product-' . $entityId], $result);
+    }
+
+    /**
+     * The tag is added even when no default is set, so a legacy CMS page cached in that state is invalidated once a
+     * default layout is configured.
+     */
+    #[TestDox('tags the request with the default layout config key when falling back to the default layout')]
+    public function testResolveLayoutIdTagsDefaultLayoutConfigKeyOnFallback(): void
+    {
+        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
+        $definition->method('getContentLayoutDefaultConfigKey')->willReturn(self::DEFAULT_LAYOUT_CONFIG_KEY);
+
+        $this->layoutResolver->method('findLayoutId')
+            ->willReturn(null);
+
+        $cacheTagCollector = static::createMock(CacheTagCollector::class);
+        $cacheTagCollector->expects($this->once())
+            ->method('addTag')
+            ->with('config.' . self::DEFAULT_LAYOUT_CONFIG_KEY);
+
+        $this->expectException(ContentSystemException::class);
+
+        $this->createFactory($cacheTagCollector)->resolveLayoutId(
+            '/product/' . $this->ids->get('entity'),
+            Generator::generateSalesChannelContext(),
+            $this->createRepository(),
+            $definition,
+        );
+    }
+
+    #[TestDox('does not tag the request with the default layout config key when an explicit assignment exists')]
+    public function testResolveLayoutIdDoesNotTagDefaultLayoutConfigKeyForExplicitAssignment(): void
+    {
+        $definition = $this->createDefinitionMock('/product/', 'product', 'productId', '{productId}');
+        $definition->method('getContentLayoutDefaultConfigKey')->willReturn(self::DEFAULT_LAYOUT_CONFIG_KEY);
+
+        $this->layoutResolver->method('findLayoutId')
+            ->willReturn($this->ids->get('explicit-layout'));
+
+        $cacheTagCollector = static::createMock(CacheTagCollector::class);
+        $cacheTagCollector->expects($this->never())
+            ->method('addTag');
+
+        $this->createFactory($cacheTagCollector)->resolveLayoutId(
+            '/product/' . $this->ids->get('entity'),
+            Generator::generateSalesChannelContext(),
+            $this->createRepository(),
+            $definition,
+        );
     }
 
     #[TestDox('throws when no layout assignment found')]
@@ -172,6 +333,16 @@ class EntityLayoutContextFactoryTest extends TestCase
     {
         yield 'an element id present in the request query' => [['elementId' => 'elem-42'], 'elem-42'];
         yield 'no element id in the request query' => [[], null];
+    }
+
+    private function createFactory(CacheTagCollector $cacheTagCollector): EntityLayoutContextFactory
+    {
+        return new EntityLayoutContextFactory(
+            $this->layoutResolver,
+            static::createStub(RootContextMapper::class),
+            $this->systemConfigService,
+            $cacheTagCollector,
+        );
     }
 
     /**

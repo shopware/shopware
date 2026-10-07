@@ -229,7 +229,6 @@
     <extensions>
         <bootstrap class="Ergebnis\PHPUnit\SlowTestDetector\Extension"/>
         <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\FeatureFlag\FeatureFlagExtension"/>
-        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\EventHook\EventHookExtension"/>
         <!-- Enable to see the db side effects of the tests. -->
 <!--        <bootstrap class="Shopware\Core\Test\PHPUnit\Extension\DatabaseDiff\DatabaseDiffExtension"/>-->
     </extensions>

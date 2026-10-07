@@ -68,4 +68,36 @@ class CriteriaValueResolverTest extends TestCase
         static::assertSame([$criteria], $resolvedCriteria);
         static::assertSame($criteria, $request->attributes->get(PlatformRequest::ATTRIBUTE_CRITERIA));
     }
+
+    public function testBuildsTheCriteriaWithTheOrderBasedContextOfAnOptedInRoute(): void
+    {
+        $orderContext = Context::createDefaultContext();
+        $request = new Request(attributes: [
+            PlatformRequest::ATTRIBUTE_ENTITY => 'product',
+            PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT => Context::createDefaultContext(),
+            PlatformRequest::ATTRIBUTE_EFFECTIVE_CONTEXT_OBJECT => $orderContext,
+        ]);
+
+        $criteria = new Criteria();
+
+        $this->registry->expects($this->once())
+            ->method('getByEntityName')
+            ->with('product')
+            ->willReturn(static::createStub(EntityDefinition::class));
+        $this->criteriaBuilder->expects($this->once())
+            ->method('handleRequest')
+            ->willReturnCallback(static function (Request $resolvedRequest, Criteria $resolvedCriteria, EntityDefinition $resolvedDefinition, Context $resolvedContext) use ($orderContext, $criteria): Criteria {
+                static::assertSame($orderContext, $resolvedContext);
+
+                return $criteria;
+            });
+
+        $resolver = new CriteriaValueResolver($this->registry, $this->criteriaBuilder);
+        $resolvedCriteria = iterator_to_array($resolver->resolve(
+            $request,
+            new ArgumentMetadata('criteria', Criteria::class, isVariadic: false, hasDefaultValue: false, defaultValue: null)
+        ));
+
+        static::assertSame([$criteria], $resolvedCriteria);
+    }
 }

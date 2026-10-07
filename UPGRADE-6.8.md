@@ -88,7 +88,7 @@ See `src/Administration/Resources/app/administration/technical-docs/03-extensibi
 
 To ensure product property group options are sorted more precisely based on locale code:
 - `/Shopware/Core/Content/Product/AbstractPropertyGroupSorter`: The `sort` method will be removed, use `sortUsingLocaleCode` instead.
-- `/Shopware/Core/Content/Property/PropertyGroupCollection`: The `sortByConfig` method now requires a new parameter `localeCode`.
+- `Shopware\Core\Content\Property\PropertyGroupCollection::sortByConfig()` now declares the optional parameter `string $localeCode = 'en_GB'`. Calls without arguments remain valid. If you override this method, add the optional parameter to your signature. Passing `null` is no longer supported.
 
 ## Webhook Messenger transport — explicit receiver configuration required
 
@@ -2652,11 +2652,6 @@ The following variables were removed:
 * Twig variables `controllerName` and `controllerAction`
 * CSS classes `is-ctl-*` and `is-act-*`
 * JavaScript window properties `window.controllerName` and `window.actionName`
-
-## Removal of `hasChildren` variable in `item-link.html.twig`
-
-The variable `hasChildren` is not set inside the `@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig` template anymore, as it should be set in the templates which include these templates.
-In the default templates this is done in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template.
 
 ## Removal of `pathIdList` option in NavbarPlugin
 

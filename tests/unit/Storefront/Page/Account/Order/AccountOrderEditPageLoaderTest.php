@@ -8,8 +8,8 @@ use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Error\ErrorCollection;
-use Shopware\Core\Checkout\Cart\Order\OrderConverter;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Cart\Order\OrderRestorer;
+use Shopware\Core\Checkout\Cart\Order\RestoredOrder;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Gateway\SalesChannel\CheckoutGatewayRouteResponse;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
@@ -61,9 +61,7 @@ class AccountOrderEditPageLoaderTest extends TestCase
 
     private AbstractCheckoutGatewayRoute&Stub $checkoutGatewayRoute;
 
-    private OrderConverter&Stub $orderConverter;
-
-    private CartService&Stub $cartService;
+    private OrderRestorer&Stub $orderRestorer;
 
     protected function setUp(): void
     {
@@ -72,8 +70,13 @@ class AccountOrderEditPageLoaderTest extends TestCase
         $this->translator = static::createStub(AbstractTranslator::class);
         $this->genericPageLoader = static::createStub(GenericPageLoader::class);
         $this->checkoutGatewayRoute = static::createStub(AbstractCheckoutGatewayRoute::class);
-        $this->orderConverter = static::createStub(OrderConverter::class);
-        $this->cartService = static::createStub(CartService::class);
+        $this->orderRestorer = static::createStub(OrderRestorer::class);
+        $this->orderRestorer
+            ->method('addRequiredAssociations')
+            ->willReturnArgument(0);
+        $this->orderRestorer
+            ->method('restore')
+            ->willReturnCallback(static fn (OrderEntity $order): RestoredOrder => new RestoredOrder($order, Generator::generateSalesChannelContext(), new Cart('restored-token')));
     }
 
     public function testLoad(): void
@@ -158,81 +161,113 @@ class AccountOrderEditPageLoaderTest extends TestCase
         static::assertInstanceOf(AccountEditOrderPageLoadedEvent::class, $events[2]);
     }
 
-    public function testCartInCartService(): void
+    public function testLoadsThePaymentMethodsForTheRestoredOrder(): void
     {
-        $order = new OrderEntity();
-        $order->setId(Uuid::randomHex());
+        $order = $this->expectOrder();
+        $salesChannelContext = Generator::generateSalesChannelContext();
+        $restored = new RestoredOrder($order, Generator::generateSalesChannelContext(), new Cart('restored-token'));
 
-        $orders = new OrderCollection([$order]);
-
-        $orderResponse = new OrderRouteResponse(
-            new EntitySearchResult(
-                OrderDefinition::ENTITY_NAME,
-                1,
-                $orders,
-                null,
-                new Criteria(),
-                Context::createDefaultContext()
-            )
-        );
+        $orderRestorer = $this->createMock(OrderRestorer::class);
+        $orderRestorer
+            ->method('addRequiredAssociations')
+            ->willReturnArgument(0);
+        $orderRestorer
+            ->expects($this->once())
+            ->method('restore')
+            ->with(static::identicalTo($order), static::identicalTo($salesChannelContext->getContext()))
+            ->willReturn($restored);
 
         $checkoutGatewayRoute = $this->createMock(AbstractCheckoutGatewayRoute::class);
         $checkoutGatewayRoute
             ->expects($this->once())
             ->method('load')
+            ->with(
+                static::callback(static fn (Request $storeApiRequest): bool => $storeApiRequest->query->get('onlyAvailable') === '1'),
+                static::identicalTo($restored->cart),
+                static::identicalTo($restored->context),
+            )
             ->willReturn(new CheckoutGatewayRouteResponse(
                 new PaymentMethodCollection(),
                 new ShippingMethodCollection(),
                 new ErrorCollection(),
             ));
+
+        $request = new Request();
+        $request->attributes->set('orderId', $order->getId());
+
+        $this->createPageLoader(checkoutGatewayRoute: $checkoutGatewayRoute, orderRestorer: $orderRestorer)
+            ->load($request, $salesChannelContext);
+    }
+
+    public function testRestoresTheOrderAfterThePaymentMethodRouteRequestEventWasDispatched(): void
+    {
+        $order = $this->expectOrder();
+        $this->expectPaymentMethods(new PaymentMethodCollection());
+
+        $orderRestorer = $this->createMock(OrderRestorer::class);
+        $orderRestorer
+            ->method('addRequiredAssociations')
+            ->willReturnArgument(0);
+        $orderRestorer
+            ->expects($this->once())
+            ->method('restore')
+            ->willReturnCallback(function (OrderEntity $order, Context $context): RestoredOrder {
+                $events = $this->eventDispatcher->getEventsOfClass(PaymentMethodRouteRequestEvent::class);
+                static::assertCount(1, $events);
+                static::assertSame($events[0]->getContext(), $context);
+
+                return new RestoredOrder($order, Generator::generateSalesChannelContext(), new Cart('restored-token'));
+            });
+
+        $request = new Request();
+        $request->attributes->set('orderId', $order->getId());
+
+        $this->createPageLoader(orderRestorer: $orderRestorer)->load($request, Generator::generateSalesChannelContext());
+    }
+
+    public function testLoadsTheOrderWithTheAssociationsTheRestorationRequires(): void
+    {
+        $order = new OrderEntity();
+        $order->setId(Uuid::randomHex());
+
+        $orderRestorer = $this->createMock(OrderRestorer::class);
+        $orderRestorer
+            ->expects($this->once())
+            ->method('addRequiredAssociations')
+            ->willReturnCallback(function (Criteria $criteria): Criteria {
+                static::assertSame([], $this->eventDispatcher->getEventsOfClass(OrderRouteRequestEvent::class));
+
+                return $criteria->addAssociation('restorationMarker');
+            });
+        $orderRestorer
+            ->method('restore')
+            ->willReturn(new RestoredOrder($order, Generator::generateSalesChannelContext(), new Cart('restored-token')));
 
         $this->orderRoute
             ->expects($this->once())
             ->method('load')
-            ->willReturn($orderResponse);
+            ->with(
+                static::anything(),
+                static::anything(),
+                static::callback(static fn (Criteria $criteria): bool => $criteria->hasAssociation('restorationMarker')),
+            )
+            ->willReturn(new OrderRouteResponse(
+                new EntitySearchResult(
+                    OrderDefinition::ENTITY_NAME,
+                    1,
+                    new OrderCollection([$order]),
+                    null,
+                    new Criteria(),
+                    Context::createDefaultContext()
+                )
+            ));
 
-        $orderContext = Generator::generateSalesChannelContext();
-
-        $cartService = $this->createMock(CartService::class);
-        $cartService
-            ->expects($this->once())
-            ->method('setCart')
-            ->with(static::callback(static function (Cart $cart) use ($orderContext) {
-                return $cart->getToken() === $orderContext->getToken();
-            }));
-
-        $cart = new Cart('some-token');
-        $orderConverter = $this->createMock(OrderConverter::class);
-        $orderConverter
-            ->expects($this->once())
-            ->method('convertToCart')
-            ->willReturn($cart);
-
-        $orderConverter
-            ->expects($this->once())
-            ->method('assembleSalesChannelContext')
-            ->willReturn($orderContext);
+        $this->expectPaymentMethods(new PaymentMethodCollection());
 
         $request = new Request();
         $request->attributes->set('orderId', $order->getId());
-        $request->query->set('onlyAvailable', 1);
-        $checkoutGatewayRoute
-            ->expects($this->once())
-            ->method('load')
-            ->with($request, $cart, $orderContext)
-            ->willReturn(new CheckoutGatewayRouteResponse(
-                new PaymentMethodCollection(),
-                new ShippingMethodCollection(),
-                new ErrorCollection(),
-            ));
 
-        $pageLoader = $this->createPageLoader(
-            checkoutGatewayRoute: $checkoutGatewayRoute,
-            orderConverter: $orderConverter,
-            cartService: $cartService,
-        );
-
-        $pageLoader->load($request, Generator::generateSalesChannelContext());
+        $this->createPageLoader(orderRestorer: $orderRestorer)->load($request, Generator::generateSalesChannelContext());
     }
 
     public function testLoadCancelled(): void
@@ -417,19 +452,17 @@ class AccountOrderEditPageLoaderTest extends TestCase
     private function createPageLoader(
         ?GenericPageLoader $genericPageLoader = null,
         ?AbstractCheckoutGatewayRoute $checkoutGatewayRoute = null,
-        ?OrderConverter $orderConverter = null,
+        ?OrderRestorer $orderRestorer = null,
         ?AbstractTranslator $translator = null,
-        ?CartService $cartService = null,
     ): AccountEditOrderPageLoader {
         return new AccountEditOrderPageLoader(
             $genericPageLoader ?? $this->genericPageLoader,
             $this->eventDispatcher,
             $this->orderRoute,
             $checkoutGatewayRoute ?? $this->checkoutGatewayRoute,
-            $orderConverter ?? $this->orderConverter,
+            $orderRestorer ?? $this->orderRestorer,
             static::createStub(OrderService::class),
             $translator ?? $this->translator,
-            $cartService ?? $this->cartService,
         );
     }
 }

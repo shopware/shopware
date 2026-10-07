@@ -501,6 +501,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(DraftLayoutDecoder::class),
             service(StoredElementCodec::class),
+            service(ContentSystemElementTypeRegistry::class),
         ]);
 
     $services->set(LayoutPresetSpecificationSerializer::class);

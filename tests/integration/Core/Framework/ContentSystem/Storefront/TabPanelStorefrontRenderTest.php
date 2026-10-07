@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Storefront;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\Context;
@@ -252,7 +253,7 @@ class TabPanelStorefrontRenderTest extends TestCase
      */
     private function tab(string $key, string $title, bool $leftoverActive = false): array
     {
-        $properties = ['title' => $title];
+        $properties = ['title' => [Defaults::LANGUAGE_SYSTEM => $title]];
         if ($leftoverActive) {
             $properties['active'] = true;
         }
@@ -266,7 +267,7 @@ class TabPanelStorefrontRenderTest extends TestCase
                     'id' => $this->ids->get($key . '-text'),
                     'component' => 'Sw:Content:Text',
                     'properties' => [
-                        'text' => '<p>' . $title . ' content</p>',
+                        'text' => [Defaults::LANGUAGE_SYSTEM => '<p>' . $title . ' content</p>'],
                     ],
                 ]],
             ],

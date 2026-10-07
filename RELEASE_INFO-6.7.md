@@ -566,24 +566,17 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 
 ### Google Analytics reports `select_item` and the list a product was presented in
 
-Following a product link in a listing, a search result, a slider, a cross selling tab, or the wishlist now reports `select_item`, so the documented GA4 funnel `view_item_list` to `select_item` to `view_item` is complete. Only a link counts as a selection: adding a product to the cart or to the wishlist from the same card is not reported, and neither is a click that lands on the card without following a link.
+Following a product link in a listing, search result, slider, cross selling tab, or the wishlist now reports `select_item`. `view_item_list` and `select_item` report the list as `item_list_id` and `item_list_name` and the position as `index`, and `view_item` repeats the list the product was selected from. `view_item_list` now only reports the products of the product listing, and saving the cookie preferences again no longer registers every event twice.
 
-`view_item_list` and `select_item` report which list a product was presented in as `item_list_id` and `item_list_name`, and the position of the product within that list as `index`. `view_item` repeats the list of the `select_item` that led to it on its item, where GA4 defines it for that event, so the detail page view is attributed to the list the customer came from. This also holds when a listing displays the parent of a variant product and the detail page resolves to a variant, which the buy widget identifies with `data-product-id` and `data-product-parent-id`. The attribution is stored for the session and consumed once, so opening a product directly is not attributed. A product opened in another tab, by a middle, Ctrl, Cmd, or Shift click or through a link with a `target`, is reported as `select_item` as well. Its attribution is handed over to the new tab through `localStorage` for one minute instead of being kept in the original tab. Only a page whose referrer is the page the product was opened from takes it, so other tabs and direct visits of the product are not attributed. Every opened tab keeps its own handover, also for the same product opened twice, and handovers of the same product are consumed in the order the tabs were opened.
+The list identifiers are a contract that Google Tag Manager triggers can rely on:
 
-The list identifiers are a stable contract that Google Tag Manager triggers and Google Analytics reports are built on:
+* A category listing reports the category id, or the CMS slot id without a category, and the category name.
+* Search results report `search` and `Search results`.
+* The wishlist reports `wishlist` and `Wishlist`.
+* A cross selling tab reports the id and the name of the cross selling group.
 
-- A category listing reports the category id, or the CMS slot id when a listing has no category, and the category name.
-- Search results report `search` and `Search results`.
-- The wishlist reports `wishlist` and `Wishlist`.
-- A cross selling tab reports the id and the name of the cross selling group.
+Themes can set them on their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or with `data-list-id` and `data-list-name` on any element containing product boxes. These attributes are only rendered for a sales channel with active analytics, and themes should use the same condition, `storefrontAnalytics and storefrontAnalytics.isActive()`.
 
-Themes can set the identifiers on their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or by adding `data-list-id` and `data-list-name` to any element that contains product boxes. The `index` counts across the pages of a paginated listing, which `.cms-listing-row` reports as `data-list-start` so that AJAX pagination updates it; a list without that attribute counts from zero.
-
-The list attributes and the buy widget's `data-product-id` and `data-product-parent-id` are only rendered for a sales channel with active analytics, as only the analytics script reads them. Themes that set `data-list-id` or `data-list-name` on their own elements should apply the same condition, `storefrontAnalytics and storefrontAnalytics.isActive()`.
-
-Saving the cookie preferences again while analytics or ads stay enabled no longer registers a second set of analytics events, which reported every following interaction twice.
-
-`view_item_list` now reports only the products of the product listing. It previously collected every product box on the page, so a category page that also renders a product slider or cross selling reported all of them as a single list.
 ### Storefront session handling moved to Core
 
 `Shopware\Core\Framework\Routing\SessionContextTokenSubscriber` now starts the storefront session, keeps its context token and follows token rotations on login, registration, logout and password changes; `Shopware\Storefront\Framework\Routing\StorefrontSubscriber` no longer handles the session. The `sw-sales-channel-id` session key is no longer written. With `core.systemWideLoginRegistration.isCustomerBoundToSalesChannel` enabled, a password change now updates the sales channel bound session token instead of leaving a revoked one behind.

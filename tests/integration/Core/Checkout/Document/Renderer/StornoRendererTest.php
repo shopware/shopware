@@ -32,6 +32,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -44,6 +45,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 class StornoRendererTest extends TestCase
 {
     use DocumentTrait;
+    use EventHookBehaviour;
     use SnapshotTesting;
 
     private SalesChannelContext $salesChannelContext;
@@ -200,10 +202,9 @@ class StornoRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        static::getContainer()->get('event_dispatcher')
-            ->addListener(StornoOrdersEvent::class, static function (StornoOrdersEvent $event) use (&$caughtEvent): void {
-                $caughtEvent = $event;
-            });
+        $this->onEvent(StornoOrdersEvent::class, static function (StornoOrdersEvent $event) use (&$caughtEvent): void {
+            $caughtEvent = $event;
+        });
 
         $processedTemplate = $this->stornoRenderer->render(
             [$orderId => $operation],

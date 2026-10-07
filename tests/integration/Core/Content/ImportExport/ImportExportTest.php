@@ -93,6 +93,7 @@ use Shopware\Core\System\Tax\TaxEntity;
 use Shopware\Core\System\Unit\UnitCollection;
 use Shopware\Core\System\Unit\UnitDefinition;
 use Shopware\Core\System\Unit\UnitEntity;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Integration\Traits\OrderFixture;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Filesystem\Filesystem;
@@ -104,6 +105,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 #[Package('fundamentals@after-sales')]
 class ImportExportTest extends AbstractImportExportTestCase
 {
+    use EventHookBehaviour;
     use OrderFixture;
     private const PUBLIC_MEDIA_PATH = '/public/media';
 
@@ -139,7 +141,7 @@ class ImportExportTest extends AbstractImportExportTestCase
 
     public function testExportEvents(): void
     {
-        $this->listener->addSubscriber(new StockSubscriber());
+        $this->hookSubscriber(new StockSubscriber());
 
         $enrichExportCriteriaCalled = false;
         $beforeExportRecordCalled = false;

@@ -27,6 +27,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -39,6 +40,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 class DeliveryNoteRendererTest extends TestCase
 {
     use DocumentTrait;
+    use EventHookBehaviour;
     use SnapshotTesting;
 
     private SalesChannelContext $salesChannelContext;
@@ -159,10 +161,9 @@ class DeliveryNoteRendererTest extends TestCase
 
         $caughtEvent = null;
 
-        static::getContainer()->get('event_dispatcher')
-            ->addListener(DeliveryNoteOrdersEvent::class, static function (DeliveryNoteOrdersEvent $event) use (&$caughtEvent): void {
-                $caughtEvent = $event;
-            });
+        $this->onEvent(DeliveryNoteOrdersEvent::class, static function (DeliveryNoteOrdersEvent $event) use (&$caughtEvent): void {
+            $caughtEvent = $event;
+        });
 
         $processedTemplate = $this->deliveryNoteRenderer->render(
             [$orderId => $operation],

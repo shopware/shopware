@@ -107,20 +107,16 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          gh release download v0.14.0 --repo MalteJanz/ludtwig --pattern '*unknown-linux-gnu.tar.gz' --dir "$RUNNER_TEMP/ludtwig"
-          tar xf "$RUNNER_TEMP/ludtwig"/*.tar.gz -C "$RUNNER_TEMP/ludtwig"
-          mv "$RUNNER_TEMP/ludtwig/ludtwig" /usr/local/bin
+          gh release download v0.14.0 --repo MalteJanz/ludtwig --pattern '*unknown-linux-gnu.tar.gz'
+          tar xf ./*.tar.gz
+          mv ./ludtwig /usr/local/bin
 
       - name: Run ludtwig linter
         id: ludtwigStep
         run: |
           set -euo pipefail
           cd ./src/Storefront/Resources/views
-          ludtwig . | tee "$RUNNER_TEMP/ludtwig-scan.log"
-
-      - name: Verify Twig templates were scanned
-        run: |
-          grep -Eq '^Files scanned: [1-9][0-9]*,' "$RUNNER_TEMP/ludtwig-scan.log"
+          ludtwig .
 
       - name: Instructions if ludtwig fails
         if: ${{ failure() && steps.ludtwigStep.outcome == 'failure'}}

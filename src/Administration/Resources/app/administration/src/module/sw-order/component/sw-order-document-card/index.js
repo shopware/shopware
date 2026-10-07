@@ -605,6 +605,17 @@ export default {
                     return;
                 }
 
+                if (
+                    !params.documentNumber &&
+                    params.documentNumberPreview &&
+                    documentCreateResponse.documentNumber &&
+                    documentCreateResponse.documentNumber !== params.documentNumberPreview
+                ) {
+                    this.createNotificationInfo({
+                        message: this.$t('sw-order.documentCard.info.DOCUMENT__NUMBER_WAS_CHANGED'),
+                    });
+                }
+
                 const documentId = documentCreateResponse.documentId;
 
                 if (additionalAction === 'download') {

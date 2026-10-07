@@ -30,9 +30,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('framework')]
 class NoRuntimeListenerOnSharedEventDispatcherRule implements Rule
 {
-    public const ERROR = 'Do not call %s() on the shared event dispatcher: Symfony 8.2 compiles it and deprecates runtime listener changes. Hook the event with EventHookBehaviour::onEvent(), or dispatch through a dispatcher the test builds itself.';
+    public const ERROR = 'Do not call %s() on the shared event dispatcher: Symfony 8.2 compiles it and deprecates runtime listener changes. Hook the event with EventHookDispatcher::fromContainer()->on(), or dispatch through a dispatcher the test builds itself.';
 
-    public const ERROR_HELPER = 'Do not pass the shared event dispatcher to addEventListener(): it adds a runtime listener, which Symfony 8.2 deprecates for its compiled dispatcher. Hook the event with EventHookBehaviour::onEvent() instead.';
+    public const ERROR_HELPER = 'Do not pass the shared event dispatcher to addEventListener(): it adds a runtime listener, which Symfony 8.2 deprecates for its compiled dispatcher. Hook the event with EventHookDispatcher::fromContainer()->on() instead.';
 
     private const METHODS = ['addListener', 'addSubscriber', 'removeListener', 'removeSubscriber'];
 

@@ -329,10 +329,17 @@ export default {
         saveUser(context) {
             if (!this.acl.can('user:editor')) {
                 const changes = this.userRepository.getSyncChangeset([this.user]);
-                delete changes.changeset[0].changes.id;
 
-                this.userService
-                    .updateUser(changes.changeset[0].changes)
+                let saveFunc;
+
+                if (changes.changeset[0]) {
+                    delete changes.changeset[0].changes.id;
+                    saveFunc = this.userService.updateUser(changes.changeset[0].changes);
+                } else {
+                    saveFunc = Promise.resolve();
+                }
+
+                saveFunc
                     .then(async () => {
                         if (this.newPassword) {
                             try {

@@ -56,6 +56,13 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Product stream builders can migrate without dropping the legacy contract
+
+`AbstractProductStreamBuilder` now implements the deprecated `ProductStreamBuilderInterface` and forwards `buildFilters()` to `enrichCriteria()`. Extensions can therefore migrate their implementations to the abstract class while remaining compatible with code that still consumes the legacy interface.
+
+### Feature flags can belong to a major version
+
+Feature flags such as `JSON_LD_DATA` and `CACHE_REWORK` now activate automatically when `V6_8_0_0=1` is set. An explicit setting for the individual flag still takes precedence, so `JSON_LD_DATA=0` keeps that feature off. Standalone major flags are recognized by their version-shaped names; the `major` field is only for sub-features and must name a parent version flag. Flags without a parent omit `major` from their metadata and the feature-flag API response. `FEATURE_ALL` now activates every registered feature for any truthy value; use a version flag to test only that major's changes.
 ### Unlimited DAL searches with next-pages totals
 
 Database-backed DAL searches using `Criteria::TOTAL_COUNT_MODE_NEXT_PAGES` without a limit now return all matching entities after the requested offset and report the exact total, as `TOTAL_COUNT_MODE_EXACT` does.
@@ -145,6 +152,10 @@ The deprecated endpoint `GET /api/_action/system-config/schema` and its successo
 
 The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` are deprecated and will be removed in Shopware 6.8.
 Use `getSystemConfigDefinition()` and `getResolvedSystemConfigDefinition()`, respectively.
+
+### Property sorting keeps its default locale
+
+The BC attribute for `PropertyGroupCollection::sortByConfig()` now correctly marks the upcoming `localeCode` parameter as optional, with the default `'en_GB'`. Calls without arguments remain compatible with 6.8. Overrides need to declare the optional parameter when the parent signature changes.
 
 ### Array values in static system configuration
 
@@ -297,6 +308,16 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 ### Customer login publishes an extension event
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
+
+### Sorting by `product.price` works with Elasticsearch
+
+The product index now contains `product.price`, so sorting, filtering and aggregating on it work with Elasticsearch. Before, a sorting on `product.price` (e.g. the "Default price" listing sorting) failed with `No mapping found for [price.c_....gross]`.
+
+Run `bin/console es:index` after deploying. Existing documents have no price until they are reindexed.
+
+### Reduced remote thumbnail URL generation overhead
+
+Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
 
 ## API
 
@@ -499,17 +520,33 @@ migrate it to `useCmsElement` by hand.
 ### Mail template trigger event is preselected
 
 The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
-### Meteor Component Library updated to 5.8.0
 
-The Administration now uses Meteor Component Library `5.8.0`. `mt-divider` and `mt-help-text` are registered globally and can be used in Administration templates.
+### `mt-divider` and `mt-help-text` are registered globally
 
-The library styles are now plain CSS with design tokens, and the global font feature settings changed, so some colors and glyphs look slightly different. The time zone hint of `mt-datepicker` has a new DOM. The `.mt-datepicker__hint` class and the `data-testid="time-zone-hint"` attribute stay, but styles that target `.mt-datepicker__hint-icon` or `.mt-datepicker__hint p` need to be updated.
+`mt-divider` and `mt-help-text` from the Meteor Component Library are now registered globally and can be used in Administration templates.
 
 ### `sw-order-state-select-v2` can render a regular size select
 
 `sw-order-state-select-v2` has a new `small` prop. It defaults to `true`, so existing usages keep the small select. Pass `:small="false"` to render a regular size select, for example in a form next to other fields.
 
+### Meteor Component Library updated to 5.8.0
+
+The Administration now uses Meteor Component Library `5.8.0`, Meteor Admin SDK `6.15.0` and Meteor Icon Kit `5.11.0`.
+Autofilled form fields are now readable in dark mode.
+
+Check your Administration extensions for these changes:
+
+- The global font settings changed, so some glyphs look different and text renders slightly narrower, for example a single-storey `a` and closed digits.
+- `mt-select` centers its content, and small selects (`size="small"`) have a height of 32px. Remove custom paddings that only compensated for the previous alignment.
+- The time zone hint of datetime `mt-datepicker` fields is rendered by `mt-field-hint`. Styles targeting `.mt-datepicker__hint-icon` or `.mt-datepicker__hint p` no longer apply; `data-testid="time-zone-hint"` is unchanged.
+- The search input of `mt-select` gets the field's `name`, or a generated id, as its `id` and opts out of browser autofill.
+- Text-entry fields forward the `autocomplete` attribute to the native input.
+
 ## Storefront
+
+### Extension component aliases work in the dev server
+
+The unified Storefront component dev server now applies aliases from each extension's `vite.components.config.mts` only to imports from that extension's resource tree. Extensions can use the same alias name for different module paths, including imports between modules under `Resources/app/storefront/src`, in development and production builds.
 
 ### Anonymous index components use their directory name
 

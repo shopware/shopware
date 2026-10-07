@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Controller\CountryStateController;
 use Shopware\Storefront\Pagelet\Country\CountryStateDataPagelet;
@@ -29,7 +29,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class CountryStateControllerTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use StorefrontControllerTestBehaviour;
 
@@ -91,7 +90,7 @@ class CountryStateControllerTest extends TestCase
     public function testCountryStateControllerEvents(): void
     {
         $testSubscriber = new CountryStateControllerTestSubscriber();
-        $this->hookSubscriber($testSubscriber);
+        EventHookDispatcher::fromContainer(static::getContainer())->subscribe($testSubscriber);
 
         $this->countryStateController->getCountryData(new Request([], ['countryId' => $this->countryIdDE]), $this->salesChannelContext);
 

@@ -12,7 +12,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
@@ -34,7 +34,6 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('discovery')]
 class ThemeCompilerEventSubscriberTest extends TestCase
 {
-    use EventHookBehaviour;
     use KernelTestBehaviour;
 
     private ThemeCompiler $themeCompiler;
@@ -129,7 +128,7 @@ class ThemeCompilerEventSubscriberTest extends TestCase
         $subscriber = new MockThemeVariablesSubscriber(
             static::getContainer()->get(SystemConfigService::class)
         );
-        $this->hookSubscriber($subscriber);
+        EventHookDispatcher::fromContainer(static::getContainer())->subscribe($subscriber);
 
         $config = new StorefrontPluginConfiguration('TestTheme');
         $config->setThemeConfig([

@@ -23,7 +23,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tag\TagCollection;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -35,7 +35,6 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class CmsSlotsDataResolverTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     private IdsCollection $ids;
@@ -48,7 +47,7 @@ class CmsSlotsDataResolverTest extends TestCase
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $this->hookSubscriber(new CmsSlotsDataTestSubscriber());
+        EventHookDispatcher::fromContainer(static::getContainer())->subscribe(new CmsSlotsDataTestSubscriber());
         $this->initData();
     }
 

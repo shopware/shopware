@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -29,7 +29,6 @@ use Symfony\Component\HttpFoundation\Response;
 class MediaUploadControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
-    use EventHookBehaviour;
     use MediaFixtures;
 
     final public const TEST_IMAGE = __DIR__ . '/../fixtures/shopware-logo.png';
@@ -57,7 +56,7 @@ class MediaUploadControllerTest extends TestCase
         $this->mediaId = $this->getEmptyMedia()->getId();
         $this->thrownMediaEvent = null;
 
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             MediaUploadedEvent::class,
             function (MediaUploadedEvent $event): void {
                 $this->thrownMediaEvent = $event;
@@ -203,7 +202,7 @@ class MediaUploadControllerTest extends TestCase
     {
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $this->onEvent(MediaUploadedEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MediaUploadedEvent::class, $listener);
 
         $url = \sprintf(
             '/api/_action/media/%s/upload',
@@ -298,7 +297,7 @@ class MediaUploadControllerTest extends TestCase
     {
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $this->onEvent(MediaUploadedEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MediaUploadedEvent::class, $listener);
 
         $baseUrl = EnvironmentHelper::getVariable('APP_URL') . '/media/shopware-logo.png';
 
@@ -339,7 +338,7 @@ class MediaUploadControllerTest extends TestCase
     {
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->never())->method('__invoke');
-        $this->onEvent(MediaUploadedEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MediaUploadedEvent::class, $listener);
 
         $context = Context::createDefaultContext();
         $this->setFixtureContext($context);

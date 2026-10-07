@@ -27,7 +27,7 @@ use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\AppSystemTestBehaviour;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
@@ -59,7 +59,6 @@ class ThemeCompilerTest extends TestCase
     use AppSystemTestBehaviour;
     use DatabaseTransactionBehaviour;
     use EnvTestBehaviour;
-    use EventHookBehaviour;
     use KernelTestBehaviour;
 
     private ThemeCompiler $themeCompiler;
@@ -287,7 +286,7 @@ PHP_EOL;
 
         $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configurationService, $storefrontPluginRegistry);
 
-        $this->hookSubscriber($subscriber);
+        EventHookDispatcher::fromContainer(static::getContainer())->subscribe($subscriber);
 
         $sysConfService = static::getContainer()->get(SystemConfigService::class);
         $sysConfService->set('SimplePlugin.config.simplePluginBackgroundcolor', '#fff');
@@ -410,7 +409,7 @@ PHP_EOL;
         $listener = static function (ThemeCompilerConcatenatedStylesEvent $event) use ($scss): void {
             $event->setConcatenatedStyles($scss);
         };
-        $this->onEvent(ThemeCompilerConcatenatedStylesEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(ThemeCompilerConcatenatedStylesEvent::class, $listener);
 
         $this->themeCompiler->compileTheme(
             $this->mockSalesChannelId,

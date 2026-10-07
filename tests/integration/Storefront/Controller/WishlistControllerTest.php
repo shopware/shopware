@@ -20,7 +20,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Page\Wishlist\GuestWishlistPageLoadedHook;
@@ -40,7 +40,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 #[Package('discovery')]
 class WishlistControllerTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
     use StorefrontControllerTestBehaviour;
@@ -110,7 +109,7 @@ class WishlistControllerTest extends TestCase
         $productId = $this->createProduct($salesChannelId);
 
         $renderedParameters = [];
-        $this->onEvent(StorefrontRenderEvent::class, static function (StorefrontRenderEvent $event) use (&$renderedParameters): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(StorefrontRenderEvent::class, static function (StorefrontRenderEvent $event) use (&$renderedParameters): void {
             $renderedParameters[] = $event->getParameters();
         });
 

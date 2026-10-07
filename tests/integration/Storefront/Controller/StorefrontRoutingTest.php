@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\RequestStackTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SessionTestBehaviour;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Page\Navigation\NavigationPage;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
@@ -23,7 +23,6 @@ use Symfony\Component\HttpFoundation\Response;
 class StorefrontRoutingTest extends TestCase
 {
     use DatabaseTransactionBehaviour;
-    use EventHookBehaviour;
     use KernelTestBehaviour;
     use RequestStackTestBehaviour;
     use SessionTestBehaviour;
@@ -32,7 +31,7 @@ class StorefrontRoutingTest extends TestCase
     public function testForwardFromAddPromotionToHomePage(): void
     {
         $renderedParameters = [];
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             StorefrontRenderEvent::class,
             static function (StorefrontRenderEvent $event) use (&$renderedParameters): void {
                 $skippedViews = [

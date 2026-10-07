@@ -81,7 +81,7 @@ class AccountNewsletterRecipientRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
@@ -130,7 +130,7 @@ class AccountNewsletterRecipientRouteTest extends TestCase
         $response = $this->browser->getResponse();
 
         $contextToken = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN) ?? '';
-        static::assertNotEmpty($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
@@ -157,7 +157,7 @@ class AccountNewsletterRecipientRouteTest extends TestCase
         $registerResponse = $this->browser->getResponse();
         static::assertTrue($registerResponse->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         $contextToken = $registerResponse->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        static::assertNotEmpty($contextToken);
+        static::assertNotNull($contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 

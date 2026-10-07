@@ -71,7 +71,7 @@ class ErrorTest extends TestCase
     #[DataProvider('serializationDataProvider')]
     public function testErrorSerialization(Error $error): void
     {
-        $unserialized = Serialization::assertRoundTrip($error);
+        Serialization::assertRoundTrip($error);
 
         // Call all public methods without parameters (i.e. getters) to make sure the don't throw an exception
         $refClass = new \ReflectionClass($error);

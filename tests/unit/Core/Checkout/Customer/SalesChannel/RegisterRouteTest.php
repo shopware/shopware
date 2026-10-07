@@ -963,7 +963,7 @@ class RegisterRouteTest extends TestCase
             static::assertCount(1, $e->getViolations());
             $violation = $e->getViolations()->get(0);
             static::assertSame('billingAddress', $violation->getPropertyPath());
-            static::assertNotEmpty($violation->getMessage());
+            static::assertNotSame('', $violation->getMessage());
         }
     }
 
@@ -1576,7 +1576,7 @@ class RegisterRouteTest extends TestCase
             static::createStub(SalesChannelContextService::class),
             $customFieldMapper,
             $salutationRepository,
-            static::createStub(DataValidationFactoryInterface::class),
+            $passwordValidationFactory,
             $doubleOptInService,
             $customerNewsletterSalesChannelsUpdater,
             new NativeClock(),

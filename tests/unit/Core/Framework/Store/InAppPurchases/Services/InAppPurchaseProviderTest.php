@@ -99,7 +99,7 @@ class InAppPurchaseProviderTest extends TestCase
     {
         $this->config = new StaticSystemConfigService();
 
-        static::assertEmpty($this->iap->formatPurchases());
+        static::assertCount(0, $this->iap->formatPurchases());
         static::assertEquals([], $this->logger->getRecords());
     }
 
@@ -107,7 +107,7 @@ class InAppPurchaseProviderTest extends TestCase
     {
         $this->config->set(InAppPurchaseProvider::CONFIG_STORE_IAP_KEY, 'not a json');
 
-        static::assertEmpty($this->iap->formatPurchases());
+        static::assertCount(0, $this->iap->formatPurchases());
         static::assertEquals([], $this->logger->getRecords());
     }
 
@@ -242,7 +242,7 @@ class InAppPurchaseProviderTest extends TestCase
         });
 
         foreach ($payload as $i => $iap) {
-            static::assertNotEmpty($i);
+            static::assertNotSame('', $i);
             $builder = $builder->withClaim($i, $iap);
         }
 

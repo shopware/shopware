@@ -100,6 +100,6 @@ class DeliveryProcessorTest extends TestCase
 
         // the processor applied the manual shipping costs to the built delivery
         static::assertSame($manualShippingCosts, $delivery->getShippingCosts());
-        static::assertNotEmpty($toCalculate->getDeliveries());
+        static::assertNotCount(0, $toCalculate->getDeliveries());
     }
 }

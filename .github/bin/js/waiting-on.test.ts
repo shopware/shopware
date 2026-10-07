@@ -288,6 +288,7 @@ test('toTimelineEvents reads each shape GitHub returns', () => {
 });
 
 const node = (overrides: Record<string, unknown> = {}) => ({
+    id: 'PR_1',
     number: 1,
     title: 'a pull request',
     url: 'https://github.com/shopware/shopware/pull/1',

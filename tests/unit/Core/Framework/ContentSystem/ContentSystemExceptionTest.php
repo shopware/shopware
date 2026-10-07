@@ -199,32 +199,20 @@ class ContentSystemExceptionTest extends TestCase
             ContentSystemException::ELEMENT_TYPES_INVALID,
         ];
 
-        yield 'a style-option request validation failure as a client error' => [
-            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::styleOptionsInvalid($violations),
-            Response::HTTP_BAD_REQUEST,
-            ContentSystemException::STYLE_OPTIONS_INVALID,
-        ];
-
-        yield 'a binding request validation failure as a client error' => [
-            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::bindingSpecificationsInvalid($violations),
-            Response::HTTP_BAD_REQUEST,
-            ContentSystemException::BINDING_SPECIFICATIONS_INVALID,
-        ];
-
         yield 'an element-type load validation failure as a server error' => [
-            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::elementTypeLoadValidationFailed($violations),
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::elementTypeLoadFailed($violations),
             Response::HTTP_INTERNAL_SERVER_ERROR,
             ContentSystemException::ELEMENT_TYPE_LOAD_FAILED,
         ];
 
         yield 'a style-option load validation failure as a server error' => [
-            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::styleOptionLoadValidationFailed($violations),
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::styleOptionLoadFailed($violations),
             Response::HTTP_INTERNAL_SERVER_ERROR,
             ContentSystemException::STYLE_OPTION_LOAD_FAILED,
         ];
 
         yield 'a binding load validation failure as a server error' => [
-            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::bindingSpecificationLoadValidationFailed($violations),
+            static fn (ConstraintViolationList $violations): ContentSystemException => ContentSystemException::bindingSpecificationLoadFailed($violations),
             Response::HTTP_INTERNAL_SERVER_ERROR,
             ContentSystemException::BINDING_SPECIFICATION_LOAD_FAILED,
         ];

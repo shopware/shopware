@@ -32,36 +32,6 @@ class AppBindingPoisonRowTest extends TestCase
 
     private const CORE_MEDIA_BINDING_ID = 'core:Sw:Media:Image';
 
-    protected function setUp(): void
-    {
-        $ids = new IdsCollection();
-        $context = Context::createDefaultContext();
-        $appId = $ids->get('app');
-        $appName = 'AcmePoison' . $ids->get('appNameSuffix');
-
-        $this->appRepository()->create([[
-            'id' => $appId,
-            'name' => $appName,
-            'path' => 'AcmePoison',
-            'version' => '1.0.0',
-            'label' => 'Acme Poison',
-            'active' => true,
-            'integration' => ['label' => $appName, 'accessKey' => 'poison-' . $appId, 'secretAccessKey' => 'poison-' . $appId],
-            'aclRole' => ['name' => $appName],
-        ]], $context);
-
-        $poison = new BindingSpecificationDto(type: 'Sw:Does:NotExist', label: 'Poison', resolves: [], inputs: []);
-        $this->bindingSpecificationRepository()->create([[
-            'id' => $ids->get('binding'),
-            'appId' => $appId,
-            'name' => 'poison-binding',
-            'schema' => (new BindingSpecificationSerializer())->normalize($poison),
-            'hash' => 'poison-hash',
-        ]], $context);
-
-        $this->registry()->invalidate();
-    }
-
     protected function tearDown(): void
     {
         $this->registry()->invalidate();
@@ -70,6 +40,8 @@ class AppBindingPoisonRowTest extends TestCase
     #[TestDox('aborts registry construction when an active app has an invalid persisted binding')]
     public function testInvalidActiveAppRowAbortsRegistryConstruction(): void
     {
+        $this->createPoisonAppBinding();
+
         try {
             $this->registry()->all();
             static::fail('Expected the invalid active-app binding row to abort registry construction.');
@@ -83,6 +55,8 @@ class AppBindingPoisonRowTest extends TestCase
     #[TestDox('rejects an otherwise valid content layout write when an active app has an invalid persisted binding')]
     public function testValidBindingWriteFailsWithPoisonAppBindingRowPresent(): void
     {
+        $this->createPoisonAppBinding();
+
         $ids = new IdsCollection();
         $context = Context::createDefaultContext();
         $layoutId = $ids->get('layout');
@@ -113,6 +87,71 @@ class AppBindingPoisonRowTest extends TestCase
         static::assertNull(
             $this->contentLayoutRepository()->search(new Criteria([$layoutId]), $context)->getEntities()->first()
         );
+    }
+
+    #[TestDox('returns the registry load failure from the persisted mutation route as an HTTP 500')]
+    public function testPersistedMutationRoutePropagatesPoisonBindingFailure(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+        $layoutId = $ids->get('layout');
+        $this->contentLayoutRepository()->create([[
+            'id' => $layoutId,
+            'name' => 'poison-row-route-' . $layoutId,
+            'version' => '1.0.0',
+            'rootSource' => 'none',
+            'layout' => [[
+                'id' => $ids->get('element'),
+                'component' => 'Sw:Media:Image',
+                'properties' => ['mediaId' => 'a-media-id'],
+                'dataRequirements' => [
+                    'media' => ['source' => 'entity', 'config' => ['entity' => 'media', 'property' => 'mediaId']],
+                ],
+                'attributedSpecifications' => ['media' => self::CORE_MEDIA_BINDING_ID],
+            ]],
+        ]], $context);
+
+        $this->createPoisonAppBinding();
+        $this->getBrowser()->jsonRequest(
+            'POST',
+            '/api/_action/content-system/layout/' . $layoutId . '/insert-element',
+            ['type' => 'Sw:Media:Image', 'expectedVersion' => null]
+        );
+
+        $response = $this->getBrowser()->getResponse();
+        static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertSame(ContentSystemException::BINDING_SPECIFICATION_LOAD_FAILED, $body['errors'][0]['code']);
+    }
+
+    private function createPoisonAppBinding(): void
+    {
+        $ids = new IdsCollection();
+        $context = Context::createDefaultContext();
+        $appId = $ids->get('app');
+        $appName = 'AcmePoison' . $ids->get('appNameSuffix');
+
+        $this->appRepository()->create([[
+            'id' => $appId,
+            'name' => $appName,
+            'path' => 'AcmePoison',
+            'version' => '1.0.0',
+            'label' => 'Acme Poison',
+            'active' => true,
+            'integration' => ['label' => $appName, 'accessKey' => 'poison-' . $appId, 'secretAccessKey' => 'poison-' . $appId],
+            'aclRole' => ['name' => $appName],
+        ]], $context);
+
+        $poison = new BindingSpecificationDto(type: 'Sw:Does:NotExist', label: 'Poison', resolves: [], inputs: []);
+        $this->bindingSpecificationRepository()->create([[
+            'id' => $ids->get('binding'),
+            'appId' => $appId,
+            'name' => 'poison-binding',
+            'schema' => (new BindingSpecificationSerializer())->normalize($poison),
+            'hash' => 'poison-hash',
+        ]], $context);
+
+        $this->registry()->invalidate();
     }
 
     private function registry(): AbstractContentSystemBindingSpecificationRegistry

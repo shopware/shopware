@@ -118,7 +118,7 @@ class DatabaseBindingSpecificationLoaderTest extends TestCase
             ['name' => 'good', 'schema' => json_encode($this->validSchema(), \JSON_THROW_ON_ERROR), 'app_name' => 'Acme'],
             ['name' => 'broken', 'schema' => json_encode($this->validSchema(), \JSON_THROW_ON_ERROR), 'app_name' => 'Acme'],
         ], $validator);
-        $this->expectExceptionObject(ContentSystemException::bindingSpecificationLoadValidationFailed($violations));
+        $this->expectExceptionObject(ContentSystemException::bindingSpecificationLoadFailed($violations));
         $loader->load();
     }
 

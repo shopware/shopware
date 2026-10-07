@@ -75,11 +75,24 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
 
         try {
             $tree = $this->tree($value);
+        } catch (ContentSystemException $exception) {
+            if (!ContentSystemException::isClientDefect($exception)) {
+                throw $exception;
+            }
+
+            throw ContentSystemException::layoutWriteRejection($exception, $key, $value, $parameters->getPath());
+        }
+
+        try {
             $this->rejectIllFormedTree($tree);
+        } catch (ContentSystemException $exception) {
+            throw ContentSystemException::layoutWriteRejection($exception, $key, $value, $parameters->getPath());
+        }
+
+        try {
             $tree = $this->writeBoundary->apply($tree);
         } catch (ContentSystemException $exception) {
-            if ($exception->getErrorCode() !== ContentSystemException::INVALID_LAYOUT_STRUCTURE
-                && !ContentSystemException::isClientDefect($exception)) {
+            if (!ContentSystemException::isClientDefect($exception)) {
                 throw $exception;
             }
 
@@ -96,7 +109,7 @@ class StoredElementListFieldSerializer extends AbstractFieldSerializer
     /**
      * The storage encoding for the layout column. A raw payload is decoded into the stored model here rather than
      * passed through, so what lands in storage is what the codec produces and every later read of the column
-     * decodes it again without complaint.
+     * decodes it again without complaint. Any other {@see ContentSystemException} propagates unchanged.
      *
      * That makes the codec's rules write-time rules, and its failures write-time failures: a numeric wiring key
      * throws from the {@see StoredElement} constructor and a malformed container throws from decode, neither of

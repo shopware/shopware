@@ -17,7 +17,7 @@ Which error codes mean the client's layout input was wrong, and why a status cod
 
 The enforcement sites for the last four wiring codes are in [../Layout/Element/Context/AGENTS.md](../Layout/Element/Context/AGENTS.md).
 
-`Diagnostics/LayoutDiagnostics` catches only these, per element, and maps them to a `ViolationCode::InvalidConfig` violation. Every other code propagates, so an internal fault is never relabelled as the client's mistake.
+`Diagnostics/LayoutDiagnostics` catches only these, per element, and maps them to a `ViolationCode::InvalidConfig` violation. Draft decoding remaps catalogued defects to `invalidLayoutStructure`; DAL layout writes remap catalogued defects from the tree codec and write boundary to a 400 write rejection. The DAL serializer separately maps `INVALID_LAYOUT_STRUCTURE` as malformed input. Other `ContentSystemException` codes propagate unchanged, preserving their own status and code, so internal faults are not relabelled as the client's mistake.
 
 ## Why Not Filter by Status Code
 

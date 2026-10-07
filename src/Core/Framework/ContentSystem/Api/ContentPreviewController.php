@@ -45,8 +45,8 @@ class ContentPreviewController
     /**
      * The draft is admitted through the same {@see ContentPreviewPageBuilder::build()} that redeeming the
      * token runs, and its page is discarded: minting a token is a promise that redeeming it renders, and the
-     * only way to keep that promise without a second copy of the gate is to run the one gate. A draft the
-     * builder refuses is a 400 and never reaches the store.
+     * only way to keep that promise without a second copy of the gate is to run the one gate. A draft rejected
+     * by the builder never reaches the store.
      */
     #[Route(path: '/api/_action/content-system/preview/entity/url', name: 'api.action.content_system.preview.entity.url', defaults: [PlatformRequest::ATTRIBUTE_ACL => ['content_layout:read']], methods: [Request::METHOD_POST])]
     public function previewUrl(

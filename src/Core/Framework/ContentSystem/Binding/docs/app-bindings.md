@@ -10,7 +10,7 @@ The app persister and validator pass a type overlay built from the app's own `Re
 
 ## Reading Them Back
 
-`DatabaseBindingSpecificationLoader` deserializes all active-app rows and validates them together, keyed by `source:id` so equal bare ids from different apps stay distinct. A missing name, or a schema that fails to decode, deserialize or validate, aborts the whole load — the same fail-fast posture `YamlBindingSpecificationLoader` has. Exceptions thrown by the validator itself propagate out of `load()` unwrapped.
+`DatabaseBindingSpecificationLoader` deserializes all active-app rows and validates them together, keyed by `source:id` so equal bare ids from different apps stay distinct. A missing name, or a schema that fails to decode, deserialize or validate, aborts the whole load — the same fail-fast posture `YamlBindingSpecificationLoader` has. A collective constraint violation from either loader is reported as `BINDING_SPECIFICATION_LOAD_FAILED` (HTTP 500); see item 1 of [loading-and-apps.md](loading-and-apps.md). Exceptions thrown by the validator itself propagate out of `load()` unwrapped.
 
 ## Storage
 

@@ -88,7 +88,7 @@ class DatabaseBindingSpecificationLoader extends AbstractContentSystemBindingSpe
 
         $violations = $this->validator->validate(new BindingSpecificationDtoCollection($dtos));
         if ($violations->count() > 0) {
-            throw ContentSystemException::bindingSpecificationLoadValidationFailed($violations);
+            throw ContentSystemException::bindingSpecificationLoadFailed($violations);
         }
 
         return array_map(

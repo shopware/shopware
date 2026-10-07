@@ -166,11 +166,11 @@ class StoredElementListFieldSerializerTest extends TestCase
         $violations = new ConstraintViolationList([
             new ConstraintViolation('Invalid label', null, [], null, 'types[App:Broken].label', null),
         ]);
-        $failure = ContentSystemException::elementTypeLoadValidationFailed($violations);
+        $failure = ContentSystemException::elementTypeLoadFailed($violations);
         $typeRegistry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
         $typeRegistry->method('has')->willThrowException($failure);
         $boundary = new LayoutWriteBoundary(
-            new LayoutDefaultSeeder($typeRegistry, new PrimitiveDefaultProvider()),
+            new LayoutDefaultSeeder($typeRegistry, new StoredDefaultProvider()),
             new StoredTreeStyleNormalizer($this->styleNormalizer()),
             $this->passthroughReconciler(),
         );

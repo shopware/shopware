@@ -38,7 +38,7 @@ class CustomerVatIdCountrySubscriberTest extends TestCase
             ->willReturn($countryId);
 
         $command = $this->createMock(WriteCommand::class);
-        $command->method('hasField')->with('vat_ids')->willReturn(true);
+        $command->expects($this->once())->method('hasField')->with('vat_ids')->willReturn(true);
         $command->method('getPayload')->willReturn(['vat_ids' => '["NL123456789B01","DE123456789"]']);
         $command->expects($this->once())
             ->method('addPayload')
@@ -53,7 +53,7 @@ class CustomerVatIdCountrySubscriberTest extends TestCase
         $provider->method('getCountryIdForVatIds')->willReturn(null);
 
         $command = $this->createMock(WriteCommand::class);
-        $command->method('hasField')->with('vat_ids')->willReturn(true);
+        $command->expects($this->once())->method('hasField')->with('vat_ids')->willReturn(true);
         $command->method('getPayload')->willReturn(['vat_ids' => '["not-a-vat-id"]']);
         $command->expects($this->once())
             ->method('addPayload')
@@ -71,7 +71,7 @@ class CustomerVatIdCountrySubscriberTest extends TestCase
             ->willReturn(null);
 
         $command = $this->createMock(WriteCommand::class);
-        $command->method('hasField')->with('vat_ids')->willReturn(true);
+        $command->expects($this->once())->method('hasField')->with('vat_ids')->willReturn(true);
         $command->method('getPayload')->willReturn(['vat_ids' => null]);
         $command->expects($this->once())
             ->method('addPayload')
@@ -94,14 +94,14 @@ class CustomerVatIdCountrySubscriberTest extends TestCase
             ]);
 
         $dutchCustomer = $this->createMock(WriteCommand::class);
-        $dutchCustomer->method('hasField')->with('vat_ids')->willReturn(true);
+        $dutchCustomer->expects($this->once())->method('hasField')->with('vat_ids')->willReturn(true);
         $dutchCustomer->method('getPayload')->willReturn(['vat_ids' => '["NL123456789B01"]']);
         $dutchCustomer->expects($this->once())
             ->method('addPayload')
             ->with('vat_id_country_id', Uuid::fromHexToBytes($dutchCountryId));
 
         $belgianCustomer = $this->createMock(WriteCommand::class);
-        $belgianCustomer->method('hasField')->with('vat_ids')->willReturn(true);
+        $belgianCustomer->expects($this->once())->method('hasField')->with('vat_ids')->willReturn(true);
         $belgianCustomer->method('getPayload')->willReturn(['vat_ids' => '["BE0123456789"]']);
         $belgianCustomer->expects($this->once())
             ->method('addPayload')
@@ -116,7 +116,7 @@ class CustomerVatIdCountrySubscriberTest extends TestCase
         $provider->expects($this->never())->method('getCountryIdForVatIds');
 
         $command = $this->createMock(WriteCommand::class);
-        $command->method('hasField')->with('vat_ids')->willReturn(false);
+        $command->expects($this->once())->method('hasField')->with('vat_ids')->willReturn(false);
         $command->expects($this->never())->method('addPayload');
 
         $this->dispatch($provider, $command);

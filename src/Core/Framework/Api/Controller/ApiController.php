@@ -78,7 +78,7 @@ class ApiController extends AbstractController
     #[Route(
         path: '/api/_action/clone/{entity}/{id}',
         name: 'api.clone',
-        requirements: ['version' => '\d+', 'entity' => '[0-9a-zA-Z-]+', 'id' => '[0-9a-f]{32}'],
+        requirements: ['entity' => '[0-9a-zA-Z-]+', 'id' => '[0-9a-f]{32}'],
         methods: [Request::METHOD_POST]
     )]
     public function clone(Context $context, string $entity, string $id, Request $request): JsonResponse
@@ -116,7 +116,7 @@ class ApiController extends AbstractController
     #[Route(
         path: '/api/_action/version/{entity}/{id}',
         name: 'api.createVersion',
-        requirements: ['version' => '\d+', 'entity' => '[0-9a-zA-Z-]+', 'id' => '[0-9a-f]{32}'],
+        requirements: ['entity' => '[0-9a-zA-Z-]+', 'id' => '[0-9a-f]{32}'],
         methods: [Request::METHOD_POST]
     )]
     public function createVersion(Request $request, Context $context, string $entity, string $id): Response
@@ -153,7 +153,7 @@ class ApiController extends AbstractController
     #[Route(
         path: '/api/_action/version/merge/{entity}/{versionId}',
         name: 'api.mergeVersion',
-        requirements: ['version' => '\d+', 'entity' => '[0-9a-zA-Z-]+', 'versionId' => '[0-9a-f]{32}'],
+        requirements: ['entity' => '[0-9a-zA-Z-]+', 'versionId' => '[0-9a-f]{32}'],
         methods: [Request::METHOD_POST]
     )]
     public function mergeVersion(Context $context, string $entity, string $versionId): JsonResponse
@@ -178,7 +178,7 @@ class ApiController extends AbstractController
     #[Route(
         path: '/api/_action/version/{versionId}/{entity}/{entityId}',
         name: 'api.deleteVersion',
-        requirements: ['version' => '\d+', 'entity' => '[0-9a-zA-Z-]+', 'id' => '[0-9a-f]{32}'],
+        requirements: ['versionId' => '[0-9a-f]{32}', 'entity' => '[0-9a-zA-Z-]+', 'entityId' => '[0-9a-f]{32}'],
         methods: [Request::METHOD_POST]
     )]
     public function deleteVersion(Context $context, string $entity, string $entityId, string $versionId): JsonResponse

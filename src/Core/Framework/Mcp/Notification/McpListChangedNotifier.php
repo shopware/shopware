@@ -65,12 +65,14 @@ class McpListChangedNotifier
     }
 
     /**
-     * Queues `list_changed` for the lists whose version moved since this session last looked. A new
-     * session starts at the current versions, so it gets no notification for changes before it existed.
+     * Queues `list_changed` for the lists whose version moved since this session last looked. A session
+     * created by this request starts at the current versions, so it gets no notification for changes
+     * before it existed. An older session without stored versions, for example one opened before this
+     * check existed, counts as having seen version 0.
      *
      * Must run after the MCP SDK has persisted its in-memory session, like notifySession().
      */
-    public function syncSession(string $sessionId): void
+    public function syncSession(string $sessionId, bool $isNewSession = false): void
     {
         if ($this->sessionStore === null || $this->listVersions === null) {
             return;
@@ -84,6 +86,9 @@ class McpListChangedNotifier
         [$uuid, $sessionData] = $session;
         $current = $this->listVersions->current();
         $seen = $sessionData[self::SESSION_SEEN_VERSIONS] ?? null;
+        if (!\is_array($seen) && !$isNewSession) {
+            $seen = [McpListVersions::TOOLS => 0, McpListVersions::RESOURCES => 0, McpListVersions::PROMPTS => 0];
+        }
 
         if ($seen === $current) {
             return;

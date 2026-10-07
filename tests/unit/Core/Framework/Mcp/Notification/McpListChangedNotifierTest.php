@@ -59,7 +59,7 @@ class McpListChangedNotifierTest extends TestCase
         $this->versions = ['tools' => 3, 'resources' => 1, 'prompts' => 0];
         $sessionId = $this->session();
 
-        $this->notifier()->syncSession($sessionId);
+        $this->notifier()->syncSession($sessionId, isNewSession: true);
 
         static::assertSame([], $this->queuedMethods($sessionId));
         static::assertSame($this->versions, $this->sessionData($sessionId)['shopware_list_versions']);
@@ -75,6 +75,18 @@ class McpListChangedNotifierTest extends TestCase
         $notifier->syncSession($sessionId);
 
         static::assertSame([self::TOOLS_CHANGED, self::PROMPTS_CHANGED], $this->queuedMethods($sessionId));
+        static::assertSame($this->versions, $this->sessionData($sessionId)['shopware_list_versions']);
+    }
+
+    public function testAnOlderSessionWithoutStoredVersionsIsNotifiedAboutEveryChangedList(): void
+    {
+        // For example a session opened before the upgrade, when an app changed tools before its next request.
+        $this->versions = ['tools' => 1, 'resources' => 0, 'prompts' => 0];
+        $sessionId = $this->session();
+
+        $this->notifier()->syncSession($sessionId);
+
+        static::assertSame([self::TOOLS_CHANGED], $this->queuedMethods($sessionId));
         static::assertSame($this->versions, $this->sessionData($sessionId)['shopware_list_versions']);
     }
 

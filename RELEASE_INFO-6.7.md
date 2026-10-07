@@ -525,25 +525,6 @@ What to adjust:
 * The hidden line items and the analytics attributes of the buy widget are only rendered for a sales channel with active analytics.
 * Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class, which `view_item` reads.
 
-Google Tag Manager configurations that remap parameters from `eventModel` should remove that workaround and use the standard `ecommerce` data layer variable. Configurations that consume the previous `id`, `name`, or `brand` item properties should switch to their `item_*` equivalents. Storefront analytics configured with a Google tag ID continue to use `gtag('event', ...)`, with the same GA4-compliant parameter normalization.
-
-`add_to_cart` on the product detail page reports the unit price of the graduated price that applies to the added quantity. It used the `product:price:amount` meta tag, which carries the cheapest tier. When the page rendered the cart, for example after an earlier add, the tier is selected for the quantity the cart line will hold, as the cart prices it. Without the cart markup the added quantity is used, because nothing is requested for it. The buy widget exposes the tiers as `data-product-prices`.
-
-`add_shipping_info` and `add_payment_info` are now reported once per selected method instead of on every load of the confirm page. Because the shipping and payment forms auto-submit, selecting a method reloaded the page and reported the event again. A reload that keeps the method stays silent, while switching the method reports the new one, so the counts drop without losing the method the customer actually chose.
-
-`remove_from_cart` is no longer reported for line items that are not products, such as a removed discount. Those reported the line item id as `item_id`, where every other event reports a product number.
-
-`remove_from_cart` matches the removed line item by its id, which the hidden line item now carries as `data-line-item-id`. A product that a Store API client or an extension added under its own line item id was not reported before.
-
-A product box on the product detail page, such as cross selling or a product slider, now reports its own product for `add_to_cart` instead of the product of the page. It reports no breadcrumb categories, because the breadcrumb of the page is the path of the page product.
-
-The container `.hidden-line-items-information` no longer carries `data-value`. The event value is derived from the reported items instead, so it always matches them. Themes and plugins that read the attribute should sum `data-price` times `data-quantity` of the `.hidden-line-item` elements. The container and the `data-product-variant` / `data-product-prices` attributes of the buy widget are only rendered for a sales channel with analytics, because only the analytics script reads them.
-
-Variant products report their selected options as `item_variant`, for example `Red, L`. `item_id` keeps the variant's product number, because that is the sellable unit and matches product feeds. The value comes from the line item payload in the cart, checkout, and purchase events, and from the product itself on the detail page and in product listings. Products without variant options do not report the property.
-
-`begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped.
-
-`view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. With `JSON_LD_DATA` active it reads the product from the JSON-LD script, and without it from `.product-detail-ordernumber` and the `product:brand` meta tag, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
 The events also report more accurate data: `item_variant`, the promotion `coupon`, graduated prices in `add_to_cart`, brand and category for products added from a product box, and `add_shipping_info` / `add_payment_info` once per selected method instead of on every page load. Discounts and other line items that are not products are no longer reported as items.
 ### Extension component aliases work in the dev server
 
@@ -587,13 +568,10 @@ The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced 
 
 **Shops that use promotions will see lower revenue figures in Google Analytics. The previous figures were too high.**
 
-Promotion discounts live in their own line items, which are not products and were therefore never reported. The reported item price was the undiscounted unit price, and because the event value is the sum of the reported items, every ecommerce event overstated the value by the full discount. A cart with a 20 percent coupon reported 20 percent more revenue than the customer paid.
+Promotion discounts are separate line items, so the reported item prices did not include them and every ecommerce event overstated its value by the discount. Product items now report the unit price after the discount as `price` and the discount per unit as the new `discount` property. The discount is allocated to the products using the composition the promotion already stores. Shipping discounts are not allocated, as they already reduce `shipping`.
 
-Product items now report the unit price after the discount as `price`, and the discount per unit as the new `discount` property. Google Analytics treats both as independent metrics and does not subtract one from the other, so only `price` contributes to the value. `begin_checkout`, `view_cart`, `add_shipping_info`, `add_payment_info`, `purchase`, and `remove_from_cart` are affected.
+Themes that override the block `component_hidden_line_item_information` and read `data-price` or `gaPrice` now get the discounted unit price. The new `data-total` attribute carries the discounted line total, which the event value is summed from. The allocation is exposed through the new Twig function `sw_analytics_line_item_prices(lineItems, context)`.
 
-The discount of a promotion is allocated to the products it was calculated from, using the composition the promotion already stores on its line item. It is allocated on the line total and only then divided by the quantity, because a promotion does not have to discount every unit of a line item. Combinable promotions can discount a product by more than it costs, because they are only capped at the cart total; what exceeds the product is spread over the other products, so the reported value still matches what the customer paid. Shipping discounts are not allocated to products; they already reduce the reported `shipping`.
-
-Themes that override the block `component_hidden_line_item_information` and read `data-price` or the `gaPrice` variable will now read the discounted unit price. The new `data-total` attribute carries the discounted line total, which the event value is summed from, because the rounded unit price times the quantity can miss it by a cent. The template exposes the allocation through the new Twig function `sw_analytics_line_item_prices(lineItems, context)`.
 ### Storefront session handling moved to Core
 
 `Shopware\Core\Framework\Routing\SessionContextTokenSubscriber` now starts the storefront session, keeps its context token and follows token rotations on login, registration, logout and password changes; `Shopware\Storefront\Framework\Routing\StorefrontSubscriber` no longer handles the session. The `sw-sales-channel-id` session key is no longer written. With `core.systemWideLoginRegistration.isCustomerBoundToSalesChannel` enabled, a password change now updates the sales channel bound session token instead of leaving a revoked one behind.

@@ -564,6 +564,19 @@ The new `CheckoutCustomerStorageReset` plugin drops that data and is bound via `
 
 The combined `checkout.confirmTermsTextModalWithGuarantee` snippet was replaced by `checkout.confirmTermsTextModal` for terms and `checkout.confirmLegalGuaranteeNotice` for the separate guarantee notice. Update theme overrides accordingly.
 
+### Google Analytics reports `select_item` and the list a product was presented in
+
+Following a product link in a listing, search result, slider, cross selling tab, or the wishlist now reports `select_item`. `view_item_list` and `select_item` report the list as `item_list_id` and `item_list_name` and the position as `index`, and `view_item` repeats the list the product was selected from. `view_item_list` now only reports the products of the product listing, and saving the cookie preferences again no longer registers every event twice.
+
+The list identifiers are a contract that Google Tag Manager triggers can rely on:
+
+* A category listing reports the category id, or the CMS slot id without a category, and the category name.
+* Search results report `search` and `Search results`.
+* The wishlist reports `wishlist` and `Wishlist`.
+* A cross selling tab reports the id and the name of the cross selling group.
+
+Themes can set them on their own lists through the `listId` and `listName` variables of `@Storefront/storefront/component/product/listing.html.twig`, or with `data-list-id` and `data-list-name` on any element containing product boxes. These attributes are only rendered for a sales channel with active analytics, and themes should use the same condition, `storefrontAnalytics and storefrontAnalytics.isActive()`.
+
 ### Storefront session handling moved to Core
 
 `Shopware\Core\Framework\Routing\SessionContextTokenSubscriber` now starts the storefront session, keeps its context token and follows token rotations on login, registration, logout and password changes; `Shopware\Storefront\Framework\Routing\StorefrontSubscriber` no longer handles the session. The `sw-sales-channel-id` session key is no longer written. With `core.systemWideLoginRegistration.isCustomerBoundToSalesChannel` enabled, a password change now updates the sales channel bound session token instead of leaving a revoked one behind.

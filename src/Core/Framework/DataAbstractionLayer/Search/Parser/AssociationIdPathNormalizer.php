@@ -21,18 +21,12 @@ final class AssociationIdPathNormalizer
         $parts = explode('.', $fieldName);
 
         // Only paths ending in `<association>.id` can be shortened
-        if (\count($parts) < 2 || array_pop($parts) !== 'id') {
+        if (\count($parts) < 2 || array_last($parts) !== 'id') {
             return $fieldName;
         }
 
-        $association = array_pop($parts);
-        if ($association === null) {
-            return $fieldName;
-        }
-
-        $candidate = $parts === []
-            ? $association . 'Id'
-            : implode('.', $parts) . '.' . $association . 'Id';
+        $association = $parts[\count($parts) - 2];
+        $candidate = implode('.', [...\array_slice($parts, 0, -2), $association . 'Id']);
 
         // No `<association>Id` foreign key next to the association, e.g. to-many associations
         $fkField = EntityDefinitionQueryHelper::getField($candidate, $definition, $definition->getEntityName());

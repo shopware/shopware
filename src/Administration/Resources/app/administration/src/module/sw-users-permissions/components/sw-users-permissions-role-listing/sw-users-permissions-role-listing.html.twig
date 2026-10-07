@@ -87,7 +87,7 @@
         <template #action-modals="{ item }">
             {% block sw_users_permissions_role_listing_grid_actions_modals_modal %}
             <sw-modal
-                v-if="isConfirmDeleteModalOpen"
+                v-if="isConfirmDeleteModalOpen && getItemToDelete(item)"
                 :title="$t('sw-users-permissions.roles.role-grid.titleModalDelete')"
                 variant="small"
                 @modal-close="onCloseDeleteModal"
@@ -144,6 +144,7 @@
     {% block sw_users_permissions_role_listing_empty_state %}
     <mt-empty-state
         v-else
+        centered
         :icon="$route.meta.$module.icon"
         :headline="$t('sw-users-permissions.roles.role-grid.messageEmptyTitle')"
         :description="$t('sw-users-permissions.roles.role-grid.messageEmptySubline')"

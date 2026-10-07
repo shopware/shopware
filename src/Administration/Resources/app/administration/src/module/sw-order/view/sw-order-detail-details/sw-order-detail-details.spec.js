@@ -113,6 +113,7 @@ async function createWrapper() {
                 'sw-order-state-history-modal': true,
             },
             provide: {
+                customFieldDataProviderService: { getCustomFieldSets: () => Promise.resolve([]) },
                 repositoryFactory: {
                     create: () => ({
                         search: () => Promise.resolve([]),

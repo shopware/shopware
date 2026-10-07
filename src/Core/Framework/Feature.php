@@ -11,7 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 
 /**
- * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: boolean, majorVersion?: string, description?: string, active?: bool, static?: bool, toggleable?: bool, type?: string}
+ * @phpstan-type FeatureFlagConfig array{name?: string, default?: boolean, major?: string, description?: string, active?: bool, static?: bool, toggleable?: bool, type?: string}
  */
 #[Package('framework')]
 #[BecomesFinal(version: 'v6.8.0')]
@@ -39,6 +39,14 @@ class Feature
      */
     private static array $registeredFeatures = [];
 
+    /**
+     * Memoization of normalizeName(). The transform is pure and deterministic, and the method is
+     * called on every Feature::isActive()/setActive()/... invocation (hundreds of times per request).
+     *
+     * @var array<string, string>
+     */
+    private static array $normalizedNames = [];
+
     public static function normalizeName(string $name): string
     {
         /*
@@ -48,7 +56,15 @@ class Feature
          * - SAAS_321
          * - v6.5.0.0 => v6_5_0_0
          */
-        return \strtoupper(\str_replace(['.', ':', '-'], '_', $name));
+        return self::$normalizedNames[$name] ??= \strtoupper(\str_replace(['.', ':', '-'], '_', $name));
+    }
+
+    /**
+     * @internal
+     */
+    public static function isMajorVersionFlag(string $name): bool
+    {
+        return (bool) \preg_match('/^V\d+_\d+_0_0$/', self::normalizeName($name));
     }
 
     /**
@@ -124,17 +140,9 @@ class Feature
     /**
      * Determines weather a feature is active or not.
      *
-     * A feature is either active by being in the environment (specified in the .env file for example)
-     * or by matching a FEATURE_ALL mode.
-     *
-     * With FEATURE_ALL you can activate either all minor or all major features.
-     * FEATURE_ALL=1, FEATURE_ALL=minor or any other truthy values except 'false' equals minor
-     * FEATURE_ALL=major puts it into major mode
-     * FEATURE_ALL=v6.8.0.0 puts it into major mode for a single target major: major flags arriving
-     * in v6.8.0.0 or earlier are active, later ones stay off. While two majors are in flight, this
-     * is what lets a test run validate one major's release state without the next one bleeding in.
-     *
-     * The specific feature configuration in the environment is always the highest priority, no matter the FEATURE_ALL configuration.
+     * An explicit environment or runtime value wins over FEATURE_ALL and an active parent major.
+     * Any truthy FEATURE_ALL value enables every registered feature. A feature whose `major`
+     * configuration names a version flag also becomes active when that version flag is active.
      */
     public static function isActive(string $feature): bool
     {
@@ -153,31 +161,23 @@ class Feature
             return self::getFeatureInEnv($feature);
         }
 
-        $featureAll = (string) EnvironmentHelper::getVariable('FEATURE_ALL', '');
-
-        // If FEATURE_ALL has any truthy value
-        if (self::isTrue($featureAll) && (self::$registeredFeatures === [] || \array_key_exists($feature, self::$registeredFeatures))) {
-            // If feature is not major and is have set active, return the active state
-            if (!self::getConfiguration($feature, 'major') && self::hasConfiguration($feature, 'active')) {
-                return self::getConfiguration($feature, 'active');
-            }
-
-            $targetMajor = self::majorVersion($featureAll);
-
-            // Should only enable major flags
-            if ($featureAll === Feature::ALL_MAJOR || $targetMajor !== null) {
-                return self::getConfiguration($feature, 'major')
-                    && ($targetMajor === null || self::arrivesInMajor($feature, $targetMajor));
-            }
-
-            // Enable all minor flags
-            if (!self::getConfiguration($feature, 'major')) {
-                return true;
-            }
-        }
-
         if (self::hasConfiguration($feature, 'active')) {
             return self::getConfiguration($feature, 'active');
+        }
+
+        if (self::isTrue((string) EnvironmentHelper::getVariable('FEATURE_ALL', ''))
+            && (self::$registeredFeatures === [] || \array_key_exists($feature, self::$registeredFeatures))
+        ) {
+            return true;
+        }
+
+        $major = self::$registeredFeatures[$feature]['major'] ?? null;
+        if (\is_string($major)
+            && self::isMajorVersionFlag($major)
+            && isset(self::$registeredFeatures[self::normalizeName($major)])
+            && self::isActive($major)
+        ) {
+            return true;
         }
 
         if (!EnvironmentHelper::hasVariable($feature) && !EnvironmentHelper::hasVariable(\strtolower($feature))) {
@@ -284,10 +284,6 @@ class Feature
             return;
         }
 
-        if (!self::$emitDeprecations) {
-            return;
-        }
-
         if (isset(self::$silent[$majorFlag])) {
             return;
         }
@@ -304,6 +300,11 @@ class Feature
             if (self::$registeredFeatures !== [] && !self::has($majorFlag)) {
                 throw FeatureException::error('Tried to access deprecated functionality: ' . $message);
             }
+        }
+
+        // Suppress notices in production, but still enforce removal in major mode.
+        if (!self::$emitDeprecations) {
+            return;
         }
 
         if (\PHP_SAPI !== 'cli') {
@@ -404,7 +405,6 @@ class Feature
         );
 
         // set defaults
-        $metaData['major'] = (bool) ($metaData['major'] ?? false);
         $metaData['default'] = (bool) ($metaData['default'] ?? false);
         $metaData['description'] = (string) ($metaData['description'] ?? '');
 
@@ -470,36 +470,6 @@ class Feature
     private static function isTrue(string $value): bool
     {
         return $value && $value !== 'false';
-    }
-
-    /**
-     * The major a flag arrives in is either encoded in its name (`v6.8.0.0`) or declared explicitly
-     * via `majorVersion` for flags that are not named after their major (`JSON_LD_DATA`).
-     */
-    private static function arrivesInMajor(string $feature, string $targetMajor): bool
-    {
-        $declared = self::$registeredFeatures[$feature]['majorVersion'] ?? null;
-        $arrivesIn = self::majorVersion($feature) ?? ($declared === null ? null : self::majorVersion($declared));
-
-        // A major flag that names no target major belongs to every major, so it stays on in all of them.
-        if ($arrivesIn === null) {
-            return true;
-        }
-
-        return \version_compare($arrivesIn, $targetMajor, '<=');
-    }
-
-    /**
-     * Turns a version-shaped flag name or FEATURE_ALL value (`v6.8.0.0`, `V6_8_0_0`) into a
-     * comparable version, or null when it is not version-shaped (`major`, `minor`, `1`, ...).
-     */
-    private static function majorVersion(string $value): ?string
-    {
-        if (!\preg_match('/^V?(\d+(?:_\d+){1,3})$/', self::normalizeName($value), $matches)) {
-            return null;
-        }
-
-        return \str_replace('_', '.', $matches[1]);
     }
 
     private static function denormalize(string $name): string

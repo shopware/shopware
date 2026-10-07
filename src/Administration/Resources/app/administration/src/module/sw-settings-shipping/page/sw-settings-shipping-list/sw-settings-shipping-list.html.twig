@@ -65,11 +65,30 @@
             <mt-empty-state
                 v-if="!isLoading && !total"
                 :icon="$route.meta.$module.icon"
-                :centered="true"
+                centered
                 :headline="isValidTerm(term) ? $t('sw-empty-state.messageNoResultTitle') : $t('sw-settings-shipping.list.messageEmpty')"
+                description=""
                 :link-text="isValidTerm(term) ? $t('sw-empty-state.messageNoResultLink') : ''"
                 :link-href="isValidTerm(term) ? $router.resolve({ name: 'sw.profile.index.searchPreferences' }).href : ''"
-            />
+            >
+                <template
+                    v-if="!isValidTerm(term)"
+                    #button
+                >
+                    <mt-button
+                        v-tooltip="{
+                            message: $t('sw-privileges.tooltip.warning'),
+                            disabled: acl.can('shipping.creator'),
+                            showOnDisabledElements: true
+                        }"
+                        variant="primary"
+                        :disabled="!acl.can('shipping.creator')"
+                        @click="$router.push({ name: 'sw.settings.shipping.create' })"
+                    >
+                        {{ $t('sw-settings-shipping.list.buttonAddShippingMethod') }}
+                    </mt-button>
+                </template>
+            </mt-empty-state>
             {% endblock %}
 
             {% block sw_settings_shipping_list_grid %}

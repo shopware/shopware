@@ -171,7 +171,7 @@
                 "contextMenuEdit": "Edit integration",
                 "textChangePassword": "Pressing the \"change\" button will immediately save the new password!",
                 "addAccessKey": "Create access key",
-                "noAccessKeysTitle": "No access keys available",
+                "noAccessKeysTitle": "No access keys yet",
                 "noAccessKeysSubline": "Create access keys here",
                 "labelAccessKey": "Access key",
                 "labelPermissions": "Permissions",
@@ -231,12 +231,12 @@
         },
         "permissions": {
             "parents": {
-                "catalogues": "Catalogues",
                 "content": "Content",
                 "customers": "Customers",
                 "marketing": "Marketing",
                 "other": "Other",
                 "orders": "Orders",
+                "products": "Products",
                 "settings": "Settings"
             },
             "users_and_permissions": {

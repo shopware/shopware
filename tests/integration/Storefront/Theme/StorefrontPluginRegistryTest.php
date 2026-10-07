@@ -20,7 +20,7 @@ class StorefrontPluginRegistryTest extends TestCase
 
     public function testConfigIsAddedIfItsATheme(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/theme');
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/SwagTheme');
 
         $registry = static::getContainer()
             ->get(StorefrontPluginRegistry::class);
@@ -33,7 +33,7 @@ class StorefrontPluginRegistryTest extends TestCase
 
     public function testConfigIsNotAddedIfAppIsNotActive(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/theme', false);
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/SwagTheme', false);
 
         $registry = static::getContainer()
             ->get(StorefrontPluginRegistry::class);
@@ -45,7 +45,7 @@ class StorefrontPluginRegistryTest extends TestCase
 
     public function testConfigIsAddedIfHasResourcesToCompile(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/noThemeCustomCss');
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/SwagNoThemeCustomCss');
 
         $registry = static::getContainer()
             ->get(StorefrontPluginRegistry::class);
@@ -58,7 +58,7 @@ class StorefrontPluginRegistryTest extends TestCase
 
     public function testConfigIsNotAddedButIdentifiedAsNotThemeIfItsNotATheme(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/noThemeNoCss');
+        $this->loadAppsFromDir(__DIR__ . '/fixtures/Apps/SwagNoThemeNoCss');
 
         $registry = static::getContainer()
             ->get(StorefrontPluginRegistry::class);

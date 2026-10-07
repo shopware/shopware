@@ -11,6 +11,7 @@ use Shopware\Core\Content\Product\Events\ProductCrossSellingCriteriaLoadEvent;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingIdsCriteriaEvent;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingsLoadedEvent;
 use Shopware\Core\Content\Product\Events\ProductCrossSellingStreamCriteriaEvent;
+use Shopware\Core\Content\Product\Extension\ProductCrossSellingRouteExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\SalesChannel\AbstractProductCloseoutFilterFactory;
@@ -26,6 +27,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\Filter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -59,6 +61,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         private readonly AbstractProductCloseoutFilterFactory $productCloseoutFilterFactory,
         private readonly CacheTagCollector $cacheTagCollector,
         private readonly Connection $connection,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -79,6 +82,15 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
         defaults: [PlatformRequest::ATTRIBUTE_ENTITY => ProductDefinition::ENTITY_NAME, PlatformRequest::ATTRIBUTE_HTTP_CACHE => true]
     )]
     public function load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse
+    {
+        return $this->extensions->publish(
+            name: ProductCrossSellingRouteExtension::NAME,
+            extension: new ProductCrossSellingRouteExtension($productId, $request, $context, $criteria),
+            function: $this->_load(...),
+        );
+    }
+
+    private function _load(string $productId, Request $request, SalesChannelContext $context, Criteria $criteria): ProductCrossSellingRouteResponse
     {
         $crossSellings = $this->loadCrossSellings($productId, $context);
 
@@ -106,7 +118,7 @@ class ProductCrossSellingRoute extends AbstractProductCrossSellingRoute
 
         $tags = [self::buildName($productId)];
 
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             $tags = array_merge($tags, $this->getCrossSellingTags($elements));
         }
 

@@ -27,6 +27,7 @@ use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
 use Shopware\Core\Test\AppSystemTestBehaviour;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Event\ThemeCompilerConcatenatedStylesEvent;
 use Shopware\Storefront\Theme\Event\ThemeCompilerEnrichScssVariablesEvent;
@@ -58,6 +59,7 @@ class ThemeCompilerTest extends TestCase
     use AppSystemTestBehaviour;
     use DatabaseTransactionBehaviour;
     use EnvTestBehaviour;
+    use EventHookBehaviour;
     use KernelTestBehaviour;
 
     private ThemeCompiler $themeCompiler;
@@ -285,17 +287,13 @@ PHP_EOL;
 
         $subscriber = new ThemeCompilerEnrichScssVarSubscriber($configurationService, $storefrontPluginRegistry);
 
-        $this->eventDispatcher->addSubscriber($subscriber);
+        $this->hookSubscriber($subscriber);
 
         $sysConfService = static::getContainer()->get(SystemConfigService::class);
         $sysConfService->set('SimplePlugin.config.simplePluginBackgroundcolor', '#fff');
         $sysConfService->set('SwagNoThemeCustomCss.config.noThemeCustomCssBackGroundcolor', '#aaa');
 
-        try {
-            $actual = $this->compileThemeAndGetCss($testScss, new StorefrontPluginConfiguration('test'));
-        } finally {
-            $this->eventDispatcher->removeSubscriber($subscriber);
-        }
+        $actual = $this->compileThemeAndGetCss($testScss, new StorefrontPluginConfiguration('test'));
 
         static::assertSame($expectedCssOutputNoAutoPrefix, trim($actual));
     }
@@ -412,20 +410,16 @@ PHP_EOL;
         $listener = static function (ThemeCompilerConcatenatedStylesEvent $event) use ($scss): void {
             $event->setConcatenatedStyles($scss);
         };
-        $this->eventDispatcher->addListener(ThemeCompilerConcatenatedStylesEvent::class, $listener);
+        $this->onEvent(ThemeCompilerConcatenatedStylesEvent::class, $listener);
 
-        try {
-            $this->themeCompiler->compileTheme(
-                $this->mockSalesChannelId,
-                'themeId',
-                $config,
-                new StorefrontPluginConfigurationCollection(),
-                false,
-                Context::createDefaultContext()
-            );
-        } finally {
-            $this->eventDispatcher->removeListener(ThemeCompilerConcatenatedStylesEvent::class, $listener);
-        }
+        $this->themeCompiler->compileTheme(
+            $this->mockSalesChannelId,
+            'themeId',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
 
         $themePrefix = $this->themePathBuilder->assemblePath($this->mockSalesChannelId, 'themeId');
 

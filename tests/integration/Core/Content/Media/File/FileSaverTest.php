@@ -868,8 +868,6 @@ SVG;
             }
         }
 
-        $dispatcher->removeListener(MediaFileExtensionWhitelistEvent::class, $listenerClosure);
-
         static::assertTrue($eventDidRun, 'The media_whitelist.before_filter event did not run');
     }
 }

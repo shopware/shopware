@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextSwitchEvent;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Storefront\Framework\Routing\Router;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -20,6 +21,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 #[Package('discovery')]
 class ContextControllerContextTest extends TestCase
 {
+    use EventHookBehaviour;
     use SalesChannelFunctionalTestBehaviour;
 
     private KernelBrowser $browser;
@@ -153,8 +155,7 @@ class ContextControllerContextTest extends TestCase
         static::assertSame(200, $this->browser->getResponse()->getStatusCode());
 
         $contextSubscriber = new ContextControllerTestSubscriber();
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-        $dispatcher->addSubscriber($contextSubscriber);
+        $this->hookSubscriber($contextSubscriber);
 
         $this->browser->request(
             'POST',
@@ -163,8 +164,6 @@ class ContextControllerContextTest extends TestCase
         );
 
         $response = $this->browser->getResponse();
-
-        $dispatcher->removeSubscriber($contextSubscriber);
 
         static::assertSame(200, $response->getStatusCode(), $response->getContent() ?: '');
         static::assertSame($this->languageId, $contextSubscriber->switchEvent->getRequestDataBag()->get('languageId'));

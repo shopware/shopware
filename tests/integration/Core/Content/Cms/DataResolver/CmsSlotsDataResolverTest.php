@@ -23,9 +23,9 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\Tag\TagCollection;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -35,6 +35,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('discovery')]
 class CmsSlotsDataResolverTest extends TestCase
 {
+    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     private IdsCollection $ids;
@@ -47,13 +48,8 @@ class CmsSlotsDataResolverTest extends TestCase
         $this->context = $this->getContainer()->get(SalesChannelContextFactory::class)
             ->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
-        $this->initTestSubscriber();
+        $this->hookSubscriber(new CmsSlotsDataTestSubscriber());
         $this->initData();
-    }
-
-    protected function tearDown(): void
-    {
-        $this->removeTestSubscriber();
     }
 
     public function testProductSliderAcceptsCustomAssociations(): void
@@ -85,14 +81,6 @@ class CmsSlotsDataResolverTest extends TestCase
         static::assertCount(1, $tags);
     }
 
-    private function initTestSubscriber(): void
-    {
-        $testSubscriber = new CmsSlotsDataTestSubscriber();
-
-        $this->getContainer()->set(CmsSlotsDataTestSubscriber::class, $testSubscriber);
-        $this->getContainer()->get('event_dispatcher')->addSubscriber($testSubscriber);
-    }
-
     private function initData(): void
     {
         $context = Context::createDefaultContext();
@@ -122,17 +110,6 @@ class CmsSlotsDataResolverTest extends TestCase
         ];
 
         $this->getContainer()->get('product.repository')->create($products, $context);
-    }
-
-    private function removeTestSubscriber(): void
-    {
-        $eventDispatcher = $this->getContainer()->get('event_dispatcher');
-        \assert($eventDispatcher instanceof EventDispatcherInterface);
-
-        $testSubscriber = $this->getContainer()->get(CmsSlotsDataTestSubscriber::class);
-        \assert($testSubscriber instanceof CmsSlotsDataTestSubscriber);
-
-        $eventDispatcher->removeSubscriber($testSubscriber);
     }
 }
 

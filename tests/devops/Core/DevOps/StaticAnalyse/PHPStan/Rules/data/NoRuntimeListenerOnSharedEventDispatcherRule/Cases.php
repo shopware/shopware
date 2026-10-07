@@ -66,4 +66,18 @@ class Cases
     {
         $this->dispatcher->addListener('event', static function (): void {});
     }
+
+    public function helperWithSharedDispatcher(EventDispatcherInterface $dispatcher): void
+    {
+        $this->addEventListener($dispatcher, 'event', static function (): void {});
+    }
+
+    public function helperWithOwnDispatcher(): void
+    {
+        $this->addEventListener(new EventDispatcher(), 'event', static function (): void {});
+    }
+
+    private function addEventListener(EventDispatcherInterface $dispatcher, string $eventName, callable $callback): void
+    {
+    }
 }

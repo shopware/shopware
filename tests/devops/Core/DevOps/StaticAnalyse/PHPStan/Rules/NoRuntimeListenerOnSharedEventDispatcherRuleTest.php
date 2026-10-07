@@ -26,8 +26,10 @@ class NoRuntimeListenerOnSharedEventDispatcherRuleTest extends RuleTestCase
             [\sprintf(NoRuntimeListenerOnSharedEventDispatcherRule::ERROR, 'addListener'), 29],
             // a `@var EventDispatcher` annotation does not turn the container's dispatcher into one the test built
             [\sprintf(NoRuntimeListenerOnSharedEventDispatcherRule::ERROR, 'addListener'), 62],
+            [NoRuntimeListenerOnSharedEventDispatcherRule::ERROR_HELPER, 72],
             // NOT flagged: 35-36 (a dispatcher the test built), 44 (a test double), 49-50 (no listener change),
-            // 55 (not a dispatcher), 67 (a property natively typed as a dispatcher the test built)
+            // 55 (not a dispatcher), 67 (a property natively typed as a dispatcher the test built), 77 (the helper
+            // given a dispatcher the test built)
         ]);
     }
 

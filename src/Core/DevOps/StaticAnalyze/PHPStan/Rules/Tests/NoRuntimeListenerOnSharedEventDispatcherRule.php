@@ -3,6 +3,7 @@
 namespace Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Tests;
 
 use PhpParser\Node;
+use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Identifier;
 use PHPStan\Analyser\Scope;
@@ -31,7 +32,14 @@ class NoRuntimeListenerOnSharedEventDispatcherRule implements Rule
 {
     public const ERROR = 'Do not call %s() on the shared event dispatcher: Symfony 8.2 compiles it and deprecates runtime listener changes. Hook the event with EventHookBehaviour::onEvent(), or dispatch through a dispatcher the test builds itself.';
 
+    public const ERROR_HELPER = 'Do not pass the shared event dispatcher to addEventListener(): it adds a runtime listener, which Symfony 8.2 deprecates for its compiled dispatcher. Hook the event with EventHookBehaviour::onEvent() instead.';
+
     private const METHODS = ['addListener', 'addSubscriber', 'removeListener', 'removeSubscriber'];
+
+    /**
+     * The EventDispatcherBehaviour helper, which adds a listener to the dispatcher it is given.
+     */
+    private const HELPER = 'addEventListener';
 
     /**
      * @var list<string>
@@ -55,31 +63,43 @@ class NoRuntimeListenerOnSharedEventDispatcherRule implements Rule
      */
     public function processNode(Node $node, Scope $scope): array
     {
-        if (!$node->name instanceof Identifier || !\in_array($node->name->toString(), self::METHODS, true)) {
+        if (!$node->name instanceof Identifier || !$this->isEnabledNamespace($scope->getNamespace() ?? '')) {
             return [];
         }
 
-        if (!$this->isEnabledNamespace($scope->getNamespace() ?? '')) {
+        $method = $node->name->toString();
+        if (\in_array($method, self::METHODS, true)) {
+            $dispatcher = $node->var;
+            $message = \sprintf(self::ERROR, $method);
+        } elseif ($method === self::HELPER && isset($node->getArgs()[0])) {
+            $dispatcher = $node->getArgs()[0]->value;
+            $message = self::ERROR_HELPER;
+        } else {
             return [];
         }
 
-        $type = $scope->getType($node->var);
-        if (!(new ObjectType(EventDispatcherInterface::class))->isSuperTypeOf($type)->yes()) {
-            return [];
-        }
-
-        // a dispatcher built by the test, or a double of one, is not the shared service; the native type ignores
-        // a `@var EventDispatcher` annotation on the container's dispatcher
-        if ((new ObjectType(EventDispatcher::class))->isSuperTypeOf($scope->getNativeType($node->var))->yes()
-            || (new ObjectType(MockObject::class))->isSuperTypeOf($type)->yes()) {
+        if (!$this->isSharedDispatcher($dispatcher, $scope)) {
             return [];
         }
 
         return [
-            RuleErrorBuilder::message(\sprintf(self::ERROR, $node->name->toString()))
+            RuleErrorBuilder::message($message)
                 ->identifier('shopware.runtimeListenerOnSharedEventDispatcher')
                 ->build(),
         ];
+    }
+
+    private function isSharedDispatcher(Expr $dispatcher, Scope $scope): bool
+    {
+        $type = $scope->getType($dispatcher);
+        if (!(new ObjectType(EventDispatcherInterface::class))->isSuperTypeOf($type)->yes()) {
+            return false;
+        }
+
+        // a dispatcher built by the test, or a double of one, is not the shared service; the native type ignores
+        // a `@var EventDispatcher` annotation on the container's dispatcher
+        return !(new ObjectType(EventDispatcher::class))->isSuperTypeOf($scope->getNativeType($dispatcher))->yes()
+            && !(new ObjectType(MockObject::class))->isSuperTypeOf($type)->yes();
     }
 
     private function isEnabledNamespace(string $namespace): bool

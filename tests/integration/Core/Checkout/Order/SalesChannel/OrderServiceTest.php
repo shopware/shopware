@@ -147,19 +147,9 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            $htmlText = $event->getContents()['text/html'];
-            self::assertIsString($htmlText);
-            static::assertStringContainsString('The new status is as follows: Cancelled.', $htmlText);
-            static::assertStringContainsString($url, $htmlText);
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->orderService->orderDeliveryStateTransition(
             $orderDeliveryId,
@@ -169,7 +159,11 @@ class OrderServiceTest extends TestCase
         );
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
+        $htmlText = $mail->getContents()['text/html'];
+        static::assertIsString($htmlText);
+        static::assertStringContainsString('The new status is as follows: Cancelled.', $htmlText);
+        static::assertStringContainsString($url, $htmlText);
     }
 
     public function testSkipOrderDeliveryStateTransitionSendsMail(): void
@@ -199,19 +193,8 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $url = $domain . '/account/order/' . $order->getDeepLinkCode();
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            $htmlText = $event->getContents()['text/html'];
-            self::assertIsString($htmlText);
-            static::assertStringContainsString('The new status is as follows: Cancelled.', $htmlText);
-            static::assertStringContainsString($url, $htmlText);
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->salesChannelContext
             ->getContext()
@@ -224,7 +207,7 @@ class OrderServiceTest extends TestCase
             $this->salesChannelContext->getContext()
         );
 
-        static::assertFalse($eventDidRun, 'The mail.sent Event did run');
+        static::assertNull($mail, 'The mail.sent Event did run');
     }
 
     public function testOrderDeliveryStateTransitionSendsMailDe(): void
@@ -264,18 +247,9 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, $this->getDeDeLanguageId());
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
-        $eventDidRun = false;
-        $innerEvent = null;
-
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, &$innerEvent): void {
-            $innerEvent = $event;
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->orderService->orderDeliveryStateTransition(
             $orderDeliveryId,
@@ -285,13 +259,11 @@ class OrderServiceTest extends TestCase
         );
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        static::assertNotNull($innerEvent);
-        $textHtml = $innerEvent->getContents()['text/html'];
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
+        $textHtml = $mail->getContents()['text/html'];
         static::assertIsString($textHtml);
         static::assertStringContainsString('Die Bestellung hat jetzt den Lieferstatus: Abgebrochen.', $textHtml);
         static::assertStringContainsString($url, $textHtml);
-
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
         $this->salesChannelContext = $previousContext;
     }
 
@@ -353,19 +325,9 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            $htmlText = $event->getContents()['text/html'];
-            self::assertIsString($htmlText);
-            static::assertStringContainsString('The new status is as follows: Paid (partially).', $htmlText);
-            static::assertStringContainsString($url, $htmlText);
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->orderService->orderTransactionStateTransition(
             $orderTransactionId,
@@ -375,7 +337,11 @@ class OrderServiceTest extends TestCase
         );
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
+        $htmlText = $mail->getContents()['text/html'];
+        static::assertIsString($htmlText);
+        static::assertStringContainsString('The new status is as follows: Paid (partially).', $htmlText);
+        static::assertStringContainsString($url, $htmlText);
     }
 
     public function testSkipOrderTransactionStateTransitionSendsMail(): void
@@ -404,19 +370,8 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $url = $domain . '/account/order/' . $order->getDeepLinkCode();
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            $htmlText = $event->getContents()['text/html'];
-            self::assertIsString($htmlText);
-            static::assertStringContainsString('The new status is as follows: Paid (partially).', $htmlText);
-            static::assertStringContainsString($url, $htmlText);
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->salesChannelContext
             ->getContext()
@@ -429,7 +384,7 @@ class OrderServiceTest extends TestCase
             $this->salesChannelContext->getContext()
         );
 
-        static::assertFalse($eventDidRun, 'The mail.sent Event did not run');
+        static::assertNull($mail, 'The mail.sent Event did run');
     }
 
     public function testCreateOrder(): void
@@ -496,19 +451,13 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $eventDidRun = false;
-        $listenerClosure = static function () use (&$eventDidRun): void {
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
     }
 
     public function testOrderStateTransition(): void
@@ -541,8 +490,6 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.' . Uuid::randomHex();
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $criteria = new Criteria([$orderId]);
 
         $criteria->addAssociation('stateMachineState');
@@ -551,21 +498,17 @@ class OrderServiceTest extends TestCase
         static::assertNotNull($order);
 
         $url = $domain . '/account/order/' . $order->getDeepLinkCode();
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            $htmlText = $event->getContents()['text/html'];
-            self::assertIsString($htmlText);
-            static::assertStringContainsString('The new status is as follows: Cancelled.', $htmlText);
-            static::assertStringContainsString($url, $htmlText);
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->orderService->orderStateTransition($orderId, 'cancel', new ParameterBag(), $this->salesChannelContext->getContext());
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
+        $htmlText = $mail->getContents()['text/html'];
+        static::assertIsString($htmlText);
+        static::assertStringContainsString('The new status is as follows: Cancelled.', $htmlText);
+        static::assertStringContainsString($url, $htmlText);
     }
 
     public function testMailTemplateHasCorrectDomain(): void
@@ -598,23 +541,17 @@ class OrderServiceTest extends TestCase
         $secondDomain = 'http://shopware.second-domain';
         $this->setDomainForSalesChannel($secondDomain, $languageId);
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $eventDidRun = false;
-        $listenerClosure = function (MailSentEvent $event) use (&$eventDidRun, $firstDomain, $secondDomain): void {
-            $htmlText = $event->getContents()['text/html'];
-            self::assertIsString($htmlText);
-            static::assertStringContainsString($firstDomain, $htmlText);
-            static::assertThat($htmlText, $this->logicalNot($this->stringContains($secondDomain)));
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
+        $htmlText = $mail->getContents()['text/html'];
+        static::assertIsString($htmlText);
+        static::assertStringContainsString($firstDomain, $htmlText);
+        static::assertStringNotContainsString($secondDomain, $htmlText);
     }
 
     public function testMailTemplateHandlesVirtualDomains(): void
@@ -630,23 +567,17 @@ class OrderServiceTest extends TestCase
         $domain = 'http://shopware.test/virtual-domain';
         $this->setDomainForSalesChannel($domain, Defaults::LANGUAGE_SYSTEM);
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $url = $domain . '/account/order';
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun, $url): void {
-            $htmlText = $event->getContents()['text/html'];
-            self::assertIsString($htmlText);
-            static::assertStringContainsString($url, $htmlText);
-            $eventDidRun = true;
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $this->orderService->createOrder($data, $this->salesChannelContext);
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
+        $htmlText = $mail->getContents()['text/html'];
+        static::assertIsString($htmlText);
+        static::assertStringContainsString($url, $htmlText);
     }
 
     private function performOrder(): string

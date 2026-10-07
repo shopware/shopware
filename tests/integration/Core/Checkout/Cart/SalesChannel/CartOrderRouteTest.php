@@ -34,6 +34,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParamete
 use Shopware\Core\System\Salutation\SalutationDefinition;
 use Shopware\Core\System\TaxProvider\TaxProviderCollection;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Unit\Core\Checkout\Cart\TaxProvider\_fixtures\TestConstantTaxRateProvider;
@@ -50,6 +51,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 class CartOrderRouteTest extends TestCase
 {
     use CountryAddToSalesChannelTestBehaviour;
+    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -570,7 +572,7 @@ class CartOrderRouteTest extends TestCase
 
     protected function catchEvent(string $eventName, ?Event &$eventResult): void
     {
-        $this->addEventListener(static::getContainer()->get('event_dispatcher'), $eventName, static function (Event $event) use (&$eventResult): void {
+        $this->onEvent($eventName, static function (Event $event) use (&$eventResult): void {
             $eventResult = $event;
         });
     }

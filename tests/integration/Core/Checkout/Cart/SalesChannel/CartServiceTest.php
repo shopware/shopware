@@ -95,7 +95,7 @@ class CartServiceTest extends TestCase
     public function testCreateNewWithEvent(): void
     {
         $caughtEvent = null;
-        $this->addEventListener(static::getContainer()->get('event_dispatcher'), CartCreatedEvent::class, static function (CartCreatedEvent $event) use (&$caughtEvent): void {
+        $this->onEvent(CartCreatedEvent::class, static function (CartCreatedEvent $event) use (&$caughtEvent): void {
             $caughtEvent = $event;
         });
 
@@ -112,10 +112,8 @@ class CartServiceTest extends TestCase
 
     public function testLineItemAddedEventFired(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $isMerged = null;
-        $this->addEventListener($dispatcher, BeforeLineItemAddedEvent::class, static function (BeforeLineItemAddedEvent $addedEvent) use (&$isMerged): void {
+        $this->onEvent(BeforeLineItemAddedEvent::class, static function (BeforeLineItemAddedEvent $addedEvent) use (&$isMerged): void {
             $isMerged = $addedEvent->isMerged();
         });
 
@@ -146,12 +144,10 @@ class CartServiceTest extends TestCase
 
     public function testAfterLineItemAddedEventFired(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
-        $this->addEventListener($dispatcher, AfterLineItemAddedEvent::class, $listener);
+        $this->onEvent(AfterLineItemAddedEvent::class, $listener);
 
         $cartService = static::getContainer()->get(CartService::class);
 
@@ -168,12 +164,10 @@ class CartServiceTest extends TestCase
 
     public function testLineItemRemovedEventFired(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
-        $this->addEventListener($dispatcher, BeforeLineItemRemovedEvent::class, $listener);
+        $this->onEvent(BeforeLineItemRemovedEvent::class, $listener);
 
         $cartService = static::getContainer()->get(CartService::class);
 
@@ -194,12 +188,10 @@ class CartServiceTest extends TestCase
 
     public function testAfterLineItemRemovedEventFired(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
-        $this->addEventListener($dispatcher, AfterLineItemRemovedEvent::class, $listener);
+        $this->onEvent(AfterLineItemRemovedEvent::class, $listener);
 
         $cartService = static::getContainer()->get(CartService::class);
 
@@ -220,12 +212,10 @@ class CartServiceTest extends TestCase
 
     public function testLineItemQuantityChangedEventFired(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
-        $this->addEventListener($dispatcher, BeforeLineItemQuantityChangedEvent::class, $listener);
+        $this->onEvent(BeforeLineItemQuantityChangedEvent::class, $listener);
 
         $cartService = static::getContainer()->get(CartService::class);
 
@@ -244,12 +234,10 @@ class CartServiceTest extends TestCase
 
     public function testAfterLineItemQuantityChangedEventFired(): void
     {
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
 
-        $this->addEventListener($dispatcher, AfterLineItemQuantityChangedEvent::class, $listener);
+        $this->onEvent(AfterLineItemQuantityChangedEvent::class, $listener);
 
         $cartService = static::getContainer()->get(CartService::class);
 
@@ -456,22 +444,16 @@ class CartServiceTest extends TestCase
 
         $systemConfigService->set('core.basicInformation.email', 'test@example.org');
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $eventDidRun = false;
-        $listenerClosure = static function (MailSentEvent $event) use (&$eventDidRun): void {
-            $eventDidRun = true;
-            $htmlText = $event->getContents()['text/html'];
-            self::assertIsString($htmlText);
-            static::assertStringContainsString('Shipping costs: €0.00', $htmlText);
-        };
-
-        $this->addEventListener($dispatcher, MailSentEvent::class, $listenerClosure);
+        $mail = null;
+        $this->catchEvent(MailSentEvent::class, $mail);
 
         $cartService->order($cart, $context, new RequestDataBag());
         static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
-        static::assertTrue($eventDidRun, 'The mail.sent Event did not run');
+        static::assertInstanceOf(MailSentEvent::class, $mail, 'The mail.sent Event did not run');
+        $htmlText = $mail->getContents()['text/html'];
+        static::assertIsString($htmlText);
+        static::assertStringContainsString('Shipping costs: €0.00', $htmlText);
     }
 
     public function testCartCreatedWithGivenToken(): void

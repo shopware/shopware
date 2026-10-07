@@ -569,10 +569,7 @@ class RegisterRouteTest extends TestCase
         $systemConfig->set('core.loginRegistration.doubleOptInRegistration', true);
         $systemConfig->set('core.loginRegistration.confirmationUrl', '/confirm/custom/%%HASHEDEMAIL%%/%%SUBSCRIBEHASH%%');
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $this->addEventListener(
-            $dispatcher,
+        $this->onEvent(
             CustomerConfirmRegisterUrlEvent::class,
             static function (CustomerConfirmRegisterUrlEvent $event): void {
                 $event->setConfirmUrl($event->getConfirmUrl());
@@ -580,8 +577,7 @@ class RegisterRouteTest extends TestCase
         );
 
         $caughtEvent = null;
-        $this->addEventListener(
-            $dispatcher,
+        $this->onEvent(
             CustomerDoubleOptInRegistrationEvent::class,
             static function (CustomerDoubleOptInRegistrationEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;

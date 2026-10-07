@@ -13,11 +13,11 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\EventDispatcherBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\Debug\TraceableEventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -28,7 +28,7 @@ use Symfony\Component\HttpFoundation\Request;
 #[Package('checkout')]
 class CustomerGroupRegistrationActionControllerTest extends TestCase
 {
-    use EventDispatcherBehaviour;
+    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -43,13 +43,11 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         static::assertInstanceOf(TraceableEventDispatcher::class, $eventDispatcher);
         $controller = $this->createController($eventDispatcher);
 
-        $this->addEventListener(
-            $eventDispatcher,
+        $caughtEvent = null;
+        $this->onEvent(
             CustomerGroupRegistrationAccepted::class,
-            function (CustomerGroupRegistrationAccepted $event) use ($customerId, $requestedCustomerGroup): void {
-                static::assertSame($customerId, $event->getCustomer()->getId());
-                static::assertSame($requestedCustomerGroup->getId(), $event->getCustomerGroup()->getId());
-                static::assertSame(self::B2B_CUSTOMER_GROUP_NAME, $event->getCustomerGroup()->getName());
+            static function (CustomerGroupRegistrationAccepted $event) use (&$caughtEvent): void {
+                $caughtEvent = $event;
             }
         );
 
@@ -57,6 +55,11 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $request->request->add(['customerIds' => [$customerId]]);
 
         $controller->accept($request, Context::createDefaultContext());
+
+        static::assertInstanceOf(CustomerGroupRegistrationAccepted::class, $caughtEvent);
+        static::assertSame($customerId, $caughtEvent->getCustomer()->getId());
+        static::assertSame($requestedCustomerGroup->getId(), $caughtEvent->getCustomerGroup()->getId());
+        static::assertSame(self::B2B_CUSTOMER_GROUP_NAME, $caughtEvent->getCustomerGroup()->getName());
 
         $customerResult = $this->fetchCustomerById($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customerResult);
@@ -73,14 +76,11 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         static::assertInstanceOf(TraceableEventDispatcher::class, $eventDispatcher);
         $controller = $this->createController($eventDispatcher);
 
-        $this->addEventListener(
-            $eventDispatcher,
+        $caughtEvent = null;
+        $this->onEvent(
             CustomerGroupRegistrationDeclined::class,
-            static function (CustomerGroupRegistrationDeclined $event) use ($customerId, $requestedCustomerGroup): void {
-                // Check requested customerGroup is set in event
-                static::assertSame($customerId, $event->getCustomer()->getId());
-                static::assertSame($requestedCustomerGroup->getId(), $event->getCustomerGroup()->getId());
-                static::assertSame(self::B2B_CUSTOMER_GROUP_NAME, $event->getCustomerGroup()->getName());
+            static function (CustomerGroupRegistrationDeclined $event) use (&$caughtEvent): void {
+                $caughtEvent = $event;
             }
         );
 
@@ -88,6 +88,12 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $request->request->add(['customerIds' => [$customerId]]);
 
         $controller->decline($request, Context::createDefaultContext());
+
+        // Check requested customerGroup is set in event
+        static::assertInstanceOf(CustomerGroupRegistrationDeclined::class, $caughtEvent);
+        static::assertSame($customerId, $caughtEvent->getCustomer()->getId());
+        static::assertSame($requestedCustomerGroup->getId(), $caughtEvent->getCustomerGroup()->getId());
+        static::assertSame(self::B2B_CUSTOMER_GROUP_NAME, $caughtEvent->getCustomerGroup()->getName());
 
         $customerResult = $this->fetchCustomerById($customerId);
         static::assertInstanceOf(CustomerEntity::class, $customerResult);
@@ -131,11 +137,11 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         static::assertInstanceOf(TraceableEventDispatcher::class, $eventDispatcher);
         $controller = $this->createController($eventDispatcher);
 
-        $this->addEventListener(
-            $eventDispatcher,
+        $caughtEvent = null;
+        $this->onEvent(
             CustomerGroupRegistrationAccepted::class,
-            function (CustomerGroupRegistrationAccepted $event) use ($languageId): void {
-                static::assertSame($languageId, $event->getContext()->getLanguageId());
+            static function (CustomerGroupRegistrationAccepted $event) use (&$caughtEvent): void {
+                $caughtEvent = $event;
             }
         );
 
@@ -143,6 +149,9 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $request->request->add(['customerIds' => [$customerId]]);
 
         $controller->accept($request, Context::createDefaultContext());
+
+        static::assertInstanceOf(CustomerGroupRegistrationAccepted::class, $caughtEvent);
+        static::assertSame($languageId, $caughtEvent->getContext()->getLanguageId());
     }
 
     public function testDeclineWithInactiveCustomer(): void
@@ -181,11 +190,11 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         static::assertInstanceOf(TraceableEventDispatcher::class, $eventDispatcher);
         $controller = $this->createController($eventDispatcher);
 
-        $this->addEventListener(
-            $eventDispatcher,
+        $caughtEvent = null;
+        $this->onEvent(
             CustomerGroupRegistrationDeclined::class,
-            function (CustomerGroupRegistrationDeclined $event) use ($languageId): void {
-                static::assertSame($languageId, $event->getContext()->getLanguageId());
+            static function (CustomerGroupRegistrationDeclined $event) use (&$caughtEvent): void {
+                $caughtEvent = $event;
             }
         );
 
@@ -193,6 +202,9 @@ class CustomerGroupRegistrationActionControllerTest extends TestCase
         $request->request->add(['customerIds' => [$customerId]]);
 
         $controller->decline($request, Context::createDefaultContext());
+
+        static::assertInstanceOf(CustomerGroupRegistrationDeclined::class, $caughtEvent);
+        static::assertSame($languageId, $caughtEvent->getContext()->getLanguageId());
     }
 
     public function testAcceptThrowsExceptionOnUnknownRequestedCustomerGroup(): void

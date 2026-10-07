@@ -22,8 +22,8 @@ use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\TestDefaults;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -31,6 +31,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 #[Package('checkout')]
 class AccountServiceEventTest extends TestCase
 {
+    use EventHookBehaviour;
     use SalesChannelFunctionalTestBehaviour;
 
     private AccountService $accountService;
@@ -46,9 +47,7 @@ class AccountServiceEventTest extends TestCase
 
     private LogoutRoute $logoutRoute;
 
-    private EventDispatcherInterface $dispatcher;
-
-    private bool $eventDidRun = false;
+    private ?string $caughtEmail = null;
 
     /**
      * @var \Closure(CustomerBeforeLoginEvent): void
@@ -66,7 +65,6 @@ class AccountServiceEventTest extends TestCase
         $this->customerRepository = static::getContainer()->get('customer.repository');
         $this->logoutRoute = static::getContainer()->get(LogoutRoute::class);
         $this->loginRoute = static::getContainer()->get(LoginRoute::class);
-        $this->dispatcher = static::getContainer()->get('event_dispatcher');
 
         $salesChannelContextFactory = static::getContainer()->get(SalesChannelContextFactory::class);
         $this->salesChannelContext = $salesChannelContextFactory->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
@@ -74,19 +72,17 @@ class AccountServiceEventTest extends TestCase
         $this->createCustomer('info@example.com');
 
         $this->emailListenerClosure = function (CustomerBeforeLoginEvent $event): void {
-            $this->eventDidRun = true;
-            static::assertSame('info@example.com', $event->getEmail());
+            $this->caughtEmail = $event->getEmail();
         };
 
         $this->customerListenerClosure = function (CustomerLoginEvent|CustomerLogoutEvent $event): void {
-            $this->eventDidRun = true;
-            static::assertSame('info@example.com', $event->getCustomer()->getEmail());
+            $this->caughtEmail = $event->getCustomer()->getEmail();
         };
     }
 
     public function testLoginBeforeEventNotDispatchedIfNoCredentialsGivenViaLoginRoute(): void
     {
-        $this->addEventListener($this->dispatcher, CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
+        $this->onEvent(CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
 
         $dataBag = new DataBag();
         $dataBag->add([
@@ -99,26 +95,26 @@ class AccountServiceEventTest extends TestCase
         try {
             $this->loginRoute->login($dataBag->toRequestDataBag(), $this->salesChannelContext);
         } finally {
-            static::assertFalse($this->eventDidRun, 'Event "' . CustomerBeforeLoginEvent::class . '" did run');
+            static::assertNull($this->caughtEmail, 'Event "' . CustomerBeforeLoginEvent::class . '" did run');
         }
     }
 
     public function testLoginBeforeEventNotDispatchedIfNoCredentialsGivenViaAccountService(): void
     {
-        $this->addEventListener($this->dispatcher, CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
+        $this->onEvent(CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
 
         $this->expectExceptionObject(new BadCredentialsException());
 
         try {
             $this->accountService->loginByCredentials('', 'shopware', $this->salesChannelContext);
         } finally {
-            static::assertFalse($this->eventDidRun, 'Event "' . CustomerBeforeLoginEvent::class . '" did run');
+            static::assertNull($this->caughtEmail, 'Event "' . CustomerBeforeLoginEvent::class . '" did run');
         }
     }
 
     public function testCustomerBeforeLoginEventDispatchedViaLoginRoute(): void
     {
-        $this->addEventListener($this->dispatcher, CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
+        $this->onEvent(CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
 
         $dataBag = new DataBag();
         $dataBag->add([
@@ -127,20 +123,20 @@ class AccountServiceEventTest extends TestCase
         ]);
 
         $this->loginRoute->login($dataBag->toRequestDataBag(), $this->salesChannelContext);
-        static::assertTrue($this->eventDidRun, 'Event "' . CustomerBeforeLoginEvent::class . '" did not run');
+        static::assertSame('info@example.com', $this->caughtEmail, 'Event "' . CustomerBeforeLoginEvent::class . '" did not run');
     }
 
     public function testCustomerBeforeLoginEventDispatchedViaAccountService(): void
     {
-        $this->addEventListener($this->dispatcher, CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
+        $this->onEvent(CustomerBeforeLoginEvent::class, $this->emailListenerClosure);
 
         $this->accountService->loginByCredentials('info@example.com', 'shopware', $this->salesChannelContext);
-        static::assertTrue($this->eventDidRun, 'Event "' . CustomerBeforeLoginEvent::class . '" did not run');
+        static::assertSame('info@example.com', $this->caughtEmail, 'Event "' . CustomerBeforeLoginEvent::class . '" did not run');
     }
 
     public function testCustomerLoginEventDispatchedViaLoginRoute(): void
     {
-        $this->addEventListener($this->dispatcher, CustomerLoginEvent::class, $this->customerListenerClosure);
+        $this->onEvent(CustomerLoginEvent::class, $this->customerListenerClosure);
 
         $dataBag = new DataBag();
         $dataBag->add([
@@ -149,22 +145,22 @@ class AccountServiceEventTest extends TestCase
         ]);
 
         $this->loginRoute->login($dataBag->toRequestDataBag(), $this->salesChannelContext);
-        static::assertTrue($this->eventDidRun, 'Event "' . CustomerLoginEvent::class . '" did not run');
+        static::assertSame('info@example.com', $this->caughtEmail, 'Event "' . CustomerLoginEvent::class . '" did not run');
     }
 
     public function testCustomerLoginEventDispatchedViaAccountService(): void
     {
-        $this->addEventListener($this->dispatcher, CustomerLoginEvent::class, $this->customerListenerClosure);
+        $this->onEvent(CustomerLoginEvent::class, $this->customerListenerClosure);
 
         $this->accountService->loginByCredentials('info@example.com', 'shopware', $this->salesChannelContext);
-        static::assertTrue($this->eventDidRun, 'Event "' . CustomerLoginEvent::class . '" did not run');
+        static::assertSame('info@example.com', $this->caughtEmail, 'Event "' . CustomerLoginEvent::class . '" did not run');
     }
 
     public function testLogoutEventsDispatched(): void
     {
         $email = 'info@example.com';
 
-        $this->addEventListener($this->dispatcher, CustomerLogoutEvent::class, $this->customerListenerClosure);
+        $this->onEvent(CustomerLogoutEvent::class, $this->customerListenerClosure);
 
         $customer = $this->customerRepository->search(
             (new Criteria())->addFilter(new EqualsFilter('email', $email)),
@@ -178,6 +174,6 @@ class AccountServiceEventTest extends TestCase
 
         $this->logoutRoute->logout($this->salesChannelContext, new RequestDataBag());
 
-        static::assertTrue($this->eventDidRun, 'Event "' . CustomerLogoutEvent::class . '" did not run');
+        static::assertSame('info@example.com', $this->caughtEmail, 'Event "' . CustomerLogoutEvent::class . '" did not run');
     }
 }

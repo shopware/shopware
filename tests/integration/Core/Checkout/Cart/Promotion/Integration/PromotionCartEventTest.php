@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionIntegrationTestBehaviour;
 use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 
@@ -20,6 +21,7 @@ use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviou
 #[Package('checkout')]
 class PromotionCartEventTest extends TestCase
 {
+    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use PromotionIntegrationTestBehaviour;
     use PromotionTestFixtureBehaviour;
@@ -51,11 +53,9 @@ class PromotionCartEventTest extends TestCase
         $codes = [100, 1, 42, 13, 19];
         $this->createBulkPromotions($codes);
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $addListener = $this->createMock(CallableClass::class);
         $addListener->expects($this->exactly(1 + \count($codes)))->method('__invoke');
-        $this->addEventListener($dispatcher, BeforeLineItemAddedEvent::class, $addListener);
+        $this->onEvent(BeforeLineItemAddedEvent::class, $addListener);
 
         $cart = $this->cartService->getCart($this->getContext()->getToken(), $this->getContext());
 
@@ -83,11 +83,9 @@ class PromotionCartEventTest extends TestCase
         $codes = [100, 1, 42, 13, 19];
         $this->createBulkPromotions($codes);
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $removeListener = $this->createMock(CallableClass::class);
         $removeListener->expects($this->once())->method('__invoke');
-        $this->addEventListener($dispatcher, BeforeLineItemRemovedEvent::class, $removeListener);
+        $this->onEvent(BeforeLineItemRemovedEvent::class, $removeListener);
 
         $cart = $this->cartService->getCart($this->getContext()->getToken(), $this->getContext());
 

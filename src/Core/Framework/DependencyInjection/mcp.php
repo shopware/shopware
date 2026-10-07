@@ -7,12 +7,6 @@ use Shopware\Core\Content\Media\Upload\MediaUploadService;
 use Shopware\Core\Framework\Api\Acl\AclCriteriaValidator;
 use Shopware\Core\Framework\Api\OAuth\ClientRepository;
 use Shopware\Core\Framework\Api\Serializer\JsonEntityEncoder;
-use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptDefinition;
-use Shopware\Core\Framework\App\Aggregate\AppMcpPromptTranslation\AppMcpPromptTranslationDefinition;
-use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceDefinition;
-use Shopware\Core\Framework\App\Aggregate\AppMcpResourceTranslation\AppMcpResourceTranslationDefinition;
-use Shopware\Core\Framework\App\Aggregate\AppMcpTool\AppMcpToolDefinition;
-use Shopware\Core\Framework\App\Aggregate\AppMcpToolTranslation\AppMcpToolTranslationDefinition;
 use Shopware\Core\Framework\App\AppSecretResolver;
 use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\App\Mcp\Feature\McpPromptFeatureDefinition;
@@ -592,23 +586,4 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(McpResourceFeatureDefinition::class)
         ->tag('shopware.app_feature.definition');
-
-    // DAL definitions
-    $services->set(AppMcpToolDefinition::class)
-        ->tag('shopware.entity.definition');
-
-    $services->set(AppMcpToolTranslationDefinition::class)
-        ->tag('shopware.entity.definition');
-
-    $services->set(AppMcpPromptDefinition::class)
-        ->tag('shopware.entity.definition');
-
-    $services->set(AppMcpPromptTranslationDefinition::class)
-        ->tag('shopware.entity.definition');
-
-    $services->set(AppMcpResourceDefinition::class)
-        ->tag('shopware.entity.definition');
-
-    $services->set(AppMcpResourceTranslationDefinition::class)
-        ->tag('shopware.entity.definition');
 };

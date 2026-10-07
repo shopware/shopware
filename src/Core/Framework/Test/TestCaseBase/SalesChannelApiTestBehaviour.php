@@ -206,7 +206,12 @@ trait SalesChannelApiTestBehaviour
                     'url' => 'http://localhost',
                 ],
             ],
-            'countries' => [['id' => $this->getValidCountryId(null)]],
+            // createCustomer() and login() use a country of the default sales channel for the customer address,
+            // so it has to be available here as well, otherwise checkouts are correctly rejected as blocked
+            'countries' => $salesChannelOverride['countries'] ?? array_map(
+                static fn (string $id): array => ['id' => $id],
+                array_values(array_unique([$this->getValidCountryId(null), $this->getValidCountryId()]))
+            ),
         ], $salesChannelOverride);
 
         $salesChannelRepository->upsert([$salesChannel], Context::createDefaultContext());

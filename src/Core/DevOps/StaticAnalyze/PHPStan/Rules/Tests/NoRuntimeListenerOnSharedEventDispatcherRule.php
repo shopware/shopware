@@ -68,8 +68,9 @@ class NoRuntimeListenerOnSharedEventDispatcherRule implements Rule
             return [];
         }
 
-        // a dispatcher built by the test, or a double of one, is not the shared service
-        if ((new ObjectType(EventDispatcher::class))->isSuperTypeOf($type)->yes()
+        // a dispatcher built by the test, or a double of one, is not the shared service; the native type ignores
+        // a `@var EventDispatcher` annotation on the container's dispatcher
+        if ((new ObjectType(EventDispatcher::class))->isSuperTypeOf($scope->getNativeType($node->var))->yes()
             || (new ObjectType(MockObject::class))->isSuperTypeOf($type)->yes()) {
             return [];
         }

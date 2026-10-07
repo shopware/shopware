@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Integration\RuleFixture;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -13,6 +14,8 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
  */
 class Cases
 {
+    private EventDispatcher $dispatcher;
+
     public function sharedDispatcher(EventDispatcherInterface $dispatcher, EventSubscriberInterface $subscriber): void
     {
         $dispatcher->addListener('event', static function (): void {});
@@ -50,5 +53,17 @@ class Cases
     public function notADispatcher(\ArrayObject $object): void
     {
         $object->append('addListener');
+    }
+
+    public function annotatedContainerDispatcher(ContainerInterface $container): void
+    {
+        /** @var EventDispatcher $dispatcher */
+        $dispatcher = $container->get('event_dispatcher');
+        $dispatcher->addListener('event', static function (): void {});
+    }
+
+    public function ownDispatcherProperty(): void
+    {
+        $this->dispatcher->addListener('event', static function (): void {});
     }
 }

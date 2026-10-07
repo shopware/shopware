@@ -19,13 +19,15 @@ class NoRuntimeListenerOnSharedEventDispatcherRuleTest extends RuleTestCase
     public function testRule(): void
     {
         $this->analyse([__DIR__ . '/data/NoRuntimeListenerOnSharedEventDispatcherRule/Cases.php'], [
-            [\sprintf(NoRuntimeListenerOnSharedEventDispatcherRule::ERROR, 'addListener'), 18],
-            [\sprintf(NoRuntimeListenerOnSharedEventDispatcherRule::ERROR, 'removeListener'), 19],
-            [\sprintf(NoRuntimeListenerOnSharedEventDispatcherRule::ERROR, 'addSubscriber'), 20],
-            [\sprintf(NoRuntimeListenerOnSharedEventDispatcherRule::ERROR, 'removeSubscriber'), 21],
-            [\sprintf(NoRuntimeListenerOnSharedEventDispatcherRule::ERROR, 'addListener'), 26],
-            // NOT flagged: 32-33 (a dispatcher the test built), 41 (a test double), 46-47 (no listener change),
-            // 52 (not a dispatcher)
+            [\sprintf(NoRuntimeListenerOnSharedEventDispatcherRule::ERROR, 'addListener'), 21],
+            [\sprintf(NoRuntimeListenerOnSharedEventDispatcherRule::ERROR, 'removeListener'), 22],
+            [\sprintf(NoRuntimeListenerOnSharedEventDispatcherRule::ERROR, 'addSubscriber'), 23],
+            [\sprintf(NoRuntimeListenerOnSharedEventDispatcherRule::ERROR, 'removeSubscriber'), 24],
+            [\sprintf(NoRuntimeListenerOnSharedEventDispatcherRule::ERROR, 'addListener'), 29],
+            // a `@var EventDispatcher` annotation does not turn the container's dispatcher into one the test built
+            [\sprintf(NoRuntimeListenerOnSharedEventDispatcherRule::ERROR, 'addListener'), 62],
+            // NOT flagged: 35-36 (a dispatcher the test built), 44 (a test double), 49-50 (no listener change),
+            // 55 (not a dispatcher), 67 (a property natively typed as a dispatcher the test built)
         ]);
     }
 

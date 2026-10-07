@@ -99,13 +99,14 @@ class McpToolResultRendererTest extends TestCase
         static::assertNull($result->structuredContent);
     }
 
-    public function testLeavesOutTheStructuredCopyOfALargeResult(): void
+    public function testKeepsBothCopiesOfALargeResult(): void
     {
-        $data = ['blob' => str_repeat('x', McpToolResultRenderer::MAX_STRUCTURED_TEXT_BYTES)];
+        // The spec asks for the data twice; large results are offloaded before rendering, not cut here.
+        $data = ['blob' => str_repeat('x', 60_000)];
 
         $result = $this->renderer()->render(McpToolResult::success($data), ProtocolVersion::latestHandshake());
 
-        static::assertNull($result->structuredContent);
+        static::assertSame($data, $result->structuredContent);
         static::assertStringContainsString('"blob"', $this->text($result->content[0]));
     }
 

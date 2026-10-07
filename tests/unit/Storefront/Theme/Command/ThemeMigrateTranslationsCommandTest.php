@@ -51,7 +51,7 @@ class ThemeMigrateTranslationsCommandTest extends TestCase
         $this->commandTester = new CommandTester(new ThemeMigrateTranslationsCommand(
             $registry,
             $resolver,
-            new ThemeConfigSnippetGenerator(),
+            new ThemeConfigSnippetGenerator(static::createStub(StorefrontPluginRegistry::class)),
             $this->filesystem,
         ));
     }
@@ -153,6 +153,25 @@ class ThemeMigrateTranslationsCommandTest extends TestCase
         $this->commandTester->execute(['technical-name' => 'SwagTheme']);
 
         static::assertStringNotContainsString('[WARNING]', $this->commandTester->getDisplay());
+    }
+
+    public function testWarnsAboutGroupLabelsNoFieldUses(): void
+    {
+        $this->configuration->setThemeJson([
+            'name' => 'SwagTheme',
+            'config' => [
+                'blocks' => ['ghost' => ['label' => ['en-GB' => 'Nobody uses me']]],
+                'fields' => ['sw-logo' => ['type' => 'media', 'block' => 'logos']],
+            ],
+        ]);
+
+        $exitCode = $this->commandTester->execute(['technical-name' => 'SwagTheme']);
+        $display = $this->commandTester->getDisplay();
+
+        static::assertSame(Command::SUCCESS, $exitCode);
+        static::assertStringContainsString('[WARNING]', $display);
+        static::assertStringContainsString('blocks.ghost', $display);
+        static::assertStringContainsString('has no legacy translations', $display);
     }
 
     public function testDryRunWritesNothing(): void

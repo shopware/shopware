@@ -68,6 +68,14 @@ class ThemeMigrateTranslationsCommand extends Command
             return self::FAILURE;
         }
 
+        $unplaceableGroups = $this->generator->findUnplaceableGroups($configuration);
+        if ($unplaceableGroups !== []) {
+            $io->warning(\sprintf(
+                'The labels of %s cannot be migrated: no field of the theme or its parent themes uses these groups, so they have no snippet key. Move the labels to a group that is in use or drop them, they are lost with --strip.',
+                implode(', ', $unplaceableGroups),
+            ));
+        }
+
         $snippets = $this->generator->generate($configuration);
         if ($snippets === []) {
             $io->success(\sprintf('Theme "%s" has no legacy translations in its theme.json. Nothing to do.', $technicalName));

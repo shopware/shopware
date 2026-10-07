@@ -174,7 +174,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('theme.repository'),
         ]);
 
-    $services->set(ThemeConfigSnippetGenerator::class);
+    $services->set(ThemeConfigSnippetGenerator::class)
+        ->args([
+            service(StorefrontPluginRegistry::class),
+        ]);
 
     $services->set(ThemeSnippetFileWriter::class)
         ->args([

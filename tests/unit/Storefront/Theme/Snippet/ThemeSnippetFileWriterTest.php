@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Snippet\ThemeConfigSnippetGenerator;
 use Shopware\Storefront\Theme\Snippet\ThemeSnippetFileWriter;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 
 /**
  * @internal
@@ -37,7 +38,7 @@ class ThemeSnippetFileWriterTest extends TestCase
         $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->writer = new ThemeSnippetFileWriter(
-            new ThemeConfigSnippetGenerator(),
+            new ThemeConfigSnippetGenerator(static::createStub(StorefrontPluginRegistry::class)),
             $this->privateFilesystem,
             $this->cacheInvalidator,
             $this->logger,

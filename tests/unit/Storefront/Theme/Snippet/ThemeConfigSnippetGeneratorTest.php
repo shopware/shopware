@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\Snippet\ThemeConfigSnippetGenerator;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
+use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 
 /**
  * @internal
@@ -17,9 +18,137 @@ class ThemeConfigSnippetGeneratorTest extends TestCase
 {
     private ThemeConfigSnippetGenerator $generator;
 
+    /**
+     * @var array<string, StorefrontPluginConfiguration>
+     */
+    private array $parentThemes = [];
+
     protected function setUp(): void
     {
-        $this->generator = new ThemeConfigSnippetGenerator();
+        $registry = static::createStub(StorefrontPluginRegistry::class);
+        $registry->method('getByTechnicalName')->willReturnCallback(fn (string $name): ?StorefrontPluginConfiguration => $this->parentThemes[$name] ?? null);
+
+        $this->generator = new ThemeConfigSnippetGenerator($registry);
+    }
+
+    public function testChildThemeCanRelabelInheritedGroupsWithoutOwnFields(): void
+    {
+        $this->parentThemes['Storefront'] = $this->createConfiguration([
+            'fields' => [
+                'sw-color-brand-primary' => ['type' => 'color', 'tab' => 'colors', 'block' => 'themeColors', 'section' => 'brand'],
+            ],
+        ], 'Storefront');
+
+        $child = $this->createConfiguration([
+            'tabs' => ['colors' => ['label' => ['en-GB' => 'Brand colours']]],
+            'blocks' => ['themeColors' => ['label' => ['en-GB' => 'Our colours']]],
+            'sections' => ['brand' => ['label' => ['en-GB' => 'Brand']]],
+        ]);
+
+        static::assertSame([
+            'en-GB' => [
+                'sw-theme' => [
+                    'SwagTheme' => [
+                        'colors' => [
+                            'label' => 'Brand colours',
+                            'themeColors' => [
+                                'label' => 'Our colours',
+                                'brand' => ['label' => 'Brand'],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], $this->generator->generate($child));
+        static::assertSame([], $this->generator->findUnplaceableGroups($child));
+    }
+
+    public function testChildThemeCanRelabelAnInheritedFieldWithoutRepeatingItsPosition(): void
+    {
+        $this->parentThemes['Storefront'] = $this->createConfiguration([
+            'fields' => [
+                'sw-logo' => ['type' => 'media', 'tab' => 'media', 'block' => 'logos'],
+            ],
+        ], 'Storefront');
+
+        $child = $this->createConfiguration([
+            'fields' => [
+                'sw-logo' => ['label' => ['en-GB' => 'Shop logo'], 'helpText' => ['en-GB' => 'Shown in the header']],
+            ],
+        ]);
+
+        static::assertSame([
+            'en-GB' => [
+                'sw-theme' => [
+                    'SwagTheme' => [
+                        'media' => ['logos' => ['default' => ['sw-logo' => ['label' => 'Shop logo', 'helpText' => 'Shown in the header']]]],
+                    ],
+                ],
+            ],
+        ], $this->generator->generate($child));
+    }
+
+    public function testExplicitConfigInheritanceIsFollowedInOrder(): void
+    {
+        $this->parentThemes['Storefront'] = $this->createConfiguration([
+            'fields' => ['sw-logo' => ['type' => 'media', 'tab' => 'storefrontTab']],
+        ], 'Storefront');
+        $this->parentThemes['SwagParentTheme'] = $this->createConfiguration([
+            'fields' => ['sw-logo' => ['type' => 'media', 'tab' => 'parentTab']],
+        ], 'SwagParentTheme');
+
+        $child = $this->createConfiguration([
+            'fields' => ['sw-logo' => ['label' => ['en-GB' => 'Logo']]],
+        ]);
+        $child->setConfigInheritance(['@Storefront', '@SwagParentTheme']);
+
+        static::assertSame(
+            ['parentTab'],
+            array_keys($this->generator->generate($child)['en-GB']['sw-theme']['SwagTheme']),
+        );
+    }
+
+    public function testUnknownParentThemesAreIgnored(): void
+    {
+        $child = $this->createConfiguration([
+            'fields' => ['sw-logo' => ['label' => ['en-GB' => 'Logo']]],
+        ]);
+        $child->setConfigInheritance(['@Missing']);
+
+        static::assertSame(
+            ['default' => ['default' => ['default' => ['sw-logo' => ['label' => 'Logo']]]]],
+            $this->generator->generate($child)['en-GB']['sw-theme']['SwagTheme'],
+        );
+    }
+
+    public function testGroupLabelsNoFieldUsesAreReportedInsteadOfSilentlyDropped(): void
+    {
+        $configuration = $this->createConfiguration([
+            'blocks' => [
+                'ghost' => ['label' => ['en-GB' => 'Nobody uses me']],
+                'logos' => ['label' => ['en-GB' => 'Logos']],
+            ],
+            'sections' => ['lost' => ['label' => ['en-GB' => 'Lost']]],
+            'fields' => ['sw-logo' => ['type' => 'media', 'block' => 'logos']],
+        ]);
+
+        static::assertSame(['blocks.ghost', 'sections.lost'], $this->generator->findUnplaceableGroups($configuration));
+        static::assertSame(
+            ['default' => ['logos' => ['label' => 'Logos']]],
+            $this->generator->generate($configuration)['en-GB']['sw-theme']['SwagTheme'],
+        );
+    }
+
+    public function testTabLabelsNeedNoFieldToBePlaced(): void
+    {
+        $configuration = $this->createConfiguration([
+            'tabs' => ['extras' => ['label' => ['en-GB' => 'Extras']]],
+        ]);
+
+        static::assertSame(
+            ['en-GB' => ['sw-theme' => ['SwagTheme' => ['extras' => ['label' => 'Extras']]]]],
+            $this->generator->generate($configuration),
+        );
     }
 
     public function testThemeWithoutThemeJsonYieldsNoSnippets(): void
@@ -296,10 +425,10 @@ class ThemeConfigSnippetGeneratorTest extends TestCase
     /**
      * @param array<string, mixed> $config
      */
-    private function createConfiguration(array $config): StorefrontPluginConfiguration
+    private function createConfiguration(array $config, string $technicalName = 'SwagTheme'): StorefrontPluginConfiguration
     {
-        $configuration = new StorefrontPluginConfiguration('SwagTheme');
-        $configuration->setThemeJson(['name' => 'SwagTheme', 'config' => $config]);
+        $configuration = new StorefrontPluginConfiguration($technicalName);
+        $configuration->setThemeJson(['name' => $technicalName, 'config' => $config]);
 
         return $configuration;
     }

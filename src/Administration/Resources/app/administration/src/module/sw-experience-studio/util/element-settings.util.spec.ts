@@ -698,6 +698,12 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         });
     });
 
+    it('writes a single-entry language map over an undefined current value', () => {
+        expect(withLanguageEntry(undefined, ANCHOR_LANGUAGE_ID, 'Hello again')).toEqual({
+            [ANCHOR_LANGUAGE_ID]: 'Hello again',
+        });
+    });
+
     it.each([
         [
             'a bare string',
@@ -711,14 +717,10 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
             'null',
             null,
         ],
-        [
-            'undefined',
-            undefined,
-        ],
-    ])('writes a single-entry language map over %s', (_label, current) => {
-        expect(withLanguageEntry(current, ANCHOR_LANGUAGE_ID, 'Hello again')).toEqual({
-            [ANCHOR_LANGUAGE_ID]: 'Hello again',
-        });
+    ])('throws when writing over %s instead of a language map', (_label, current) => {
+        expect(() => withLanguageEntry(current, ANCHOR_LANGUAGE_ID, 'Hello again')).toThrow(
+            /must be undefined or a non-empty language map of strings/,
+        );
     });
 
     it('throws when the anchor language entry is removed', () => {

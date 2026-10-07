@@ -123,7 +123,8 @@ export function resolveTranslatableEntry(value: unknown, chain: readonly string[
  *
  * Every other entry travels verbatim, a non-string entry included: the write
  * route judges the carried values. Removing the anchor entry throws, since no
- * studio action offers it.
+ * studio action offers it. A `current` that is neither `undefined` nor a
+ * language map throws, the strictness the reader already holds.
  *
  * @private
  * @sw-package discovery
@@ -133,8 +134,18 @@ export function withLanguageEntry(current: unknown, languageId: string, entry: s
         throw new Error('The anchor language entry of a translatable property cannot be removed.');
     }
 
-    // A non-string entry the server has to judge travels here too, so the map is not narrowed to strings.
-    const languageMap: Record<string, unknown> = isLanguageMap(current) ? { ...current } : {};
+    let languageMap: Record<string, unknown> = {};
+
+    if (current !== undefined) {
+        if (!isLanguageMap(current)) {
+            throw new Error(
+                `A translatable property value must be undefined or a non-empty language map of strings, received ${describeTranslatableValue(current)}.`,
+            );
+        }
+
+        // A non-string entry the server has to judge travels here too, so the map is not narrowed to strings.
+        languageMap = { ...current };
+    }
 
     if (entry === null) {
         delete languageMap[languageId];

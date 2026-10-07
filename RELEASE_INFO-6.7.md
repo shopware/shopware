@@ -325,6 +325,26 @@ Run `bin/console es:index` after deploying. Existing documents have no price unt
 
 Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
 
+### `ProductCartDataContextHashEvent` for state that product cart data depends on
+
+The cart reloads the data of a product only when its data context hash changed, and that hash only covered the sales channel context and the tax rules. An extension whose product data or prices depend on other state, for example its own pricing rules, got stale cart data until the product itself changed.
+
+Subscribe to `Shopware\Core\Content\Product\Events\ProductCartDataContextHashEvent` and add a value that changes with your state:
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return [ProductCartDataContextHashEvent::class => 'onHash'];
+}
+
+public function onHash(ProductCartDataContextHashEvent $event): void
+{
+    $event->add('my-plugin', $this->getRuleStateHash());
+}
+```
+
+The event also gives access to the cart data (`getData()`), the original cart (`getOriginalCart()`), the sales channel context and the cart behavior (`getBehavior()`). Without a added part the hash is unchanged.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation

@@ -1,6 +1,7 @@
 {% block sw_product_deliverability_downloadable_form %}
 <sw-container class="product-deliverability-downloadable-form">
 
+    {% block sw_product_deliverability_downloadable_form_delivery_time_field %}
     <sw-inherit-wrapper
         v-if="showModeSetting"
         v-model:value="product.deliveryTimeId"
@@ -24,7 +25,9 @@
             />
         </template>
     </sw-inherit-wrapper>
+    {% endblock %}
 
+    {% block sw_product_deliverability_downloadable_form_is_closeout_field %}
     <sw-inherit-wrapper
         v-model:value="product.isCloseout"
         :has-parent="!!parentProduct.id"
@@ -51,13 +54,14 @@
 
         </template>
     </sw-inherit-wrapper>
+    {% endblock %}
 
     <sw-container
         v-show="showStockSetting"
         columns="1fr 1fr"
         gap="0 var(--scale-size-30)"
     >
-
+        {% block sw_product_deliverability_downloadable_form_stock_field %}
         <mt-number-field
             v-model="product.stock"
             name="sw-field--product-stock"
@@ -67,7 +71,9 @@
             :placeholder="$t('sw-product.settingsForm.placeholderStock')"
             :error="productStockError"
         />
+        {% endblock %}
 
+        {% block sw_product_deliverability_downloadable_form_available_stock_field %}
         <mt-number-field
             v-model="product.availableStock"
             name="sw-field--product-available-stock"
@@ -75,7 +81,7 @@
             :disabled="true"
             :label="$t('sw-product.settingsForm.labelAvailableStock')"
         />
-
+        {% endblock %}
     </sw-container>
 
     {% block sw_product_deliverability_downloadable_form_order_quantity_switch %}

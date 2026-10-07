@@ -23,9 +23,9 @@ export default {
 
     data() {
         return {
-            persistedStock: null,
+            enteredStock: null,
+            enteredOrderQuantity: null,
             showOrderQuantitySetting: false,
-            orderQuantityBeforeSwitchOff: null,
         };
     },
 
@@ -50,6 +50,14 @@ export default {
             return this.parentProduct.isCloseout;
         },
 
+        isLimitedToOneUnit() {
+            return (
+                (this.getInheritedValue('minPurchase') ?? 1) === 1 &&
+                (this.getInheritedValue('purchaseSteps') ?? 1) === 1 &&
+                this.getInheritedValue('maxPurchase') === 1
+            );
+        },
+
         ...mapPropertyErrors('product', [
             'stock',
             'deliveryTimeId',
@@ -61,13 +69,16 @@ export default {
     },
 
     watch: {
-        // The product is reloaded after saving, and a variant's parent is loaded after the variant itself
+        // Saving reloads the product
         product() {
-            this.initOrderQuantitySetting();
+            this.showOrderQuantitySetting = !this.isLimitedToOneUnit;
+            this.enteredStock = null;
+            this.enteredOrderQuantity = null;
         },
 
+        // A variant's parent loads after the variant
         parentProduct() {
-            this.initOrderQuantitySetting();
+            this.showOrderQuantitySetting = !this.isLimitedToOneUnit;
         },
     },
 
@@ -81,35 +92,22 @@ export default {
                 this.product.stock = 0;
             }
 
-            this.persistedStock = this.product.stock;
-            this.initOrderQuantitySetting();
+            this.showOrderQuantitySetting = !this.isLimitedToOneUnit;
         },
 
-        onSwitchInput(event) {
-            if (event === false) {
-                this.product.stock = this.persistedStock;
-            }
-        },
+        onSwitchInput(enabled) {
+            if (enabled === false) {
+                // Kept until saving, so switching back on restores what the merchant entered
+                this.enteredStock = this.product.stock;
+                // A new product has no saved stock yet and starts with 0
+                this.product.stock = this.product.getOrigin().stock ?? 0;
 
-        initOrderQuantitySetting() {
-            this.showOrderQuantitySetting = this.allowsMultipleUnits();
-            this.orderQuantityBeforeSwitchOff = null;
-        },
-
-        allowsMultipleUnits() {
-            return (
-                this.getOrderQuantity('maxPurchase') !== 1 ||
-                (this.getOrderQuantity('minPurchase') ?? 1) > 1 ||
-                (this.getOrderQuantity('purchaseSteps') ?? 1) > 1
-            );
-        },
-
-        getOrderQuantity(field) {
-            if (!this.parentProduct?.id) {
-                return this.product[field];
+                return;
             }
 
-            return this.product[field] ?? this.parentProduct[field];
+            if (this.enteredStock !== null) {
+                this.product.stock = this.enteredStock;
+            }
         },
 
         onOrderQuantitySwitchInput(enabled) {
@@ -117,33 +115,34 @@ export default {
 
             if (!enabled) {
                 // Kept until saving, so switching back on restores what the merchant entered
-                this.orderQuantityBeforeSwitchOff = {
-                    minPurchase: this.product.minPurchase,
-                    purchaseSteps: this.product.purchaseSteps,
-                    maxPurchase: this.product.maxPurchase,
-                };
-
-                this.product.minPurchase = 1;
-                this.product.purchaseSteps = 1;
-                this.product.maxPurchase = 1;
+                this.enteredOrderQuantity = this.getOrderQuantity();
+                this.setOrderQuantity({ minPurchase: 1, purchaseSteps: 1, maxPurchase: 1 });
 
                 return;
             }
 
-            if (this.orderQuantityBeforeSwitchOff) {
-                this.product.minPurchase = this.orderQuantityBeforeSwitchOff.minPurchase;
-                this.product.purchaseSteps = this.orderQuantityBeforeSwitchOff.purchaseSteps;
-                this.product.maxPurchase = this.orderQuantityBeforeSwitchOff.maxPurchase;
-                this.orderQuantityBeforeSwitchOff = null;
+            if (this.enteredOrderQuantity) {
+                this.setOrderQuantity(this.enteredOrderQuantity);
+            }
+        },
 
-                return;
+        getOrderQuantity() {
+            return Shopware.Utils.object.pick(this.product, ['minPurchase', 'purchaseSteps', 'maxPurchase']);
+        },
+
+        setOrderQuantity({ minPurchase, purchaseSteps, maxPurchase }) {
+            this.product.minPurchase = minPurchase;
+            this.product.purchaseSteps = purchaseSteps;
+            this.product.maxPurchase = maxPurchase;
+        },
+
+        // Variants inherit the order quantities of their parent until they set their own
+        getInheritedValue(field) {
+            if (!this.parentProduct?.id) {
+                return this.product[field];
             }
 
-            // Lift the limit of one unit: products fall back to the maximum quantity of the cart settings,
-            // variants to the max. order quantity of their parent
-            if (this.product.maxPurchase === 1) {
-                this.product.maxPurchase = null;
-            }
+            return this.product[field] ?? this.parentProduct[field];
         },
     },
 };

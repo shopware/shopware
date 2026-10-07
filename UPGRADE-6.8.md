@@ -1,5 +1,33 @@
 # 6.8.0.0
 
+# New System Requirements and Dependency Updates
+
+## Minimum PHP version 8.5
+
+The minimum PHP version was raised from 8.2 to 8.5. PHP 8.5 is already supported by Shopware 6.6.10.11 and 6.7.6.0, so you can update PHP and test your extensions before upgrading to 6.8. Review the [PHP 8.3](https://www.php.net/manual/en/migration83.php), [8.4](https://www.php.net/manual/en/migration84.php), and [8.5](https://www.php.net/manual/en/migration85.php) migration guides for deprecations between your current PHP version and 8.5.
+
+Check any locale codes passed to number and currency formatting. The temporary fallback for invalid locale codes was removed in 6.8; see "Invalid locale codes no longer supported" in the Storefront section.
+
+## Minimum MySQL 8.4 and MariaDB 11.4
+
+The minimum database versions were raised from MySQL 8.0.22 to 8.4 and from MariaDB 10.11 to 11.4. Both newer versions are already supported by earlier Shopware releases, so you can upgrade your database server and test extension migrations before upgrading to 6.8.
+
+On MySQL 8.4, foreign keys must reference a complete primary or unique key. Check custom schemas and migrations, especially references to versioned entities that omit `version_id`.
+
+## Symfony components updated to 8.x
+
+Symfony components were updated from 7.4 to 8.x. Resolve Symfony deprecations in your extensions before upgrading, and consult the [Symfony 8.0 upgrade guide](https://github.com/symfony/symfony/blob/8.0/UPGRADE-8.0.md). In particular, migrate XML service and route configuration as described under "XML configuration is no longer supported" in the Core section. Symfony also removed `Request::get()`; read from the specific request bag or use Shopware's compatibility helper as described under "`Request::get()` removal and request parameter migration" in the Core section.
+
+## Twig 4.x and Symfony UX Twig Component 3.x
+
+Twig was updated from 3.x to 4.x, and Symfony UX Twig Component from 2.x to 3.x. Review deprecations in custom templates and Twig extensions against the [Twig deprecations guide](https://twig.symfony.com/doc/3.x/deprecated.html). Shopware's components were migrated as part of the upgrade; migrate custom components and test extensions that override or consume Shopware components against the [Symfony UX 3 upgrade guide](https://github.com/symfony/ux/blob/3.x/UPGRADE-3.0.md#twigcomponent).
+
+## PHPUnit 13
+
+The PHPUnit version provided by the Shopware platform was upgraded to 13. If your extension's test pipeline uses the platform's `vendor/bin/phpunit`, adapt your test suites and PHPUnit configuration to PHPUnit 13 before upgrading to Shopware 6.8. Projects using their own PHPUnit installation do not need to upgrade solely because of this change.
+
+Alternatively, decouple your test runner from the platform by explicitly requiring the PHPUnit version you expect in your plugin and using that separate installation in your test pipeline. Managing PHPUnit separately can be preferable when testing across multiple Shopware and PHP versions: choose a PHPUnit version compatible with your supported PHP versions and any Shopware test helpers your tests use, rather than adopting PHPUnit 13 for every test run.
+
 # Changed Functionality
 
 <details>
@@ -60,7 +88,7 @@ See `src/Administration/Resources/app/administration/technical-docs/03-extensibi
 
 To ensure product property group options are sorted more precisely based on locale code:
 - `/Shopware/Core/Content/Product/AbstractPropertyGroupSorter`: The `sort` method will be removed, use `sortUsingLocaleCode` instead.
-- `/Shopware/Core/Content/Property/PropertyGroupCollection`: The `sortByConfig` method now requires a new parameter `localeCode`.
+- `Shopware\Core\Content\Property\PropertyGroupCollection::sortByConfig()` now declares the optional parameter `string $localeCode = 'en_GB'`. Calls without arguments remain valid. If you override this method, add the optional parameter to your signature. Passing `null` is no longer supported.
 
 ## Webhook Messenger transport — explicit receiver configuration required
 
@@ -835,12 +863,21 @@ which means the `salesChannel` property of the `BaseSalesChannelContext` no long
 The `permisionsLocked` property of the `SalesChannelContext` was removed.
 Use `permissionsLocked` property or `SalesChannelContext::isPermissionsLocked()` instead.
 
-## `RequestParamHelper::get` ignores `attribute` bag
+## `Request::get()` removal and request parameter migration
 
-The `RequestParamHelper::get` method now ignores the `attribute` bag when fetching parameters from the request.
-It only checks the `query` and `request` bags now.
-When you need to get a value from the request attributes, you should use the `Request::attributes->get()` method directly.
-In case you used to set request attributes to override specific parameters, you should instead overwrite the parameters in the `query` or `request` parameter bags directly.
+Symfony removed `Request::get()`, which previously searched route attributes, query parameters, and submitted form data. Read from the known source instead:
+
+```php
+$request->attributes->get('productId'); // Route placeholder or custom attribute
+$request->query->get('search');          // Query parameter
+$request->request->get('search');        // Submitted form data
+```
+
+For array-valued query or form parameters, use `$request->query->all('ids')` or `$request->request->all('ids')` instead. The corresponding `get('ids')` calls reject arrays.
+
+If an action intentionally accepts the same input from either the query string or submitted form data, use `Shopware\Core\Framework\Adapter\Request\RequestParamHelper::get($request, 'search')`. The helper checks the query bag first, then the form data bag (`$request->request`), preserves array values, and returns the supplied default if neither contains the key.
+
+In 6.8, `RequestParamHelper::get()` no longer checks request attributes. Previously an attribute with the same name took precedence over both input bags. Read route placeholders and custom attributes with `$request->attributes->get()`; if code sets an attribute to override a client-supplied parameter, update the appropriate input bag instead.
 
 ## Removal of `ZugferdDocument::getPrice()`
 
@@ -1309,6 +1346,18 @@ public function ensureAccepted(string $route, string $key, ?string $salesChannel
 If your extension extends or decorates `\Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage.php`, implement `increaseToAtLeast(string $configurationId, int $value): void`.
 
 The method must raise the stored increment state to at least the given value without lowering an existing higher state.
+
+## Removal of `SalesChannelContextRestorer::restoreByOrder()`
+
+`\Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer::restoreByOrder()` and `\Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent` were removed. Load the order with the `orderCustomer`, `transactions.stateMachineState` and `primaryOrderDelivery` associations and pass it to `\Shopware\Core\Checkout\Cart\Order\OrderConverter::assembleSalesChannelContext()`. Add associations you used to add through `SalesChannelContextRestorerOrderCriteriaEvent` to that criteria directly.
+
+`restoreByOrder()` also re-evaluated the rules against the order. The assembled context carries the rules stored on the order instead. If you need them re-evaluated, also load the `lineItems` and `deliveries` associations and run the cart rule loader on it:
+
+```php
+$salesChannelContext = $this->orderConverter->assembleSalesChannelContext($order, $context);
+$cart = $this->orderConverter->convertToCart($order, $salesChannelContext->getContext());
+$this->cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior($salesChannelContext->getPermissions()), true);
+```
 
 
 # Administration
@@ -2603,11 +2652,6 @@ The following variables were removed:
 * Twig variables `controllerName` and `controllerAction`
 * CSS classes `is-ctl-*` and `is-act-*`
 * JavaScript window properties `window.controllerName` and `window.actionName`
-
-## Removal of `hasChildren` variable in `item-link.html.twig`
-
-The variable `hasChildren` is not set inside the `@Storefront/storefront/layout/navigation/offcanvas/item-link.html.twig` template anymore, as it should be set in the templates which include these templates.
-In the default templates this is done in the `@Storefront/storefront/layout/navigation/offcanvas/categories.html.twig` template.
 
 ## Removal of `pathIdList` option in NavbarPlugin
 

@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Framework\Util\FloatComparator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotNull;
 use Symfony\Component\Validator\Constraints\Type;
 
 /**
@@ -123,6 +124,7 @@ class QuantityPriceDefinition extends Struct implements PriceDefinitionInterface
     {
         return [
             'price' => [new NotBlank(), new Type('numeric')],
+            'taxRules' => [new NotNull(), new Type('array')],
             'quantity' => [new Type('int')],
             'isCalculated' => [new Type('bool')],
         ];

@@ -1,0 +1,82 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Content System Layout Presets",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/_info/content-system-layout-presets.json": {
+      "get": {
+        "tags": [
+          "System Info & Health Check"
+        ],
+        "summary": "Get content system layout presets",
+        "description": "Get all registered content system layout presets. Each preset carries its identifier, display metadata, and the compiled element subtree that is inserted when the preset is applied.",
+        "operationId": "content-system-layout-presets",
+        "responses": {
+          "200": {
+            "description": "Returns a list of all registered content system layout presets.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "presets"
+                  ],
+                  "properties": {
+                    "presets": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "id",
+                          "name",
+                          "description",
+                          "icon",
+                          "payload"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "The globally unique preset identifier.",
+                            "example": "core.media-and-text"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "The human-readable preset name shown in the admin.",
+                            "example": "Media & text"
+                          },
+                          "description": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "An optional longer description of the preset."
+                          },
+                          "icon": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "description": "An optional icon identifier for the preset."
+                          },
+                          "payload": {
+                            "type": "array",
+                            "description": "The compiled element subtree inserted when the preset is applied.",
+                            "items": {
+                              "type": "object"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

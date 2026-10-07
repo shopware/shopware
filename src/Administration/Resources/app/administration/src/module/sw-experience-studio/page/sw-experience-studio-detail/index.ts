@@ -3,12 +3,15 @@ import type { ContentSystemElementTypeSpecification } from 'src/core/service/api
 import type {
     ContentLayoutDraftDuplicatePayload,
     ContentLayoutDraftInsertPayload,
+    ContentLayoutDraftInsertPresetPayload,
     ContentLayoutDraftMovePayload,
     ContentLayoutDraftMutationResponse,
     ContentLayoutDraftRemovePayload,
     ContentLayoutDraftUpdatePropertiesPayload,
 } from 'src/core/service/api/content-system-layout-draft-mutation.api.service';
+import type { ContentSystemLayoutPreset } from 'src/core/service/api/content-system-layout-preset.api.service';
 import type { ExperienceStudioElementTypeStore } from 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
+import type { ExperienceStudioLayoutPresetStore } from 'src/module/sw-experience-studio/store/experience-studio-layout-preset.store';
 import type { ExperienceStudioStyleOptionStore } from 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
 
 import type { ContentElementNode } from 'src/core/service/content-element.types';
@@ -30,6 +33,7 @@ import {
 } from 'src/module/sw-experience-studio/util/element-settings.util';
 import 'src/module/sw-experience-studio/store/experience-studio-editor.store';
 import 'src/module/sw-experience-studio/store/experience-studio-element-type.store';
+import 'src/module/sw-experience-studio/store/experience-studio-layout-preset.store';
 import 'src/module/sw-experience-studio/store/experience-studio-style-option.store';
 import template from './sw-experience-studio-detail.html.twig';
 import './sw-experience-studio-detail.scss';
@@ -49,8 +53,7 @@ type LayoutMutationResult =
 type AddElementPayload = {
     parentElementId: string | null;
     slotName: string | null;
-    anchorTop: number;
-    anchorLeft: number;
+    anchorElement: HTMLElement | null;
 };
 
 type ElementPickerItem = {
@@ -58,6 +61,9 @@ type ElementPickerItem = {
     label: string;
     icon: string | null;
     category: string | null;
+    kind?: 'element' | 'preset';
+    id?: string;
+    description?: string | null;
 };
 
 type MoveElementPayload = {
@@ -86,7 +92,7 @@ type InlineEditSession = {
     isEditing: boolean;
 } | null;
 
-type DraftMutationOperation = 'insert' | 'remove' | 'duplicate' | 'move' | 'update-properties';
+type DraftMutationOperation = 'insert' | 'remove' | 'duplicate' | 'move' | 'update-properties' | 'insert-preset';
 
 // What a write did: 'committed' went through the server, 'applied' changed only the local draft,
 // 'rejected' is a server refusal the caller may retry, 'skipped' wrote nothing and nothing is pending.
@@ -100,6 +106,7 @@ type ContentSystemLayoutDraftMutationService = {
     updateElementProperties: (
         payload: ContentLayoutDraftUpdatePropertiesPayload,
     ) => Promise<ContentLayoutDraftMutationResponse>;
+    insertPreset: (payload: ContentLayoutDraftInsertPresetPayload) => Promise<ContentLayoutDraftMutationResponse>;
 };
 
 type ContentSystemEntityTypeService = {
@@ -134,8 +141,7 @@ export default Shopware.Component.wrapComponentConfig({
         historyKeydownHandler: ((event: KeyboardEvent) => void) | null;
         isElementPickerOpen: boolean;
         pendingAddElementPayload: AddElementPayload | null;
-        pickerTop: number;
-        pickerLeft: number;
+        pickerAnchorElement: HTMLElement | null;
         inlineEditSession: InlineEditSession;
         mutationRequestSequence: number;
         latestMutationRequestId: number;
@@ -144,6 +150,7 @@ export default Shopware.Component.wrapComponentConfig({
         layoutTypeLoadError: string | null;
         createWizardName: string;
         createWizardSelectedType: string | null;
+        isAssignmentModalOpen: boolean;
     } {
         return {
             layout: null,
@@ -156,8 +163,7 @@ export default Shopware.Component.wrapComponentConfig({
             historyKeydownHandler: null,
             isElementPickerOpen: false,
             pendingAddElementPayload: null,
-            pickerTop: 0,
-            pickerLeft: 0,
+            pickerAnchorElement: null,
             inlineEditSession: null,
             mutationRequestSequence: 0,
             latestMutationRequestId: 0,
@@ -166,6 +172,7 @@ export default Shopware.Component.wrapComponentConfig({
             layoutTypeLoadError: null,
             createWizardName: '',
             createWizardSelectedType: null,
+            isAssignmentModalOpen: false,
         };
     },
 
@@ -220,6 +227,10 @@ export default Shopware.Component.wrapComponentConfig({
             return this.$route.name === 'sw.experience.studio.create';
         },
 
+        canManageAssignments(): boolean {
+            return !this.isCreateMode && (this.layoutRootSource === 'product' || this.layoutRootSource === 'category');
+        },
+
         showCreateWizard(): boolean {
             return this.isCreateMode && !this.hasCreateLayoutMetadata;
         },
@@ -250,6 +261,10 @@ export default Shopware.Component.wrapComponentConfig({
 
         styleOptionStore() {
             return Shopware.Store.get('experienceStudioStyleOption' as never) as ExperienceStudioStyleOptionStore;
+        },
+
+        layoutPresetStore() {
+            return Shopware.Store.get('experienceStudioLayoutPreset' as never) as ExperienceStudioLayoutPresetStore;
         },
 
         canUndo(): boolean {
@@ -284,14 +299,39 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         availablePickerElements(): ElementPickerItem[] {
-            const availableTypes = this.getAvailableTypesForPayload(this.pendingAddElementPayload);
+            const payload = this.pendingAddElementPayload;
+            const availableTypes = this.getAvailableTypesForPayload(payload);
 
-            return availableTypes.map((typeSpecification) => ({
+            const elementItems: ElementPickerItem[] = availableTypes.map((typeSpecification) => ({
                 name: typeSpecification.name,
                 label: typeSpecification.label,
                 icon: typeSpecification.icon,
                 category: typeSpecification.category,
+                kind: 'element',
             }));
+
+            if (!payload) {
+                return elementItems;
+            }
+
+            const allowedComponents = new Set(availableTypes.map((typeSpecification) => typeSpecification.name));
+
+            const presetItems: ElementPickerItem[] = this.layoutPresetStore.allPresets
+                .filter((preset) => this.isPresetAllowedForPayload(preset, payload, allowedComponents))
+                .map((preset) => ({
+                    name: preset.id,
+                    label: preset.name,
+                    icon: preset.icon,
+                    category: 'presets',
+                    kind: 'preset',
+                    id: preset.id,
+                    description: preset.description,
+                }));
+
+            return [
+                ...elementItems,
+                ...presetItems,
+            ];
         },
 
         isInlineEditing(): boolean {
@@ -308,6 +348,7 @@ export default Shopware.Component.wrapComponentConfig({
         void this.loadDefaultPreviewSalesChannel();
         void this.loadElementTypes();
         void this.loadStyleOptions();
+        void this.loadLayoutPresets();
         void this.loadLayoutTypes();
     },
 
@@ -353,6 +394,14 @@ export default Shopware.Component.wrapComponentConfig({
 
         onViewportChange(viewport: Viewport): void {
             this.currentViewport = viewport;
+        },
+
+        onOpenAssignmentModal(): void {
+            this.isAssignmentModalOpen = true;
+        },
+
+        onCloseAssignmentModal(): void {
+            this.isAssignmentModalOpen = false;
         },
 
         async loadDefaultPreviewSalesChannel(): Promise<void> {
@@ -547,6 +596,10 @@ export default Shopware.Component.wrapComponentConfig({
             await this.styleOptionStore.loadStyleOptions();
         },
 
+        async loadLayoutPresets(): Promise<void> {
+            await this.layoutPresetStore.loadPresets();
+        },
+
         entityTypeService(): ContentSystemEntityTypeService {
             return Shopware.Service('contentSystemEntityTypeService') as ContentSystemEntityTypeService;
         },
@@ -653,14 +706,14 @@ export default Shopware.Component.wrapComponentConfig({
 
         onAddElement(payload: AddElementPayload): void {
             this.pendingAddElementPayload = payload;
-            this.pickerTop = payload.anchorTop - 8;
-            this.pickerLeft = payload.anchorLeft + 26;
+            this.pickerAnchorElement = payload.anchorElement;
             this.isElementPickerOpen = true;
         },
 
         onCloseElementPicker(): void {
             this.isElementPickerOpen = false;
             this.pendingAddElementPayload = null;
+            this.pickerAnchorElement = null;
         },
 
         async onSelectElementType(component: string): Promise<void> {
@@ -708,6 +761,33 @@ export default Shopware.Component.wrapComponentConfig({
                 'insert',
                 layoutElements,
                 insertPayload,
+                (response) => response.affectedElementIds[0] ?? this.selectedElementId,
+            );
+
+            this.onCloseElementPicker();
+        },
+
+        async onSelectPreset(presetId: string): Promise<void> {
+            const payload = this.pendingAddElementPayload;
+
+            if (!payload || !this.layout) {
+                this.onCloseElementPicker();
+                return;
+            }
+
+            const insertPresetPayload: Omit<ContentLayoutDraftInsertPresetPayload, 'layout' | 'rootSource'> = {
+                presetId,
+            };
+
+            if (payload.parentElementId !== null) {
+                insertPresetPayload.parentElementId = payload.parentElementId;
+                insertPresetPayload.slot = payload.slotName;
+            }
+
+            await this.executeStructuralDraftMutation(
+                'insert-preset',
+                this.layout.layout,
+                insertPresetPayload,
                 (response) => response.affectedElementIds[0] ?? this.selectedElementId,
             );
 
@@ -1035,6 +1115,10 @@ export default Shopware.Component.wrapComponentConfig({
                 return service.updateElementProperties(payload as ContentLayoutDraftUpdatePropertiesPayload);
             }
 
+            if (operation === 'insert-preset') {
+                return service.insertPreset(payload as ContentLayoutDraftInsertPresetPayload);
+            }
+
             return service.duplicateElement(payload as ContentLayoutDraftDuplicatePayload);
         },
 
@@ -1080,6 +1164,18 @@ export default Shopware.Component.wrapComponentConfig({
                     this.isLoading = false;
                 }
             }
+        },
+
+        isPresetAllowedForPayload(
+            preset: ContentSystemLayoutPreset,
+            payload: AddElementPayload,
+            allowedComponents: Set<string>,
+        ): boolean {
+            if (payload.parentElementId === null) {
+                return true;
+            }
+
+            return preset.payload.every((rootElement) => allowedComponents.has(rootElement.component));
         },
 
         getAvailableTypesForPayload(payload: AddElementPayload | null): ContentSystemElementTypeSpecification[] {
@@ -1321,13 +1417,29 @@ export default Shopware.Component.wrapComponentConfig({
 
             this.isLoading = true;
 
-            await this.layoutRepository.save(layout, Shopware.Context.api);
-            this.layout = await this.layoutRepository.get(layout.id, Shopware.Context.api, this.layoutLoadCriteria);
-            this.applyPreviewContextDefaults();
+            try {
+                await this.layoutRepository.save(layout, Shopware.Context.api);
+            } catch (error) {
+                this.isLoading = false;
+                this.notifySaveError(error);
+
+                return;
+            }
 
             this.createNotificationSuccess({
                 message: this.$t('sw-experience-studio.detail.messageSaved'),
             });
+
+            try {
+                this.layout = await this.layoutRepository.get(layout.id, Shopware.Context.api, this.layoutLoadCriteria);
+                this.applyPreviewContextDefaults();
+            } catch {
+                this.createNotificationError({
+                    message: this.$t('sw-experience-studio.detail.messageReloadError'),
+                });
+            } finally {
+                this.isLoading = false;
+            }
 
             if (this.isCreateMode) {
                 void this.$router.push({
@@ -1335,8 +1447,37 @@ export default Shopware.Component.wrapComponentConfig({
                     params: { id: layout.id },
                 });
             }
+        },
 
-            this.isLoading = false;
+        // Resolvability is a write-time gate, so a draft that previews cleanly can still be refused on save.
+        notifySaveError(error: unknown): void {
+            const detail = this.extractApiErrorDetail(error);
+
+            this.createNotificationError({
+                message: detail
+                    ? this.$t('sw-experience-studio.detail.messageSaveErrorDetail', { detail })
+                    : this.$t('sw-experience-studio.detail.messageSaveError'),
+            });
+        },
+
+        extractApiErrorDetail(error: unknown): string | null {
+            const responseErrors = (
+                error as {
+                    response?: {
+                        data?: {
+                            errors?: Array<{ detail?: unknown }>;
+                        };
+                    };
+                }
+            ).response?.data?.errors;
+
+            if (!Array.isArray(responseErrors)) {
+                return null;
+            }
+
+            const detail = responseErrors.find((item) => typeof item.detail === 'string' && item.detail.trim())?.detail;
+
+            return typeof detail === 'string' ? detail : null;
         },
     },
 });

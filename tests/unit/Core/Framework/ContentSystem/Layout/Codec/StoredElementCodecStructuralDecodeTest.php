@@ -104,12 +104,12 @@ class StoredElementCodecStructuralDecodeTest extends StoredElementCodecTestCase
     {
         yield 'the reserved virtual-root literal' => [
             VirtualRootWrapper::VIRTUAL_ROOT_ID,
-            ContentSystemException::invalidElementId(VirtualRootWrapper::VIRTUAL_ROOT_ID, 'it is the reserved virtual-root id'),
+            ContentSystemException::invalidElementId(VirtualRootWrapper::VIRTUAL_ROOT_ID, 'is the reserved virtual-root id'),
         ];
 
         yield 'the integer-castable string "0"' => [
             '0',
-            ContentSystemException::invalidElementId('0', 'PHP casts it to an integer array key'),
+            ContentSystemException::invalidElementId('0', 'reads as an integer'),
         ];
     }
 

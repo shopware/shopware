@@ -1,0 +1,32 @@
+name: "Category page"
+description: "Collection of components that make up the category page."
+icon: "regular-boxes"
+layout:
+  - component: Sw:Grid:Container
+    properties:
+      mode: explicit
+      columns: 4
+      justify: stretch
+    slots:
+      content:
+        - component: Sw:Navigation:Tree
+          style:
+            display:
+              xs: false
+              sm: false
+              md: false
+              lg: true
+              xl: true
+              xxl: true
+        - component: Sw:Product:Listing
+          style:
+            col-span:
+              xs: 4
+              sm: 4
+              md: 4
+              lg: 3
+              xl: 3
+              xxl: 3
+          slots:
+            filters-panel:
+              - component: Sw:Filter:Panel

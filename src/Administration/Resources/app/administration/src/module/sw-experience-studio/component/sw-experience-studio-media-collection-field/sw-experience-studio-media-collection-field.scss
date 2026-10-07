@@ -2,6 +2,13 @@
     display: flex;
     flex-direction: column;
 
+    // Smaller media items in the grid to fit in the sidebar
+    .sw-media-list-selection-v2__grid {
+        grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+        gap: var(--scale-size-8);
+        padding: var(--scale-size-8);
+    }
+
     // More dense appearance for media upload so it fits in the sidebar
     .sw-media-upload-v2 .sw-media-upload-v2__button {
         min-width: 0;

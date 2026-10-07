@@ -1,0 +1,10 @@
+name: "Product detail page"
+description: "Collection of components that make up the product detail page."
+icon: "regular-box-alt"
+layout:
+  - component: Sw:Grid:Container
+    slots:
+      content:
+        - component: Sw:Media:Gallery
+        - component: Sw:Product:PriceDisplay
+  - component: Sw:Product:Slider

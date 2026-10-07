@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleEntity;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemBindingSpecification\AppContentSystemBindingSpecificationCollection;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemElementType\AppContentSystemElementTypeCollection;
+use Shopware\Core\Framework\App\Aggregate\AppContentSystemLayoutPreset\AppContentSystemLayoutPresetCollection;
 use Shopware\Core\Framework\App\Aggregate\AppContentSystemStyleOption\AppContentSystemStyleOptionCollection;
 use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptCollection;
 use Shopware\Core\Framework\App\Aggregate\AppMcpResource\AppMcpResourceCollection;
@@ -162,6 +163,8 @@ class AppEntity extends Entity
     protected ?AppContentSystemStyleOptionCollection $styleOptions = null;
 
     protected ?AppContentSystemBindingSpecificationCollection $bindingSpecifications = null;
+
+    protected ?AppContentSystemLayoutPresetCollection $layoutPresets = null;
 
     /**
      * @var EntityCollection<AppShippingMethodEntity>|null
@@ -695,6 +698,16 @@ class AppEntity extends Entity
     public function setBindingSpecifications(AppContentSystemBindingSpecificationCollection $bindingSpecifications): void
     {
         $this->bindingSpecifications = $bindingSpecifications;
+    }
+
+    public function getLayoutPresets(): ?AppContentSystemLayoutPresetCollection
+    {
+        return $this->layoutPresets;
+    }
+
+    public function setLayoutPresets(AppContentSystemLayoutPresetCollection $layoutPresets): void
+    {
+        $this->layoutPresets = $layoutPresets;
     }
 
     /**

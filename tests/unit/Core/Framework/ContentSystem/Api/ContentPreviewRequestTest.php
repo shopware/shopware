@@ -22,7 +22,21 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(ContentPreviewRequest::class)]
 class ContentPreviewRequestTest extends TestCase
 {
-    #[TestDox('accepts an empty layout, as a preview requested before any element exists')]
+    /**
+     * PHP casts a JSON member name to an integer array key only in canonical decimal form, so this stays a
+     * string key and the constraint's `is_string($key)` branch never fires — the same branch an ordinary
+     * name takes, which is why this is one representative case rather than one per PHP-casting boundary.
+     */
+    #[TestDox('accepts a query parameter name PHP would not cast to an integer key')]
+    public function testAcceptsAQueryParameterNameThatStaysAString(): void
+    {
+        static::assertCount(0, $this->validator()->validate($this->request(['elementId' => 'el-1'])));
+    }
+
+    /**
+     * A freshly created layout has no elements yet, and the studio requests a preview as soon as it opens.
+     */
+    #[TestDox('accepts an empty layout')]
     public function testAcceptsAnEmptyLayout(): void
     {
         $request = new ContentPreviewRequest(
@@ -33,17 +47,6 @@ class ContentPreviewRequestTest extends TestCase
         );
 
         static::assertCount(0, $this->validator()->validate($request));
-    }
-
-    /**
-     * PHP casts a JSON member name to an integer array key only in canonical decimal form, so this stays a
-     * string key and the constraint's `is_string($key)` branch never fires — the same branch an ordinary
-     * name takes, which is why this is one representative case rather than one per PHP-casting boundary.
-     */
-    #[TestDox('accepts a query parameter name PHP would not cast to an integer key')]
-    public function testAcceptsAQueryParameterNameThatStaysAString(): void
-    {
-        static::assertCount(0, $this->validator()->validate($this->request(['elementId' => 'el-1'])));
     }
 
     /**

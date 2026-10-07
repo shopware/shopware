@@ -87,6 +87,14 @@ final readonly class PropertyType
         return $this->default;
     }
 
+    /**
+     * @return array<string, PropertySpecification>|null
+     */
+    public function properties(): ?array
+    {
+        return $this->properties;
+    }
+
     public function translatable(): bool
     {
         return $this->translatable;

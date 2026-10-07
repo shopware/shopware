@@ -6,9 +6,17 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfig;
+use Shopware\Core\Content\Category\ContentSystem\DataLoader\NavigationLoaderConfigSerializer;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataContext\ContextType;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\AbstractContentDataLoader;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\LoaderConfigSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\ContextDependencyAnalyzer;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
@@ -28,6 +36,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\ContentSystem\ContentSystemElementTypeSpecificationBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\StoredElementBuilder;
 use Shopware\Core\Test\Stub\ContentSystem\TestElementTypeRegistry;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -88,9 +97,22 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame(['root-id', 'target-id', 'sibling-id'], $this->collectIds($prepared->prePruneForest));
     }
 
-    /**
-     * @param scalar|null $value
-     */
+    #[TestDox('substitutes a declared token in a Literal loader-config value')]
+    public function testPrepareResolvesLiteralConfigValues(): void
+    {
+        $config = new NavigationLoaderConfig('{{rootId}}');
+
+        $element = StoredElementBuilder::create('navigation', 'root-id')
+            ->withDataRequirement('navigationTree', 'test_literal', $config)
+            ->build();
+
+        $prepared = $this->prepare([$element], ['rootId' => 'cat-42']);
+
+        $resolved = $prepared[0]->dataRequirements['navigationTree']->config;
+
+        static::assertSame('cat-42', $resolved->jsonSerialize()['rootId']);
+    }
+
     #[DataProvider('nonStringPropertyProvider')]
     #[TestDox('leaves a $_dataName property untouched')]
     public function testPrepareLeavesNonStringPropertiesUntouched(string|int|float|bool|null $value): void
@@ -472,10 +494,25 @@ class StoredTreePreparerTest extends TestCase
 
     private function preparer(): StoredTreePreparer
     {
+        $serializerLocator = static::createStub(ServiceLocator::class);
+        $serializerLocator->method('has')->willReturn(true);
+        $serializerLocator->method('get')->willReturn(new NavigationLoaderConfigSerializer());
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([
+            new ConfigKeySpecification('rootId', ConfigKeyKind::Literal, 'string', required: false),
+        ]));
+
+        $loaderLocator = static::createStub(ServiceLocator::class);
+        $loaderLocator->method('has')->willReturn(true);
+        $loaderLocator->method('get')->willReturn($loader);
+
         return new StoredTreePreparer(
             $this->typeRegistry(),
             new VirtualRootWrapper(),
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
+            new DataLoaderConfigSerializerProvider($serializerLocator),
+            new DataLoaderProvider($loaderLocator),
         );
     }
 

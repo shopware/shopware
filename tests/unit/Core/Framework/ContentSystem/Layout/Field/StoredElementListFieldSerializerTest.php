@@ -27,9 +27,9 @@ use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteContext;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -650,7 +650,7 @@ class StoredElementListFieldSerializerTest extends TestCase
             static::createStub(DefinitionInstanceRegistry::class),
             $this->codec(),
             new ViolationConstraintMapper(),
-            $this->boundary(new LayoutDefaultSeeder($registry, new PrimitiveDefaultProvider())),
+            $this->boundary(new LayoutDefaultSeeder($registry, new StoredDefaultProvider())),
             $this->treeConstraints(),
         );
     }
@@ -706,7 +706,7 @@ class StoredElementListFieldSerializerTest extends TestCase
         });
 
         $boundary = new LayoutWriteBoundary(
-            new LayoutDefaultSeeder($typeRegistry, new PrimitiveDefaultProvider()),
+            new LayoutDefaultSeeder($typeRegistry, new StoredDefaultProvider()),
             new StoredTreeStyleNormalizer(new ElementStyleNormalizer($styleRegistry, new BoxSpacingNormalizer())),
             $reconciler,
         );

@@ -1,0 +1,86 @@
+{
+    "title": "Sw/Form/Radio",
+    "parameters": {
+        "server": {
+            "id": "Sw:Form:Radio"
+        },
+        "template": "<twig:Sw:Form:Radio name=\"sizeChoice\" value=\"sm\" label=\"Small\" />"
+    },
+    "argTypes": {
+        "name": {
+            "control": "text",
+            "description": "Name attribute shared by all radios of the group. Required.",
+            "required": true
+        },
+        "value": {
+            "control": "text",
+            "description": "Value submitted when this radio is checked.",
+            "table": {
+                "defaultValue": {
+                    "summary": "1"
+                }
+            }
+        },
+        "id": {
+            "control": "text",
+            "description": "Id of the radio. Generated with a random suffix when omitted, so the same field can render twice on one page.",
+            "table": {
+                "defaultValue": {
+                    "summary": "name-value + random suffix"
+                }
+            }
+        },
+        "label": {
+            "control": "text",
+            "description": "Label next to the radio."
+        },
+        "checked": {
+            "control": "boolean",
+            "description": "Checked state of the radio. Forwarded to the control."
+        },
+        "disabled": {
+            "control": "boolean",
+            "description": "Disabled attribute of the radio. Forwarded to the control."
+        },
+        "aria-describedby": {
+            "control": "text",
+            "description": "Id of the feedback element of the surrounding group. Sw:Form:RadioGroup passes its own. Forwarded to the control."
+        },
+        "validationRules": {
+            "control": "text",
+            "description": "Comma separated list of client-side validation rules, rendered as data-validation."
+        },
+        "required": {
+            "control": "boolean",
+            "description": "Renders aria-required. The required marker belongs to the legend of the group.",
+            "table": {
+                "defaultValue": {
+                    "summary": "'required' in validationRules"
+                }
+            }
+        },
+        "isInvalid": {
+            "control": "boolean",
+            "description": "Marks the control invalid. Sw:Form:RadioGroup passes its own state down."
+        }
+    },
+    "stories": [
+        {
+            "name": "Radio",
+            "args": {
+                "name": "sizeChoice",
+                "value": "sm",
+                "label": "Small"
+            }
+        },
+        {
+            "name": "Checked",
+            "args": {
+                "name": "sizeChoice",
+                "value": "md",
+                "label": "Medium",
+                "checked": true
+            }
+        }
+    ]
+}

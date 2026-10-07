@@ -18,6 +18,28 @@
           "shadow": "Shadow",
           "background": "Background"
         }
+      },
+      "sw-media-gallery": {
+        "panels": {
+          "general": "General",
+          "thumbnails": "Thumbnail navigation",
+          "behaviour": "Behaviour"
+        }
+      },
+      "sw-product-listing": {
+        "panels": {
+          "sorting": "Sorting"
+        }
+      },
+      "sw-tabs-panel": {
+        "panels": {
+          "general": "General"
+        }
+      },
+      "sw-tabs-tab": {
+        "panels": {
+          "general": "General"
+        }
       }
     },
     "list": {
@@ -57,7 +79,24 @@
         "previewEntityPlaceholder": "Select entity for preview",
         "previewSalesChannel": "Sales channel",
         "previewSalesChannelPlaceholder": "Select sales channel for preview",
+        "assignments": "Assignments",
         "save": "Save layout"
+      },
+      "assignmentModal": {
+        "title": "Layout assignments",
+        "description": "Experience Studio assignments take precedence over Shopping Experiences layouts. Entities without an assignment use the default layout of their type, or their Shopping Experiences layout if no default is set.",
+        "defaultLabel": {
+          "product": "Default layout for products",
+          "category": "Default layout for categories"
+        },
+        "entitiesLabel": {
+          "product": "Products",
+          "category": "Categories"
+        },
+        "entitiesHelpText": "An entity that is already assigned to another layout is moved to this layout.",
+        "messageSaved": "Layout assignments saved.",
+        "messageLoadError": "The layout assignments could not be loaded.",
+        "messageSaveError": "The layout assignments could not be saved."
       },
       "sidebarTree": {
         "title": "Structure",
@@ -107,10 +146,14 @@
           "content": "Content",
           "commerce": "Commerce",
           "layout": "Layout",
+          "presets": "Presets",
           "other": "Other"
         }
       },
-      "messageSaved": "Content layout saved successfully."
+      "messageSaved": "Content layout saved successfully.",
+      "messageSaveError": "The content layout could not be saved.",
+      "messageSaveErrorDetail": "The content layout could not be saved: {detail}",
+      "messageReloadError": "The content layout was saved but could not be reloaded."
     }
   }
 }

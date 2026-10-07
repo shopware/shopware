@@ -1,0 +1,8 @@
+.sw-form-birthday-select {
+    margin-bottom: var(--sw-form-field-spacing);
+}
+
+/* The three selects are one composite field, so only the fieldset keeps the rhythm. */
+.sw-form-birthday-select .sw-form-field {
+    margin-bottom: 0;
+}

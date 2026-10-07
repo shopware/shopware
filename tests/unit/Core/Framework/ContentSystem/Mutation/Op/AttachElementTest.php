@@ -6,7 +6,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
+use Shopware\Core\Framework\ContentSystem\Binding\BindingApplicator;
+use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
@@ -28,7 +31,7 @@ class AttachElementTest extends TestCase
     {
         $tree = new StoredTree([new StoredElement('existing', 'Sw:Block')]);
 
-        $result = (new AttachElement($this->registry(), new StoredElement('incoming', 'Sw:Card')))->apply($tree);
+        $result = $this->attach(new StoredElement('incoming', 'Sw:Card'))->apply($tree);
 
         static::assertCount(2, $result->roots);
         static::assertSame('existing', $result->roots[0]->id);
@@ -44,7 +47,7 @@ class AttachElementTest extends TestCase
             'content' => [new StoredElement('incoming-child', 'Sw:Card')],
         ]);
 
-        $result = (new AttachElement($this->registry(), $incoming))->apply(new StoredTree([]));
+        $result = $this->attach($incoming)->apply(new StoredTree([]));
 
         $attached = $result->roots[0];
         $child = $attached->slots['content'][0];
@@ -60,7 +63,7 @@ class AttachElementTest extends TestCase
             'content' => [new StoredElement('incoming-child', 'Sw:Card')],
         ]);
 
-        $attach = new AttachElement($this->registry(), $incoming);
+        $attach = $this->attach($incoming);
         $result = $attach->apply(new StoredTree([]));
 
         $attached = $result->roots[0];
@@ -74,7 +77,7 @@ class AttachElementTest extends TestCase
             'content' => [new StoredElement('incoming-child', 'Sw:Card'), new StoredElement('incoming-sibling', 'Sw:Card')],
         ]);
 
-        $attach = new AttachElement($this->registry(), $incoming);
+        $attach = $this->attach($incoming);
         $result = $attach->apply(new StoredTree([]));
 
         $attached = $result->roots[0];
@@ -91,7 +94,7 @@ class AttachElementTest extends TestCase
             'content' => [new StoredElement('first', 'Sw:Card')],
         ])]);
 
-        $result = (new AttachElement($this->registry(), new StoredElement('incoming', 'Sw:Card'), 'parent', 'content', 0))->apply($tree);
+        $result = $this->attach(new StoredElement('incoming', 'Sw:Card'), 'parent', 'content', 0)->apply($tree);
 
         $children = $result->roots[0]->slots['content'];
         static::assertCount(2, $children);
@@ -104,7 +107,7 @@ class AttachElementTest extends TestCase
     {
         $tree = new StoredTree([new StoredElement('block-a', 'Sw:Card'), new StoredElement('block-b', 'Sw:Card')]);
 
-        $result = (new AttachElement($this->registry(), new StoredElement('incoming', 'Sw:Card'), null, null, 99))->apply($tree);
+        $result = $this->attach(new StoredElement('incoming', 'Sw:Card'), null, null, 99)->apply($tree);
 
         static::assertCount(3, $result->roots);
         static::assertSame(['block-a', 'block-b'], [$result->roots[0]->id, $result->roots[1]->id]);
@@ -118,7 +121,7 @@ class AttachElementTest extends TestCase
         $translations = [Defaults::LANGUAGE_SYSTEM => 'Autumn sale', $german => 'Herbstschlussverkauf'];
         $incoming = StoredElementBuilder::create('Sw:Card', 'incoming')->withProperty('text', $translations)->build();
 
-        $result = (new AttachElement($this->registry(), $incoming))->apply(new StoredTree([]));
+        $result = $this->attach($incoming)->apply(new StoredTree([]));
 
         $carried = $result->roots[0]->property('text');
         static::assertNotNull($carried);
@@ -128,7 +131,7 @@ class AttachElementTest extends TestCase
     #[TestDox('detaches nothing: orphaned and dropped wiring stay empty')]
     public function testAttachDetachesNothing(): void
     {
-        $attach = new AttachElement($this->registry(), new StoredElement('incoming', 'Sw:Card'));
+        $attach = $this->attach(new StoredElement('incoming', 'Sw:Card'));
         $attach->apply(new StoredTree([]));
 
         static::assertSame([], $attach->orphaned());
@@ -138,7 +141,7 @@ class AttachElementTest extends TestCase
     #[TestDox('rejects an unregistered root component with a 400')]
     public function testAttachUnregisteredComponentRejected(): void
     {
-        $attach = new AttachElement($this->registry(), new StoredElement('incoming', 'Sw:Ghost'));
+        $attach = $this->attach(new StoredElement('incoming', 'Sw:Ghost'));
 
         $this->expectExceptionObject(ContentSystemException::mutationUnknownType('Sw:Ghost'));
         $attach->apply(new StoredTree([]));
@@ -147,7 +150,7 @@ class AttachElementTest extends TestCase
     #[TestDox('rejects attaching into a parent absent from the tree with a 400')]
     public function testAttachIntoMissingParentRejected(): void
     {
-        $attach = new AttachElement($this->registry(), new StoredElement('incoming', 'Sw:Card'), 'ghost', 'content');
+        $attach = $this->attach(new StoredElement('incoming', 'Sw:Card'), 'ghost', 'content');
 
         $this->expectExceptionObject(ContentSystemException::mutationTargetNotFound('ghost'));
         $attach->apply(new StoredTree([new StoredElement('other', 'Sw:Block')]));
@@ -156,10 +159,23 @@ class AttachElementTest extends TestCase
     #[TestDox('rejects attaching into a parent without naming a slot with a 400')]
     public function testAttachIntoParentWithoutSlotRejected(): void
     {
-        $attach = new AttachElement($this->registry(), new StoredElement('incoming', 'Sw:Card'), 'parent');
+        $attach = $this->attach(new StoredElement('incoming', 'Sw:Card'), 'parent');
 
         $this->expectExceptionObject(ContentSystemException::mutationSlotRequired());
         $attach->apply(new StoredTree([new StoredElement('parent', 'Sw:Block')]));
+    }
+
+    private function attach(StoredElement $element, ?string $parentElementId = null, ?string $slot = null, ?int $index = null): AttachElement
+    {
+        return new AttachElement(
+            $this->registry(),
+            $element,
+            static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
+            new BindingApplicator(static::createStub(DataLoaderConfigSerializerProvider::class), $this->registry()),
+            $parentElementId,
+            $slot,
+            $index,
+        );
     }
 
     private function registry(): AbstractContentSystemElementTypeRegistry

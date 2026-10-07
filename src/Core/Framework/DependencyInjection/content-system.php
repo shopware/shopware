@@ -67,16 +67,23 @@ use Shopware\Core\Framework\ContentSystem\Layout\Entity\ContentLayoutDefinition;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutWriteBoundary;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\DatabaseLayoutPresetLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\LayoutPresetNameResolver;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\YamlLayoutPresetLoader;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\CachedContentSystemLayoutPresetRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\ContentSystemLayoutPresetRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\StoredTreePreparer;
 use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTreeStyleNormalizer;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\CachedContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredSchemaResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Validation\ElementTypeCollisionDetector;
 use Shopware\Core\Framework\ContentSystem\Mutation\ContextConsumerMirror;
@@ -110,15 +117,19 @@ use Shopware\Core\Framework\ContentSystem\SalesChannel\Routing\ContentRouteLoade
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderMapResolver;
 use Shopware\Core\Framework\ContentSystem\Schema\ContentSystemDataLoaderSchemaGenerator;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutAssignmentWriteValidator;
+use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutDefaultValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\ContentLayoutWriteValidator;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutGate;
 use Shopware\Core\Framework\ContentSystem\Validation\LayoutRootSourceReader;
 use Shopware\Core\Framework\ContentSystem\Validation\ViolationConstraintMapper;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityDeleteEvent;
 use Shopware\Core\System\Language\LanguageLoader;
 use Shopware\Core\System\SalesChannel\Api\StructEncoder;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelDefinitionInstanceRegistry;
+use Shopware\Core\System\SystemConfig\Event\SystemConfigChangedEvent;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -129,6 +140,10 @@ use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_it
 use function Symfony\Component\DependencyInjection\Loader\Configurator\tagged_locator;
 
 return static function (ContainerConfigurator $containerConfigurator): void {
+    // Filled by the bundle that owns the section assignment tables; the Storefront sets header and footer.
+    $containerConfigurator->parameters()
+        ->set('shopware.content_system.section_assignment_entities', []);
+
     $services = $containerConfigurator->services();
 
     // Entity Definitions
@@ -142,6 +157,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ContentSystemElementTypeRegistry::class),
             service(VirtualRootWrapper::class),
             service(PartialRenderer::class),
+            service(DataLoaderConfigSerializerProvider::class),
+            service(DataLoaderProvider::class),
         ]);
 
     // Output Services
@@ -189,13 +206,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('validator.constraint_validator');
 
-    // Write-boundary default seeding (seeds type primitive defaults into every DAL write of the layout field)
-    $services->set(PrimitiveDefaultProvider::class);
+    // Write-boundary default seeding (seeds type stored defaults into every DAL write of the layout field)
+    $services->set(StoredDefaultProvider::class);
 
     $services->set(LayoutDefaultSeeder::class)
         ->args([
             service(ContentSystemElementTypeRegistry::class),
-            service(PrimitiveDefaultProvider::class),
+            service(StoredDefaultProvider::class),
         ]);
 
     // The forest-wide style pass, shared by the write boundary and the draft decode so the two cannot drift
@@ -271,8 +288,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(Connection::class),
             service(EntityCacheTagResolver::class),
             service(DefinitionInstanceRegistry::class),
+            param('shopware.content_system.section_assignment_entities'),
         ])
-        ->tag('kernel.event_listener');
+        ->tag('kernel.event_listener')
+        ->tag('kernel.event_listener', ['event' => EntityDeleteEvent::class, 'method' => 'beforeDelete'])
+        ->tag('kernel.event_listener', ['event' => SystemConfigChangedEvent::class, 'method' => 'invalidateDefaultLayout']);
 
     // Hydration Services
     $services->set(LoaderInputResolver::class);
@@ -347,6 +367,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(EntityLayoutResolver::class),
             service(RootContextMapper::class),
+            service(SystemConfigService::class),
+            service(CacheTagCollector::class),
         ]);
 
     // Domain-Aware Layout Resolution (Header/Footer)
@@ -460,7 +482,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('validator'),
             service(Connection::class),
             param('kernel.environment'),
-            service('logger'),
         ])
         ->tag('content_system.type_loader');
 
@@ -473,6 +494,49 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->decorate(ContentSystemElementTypeRegistry::class)
         ->args([
             service(CachedContentSystemElementTypeRegistry::class . '.inner'),
+            service('cache.system'),
+        ]);
+
+    $services->set(LayoutPresetPayloadCompiler::class)
+        ->args([
+            service(DraftLayoutDecoder::class),
+            service(StoredElementCodec::class),
+        ]);
+
+    $services->set(LayoutPresetSpecificationSerializer::class);
+
+    $services->set(LayoutPresetNameResolver::class);
+
+    $services->set(YamlLayoutPresetLoader::class)
+        ->args([
+            service(LayoutPresetSpecificationSerializer::class),
+            service(LayoutPresetPayloadCompiler::class),
+            service('validator'),
+            service(LayoutPresetNameResolver::class),
+        ])
+        ->arg('$directories', [])
+        ->tag('content_system.layout_preset_loader');
+
+    $services->set(DatabaseLayoutPresetLoader::class)
+        ->args([
+            service(LayoutPresetSpecificationSerializer::class),
+            service(LayoutPresetPayloadCompiler::class),
+            service('validator'),
+            service(Connection::class),
+            param('kernel.environment'),
+            service('logger'),
+        ])
+        ->tag('content_system.layout_preset_loader');
+
+    $services->set(ContentSystemLayoutPresetRegistry::class)
+        ->args([
+            tagged_iterator('content_system.layout_preset_loader'),
+        ]);
+
+    $services->set(CachedContentSystemLayoutPresetRegistry::class)
+        ->decorate(ContentSystemLayoutPresetRegistry::class)
+        ->args([
+            service(CachedContentSystemLayoutPresetRegistry::class . '.inner'),
             service('cache.system'),
         ]);
 
@@ -500,7 +564,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('validator'),
             service(Connection::class),
             param('kernel.environment'),
-            service('logger'),
         ])
         ->tag('content_system.style_option_loader');
 
@@ -552,7 +615,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             param('kernel.environment'),
             service(Connection::class),
-            service('logger'),
             service(BindingSpecificationSerializer::class),
             service('validator'),
         ])
@@ -684,6 +746,15 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.event_subscriber');
 
+    // Default-layout gate (system config change, content_layout delete)
+    $services->set(ContentLayoutDefaultValidator::class)
+        ->args([
+            service(DefinitionInstanceRegistry::class),
+            service(LayoutRootSourceReader::class),
+            service(Connection::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
     // Shared draft-layout decode (structural gate) for the preview, diagnose and mutation routes
     $services->set(DraftLayoutDecoder::class)
         ->args([
@@ -723,6 +794,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(ContentPreviewPayloadStore::class)
         ->args([
             service('cache.system'),
+            service('validator'),
         ]);
 
     // Preview Action (Admin API)
@@ -753,6 +825,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StoredElementCodec::class),
             service(ContentSystemBindingSpecificationRegistry::class),
             service(BindingApplicator::class),
+            service(ContentSystemLayoutPresetRegistry::class),
         ]);
 
     // Persisted Layout Mutation (load by id, mutate, commit through the gates)

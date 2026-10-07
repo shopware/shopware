@@ -93,13 +93,10 @@ final class InsertElement extends AbstractLayoutMutation
      */
     private function scaffoldWithDefault(string $type): StoredElement
     {
-        $element = $this->scaffoldElement($this->registry, $type);
-        $default = $this->resolveDefaultSpecification($this->bindingRegistry, $type);
-
-        if ($default === null) {
-            return $element;
-        }
-
-        return $this->bindingApplicator->applyFillOnly($element, $default, $default->qualifiedId());
+        return $this->applyDefaultBinding(
+            $this->bindingRegistry,
+            $this->bindingApplicator,
+            $this->scaffoldElement($this->registry, $type),
+        );
     }
 }

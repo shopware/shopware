@@ -3,6 +3,11 @@
     width: 100%;
 }
 
+.sw-navbar__container {
+    padding-left: 0;
+    padding-right: 0;
+}
+
 .sw-navbar__nav {
     --bs-nav-link-color: var(--bs-body-color);
     --bs-nav-link-hover-color: var(--bs-primary);

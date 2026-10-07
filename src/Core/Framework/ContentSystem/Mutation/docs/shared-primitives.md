@@ -10,13 +10,14 @@ and the ops call them there.
   `StoredTree`.
 - `cloneWithNewIds(StoredElement $node): StoredElement` - deep clone reminting every id in the subtree.
 - `scaffoldElement(AbstractContentSystemElementTypeRegistry $registry, string $type, array $slots = []): StoredElement` -
-  a fresh element seeded with the type's primitive property defaults (via `primitiveDefaults`), no wiring.
-- `primitiveDefaults(AbstractContentSystemElementTypeRegistry $registry, string $type): array<string, StoredValue>` -
-  the type's non-null primitive property defaults keyed by property key, wrapped for storage. Delegates to the single
-  per-type rule `Layout/Type/PrimitiveDefaultProvider::forType`, shared with `scaffoldElement`, `Op/ReplaceElement`,
-  and the write-boundary `Layout/LayoutDefaultSeeder`, so "a type's primitive defaults" is defined once. Each value
-  arrives in the shape storage holds rather than as the declared scalar, so a translatable property's default is a
-  single-entry language map under the anchor language and no scaffold produces a bare value for one.
+  a fresh element seeded with the type's stored defaults (via `storedDefaults`), no wiring.
+- `storedDefaults(AbstractContentSystemElementTypeRegistry $registry, string $type): array<string, StoredValue>` -
+  the type's defaults keyed by property key and wrapped for storage. Delegates to the single per-type rule
+  `Layout/Type/StoredDefaultProvider::forType`, shared with `scaffoldElement`, `Op/ReplaceElement`, and the
+  write-boundary `Layout/LayoutDefaultSeeder`, so a type's stored defaults are defined once. Each value arrives in the
+  shape storage holds rather than as the declared scalar, so a translatable property's default is a single-entry
+  language map under the anchor language (`PropertyType::storedDefault()`) and no scaffold produces a bare value for
+  one.
 - `requireRegistered(registry, string $type): void` - throws `ContentSystemException::mutationUnknownType` when the
   type is unregistered.
 - `rejectNonLanguageKeys(string $elementId, string $key, StoredValue $value): void` - throws

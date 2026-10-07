@@ -1,3 +1,4 @@
+import { mount } from '@vue/test-utils';
 import sidebarTreeNodeComponent from './index';
 import { getContentElementLabel } from '../../util/content-element-label.util';
 
@@ -23,6 +24,80 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
 
         expect(computed.label.call({ contentElement })).toBe('Headline');
         expect(labelMock).toHaveBeenCalledWith(contentElement, [ANCHOR_LANGUAGE_ID]);
+    });
+
+    it('prevents drag events from reaching the draggable ancestor through control buttons', async () => {
+        const dragListener = jest.fn();
+        const getStore = jest.spyOn(Shopware.Store, 'get').mockReturnValue({
+            getByName: () => ({
+                slots: [
+                    { name: 'content' },
+                ],
+            }),
+        } as never);
+        const wrapper = mount(sidebarTreeNodeComponent, {
+            attachTo: document.body,
+            props: {
+                element: {
+                    id: 'element-id',
+                    component: 'Sw:Grid:Container',
+                    slots: {
+                        content: [],
+                    },
+                } as never,
+                allowDragAndDrop: true,
+            },
+            global: {
+                provide: {
+                    acl: {
+                        can: () => true,
+                    },
+                },
+                directives: {
+                    draggable: {
+                        mounted(el: HTMLElement) {
+                            el.addEventListener('mousedown', dragListener);
+                            el.addEventListener('touchstart', dragListener);
+                        },
+                        unmounted(el: HTMLElement) {
+                            el.removeEventListener('mousedown', dragListener);
+                            el.removeEventListener('touchstart', dragListener);
+                        },
+                    },
+                    droppable: {},
+                },
+                stubs: {
+                    'mt-icon': true,
+                },
+            },
+        });
+
+        try {
+            const duplicateButton = wrapper.get('.sw-experience-studio-sidebar-tree-node__actions button');
+
+            await duplicateButton.trigger('mousedown');
+
+            expect(dragListener).not.toHaveBeenCalled();
+
+            for (const button of wrapper.findAll('button')) {
+                await button.trigger('mousedown');
+            }
+
+            expect(dragListener).not.toHaveBeenCalled();
+
+            await duplicateButton.trigger('touchstart');
+
+            expect(dragListener).not.toHaveBeenCalled();
+
+            for (const button of wrapper.findAll('button')) {
+                await button.trigger('touchstart');
+            }
+
+            expect(dragListener).not.toHaveBeenCalled();
+        } finally {
+            wrapper.unmount();
+            getStore.mockRestore();
+        }
     });
 
     it('uses configured type icon when available', () => {
@@ -117,5 +192,24 @@ describe('module/sw-experience-studio/component/sw-experience-studio-sidebar-tre
                 { newParentElementId: 'child', newSlotName: 'main', newIndex: 0 },
             ),
         ).toBe(false);
+    });
+
+    it('emits the add-element trigger as the picker anchor', () => {
+        const $emit = jest.fn();
+        const trigger = document.createElement('button');
+        const vm = {
+            $emit,
+            contentElement: {
+                id: 'element-id',
+            },
+        };
+
+        methods.onAddElement.call(vm, 'content', { currentTarget: trigger } as unknown as MouseEvent);
+
+        expect($emit).toHaveBeenCalledWith('add-element', {
+            parentElementId: 'element-id',
+            slotName: 'content',
+            anchorElement: trigger,
+        });
     });
 });

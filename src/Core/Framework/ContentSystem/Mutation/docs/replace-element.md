@@ -8,24 +8,20 @@ rules rather than a placement. The other operations are in [operations.md](opera
 ## What it carries over
 
 Swaps an element's component to `$newType`, keeping the same id. `requireRegistered($newType)`; the element must
-exist (`mutationTargetNotFound`); carries over properties whose key matches and whose declared type is a primitive or
-a union of primitives that admits the value, wiring (data
-requirements, providers, consumers) keyed to a new-type property whose declared type is not a lone primitive, and children of slots present in the
-new type, then seeds the new type's primitive defaults for any key it does not carry (a carried or authored value
-wins).
+exist (`mutationTargetNotFound`); carries over a property whose key the new type declares with an enforceable
+type and whose value that type admits (`PropertyType::enforceableTypes()` / `admits()`, the same rule the write gate
+and the diagnostics apply), wiring (data requirements, providers, consumers) keyed to a non-primitive new-type
+property, and children of slots present in the new type, then seeds the new type's stored defaults for any key it does
+not carry (a carried or authored value wins). A lone primitive and an all-primitive union are enforceable, so a value
+matching any member of the union carries. A key the new type declares as `object`, an FQCN, or a union carrying
+either has no enforceable type, so nothing can vouch for the value's shape and it is dropped and reported rather than
+carried across unexamined.
 
-"Type match" is `Layout/Type/Specification/PropertyType::admits()`, the one conformance predicate the write path and the
-diagnostics also read, behind a pre-gate that the new type's declaration is enforceable
-(`PropertyType::enforceableTypes()` is not `null`). A value is carried when the declaration is enforceable and
-`admits()` accepts it; a bare `object`, an FQCN, or a union carrying either is not enforceable, so its value is dropped
-and reported rather than crossing unexamined. A lone primitive and an all-primitive union are enforceable, so a value
-matching any member of the union is carried. Two consequences follow from the predicate rather than from any rule of
-this operation's own. A translatable property carries its whole language map
-across, provided the new type declares that key translatable and its declared primitive admits the map's entries — a
-bare value under a translatable key is not carryable, because `admits()` rejects it. And an authored present `null`
-under a non-translatable primitive carries rather than being dropped: `admits()` admits the null variant for every such
-declaration, since whether a key may be null is the required-rule's business. The default overlay then leaves that null
-in place, because `+` fills only an absent key. The element's `style` carries over unconditionally, being universal and
+Two consequences follow from the predicate, not from a rule of this operation. A translatable property carries its
+whole language map when the new type declares that key translatable and its declared primitive admits every entry; a
+bare value under a translatable key, null included, is dropped, because `admits()` rejects it. An authored `null`
+carries under a non-translatable declaration with an enforceable type, and the default overlay leaves it in place,
+because `+` fills only an absent key. The element's `style` carries over unconditionally, being universal and
 type-independent, and `attributedSpecifications` survives only for keys whose carried data requirement survives.
 
 A stored property under one of the new type's `resolvedBy` storage keys is likewise carryable: `carryProperties()`
@@ -45,8 +41,8 @@ overwritten by the default even when the default would correct a renamed storage
 
 `orphaned` = children of slots absent from the new type; `droppedWiring` = old wiring keys minus kept;
 `droppedProperties` = static property values whose key is absent from the new type (and not a carryable `resolvedBy`
-storage key) or whose value its property type rejects. A value rejected for a key the new type still declares as a
-primitive with a default is reported as dropped even though that default then re-fills the key; a key absent from
-the new type is reported and never re-filled, because the default overlay is keyed only by the new type's primitive
-keys. `affected = subtreeIds($replacement)`; `created = [$elementId]` only, because the carried-over children keep
-their own nodes while the replaced node is re-scaffolded under the same id.
+storage key) or whose value its property type rejects. A value rejected for a key the new type declares with a
+stored default is reported as dropped even though that default then re-fills the key; a key absent from the new type
+is reported and never re-filled, because the default overlay is keyed by the new type's stored-default keys.
+`affected = subtreeIds($replacement)`; `created = [$elementId]` only, because the carried-over children keep their own
+nodes while the replaced node is re-scaffolded under the same id.

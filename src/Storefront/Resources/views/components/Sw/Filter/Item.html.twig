@@ -5,7 +5,7 @@
 {% props
     filterName = '',
     slots = [],
-    displayType = 'dropdown',
+    displayType = 'inline',
 %}
 
 {% set filterItemId = 'filter-item-' ~ random() %}
@@ -14,8 +14,8 @@
     base: 'sw-filter-item',
     variants: {
         displayType: {
-            dropdown: 'is--dropdown',
-            collapse: 'is--collapse',
+            inline: 'is--inline',
+            vertical: 'is--vertical',
         },
     },
 }) %}
@@ -27,20 +27,20 @@
 
 {% set contentAttributes = {
     id: filterItemId,
-    class: displayType == 'dropdown' ? 'sw-filter-item__dropdown dropdown-menu' : 'sw-filter-item__collapse collapse',
+    class: displayType == 'inline' ? 'sw-filter-item__dropdown dropdown-menu' : 'sw-filter-item__collapse collapse',
 } %}
 
 {% set buttonAttributes = {
     class: 'sw-filter-item__btn',
     type: 'button',
     variant: 'filter',
-    'data-bs-toggle': displayType == 'dropdown' ? 'dropdown' : 'collapse',
+    'data-bs-toggle': displayType == 'inline' ? 'dropdown' : 'collapse',
     'aria-expanded': 'false',
     'data-bs-offset': '0,-1',
     'data-bs-auto-close': 'outside',
 } %}
 
-{% if displayType == 'collapse' %}
+{% if displayType == 'vertical' %}
     {% set buttonAttributes = buttonAttributes|merge({ 'data-bs-target': '#' ~ filterItemId }) %}
 {% endif %}
 

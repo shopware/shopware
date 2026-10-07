@@ -1,0 +1,17 @@
+.sw-tabs {
+    --sw-tabs-content-padding: var(--spacer-md);
+
+    margin-bottom: var(--spacer-md);
+}
+
+.sw-tabs__content {
+    padding-top: var(--sw-tabs-content-padding);
+}
+
+// Always show the first tab. 
+// Since the tab pane is generic, we don't know upfront if it is the first one in the "tabs" slot.
+// During interacting Bootstrap will update the active tab and the corresponding pane will be shown.
+.sw-tabs__content:not(:has(> .tab-pane.active)) > .tab-pane:first-child {
+    display: block;
+    opacity: 1;
+}

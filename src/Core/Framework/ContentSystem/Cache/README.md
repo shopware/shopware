@@ -26,3 +26,7 @@ Unsupported entities return null → page becomes uncacheable.
 `CacheInvalidationSubscriber` listens to `EntityWrittenContainerEvent`:
 - **content_layout** → `content-layout-{id}`
 - **assignment tables** (product/category/landing_page/header/footer) → looks up associated entity and invalidates its tag
+
+Every table name comes from its definition's `ENTITY_NAME`. Header and footer are Storefront-owned, so
+the Storefront hands those two to the subscriber through the container parameter
+`shopware.content_system.section_assignment_entities`; Core declares it empty.

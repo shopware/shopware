@@ -18,6 +18,7 @@ use Shopware\Core\Framework\App\Lifecycle\RefreshableAppDryRun;
 use Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater;
 use Shopware\Core\Framework\ContentSystem\Binding\Registry\AbstractContentSystemBindingSpecificationRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
 use Shopware\Core\Framework\Deprecation\BCChange\BecomesFinal;
@@ -55,6 +56,7 @@ class DecorationPatternRule implements Rule
         AbstractContentSystemBindingSpecificationRegistry::class,
         AbstractContentSystemStyleOptionRegistry::class,
         AbstractContentSystemElementTypeRegistry::class,
+        AbstractContentSystemLayoutPresetRegistry::class,
         AbstractContentRoute::class,
     ];
 

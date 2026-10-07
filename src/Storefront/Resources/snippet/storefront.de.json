@@ -11,7 +11,8 @@
       "activate": "Aktivieren",
       "deactivate": "Deaktivieren",
       "confirm": "Bestätigen",
-      "noteRequiredFields": "Die mit einem Stern (*) markierten Felder sind Pflichtfelder."
+      "noteRequiredFields": "Die mit einem Stern (*) markierten Felder sind Pflichtfelder.",
+      "loading": "Wird geladen..."
     }
   },
   "general": {
@@ -877,7 +878,8 @@
         "outOfStock": "Das Produkt ist nicht mehr verfügbar."
       },
       "configurator": {
-        "legend": "%group_name%<span class=\"%hidden_cls%\">&nbsp;auswählen</span>"
+        "legend": "%group_name%<span class=\"%hidden_cls%\">&nbsp;auswählen</span>",
+        "unavailable": "Variantenauswahl nicht verfügbar"
       }
     },
     "cms": {
@@ -911,7 +913,7 @@
         "thumbnailNavScrollUp": "Nach oben scrollen",
         "thumbnailNavScrollLeft": "Nach links scrollen",
         "thumbnailNavScrollRight": "Nach rechts scrollen",
-        "thumbnailNavButtonAriaLabel": "Zeige Medienelement %index% von %total%",
+        "thumbnailNavButtonAriaLabel": "Medienelement %index% von %total%",
         "previousMedia": "Vorheriges Medienelement",
         "nextMedia": "Nächstes Medienelement"
       },

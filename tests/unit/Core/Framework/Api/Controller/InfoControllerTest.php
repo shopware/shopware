@@ -28,6 +28,7 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\Context\Distribution\Di
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Registry\AbstractContentSystemStyleOptionRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Specification\StyleOptionValueType;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
@@ -676,6 +677,7 @@ class InfoControllerTest extends TestCase
         ?RootSourceRegistry $rootSourceRegistry = null,
         ?AbstractContentSystemBindingSpecificationRegistry $bindingSpecificationRegistry = null,
         ?StoredSchemaResolver $storedSchemaResolver = null,
+        ?AbstractContentSystemLayoutPresetRegistry $layoutPresetRegistry = null,
         ?AppUrlVerifier $appUrlVerifier = null,
     ): InfoController {
         $parameterBag = new ParameterBag([
@@ -716,6 +718,7 @@ class InfoControllerTest extends TestCase
                 static::createStub(AbstractContentSystemBindingSpecificationRegistry::class),
                 static::createStub(DataLoaderProvider::class),
             ),
+            $layoutPresetRegistry ?? static::createStub(AbstractContentSystemLayoutPresetRegistry::class),
             null,
             new MediaFileExtensionListProvider($this->eventDispatcher, [], ['pdf', 'epub']),
         );

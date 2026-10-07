@@ -56,6 +56,15 @@ export type ContentLayoutDraftUpdatePropertiesPayload = ContentLayoutDraftMutati
     removeKeys?: string[];
 };
 
+/**
+ * @private
+ */
+export type ContentLayoutDraftInsertPresetPayload = ContentLayoutDraftMutationEnvelope & {
+    presetId: string;
+    parentElementId?: string | null;
+    slot?: string | null;
+};
+
 type ContentLayoutDraftMutationDiagnostics = {
     wellFormed: boolean;
     resolvable: boolean;
@@ -138,6 +147,10 @@ class ContentSystemLayoutDraftMutationApiService extends ApiService {
         payload: ContentLayoutDraftUpdatePropertiesPayload,
     ): Promise<ContentLayoutDraftMutationResponse> {
         return this.mutate('update-element-properties', payload);
+    }
+
+    insertPreset(payload: ContentLayoutDraftInsertPresetPayload): Promise<ContentLayoutDraftMutationResponse> {
+        return this.mutate('insert-preset', payload);
     }
 
     private mutate(

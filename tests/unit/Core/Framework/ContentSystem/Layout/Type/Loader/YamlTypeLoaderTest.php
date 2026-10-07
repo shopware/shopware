@@ -114,7 +114,7 @@ class YamlTypeLoaderTest extends TestCase
 
         static::assertIsArray($containerProperties['padding']['properties']);
         foreach ($containerProperties['padding']['properties'] as $breakpoint) {
-            static::assertSame('0 20px 0 20px', $breakpoint['default']);
+            static::assertNull($breakpoint['default']);
         }
 
         static::assertIsArray($containerProperties['margin']['properties']);
@@ -122,13 +122,23 @@ class YamlTypeLoaderTest extends TestCase
             static::assertSame('0 0 24px 0', $breakpoint['default']);
         }
 
+        foreach (['align', 'alignContent', 'justify', 'justifyContent'] as $alignmentProperty) {
+            static::assertIsArray($containerProperties[$alignmentProperty]['enum']);
+            static::assertContains('normal', $containerProperties[$alignmentProperty]['enum']);
+            $options = self::adminUi($containerProperties[$alignmentProperty])['props']['options'];
+            static::assertContains('normal', array_column($options, 'value'));
+        }
+        static::assertSame('select', self::adminUi($containerProperties['alignContent'])['component']);
+        static::assertSame('select', self::adminUi($containerProperties['justifyContent'])['component']);
+
         $expectedPanels = [
             'mode' => 'general',
             'itemMinWidth' => 'general',
             'columns' => 'general',
             'rows' => 'general',
-            'centered' => 'general',
+            'fullWidth' => 'general',
             'gap' => 'spacing',
+            'maxWidth' => 'spacing',
             'padding' => 'spacing',
             'margin' => 'spacing',
             'align' => 'alignment',
@@ -137,6 +147,7 @@ class YamlTypeLoaderTest extends TestCase
             'justifyContent' => 'alignment',
             'border' => 'border',
             'borderVariant' => 'border',
+            'borderFullWidth' => 'border',
             'borderRadius' => 'border',
             'backgroundOpacity' => 'background',
             'shadowOffsetX' => 'shadow',
@@ -149,6 +160,7 @@ class YamlTypeLoaderTest extends TestCase
             'backgroundColor' => 'background',
             'backgroundImage' => 'background',
             'backgroundImageMode' => 'background',
+            'backgroundFullWidth' => 'background',
         ];
 
         foreach ($expectedPanels as $property => $panel) {

@@ -26,8 +26,8 @@
                     {
                         "name": "elementId",
                         "in": "query",
-                        "description": "Request only specific element and its descendants (partial rendering)",
-                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                        "description": "Request only specific element and its descendants (partial rendering). Any non-empty element id, except the reserved literal `__page_context_root__`, one that reads as an integer (`0`, `12`, `-3`), or one carrying a line terminator; an author-supplied id such as `hero` names that element instance and is as valid as a generated hex id.",
+                        "schema": { "type": "string", "pattern": "^(?!__page_context_root__$)(?!-?(0|[1-9][0-9]*)$).+$" }
                     }
                 ],
                 "responses": {
@@ -70,8 +70,8 @@
                     {
                         "name": "elementId",
                         "in": "query",
-                        "description": "Request only specific element and its descendants (partial rendering)",
-                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                        "description": "Request only specific element and its descendants (partial rendering). Any non-empty element id, except the reserved literal `__page_context_root__`, one that reads as an integer (`0`, `12`, `-3`), or one carrying a line terminator; an author-supplied id such as `hero` names that element instance and is as valid as a generated hex id.",
+                        "schema": { "type": "string", "pattern": "^(?!__page_context_root__$)(?!-?(0|[1-9][0-9]*)$).+$" }
                     }
                 ],
                 "responses": {
@@ -114,8 +114,8 @@
                     {
                         "name": "elementId",
                         "in": "query",
-                        "description": "Request only specific element and its descendants (partial rendering)",
-                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                        "description": "Request only specific element and its descendants (partial rendering). Any non-empty element id, except the reserved literal `__page_context_root__`, one that reads as an integer (`0`, `12`, `-3`), or one carrying a line terminator; an author-supplied id such as `hero` names that element instance and is as valid as a generated hex id.",
+                        "schema": { "type": "string", "pattern": "^(?!__page_context_root__$)(?!-?(0|[1-9][0-9]*)$).+$" }
                     }
                 ],
                 "responses": {
@@ -158,8 +158,8 @@
                     {
                         "name": "elementId",
                         "in": "query",
-                        "description": "Request only specific element and its descendants (partial rendering)",
-                        "schema": { "type": "string", "pattern": "^[0-9a-f]{32}$" }
+                        "description": "Request only specific element and its descendants (partial rendering). Any non-empty element id, except the reserved literal `__page_context_root__`, one that reads as an integer (`0`, `12`, `-3`), or one carrying a line terminator; an author-supplied id such as `hero` names that element instance and is as valid as a generated hex id.",
+                        "schema": { "type": "string", "pattern": "^(?!__page_context_root__$)(?!-?(0|[1-9][0-9]*)$).+$" }
                     }
                 ],
                 "responses": {

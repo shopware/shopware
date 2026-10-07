@@ -87,6 +87,22 @@ class RegistryBindingSpecificationCanonicityTest extends TestCase
         static::assertSame([], $specification->inputs(), 'The synthesized default carries no inputs; mediaId is an undeclared storage key.');
     }
 
+    #[TestDox('the core product slider default explicitly targets products through the entity collection loader')]
+    public function testSwProductSliderDefaultExplicitlyTargetsProducts(): void
+    {
+        $specification = $this->registry()->get('core:Sw:Product:Slider');
+
+        static::assertInstanceOf(BindingSpecification::class, $specification);
+
+        $productsBinding = $specification->resolves()['products'] ?? null;
+        static::assertInstanceOf(LoaderBinding::class, $productsBinding);
+        static::assertSame('entity_collection', $productsBinding->loader);
+        static::assertSame(
+            ['entity' => 'product', 'property' => 'productIds'],
+            $productsBinding->config,
+        );
+    }
+
     private function registry(): ContentSystemBindingSpecificationRegistry
     {
         return new ContentSystemBindingSpecificationRegistry(

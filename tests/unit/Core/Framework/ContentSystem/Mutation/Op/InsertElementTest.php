@@ -23,12 +23,12 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\ElementStyle;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\StoredTree;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\PrimitiveDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\ContentSystemElementTypeSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\CopilotSpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\StoredDefaultProvider;
 use Shopware\Core\Framework\ContentSystem\Mutation\Op\InsertElement;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -98,7 +98,7 @@ class InsertElementTest extends TestCase
         static::assertSame($style->toArray(), $result->roots[0]->style->toArray());
     }
 
-    #[TestDox('seeds only primitive properties that declare a default')]
+    #[TestDox('seeds top-level primitive properties that declare a default')]
     public function testInsertSeedsPrimitiveDefaultsOnly(): void
     {
         $spec = $this->spec('Sw:Card', [
@@ -111,6 +111,38 @@ class InsertElementTest extends TestCase
         $result = $insert->apply(new StoredTree([]));
 
         static::assertSame(['headline' => 'Hello'], $this->rawProperties($result->roots[0]));
+    }
+
+    #[TestDox('seeds nested object property defaults')]
+    public function testInsertSeedsNestedObjectDefaults(): void
+    {
+        $spec = $this->spec('Sw:Grid:Container', [
+            'padding' => new PropertySpecification(
+                'padding',
+                new PropertyType(
+                    ['string', 'object'],
+                    false,
+                    null,
+                    null,
+                    [
+                        'xs' => new PropertySpecification('xs', new PropertyType('string', false, null, '0 20px 0 20px'), false, '', '', null),
+                        'sm' => new PropertySpecification('sm', new PropertyType('string', false, null, '0 20px 0 20px'), false, '', '', null),
+                    ],
+                ),
+                false,
+                '',
+                '',
+                null,
+            ),
+        ]);
+
+        $insert = new InsertElement($this->registry(['Sw:Grid:Container' => $spec]), 'Sw:Grid:Container', $this->bindingRegistry([]), $this->unboundApplicator());
+        $result = $insert->apply(new StoredTree([]));
+
+        static::assertSame(
+            ['padding' => ['xs' => '0 20px 0 20px', 'sm' => '0 20px 0 20px']],
+            $this->rawProperties($result->roots[0]),
+        );
     }
 
     #[TestDox('applies the binding specification onto the freshly scaffolded element with its wiring, seeded input default, and attribution')]
@@ -393,7 +425,7 @@ class InsertElementTest extends TestCase
     /**
      * The output of all three default producers for a one-property type, each unwrapped to raw PHP values so
      * the three are directly comparable. `insert` goes through {@see InsertElement::apply()}'s scaffold path
-     * rather than calling the protected `primitiveDefaults()` directly, so no test subclasses the abstract
+     * rather than calling the protected `storedDefaults()` directly, so no test subclasses the abstract
      * mutation.
      *
      * @return array{provider: array<string, mixed>, seeder: array<string, mixed>, insert: array<string, mixed>}
@@ -402,14 +434,14 @@ class InsertElementTest extends TestCase
     {
         $registry = $this->registry(['Sw:Block' => $this->spec('Sw:Block', [$key => new PropertySpecification('prop', $propertyType, false, '', '', null)])]);
 
-        $seeded = (new LayoutDefaultSeeder($registry, new PrimitiveDefaultProvider()))
+        $seeded = (new LayoutDefaultSeeder($registry, new StoredDefaultProvider()))
             ->seed([StoredElementBuilder::create('Sw:Block', 'el')->build()]);
 
         $insert = new InsertElement($registry, 'Sw:Block', $this->bindingRegistry([]), $this->unboundApplicator());
         $result = $insert->apply(new StoredTree([]));
 
         return [
-            'provider' => (new PrimitiveDefaultProvider())->forType($registry, 'Sw:Block'),
+            'provider' => (new StoredDefaultProvider())->forType($registry, 'Sw:Block'),
             'seeder' => $this->rawProperties($seeded[0]),
             'insert' => $this->rawProperties($result->roots[0]),
         ];

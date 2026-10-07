@@ -201,6 +201,74 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
         ]);
     });
 
+    it('prefers declared options for select controls', () => {
+        expect(
+            methods.getSelectOptions.call(
+                {
+                    getControlProps: methods.getControlProps,
+                },
+                {
+                    enum: [
+                        'spaceBetween',
+                        'spaceEvenly',
+                    ],
+                    adminUI: {
+                        props: {
+                            options: [
+                                {
+                                    value: 'normal',
+                                    label: 'Normal',
+                                    icon: 'regular-circle',
+                                },
+                                {
+                                    value: 'spaceBetween',
+                                    label: 'Space between',
+                                    icon: 'regular-align-justify',
+                                },
+                            ],
+                        },
+                    },
+                },
+            ),
+        ).toEqual([
+            {
+                value: 'normal',
+                label: 'Normal',
+                icon: 'regular-circle',
+            },
+            {
+                value: 'spaceBetween',
+                label: 'Space between',
+                icon: 'regular-align-justify',
+            },
+        ]);
+    });
+
+    it('derives select options from the enum when no options are declared', () => {
+        expect(
+            methods.getSelectOptions.call(
+                {
+                    getControlProps: methods.getControlProps,
+                },
+                {
+                    enum: [
+                        'spaceBetween',
+                        'spaceEvenly',
+                    ],
+                },
+            ),
+        ).toEqual([
+            {
+                value: 'spaceBetween',
+                label: 'spaceBetween',
+            },
+            {
+                value: 'spaceEvenly',
+                label: 'spaceEvenly',
+            },
+        ]);
+    });
+
     it('presents a comma-separated id list to the entity picker as an array', () => {
         const field = {
             key: 'propertyAllowlist',
@@ -408,5 +476,33 @@ describe('module/sw-experience-studio/component/sw-experience-studio-settings-fi
         );
 
         expect(value).toBe('0 20px 0 20px');
+    });
+
+    it('uses explicit zero spacing when a breakpoint-aware box-spacing property has null defaults', () => {
+        const value = methods.getResponsiveFallbackValue.call(
+            {
+                getControlType: methods.getControlType,
+            },
+            {
+                type: [
+                    'string',
+                    'object',
+                ],
+                default: null,
+                adminUI: {
+                    component: 'box-spacing',
+                },
+                properties: {
+                    xs: {
+                        default: null,
+                    },
+                    sm: {
+                        default: null,
+                    },
+                },
+            },
+        );
+
+        expect(value).toBe('0 0 0 0');
     });
 });

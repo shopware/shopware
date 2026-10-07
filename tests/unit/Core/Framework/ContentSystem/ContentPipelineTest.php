@@ -969,6 +969,8 @@ class ContentPipelineTest extends TestCase
             $this->typeRegistry(),
             new VirtualRootWrapper(),
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
+            $this->configSerializerProvider(),
+            $this->dataLoaderProvider(),
         ))->prepare($layout->elements, $specification, RenderingMode::FULL, Generator::generateSalesChannelContext());
         static::assertFalse($preparation->scaffolding->virtualRootSurvivedPrune);
         static::assertSame(['middle-id', 'consumer-id'], $this->collectStoredIds($preparation->tree));
@@ -1108,6 +1110,8 @@ class ContentPipelineTest extends TestCase
             $this->typeRegistry(),
             $wrapper,
             new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
+            $this->configSerializerProvider(),
+            $this->dataLoaderProvider(),
         ))->prepare($layout->elements, $specification, RenderingMode::SKELETON, Generator::generateSalesChannelContext());
 
         // Fixture guard, and what makes the order observable at all: both finishing steps are live, because
@@ -1472,6 +1476,29 @@ class ContentPipelineTest extends TestCase
         yield 'alias renames the key for children' => ['product', 'product'];
     }
 
+    private function configSerializerProvider(): DataLoaderConfigSerializerProvider
+    {
+        $locator = static::createStub(ServiceLocator::class);
+        $locator->method('has')->willReturn(true);
+        $locator->method('get')->willReturn(new StubLoaderConfigSerializer());
+
+        return new DataLoaderConfigSerializerProvider($locator);
+    }
+
+    private function dataLoaderProvider(): DataLoaderProvider
+    {
+        // These pipeline fixtures do not carry placeholder-bearing loader configs, so an empty
+        // Literal-key set is enough: placeholder substitution short-circuits before touching the config.
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('configSpecification')->willReturn(new LoaderConfigSpecification([]));
+
+        $locator = static::createStub(ServiceLocator::class);
+        $locator->method('has')->willReturn(true);
+        $locator->method('get')->willReturn($loader);
+
+        return new DataLoaderProvider($locator);
+    }
+
     private function createPipeline(): ContentPipeline
     {
         return new ContentPipeline(
@@ -1480,6 +1507,8 @@ class ContentPipelineTest extends TestCase
                 $this->typeRegistry(),
                 new VirtualRootWrapper(),
                 new PartialRenderer(new ElementTreePruner(), new ContextDependencyAnalyzer(), new SubTreeExtractor()),
+                $this->configSerializerProvider(),
+                $this->dataLoaderProvider(),
             ),
             new WiringPlanner(new ProviderDeliveryKeyResolver()),
             $this->lowering,

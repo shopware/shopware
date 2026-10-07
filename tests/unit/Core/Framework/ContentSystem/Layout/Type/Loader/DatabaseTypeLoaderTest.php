@@ -6,9 +6,10 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\DatabaseTypeLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Serialization\ElementTypeSpecificationSerializer;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\Dto\ElementTypeSpecificationDtoCollection;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -24,28 +25,7 @@ class DatabaseTypeLoaderTest extends TestCase
     #[TestDox('loads element type definitions from the database in production environment')]
     public function testLoadsDefinitionsFromDatabaseInProductionEnvironment(): void
     {
-        $schema = json_encode([
-            'meta' => [
-                'label' => 'Hero',
-                'description' => 'A hero banner.',
-            ],
-        ], \JSON_THROW_ON_ERROR);
-
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => 'App:Demo:Hero', 'schema' => $schema, 'app_name' => 'DemoApp'],
-        ]);
-
-        $validator = static::createStub(ValidatorInterface::class);
-        $validator->method('validate')->willReturn(new ConstraintViolationList());
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->never())->method('warning');
-
-        $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), $validator, $connection, 'prod', $logger);
-        $definitions = $loader->load();
-
-        static::assertCount(1, $definitions);
+        $definitions = $this->loader([['name' => 'App:Demo:Hero', 'schema' => json_encode($this->schema(), \JSON_THROW_ON_ERROR), 'app_name' => 'DemoApp']])->load();
         static::assertSame('App:Demo:Hero', $definitions[0]->name());
         static::assertSame('app:DemoApp', $definitions[0]->source());
     }
@@ -53,181 +33,124 @@ class DatabaseTypeLoaderTest extends TestCase
     #[TestDox('returns empty list in dev environment')]
     public function testReturnsEmptyListInDevEnvironment(): void
     {
-        $connection = static::createStub(Connection::class);
-
-        $loader = new DatabaseTypeLoader(
-            new ElementTypeSpecificationSerializer(),
-            static::createStub(ValidatorInterface::class),
-            $connection,
-            'dev',
-            static::createStub(LoggerInterface::class),
-        );
-
-        static::assertSame([], $loader->load());
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchAllAssociative');
+        static::assertSame([], (new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), static::createStub(ValidatorInterface::class), $connection, 'dev'))->load());
     }
 
-    #[TestDox('uses unknown placeholder when database row has empty name')]
-    public function testUsesUnknownPlaceholderForEmptyName(): void
+    #[TestDox('rejects a persisted row without an element type name')]
+    public function testRejectsEmptyName(): void
     {
-        $schema = json_encode([
-            'meta' => [
-                'label' => 'Unnamed',
-                'description' => 'An element with no name.',
-            ],
-        ], \JSON_THROW_ON_ERROR);
+        $this->expectExceptionObject(ContentSystemException::elementTypeLoadFailed('app:DemoApp:<unknown>', 'persisted row has no name and cannot be registered'));
+        $this->loader([['name' => '', 'schema' => json_encode($this->schema(), \JSON_THROW_ON_ERROR), 'app_name' => 'DemoApp']])->load();
+    }
 
+    #[TestDox('loads a persisted element type whose name is the string "0"')]
+    public function testLoadsNameZero(): void
+    {
+        $definitions = $this->loader([['name' => '0', 'schema' => json_encode($this->schema(), \JSON_THROW_ON_ERROR), 'app_name' => 'DemoApp']])->load();
+        static::assertSame('0', $definitions[0]->name());
+    }
+
+    #[TestDox('rejects malformed persisted JSON and preserves the decoding error as its cause')]
+    public function testRejectsMalformedJson(): void
+    {
+        try {
+            $this->loader([['name' => 'broken', 'schema' => '{invalid', 'app_name' => 'DemoApp']])->load();
+            static::fail('Expected malformed JSON to abort the database element type load.');
+        } catch (ContentSystemException $exception) {
+            static::assertSame(ContentSystemException::ELEMENT_TYPE_LOAD_FAILED, $exception->getErrorCode());
+            static::assertStringContainsString('app:DemoApp:broken', $exception->getMessage());
+            static::assertInstanceOf(\JsonException::class, $exception->getPrevious());
+        }
+    }
+
+    #[TestDox('rejects persisted JSON that does not decode to an array or map')]
+    public function testRejectsScalarJson(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::elementTypeLoadFailed(
+            'app:DemoApp:broken',
+            'Persisted schema must decode to an array/map, got string',
+        ));
+        $this->loader([['name' => 'broken', 'schema' => json_encode('scalar', \JSON_THROW_ON_ERROR), 'app_name' => 'DemoApp']])->load();
+    }
+
+    #[TestDox('wraps a deserialization failure with the source-qualified element type name')]
+    public function testRejectsDeserializationFailure(): void
+    {
+        $previous = new \RuntimeException('denormalize failure');
+        $serializer = static::createStub(ElementTypeSpecificationSerializer::class);
+        $serializer->method('denormalize')->willThrowException($previous);
+        $loader = new DatabaseTypeLoader($serializer, $this->emptyValidator(), $this->connection([['name' => 'broken', 'schema' => '{}', 'app_name' => 'DemoApp']]), 'prod');
+        $this->expectExceptionObject(ContentSystemException::elementTypeLoadFailed('app:DemoApp:broken', 'Invalid schema: denormalize failure', $previous));
+        $loader->load();
+    }
+
+    #[TestDox('validates all persisted element types together and rejects the entire load on a violation')]
+    public function testValidatesAllRowsTogetherAndFailsTheWholeLoad(): void
+    {
+        $violations = new ConstraintViolationList([new ConstraintViolation('Invalid label', null, [], null, 'types[App:Bad:Type].label', '')]);
+        $validator = $this->createMock(ValidatorInterface::class);
+        $validator->expects($this->once())
+            ->method('validate')
+            ->with(static::callback(static function (mixed $value): bool {
+                static::assertInstanceOf(ElementTypeSpecificationDtoCollection::class, $value);
+                static::assertSame(['App:Good:Hero', 'App:Bad:Type'], array_keys($value->types));
+
+                return true;
+            }))
+            ->willReturn($violations);
+        $loader = $this->loader([
+            ['name' => 'App:Good:Hero', 'schema' => json_encode($this->schema(), \JSON_THROW_ON_ERROR), 'app_name' => 'GoodApp'],
+            ['name' => 'App:Bad:Type', 'schema' => json_encode($this->schema(), \JSON_THROW_ON_ERROR), 'app_name' => 'BadApp'],
+        ], $validator);
+        $this->expectExceptionObject(ContentSystemException::elementTypesInvalid($violations));
+        $loader->load();
+    }
+
+    #[TestDox('does not swallow validator infrastructure failures')]
+    public function testValidatorInfrastructureFailureIsNotSwallowed(): void
+    {
+        $validator = static::createStub(ValidatorInterface::class);
+        $validator->method('validate')->willThrowException(new \RuntimeException('validator infrastructure failure'));
+        $loader = $this->loader([['name' => 'App:Demo:Hero', 'schema' => json_encode($this->schema(), \JSON_THROW_ON_ERROR), 'app_name' => 'DemoApp']], $validator);
+
+        $this->expectExceptionObject(new \RuntimeException('validator infrastructure failure'));
+        $loader->load();
+    }
+
+    /**
+     * @param list<array{name: string, schema: string, app_name: string}> $rows
+     */
+    private function loader(array $rows, ?ValidatorInterface $validator = null): DatabaseTypeLoader
+    {
+        return new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), $validator ?? $this->emptyValidator(), $this->connection($rows), 'prod');
+    }
+
+    /**
+     * @param list<array{name: string, schema: string, app_name: string}> $rows
+     */
+    private function connection(array $rows): Connection
+    {
         $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => '', 'schema' => $schema, 'app_name' => 'DemoApp'],
-        ]);
+        $connection->method('fetchAllAssociative')->willReturn($rows);
 
+        return $connection;
+    }
+
+    private function emptyValidator(): ValidatorInterface
+    {
         $validator = static::createStub(ValidatorInterface::class);
         $validator->method('validate')->willReturn(new ConstraintViolationList());
 
-        $loader = new DatabaseTypeLoader(
-            new ElementTypeSpecificationSerializer(),
-            $validator,
-            $connection,
-            'prod',
-            static::createStub(LoggerInterface::class),
-        );
-        $definitions = $loader->load();
-
-        static::assertCount(1, $definitions);
-        static::assertSame('<unknown>', $definitions[0]->name());
+        return $validator;
     }
 
-    #[TestDox('skips a row that fails validation while a valid sibling row survives, and logs a warning')]
-    public function testSkipsRowThatFailsValidationWhileValidRowSurvives(): void
+    /**
+     * @return array{meta: array{label: string, description: string}}
+     */
+    private function schema(): array
     {
-        $validSchema = json_encode([
-            'meta' => [
-                'label' => 'Hero',
-                'description' => 'A hero banner.',
-            ],
-        ], \JSON_THROW_ON_ERROR);
-
-        $invalidSchema = json_encode([
-            'meta' => [
-                'label' => '',
-                'description' => '',
-            ],
-        ], \JSON_THROW_ON_ERROR);
-
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => 'App:Good:Hero', 'schema' => $validSchema, 'app_name' => 'GoodApp'],
-            ['name' => 'App:Bad:TypeB', 'schema' => $invalidSchema, 'app_name' => 'BrokenApp'],
-        ]);
-
-        $violations = new ConstraintViolationList([
-            new ConstraintViolation('This value should not be blank.', null, [], null, 'types[App:Bad:TypeB].label', ''),
-        ]);
-
-        $validator = static::createStub(ValidatorInterface::class);
-        $validator->method('validate')->willReturnOnConsecutiveCalls(new ConstraintViolationList(), $violations);
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('warning')
-            ->with(static::logicalAnd(
-                static::stringContains('App:Bad:TypeB'),
-                static::stringContains('not be blank'),
-            ));
-
-        $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), $validator, $connection, 'prod', $logger);
-        $definitions = $loader->load();
-
-        static::assertCount(1, $definitions);
-        static::assertSame('App:Good:Hero', $definitions[0]->name());
-    }
-
-    #[TestDox('skips a row whose schema denormalizes to a wrong-typed DTO field while a valid sibling row survives, and logs a warning')]
-    public function testSkipsRowWithWrongTypedSchemaFieldWhileValidRowSurvives(): void
-    {
-        $validSchema = json_encode([
-            'meta' => [
-                'label' => 'Hero',
-                'description' => 'A hero banner.',
-            ],
-        ], \JSON_THROW_ON_ERROR);
-
-        // "label" is an integer here instead of a string: it decodes to a valid array, so it passes the
-        // is_array guard, but ElementTypeSpecificationDto's constructor requires a string and throws a
-        // TypeError under strict_types — this must not abort the whole load.
-        $wrongTypedSchema = json_encode([
-            'meta' => [
-                'label' => 123,
-                'description' => 'x',
-            ],
-        ], \JSON_THROW_ON_ERROR);
-
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => 'App:Good:Hero', 'schema' => $validSchema, 'app_name' => 'GoodApp'],
-            ['name' => 'App:Broken:TypeError', 'schema' => $wrongTypedSchema, 'app_name' => 'BrokenApp'],
-        ]);
-
-        $validator = static::createStub(ValidatorInterface::class);
-        $validator->method('validate')->willReturn(new ConstraintViolationList());
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('warning')
-            ->with(static::stringContains('App:Broken:TypeError'));
-
-        $loader = new DatabaseTypeLoader(new ElementTypeSpecificationSerializer(), $validator, $connection, 'prod', $logger);
-        $definitions = $loader->load();
-
-        static::assertCount(1, $definitions);
-        static::assertSame('App:Good:Hero', $definitions[0]->name());
-    }
-
-    #[TestDox('skips a row with malformed JSON schema and logs a warning')]
-    public function testSkipsRowWithMalformedJsonSchema(): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => 'App:Broken', 'schema' => '{invalid json', 'app_name' => 'BrokenApp'],
-        ]);
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('warning')
-            ->with(static::stringContains('App:Broken'));
-
-        $loader = new DatabaseTypeLoader(
-            new ElementTypeSpecificationSerializer(),
-            static::createStub(ValidatorInterface::class),
-            $connection,
-            'prod',
-            $logger,
-        );
-
-        static::assertSame([], $loader->load());
-    }
-
-    #[TestDox('skips a row whose schema is not a JSON map and logs a warning')]
-    public function testSkipsRowWithNonArraySchema(): void
-    {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
-            ['name' => 'App:Broken', 'schema' => json_encode('just-a-string'), 'app_name' => 'BrokenApp'],
-        ]);
-
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())
-            ->method('warning')
-            ->with(static::stringContains('App:Broken'));
-
-        $loader = new DatabaseTypeLoader(
-            new ElementTypeSpecificationSerializer(),
-            static::createStub(ValidatorInterface::class),
-            $connection,
-            'prod',
-            $logger,
-        );
-
-        static::assertSame([], $loader->load());
+        return ['meta' => ['label' => 'Hero', 'description' => 'A hero banner.']];
     }
 }

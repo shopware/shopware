@@ -3,6 +3,11 @@
 namespace Shopware\Core\Framework\ContentSystem\Layout\Scaffolding;
 
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeyKind;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\ConfigKeySpecification;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
+use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderProvider;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
@@ -37,6 +42,8 @@ final class StoredTreePreparer
         private readonly AbstractContentSystemElementTypeRegistry $typeRegistry,
         private readonly VirtualRootWrapper $virtualRootWrapper,
         private readonly PartialRenderer $partialRenderer,
+        private readonly DataLoaderConfigSerializerProvider $configSerializerProvider,
+        private readonly DataLoaderProvider $dataLoaderProvider,
     ) {
     }
 
@@ -255,10 +262,11 @@ final class StoredTreePreparer
     }
 
     /**
-     * Rewrites the string values of an element's own property map and recurses into its slot children.
+     * Rewrites the string values of an element's own property map and the string values of the Literal-kind
+     * config keys of its data requirements, then recurses into its slot children.
      *
-     * A list or map value is handed on untouched, string leaves inside it included: a placeholder is a
-     * property of the authored value, and reaching into a container would resolve tokens the authoring
+     * A list or map property value is handed on untouched, string leaves inside it included: a placeholder is
+     * a property of the authored value, and reaching into a container would resolve tokens the authoring
      * surface never offered to resolve.
      */
     private function resolvePlaceholders(StoredElement $element, PlaceholderValues $values): StoredElement
@@ -270,6 +278,11 @@ final class StoredTreePreparer
                 : $value;
         }
 
+        $dataRequirements = [];
+        foreach ($element->dataRequirements as $key => $requirement) {
+            $dataRequirements[$key] = $this->resolveRequirementPlaceholders($requirement, $values);
+        }
+
         $slots = [];
         foreach ($element->slots as $slotName => $children) {
             $slots[$slotName] = array_map(
@@ -278,7 +291,53 @@ final class StoredTreePreparer
             );
         }
 
-        return $element->withProperties($properties)->withSlots($slots);
+        return $element->withProperties($properties)->withDataRequirements($dataRequirements)->withSlots($slots);
+    }
+
+    private function resolveRequirementPlaceholders(DataRequirement $requirement, PlaceholderValues $values): DataRequirement
+    {
+        $literalKeys = $this->literalConfigKeys($requirement->source);
+
+        if ($literalKeys === []) {
+            return $requirement;
+        }
+
+        $config = $this->configSerializerProvider->encode($requirement->source, $requirement->config);
+        $substitutedConfig = [];
+        foreach ($config as $key => $value) {
+            if (!\in_array($key, $literalKeys, true) || !\is_string($value)) {
+                continue;
+            }
+
+            $newValue = $this->substitute($value, $values);
+
+            if ($newValue === $value) {
+                continue;
+            }
+
+            $substitutedConfig[$key] = $newValue;
+        }
+
+        if ($substitutedConfig === []) {
+            return $requirement;
+        }
+
+        $newConfig = $this->configSerializerProvider->decode($requirement->source, array_merge($config, $substitutedConfig));
+
+        return new DataRequirement($requirement->key, $requirement->source, $newConfig);
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function literalConfigKeys(string $source): array
+    {
+        $specification = $this->dataLoaderProvider->get($source)->configSpecification();
+
+        return array_map(
+            static fn (ConfigKeySpecification $key): string => $key->name,
+            $specification->keysOfKind(ConfigKeyKind::Literal)
+        );
     }
 
     /**

@@ -13,7 +13,7 @@ Listeners modify elements before or after rendering: computing derived values, t
 
 That places the two events on opposite sides of language reduction, the preparer's first pass. A `translatable: true` property is stored as a language map, language id to a value of the declared primitive. A preparation listener reads and writes that whole map and must keep every entry matching that primitive; in FULL mode a non-map value, or a map whose selected entry does not match the declared primitive, reaches reduction as `CONTENT_SYSTEM__TRANSLATION_SHAPE_INVALID` (500). A finalization listener reads the selected value, or in SKELETON no property value at all, and returns a map-free tree either way; a map reintroduced there is its own defect, unscanned for. The declared primitive is not necessarily `string` — an `integer`, `number` or `boolean` property can carry the flag too — so third-party listeners must not assume a language-map entry is a string.
 
-The two carry the tree in the model of their own position, and each exposes one way to put a changed tree back:
+The two carry the tree in the model of their own position, and each exposes one way to put a changed tree back, which refuses anything that is not a list of that event's own model:
 
 - `ContentTreePreparationEvent::tree()` — `list<StoredElement>`; a replacement goes back through `replaceTree()`, because a stored element is immutable and an edit produces new instances
 - `RenderedTreeFinalizationEvent::tree()` — `list<RenderedElement>`; a replacement goes back through `replaceTree()`, because a rendered element is immutable too
@@ -38,6 +38,7 @@ The tree a listener hands back through `replaceTree()` is what the response carr
 | Reorder elements or slot children | Supported |
 | Add an element with a new id | Supported |
 | Duplicate an existing element id | Fails the render, `CONTENT_SYSTEM__DUPLICATE_ELEMENT_ID` (500) |
+| Hand back the stored model, or an array that is not a list | Fails the render, `CONTENT_SYSTEM__INVALID_MAP_VALUE` (500) |
 
 Element ids are a rendered-model contract, not bookkeeping: partial extraction addresses by id, the storefront emits `data-element-id`, and the decomposed format's `assignments` are keyed by it. The pipeline rejects a repeated id twice — once over the pre-prune stored forest, once over the forest this event hands back — so a stored forest carrying one fails just as a listener's duplicate does. Structural validity is otherwise the listener's responsibility; nothing repairs a tree a listener hands back.
 

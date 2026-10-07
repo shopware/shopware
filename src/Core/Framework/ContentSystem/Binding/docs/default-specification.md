@@ -29,3 +29,7 @@ The first four wire the `entity` loader, their properties each being a `MediaEnt
 ## Overriding a core default
 
 A plugin overriding a *core* default is intentionally impossible in this cut — a synthesized specification's type is always its own containing file's type, and an authored `bindings:` entry can never claim the reserved id; an explicit replacement mechanism is a future item.
+
+## Limits on a Synthesized Id
+
+`DefaultBindingSpecificationSynthesizer` enforces `MAX_ID_LENGTH = 255` on the minted id — which is the type name — and applies the storage-key collision rules as hard load errors that name the offending file.

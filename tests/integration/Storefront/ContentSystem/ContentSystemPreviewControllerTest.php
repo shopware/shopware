@@ -186,6 +186,24 @@ class ContentSystemPreviewControllerTest extends TestCase
         static::assertStringNotContainsString('Unreachable copy', $content);
     }
 
+    #[TestDox('renders a draft layout without elements as a page with an empty content region')]
+    public function testEmptyStoredEnvelopeRenders(): void
+    {
+        $token = $this->storePreviewRequest(new ContentPreviewRequest(
+            layout: [],
+            entityType: 'product',
+            entityId: $this->createProduct(),
+            salesChannelId: $this->getSalesChannelId(),
+        ));
+
+        $response = $this->request('GET', 'content-system/preview/' . $token, []);
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+        static::assertMatchesRegularExpression('/data-page-id="[0-9a-f]{32}"/', $content);
+        static::assertStringNotContainsString('data-element-id=', $content);
+    }
+
     /**
      * Mints a token and records it for {@see tearDown()} to drop.
      */

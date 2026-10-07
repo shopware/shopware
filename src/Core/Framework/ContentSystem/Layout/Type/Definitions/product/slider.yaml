@@ -18,7 +18,11 @@ properties:
     required: true
     title: "Products"
     description: "The products shown in the slider. Required because without products the slider will show an empty state."
-    resolvedBy: productIds
+    resolvedBy:
+      loader: entity_collection
+      config:
+        entity: product
+        property: productIds
     adminUI:
       component: "entity-multi"
       entity: "product"

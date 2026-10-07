@@ -6,10 +6,9 @@ use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\ContentSystem\Api\DraftLayoutDecoder;
 use Shopware\Core\Framework\ContentSystem\Diagnostics\LayoutDiagnostics;
 use Shopware\Core\Framework\ContentSystem\Layout\Codec\StoredElementCodec;
+use Shopware\Core\Framework\ContentSystem\Layout\Element\ElementIdRule;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\Style\Breakpoint;
 use Shopware\Core\Framework\ContentSystem\Layout\Field\StoredElementListFieldSerializer;
-use Shopware\Core\Framework\ContentSystem\Layout\Scaffolding\VirtualRootWrapper;
-use Shopware\Core\Framework\ContentSystem\Output\Index\ResolvedValueIndexFactory;
 use Shopware\Core\Framework\ContentSystem\Rendering\WiringPlanner;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -57,6 +56,11 @@ class ContentSystemException extends HttpException
     public const ELEMENT_TYPE_LOAD_FAILED = 'CONTENT_SYSTEM__ELEMENT_TYPE_LOAD_FAILED';
     public const ELEMENT_TYPE_NOT_FOUND = 'CONTENT_SYSTEM__ELEMENT_TYPE_NOT_FOUND';
     public const ELEMENT_TYPE_INVALID_FILENAME = 'CONTENT_SYSTEM__ELEMENT_TYPE_INVALID_FILENAME';
+    public const LAYOUT_PRESET_DUPLICATE = 'CONTENT_SYSTEM__LAYOUT_PRESET_DUPLICATE';
+    public const LAYOUT_PRESET_LOAD_FAILED = 'CONTENT_SYSTEM__LAYOUT_PRESET_LOAD_FAILED';
+    public const LAYOUT_PRESET_NOT_FOUND = 'CONTENT_SYSTEM__LAYOUT_PRESET_NOT_FOUND';
+    public const LAYOUT_PRESETS_INVALID = 'CONTENT_SYSTEM__LAYOUT_PRESETS_INVALID';
+    public const LAYOUT_PRESET_INVALID_FILENAME = 'CONTENT_SYSTEM__LAYOUT_PRESET_INVALID_FILENAME';
     public const UNKNOWN_ENTITY_TYPE = 'CONTENT_SYSTEM__UNKNOWN_ENTITY_TYPE';
     public const UNKNOWN_LOADER_ENTITY = 'CONTENT_SYSTEM__UNKNOWN_LOADER_ENTITY';
     public const ENTITY_TYPE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ENTITY_TYPE_RESOLUTION_UNSUPPORTED';
@@ -81,6 +85,7 @@ class ContentSystemException extends HttpException
     public const ROOT_SOURCE_RESOLUTION_UNSUPPORTED = 'CONTENT_SYSTEM__ROOT_SOURCE_RESOLUTION_UNSUPPORTED';
     public const NONE_SOURCE_NOT_RENDERABLE = 'CONTENT_SYSTEM__NONE_SOURCE_NOT_RENDERABLE';
     public const ROOT_SOURCE_ASSIGNMENT_MISMATCH = 'CONTENT_SYSTEM__ROOT_SOURCE_ASSIGNMENT_MISMATCH';
+    public const DEFAULT_CONTENT_LAYOUT_DELETION = 'CONTENT_SYSTEM__DEFAULT_CONTENT_LAYOUT_DELETION';
     public const UNKNOWN_REQUEST_FIELD = 'CONTENT_SYSTEM__UNKNOWN_REQUEST_FIELD';
     public const UNSUPPORTED_STYLE_VALUE_TYPE = 'CONTENT_SYSTEM__UNSUPPORTED_STYLE_VALUE_TYPE';
     public const STYLE_OPTION_DUPLICATE = 'CONTENT_SYSTEM__STYLE_OPTION_DUPLICATE';
@@ -178,11 +183,8 @@ class ContentSystemException extends HttpException
     }
 
     /**
-     * An element id outside the value domain the decode gate admits. Two values are excluded: the reserved
-     * literal {@see VirtualRootWrapper::VIRTUAL_ROOT_ID}, which an authored element carrying it would collide
-     * with on every wrapping render, and a string PHP casts to an integer array key, which puts an integer key
-     * into {@see ResolvedValueIndexFactory}'s string-keyed assignments map — encoding as a JSON list once those
-     * keys happen to run 0..n-1, and as a map with integer-looking members otherwise.
+     * An element id outside the value domain {@see ElementIdRule} states and the decode gate admits; that
+     * class carries each exclusion and its reason, and `$reason` here is the phrase it returned.
      *
      * A 500 while still in CLIENT_DEFECT_CODES, the same split {@see invalidFieldValueType()} and
      * {@see invalidMapKey()} take, because a decode-time throw has four audiences and this status answers only
@@ -209,8 +211,8 @@ class ContentSystemException extends HttpException
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::INVALID_ELEMENT_ID,
-            'Element id "{{ id }}" is not accepted: {{ reason }}.',
-            ['id' => $id, 'reason' => $reason]
+            'Element id "{{ id }}" is not accepted: it {{ reason }}.',
+            ['id' => self::printableId($id), 'reason' => $reason]
         );
     }
 
@@ -388,7 +390,7 @@ class ContentSystemException extends HttpException
     /**
      * A served layout is stored data, not client input, so a corrupt one is an internal fault rather than a
      * client defect: deliberately absent from {@see self::CLIENT_DEFECT_CODES}. Element ids are unique across
-     * a forest by contract, and the DAL write enforces it through `StoredTree::validate()`. The read path runs
+     * a forest by contract, and the DAL write enforces it through `StoredTree::duplicateElementIds()`. The read path runs
      * no validation, so a raw-SQL or migration write, or a preparation listener replacing the stored tree, can
      * put a repeated id in front of a consumer whose correctness depends on the invariant — and so can a
      * finalization listener replacing the rendered tree, which is why the rendered forest is checked as well
@@ -696,6 +698,62 @@ class ContentSystemException extends HttpException
         );
     }
 
+    public static function layoutPresetDuplicate(string $id): self
+    {
+        return new self(
+            Response::HTTP_CONFLICT,
+            self::LAYOUT_PRESET_DUPLICATE,
+            'Layout preset "{{ id }}" is defined more than once.',
+            ['id' => $id]
+        );
+    }
+
+    public static function layoutPresetInvalidFilename(string $segment, string $file): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::LAYOUT_PRESET_INVALID_FILENAME,
+            'Invalid layout preset filename segment "{{ segment }}" in file "{{ file }}". Segments must match [a-z0-9]+(-[a-z0-9]+)*',
+            ['segment' => $segment, 'file' => $file]
+        );
+    }
+
+    public static function layoutPresetLoadFailed(string $file, string $reason, ?\Throwable $previous = null): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::LAYOUT_PRESET_LOAD_FAILED,
+            'Failed to load layout preset from "{{ file }}": {{ reason }}',
+            ['file' => $file, 'reason' => $reason],
+            $previous
+        );
+    }
+
+    public static function layoutPresetNotFound(string $id): self
+    {
+        return new self(
+            Response::HTTP_NOT_FOUND,
+            self::LAYOUT_PRESET_NOT_FOUND,
+            'Layout preset "{{ id }}" not found',
+            ['id' => $id]
+        );
+    }
+
+    public static function layoutPresetsInvalid(ConstraintViolationListInterface $violations): self
+    {
+        $messages = [];
+        foreach ($violations as $violation) {
+            $messages[] = $violation->getPropertyPath() . ': ' . $violation->getMessage();
+        }
+
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::LAYOUT_PRESETS_INVALID,
+            'Layout preset validation failed: {{ reason }}',
+            ['reason' => implode('; ', $messages)]
+        );
+    }
+
     public static function unknownEntityType(string $entityType): self
     {
         return new self(
@@ -978,8 +1036,8 @@ class ContentSystemException extends HttpException
         );
     }
 
-    // The client-facing 400 surfaced as the assignment write violation when an entity/section is bound to a layout
-    // whose immutable root source is a different page kind. Assignment is a tree-blind type-match against rootSource.
+    // The client-facing 400 when an entity/section, or a product/category default layout in system config, is bound to a
+    // layout whose immutable root source is a different page kind. Assignment is a tree-blind type-match against rootSource.
     public static function rootSourceAssignmentMismatch(string $rootSource, string $assignmentType): self
     {
         return new self(
@@ -987,6 +1045,19 @@ class ContentSystemException extends HttpException
             self::ROOT_SOURCE_ASSIGNMENT_MISMATCH,
             'Cannot assign a "{{ assignmentType }}" entity to a content layout whose root source is "{{ rootSource }}".',
             ['rootSource' => $rootSource, 'assignmentType' => $assignmentType]
+        );
+    }
+
+    /**
+     * @param list<string> $layoutIds
+     */
+    public static function defaultContentLayoutDeletion(array $layoutIds): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::DEFAULT_CONTENT_LAYOUT_DELETION,
+            'The content layouts with ids "{{ layoutIds }}" are assigned as a default and therefore cannot be deleted.',
+            ['layoutIds' => implode(', ', $layoutIds)]
         );
     }
 
@@ -1253,5 +1324,18 @@ class ContentSystemException extends HttpException
         );
 
         return new WriteConstraintViolationException(new ConstraintViolationList([$violation]), $writePath);
+    }
+
+    /**
+     * An id the domain rule refused is the one id this class renders that can hold a control character, and
+     * the message is written to logs as plain text — where a `\r` rewinds the line and hides the id it was
+     * meant to name. JSON's escaping is borrowed rather than `addcslashes`, which leaves U+2028 and U+2029
+     * untouched, and rather than plain `json_encode`, which would also mangle a legitimate `héro`.
+     */
+    private static function printableId(string $id): string
+    {
+        $encoded = json_encode($id, \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
+
+        return $encoded === false ? $id : substr($encoded, 1, -1);
     }
 }

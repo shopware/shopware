@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\ContentSystem\Layout\Type\Specification;
 
-use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
@@ -13,12 +13,10 @@ use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * `PropertyType` sits on the coverage-source exclude list, so it is not a valid coverage target.
- *
  * @internal
  */
 #[Package('framework')]
-#[CoversNothing]
+#[CoversClass(PropertyType::class)]
 class PropertyTypeTest extends TestCase
 {
     #[DataProvider('admittedValueProvider')]
@@ -127,6 +125,33 @@ class PropertyTypeTest extends TestCase
             new PropertyType(['string', 'integer'], false, null, null),
             StoredValue::ofInt(3),
         ];
+
+        yield 'integer on a lone integer declaration' => [
+            new PropertyType('integer', false, null, null),
+            StoredValue::fromDecoded(42),
+        ];
+
+        yield 'boolean on a lone boolean declaration' => [
+            new PropertyType('boolean', false, null, null),
+            StoredValue::fromDecoded(true),
+        ];
+
+        // The null variant is admitted under a union too, not only under a lone primitive.
+        yield 'null on an all-primitive union' => [
+            new PropertyType(['string', 'integer'], false, null, null),
+            StoredValue::fromDecoded(null),
+        ];
+
+        // A scalar is as unconstrained as a map under the declarations that enforce no primitive.
+        yield 'integer on an FQCN declaration' => [
+            new PropertyType(SalesChannelProductEntity::class, false, null, null),
+            StoredValue::fromDecoded(42),
+        ];
+
+        yield 'integer on a mixed union declaration' => [
+            new PropertyType(['string', 'object'], false, null, null),
+            StoredValue::fromDecoded(42),
+        ];
     }
 
     #[DataProvider('rejectedValueProvider')]
@@ -220,6 +245,11 @@ class PropertyTypeTest extends TestCase
         yield 'integer on a lone string declaration' => [
             new PropertyType('string', false, null, null),
             StoredValue::ofInt(3),
+        ];
+
+        yield 'list on a lone string declaration' => [
+            new PropertyType('string', false, null, null),
+            StoredValue::fromDecoded(['a']),
         ];
 
         yield 'string on a lone boolean declaration' => [

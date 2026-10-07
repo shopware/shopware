@@ -515,11 +515,15 @@ The trigger event select in the mail template detail sidebars is now preselected
 
 ### Google Tag Manager events use the GA4 ecommerce data layer format
 
-Storefront analytics now emit GA4-compliant ecommerce payloads. Item properties use the documented `item_id`, `item_name`, and `item_brand` names, numeric ecommerce values are sent as numbers, and unavailable optional properties are omitted. Event values are derived from the emitted product items, item prices represent unit prices, and non-product discount or shipping line items are not emitted as products.
+Storefront analytics now send GA4-compliant ecommerce events. With a `GTM-` tracking ID they are pushed under the `ecommerce` key of the data layer, and the previous ecommerce object is cleared before each event. With a Google tag ID they still use `gtag('event', ...)`.
 
-With a `GTM-` tracking ID, ecommerce events are pushed under the top-level `ecommerce` key and the previous ecommerce object is cleared before every event. Non-ecommerce events such as `login`, `sign_up`, `search`, and `view_search_results` expose their parameters at the top level.
+What to adjust:
 
-`item_brand` and `item_category1` to `item_category5` are now reported for products added from a product box, not only from the product detail page. The analytics script adds the brand of the box and the category the shopper is browsing to the line item payload as `manufacturerName` and `categoryNames` when the product is added, and the cart, checkout and purchase events read them from there, as they already did for the buy widget. Nothing is loaded for this, and only a sales channel with analytics, after consent, sends them. A box on a page without breadcrumb, such as the homepage or the search, reports the brand without category, and so does a box on a product detail page, whose breadcrumb belongs to the other product. Adding a product by its product number reports neither. Reordering from the order history keeps the values of the original order.
+* Google Tag Manager setups that remap parameters from `eventModel` should use the standard `ecommerce` data layer variable instead.
+* Item properties are named `item_id`, `item_name` and `item_brand` instead of `id`, `name` and `brand`.
+* `.hidden-line-items-information` no longer carries `data-value`. Sum `data-price` times `data-quantity` of the `.hidden-line-item` elements instead.
+* The hidden line items and the analytics attributes of the buy widget are only rendered for a sales channel with active analytics.
+* Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class, which `view_item` reads.
 
 Google Tag Manager configurations that remap parameters from `eventModel` should remove that workaround and use the standard `ecommerce` data layer variable. Configurations that consume the previous `id`, `name`, or `brand` item properties should switch to their `item_*` equivalents. Storefront analytics configured with a Google tag ID continue to use `gtag('event', ...)`, with the same GA4-compliant parameter normalization.
 
@@ -540,6 +544,7 @@ Variant products report their selected options as `item_variant`, for example `R
 `begin_checkout`, `add_shipping_info`, `add_payment_info`, and `purchase` report the applied promotion codes as the event level `coupon`. Multiple codes are joined with a comma, and automatic promotions without a code are skipped.
 
 `view_item` no longer depends on the `itemscope`/`itemprop` microdata of the product detail page. With `JSON_LD_DATA` active it reads the product from the JSON-LD script, and without it from `.product-detail-ordernumber` and the `product:brand` meta tag, so it keeps working once the microdata is replaced by JSON-LD in Shopware 6.8. Themes that replace the block `buy_widget_ordernumber` should keep the `product-detail-ordernumber` class on the element holding the product number.
+The events also report more accurate data: `item_variant`, the promotion `coupon`, graduated prices in `add_to_cart`, brand and category for products added from a product box, and `add_shipping_info` / `add_payment_info` once per selected method instead of on every page load. Discounts and other line items that are not products are no longer reported as items.
 ### Extension component aliases work in the dev server
 
 The unified Storefront component dev server now applies aliases from each extension's `vite.components.config.mts` only to imports from that extension's resource tree. Extensions can use the same alias name for different module paths, including imports between modules under `Resources/app/storefront/src`, in development and production builds.

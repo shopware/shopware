@@ -41,8 +41,8 @@ for (const statusCode of [200, 500]) {
                 RUN_LABEL: 'Major',
                 SLACK_ATS_WORKFLOW_URL: `http://127.0.0.1:${address.port}`,
                 ATS_TEST_JOBS: JSON.stringify({ jobs: [
-                    { id: 456, name: 'acceptance / acceptance (Platform, v6.8.0.0, 8.2, 1, 3, true)', conclusion: 'failure' },
-                    { id: 457, name: 'acceptance / acceptance (Platform, v6.8.0.0, 8.2, 2, 3, true)', conclusion: 'success' },
+                    { id: 456, name: 'acceptance / acceptance (Platform, major, 8.2, 1, 3, true)', conclusion: 'failure' },
+                    { id: 457, name: 'acceptance / acceptance (Platform, major, 8.2, 2, 3, true)', conclusion: 'success' },
                     { id: 458, name: 'integration-major / phpunit-major', conclusion: 'failure' },
                 ] }),
             },
@@ -55,8 +55,8 @@ for (const statusCode of [200, 500]) {
         }
         assert.ok(payload);
         assert.match(payload.message, /^\*Major\*\n/);
-        assert.match(payload.message, /❌ .*v6\.8\.0\.0.*https:\/\/github\.com\/shopware\/shopware\/actions\/runs\/123\/job\/456/);
-        assert.match(payload.message, /✅ .*v6\.8\.0\.0/);
+        assert.match(payload.message, /❌ .*Platform, major,.*https:\/\/github\.com\/shopware\/shopware\/actions\/runs\/123\/job\/456/);
+        assert.match(payload.message, /✅ .*Platform, major,/);
         assert.doesNotMatch(payload.message, /phpunit-major/);
     });
 }

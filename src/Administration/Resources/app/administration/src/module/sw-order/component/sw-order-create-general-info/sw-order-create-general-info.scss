@@ -15,7 +15,7 @@
         &-total {
             font-size: var(--font-size-s);
             font-weight: var(--font-weight-semibold);
-            line-height: 25px;
+            line-height: var(--font-line-height-s);
         }
 
         &-total {
@@ -35,7 +35,7 @@
         &-description,
         &-last-changed {
             font-size: var(--font-size-xs);
-            line-height: 22px;
+            line-height: var(--font-line-height-xs);
         }
 
         &-last-changed {
@@ -54,8 +54,8 @@
     &-states {
         display: flex;
         justify-content: space-between;
-        gap: 24px;
-        margin-top: 24px;
+        gap: var(--scale-size-24);
+        margin-top: var(--scale-size-24);
 
         .sw-order-create-general-info__order-state {
             flex-grow: 1;
@@ -64,6 +64,6 @@
     }
 
     &-tags {
-        margin-top: 24px;
+        margin-top: var(--scale-size-24);
     }
 }

@@ -11,6 +11,7 @@
     },
     "list": {
       "textHeadline": "Number ranges",
+      "messageEmpty": "No number ranges yet",
       "textDeleteConfirm": "Are you sure you want to delete the number range \"{name}\"?",
       "columnName": "Name",
       "columnUsedIn": "Type",

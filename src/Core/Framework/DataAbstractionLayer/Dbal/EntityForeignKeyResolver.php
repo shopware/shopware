@@ -166,13 +166,20 @@ class EntityForeignKeyResolver implements ResetInterface
     /**
      * @param class-string<Flag> $class
      * @param array<string>|array<array<string, string>> $ids
+     * @param array<string, array<string, true>> $visited primary keys already resolved on the current cascade chain, per entity
      *
      * @throws InvalidUuidException
      *
      * @return array<string, list<string>>
      */
-    private function fetch(EntityDefinition $definition, array $ids, string $class, Context $context, bool $restrictDeleteOnlyFirstLevel = false): array
-    {
+    private function fetch(
+        EntityDefinition $definition,
+        array $ids,
+        string $class,
+        Context $context,
+        bool $restrictDeleteOnlyFirstLevel = false,
+        array $visited = []
+    ): array {
         if ($context->getVersionId() !== Defaults::LIVE_VERSION) {
             return [];
         }
@@ -194,13 +201,16 @@ class EntityForeignKeyResolver implements ResetInterface
             return [];
         }
 
+        $entityName = $definition->getEntityName();
+        $visited[$entityName] = ($visited[$entityName] ?? []) + array_fill_keys(self::flatPrimaryKeys($ids), true);
+
         $result = [];
         foreach ($cascades as $association) {
             if (!$association instanceof AssociationField) {
                 continue;
             }
 
-            $affected = $this->fetchAssociation($ids, $definition, $association, $class, $context, $restrictDeleteOnlyFirstLevel);
+            $affected = $this->fetchAssociation($ids, $definition, $association, $class, $context, $restrictDeleteOnlyFirstLevel, $visited);
 
             $result = array_merge($result, $affected);
         }
@@ -210,7 +220,32 @@ class EntityForeignKeyResolver implements ResetInterface
 
     /**
      * @param array<string>|array<array<string, string>> $ids
+     *
+     * @return list<string>
+     */
+    private static function flatPrimaryKeys(array $ids): array
+    {
+        $flat = [];
+
+        foreach ($ids as $id) {
+            if (\is_string($id)) {
+                $flat[] = $id;
+
+                continue;
+            }
+
+            if (\is_string($id['id'] ?? null)) {
+                $flat[] = $id['id'];
+            }
+        }
+
+        return $flat;
+    }
+
+    /**
+     * @param array<string>|array<array<string, string>> $ids
      * @param class-string<Flag> $class
+     * @param array<string, array<string, true>> $visited primary keys already resolved on the current cascade chain, per entity
      *
      * @return array<string, list<string>>
      */
@@ -220,7 +255,8 @@ class EntityForeignKeyResolver implements ResetInterface
         AssociationField $association,
         string $class,
         Context $context,
-        bool $restrictDeleteOnlyFirstLevel = false
+        bool $restrictDeleteOnlyFirstLevel = false,
+        array $visited = []
     ): array {
         if ($ids === []) {
             return [];
@@ -305,13 +341,13 @@ class EntityForeignKeyResolver implements ResetInterface
             $property = $primaryKeys->first()?->getPropertyName();
             \assert(\is_string($property));
 
-            // prevent infinite loop when entity points to itself
-            if ($root === $association->getReferenceDefinition()) {
-                $flatIds = array_column($ids, $property);
+            // prevent infinite loop when the cascade chain leads back to already resolved records
+            $resolved = $visited[$association->getReferenceDefinition()->getEntityName()] ?? [];
 
+            if ($resolved !== []) {
                 $affected = array_values(array_filter(
                     $affected,
-                    static fn (array $row) => !\in_array($row[$property], $flatIds, true)
+                    static fn (array $row) => !isset($resolved[$row[$property]])
                 ));
             }
 
@@ -338,6 +374,10 @@ class EntityForeignKeyResolver implements ResetInterface
             return [$association->getReferenceDefinition()->getEntityName() . '.' . $association->getReferenceField() => $affected];
         }
 
+        if ($affected === []) {
+            return [];
+        }
+
         // add entity prefix for the current association
         $formatted = [$association->getReferenceDefinition()->getEntityName() => $affected];
 
@@ -346,7 +386,7 @@ class EntityForeignKeyResolver implements ResetInterface
             return $formatted;
         }
         // call recursion for nested cascades
-        $nested = $this->fetch($association->getReferenceDefinition(), $affected, $class, $context, $restrictDeleteOnlyFirstLevel);
+        $nested = $this->fetch($association->getReferenceDefinition(), $affected, $class, $context, $restrictDeleteOnlyFirstLevel, $visited);
 
         return array_merge($formatted, $nested);
     }

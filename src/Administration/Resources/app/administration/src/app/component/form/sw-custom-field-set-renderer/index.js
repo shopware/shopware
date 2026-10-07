@@ -142,7 +142,7 @@ export default {
 
             criteria.addFilter(Criteria.equals('relations.entityName', this.entity.getEntityName()));
             criteria.addFilter(Criteria.equals('global', 0));
-            criteria.addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
+            criteria.addSorting(Criteria.sort('position', 'ASC'));
 
             return criteria;
         },
@@ -515,7 +515,7 @@ export default {
         customFieldSetCriteriaById() {
             const criteria = new Criteria(1, 1);
 
-            criteria.getAssociation('customFields').addSorting(Criteria.naturalSorting('config.customFieldPosition'));
+            criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition', 'ASC'));
 
             return criteria;
         },

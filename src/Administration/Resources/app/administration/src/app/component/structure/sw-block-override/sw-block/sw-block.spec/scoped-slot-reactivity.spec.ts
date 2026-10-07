@@ -18,7 +18,7 @@ describe('src/app/component/structure/sw-block-override/sw-block: scoped slot re
                 template: `
                     <scoped-host :label="label">
                         <template #default="{ label: scopedLabel }">
-                            <sw-block name="scoped-slot-block" :data="$dataScope">
+                            <sw-block name="scoped-slot-block" sw-internal-component-name="scoped-slot-reactivity-spec" :data="$dataScope">
                                 <span class="scoped-label">{{ scopedLabel }}</span>
                             </sw-block>
                         </template>

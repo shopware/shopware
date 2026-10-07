@@ -8,12 +8,14 @@ use Shopware\Core\Checkout\Customer\Aggregate\CustomerWishlist\CustomerWishlistC
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Event\WishlistMergedEvent;
+use Shopware\Core\Checkout\Customer\Extension\MergeWishlistProductRouteExtension;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Routing\StoreApiRouteScope;
@@ -44,7 +46,8 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         private readonly SalesChannelRepository $productRepository,
         private readonly SystemConfigService $systemConfigService,
         private readonly EventDispatcherInterface $eventDispatcher,
-        private readonly Connection $connection
+        private readonly Connection $connection,
+        private readonly ExtensionDispatcher $extensions
     ) {
     }
 
@@ -60,6 +63,15 @@ class MergeWishlistProductRoute extends AbstractMergeWishlistProductRoute
         methods: [Request::METHOD_POST]
     )]
     public function merge(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
+    {
+        return $this->extensions->publish(
+            name: MergeWishlistProductRouteExtension::NAME,
+            extension: new MergeWishlistProductRouteExtension($data, $context, $customer),
+            function: $this->_merge(...),
+        );
+    }
+
+    private function _merge(RequestDataBag $data, SalesChannelContext $context, CustomerEntity $customer): SuccessResponse
     {
         if (!$this->systemConfigService->get('core.cart.wishlistEnabled', $context->getSalesChannelId())) {
             throw CustomerException::customerWishlistNotActivated();

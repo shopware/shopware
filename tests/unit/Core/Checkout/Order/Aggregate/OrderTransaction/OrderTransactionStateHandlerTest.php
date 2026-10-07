@@ -8,12 +8,12 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\StateMachine\Aggregation\StateMachineTransition\StateMachineTransitionActions;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\System\StateMachine\Transition;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 
 /**
  * @internal
@@ -65,10 +65,9 @@ class OrderTransactionStateHandlerTest extends TestCase
         $this->stateHandler->paid($this->transactionId, Context::createDefaultContext());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testPayPartially(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $this->stateMachineRegistry(StateMachineTransitionActions::ACTION_PAID_PARTIALLY);
         $this->stateHandler->payPartially($this->transactionId, Context::createDefaultContext());
     }

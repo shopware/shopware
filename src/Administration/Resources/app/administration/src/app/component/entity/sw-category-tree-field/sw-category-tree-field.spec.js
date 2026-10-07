@@ -147,6 +147,37 @@ describe('src/app/component/entity/sw-category-tree-field', () => {
         expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
     });
 
+    it('should toggle the dropdown with the expand indicator', async () => {
+        const wrapper = await createWrapper();
+        await flushPromises();
+
+        const indicator = wrapper.get('.sw-category-tree-field__expand-indicator');
+        expect(indicator.classes()).toContain('is--collapsed');
+
+        await indicator.trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(true);
+        expect(wrapper.get('.sw-category-tree-field__expand-indicator').classes()).not.toContain('is--collapsed');
+        expect(document.activeElement).toBe(wrapper.get('.sw-category-tree__input-field').element);
+
+        await wrapper.get('.sw-category-tree-field__expand-indicator').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
+        expect(wrapper.get('.sw-category-tree-field__expand-indicator').classes()).toContain('is--collapsed');
+    });
+
+    it('should not open the dropdown with the expand indicator when disabled', async () => {
+        const wrapper = await createWrapper({ disabled: true });
+        await flushPromises();
+
+        await wrapper.get('.sw-category-tree-field__expand-indicator').trigger('click');
+        await flushPromises();
+
+        expect(wrapper.find('.sw-category-tree-field__results_base').exists()).toBe(false);
+    });
+
     it('should remove the category item', async () => {
         const intitalCategories = [
             {

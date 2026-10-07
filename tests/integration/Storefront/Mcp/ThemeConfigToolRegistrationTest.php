@@ -31,7 +31,7 @@ class ThemeConfigToolRegistrationTest extends TestCase
 
         $properties = $registry->getTool('shopware-theme-config')->tool->inputSchema['properties'] ?? [];
         static::assertIsArray($properties);
-        static::assertNotSame([], $properties);
+        static::assertSame(['salesChannelId', 'action', 'config', 'dryRun'], array_keys($properties));
 
         foreach ($properties as $name => $property) {
             static::assertIsArray($property);

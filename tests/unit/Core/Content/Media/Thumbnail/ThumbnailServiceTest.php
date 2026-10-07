@@ -257,7 +257,9 @@ class ThumbnailServiceTest extends TestCase
         $mediaEntity = $this->createMediaEntity($mediaThumbnailEntity, $mediaFolderEntity);
         $mediaThumbnailEntity->setMedia($mediaEntity);
 
-        $oldThumbnailPath = __DIR__ . '/fixtures/shopware-logo.png';
+        // The old thumbnail path differs from the media path, so deleting the media file instead fails the test
+        $oldThumbnailPath = 'thumbnail/shopware-logo_200x200.png';
+        $mediaThumbnailEntity->setPath($oldThumbnailPath);
         $newThumbnailPath = 'thumbnail/shopware-logo_100x100.png';
 
         $file = $this->filesystem->readFile(__DIR__ . '/fixtures/shopware-logo.png');
@@ -268,11 +270,10 @@ class ThumbnailServiceTest extends TestCase
             ->willReturnCallback(static function (string $path) use ($newThumbnailPath): void {
                 static::assertSame($newThumbnailPath, $path);
             });
+        // A with() mismatch is reported again when the mock is verified, so the catch around delete() cannot hide it
         $filesystemPublic->expects($this->once())
             ->method('delete')
-            ->willReturnCallback(static function (string $path) use ($oldThumbnailPath): void {
-                static::assertSame($oldThumbnailPath, $path);
-            });
+            ->with($oldThumbnailPath);
 
         $connection = $this->createTransactionalConnection();
         $connection->expects($this->once())
@@ -282,7 +283,12 @@ class ThumbnailServiceTest extends TestCase
             });
         $connection->expects($this->once())
             ->method('fetchFirstColumn')
-            ->willReturn([$newThumbnailPath]);
+            ->willReturnCallback(function (string $sql, array $params) use ($newThumbnailPath): array {
+                $createdIds = array_column($this->thumbnailRepository->creates[0], 'id');
+                static::assertSame(['ids' => Uuid::fromHexToBytesList($createdIds)], $params);
+
+                return [$newThumbnailPath];
+            });
 
         $thumbnailService = $this->createThumbnailService(filesystemPublic: $filesystemPublic, connection: $connection);
 
@@ -295,6 +301,8 @@ class ThumbnailServiceTest extends TestCase
         $created = $this->thumbnailRepository->creates[0][0];
         static::assertSame('media-id-1', $created['mediaId']);
         static::assertSame('def', $created['mediaThumbnailSizeId']);
+        static::assertSame(100, $created['width']);
+        static::assertSame(100, $created['height']);
     }
 
     public function testNoUpdateWithValidMediaCollection(): void
@@ -353,7 +361,12 @@ class ThumbnailServiceTest extends TestCase
             });
         $connection->expects($this->once())
             ->method('fetchFirstColumn')
-            ->willReturn([$thumbnailPath]);
+            ->willReturnCallback(function (string $sql, array $params) use ($thumbnailPath): array {
+                $createdIds = array_column($this->thumbnailRepository->creates[0], 'id');
+                static::assertSame(['ids' => Uuid::fromHexToBytesList($createdIds)], $params);
+
+                return [$thumbnailPath];
+            });
 
         $thumbnailService = $this->createThumbnailService(filesystemPublic: $filesystemPublic, connection: $connection);
 
@@ -366,6 +379,8 @@ class ThumbnailServiceTest extends TestCase
         $created = $this->thumbnailRepository->creates[0][0];
         static::assertSame('media-id-1', $created['mediaId']);
         static::assertSame('abc', $created['mediaThumbnailSizeId']);
+        static::assertSame(100, $created['width']);
+        static::assertSame(100, $created['height']);
     }
 
     public function testDeleteThumbnailsExecutesRepository(): void

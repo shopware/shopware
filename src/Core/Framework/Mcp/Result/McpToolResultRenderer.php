@@ -27,12 +27,6 @@ use Shopware\Core\Framework\Util\Json;
 #[Package('framework')]
 class McpToolResultRenderer
 {
-    /**
-     * The spec asks for the data twice (`structuredContent` and a text copy). Above this size the
-     * structured copy is left out, so a large result is not sent twice; the text still carries it.
-     */
-    public const MAX_STRUCTURED_TEXT_BYTES = 50_000;
-
     private const META_PREFIX = 'shopware/';
 
     /**
@@ -57,7 +51,7 @@ class McpToolResultRenderer
                 ...$this->links($result, $protocolVersion),
             ],
             isError: $result->isError(),
-            structuredContent: \strlen($texts[0]) <= self::MAX_STRUCTURED_TEXT_BYTES ? $this->structuredContent($result, $protocolVersion) : null,
+            structuredContent: $this->structuredContent($result, $protocolVersion),
             meta: $this->meta($result, $specOnly),
         );
     }

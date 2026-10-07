@@ -346,6 +346,45 @@ class PropertyTypeTest extends TestCase
         ];
     }
 
+    #[DataProvider('inStoredShapeProvider')]
+    #[TestDox('puts a value into the shape storage holds for the property: $_dataName')]
+    public function testInStoredShapePutsValueIntoItsStoredShape(PropertyType $type, mixed $value, mixed $expected): void
+    {
+        static::assertSame($expected, $type->inStoredShape($value));
+    }
+
+    /**
+     * @return iterable<string, array{PropertyType, mixed, mixed}>
+     */
+    public static function inStoredShapeProvider(): iterable
+    {
+        yield 'translatable string is wrapped under the anchor language' => [
+            new PropertyType('string', true, null, null),
+            'Autumn sale',
+            [Defaults::LANGUAGE_SYSTEM => 'Autumn sale'],
+        ];
+
+        yield 'non-translatable string stays bare' => [
+            new PropertyType('string', false, null, null),
+            'Autumn sale',
+            'Autumn sale',
+        ];
+
+        // Null is no language-map entry, so it is returned as is for the caller's own validation to reject.
+        yield 'null on a translatable string stays null' => [
+            new PropertyType('string', true, null, null),
+            null,
+            null,
+        ];
+
+        // Falsy is not absent: the null test is an identity check, so false is wrapped.
+        yield 'false on a translatable boolean is wrapped under the anchor language' => [
+            new PropertyType('boolean', true, null, null),
+            false,
+            [Defaults::LANGUAGE_SYSTEM => false],
+        ];
+    }
+
     #[DataProvider('describedTypeProvider')]
     #[TestDox('renders the declared type as a violation message names it: $_dataName')]
     public function testDescribeRendersTheDeclaredType(PropertyType $type, string $expected): void

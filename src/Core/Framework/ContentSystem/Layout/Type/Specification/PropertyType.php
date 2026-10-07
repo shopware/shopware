@@ -15,7 +15,8 @@ use Shopware\Core\Framework\Log\Package;
  * primitive. {@see TypedEnumValidator} {@see TranslatableTypeValidator}
  *
  * These members serve the stored tree rather than the published schema: {@see translatable()} reads the flag,
- * {@see storedDefault()} is the one shape rule for a declared default in storage, {@see admits()} is the one
+ * {@see inStoredShape()} is the one shape rule for a default in storage ({@see storedDefault()} applies it to the
+ * declared default), {@see admits()} is the one
  * conformance predicate answering whether a stored value matches this declared type, {@see admitsMapEntry()}
  * judges one language-map entry against the declared primitive, and {@see describe()} renders the declaration
  * for the violation messages both reporters share.
@@ -108,23 +109,29 @@ final readonly class PropertyType
     }
 
     /**
-     * The declared default in the shape storage holds it: a translatable property stores one value per language,
-     * so its default seeds under the anchor language key, and every other property stores the bare scalar. A
-     * declaration with no default seeds nothing, which the null return reports.
+     * The declared default in the shape storage holds it, by the rule {@see inStoredShape()} states. A declaration
+     * with no default seeds nothing, which the null return reports.
      *
      * @return string|int|float|bool|array<string, string|int|float|bool>|null
      */
     public function storedDefault(): string|int|float|bool|array|null
     {
-        if ($this->default === null) {
-            return null;
+        return $this->inStoredShape($this->default);
+    }
+
+    /**
+     * The one statement of what shape a default value takes in storage: a translatable property stores one value
+     * per language, so the value seeds under the anchor language key, and every other property stores it bare.
+     * Only a non-null value is wrapped, because null is no language-map entry: it is returned as is and left to
+     * the caller's own validation to reject. A falsy value (`false`, `0`, `''`) is wrapped like any other.
+     */
+    public function inStoredShape(mixed $value): mixed
+    {
+        if ($value === null || !$this->translatable) {
+            return $value;
         }
 
-        if (!$this->translatable) {
-            return $this->default;
-        }
-
-        return [Defaults::LANGUAGE_SYSTEM => $this->default];
+        return [Defaults::LANGUAGE_SYSTEM => $value];
     }
 
     /**

@@ -2,7 +2,6 @@
 
 namespace Shopware\Core\Framework\ContentSystem\Binding;
 
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Binding\Specification\BindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Binding\Validation\TypeConsistentBindingSpecification;
 use Shopware\Core\Framework\ContentSystem\Hydration\DataLoader\DataLoaderConfigSerializerProvider;
@@ -11,7 +10,6 @@ use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredElement;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
 use Shopware\Core\Framework\ContentSystem\Layout\LayoutDefaultSeeder;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\AbstractContentSystemElementTypeRegistry;
-use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
 
@@ -90,6 +88,10 @@ final class BindingApplicator
     }
 
     /**
+     * Each default takes the storage shape {@see PropertyType::inStoredShape()} states for its target property. A
+     * null default on a translatable target stays unwrapped, and {@see TypeConsistentBindingSpecification} rejects
+     * that combination at load time.
+     *
      * @return array<string, StoredValue>
      */
     private function seedInputDefaults(StoredElement $element, BindingSpecification $specification): array
@@ -107,27 +109,12 @@ final class BindingApplicator
                 continue;
             }
 
-            $defaults[$key] = StoredValue::fromDecoded($this->inStoredShape($input->default, $properties[$key] ?? null));
+            $defaults[$key] = StoredValue::fromDecoded(
+                isset($properties[$key]) ? $properties[$key]->type()->inStoredShape($input->default) : $input->default
+            );
         }
 
         return $defaults;
-    }
-
-    /**
-     * The shape rule {@see PropertyType::storedDefault()} states, applied to a specification's own default: a
-     * translatable property stores one value per language, so its default seeds under the anchor language key and
-     * every other property seeds the bare value. `storedDefault()` reads the type's declared default rather than
-     * this one, so the rule is shared but the producer cannot be — including its qualifier that only a non-null
-     * default is wrapped, null being no valid language-map entry and rejected on a translatable target by
-     * {@see TypeConsistentBindingSpecification}.
-     */
-    private function inStoredShape(mixed $default, ?PropertySpecification $property): mixed
-    {
-        if ($default === null || $property === null || !$property->type()->translatable()) {
-            return $default;
-        }
-
-        return [Defaults::LANGUAGE_SYSTEM => $default];
     }
 
     /**

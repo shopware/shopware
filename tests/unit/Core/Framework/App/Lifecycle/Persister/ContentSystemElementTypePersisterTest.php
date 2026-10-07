@@ -15,6 +15,7 @@ use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Persister\ContentSystemElementTypePersister;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Layout\Preset\Registry\AbstractContentSystemLayoutPresetRegistry;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ElementTypeNameResolver;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\ResolvedElementTypeSpecificationDto;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Loader\YamlTypeLoader;
@@ -149,7 +150,10 @@ class ContentSystemElementTypePersisterTest extends TestCase
             new AppContentSystemElementTypeCollection(),
         ]);
 
-        $persister = $this->buildPersister($repo);
+        $presetRegistry = $this->createMock(AbstractContentSystemLayoutPresetRegistry::class);
+        $presetRegistry->expects($this->never())->method('invalidate');
+
+        $persister = $this->buildPersister($repo, presetRegistry: $presetRegistry);
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
 
         static::assertSame([], $repo->upserts);
@@ -231,7 +235,10 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $registry->method('all')->willReturn([]);
         $registry->expects($this->once())->method('invalidate');
 
-        $persister = $this->buildPersister($repo, loader: $loader, registry: $registry);
+        $presetRegistry = $this->createMock(AbstractContentSystemLayoutPresetRegistry::class);
+        $presetRegistry->expects($this->once())->method('invalidate');
+
+        $persister = $this->buildPersister($repo, loader: $loader, registry: $registry, presetRegistry: $presetRegistry);
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
 
         static::assertCount(1, $repo->upserts);
@@ -259,7 +266,10 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $registry->method('all')->willReturn([]);
         $registry->expects($this->once())->method('invalidate');
 
-        $persister = $this->buildPersister($repo, loader: $loader, registry: $registry);
+        $presetRegistry = $this->createMock(AbstractContentSystemLayoutPresetRegistry::class);
+        $presetRegistry->expects($this->once())->method('invalidate');
+
+        $persister = $this->buildPersister($repo, loader: $loader, registry: $registry, presetRegistry: $presetRegistry);
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
 
         static::assertSame([], $repo->upserts);
@@ -352,7 +362,14 @@ class ContentSystemElementTypePersisterTest extends TestCase
             }
         );
 
-        $this->buildPersister($repo, registry: $registry, lockFactory: $lockFactory)
+        $presetRegistry = $this->createMock(AbstractContentSystemLayoutPresetRegistry::class);
+        $presetRegistry->expects($this->once())->method('invalidate')->willReturnCallback(
+            static function () use (&$lockHeld): void {
+                static::assertTrue($lockHeld);
+            }
+        );
+
+        $this->buildPersister($repo, registry: $registry, lockFactory: $lockFactory, presetRegistry: $presetRegistry)
             ->persist($this->buildContext($this->buildRealFilesystem()));
 
         static::assertFalse($lockHeld);
@@ -377,6 +394,9 @@ class ContentSystemElementTypePersisterTest extends TestCase
         $registry->method('all')->willReturn([]);
         $registry->expects($this->never())->method('invalidate');
 
+        $presetRegistry = $this->createMock(AbstractContentSystemLayoutPresetRegistry::class);
+        $presetRegistry->expects($this->never())->method('invalidate');
+
         $repo = new StaticEntityRepository([
             new AppContentSystemElementTypeCollection(),
             new AppContentSystemElementTypeCollection(),
@@ -388,6 +408,7 @@ class ContentSystemElementTypePersisterTest extends TestCase
             registry: $registry,
             connection: $connection,
             lockFactory: $lockFactory,
+            presetRegistry: $presetRegistry,
         )->persist($this->buildContext($this->buildRealFilesystem()));
     }
 
@@ -402,7 +423,10 @@ class ContentSystemElementTypePersisterTest extends TestCase
             new AppContentSystemElementTypeCollection(),
         ]);
 
-        $persister = $this->buildPersister($repo, loader: $loader);
+        $presetRegistry = $this->createMock(AbstractContentSystemLayoutPresetRegistry::class);
+        $presetRegistry->expects($this->never())->method('invalidate');
+
+        $persister = $this->buildPersister($repo, loader: $loader, presetRegistry: $presetRegistry);
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
 
         static::assertSame([], $repo->upserts);
@@ -529,6 +553,7 @@ class ContentSystemElementTypePersisterTest extends TestCase
             $this->serializer,
             $this->runTransactionStub(),
             new LockFactory(new InMemoryStore()),
+            static::createStub(AbstractContentSystemLayoutPresetRegistry::class),
         );
 
         try {
@@ -595,6 +620,7 @@ class ContentSystemElementTypePersisterTest extends TestCase
         ?AbstractContentSystemElementTypeRegistry $registry = null,
         ?Connection $connection = null,
         ?LockFactory $lockFactory = null,
+        ?AbstractContentSystemLayoutPresetRegistry $presetRegistry = null,
     ): ContentSystemElementTypePersister {
         if ($registry === null) {
             $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
@@ -611,6 +637,7 @@ class ContentSystemElementTypePersisterTest extends TestCase
             $this->serializer,
             $connection ?? $this->runTransactionStub(),
             $lockFactory ?? new LockFactory(new InMemoryStore()),
+            $presetRegistry ?? static::createStub(AbstractContentSystemLayoutPresetRegistry::class),
         );
     }
 

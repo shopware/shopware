@@ -438,6 +438,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ElementTypeSpecificationSerializer::class),
             service(Connection::class),
             service('lock.factory'),
+            service(ContentSystemLayoutPresetRegistry::class),
         ]);
 
     $services->set(ContentSystemElementTypeLifecycleHandler::class)

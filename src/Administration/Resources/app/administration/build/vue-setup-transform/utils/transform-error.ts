@@ -59,6 +59,19 @@ class ShopwareSetupTransformError extends Error {
 }
 
 /**
+ * A broken transform invariant (an analyzer bug) rather than an authoring mistake.
+ *
+ * Its location still names the SFC that triggered it, but adapters keep the stack: unlike for an author
+ * error, the throw site is where the fix goes.
+ */
+class ShopwareSetupInternalError extends ShopwareSetupTransformError {
+    constructor(message: string, position: number | ShopwareSetupErrorPosition | null = null) {
+        super(message, position);
+        this.name = 'ShopwareSetupInternalError';
+    }
+}
+
+/**
  * @private
  */
-export { ShopwareSetupTransformError, type ShopwareSetupErrorPosition };
+export { ShopwareSetupInternalError, ShopwareSetupTransformError, type ShopwareSetupErrorPosition };

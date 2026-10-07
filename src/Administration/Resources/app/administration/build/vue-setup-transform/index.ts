@@ -17,7 +17,7 @@ import { applySourceEdits, type AppliedSourceEdits } from './source-edits/apply-
 import { analyzeBaseTemplate, analyzeOverrideTemplate } from './template-analyzer';
 import { parseShopwareSetupSfc } from './sfc-parser';
 import type { ShopwareSetupBlock } from './utils/shopware-setup-block';
-import { ShopwareSetupTransformError } from './utils/transform-error';
+import { ShopwareSetupInternalError, ShopwareSetupTransformError } from './utils/transform-error';
 import { resolveErrorSource } from './utils/error-source';
 
 type ShopwareSetupTransformResult = {
@@ -104,6 +104,7 @@ function validateShopwareSetupSfc(source: string, filename = 'anonymous.vue'): v
  */
 export {
     type ShopwareSetupTransformResult,
+    ShopwareSetupInternalError,
     ShopwareSetupTransformError,
     transformShopwareSetupSfc,
     validateShopwareSetupSfc,

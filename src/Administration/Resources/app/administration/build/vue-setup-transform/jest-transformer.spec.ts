@@ -3,7 +3,10 @@
  */
 
 import shopwareSetupVueTransformer from '../../test/transformer/shopwareSetupVueTransformer';
+import type * as transformModuleType from './index';
 import { stripIndent } from './index.spec/helpers';
+
+type TransformModule = typeof transformModuleType;
 
 const browserslistDataWarning = {
     method: 'warn' as const,
@@ -47,6 +50,44 @@ describe('test/transformer/shopwareSetupVueTransformer integration', () => {
 
         expect(error).toHaveProperty('message', expect.stringContaining('/example/sw-broken.vue:5:23\n'));
         expect(error).toHaveProperty('stack', expect.stringContaining('5  |  const broken = { a: 1 b: 2 };'));
+        expect(error).toHaveProperty('stack', expect.not.stringContaining('\n    at '));
+    });
+
+    it('keeps the throw-site frames of an analyzer bug', () => {
+        let error: unknown;
+
+        jest.isolateModules(() => {
+            const transform = jest.requireActual<TransformModule>('./index.js');
+            const internalError = new transform.ShopwareSetupInternalError('Overlapping Shopware setup source edits.', 0);
+            internalError.loc = { file: '/example/sw-internal.vue', line: 1, column: 0 };
+            internalError.frame = '1  |  <template />';
+
+            // No authored input reaches an analyzer bug, so the transformer gets a transform that throws one. The
+            // spread keeps the error classes the transformer checks against.
+            jest.doMock('./index.js', () => ({
+                ...transform,
+                transformShopwareSetupSfc: () => {
+                    throw internalError;
+                },
+            }));
+
+            const transformer = jest.requireActual<typeof shopwareSetupVueTransformer>(
+                '../../test/transformer/shopwareSetupVueTransformer',
+            );
+
+            try {
+                transformer.process('<template />', '/example/sw-internal.vue', { config: {} }, { instrument: false });
+            } catch (thrown) {
+                error = thrown;
+            }
+        });
+        jest.dontMock('./index.js');
+
+        expect(error).toHaveProperty('message', expect.stringContaining('/example/sw-internal.vue:1:1\n1  |  <template />'));
+        expect(error).toHaveProperty(
+            'stack',
+            expect.stringContaining(`ShopwareSetupInternalError: ${(error as Error).message}\n    at `),
+        );
     });
 
     it('applies the Shopware setup transform before delegating Vue files to vue-jest', () => {

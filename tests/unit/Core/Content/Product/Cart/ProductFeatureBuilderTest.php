@@ -432,6 +432,35 @@ class ProductFeatureBuilderTest extends TestCase
         static::assertSame(11.9, $features[0]['value']['display']);
     }
 
+    public function testPriceCustomFieldWithNetBasisConvertsTheFallbackNetBeforeDerivingTheGross(): void
+    {
+        $taxId = Uuid::randomHex();
+
+        $tax = (new TaxEntity())->assign(['id' => $taxId, 'taxRate' => 19.0, 'name' => 'tax', 'position' => 1]);
+        $tax->setRules(new TaxRuleEntityCollection());
+
+        $context = Generator::generateSalesChannelContext(
+            baseContext: new Context(
+                new SystemSource(),
+                currencyId: self::CURRENCY_ID,
+                languageIdChain: self::LANGUAGE_CHAIN,
+                currencyFactor: 1.5,
+            ),
+            currentCustomerGroup: (new CustomerGroupEntity())->assign(['id' => Uuid::randomHex(), 'priceBasis' => CustomerGroupEntity::PRICE_BASIS_NET]),
+            taxRules: new TaxCollection([$tax]),
+        );
+
+        $features = $this->buildCustomFieldFeatures(
+            ['de-DE' => 'Aufpreis'],
+            content: [['currencyId' => Defaults::CURRENCY, 'net' => 9.99, 'gross' => 999.0, 'linked' => true]],
+            type: CustomFieldTypes::PRICE,
+            context: $context,
+            taxId: $taxId,
+        );
+
+        static::assertSame(17.83, $features[0]['value']['display']);
+    }
+
     public function testPriceCustomFieldWithNullBasisKeepsTheStoredGross(): void
     {
         $features = $this->buildCustomFieldFeatures(

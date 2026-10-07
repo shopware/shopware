@@ -545,21 +545,20 @@ class ProductFeatureBuilder
         $taxRules = $taxId !== null ? $context->buildTaxRules($taxId) : new TaxRuleCollection();
 
         $selected = $this->priceSelector->select($price, $taxRules, $context);
-
-        if ($selected->isCalculated()) {
-            $value = $selected->getValue();
-        } else {
-            $definition = new QuantityPriceDefinition($selected->getValue(), $taxRules);
-            $definition->setIsCalculated(false);
-
-            $value = $this->quantityPriceCalculator->calculate($definition, $context)->getUnitPrice();
-        }
+        $value = $selected->getValue();
 
         if ($price->getCurrencyId() !== $context->getCurrencyId()) {
             $value *= $context->getContext()->getCurrencyFactor();
         }
 
-        return $value;
+        if ($selected->isCalculated()) {
+            return $value;
+        }
+
+        $definition = new QuantityPriceDefinition($value, $taxRules);
+        $definition->setIsCalculated(false);
+
+        return $this->quantityPriceCalculator->calculate($definition, $context)->getUnitPrice();
     }
 
     private function getReferencedEntityName(CustomFieldEntity $customField): ?string

@@ -9,6 +9,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\Layout\Element\StoredValue;
+use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertySpecification;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Specification\PropertyType;
 use Shopware\Core\Framework\Log\Package;
 
@@ -520,6 +521,37 @@ class PropertyTypeTest extends TestCase
         yield 'string entry on a non-translatable string' => [
             new PropertyType('string', false, null, null),
             StoredValue::ofString('Willkommen'),
+        ];
+    }
+
+    /**
+     * @param array<string, PropertySpecification>|null $expected
+     */
+    #[DataProvider('nestedMembersProvider')]
+    #[TestDox('reports the nested member declarations, or null when the declaration carries none: $_dataName')]
+    public function testPropertiesReportsTheNestedMemberDeclarations(PropertyType $type, ?array $expected): void
+    {
+        static::assertSame($expected, $type->properties());
+    }
+
+    /**
+     * @return iterable<string, array{PropertyType, array<string, PropertySpecification>|null}>
+     */
+    public static function nestedMembersProvider(): iterable
+    {
+        $members = [
+            'url' => new PropertySpecification('url', new PropertyType('string', false, null, null), true, 'Url', 'Link target.', null),
+            'newTab' => new PropertySpecification('newTab', new PropertyType('boolean', false, null, null), false, 'New tab', 'Open in a new tab.', null),
+        ];
+
+        yield 'object declaring nested members returns them keyed as declared' => [
+            new PropertyType('object', false, null, null, $members),
+            $members,
+        ];
+
+        yield 'lone primitive declaring no members returns null' => [
+            new PropertyType('string', false, null, null),
+            null,
         ];
     }
 

@@ -87,6 +87,21 @@ class EventHookDispatcherTest extends TestCase
         static::assertSame(['second'], $calls);
     }
 
+    public function testOnceHookRunsForTheFirstDispatchOnly(): void
+    {
+        $calls = 0;
+        $dispatcher = new EventHookDispatcher(new EventDispatcher());
+        $dispatcher->on(Event::class, static function () use (&$calls): void {
+            ++$calls;
+        }, true);
+
+        $dispatcher->dispatch(new Event());
+        $dispatcher->dispatch(new Event());
+
+        static::assertSame(1, $calls);
+        static::assertFalse($dispatcher->hasListeners(Event::class));
+    }
+
     public function testResetClearsAllHooks(): void
     {
         $called = false;

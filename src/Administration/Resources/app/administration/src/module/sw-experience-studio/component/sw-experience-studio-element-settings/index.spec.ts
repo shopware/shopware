@@ -50,6 +50,44 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
         });
     });
 
+    it('does not resolve a reference field value from the declared key', () => {
+        const fields = computed.elementFields.call({
+            selectedElement: {
+                properties: {
+                    media: 'media-id',
+                },
+            },
+            selectedElementType: {
+                properties: {
+                    media: {
+                        type: 'string',
+                    },
+                    // visible only where the declared key of `media` is read as its resolved value
+                    caption: {
+                        type: 'string',
+                        adminUI: {
+                            visibleWhen: {
+                                field: 'media',
+                                equals: 'media-id',
+                            },
+                        },
+                    },
+                },
+                bindingSpecifications: imageType.bindingSpecifications,
+            },
+        });
+
+        expect(fields).toEqual([
+            {
+                key: 'media',
+                property: {
+                    type: 'string',
+                },
+                breakpointAware: false,
+            },
+        ]);
+    });
+
     it('emits resolved fields using their storage key', () => {
         const $emit = jest.fn();
 

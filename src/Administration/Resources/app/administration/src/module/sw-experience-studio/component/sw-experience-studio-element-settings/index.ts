@@ -171,9 +171,7 @@ export default Shopware.Component.wrapComponentConfig({
                 ) => {
                     const storageKey = getElementPropertyStorageKey(typeSpecification, key);
                     const elementProperties = selectedElement?.properties ?? {};
-                    const storedValue = Object.prototype.hasOwnProperty.call(elementProperties, storageKey)
-                        ? elementProperties[storageKey]
-                        : elementProperties[key];
+                    const storedValue = elementProperties[storageKey];
                     const currentValue = property.translatable ? projectTranslatableValue(storedValue) : storedValue;
                     accumulator[key] = getInitialPropertyValue(property, currentValue);
 

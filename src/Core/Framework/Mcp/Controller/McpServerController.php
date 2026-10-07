@@ -149,16 +149,16 @@ class McpServerController
 
     /**
      * Queues list_changed when an app changed the lists since this session last looked. Runs after
-     * {@see Server::run()} for the same reason as flushPendingToolsListChanged(). The session id of a
-     * new session is only on the response.
+     * {@see Server::run()} for the same reason as flushPendingToolsListChanged(). A new session has no
+     * id on the request; its id is only on the response.
      */
     private function syncListVersions(Request $request, PsrResponseInterface $psrResponse): void
     {
-        $sessionId = $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID)
-            ?: ($request->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID) ?? '');
+        $requestSessionId = $request->headers->get(PlatformRequest::HEADER_MCP_SESSION_ID) ?? '';
+        $sessionId = $requestSessionId ?: $psrResponse->getHeaderLine(PlatformRequest::HEADER_MCP_SESSION_ID);
 
         if ($sessionId !== '') {
-            $this->listChangedNotifier?->syncSession($sessionId);
+            $this->listChangedNotifier?->syncSession($sessionId, isNewSession: $requestSessionId === '');
         }
     }
 

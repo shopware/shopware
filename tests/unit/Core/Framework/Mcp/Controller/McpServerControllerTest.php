@@ -141,7 +141,8 @@ class McpServerControllerTest extends TestCase
         $notifier = $this->createMock(McpListChangedNotifier::class);
         $notifier->expects($this->once())
             ->method('syncSession')
-            ->willReturnCallback(static function (string $sessionId) use (&$syncedSessionIds): void {
+            ->willReturnCallback(static function (string $sessionId, bool $isNewSession) use (&$syncedSessionIds): void {
+                static::assertTrue($isNewSession, 'initialize opens a new session');
                 $syncedSessionIds[] = $sessionId;
             });
 

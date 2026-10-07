@@ -12,7 +12,7 @@ use Shopware\Core\Migration\Traits\UpdateMailTrait;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('inventory')]
 class Migration1791377945FixLineItemImageInOrderConfirmationMail extends MigrationStep
 {
     use UpdateMailTrait;

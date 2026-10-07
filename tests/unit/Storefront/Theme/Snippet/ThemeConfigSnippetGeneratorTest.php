@@ -273,6 +273,26 @@ class ThemeConfigSnippetGeneratorTest extends TestCase
         ], $this->generator->generate($configuration));
     }
 
+    public function testLocaleKeysThatAreNoLocaleAreSkipped(): void
+    {
+        $configuration = $this->createConfiguration([
+            'fields' => [
+                'sw-logo' => [
+                    'label' => [
+                        '../../../translation/locale/en-GB/Platform/storefront' => 'escaped',
+                        'DE' => 'upper case language',
+                        'german' => 'no locale',
+                        'en-GB.base' => 'file suffix smuggled in',
+                        'de-DE' => 'Logo DE',
+                        'zh-Hant-TW' => 'Logo TW',
+                    ],
+                ],
+            ],
+        ]);
+
+        static::assertSame(['de-DE', 'zh-Hant-TW'], array_keys($this->generator->generate($configuration)));
+    }
+
     /**
      * @param array<string, mixed> $config
      */

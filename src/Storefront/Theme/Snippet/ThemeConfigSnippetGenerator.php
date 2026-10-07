@@ -3,6 +3,7 @@
 namespace Shopware\Storefront\Theme\Snippet;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\System\Snippet\SnippetPatterns;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
 use Shopware\Storefront\Theme\ThemeConfigStructure;
 
@@ -90,7 +91,7 @@ class ThemeConfigSnippetGenerator
         }
 
         foreach ($localizedValues as $locale => $value) {
-            if (!\is_string($locale) || !\is_string($value)) {
+            if (!\is_string($locale) || !\is_string($value) || !preg_match(SnippetPatterns::COMPLETE_LOCALE_PATTERN, $locale)) {
                 continue;
             }
 

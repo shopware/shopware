@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Snippet;
 
 use League\Flysystem\Filesystem;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use League\Flysystem\StorageAttributes;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -134,6 +135,23 @@ class ThemeSnippetFileWriterTest extends TestCase
         $this->writer->remove('SwagTheme');
 
         static::assertFalse($this->privateFilesystem->directoryExists('snippets/administration/SwagTheme'));
+    }
+
+    public function testLocaleKeysCannotEscapeTheThemeDirectory(): void
+    {
+        $this->cacheInvalidator->expects($this->once())->method('invalidate');
+        $this->logger->expects($this->once())->method('warning');
+
+        $this->writer->write($this->createConfiguration([
+            'sw-logo' => ['label' => ['../../../translation/escaped' => 'Escaped', 'en-GB' => 'Logo']],
+        ]));
+
+        $writtenPaths = $this->privateFilesystem->listContents('', true)
+            ->filter(static fn (StorageAttributes $attributes): bool => $attributes->isFile())
+            ->map(static fn (StorageAttributes $attributes): string => $attributes->path())
+            ->toArray();
+
+        static::assertSame(['snippets/administration/SwagTheme/en-GB.json'], $writtenPaths);
     }
 
     /**

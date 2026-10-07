@@ -8,6 +8,8 @@ What happens to a binding's bookkeeping and its stored wiring once the element l
 
 A comparison that cannot be made at all is a different answer, and the reconciler catches nothing to hide it. An element whose requirement source has no registered config serializer cannot be encoded, so its wiring cannot be judged honest or dishonest; that `configSerializerNotRegistered` escapes the reconciler and refuses the write. Because that code is explicitly classified as a client-repairable layout defect, `Layout/Field/StoredElementListFieldSerializer::normalize` remaps it to a `WriteConstraintViolationException` (HTTP 400) whose violation code is the defect's own `CONTENT_SYSTEM__*` code. `INVALID_LAYOUT_STRUCTURE` is also wrapped as a structural write rejection. Other `ContentSystemException`s propagate unchanged, preserving their status and code: server-side registry load failures remain 500, while collisions remain 409.
 
+Box-spacing normalization distinguishes failures caused by the supplied value from PCRE engine faults. A value that exceeds PCRE's backtrack or recursion limit, or has invalid UTF-8, raises `BOX_SPACING_INVALID_VALUE` and is mapped to HTTP 400. Other PCRE failures raise `BOX_SPACING_TOKENIZATION_FAILED` and remain HTTP 500. This covers registered `box-spacing` options that receive very large values before their declared `maxLength` constraint is evaluated.
+
 ## Diagnostics Tie-Ins
 
 A stored binding's wiring is also visible to the resolution and diagnostics kernel, independent of the response-layer concerns covered in [introspection.md](introspection.md):

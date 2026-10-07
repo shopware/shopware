@@ -93,6 +93,7 @@ class ContentSystemException extends HttpException
     public const BINDING_SPECIFICATION_RESERVED_ID = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_RESERVED_ID';
     public const BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS = 'CONTENT_SYSTEM__BINDING_SPECIFICATION_DEFAULT_AMBIGUOUS';
     public const BOX_SPACING_TOKENIZATION_FAILED = 'CONTENT_SYSTEM__BOX_SPACING_TOKENIZATION_FAILED';
+    public const BOX_SPACING_INVALID_VALUE = 'CONTENT_SYSTEM__BOX_SPACING_INVALID_VALUE';
     public const LAYOUT_WRITE_MEMO_MISSING = 'CONTENT_SYSTEM__LAYOUT_WRITE_MEMO_MISSING';
     public const LOADER_INPUT_NOT_DECLARED = 'CONTENT_SYSTEM__LOADER_INPUT_NOT_DECLARED';
     public const LOADER_INPUT_UNRESOLVED = 'CONTENT_SYSTEM__LOADER_INPUT_UNRESOLVED';
@@ -137,6 +138,7 @@ class ContentSystemException extends HttpException
         self::PROVIDER_DELIVERY_COLLISION,
         self::INVALID_MAP_KEY,
         self::INVALID_ELEMENT_ID,
+        self::BOX_SPACING_INVALID_VALUE,
     ];
 
     public static function isClientDefect(\Throwable $exception): bool
@@ -1105,10 +1107,11 @@ class ContentSystemException extends HttpException
     }
 
     /**
-     * The internal 500 for a PCRE failure while tokenizing a box-spacing style value into its four sides —
-     * a malformed-UTF-8 subject, or a backtrack/recursion limit on a large one. BoxSpacingNormalizer throws
-     * instead of substituting a plausible-looking split, because a substituted split is indistinguishable
-     * from a real one and would be stored as if it were the authored value.
+     * The internal 500 for a PCRE engine failure while tokenizing a box-spacing style value into its four
+     * sides. Input-caused failures such as malformed UTF-8 and backtrack/recursion limits use
+     * {@see boxSpacingInvalidValue()} instead. BoxSpacingNormalizer throws instead of substituting a
+     * plausible-looking split, because a substituted split is indistinguishable from a real one and would be
+     * stored as if it were the authored value.
      *
      * The value is identified by its byte length and a content fingerprint rather than echoed: the message
      * must stay bounded, and the very inputs that reach this path may not be valid UTF-8 to begin with.
@@ -1122,6 +1125,24 @@ class ContentSystemException extends HttpException
             [
                 'operation' => $operation,
                 'reason' => $reason,
+                'length' => (string) \strlen($value),
+                'fingerprint' => Hasher::hash($value),
+            ]
+        );
+    }
+
+    /**
+     * A client-supplied box-spacing value exceeded a PCRE processing limit or was not valid UTF-8.
+     * The value is identified by length and fingerprint instead of being echoed into the error response.
+     */
+    public static function boxSpacingInvalidValue(string $operation, string $value): self
+    {
+        return new self(
+            Response::HTTP_BAD_REQUEST,
+            self::BOX_SPACING_INVALID_VALUE,
+            'The box-spacing value could not be {{ operation }} because it exceeds the supported input limits or has invalid encoding. Value length: {{ length }} bytes, fingerprint: {{ fingerprint }}.',
+            [
+                'operation' => $operation,
                 'length' => (string) \strlen($value),
                 'fingerprint' => Hasher::hash($value),
             ]

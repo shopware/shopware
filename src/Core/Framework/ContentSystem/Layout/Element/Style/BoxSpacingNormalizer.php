@@ -167,7 +167,7 @@ final class BoxSpacingNormalizer
         $trimmed = preg_replace(self::TRIM_PATTERN, '', $value);
 
         if ($trimmed === null) {
-            throw ContentSystemException::boxSpacingTokenizationFailed('trim', $value, preg_last_error_msg());
+            throw $this->tokenizationFailure('trim', $value);
         }
 
         return $trimmed;
@@ -187,10 +187,25 @@ final class BoxSpacingNormalizer
         // value. `false` is the documented error return; the empty array cannot occur with these flags and
         // is rejected on the same grounds instead of being left to an undefined offset 0.
         if ($parts === false || $parts === []) {
-            throw ContentSystemException::boxSpacingTokenizationFailed('split', $value, preg_last_error_msg());
+            throw $this->tokenizationFailure('split', $value);
         }
 
         return $parts;
+    }
+
+    private function tokenizationFailure(string $operation, string $value): ContentSystemException
+    {
+        if (\in_array(preg_last_error(), [
+            \PREG_BACKTRACK_LIMIT_ERROR,
+            \PREG_RECURSION_LIMIT_ERROR,
+            \PREG_BAD_UTF8_ERROR,
+            \PREG_BAD_UTF8_OFFSET_ERROR,
+            \PREG_JIT_STACKLIMIT_ERROR,
+        ], true)) {
+            return ContentSystemException::boxSpacingInvalidValue($operation, $value);
+        }
+
+        return ContentSystemException::boxSpacingTokenizationFailed($operation, $value, preg_last_error_msg());
     }
 
     /**

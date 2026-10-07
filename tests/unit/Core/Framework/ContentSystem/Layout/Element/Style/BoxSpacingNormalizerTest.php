@@ -82,19 +82,33 @@ class BoxSpacingNormalizerTest extends TestCase
         static::assertSame('20px 20px 20px 20px', (new BoxSpacingNormalizer())->normalizeCssValue('20px  20px '));
     }
 
-    #[TestDox('throws instead of substituting a split when the pattern cannot run on the value')]
-    public function testPcreFailureThrowsInsteadOfSubstitutingAResult(): void
+    #[TestDox('rejects malformed UTF-8 as a client defect instead of substituting a split')]
+    public function testMalformedUtf8IsRejectedAsInvalidClientValue(): void
     {
         // A lone continuation-less 0xC3 is not valid UTF-8, so every `u`-modified pattern in the normalizer
         // fails on it. The entry trim is the first one reached, so it is the operation that reports.
         $value = "\xC3\x28";
 
-        $this->expectExceptionObject(ContentSystemException::boxSpacingTokenizationFailed(
-            'trim',
-            $value,
-            'Malformed UTF-8 characters, possibly incorrectly encoded',
-        ));
+        $this->expectExceptionObject(ContentSystemException::boxSpacingInvalidValue('trim', $value));
 
         (new BoxSpacingNormalizer())->normalizeCssValue($value);
+    }
+
+    #[TestDox('rejects a value that exceeds PCRE backtracking limits as a client defect')]
+    public function testBacktrackLimitFailureIsRejectedAsInvalidClientValue(): void
+    {
+        $previousLimit = ini_get('pcre.backtrack_limit');
+        static::assertNotFalse($previousLimit);
+        static::assertNotFalse(ini_set('pcre.backtrack_limit', '1000'));
+
+        try {
+            $value = 'x' . str_repeat(' ', 10_000) . 'y';
+
+            $this->expectExceptionObject(ContentSystemException::boxSpacingInvalidValue('trim', $value));
+
+            (new BoxSpacingNormalizer())->normalizeCssValue($value);
+        } finally {
+            static::assertNotFalse(ini_set('pcre.backtrack_limit', $previousLimit));
+        }
     }
 }

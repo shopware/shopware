@@ -239,7 +239,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('request_stack'),
             service('event_dispatcher'),
         ])
-        ->tag('kernel.event_listener');
+        ->tag('kernel.event_listener')
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(CacheTagCollection::class);
 

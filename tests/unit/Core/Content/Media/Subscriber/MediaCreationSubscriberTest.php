@@ -130,4 +130,44 @@ class MediaCreationSubscriberTest extends TestCase
 
         static::assertSame('media/Bildschirmfoto 2023-06-24 um 16.30.36.png', $command->getPayload()['path']);
     }
+
+    public function testNonAsciiCharactersInPathAreKept(): void
+    {
+        $command = new InsertCommand(
+            $this->getDefinition(),
+            ['path' => "media/ab/cd/Erdm\u{00E4}nnchen \u{00C4}rmel \u{00DF}\u{00AD}.jpg"],
+            ['id' => $this->ids->getBytes('media-1')],
+            $this->createMock(EntityExistence::class),
+            '/0'
+        );
+
+        $event = EntityWriteEvent::create(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [$command],
+        );
+
+        (new MediaCreationSubscriber())->beforeWrite($event);
+
+        static::assertSame('media/ab/cd/Erdmännchen Ärmel ß.jpg', $command->getPayload()['path']);
+    }
+
+    public function testInvalidUtf8PathIsReplacedWithNull(): void
+    {
+        $command = new InsertCommand(
+            $this->getDefinition(),
+            ['path' => "media/\xFF\xFE.jpg"],
+            ['id' => $this->ids->getBytes('media-1')],
+            $this->createMock(EntityExistence::class),
+            '/0'
+        );
+
+        $event = EntityWriteEvent::create(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [$command],
+        );
+
+        (new MediaCreationSubscriber())->beforeWrite($event);
+
+        static::assertNull($command->getPayload()['path']);
+    }
 }

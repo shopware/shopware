@@ -31,4 +31,16 @@ class ProductEntityTest extends TestCase
 
         static::assertSame('translated foo', (string) $entity);
     }
+
+    public function testIsGuaranteeConfirmedTreatsAnInheritedValueAsUnconfirmed(): void
+    {
+        $product = new ProductEntity();
+
+        static::assertNull($product->get('guaranteeConfirmed'));
+        static::assertFalse($product->isGuaranteeConfirmed());
+
+        $product->setGuaranteeConfirmed(true);
+
+        static::assertTrue($product->isGuaranteeConfirmed());
+    }
 }

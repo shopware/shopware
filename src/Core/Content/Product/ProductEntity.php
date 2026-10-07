@@ -115,7 +115,7 @@ class ProductEntity extends Entity implements \Stringable
 
     protected ?int $guaranteeMonths = null;
 
-    protected bool $guaranteeConfirmed = false;
+    protected ?bool $guaranteeConfirmed = null;
 
     /**
      * @var string|null
@@ -763,7 +763,7 @@ class ProductEntity extends Entity implements \Stringable
 
     public function isGuaranteeConfirmed(): bool
     {
-        return $this->guaranteeConfirmed;
+        return $this->guaranteeConfirmed ?? false;
     }
 
     public function setGuaranteeConfirmed(bool $guaranteeConfirmed): void

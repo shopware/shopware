@@ -192,6 +192,26 @@ class MediaUploadControllerTest extends TestCase
         $this->assertMediaApiResponse();
     }
 
+    public function testUploadFromBinaryKeepsNonAsciiFileName(): void
+    {
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf('/api/_action/media/%s/upload?extension=png&fileName=%s', $this->mediaId, rawurlencode('Erdmännchen Ärmel ß')),
+            [],
+            [],
+            [
+                'HTTP_CONTENT-TYPE' => 'image/png',
+                'HTTP_CONTENT-LENGTH' => filesize(self::TEST_IMAGE),
+            ],
+            (string) file_get_contents(self::TEST_IMAGE)
+        );
+        $media = $this->getMediaEntity();
+
+        static::assertSame('Erdmännchen Ärmel ß', $media->getFileName());
+        static::assertStringEndsWith('/Erdmännchen Ärmel ß.png', $media->getPath());
+        static::assertTrue($this->getPublicFilesystem()->has($media->getPath()));
+    }
+
     public function testUploadValidSvgFromBinary(): void
     {
         $url = \sprintf(
@@ -375,6 +395,36 @@ class MediaUploadControllerTest extends TestCase
 
         static::assertTrue($this->getPublicFilesystem()->has($updated->getPath()));
         static::assertFalse($this->getPublicFilesystem()->has($media->getPath()));
+    }
+
+    public function testRenameMediaFileKeepsNonAsciiFileName(): void
+    {
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf('/api/_action/media/%s/upload?extension=png&fileName=original', $this->mediaId),
+            [],
+            [],
+            [
+                'HTTP_CONTENT-TYPE' => 'image/png',
+                'HTTP_CONTENT-LENGTH' => filesize(self::TEST_IMAGE),
+            ],
+            (string) file_get_contents(self::TEST_IMAGE)
+        );
+        $this->getMediaEntity();
+
+        $this->getBrowser()->request(
+            'POST',
+            \sprintf('/api/_action/media/%s/rename', $this->mediaId),
+            [],
+            [],
+            ['HTTP_CONTENT_TYPE' => 'application/json'],
+            json_encode(['fileName' => 'Größe – Тест'], \JSON_THROW_ON_ERROR)
+        );
+        $media = $this->getMediaEntity();
+
+        static::assertSame('Größe – Тест', $media->getFileName());
+        static::assertStringEndsWith('/Größe – Тест.png', $media->getPath());
+        static::assertTrue($this->getPublicFilesystem()->has($media->getPath()));
     }
 
     public function testProvideName(): void

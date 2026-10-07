@@ -2,6 +2,7 @@
 
 namespace Shopware\Storefront\Framework\Twig\Extension;
 
+use GuzzleHttp\Psr7\Uri;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Log\Package;
 use Twig\Extension\AbstractExtension;
@@ -27,37 +28,19 @@ class UrlEncodingTwigFilter extends AbstractExtension
             return null;
         }
 
-        $urlInfo = parse_url($mediaUrl);
-        if (!\is_array($urlInfo)) {
+        try {
+            $uri = new Uri($mediaUrl);
+        } catch (\InvalidArgumentException) {
             return null;
         }
 
-        $segments = explode('/', $urlInfo['path'] ?? '');
+        $segments = explode('/', $uri->getPath());
 
         foreach ($segments as $index => $segment) {
-            $segments[$index] = rawurlencode($segment);
+            $segments[$index] = rawurlencode(rawurldecode($segment));
         }
 
-        $path = implode('/', $segments);
-        if (isset($urlInfo['query'])) {
-            $path .= "?{$urlInfo['query']}";
-        }
-
-        $encodedPath = '';
-
-        if (isset($urlInfo['scheme'])) {
-            $encodedPath = "{$urlInfo['scheme']}://";
-        }
-
-        if (isset($urlInfo['host'])) {
-            $encodedPath .= "{$urlInfo['host']}";
-        }
-
-        if (isset($urlInfo['port'])) {
-            $encodedPath .= ":{$urlInfo['port']}";
-        }
-
-        return $encodedPath . $path;
+        return (string) $uri->withPath(implode('/', $segments))->withFragment('');
     }
 
     public function encodeMediaUrl(?MediaEntity $media): ?string

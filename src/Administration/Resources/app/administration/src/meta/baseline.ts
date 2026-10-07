@@ -108,7 +108,6 @@ const missingTests = [
     'src/app/service/feature.service.ts',
     'src/app/service/license-violations.service.js',
     'src/app/service/locale-to-language.service.js',
-    'src/app/service/search-type.service.js',
     'src/app/state/index.js',
     'src/core/adapter/view.adapter.ts',
     'src/core/data/ShopwareError.ts',

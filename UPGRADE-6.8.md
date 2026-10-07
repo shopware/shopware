@@ -378,7 +378,7 @@ Previously, these routes could return unrelated records or fail because the unde
 
 ## Customer group price fields are required
 
-`customer_group.display_gross` and `customer_group.price_basis` are required fields now. Both carry entity defaults (`displayGross: true`, `priceBasis: "gross"`), so create payloads that omit them keep working unchanged; writing an explicit `null` for `priceBasis` is rejected. Accordingly, `CustomerGroupEntity::$priceBasis`, `getPriceBasis()` and `setPriceBasis()` are narrowed to non-nullable `string`: a `null` basis no longer exists, and the price basis no longer follows the display mode. Pass an explicit `'net'` or `'gross'` instead.
+`customer_group.display_gross` and `customer_group.price_basis` are required fields now. Both carry entity defaults (`displayGross: true`, `priceBasis: "gross"`), so create payloads that omit them keep working, and an explicit `null` is rejected. A create that omits `priceBasis` gets `gross` regardless of `displayGross`, it is no longer derived from the display mode: send `'net'` explicitly for net-display groups whose net prices should stay fixed. Accordingly, `CustomerGroupEntity::$priceBasis`, `getPriceBasis()` and `setPriceBasis()` are narrowed to non-nullable `string`.
 
 ## Removal of legacy `ConfigurationService` getters
 
@@ -1366,9 +1366,9 @@ $this->cartRuleLoader->loadByCart($salesChannelContext, $cart, new CartBehavior(
 
 # Administration
 
-## Deprecated block `sw_settings_customer_group_detail_content_card_display_gross`
+## Removed block `sw_settings_customer_group_detail_content_card_display_gross`
 
-The gross display toggle on the customer group detail page was replaced by two separate controls, one for the tax display and one for the price calculation basis. The old block `sw_settings_customer_group_detail_content_card_display_gross` in `sw-settings-customer-group-detail.html.twig` remains as an empty extension point and will be removed with 6.8. Extensions that customized the toggle have to extend the blocks of the new controls instead.
+The gross display toggle on the customer group detail page was replaced by separate controls for the tax display and the price calculation basis, and the empty block `sw_settings_customer_group_detail_content_card_display_gross` left in `sw-settings-customer-group-detail.html.twig` was removed. Extensions that customized the toggle extend `sw_settings_customer_group_detail_content_card_tax_display` or `sw_settings_customer_group_detail_content_card_price_basis` instead.
 
 ## Removal of deprecated `config` data property in `sw-system-config` component
 

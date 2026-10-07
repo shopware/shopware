@@ -32,8 +32,9 @@ We add a price basis setting that decides which stored value is authoritative. T
 current meaning (tax math flavor + labels), so `display_gross` finally means what its name says. Both
 fields are independent and all four combinations are supported.
 
-- New nullable field `customer_group.price_basis`: `'net'`, `'gross'` or `NULL`.
-  - `NULL` (default): everything works exactly as today, the basis follows the display mode.
+- New field `customer_group.price_basis`: `'net'` or `'gross'`, never empty.
+  - Existing groups get the basis matching their display mode, so every price stays the same on update. A
+    group created without a basis derives it the same way. From then on the display mode is display only.
   - `'net'`: the stored net value is always used. With gross display the price definition is passed with
     `isCalculated = false`, so `GrossPriceCalculator` derives the gross from the shipping country's tax
     rules.
@@ -66,17 +67,14 @@ Loose ends handled:
   listing's cheapest price. With linked prices that matches the derived value at the product's home tax
   rate; unlinked or stale values of the non-authoritative flavor drift.
 - **Admin**: the customer group detail page offers the tax display and the price basis as two independent
-  controls. Both write explicit values, so the 6.8 shape is produced from the start and no mapping between
-  the two fields is needed.
+  controls, each writing its own field.
 
-End state: `NULL` is transitional. With v6.8 a migration backfills the remaining `price_basis` rows from
-`display_gross`, the column becomes `NOT NULL`, and the `NULL` fallback in the selector goes away. Behind
-the v6.8 flag both fields are already required on write, with entity defaults (gross display, gross basis)
-so a field-unaware writer gets an explicit pair instead of a silent `NULL`. Until then `NULL` keeps the old
-coupling alive for every writer that does not know the field: old core during blue-green, plugins, ERP
-syncs, API clients. With v6.8 the price basis also moves onto `Context` next to the tax state, so the DAL
-and Elasticsearch price accessors and the cheapest price resolution key on the authoritative stored column
-instead of the display flavor.
+The column is `NOT NULL DEFAULT 'gross'` from the start, so inserts by old core during blue-green still get
+a value. End state: with v6.8 the basis is part of every create payload. Both fields are required, with
+entity defaults (gross display, gross basis), and the write subscriber deriving the basis from the display
+mode goes away, together with the selector's fallback for a missing basis. With v6.8 the price basis also
+moves onto `Context` next to the tax state, so the DAL and Elasticsearch price accessors and the cheapest
+price resolution key on the authoritative stored column instead of the display flavor.
 
 ## Alternatives considered
 
@@ -91,10 +89,9 @@ listing and cart would show different prices.
 **C) Global system config switch.** Cannot express mixed setups (B2C gross display + B2B net display,
 both on a fixed net basis), and the display toggle already lives on the customer group.
 
-**D) Backfill `price_basis` from `display_gross` right away, no `NULL`.** Rejected for a minor: the
-backfill freezes the coupling as a snapshot, so flipping `display_gross` afterwards silently changes
-charged amounts; and blue-green needs a static DB default that is wrong for half the rows written by
-field-unaware code. Right move at the major, see end state above.
+**D) Keep `price_basis` nullable, `NULL` meaning "follows the display mode".** Rejected: an extra state with
+its own API contract (nullable field, schema, admin fallbacks) for a single case, a field-unaware writer
+flipping `display_gross` later. We stay opinionated instead: the display mode is display only.
 
 ## Consequences
 
@@ -104,9 +101,10 @@ field-unaware code. Right move at the major, see end state above.
   12.00 € in AT). Needs prominent admin help text and merchant docs.
 - `GrossPriceCalculator`'s `isCalculated = false` path becomes load-bearing and needs promoted test
   coverage (list, regulation and reference prices, cash rounding intervals).
-- Fully backwards compatible: nullable column, additive service, additive API field, no template or
-  schema changes, no feature flag needed.
-- Release docs: RELEASE_INFO entry, plus an UPGRADE entry for the deprecated admin block.
+- Existing groups keep their prices: additive column, service and API field, no template or schema changes.
+  Flipping the display mode afterwards keeps the basis; with unlinked net/gross pairs that changes what
+  customers are charged.
+- Release docs: RELEASE_INFO entry, plus UPGRADE entries for the removed admin block and the required fields.
 - Enabled follow-ups: charm-price rounding of derived prices, an exact mode as a third basis value.
 
 ## Pseudo-code
@@ -130,7 +128,7 @@ return match ($context->getCurrentCustomerGroup()->getPriceBasis()) {
             isCalculated: true
         ),
     },
-    // null and unknown values follow the display mode (legacy)
+    // a missing basis follows the tax state
     default => new SelectedPrice(
         $taxState === CartPrice::TAX_STATE_GROSS ? $price->getGross() : $price->getNet(),
         isCalculated: true

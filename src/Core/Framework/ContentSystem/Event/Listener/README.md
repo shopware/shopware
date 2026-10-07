@@ -28,7 +28,7 @@ After `ContentTreePreparationEvent` is dispatched:
 **After `RenderedTreeFinalizationEvent`**, on the tree the event handed back:
 1. Duplicate-element-id check — rejects a repeated id in the forest the event handed back, again (`CONTENT_SYSTEM__DUPLICATE_ELEMENT_ID`, 500); see [AGENTS.md](AGENTS.md) Constraints for why a listener must not repeat one
 
-So a `ContentTreePreparationEvent` listener always sees the raw loaded tree, and a `RenderedTreeFinalizationEvent` listener always sees the finished one — at any priority. That places the two on opposite sides of language reduction: a preparation listener reads and writes whole language maps in either mode, while a finalization listener reads the reduced plain strings in FULL and no property values at all in SKELETON, and returns a map-free tree either way.
+So a `ContentTreePreparationEvent` listener always sees the raw loaded tree, and a `RenderedTreeFinalizationEvent` listener always sees the finished one — at any priority. That places the two on opposite sides of language reduction: a preparation listener reads and writes whole language maps in either mode, while a finalization listener reads the reduced values in FULL and no property values at all in SKELETON, and returns a map-free tree either way.
 
 ## Priorities
 

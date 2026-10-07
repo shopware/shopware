@@ -38,10 +38,10 @@ Listeners running inside that write (`EntityWriteEvent`, `PreWriteValidationEven
 system scope. `EntityWrittenContainerEvent` subscribers run in system scope on every DAL write already, since
 `EntityRepository` dispatches it inside `Context::scope(Context::SYSTEM_SCOPE, ...)`, so the operation adds no
 exposure there. The shape follows `UserController::updateMe`: a route privilege, a field allowlist (here the
-translatable-key gate) and a system-scope write. Where a loader `PropertyReference` names a translatable property,
-each language-map entry selects the entity that loader loads, so grant the privilege there on the trust terms of
-layout editing. The key gate above confines the operation's own edit. The persisted write, like every layout write,
-passes the whole tree through `Layout/LayoutWriteBoundary`
+translatable-key gate) and a system-scope write. Where a loader `PropertyReference` names a translatable string
+property, each language-map entry selects the entity that loader loads, so grant the privilege there on the trust
+terms of layout editing. The key gate above confines the operation's own edit. The persisted write, like every layout
+write, passes the whole tree through `Layout/LayoutWriteBoundary`
 ([layout write gates](../../docs/layout-write-gates.md)), which seeds absent primitive type defaults, canonicalises
 every element's style and re-derives every element's `attributedSpecifications`, on elements the operation did not
 touch as well.

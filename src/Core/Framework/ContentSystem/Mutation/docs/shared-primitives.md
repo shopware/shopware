@@ -16,7 +16,7 @@ and the ops call them there.
   per-type rule `Layout/Type/PrimitiveDefaultProvider::forType`, shared with `scaffoldElement`, `Op/ReplaceElement`,
   and the write-boundary `Layout/LayoutDefaultSeeder`, so "a type's primitive defaults" is defined once. Each value
   arrives in the shape storage holds rather than as the declared scalar, so a translatable property's default is a
-  single-entry language map under the anchor language and no scaffold produces a bare string for one.
+  single-entry language map under the anchor language and no scaffold produces a bare value for one.
 - `requireRegistered(registry, string $type): void` - throws `ContentSystemException::mutationUnknownType` when the
   type is unregistered.
 - `rejectNonLanguageKeys(string $elementId, string $key, StoredValue $value): void` - throws

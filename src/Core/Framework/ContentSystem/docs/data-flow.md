@@ -14,7 +14,7 @@ graph LR
         B["Placeholder Replacement<br/>{{productId}} → UUID"]
         C["Data Loading<br/>load required entities"]
         D["Context Distribution<br/>share data down the tree"]
-        R -- "plain strings" --> B
+        R -- "reduced values" --> B
         B -- "resolved values" --> C
         C -- "loaded data" --> D
     end

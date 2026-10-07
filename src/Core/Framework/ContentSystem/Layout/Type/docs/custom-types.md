@@ -60,7 +60,7 @@ slots:
 
 **`meta`** (required): `label`, `description` are required. `icon`, `category`, `copilot` are optional.
 
-**`properties`** (optional): Each property declares its type (`string`, `boolean`, `integer`, `number`, or a FQCN for hydrated data). Optional fields: `required`, `translatable` (string only), `enum` (primitives only), `default`, `title`, `description`, `adminUI`, `resolvedBy` (reference properties only — the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)). A property name PHP casts to an integer, such as `12`, is unusable: a stored element rejects an integer property key (`invalidMapKey`), so no value can be stored under it.
+**`properties`** (optional): Each property declares its type (`string`, `boolean`, `integer`, `number`, or a FQCN for hydrated data). Optional fields: `required`, `translatable` (lone primitive only), `enum` (primitives only), `default`, `title`, `description`, `adminUI`, `resolvedBy` (reference properties only — the resolvedBy shorthand, see [Custom Binding Specifications](../../../Binding/docs/custom-specifications.md)). A property name PHP casts to an integer, such as `12`, is unusable: a stored element rejects an integer property key (`invalidMapKey`), so no value can be stored under it.
 
 The default-specification synthesizer runs on every type file, whether or not it declares a `bindings:` key, so a misused `resolvedBy` — for example on a primitive property — fails app install and `manifest:validate` outright.
 

@@ -120,9 +120,15 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         if ($currency === null) {
             throw SalesChannelException::currencyNotFound($currencyId);
         }
+        if ($currency->getId() === $salesChannel->getCurrencyId()) {
+            $salesChannel->setCurrency($currency);
+        }
 
         // load not logged in customer with default shop configuration or with provided checkout scopes
         $shippingLocation = $this->loadShippingLocation($options, $context, $salesChannel);
+        if ($shippingLocation->getCountry()->getId() === $salesChannel->getCountryId()) {
+            $salesChannel->setCountry($shippingLocation->getCountry());
+        }
 
         $groupId = $salesChannel->getCustomerGroupId();
 
@@ -133,15 +139,22 @@ class BaseSalesChannelContextFactory extends AbstractBaseSalesChannelContextFact
         if ($customerGroup === null) {
             throw SalesChannelException::customerGroupNotFound($groupId);
         }
+        $salesChannel->setCustomerGroup($customerGroup);
 
         // loads tax rules based on active customer and delivery address
         $taxRules = $this->getTaxRules($context);
 
         // detect active payment method, first check if checkout defined other payment method, otherwise validate if customer logged in, at least use shop default
         $payment = $this->getPaymentMethod($options, $context, $salesChannel);
+        if ($payment->getId() === $salesChannel->getPaymentMethodId()) {
+            $salesChannel->setPaymentMethod($payment);
+        }
 
         // detect active delivery method, at first checkout scope, at least shop default method
         $shippingMethod = $this->getShippingMethod($options, $context, $salesChannel);
+        if ($shippingMethod->getId() === $salesChannel->getShippingMethodId()) {
+            $salesChannel->setShippingMethod($shippingMethod);
+        }
 
         [$itemRounding, $totalRounding] = $this->getCashRounding($currency, $shippingLocation, $context);
 

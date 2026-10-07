@@ -2,6 +2,30 @@
 <sw-container class="product-deliverability-downloadable-form">
 
     <sw-inherit-wrapper
+        v-if="showModeSetting"
+        v-model:value="product.deliveryTimeId"
+        :inherited-value="parentProduct.deliveryTimeId"
+        :has-parent="!!parentProduct.id"
+        :label="$t('sw-product.settingsForm.labelDeliveryTime')"
+    >
+        <template #content="{ currentValue, updateCurrentValue, isInherited }">
+
+            <sw-entity-single-select
+                id="deliveryTimeId"
+                :key="isInherited"
+                :value="currentValue"
+                entity="delivery_time"
+                :disabled="isInherited || disabled"
+                class="product-deliverability-downloadable-form__delivery-time"
+                :error="productDeliveryTimeIdError"
+                :placeholder="$t('sw-product.settingsForm.placeholderDeliveryTime')"
+                show-clearable-button
+                @update:value="updateCurrentValue"
+            />
+        </template>
+    </sw-inherit-wrapper>
+
+    <sw-inherit-wrapper
         v-model:value="product.isCloseout"
         :has-parent="!!parentProduct.id"
         :inherited-value="parentProduct.isCloseout"
@@ -54,37 +78,26 @@
 
     </sw-container>
 
-    <sw-inherit-wrapper
+    {% block sw_product_deliverability_downloadable_form_order_quantity_switch %}
+    <mt-switch
         v-if="showModeSetting"
-        v-model:value="product.deliveryTimeId"
-        :inherited-value="parentProduct.deliveryTimeId"
-        :has-parent="!!parentProduct.id"
-        :label="$t('sw-product.settingsForm.labelDeliveryTime')"
-    >
-        <template #content="{ currentValue, updateCurrentValue, isInherited }">
-
-            <sw-entity-single-select
-                id="deliveryTimeId"
-                :key="isInherited"
-                :value="currentValue"
-                entity="delivery_time"
-                :disabled="isInherited || disabled"
-                class="product-deliverability-downloadable-form__delivery-time"
-                :error="productDeliveryTimeIdError"
-                :placeholder="$t('sw-product.settingsForm.placeholderDeliveryTime')"
-                show-clearable-button
-                @update:value="updateCurrentValue"
-            />
-        </template>
-    </sw-inherit-wrapper>
+        class="product-deliverability-downloadable-form__order-quantity-switch"
+        name="sw-field--product-allow-multiple-units"
+        :label="$t('sw-product.settingsForm.labelAllowMultipleUnits')"
+        :help-text="$t('sw-product.settingsForm.helpTextAllowMultipleUnits')"
+        :disabled="disabled"
+        :model-value="showOrderQuantitySetting"
+        @update:model-value="onOrderQuantitySwitchInput"
+    />
+    {% endblock %}
 
     <sw-container
+        v-if="showModeSetting && showOrderQuantitySetting"
         columns="1fr 1fr 1fr"
         gap="0 var(--scale-size-30)"
     >
         {% block sw_product_deliverability_downloadable_form_min_purchase_field %}
         <sw-inherit-wrapper
-            v-if="showModeSetting"
             v-model:value="product.minPurchase"
             class="product-deliverability-downloadable-form__min-purchase"
             :has-parent="!!parentProduct.id"
@@ -113,7 +126,6 @@
 
         {% block sw_product_deliverability_downloadable_form_purchase_steps_field %}
         <sw-inherit-wrapper
-            v-if="showModeSetting"
             v-model:value="product.purchaseSteps"
             class="product-deliverability-downloadable-form__purchase-steps"
             :has-parent="!!parentProduct.id"
@@ -142,7 +154,6 @@
 
         {% block sw_product_deliverability_downloadable_form_max_purchase_field %}
         <sw-inherit-wrapper
-            v-if="showModeSetting"
             v-model:value="product.maxPurchase"
             class="product-deliverability-downloadable-form__max-purchase"
             :has-parent="!!parentProduct.id"

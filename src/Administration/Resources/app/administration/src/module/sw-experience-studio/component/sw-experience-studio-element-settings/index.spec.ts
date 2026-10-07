@@ -141,6 +141,57 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
         });
     });
 
+    it('presents the stored boolean anchor entry of a translatable boolean property to its switch control', () => {
+        const values = computed.elementPropertyValues.call({
+            selectedElement: {
+                properties: {
+                    showTitle: {
+                        [ANCHOR_LANGUAGE_ID]: true,
+                    },
+                },
+            },
+            selectedElementType: {
+                properties: {
+                    showTitle: {
+                        type: 'boolean',
+                        translatable: true,
+                        default: false,
+                    },
+                },
+            },
+        });
+
+        expect(values).toEqual({
+            showTitle: true,
+        });
+    });
+
+    it('presents the stored numeric anchor entry of a translatable number property to its number control', () => {
+        const values = computed.elementPropertyValues.call({
+            selectedElement: {
+                properties: {
+                    columns: {
+                        [GERMAN_LANGUAGE_ID]: 2,
+                        [ANCHOR_LANGUAGE_ID]: 4,
+                    },
+                },
+            },
+            selectedElementType: {
+                properties: {
+                    columns: {
+                        type: 'integer',
+                        translatable: true,
+                        default: 3,
+                    },
+                },
+            },
+        });
+
+        expect(values).toEqual({
+            columns: 4,
+        });
+    });
+
     it('leaves a translatable property without an anchor chain entry absent so the declared default still applies', () => {
         const values = computed.elementPropertyValues.call({
             selectedElement: {
@@ -213,6 +264,53 @@ describe('module/sw-experience-studio/component/sw-experience-studio-element-set
                         },
                     },
                 },
+                breakpointAware: false,
+            },
+        ]);
+    });
+
+    it('resolves a translatable boolean property to its boolean entry when evaluating field visibility', () => {
+        const showTitle = {
+            type: 'boolean',
+            translatable: true,
+            default: false,
+        };
+        const title = {
+            type: 'string',
+            translatable: false,
+            adminUI: {
+                visibleWhen: {
+                    field: 'showTitle',
+                    equals: true,
+                },
+            },
+        };
+
+        const fields = computed.elementFields.call({
+            selectedElement: {
+                properties: {
+                    showTitle: {
+                        [ANCHOR_LANGUAGE_ID]: true,
+                    },
+                },
+            },
+            selectedElementType: {
+                properties: {
+                    showTitle,
+                    title,
+                },
+            },
+        });
+
+        expect(fields).toEqual([
+            {
+                key: 'showTitle',
+                property: showTitle,
+                breakpointAware: false,
+            },
+            {
+                key: 'title',
+                property: title,
                 breakpointAware: false,
             },
         ]);

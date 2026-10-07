@@ -14,7 +14,7 @@ import { getEditableStyleFields } from '../../util/style-settings.util';
 import template from './sw-experience-studio-element-settings.html.twig';
 import './sw-experience-studio-element-settings.scss';
 
-function projectTranslatableValue(value: unknown): string | undefined {
+function projectTranslatableValue(value: unknown): string | number | boolean | undefined {
     return resolveTranslatableEntry(value, editingLanguageChain());
 }
 

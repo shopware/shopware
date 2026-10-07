@@ -180,6 +180,25 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         expect(textValue).toBe('');
     });
 
+    it('throws when the anchor chain entry of a translatable text property is not a string', () => {
+        const vm = {
+            elementTypeStore: elementTypeStoreFor(true),
+            isTranslatableProperty: methods.isTranslatableProperty,
+        };
+
+        expect(() =>
+            methods.getElementTextValue.call(vm, {
+                id: 'element-1',
+                component: 'Sw:Content:Text',
+                properties: {
+                    text: {
+                        [ANCHOR_LANGUAGE_ID]: 42,
+                    },
+                },
+            }),
+        ).toThrow('The translatable property "text" must hold a string entry, received number.');
+    });
+
     it('reads the scalar value of a non-translatable text property', () => {
         const vm = {
             elementTypeStore: elementTypeStoreFor(false),
@@ -369,7 +388,67 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         expect(vm.selectedElementId).toBe('element-1');
     });
 
-    it('sends a non-string settings value of a translatable property unwrapped so the write route rejects it', async () => {
+    it('sends a boolean settings value of a translatable property as an update-properties mutation carrying the anchor map', async () => {
+        const element: ContentElementNode = {
+            id: 'element-1',
+            component: 'Sw:Content:Headline',
+            properties: {
+                showTitle: {
+                    [ANCHOR_LANGUAGE_ID]: true,
+                    [GERMAN_LANGUAGE_ID]: true,
+                },
+            },
+        };
+        const requestDraftMutation = jest.fn().mockResolvedValue(mutationResponse([element]));
+        const vm = draftMutationVm(element, requestDraftMutation, 'showTitle');
+
+        await methods.onElementSettingsChange.call(vm, {
+            elementId: 'element-1',
+            propertyKey: 'showTitle',
+            value: false,
+        });
+
+        expect(requestDraftMutation).toHaveBeenCalledWith('update-properties', [element], {
+            elementId: 'element-1',
+            values: {
+                showTitle: {
+                    [ANCHOR_LANGUAGE_ID]: false,
+                    [GERMAN_LANGUAGE_ID]: true,
+                },
+            },
+        });
+    });
+
+    it('sends a number settings value of a translatable property as an update-properties mutation carrying the anchor map', async () => {
+        const element: ContentElementNode = {
+            id: 'element-1',
+            component: 'Sw:Product:Slider',
+            properties: {
+                columns: {
+                    [ANCHOR_LANGUAGE_ID]: 4,
+                },
+            },
+        };
+        const requestDraftMutation = jest.fn().mockResolvedValue(mutationResponse([element]));
+        const vm = draftMutationVm(element, requestDraftMutation, 'columns');
+
+        await methods.onElementSettingsChange.call(vm, {
+            elementId: 'element-1',
+            propertyKey: 'columns',
+            value: 2,
+        });
+
+        expect(requestDraftMutation).toHaveBeenCalledWith('update-properties', [element], {
+            elementId: 'element-1',
+            values: {
+                columns: {
+                    [ANCHOR_LANGUAGE_ID]: 2,
+                },
+            },
+        });
+    });
+
+    it('throws on an object settings value of a translatable property without sending a mutation', async () => {
         const element: ContentElementNode = {
             id: 'element-1',
             component: 'Sw:Media:Image',
@@ -379,21 +458,17 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
                 },
             },
         };
-        const requestDraftMutation = jest.fn().mockResolvedValue(mutationResponse([element]));
+        const requestDraftMutation = jest.fn();
         const vm = draftMutationVm(element, requestDraftMutation, 'caption');
 
-        await methods.onElementSettingsChange.call(vm, {
-            elementId: 'element-1',
-            propertyKey: 'caption',
-            value: 42,
-        });
-
-        expect(requestDraftMutation).toHaveBeenCalledWith('update-properties', [element], {
-            elementId: 'element-1',
-            values: {
-                caption: 42,
-            },
-        });
+        await expect(
+            methods.onElementSettingsChange.call(vm, {
+                elementId: 'element-1',
+                propertyKey: 'caption',
+                value: { text: 'Caption updated' },
+            }),
+        ).rejects.toThrow('The translatable property "caption" takes a string, number or boolean value, received object.');
+        expect(requestDraftMutation).not.toHaveBeenCalled();
     });
 
     it('applies a settings change of a non-translatable property to the local layout', async () => {

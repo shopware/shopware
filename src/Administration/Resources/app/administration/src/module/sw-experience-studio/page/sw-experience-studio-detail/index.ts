@@ -908,11 +908,13 @@ export default Shopware.Component.wrapComponentConfig({
             value: unknown,
         ): Promise<DraftMutationOutcome> {
             if (this.isTranslatableProperty(element.component, propertyKey)) {
-                // A non-string control value cannot be a language-map entry; it travels raw so the write route rejects it.
-                const entryValue =
-                    typeof value === 'string'
-                        ? withLanguageEntry(element.properties?.[propertyKey], editingLanguageChain()[0], value)
-                        : value;
+                if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
+                    throw new Error(
+                        `The translatable property "${propertyKey}" takes a string, number or boolean value, received ${value === null ? 'null' : typeof value}.`,
+                    );
+                }
+
+                const entryValue = withLanguageEntry(element.properties?.[propertyKey], editingLanguageChain()[0], value);
 
                 return this.executeStructuralDraftMutation(
                     'update-properties',
@@ -1219,7 +1221,17 @@ export default Shopware.Component.wrapComponentConfig({
             const storedValue = element.properties?.text;
 
             if (this.isTranslatableProperty(element.component, 'text')) {
-                return resolveTranslatableEntry(storedValue, editingLanguageChain()) ?? '';
+                const entry = resolveTranslatableEntry(storedValue, editingLanguageChain());
+
+                if (entry === undefined) {
+                    return '';
+                }
+
+                if (typeof entry !== 'string') {
+                    throw new Error(`The translatable property "text" must hold a string entry, received ${typeof entry}.`);
+                }
+
+                return entry;
             }
 
             return typeof storedValue === 'string' ? storedValue : '';

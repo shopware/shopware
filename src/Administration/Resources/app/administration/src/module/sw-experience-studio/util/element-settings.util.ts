@@ -86,24 +86,33 @@ export function getElementPropertyStorageKey(
 }
 
 /**
- * Resolves a translatable property value along a language chain in serving order,
- * returning the first chain language carrying an entry, or `undefined` when none does.
- *
- * A value that is neither `undefined` nor a non-empty map of string entries
- * throws: neither the server nor the write gate produces such a value on a
- * translatable property, so meeting one is a fault rather than a missing entry.
+ * A translatable property value: a map from language id to a string, number or boolean entry.
  *
  * @private
  * @sw-package discovery
  */
-export function resolveTranslatableEntry(value: unknown, chain: readonly string[]): string | undefined {
+export type LanguageMap = Record<string, string | number | boolean>;
+
+/**
+ * Resolves a translatable property value along a language chain in serving order,
+ * returning the first chain language carrying an entry, or `undefined` when none does.
+ *
+ * A value that is neither `undefined` nor a non-empty map of string, number or
+ * boolean entries throws: neither the server nor the write gate produces such a
+ * value on a translatable property, so meeting one is a fault rather than a
+ * missing entry.
+ *
+ * @private
+ * @sw-package discovery
+ */
+export function resolveTranslatableEntry(value: unknown, chain: readonly string[]): string | number | boolean | undefined {
     if (value === undefined) {
         return undefined;
     }
 
-    if (!isStringLanguageMap(value)) {
+    if (!isLanguageMap(value)) {
         throw new Error(
-            `A translatable property value must be undefined or a non-empty language map of strings, received ${describeTranslatableValue(value)}.`,
+            `A translatable property value must be undefined or a non-empty language map of primitive values, received ${describeTranslatableValue(value)}.`,
         );
     }
 
@@ -121,29 +130,33 @@ export function resolveTranslatableEntry(value: unknown, chain: readonly string[
 /**
  * Sets the entry of one language, or removes it when `entry` is `null`.
  *
- * Every other entry travels verbatim, a non-string entry included: the write
- * route judges the carried values. Removing the anchor entry throws, since no
+ * Every other entry travels verbatim; the write route judges whether an entry
+ * matches the declared property type. Removing the anchor entry throws, since no
  * studio action offers it. A `current` that is neither `undefined` nor a
- * language map throws, the strictness the reader already holds.
+ * non-empty map of string, number or boolean entries throws, the strictness the
+ * reader already holds.
  *
  * @private
  * @sw-package discovery
  */
-export function withLanguageEntry(current: unknown, languageId: string, entry: string | null): Record<string, unknown> {
+export function withLanguageEntry(
+    current: unknown,
+    languageId: string,
+    entry: string | number | boolean | null,
+): LanguageMap {
     if (entry === null && languageId === anchorLanguageId()) {
         throw new Error('The anchor language entry of a translatable property cannot be removed.');
     }
 
-    let languageMap: Record<string, unknown> = {};
+    let languageMap: LanguageMap = {};
 
     if (current !== undefined) {
         if (!isLanguageMap(current)) {
             throw new Error(
-                `A translatable property value must be undefined or a non-empty language map of strings, received ${describeTranslatableValue(current)}.`,
+                `A translatable property value must be undefined or a non-empty language map of primitive values, received ${describeTranslatableValue(current)}.`,
             );
         }
 
-        // A non-string entry the server has to judge travels here too, so the map is not narrowed to strings.
         languageMap = { ...current };
     }
 
@@ -298,21 +311,17 @@ export function editingLanguageChain(): readonly [string, ...string[]] {
     return [anchorLanguageId()];
 }
 
-/**
- * @private
- */
-export function isLanguageMap(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function isStringLanguageMap(value: unknown): value is Record<string, string> {
-    if (!isLanguageMap(value)) {
+function isLanguageMap(value: unknown): value is LanguageMap {
+    if (typeof value !== 'object' || value === null || Array.isArray(value)) {
         return false;
     }
 
     const entries = Object.values(value);
 
-    return entries.length > 0 && entries.every((entry) => typeof entry === 'string');
+    return (
+        entries.length > 0 &&
+        entries.every((entry) => typeof entry === 'string' || typeof entry === 'number' || typeof entry === 'boolean')
+    );
 }
 
 function describeTranslatableValue(value: unknown): string {
@@ -324,7 +333,7 @@ function describeTranslatableValue(value: unknown): string {
         return 'an array';
     }
 
-    return typeof value === 'object' ? 'an object that is not a map of string entries' : `a ${typeof value}`;
+    return typeof value === 'object' ? 'an object that is not a map of primitive entries' : `a ${typeof value}`;
 }
 
 function propertyHasType(property: ContentSystemElementTypeProperty, type: string): boolean {

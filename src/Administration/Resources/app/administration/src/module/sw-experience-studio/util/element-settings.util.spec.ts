@@ -629,6 +629,64 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         expect(resolveTranslatableEntry(undefined, LANGUAGE_CHAIN)).toBeUndefined();
     });
 
+    it.each([
+        [
+            'boolean',
+            false,
+            true,
+        ],
+        [
+            'number',
+            3,
+            12,
+        ],
+    ])('returns the earliest chain language %s entry', (_label, earlierEntry, laterEntry) => {
+        expect(
+            resolveTranslatableEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: laterEntry,
+                    [GERMAN_LANGUAGE_ID]: earlierEntry,
+                },
+                LANGUAGE_CHAIN,
+            ),
+        ).toBe(earlierEntry);
+    });
+
+    it('resolves a map mixing string and boolean entries per language', () => {
+        const value = {
+            [ANCHOR_LANGUAGE_ID]: true,
+            [GERMAN_LANGUAGE_ID]: 'ja',
+        };
+
+        expect(resolveTranslatableEntry(value, LANGUAGE_CHAIN)).toBe('ja');
+        expect(resolveTranslatableEntry(value, [ANCHOR_LANGUAGE_ID])).toBe(true);
+    });
+
+    it.each([
+        [
+            'a null entry',
+            null,
+        ],
+        [
+            'an object entry',
+            { value: 'Hello' },
+        ],
+        [
+            'an array entry',
+            ['Hello'],
+        ],
+    ])('throws when the language map carries %s', (_label, entry) => {
+        expect(() =>
+            resolveTranslatableEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: 'Hello',
+                    [GERMAN_LANGUAGE_ID]: entry,
+                },
+                LANGUAGE_CHAIN,
+            ),
+        ).toThrow(/must be undefined or a non-empty language map of primitive values/);
+    });
+
     it('exposes the anchor language id as the language a write targets', () => {
         expect(anchorLanguageId()).toBe(ANCHOR_LANGUAGE_ID);
     });
@@ -648,7 +706,7 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         ],
     ])('throws when resolving %s instead of a language map', (_label, value) => {
         expect(() => resolveTranslatableEntry(value, LANGUAGE_CHAIN)).toThrow(
-            /must be undefined or a non-empty language map of strings/,
+            /must be undefined or a non-empty language map of primitive values/,
         );
     });
 
@@ -682,8 +740,47 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         ).toEqual({ [ANCHOR_LANGUAGE_ID]: 'Hello' });
     });
 
-    it('carries a non-string entry verbatim so the write route judges it', () => {
+    it.each([
+        [
+            'boolean',
+            false,
+        ],
+        [
+            'number',
+            0,
+        ],
+    ])('sets a %s entry of the given language and keeps every other entry', (_label, entry) => {
         expect(
+            withLanguageEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: true,
+                    [FRENCH_LANGUAGE_ID]: 'oui',
+                },
+                GERMAN_LANGUAGE_ID,
+                entry,
+            ),
+        ).toEqual({
+            [ANCHOR_LANGUAGE_ID]: true,
+            [FRENCH_LANGUAGE_ID]: 'oui',
+            [GERMAN_LANGUAGE_ID]: entry,
+        });
+    });
+
+    it('removes a boolean entry of the given language when the entry is null', () => {
+        expect(
+            withLanguageEntry(
+                {
+                    [ANCHOR_LANGUAGE_ID]: true,
+                    [GERMAN_LANGUAGE_ID]: false,
+                },
+                GERMAN_LANGUAGE_ID,
+                null,
+            ),
+        ).toEqual({ [ANCHOR_LANGUAGE_ID]: true });
+    });
+
+    it('throws when writing over a language map carrying a null entry', () => {
+        expect(() =>
             withLanguageEntry(
                 {
                     [ANCHOR_LANGUAGE_ID]: 'Hello',
@@ -692,10 +789,7 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
                 ANCHOR_LANGUAGE_ID,
                 'Hello again',
             ),
-        ).toEqual({
-            [ANCHOR_LANGUAGE_ID]: 'Hello again',
-            [GERMAN_LANGUAGE_ID]: null,
-        });
+        ).toThrow(/must be undefined or a non-empty language map of primitive values/);
     });
 
     it('writes a single-entry language map over an undefined current value', () => {
@@ -719,7 +813,7 @@ describe('module/sw-experience-studio/util/element-settings.util', () => {
         ],
     ])('throws when writing over %s instead of a language map', (_label, current) => {
         expect(() => withLanguageEntry(current, ANCHOR_LANGUAGE_ID, 'Hello again')).toThrow(
-            /must be undefined or a non-empty language map of strings/,
+            /must be undefined or a non-empty language map of primitive values/,
         );
     });
 

@@ -66,6 +66,39 @@ describe('module/sw-experience-studio/util/content-element-label.util', () => {
         ).toBe('Slider');
     });
 
+    it.each([
+        [
+            'boolean',
+            true,
+        ],
+        [
+            'number',
+            42,
+        ],
+    ])('skips a key whose language map resolves to a %s entry', (_label, entry) => {
+        expect(
+            getContentElementLabel(
+                makeElement({
+                    name: { [ANCHOR_LANGUAGE_ID]: entry },
+                    title: 'Fallback title',
+                }),
+                ANCHOR_CHAIN,
+            ),
+        ).toBe('Fallback title');
+    });
+
+    it('throws when a label key carries a language map with a null entry', () => {
+        expect(() =>
+            getContentElementLabel(
+                makeElement({
+                    name: { [ANCHOR_LANGUAGE_ID]: null },
+                    title: 'Fallback title',
+                }),
+                ANCHOR_CHAIN,
+            ),
+        ).toThrow(/must be undefined or a non-empty language map of primitive values/);
+    });
+
     it('returns a bare string property as the label', () => {
         expect(getContentElementLabel(makeElement({ name: 'Headline' }), ANCHOR_CHAIN)).toBe('Headline');
     });

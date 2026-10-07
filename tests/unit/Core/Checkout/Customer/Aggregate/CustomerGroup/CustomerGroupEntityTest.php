@@ -24,6 +24,9 @@ class CustomerGroupEntityTest extends TestCase
         static::assertSame(CustomerGroupEntity::PRICE_BASIS_NET, $customerGroup->getPriceBasis());
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Will be removed together with the v6.8.0.0 feature flag.
+     */
     public function testSetPriceBasisRejectsNullWithTheMajor(): void
     {
         $this->expectExceptionObject(FeatureException::error(

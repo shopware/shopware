@@ -20,6 +20,11 @@ use Symfony\Contracts\Service\ResetInterface;
 #[Package('framework')]
 class HtmlSanitizer implements ResetInterface
 {
+    private const LINK_TARGET_REL_OPTIONS = [
+        'HTML.TargetNoreferrer' => 'noreferrer',
+        'HTML.TargetNoopener' => 'noopener',
+    ];
+
     /**
      * @var \HTMLPurifier[]
      */
@@ -141,6 +146,7 @@ class HtmlSanitizer implements ResetInterface
 
         $allowedElements = [];
         $allowedAttributes = [];
+        $linkTargetRels = array_fill_keys(self::LINK_TARGET_REL_OPTIONS, true);
         $customAttributes = [];
         $customTags = [];
 
@@ -187,6 +193,12 @@ class HtmlSanitizer implements ResetInterface
                             $value = $value['values'];
                         }
 
+                        if (isset(self::LINK_TARGET_REL_OPTIONS[$key])) {
+                            $linkTargetRels[self::LINK_TARGET_REL_OPTIONS[$key]] = (bool) $value;
+
+                            continue;
+                        }
+
                         $config->set($key, $value);
                     }
                 }
@@ -196,6 +208,9 @@ class HtmlSanitizer implements ResetInterface
         $config->set('HTML.AllowedElements', $allowedElements);
         $config->set('HTML.AllowedAttributes', $allowedAttributes);
 
+        $config->set('HTML.TargetNoreferrer', false);
+        $config->set('HTML.TargetNoopener', false);
+
         $definition = $config->getHTMLDefinition(true);
 
         if (!$definition instanceof \HTMLPurifier_HTMLDefinition) {
@@ -203,6 +218,7 @@ class HtmlSanitizer implements ResetInterface
         }
 
         $this->addHTML5Tags($definition);
+        $this->addLinkTargetRelTransform($definition, array_keys(array_filter($linkTargetRels)));
 
         $manager = $definition->manager;
         if (!$manager instanceof \HTMLPurifier_HTMLModuleManager) {
@@ -228,6 +244,22 @@ class HtmlSanitizer implements ResetInterface
         }
 
         return $config;
+    }
+
+    /**
+     * @param list<string> $rels
+     */
+    private function addLinkTargetRelTransform(\HTMLPurifier_HTMLDefinition $definition, array $rels): void
+    {
+        if ($rels === []) {
+            return;
+        }
+
+        $module = $definition->getAnonymousModule();
+        $link = $module->info['a'] ?? $module->addBlankElement('a');
+        \assert($link instanceof \HTMLPurifier_ElementDef);
+
+        $link->attr_transform_post[] = new LinkTargetRelAttrTransform($rels);
     }
 
     private function addHTML5Tags(\HTMLPurifier_HTMLDefinition $definition): void

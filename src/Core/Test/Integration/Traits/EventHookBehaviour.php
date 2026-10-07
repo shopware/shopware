@@ -31,11 +31,11 @@ trait EventHookBehaviour
     }
 
     /**
-     * The hook receives the event, its name and the dispatcher.
+     * The hook receives the event, its name and the dispatcher. With `$once`, it is removed after its first call.
      */
-    protected function onEvent(string $eventName, callable $hook): void
+    protected function onEvent(string $eventName, callable $hook, bool $once = false): void
     {
-        $this->eventHookDispatcher()->on($eventName, $hook);
+        $this->eventHookDispatcher()->on($eventName, $hook, $once);
     }
 
     /**

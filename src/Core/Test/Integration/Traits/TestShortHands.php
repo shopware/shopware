@@ -32,6 +32,7 @@ use Shopware\Core\Test\TestDefaults;
  */
 trait TestShortHands
 {
+    use EventHookBehaviour;
     use KernelTestBehaviour;
 
     /**
@@ -149,13 +150,11 @@ trait TestShortHands
 
         $listener = new MailEventListener($mapping);
 
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
-        $dispatcher->addListener(FlowSendMailActionEvent::class, $listener);
+        $this->onEvent(FlowSendMailActionEvent::class, $listener);
 
         $result = $closure($listener);
 
-        $dispatcher->removeListener(FlowSendMailActionEvent::class, $listener);
+        $this->removeEventHook(FlowSendMailActionEvent::class, $listener);
 
         return $result;
     }

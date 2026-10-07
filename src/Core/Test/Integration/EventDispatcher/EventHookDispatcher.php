@@ -30,9 +30,19 @@ final class EventHookDispatcher implements EventDispatcherInterface
     {
     }
 
-    public function on(string $eventName, callable $hook): void
+    public function on(string $eventName, callable $hook, bool $once = false): void
     {
-        $this->hooks[$eventName][] = $hook;
+        if (!$once) {
+            $this->hooks[$eventName][] = $hook;
+
+            return;
+        }
+
+        $onceHook = function (object $event, string $name, self $dispatcher) use ($eventName, $hook, &$onceHook): void {
+            $this->off($eventName, $onceHook);
+            $hook($event, $name, $dispatcher);
+        };
+        $this->hooks[$eventName][] = $onceHook;
     }
 
     public function off(string $eventName, callable $hook): void

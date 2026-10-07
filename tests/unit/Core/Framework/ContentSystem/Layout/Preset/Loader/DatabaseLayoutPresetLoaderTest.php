@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\LayoutPresetPayloadCompiler;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Loader\DatabaseLayoutPresetLoader;
 use Shopware\Core\Framework\ContentSystem\Layout\Preset\Serialization\LayoutPresetSpecificationSerializer;
@@ -27,65 +27,111 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->never())->method('fetchAllAssociative');
 
-        static::assertSame([], $this->loader($connection, 'dev', static::createStub(LoggerInterface::class))->load());
+        static::assertSame([], $this->loader($connection, 'dev')->load());
     }
 
     #[TestDox('builds a compiled specification from each active-app row in prod')]
     public function testProdBuildsSpecsFromRows(): void
     {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
+        $presets = $this->loader($this->connectionWithRows([
             ['name' => 'MyApp:Hero', 'schema' => '{"name":"Hero","description":"A hero.","icon":"regular-star","layout":[]}', 'app_name' => 'MyApp'],
-        ]);
-
-        $presets = $this->loader($connection, 'prod', static::createStub(LoggerInterface::class))->load();
+        ]), 'prod')->load();
 
         static::assertCount(1, $presets);
         static::assertSame('MyApp:Hero', $presets[0]->id);
         static::assertSame('Hero', $presets[0]->name);
     }
 
-    #[TestDox('skips and logs a row whose stored data is not valid JSON')]
-    public function testSkipsInvalidJson(): void
+    #[TestDox('aborts the load on a row whose stored data is not valid JSON')]
+    public function testInvalidJsonAbortsLoad(): void
     {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
+        $loader = $this->loader($this->connectionWithRows([
             ['name' => 'MyApp:Broken', 'schema' => '{ not json', 'app_name' => 'MyApp'],
-        ]);
+        ]), 'prod');
 
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())->method('warning');
-
-        static::assertSame([], $this->loader($connection, 'prod', $logger)->load());
+        try {
+            $loader->load();
+            static::fail('Expected the load to abort.');
+        } catch (ContentSystemException $e) {
+            static::assertSame(ContentSystemException::LAYOUT_PRESET_LOAD_FAILED, $e->getErrorCode());
+            static::assertSame('Failed to load layout preset from "app:MyApp:MyApp:Broken": Invalid JSON data: Syntax error', $e->getMessage());
+            static::assertInstanceOf(\JsonException::class, $e->getPrevious());
+        }
     }
 
-    #[TestDox('skips and logs a row that fails validation, keeping the rest')]
-    public function testSkipsInvalidRow(): void
+    #[TestDox('aborts the load on a row whose stored data is valid JSON but not an array')]
+    public function testNonArrayDataAbortsLoad(): void
     {
-        $connection = static::createStub(Connection::class);
-        $connection->method('fetchAllAssociative')->willReturn([
+        $loader = $this->loader($this->connectionWithRows([
+            ['name' => 'MyApp:Scalar', 'schema' => '"just a string"', 'app_name' => 'MyApp'],
+        ]), 'prod');
+
+        try {
+            $loader->load();
+            static::fail('Expected the load to abort.');
+        } catch (ContentSystemException $e) {
+            static::assertSame(ContentSystemException::LAYOUT_PRESET_LOAD_FAILED, $e->getErrorCode());
+            static::assertSame('Failed to load layout preset from "app:MyApp:MyApp:Scalar": Persisted data must decode to an array/map, got string', $e->getMessage());
+        }
+    }
+
+    #[TestDox('aborts the load on a row that fails validation, without keeping the rest')]
+    public function testInvalidRowAbortsLoad(): void
+    {
+        $loader = $this->loader($this->connectionWithRows([
             ['name' => 'MyApp:Bad', 'schema' => '{"layout":[]}', 'app_name' => 'MyApp'],
             ['name' => 'MyApp:Good', 'schema' => '{"name":"Good","description":"Good preset.","icon":"regular-star","layout":[]}', 'app_name' => 'MyApp'],
-        ]);
+        ]), 'prod');
 
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->once())->method('warning');
-
-        $presets = $this->loader($connection, 'prod', $logger)->load();
-
-        static::assertCount(1, $presets);
-        static::assertSame('MyApp:Good', $presets[0]->id);
+        try {
+            $loader->load();
+            static::fail('Expected the load to abort.');
+        } catch (ContentSystemException $e) {
+            static::assertSame(ContentSystemException::LAYOUT_PRESETS_INVALID, $e->getErrorCode());
+            static::assertStringContainsString('Layout preset validation failed: ', $e->getMessage());
+            static::assertStringContainsString('MyApp:Bad', $e->getMessage());
+            static::assertStringNotContainsString('MyApp:Good', $e->getMessage());
+        }
     }
 
-    private function loader(Connection $connection, string $environment, LoggerInterface $logger): DatabaseLayoutPresetLoader
+    #[TestDox('aborts the load when compiling a row fails, instead of dropping the preset')]
+    public function testCompilerFailureAbortsLoad(): void
     {
+        $failure = new \RuntimeException('element type registry unavailable');
+        $compiler = static::createStub(LayoutPresetPayloadCompiler::class);
+        $compiler->method('compile')->willThrowException($failure);
+
+        $loader = $this->loader($this->connectionWithRows([
+            ['name' => 'MyApp:Hero', 'schema' => '{"name":"Hero","description":"A hero.","icon":"regular-star","layout":[]}', 'app_name' => 'MyApp'],
+        ]), 'prod', $compiler);
+
+        $this->expectExceptionObject($failure);
+
+        $loader->load();
+    }
+
+    /**
+     * @param list<array{name: string, schema: string, app_name: string}> $rows
+     */
+    private function connectionWithRows(array $rows): Connection
+    {
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturn($rows);
+
+        return $connection;
+    }
+
+    private function loader(
+        Connection $connection,
+        string $environment,
+        ?LayoutPresetPayloadCompiler $compiler = null,
+    ): DatabaseLayoutPresetLoader {
         return new DatabaseLayoutPresetLoader(
             new LayoutPresetSpecificationSerializer(),
-            static::createStub(LayoutPresetPayloadCompiler::class),
+            $compiler ?? static::createStub(LayoutPresetPayloadCompiler::class),
             $this->validator(),
             $connection,
             $environment,
-            $logger,
         );
     }
 

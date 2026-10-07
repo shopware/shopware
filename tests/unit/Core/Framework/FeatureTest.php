@@ -151,7 +151,6 @@ class FeatureTest extends TestCase
                 'name' => 'Feature 1',
                 'default' => true,
                 'active' => false,
-                'major' => false,
                 'description' => 'This is a test feature',
             ],
         ]);
@@ -297,7 +296,7 @@ class FeatureTest extends TestCase
         $this->setEnvVars(['TESTS_RUNNING' => false]);
 
         Feature::resetRegisteredFeatures();
-        Feature::registerFeature('v6.5.0.0', ['major' => true]);
+        Feature::registerFeature('v6.5.0.0');
 
         Feature::triggerDeprecationOrThrow('v6.6.0.0', 'test', silentUntil: 'v6.5.0.0');
     }
@@ -312,8 +311,8 @@ class FeatureTest extends TestCase
         $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_5_0_0' => true, 'V6_6_0_0' => false]);
 
         Feature::resetRegisteredFeatures();
-        Feature::registerFeature('v6.5.0.0', ['major' => true]);
-        Feature::registerFeature('v6.6.0.0', ['major' => true]);
+        Feature::registerFeature('v6.5.0.0');
+        Feature::registerFeature('v6.6.0.0');
 
         Feature::triggerDeprecationOrThrow('v6.6.0.0', 'test', silentUntil: 'v6.5.0.0');
     }
@@ -328,7 +327,7 @@ class FeatureTest extends TestCase
         $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_5_0_0' => true]);
 
         Feature::resetRegisteredFeatures();
-        Feature::registerFeature('v6.5.0.0', ['major' => true]);
+        Feature::registerFeature('v6.5.0.0');
 
         Feature::triggerDeprecationOrThrow('v6.6.0.0', 'test', silentUntil: 'v6.5.0.0');
     }
@@ -341,8 +340,8 @@ class FeatureTest extends TestCase
         $this->setEnvVars(['TESTS_RUNNING' => false, 'V6_5_0_0' => true, 'V6_6_0_0' => true]);
 
         Feature::resetRegisteredFeatures();
-        Feature::registerFeature('v6.5.0.0', ['major' => true]);
-        Feature::registerFeature('v6.6.0.0', ['major' => true]);
+        Feature::registerFeature('v6.5.0.0');
+        Feature::registerFeature('v6.6.0.0');
 
         $this->expectExceptionObject(FeatureException::error('Tried to access deprecated functionality: test'));
         Feature::triggerDeprecationOrThrow('v6.6.0.0', 'test', silentUntil: 'v6.5.0.0');
@@ -434,7 +433,7 @@ class FeatureTest extends TestCase
         static::assertSame($expectedMessage, $message);
     }
 
-    public function testFeatureAllMajorOnlyActivatesMajorFlags(): void
+    public function testFeatureAllMajorActivatesEveryRegisteredFlag(): void
     {
         // Fake FEATURE_ALL so Core/DevOps/Environment/EnvironmentHelper::getVariable returns "major"
         $orgFeatureAll = $_SERVER['FEATURE_ALL'] ?? '';
@@ -442,27 +441,23 @@ class FeatureTest extends TestCase
 
         static::assertSame('major', EnvironmentHelper::getVariable('FEATURE_ALL'));
 
-        // Register 2 features one major and without major
+        // Register a version flag and an unrelated feature.
         Feature::resetRegisteredFeatures();
         Feature::registerFeatures([
-            'MAJOR' => [
+            'v6.8.0.0' => [
                 'name' => 'Major',
                 'default' => false,
-                'major' => true,
                 'description' => 'This is a major feature',
             ],
-            'NONE_MAJOR' => [
+            'UNRELATED' => [
                 'name' => 'None Major',
                 'default' => false,
-                'major' => false,
                 'description' => 'This isn\'t a major feature',
             ],
         ]);
 
-        // MAJOR feature should be active because of FEATURE_ALL=major
-        static::assertTrue(Feature::isActive('MAJOR'));
-        // NONE_MAJOR feature should be inactive
-        static::assertFalse(Feature::isActive('NONE_MAJOR'));
+        static::assertTrue(Feature::isActive('v6.8.0.0'));
+        static::assertTrue(Feature::isActive('UNRELATED'));
 
         // Restore $_SERVER state
         $_SERVER['FEATURE_ALL'] = $orgFeatureAll;

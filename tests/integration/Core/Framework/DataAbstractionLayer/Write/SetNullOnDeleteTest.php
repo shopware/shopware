@@ -22,7 +22,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Fixture\SetNullOnDelete\SetNullOnDeleteChildDefinition;
 use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Fixture\SetNullOnDelete\SetNullOnDeleteManyToOneDefinition;
@@ -34,7 +34,6 @@ use Shopware\Tests\Integration\Core\Framework\DataAbstractionLayer\Write\Fixture
 #[Package('framework')]
 class SetNullOnDeleteTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     private EntityWriter $writer;
@@ -290,7 +289,7 @@ class SetNullOnDeleteTest extends TestCase
         );
 
         $writtenEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             SetNullOnDeleteChildDefinition::ENTITY_NAME . '.written',
             static function (EntityWrittenEvent $event) use (&$writtenEvent): void {
                 $writtenEvent = $event;

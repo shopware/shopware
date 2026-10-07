@@ -19,7 +19,7 @@ use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
 use Shopware\Core\System\User\UserCollection;
 use Shopware\Core\System\User\UserEntity;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 
 /**
  * @internal
@@ -27,7 +27,6 @@ use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 #[Package('fundamentals@framework')]
 class UserRecoveryServiceTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     private const VALID_EMAIL = UserProvisioner::USER_EMAIL_FALLBACK;
@@ -64,7 +63,7 @@ class UserRecoveryServiceTest extends TestCase
         ]);
 
         $eventDispatched = false;
-        $this->onEvent(UserRecoveryRequestEvent::EVENT_NAME, static function (UserRecoveryRequestEvent $event) use (&$eventDispatched): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(UserRecoveryRequestEvent::EVENT_NAME, static function (UserRecoveryRequestEvent $event) use (&$eventDispatched): void {
             $eventDispatched = true;
         });
 
@@ -194,7 +193,7 @@ class UserRecoveryServiceTest extends TestCase
     public function testReEvaluateRules(): void
     {
         $validator = new RuleValidator();
-        $this->onEvent(UserRecoveryRequestEvent::EVENT_NAME, $validator);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(UserRecoveryRequestEvent::EVENT_NAME, $validator);
 
         $this->userRecoveryService->generateUserRecovery(
             self::VALID_EMAIL,

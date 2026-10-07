@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\AppSystemTestBehaviour;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,7 +35,6 @@ class HttpCacheIntegrationTest extends TestCase
 {
     use AppSystemTestBehaviour;
     use CacheTestBehaviour;
-    use EventHookBehaviour;
     use KernelTestBehaviour;
 
     private static string $originalHttpCacheValue;
@@ -215,7 +214,7 @@ class HttpCacheIntegrationTest extends TestCase
         $request = $this->createRequest(EnvironmentHelper::getVariable('APP_URL') . $route);
 
         $cacheHeaders = [];
-        $this->onEvent(KernelEvents::RESPONSE, static function (ResponseEvent $event) use ($route, &$cacheHeaders): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(KernelEvents::RESPONSE, static function (ResponseEvent $event) use ($route, &$cacheHeaders): void {
             if ($event->getRequest()->getPathInfo() !== $route) {
                 return;
             }

@@ -49,7 +49,7 @@ use Shopware\Core\Framework\Script\ScriptCollection;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 
 /**
@@ -58,7 +58,6 @@ use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 #[Package('framework')]
 class AppManagerTest extends TestCase
 {
-    use EventHookBehaviour;
     use GuzzleTestClientBehaviour;
 
     private AppManager $appManager;
@@ -100,7 +99,7 @@ class AppManagerTest extends TestCase
     {
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
         $installedEvent = null;
-        $this->onEvent(AppInstalledEvent::class, static function (AppInstalledEvent $event) use (&$installedEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppInstalledEvent::class, static function (AppInstalledEvent $event) use (&$installedEvent): void {
             $installedEvent = $event;
         });
 
@@ -409,7 +408,7 @@ class AppManagerTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
         $updatedEvent = null;
-        $this->onEvent(AppUpdatedEvent::class, static function (AppUpdatedEvent $event) use (&$updatedEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppUpdatedEvent::class, static function (AppUpdatedEvent $event) use (&$updatedEvent): void {
             $updatedEvent = $event;
         });
 
@@ -566,7 +565,7 @@ class AppManagerTest extends TestCase
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
         $updatedEvent = null;
-        $this->onEvent(AppUpdatedEvent::class, static function (AppUpdatedEvent $event) use (&$updatedEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppUpdatedEvent::class, static function (AppUpdatedEvent $event) use (&$updatedEvent): void {
             $updatedEvent = $event;
         });
 
@@ -911,7 +910,7 @@ class AppManagerTest extends TestCase
         ];
 
         $deletedAppIds = [];
-        $this->onEvent(AppDeletedEvent::class, static function (AppDeletedEvent $event) use (&$deletedAppIds): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppDeletedEvent::class, static function (AppDeletedEvent $event) use (&$deletedAppIds): void {
             $deletedAppIds[] = $event->getAppId();
         });
 

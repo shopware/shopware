@@ -46,7 +46,7 @@ use Shopware\Core\System\CustomEntity\Schema\CustomEntityPersister;
 use Shopware\Core\System\CustomEntity\Schema\CustomEntitySchemaUpdater;
 use Shopware\Core\System\CustomField\CustomFieldSetPersister;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use SwagTestPlugin\Migration\Migration1536761533TestMigration;
 use SwagTestPlugin\SwagTestPlugin;
 use Symfony\Component\Clock\NativeClock;
@@ -60,7 +60,6 @@ use Symfony\Component\HttpFoundation\RequestStack;
 #[Package('framework')]
 class PluginLifecycleServiceTest extends TestCase
 {
-    use EventHookBehaviour;
     use KernelTestBehaviour;
     use MigrationTestBehaviour;
     use PluginTestsHelper;
@@ -538,7 +537,7 @@ class PluginLifecycleServiceTest extends TestCase
             throw $expectedException;
         };
 
-        $this->onEvent(PluginPostInstallEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(PluginPostInstallEvent::class, $listener);
 
         try {
             $this->pluginLifecycleService->installPlugin($plugin, $this->context);

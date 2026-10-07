@@ -32,7 +32,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Kernel;
 use Shopware\Core\Test\AppSystemTestBehaviour;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -49,8 +49,6 @@ class InfoControllerTest extends TestCase
     use AppSystemTestBehaviour;
 
     use EnvTestBehaviour;
-
-    use EventHookBehaviour;
 
     private Connection $connection;
 
@@ -174,7 +172,7 @@ class InfoControllerTest extends TestCase
 
     public function testGetConfigIncludesMimeTypesForEventAddedPrivateExtensions(): void
     {
-        $this->onEvent(MediaFileExtensionWhitelistEvent::class, static function (MediaFileExtensionWhitelistEvent $event): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(MediaFileExtensionWhitelistEvent::class, static function (MediaFileExtensionWhitelistEvent $event): void {
             $extensions = $event->getWhitelist();
             $extensions[] = 'epub';
 

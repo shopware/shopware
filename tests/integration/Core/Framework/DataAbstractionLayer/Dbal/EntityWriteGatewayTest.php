@@ -36,7 +36,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryEntity;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Doctrine\FailingDeleteConnection;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
@@ -47,7 +47,6 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('framework')]
 class EntityWriteGatewayTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     /**
@@ -71,7 +70,7 @@ class EntityWriteGatewayTest extends TestCase
     {
         $update = ['id' => $this->ids->get('product'), 'stock' => 100];
 
-        $this->onEvent(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
             foreach ($event->getCommands() as $command) {
                 if (!$command instanceof ChangeSetAware) {
                     continue;
@@ -95,7 +94,7 @@ class EntityWriteGatewayTest extends TestCase
 
         $update = ['id' => $id, 'stock' => 1];
 
-        $this->onEvent(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
             foreach ($event->getCommands() as $command) {
                 if (!$command instanceof ChangeSetAware) {
                     continue;
@@ -117,7 +116,7 @@ class EntityWriteGatewayTest extends TestCase
     {
         $id = $this->ids->get('product');
 
-        $this->onEvent(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
             foreach ($event->getCommands() as $command) {
                 if (!$command instanceof ChangeSetAware) {
                     continue;
@@ -150,7 +149,7 @@ class EntityWriteGatewayTest extends TestCase
 
         $update = ['id' => $id, 'name' => 'updated'];
 
-        $this->onEvent(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
             foreach ($event->getCommands() as $command) {
                 if (!$command instanceof ChangeSetAware) {
                     continue;
@@ -179,7 +178,7 @@ class EntityWriteGatewayTest extends TestCase
             ],
         ];
 
-        $this->onEvent(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
             foreach ($event->getCommands() as $command) {
                 if (!$command instanceof ChangeSetAware) {
                     continue;
@@ -210,7 +209,7 @@ class EntityWriteGatewayTest extends TestCase
             ],
         ];
 
-        $this->onEvent(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
             foreach ($event->getCommands() as $command) {
                 if (!$command instanceof ChangeSetAware) {
                     continue;
@@ -238,7 +237,7 @@ class EntityWriteGatewayTest extends TestCase
             ['id' => $productId2, 'stock' => 50],
         ];
 
-        $this->onEvent(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(PreWriteValidationEvent::class, static function (PreWriteValidationEvent $event): void {
             foreach ($event->getCommands() as $command) {
                 if (!$command instanceof ChangeSetAware) {
                     continue;
@@ -329,7 +328,7 @@ class EntityWriteGatewayTest extends TestCase
 
         $spy = $this->eventListenerCalledSpy();
 
-        $this->onEvent(EntityDeleteEvent::class, $spy);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(EntityDeleteEvent::class, $spy);
 
         $this->productRepository->update([$update], Context::createDefaultContext());
 
@@ -345,7 +344,7 @@ class EntityWriteGatewayTest extends TestCase
 
         $spy = $this->eventListenerCalledSpy();
 
-        $this->onEvent(EntityDeleteEvent::class, $spy);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(EntityDeleteEvent::class, $spy);
 
         $this->productRepository->delete($delete, Context::createDefaultContext());
 
@@ -370,7 +369,7 @@ class EntityWriteGatewayTest extends TestCase
             $event->addError($errorSpy(...));
         });
 
-        $this->onEvent(EntityDeleteEvent::class, $spy);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(EntityDeleteEvent::class, $spy);
 
         $this->productRepository->delete($delete, Context::createDefaultContext());
 
@@ -390,8 +389,8 @@ class EntityWriteGatewayTest extends TestCase
         $eventSpy1 = $this->eventListenerCalledSpy(static fn (EntityDeleteEvent $event) => $event->addSuccess($successSpy1(...)));
         $eventSpy2 = $this->eventListenerCalledSpy(static fn (EntityDeleteEvent $event) => $event->addSuccess($successSpy2(...)));
 
-        $this->onEvent(EntityDeleteEvent::class, $eventSpy1);
-        $this->onEvent(EntityDeleteEvent::class, $eventSpy2);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(EntityDeleteEvent::class, $eventSpy1);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(EntityDeleteEvent::class, $eventSpy2);
 
         $this->productRepository->delete($delete, Context::createDefaultContext());
 
@@ -431,7 +430,7 @@ class EntityWriteGatewayTest extends TestCase
             $event->addError($errorSpy(...));
         });
 
-        $this->onEvent($eventClass, $spy);
+        EventHookDispatcher::fromContainer(static::getContainer())->on($eventClass, $spy);
 
         $definitionRegistry = static::getContainer()->get(DefinitionInstanceRegistry::class);
 
@@ -496,7 +495,7 @@ class EntityWriteGatewayTest extends TestCase
 
         $spy = $this->eventListenerCalledSpy();
 
-        $this->onEvent(EntityWriteEvent::class, $spy);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(EntityWriteEvent::class, $spy);
 
         match ($method) {
             'delete' => $this->productRepository->delete($ids, Context::createDefaultContext()),
@@ -534,7 +533,7 @@ class EntityWriteGatewayTest extends TestCase
             $event->addError($errorSpy);
         });
 
-        $this->onEvent(EntityWriteEvent::class, $spy);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(EntityWriteEvent::class, $spy);
 
         $this->productRepository->delete($delete, Context::createDefaultContext());
 
@@ -554,8 +553,8 @@ class EntityWriteGatewayTest extends TestCase
         $eventSpy1 = $this->eventListenerCalledSpy(static fn (EntityWriteEvent $event) => $event->addSuccess($successSpy1));
         $eventSpy2 = $this->eventListenerCalledSpy(static fn (EntityWriteEvent $event) => $event->addSuccess($successSpy2));
 
-        $this->onEvent(EntityWriteEvent::class, $eventSpy1);
-        $this->onEvent(EntityWriteEvent::class, $eventSpy2);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(EntityWriteEvent::class, $eventSpy1);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(EntityWriteEvent::class, $eventSpy2);
 
         $this->productRepository->delete($delete, Context::createDefaultContext());
 

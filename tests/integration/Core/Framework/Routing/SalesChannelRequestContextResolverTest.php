@@ -27,8 +27,8 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceInterface;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextServiceParameters;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,7 +42,6 @@ use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
 class SalesChannelRequestContextResolverTest extends TestCase
 {
     use CustomerTestTrait;
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     private IdsCollection $ids;
@@ -78,7 +77,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
             $resolvedContext = $event->getSalesChannelContext();
         };
 
-        $this->onEvent(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
 
         $resolver->resolve($request);
 
@@ -110,7 +109,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
             $resolvedContext = $event->getSalesChannelContext();
         };
 
-        $this->onEvent(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
 
         $resolver->resolve($request);
 
@@ -142,7 +141,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
             $resolvedContext = $event->getSalesChannelContext();
         };
 
-        $this->onEvent(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
 
         $resolver->resolve($request);
 
@@ -235,7 +234,7 @@ class SalesChannelRequestContextResolverTest extends TestCase
             $resolvedContext = $event->getSalesChannelContext();
         };
 
-        $this->onEvent(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SalesChannelContextResolvedEvent::class, $listenerContextEventClosure);
 
         $resolver->resolve($request);
 

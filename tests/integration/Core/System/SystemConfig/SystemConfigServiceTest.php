@@ -17,7 +17,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigException;
 use Shopware\Core\System\SystemConfig\SystemConfigLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\System\SystemConfig\Util\ConfigReader;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\Clock\NativeClock;
 
@@ -27,7 +27,6 @@ use Symfony\Component\Clock\NativeClock;
 #[Package('framework')]
 class SystemConfigServiceTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     private SystemConfigService $systemConfigService;
@@ -387,7 +386,7 @@ class SystemConfigServiceTest extends TestCase
     {
         $payload = null;
 
-        $this->onEvent(SystemConfigChangedHook::class, static function (SystemConfigChangedHook $event) use (&$payload): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SystemConfigChangedHook::class, static function (SystemConfigChangedHook $event) use (&$payload): void {
             $payload = $event->getWebhookPayload();
         });
 
@@ -425,9 +424,9 @@ class SystemConfigServiceTest extends TestCase
             $events[] = $event;
         };
 
-        $this->onEvent(BeforeSystemConfigMultipleChangedEvent::class, $listener);
-        $this->onEvent(SystemConfigMultipleChangedEvent::class, $listener);
-        $this->onEvent(SystemConfigChangedHook::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(BeforeSystemConfigMultipleChangedEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SystemConfigMultipleChangedEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SystemConfigChangedHook::class, $listener);
 
         $this->systemConfigService->deleteExtensionConfiguration($extensionName, [
             ['cards' => [['elements' => [['name' => 'testSetting1'], ['name' => 'testSetting2']]]]],

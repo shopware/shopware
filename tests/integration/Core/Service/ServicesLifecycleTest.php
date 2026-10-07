@@ -24,7 +24,7 @@ use Shopware\Core\Service\ServiceRegistry\Client;
 use Shopware\Core\Service\ServiceSourceResolver;
 use Shopware\Core\Service\ServiceStorage;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\JsonMockResponse;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -36,7 +36,6 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 class ServicesLifecycleTest extends TestCase
 {
     use EnvTestBehaviour;
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     private const REGISTRY_URL = 'https://registry.services.example.com';
@@ -394,7 +393,7 @@ class ServicesLifecycleTest extends TestCase
         $two = $this->assertInstalled(self::TWO, '1.2.0');
 
         $permissionEvents = 0;
-        $this->onEvent(AppPermissionsUpdated::class, static function () use (&$permissionEvents): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppPermissionsUpdated::class, static function () use (&$permissionEvents): void {
             ++$permissionEvents;
         });
 

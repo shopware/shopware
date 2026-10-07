@@ -32,7 +32,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextRestorer;
 use Shopware\Core\System\SalesChannel\Event\SalesChannelContextRestorerOrderCriteriaEvent;
 use Shopware\Core\Test\Integration\Builder\Customer\CustomerBuilder;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -44,7 +44,6 @@ use Symfony\Contracts\EventDispatcher\Event;
 #[Package('framework')]
 class SalesChannelContextRestorerTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     private Connection $connection;
@@ -176,7 +175,7 @@ class SalesChannelContextRestorerTest extends TestCase
         $ids = new IdsCollection();
         $this->createOrder($ids);
 
-        $this->onEvent(SalesChannelContextRestorerOrderCriteriaEvent::class, $this->callbackFn);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(SalesChannelContextRestorerOrderCriteriaEvent::class, $this->callbackFn);
         $this->contextRestorer->restoreByOrder($ids->create('order'), $context);
 
         static::assertArrayHasKey(SalesChannelContextRestorerOrderCriteriaEvent::class, $this->events);

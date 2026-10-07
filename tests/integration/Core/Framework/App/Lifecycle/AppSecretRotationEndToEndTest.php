@@ -30,7 +30,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Shopware\Core\Test\Integration\App\TestAppServer;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Tester\CommandTester;
@@ -49,7 +49,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 class AppSecretRotationEndToEndTest extends TestCase
 {
     use AppSystemTestBehaviour;
-    use EventHookBehaviour;
     use GuzzleTestClientBehaviour;
 
     private const FIXTURE_APP_DIR = __DIR__ . '/../Manifest/_fixtures/test';
@@ -136,7 +135,7 @@ class AppSecretRotationEndToEndTest extends TestCase
     {
         $command = new CommandTester($this->createInstallCommand());
         $installedEvents = new \ArrayObject();
-        $this->onEvent(AppInstalledEvent::class, static function (AppInstalledEvent $event) use ($installedEvents): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppInstalledEvent::class, static function (AppInstalledEvent $event) use ($installedEvents): void {
             $installedEvents->append($event);
         });
 
@@ -192,7 +191,7 @@ class AppSecretRotationEndToEndTest extends TestCase
     {
         $command = new CommandTester($this->createInstallCommand());
         $installedEvents = new \ArrayObject();
-        $this->onEvent(AppInstalledEvent::class, static function (AppInstalledEvent $event) use ($installedEvents): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppInstalledEvent::class, static function (AppInstalledEvent $event) use ($installedEvents): void {
             $installedEvents->append($event);
         });
 

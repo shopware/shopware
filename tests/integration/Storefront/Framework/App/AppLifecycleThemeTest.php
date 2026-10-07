@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\AppSystemTestBehaviour;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Theme\Exception\ThemeAssignmentException;
 use Shopware\Storefront\Theme\Exception\ThemeException;
@@ -34,7 +34,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class AppLifecycleThemeTest extends TestCase
 {
     use AppSystemTestBehaviour;
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     private ThemeService $themeService;
@@ -143,7 +142,7 @@ class AppLifecycleThemeTest extends TestCase
         static::assertIsString($appId);
 
         $receivedEvent = null;
-        $this->onEvent(AppDeactivatedEvent::class, static function (AppDeactivatedEvent $event) use (&$receivedEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppDeactivatedEvent::class, static function (AppDeactivatedEvent $event) use (&$receivedEvent): void {
             $receivedEvent = $event;
         });
 
@@ -171,7 +170,7 @@ class AppLifecycleThemeTest extends TestCase
         static::assertIsString($appId);
 
         $receivedEvent = null;
-        $this->onEvent(AppActivatedEvent::class, static function (AppActivatedEvent $event) use (&$receivedEvent): void {
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AppActivatedEvent::class, static function (AppActivatedEvent $event) use (&$receivedEvent): void {
             $receivedEvent = $event;
         });
 

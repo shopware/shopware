@@ -15,7 +15,7 @@ use Shopware\Core\Maintenance\User\Service\UserProvisioner;
 use Shopware\Core\System\User\Aggregate\UserRecovery\UserRecoveryEntity;
 use Shopware\Core\System\User\Recovery\UserRecoveryRequestEvent;
 use Shopware\Core\System\User\Recovery\UserRecoveryService;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 
 /**
  * @internal
@@ -24,7 +24,6 @@ use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 class UserRecoveryControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
-    use EventHookBehaviour;
 
     private const VALID_EMAIL = UserProvisioner::USER_EMAIL_FALLBACK;
 
@@ -74,7 +73,7 @@ class UserRecoveryControllerTest extends TestCase
 
         $dispatchedEvent = null;
 
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             UserRecoveryRequestEvent::EVENT_NAME,
             static function (UserRecoveryRequestEvent $event) use (&$dispatchedEvent): void {
                 $dispatchedEvent = $event;

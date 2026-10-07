@@ -14,7 +14,7 @@ use Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleEntity;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -23,7 +23,6 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('framework')]
 class SsoUserInvitationMailServiceTest extends TestCase
 {
-    use EventHookBehaviour;
     use SalesChannelFunctionalTestBehaviour;
 
     private string $localeId;
@@ -74,7 +73,7 @@ class SsoUserInvitationMailServiceTest extends TestCase
         );
 
         $caughtEvent = null;
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             MailBeforeSentEvent::class,
             static function (MailBeforeSentEvent $event) use (&$caughtEvent): void {
                 $caughtEvent = $event;

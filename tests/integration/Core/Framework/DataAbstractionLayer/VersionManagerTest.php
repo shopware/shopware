@@ -27,7 +27,7 @@ use Shopware\Core\Framework\Test\DataAbstractionLayer\Field\TestDefinition\ToOne
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -39,7 +39,6 @@ class VersionManagerTest extends TestCase
     use DataAbstractionLayerFieldTestBehaviour {
         tearDown as protected tearDownDefinitions;
     }
-    use EventHookBehaviour;
     use KernelTestBehaviour;
 
     private const PRODUCT_ID = 'product-1';
@@ -146,7 +145,7 @@ class VersionManagerTest extends TestCase
         // now ensure that we get a validate event for the merge request
         $mergeScopes = [];
 
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             PreWriteValidationEvent::class,
             static function (PreWriteValidationEvent $event) use (&$mergeScopes): void {
                 // we also get a validation event for the version tables
@@ -190,7 +189,7 @@ class VersionManagerTest extends TestCase
 
         $pageWriteResult = null;
 
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             'cms_page.written',
             static function (EntityWrittenEvent $event) use (&$pageWriteResult, $pageId): void {
                 foreach ($event->getWriteResults() as $writeResult) {

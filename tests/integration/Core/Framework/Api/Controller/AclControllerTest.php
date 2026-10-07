@@ -7,7 +7,7 @@ use Shopware\Core\Framework\Api\Acl\Event\AclGetAdditionalPrivilegesEvent;
 use Shopware\Core\Framework\Api\Exception\MissingPrivilegeException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -17,7 +17,6 @@ use Symfony\Component\HttpFoundation\Response;
 class AclControllerTest extends TestCase
 {
     use AdminFunctionalTestBehaviour;
-    use EventHookBehaviour;
 
     public function testGetPrivileges(): void
     {
@@ -53,7 +52,7 @@ class AclControllerTest extends TestCase
             $privileges[] = 'my_custom_privilege';
             $event->setPrivileges($privileges);
         };
-        $this->onEvent(AclGetAdditionalPrivilegesEvent::class, $getAdditionalPrivileges);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(AclGetAdditionalPrivilegesEvent::class, $getAdditionalPrivileges);
 
         $this->getBrowser()->request('GET', '/api/_action/acl/additional_privileges');
         $response = $this->getBrowser()->getResponse();

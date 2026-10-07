@@ -19,7 +19,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -28,7 +28,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 #[Package('framework')]
 class SyncServiceTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     private SyncService $service;
@@ -187,10 +186,10 @@ class SyncServiceTest extends TestCase
         $deleteListener->expects($this->exactly(3))
             ->method('__invoke');
 
-        $this->onEvent(EntityWrittenContainerEvent::class, $createListener);
-        $this->onEvent('tax.deleted', $deleteListener);
-        $this->onEvent('country.deleted', $deleteListener);
-        $this->onEvent('country_translation.deleted', $deleteListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(EntityWrittenContainerEvent::class, $createListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on('tax.deleted', $deleteListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on('country.deleted', $deleteListener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on('country_translation.deleted', $deleteListener);
 
         $operations = [
             new SyncOperation('manufacturers', 'product_manufacturer', SyncOperation::ACTION_UPSERT, [
@@ -240,7 +239,7 @@ class SyncServiceTest extends TestCase
         $listener->expects($this->once())
             ->method('__invoke');
 
-        $this->onEvent(EntityWrittenContainerEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(EntityWrittenContainerEvent::class, $listener);
 
         $operations = [
             new SyncOperation('write', 'product_manufacturer', SyncOperation::ACTION_UPSERT, [

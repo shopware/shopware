@@ -2,6 +2,7 @@
  * @sw-package fundamentals@framework
  */
 import useTheme from 'src/app/composables/use-theme';
+import useModuleIconColors from 'src/app/composables/use-module-icon-colors';
 import template from './sw-users-permissions-user-detail.html.twig';
 import './sw-users-permissions-user-detail.scss';
 
@@ -57,8 +58,9 @@ export default {
             timezoneOptions: [],
             mediaDefaultFolderId: null,
             showMediaModal: false,
-            // Only edited for the own user — the theme select is hidden otherwise.
+            // Only edited for the own user — the theme select & module icon colors select are hidden otherwise.
             userThemeSelection: null,
+            userModuleIconColorsSelection: null,
         };
     },
 
@@ -75,6 +77,17 @@ export default {
             },
             set(theme) {
                 this.userThemeSelection = theme;
+            },
+        },
+
+        userModuleIconColors: {
+            get() {
+                const enabled = this.userModuleIconColorsSelection ?? useModuleIconColors().enabled.value;
+
+                return enabled ? 'module' : 'neutral';
+            },
+            set(value) {
+                this.userModuleIconColorsSelection = value === 'module';
             },
         },
 
@@ -204,6 +217,19 @@ export default {
             });
         },
 
+        moduleIconColorsOptions() {
+            return [
+                {
+                    value: 'neutral',
+                    label: this.$t('sw-profile.index.optionModuleIconColorsNeutral'),
+                },
+                {
+                    value: 'module',
+                    label: this.$t('sw-profile.index.optionModuleIconColorsColored'),
+                },
+            ];
+        },
+
         mcpGrantedPrivileges() {
             if (!this.user?.aclRoles) {
                 return [];
@@ -225,8 +251,9 @@ export default {
 
     methods: {
         createdComponent() {
-            // Create the theme singleton before the first render — creating it inside a computed would trigger Vue's onMounted warning
+            // Create the theme & module icon colors singleton before the first render — creating it inside a computed would trigger Vue's onMounted warning
             useTheme();
+            useModuleIconColors();
 
             Shopware.ExtensionAPI.publishData({
                 id: 'sw-users-permissions-user-detail__currentUser',
@@ -436,7 +463,9 @@ export default {
                     }
                     await this.updateCurrentUser();
                     await useTheme().saveUserTheme(this.userTheme);
+                    await useModuleIconColors().saveUserModuleIconColors(this.userModuleIconColors === 'module');
                     this.userThemeSelection = null;
+                    this.userModuleIconColorsSelection = null;
                 }
 
                 this.createdComponent();

@@ -424,7 +424,10 @@ export default {
         },
 
         isRentedExtension(extension) {
-            return extension.storeLicense?.variant === this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT;
+            return (
+                extension.storeLicense?.variant === this.shopwareExtensionService.EXTENSION_VARIANT_TYPES.RENT &&
+                extension.storeLicense.expirationDate === null
+            );
         },
 
         actionApplies(action, extension) {

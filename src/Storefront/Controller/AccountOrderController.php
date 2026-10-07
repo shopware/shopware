@@ -139,12 +139,16 @@ class AccountOrderController extends StorefrontController
 
             $this->hook(new AccountOrderPageLoadedHook($page, $context));
         } catch (GuestNotAuthenticatedException|WrongGuestCredentialsException|CustomerAuthThrottledException $exception) {
+            // Submitted credentials for an unknown or expired deep link also need the error
+            $credentialsSubmitted = RequestParamHelper::get($request, 'email') && RequestParamHelper::get($request, 'zipcode');
+
             return $this->redirectToRoute(
                 'frontend.account.guest.login.page',
                 [
                     'redirectTo' => 'frontend.account.order.single.page',
                     'redirectParameters' => ['deepLinkCode' => $request->attributes->get('deepLinkCode')],
-                    'loginError' => ($exception instanceof WrongGuestCredentialsException),
+                    'loginError' => $exception instanceof WrongGuestCredentialsException
+                        || ($exception instanceof GuestNotAuthenticatedException && $credentialsSubmitted),
                     'waitTime' => ($exception instanceof CustomerAuthThrottledException) ? $exception->getWaitTime() : '',
                 ]
             );

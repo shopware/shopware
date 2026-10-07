@@ -44,7 +44,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextPersister;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 
 /**
@@ -53,7 +53,6 @@ use Shopware\Core\Test\Stub\Framework\IdsCollection;
 #[Package('inventory')]
 class ProductExportGeneratorTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -124,7 +123,7 @@ class ProductExportGeneratorTest extends TestCase
         ): void {
             $productExportProductCriteriaEventDispatched = true;
         };
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             ProductExportProductCriteriaEvent::class,
             $productExportProductCriteriaCallback
         );
@@ -135,7 +134,7 @@ class ProductExportGeneratorTest extends TestCase
         ): void {
             $productExportRenderBodyContextEventDispatched = true;
         };
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             ProductExportRenderBodyContextEvent::class,
             $productExportRenderBodyContextCallback
         );
@@ -146,7 +145,7 @@ class ProductExportGeneratorTest extends TestCase
         ): void {
             $productExportChangeEncodingEventDispatched = true;
         };
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             ProductExportChangeEncodingEvent::class,
             $productExportChangeEncodingCallback
         );
@@ -199,7 +198,7 @@ class ProductExportGeneratorTest extends TestCase
             $event->getCriteria()->addFilter(new EqualsFilter('active', true));
             $event->getCriteria()->addFilter(new EqualsFilter('active', false));
         };
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             ProductExportProductCriteriaEvent::class,
             $productExportProductCriteriaCallback
         );
@@ -210,7 +209,7 @@ class ProductExportGeneratorTest extends TestCase
         ): void {
             $productExportLoggingEventDispatched = true;
         };
-        $this->onEvent(
+        EventHookDispatcher::fromContainer(static::getContainer())->on(
             ProductExportLoggingEvent::class,
             $productExportLoggingCallback
         );

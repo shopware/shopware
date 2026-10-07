@@ -38,7 +38,7 @@ use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Clock\MockClock;
@@ -52,7 +52,6 @@ use Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadata;
 #[Group('store-api')]
 class ProductSearchRouteTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
 
@@ -225,7 +224,7 @@ class ProductSearchRouteTest extends TestCase
             $capturedCriteria = clone $event->getCriteria();
         };
 
-        $this->onEvent(ProductEvents::PRODUCT_SEARCH_CRITERIA, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(ProductEvents::PRODUCT_SEARCH_CRITERIA, $listener);
 
         $searchRoute->load($request, $salesChannelContext, clone $originalCriteria);
 

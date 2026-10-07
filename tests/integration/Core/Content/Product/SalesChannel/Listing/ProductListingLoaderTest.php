@@ -34,7 +34,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -44,7 +44,6 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('inventory')]
 class ProductListingLoaderTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use SalesChannelApiTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
@@ -100,7 +99,7 @@ class ProductListingLoaderTest extends TestCase
 
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $this->onEvent(ProductListingResolvePreviewEvent::class, $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on(ProductListingResolvePreviewEvent::class, $listener);
         $context = static::getContainer()->get(SalesChannelContextFactory::class)->create(Uuid::randomHex(), TestDefaults::SALES_CHANNEL);
 
         $criteria = new Criteria($ids->getList(['p1']));

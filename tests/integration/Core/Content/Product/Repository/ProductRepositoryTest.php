@@ -48,7 +48,7 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
-use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
 
@@ -58,7 +58,6 @@ use Shopware\Core\Test\TestDefaults;
 #[Package('inventory')]
 class ProductRepositoryTest extends TestCase
 {
-    use EventHookBehaviour;
     use IntegrationTestBehaviour;
     use QueueTestBehaviour;
 
@@ -623,8 +622,8 @@ class ProductRepositoryTest extends TestCase
         // check nested events are triggered
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->exactly(2))->method('__invoke');
-        $this->onEvent('product.written', $listener);
-        $this->onEvent('product_manufacturer.written', $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on('product.written', $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on('product_manufacturer.written', $listener);
 
         $this->repository->create([
             [
@@ -641,8 +640,8 @@ class ProductRepositoryTest extends TestCase
         // validate that nested events are triggered
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->exactly(2))->method('__invoke');
-        $this->onEvent('product.loaded', $listener);
-        $this->onEvent('product_manufacturer.loaded', $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on('product.loaded', $listener);
+        EventHookDispatcher::fromContainer(static::getContainer())->on('product_manufacturer.loaded', $listener);
 
         $criteria = new Criteria([$id]);
         $criteria->addAssociation('manufacturer');

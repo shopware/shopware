@@ -415,6 +415,153 @@ class EntitySearcherTest extends TestCase
         yield 'empty page past the end' => [['offset' => 5, 'limit' => 1, 'expectedEntities' => 0]];
     }
 
+    /**
+     * @param array<int, int> $expectedTotals
+     */
+    #[DataProvider('totalCountProvider')]
+    public function testTotalCountsEntitiesWithAToManyFilter(?int $limit, int $matchingProducts, int $expectedEntities, array $expectedTotals, int $offset = 0): void
+    {
+        $ids = $this->createProductsWithTwoMatchingTagsEach($matchingProducts);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.id', array_values($ids->prefixed('product-'))));
+        $criteria->addFilter(new ContainsFilter('product.tags.name', 'limit-one'));
+        $criteria->addSorting(new FieldSorting('product.id'));
+        $criteria->setLimit($limit);
+        $criteria->setOffset($offset);
+
+        $expectedData = null;
+        foreach ($expectedTotals as $totalCountMode => $expectedTotal) {
+            $searchCriteria = clone $criteria;
+            $searchCriteria->setTotalCountMode($totalCountMode);
+            $result = $this->productRepository->searchIds($searchCriteria, Context::createDefaultContext());
+
+            static::assertSame($expectedTotal, $result->getTotal(), 'Count mode ' . $totalCountMode);
+            static::assertCount($expectedEntities, $result->getIds());
+            static::assertNotContains($ids->get('product-excluded'), $result->getIds());
+            $expectedData ??= $result->getData();
+            static::assertSame($expectedData, $result->getData(), 'Count mode ' . $totalCountMode);
+        }
+    }
+
+    /**
+     * @param array<int, int> $expectedTotals
+     */
+    #[DataProvider('totalCountProvider')]
+    public function testTotalCountsEntitiesWithASearchTerm(?int $limit, int $matchingProducts, int $expectedEntities, array $expectedTotals, int $offset = 0): void
+    {
+        $ids = $this->createProductsWithTwoMatchingTagsEach($matchingProducts);
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsAnyFilter('product.id', array_values($ids->prefixed('product-'))));
+        $criteria->setTerm('limit one total');
+        $criteria->addSorting(new FieldSorting('product.id'));
+        $criteria->setLimit($limit);
+        $criteria->setOffset($offset);
+
+        $expectedData = null;
+        foreach ($expectedTotals as $totalCountMode => $expectedTotal) {
+            $searchCriteria = clone $criteria;
+            $searchCriteria->setTotalCountMode($totalCountMode);
+            $result = $this->productRepository->searchIds($searchCriteria, Context::createDefaultContext());
+
+            static::assertSame($expectedTotal, $result->getTotal(), 'Count mode ' . $totalCountMode);
+            static::assertCount($expectedEntities, $result->getIds());
+            static::assertNotContains($ids->get('product-excluded'), $result->getIds());
+            $expectedData ??= $result->getData();
+            static::assertSame($expectedData, $result->getData(), 'Count mode ' . $totalCountMode);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{limit: int|null, matchingProducts: int, expectedEntities: int, expectedTotals: array<int, int>, offset?: int}>
+     */
+    public static function totalCountProvider(): iterable
+    {
+        yield 'a single result per page' => [
+            'limit' => 1,
+            'matchingProducts' => 2,
+            'expectedEntities' => 1,
+            'expectedTotals' => [
+                Criteria::TOTAL_COUNT_MODE_NONE => 1,
+                Criteria::TOTAL_COUNT_MODE_EXACT => 2,
+                Criteria::TOTAL_COUNT_MODE_NEXT_PAGES => 2,
+            ],
+        ];
+        yield 'a full page' => [
+            'limit' => 2,
+            'matchingProducts' => 2,
+            'expectedEntities' => 2,
+            'expectedTotals' => [
+                Criteria::TOTAL_COUNT_MODE_NONE => 2,
+                Criteria::TOTAL_COUNT_MODE_EXACT => 2,
+                Criteria::TOTAL_COUNT_MODE_NEXT_PAGES => 2,
+            ],
+        ];
+        yield 'without a limit' => [
+            'limit' => null,
+            'matchingProducts' => 2,
+            'expectedEntities' => 2,
+            'expectedTotals' => [
+                Criteria::TOTAL_COUNT_MODE_NONE => 2,
+                Criteria::TOTAL_COUNT_MODE_EXACT => 2,
+                Criteria::TOTAL_COUNT_MODE_NEXT_PAGES => 2,
+            ],
+        ];
+        yield 'without a limit after an offset' => [
+            'limit' => null,
+            'matchingProducts' => 2,
+            'expectedEntities' => 1,
+            'expectedTotals' => [
+                Criteria::TOTAL_COUNT_MODE_NONE => 1,
+                Criteria::TOTAL_COUNT_MODE_EXACT => 2,
+                Criteria::TOTAL_COUNT_MODE_NEXT_PAGES => 2,
+            ],
+            'offset' => 1,
+        ];
+        yield 'without a limit past the end' => [
+            'limit' => null,
+            'matchingProducts' => 2,
+            'expectedEntities' => 0,
+            'expectedTotals' => [
+                Criteria::TOTAL_COUNT_MODE_NONE => 0,
+                Criteria::TOTAL_COUNT_MODE_EXACT => 2,
+                Criteria::TOTAL_COUNT_MODE_NEXT_PAGES => 2,
+            ],
+            'offset' => 3,
+        ];
+        yield 'a partial page' => [
+            'limit' => 3,
+            'matchingProducts' => 2,
+            'expectedEntities' => 2,
+            'expectedTotals' => [
+                Criteria::TOTAL_COUNT_MODE_NONE => 2,
+                Criteria::TOTAL_COUNT_MODE_EXACT => 2,
+                Criteria::TOTAL_COUNT_MODE_NEXT_PAGES => 2,
+            ],
+        ];
+        yield 'lookahead capped below eight matches' => [
+            'limit' => 1,
+            'matchingProducts' => 8,
+            'expectedEntities' => 1,
+            'expectedTotals' => [
+                Criteria::TOTAL_COUNT_MODE_NONE => 1,
+                Criteria::TOTAL_COUNT_MODE_EXACT => 8,
+                Criteria::TOTAL_COUNT_MODE_NEXT_PAGES => 7,
+            ],
+        ];
+        yield 'lookahead capped below fourteen matches' => [
+            'limit' => 2,
+            'matchingProducts' => 14,
+            'expectedEntities' => 2,
+            'expectedTotals' => [
+                Criteria::TOTAL_COUNT_MODE_NONE => 2,
+                Criteria::TOTAL_COUNT_MODE_EXACT => 14,
+                Criteria::TOTAL_COUNT_MODE_NEXT_PAGES => 13,
+            ],
+        ];
+    }
+
     public function testJsonListEqualsAnyFilter(): void
     {
         $redId = Uuid::randomHex();
@@ -711,5 +858,23 @@ class EntitySearcherTest extends TestCase
         );
 
         static::assertSame(0, $result->getTotal());
+    }
+
+    private function createProductsWithTwoMatchingTagsEach(int $matchingProducts): IdsCollection
+    {
+        $ids = new IdsCollection();
+        $products = [];
+
+        foreach (range(1, $matchingProducts) as $number) {
+            $products[] = (new ProductBuilder($ids, 'product-' . $number))->name('limit one total')->price(100)
+                ->tag('limit-one-' . $number . '-a')->tag('limit-one-' . $number . '-b')->build();
+        }
+
+        $products[] = (new ProductBuilder($ids, 'product-excluded'))->name('unrelated item')->price(100)
+            ->tag('unrelated-a')->tag('unrelated-b')->build();
+
+        $this->productRepository->create($products, Context::createDefaultContext());
+
+        return $ids;
     }
 }

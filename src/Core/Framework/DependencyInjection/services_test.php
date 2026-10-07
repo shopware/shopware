@@ -44,6 +44,7 @@ use Shopware\Core\Framework\Webhook\Validation\WebhookTargetValidator;
 use Shopware\Core\System\StateMachine\StateMachineRegistry;
 use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
 use Shopware\Core\Test\Integration\App\TestAppServer;
+use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
 use Shopware\Core\Test\Integration\PaymentHandler\TestPaymentHandler;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Mailer\Mailer;
@@ -144,6 +145,13 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set(StoreApiSessionListener::class)
         ->tag('kernel.event_subscriber');
+
+    // closest to the base dispatcher, so nested events re-dispatched by the outer decorators reach the hooks
+    $services->set(EventHookDispatcher::class)
+        ->decorate('event_dispatcher', null, 10000)
+        ->args([
+            service(EventHookDispatcher::class . '.inner'),
+        ]);
 
     $services->set('test.client', TestBrowser::class)
         ->share(false)

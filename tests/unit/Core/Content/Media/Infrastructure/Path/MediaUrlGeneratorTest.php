@@ -79,6 +79,22 @@ class MediaUrlGeneratorTest extends TestCase
         static::assertSame(['http://localhost:8000/media/foo/3a/test%20file.jpg'], $url);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the MEDIA_URL_PATH_ENCODING flag
+     */
+    #[DisabledFeatures(['v6.8.0.0', 'MEDIA_URL_PATH_ENCODING'])]
+    public function testWithInactiveMediaUrlPathEncoding(): void
+    {
+        $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/foo/3a/test file.jpg', null);
+        $generator = new MediaUrlGenerator(
+            new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),
+        );
+
+        $url = $generator->generate([$params]);
+
+        static::assertSame(['http://localhost:8000/media/foo/3a/test file.jpg'], $url);
+    }
+
     public function testWithActive68MajorKeepsLiteralPercentInStoragePath(): void
     {
         $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/ab/cd/50%20off.jpg', null);
@@ -91,8 +107,27 @@ class MediaUrlGeneratorTest extends TestCase
         static::assertSame(['http://localhost:8000/media/ab/cd/50%2520off.jpg'], $url);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the MEDIA_URL_PATH_ENCODING flag
+     */
     #[DisabledFeatures(['v6.8.0.0'])]
-    public function testWithInactive68Major(): void
+    public function testMediaUrlEncodingCanBeEnabledWithoutTheMajorFlag(): void
+    {
+        $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/foo/3a/test file.jpg', null);
+        $generator = new MediaUrlGenerator(
+            new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']),
+        );
+
+        $url = $generator->generate([$params]);
+
+        static::assertSame(['http://localhost:8000/media/foo/3a/test%20file.jpg'], $url);
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the MEDIA_URL_PATH_ENCODING flag
+     */
+    #[DisabledFeatures(['MEDIA_URL_PATH_ENCODING'])]
+    public function testMediaUrlEncodingCanBeDisabledWithTheMajorFlag(): void
     {
         $params = new UrlParams('id', UrlParamsSource::MEDIA, 'media/foo/3a/test file.jpg', null);
         $generator = new MediaUrlGenerator(

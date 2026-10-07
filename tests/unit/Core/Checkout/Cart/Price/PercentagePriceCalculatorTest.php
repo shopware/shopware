@@ -20,6 +20,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Cart\Tax\TaxCalculator;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Generator;
 
 /**
@@ -29,6 +30,43 @@ use Shopware\Core\Test\Generator;
 #[CoversClass(PercentagePriceCalculator::class)]
 class PercentagePriceCalculatorTest extends TestCase
 {
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the PROPORTIONAL_CART_TAXES flag
+     */
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testProportionalTaxesCanBeEnabledBeforeTheMajor(): void
+    {
+        $quantityCalculator = $this->createMock(QuantityPriceCalculator::class);
+        $quantityCalculator->expects($this->never())->method('calculate');
+        $calculator = new PercentagePriceCalculator(new CashRounding(), $quantityCalculator, new PercentageTaxRuleBuilder());
+        $prices = new PriceCollection([
+            new CalculatedPrice(100, 100, new CalculatedTaxCollection([new CalculatedTax(10, 10, 100)]), new TaxRuleCollection([new TaxRule(10)])),
+        ]);
+
+        $result = $calculator->calculate(-10, $prices, Generator::generateSalesChannelContext());
+
+        static::assertSame(-1.0, $result->getCalculatedTaxes()->getAmount());
+    }
+
+    /**
+     * @deprecated tag:v6.8.0 - Remove with the PROPORTIONAL_CART_TAXES flag
+     */
+    #[DisabledFeatures(['PROPORTIONAL_CART_TAXES'])]
+    public function testProportionalTaxesCanBeDisabledWithTheMajor(): void
+    {
+        $legacyPrice = new CalculatedPrice(-10, -10, new CalculatedTaxCollection(), new TaxRuleCollection());
+        $quantityCalculator = $this->createMock(QuantityPriceCalculator::class);
+        $quantityCalculator->expects($this->once())->method('calculate')->willReturn($legacyPrice);
+        $calculator = new PercentagePriceCalculator(new CashRounding(), $quantityCalculator, new PercentageTaxRuleBuilder());
+        $prices = new PriceCollection([
+            new CalculatedPrice(100, 100, new CalculatedTaxCollection([new CalculatedTax(10, 10, 100)]), new TaxRuleCollection([new TaxRule(10)])),
+        ]);
+
+        $result = $calculator->calculate(-10, $prices, Generator::generateSalesChannelContext());
+
+        static::assertSame($legacyPrice, $result);
+    }
+
     #[DataProvider('grossPriceDataProvider')]
     public function testCalculatePercentagePriceOfGrossPrices(PercentageCalculation $calculation): void
     {

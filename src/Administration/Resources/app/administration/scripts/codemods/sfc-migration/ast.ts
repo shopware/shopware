@@ -32,6 +32,11 @@ type Ctx = {
     inferredEmits: string[];
     /** Written through `report()`; a single `skip` entry refuses the component outright. */
     reports: (TodoEntry & { kind: ReportKind })[];
+    /**
+     * The component belongs to an extension, which cannot import Administration source, so a mixin whose
+     * composable `shopware:composables` does not publish refuses it.
+     */
+    extensionTarget: boolean;
 };
 
 type FnLike = {

@@ -8,15 +8,20 @@ use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartCalculator;
 use Shopware\Core\Checkout\Cart\CartLocker;
+use Shopware\Core\Checkout\Cart\Extension\CartItemAddRouteExtension;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\LineItemFactoryRegistry;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartItemAddRoute;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartResponse;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -39,7 +44,8 @@ class CartItemAddRouteTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             static::createStub(LineItemFactoryRegistry::class),
             static::createStub(RateLimiter::class),
-            static::createStub(CartLocker::class)
+            static::createStub(CartLocker::class),
+            new ExtensionDispatcher(new EventDispatcher())
         ))->getDecorated();
     }
 
@@ -147,6 +153,35 @@ class CartItemAddRouteTest extends TestCase
         );
     }
 
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $cart = new Cart(Uuid::randomHex());
+        $context = Generator::generateSalesChannelContext();
+        $items = [new LineItem(Uuid::randomHex(), LineItem::PRODUCT_LINE_ITEM_TYPE)];
+        $response = new CartResponse(new Cart('token'));
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('cart-item-add-route.add.pre', static function (CartItemAddRouteExtension $extension) use ($request, $cart, $context, $items, $response): void {
+            static::assertSame(['request' => $request, 'cart' => $cart, 'context' => $context, 'items' => $items], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new CartItemAddRoute(
+            static::createStub(CartCalculator::class),
+            static::createStub(AbstractCartPersister::class),
+            static::createStub(EventDispatcherInterface::class),
+            static::createStub(LineItemFactoryRegistry::class),
+            static::createStub(RateLimiter::class),
+            static::createStub(CartLocker::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->add($request, $cart, $context, $items));
+    }
+
     private function createCartItemAddRoute(?string $expectedCacheKey, ?CartLocker $cartLocker = null): CartItemAddRoute
     {
         $rateLimiter = $this->createMock(RateLimiter::class);
@@ -178,7 +213,8 @@ class CartItemAddRouteTest extends TestCase
             static::createStub(EventDispatcherInterface::class),
             $lineItemFactory,
             $rateLimiter,
-            $cartLocker
+            $cartLocker,
+            new ExtensionDispatcher(new EventDispatcher())
         );
     }
 

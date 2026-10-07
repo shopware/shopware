@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Subscriber;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -26,7 +27,8 @@ class MessageQueueStatsSubscriber implements EventSubscriberInterface
          * @deprecated tag:v6.8.0 - Property will be removed. The increment-based message queue statistics are deprecated.
          */
         private readonly IncrementGatewayRegistry $gatewayRegistry,
-        private readonly StatsService $statsService
+        private readonly StatsService $statsService,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -61,7 +63,12 @@ class MessageQueueStatsSubscriber implements EventSubscriberInterface
     public function onMessageHandled(WorkerMessageHandledEvent $event): void
     {
         $this->handle($event->getEnvelope(), false);
-        $this->statsService->registerMessage($event->getEnvelope());
+
+        try {
+            $this->statsService->registerMessage($event->getEnvelope());
+        } catch (\Throwable $e) {
+            $this->logger->warning('Failed to register the message queue statistics', ['exception' => $e]);
+        }
     }
 
     /**
@@ -85,14 +92,18 @@ class MessageQueueStatsSubscriber implements EventSubscriberInterface
 
         $name = $envelope->getMessage()::class;
 
-        $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
+        try {
+            $gateway = $this->gatewayRegistry->get(IncrementGatewayRegistry::MESSAGE_QUEUE_POOL);
 
-        if ($increment) {
-            $gateway->increment('message_queue_stats', $name);
+            if ($increment) {
+                $gateway->increment('message_queue_stats', $name);
 
-            return;
+                return;
+            }
+
+            $gateway->decrement('message_queue_stats', $name);
+        } catch (\Throwable $e) {
+            $this->logger->warning('Failed to update the message queue increment statistics', ['exception' => $e]);
         }
-
-        $gateway->decrement('message_queue_stats', $name);
     }
 }

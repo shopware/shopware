@@ -8,15 +8,12 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
 /**
- * Dispatched with the ids of products whose `available` flag changed from true to false.
- * Products which became available are dispatched with the `ProductBecameAvailableEvent`.
- *
- * Until v6.8.0.0, the event also contains the ids of products which became available.
+ * Dispatched with the ids of products whose `available` flag changed from false to true.
  *
  * @codeCoverageIgnore
  */
 #[Package('inventory')]
-class ProductNoLongerAvailableEvent extends Event implements ShopwareEvent, ProductChangedEventInterface
+class ProductBecameAvailableEvent extends Event implements ShopwareEvent, ProductChangedEventInterface
 {
     /**
      * @param list<string> $ids

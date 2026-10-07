@@ -4,11 +4,13 @@ namespace Shopware\Core\Content\Product\Stock;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
+use Shopware\Core\Content\Product\Events\ProductBecameAvailableEvent;
 use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
 use Shopware\Core\Content\Product\Events\ProductStockAlteredEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -135,15 +137,33 @@ class StockStorage extends AbstractStockStorage
             ['ids' => ArrayParameterType::BINARY]
         );
 
-        $updated = [];
+        $noLongerAvailable = [];
+        $becameAvailable = [];
         foreach ($before as $id => $available) {
-            if ($available !== $after[$id]) {
-                $updated[] = (string) $id;
+            if ((bool) $available === (bool) $after[$id]) {
+                continue;
             }
+
+            if ((bool) $available) {
+                $noLongerAvailable[] = (string) $id;
+
+                continue;
+            }
+
+            $becameAvailable[] = (string) $id;
         }
 
-        if ($updated !== []) {
-            $this->dispatcher->dispatch(new ProductNoLongerAvailableEvent($updated, $context));
+        // @deprecated tag:v6.8.0 - remove the legacy branch, the event will only contain products which are no longer available
+        if (!Feature::isActive('v6.8.0.0')) {
+            $noLongerAvailable = [...$noLongerAvailable, ...$becameAvailable];
+        }
+
+        if ($noLongerAvailable !== []) {
+            $this->dispatcher->dispatch(new ProductNoLongerAvailableEvent($noLongerAvailable, $context));
+        }
+
+        if ($becameAvailable !== []) {
+            $this->dispatcher->dispatch(new ProductBecameAvailableEvent($becameAvailable, $context));
         }
     }
 }

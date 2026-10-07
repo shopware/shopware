@@ -376,6 +376,22 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## `ProductNoLongerAvailableEvent` only contains products that are no longer available
+
+`Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent` was dispatched for every product whose `available` flag changed, including products that became available again. It now only contains products whose `available` flag changed from `true` to `false`.
+
+Products that became available are dispatched with `Shopware\Core\Content\Product\Events\ProductBecameAvailableEvent`. If your subscriber reacted to both directions, for example to invalidate caches, subscribe to both events:
+
+```php
+public static function getSubscribedEvents(): array
+{
+    return [
+        ProductNoLongerAvailableEvent::class => 'onAvailabilityChanged',
+        ProductBecameAvailableEvent::class => 'onAvailabilityChanged',
+    ];
+}
+```
+
 ## Removal of legacy `ConfigurationService` getters
 
 The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` have been removed.

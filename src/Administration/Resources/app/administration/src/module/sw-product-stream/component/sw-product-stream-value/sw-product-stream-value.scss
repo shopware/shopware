@@ -27,4 +27,13 @@
     .sw-select__selection {
         flex: 1;
     }
+
+    .sw-select-selection-list {
+        flex-wrap: wrap;
+        overflow: visible;
+    }
+
+    .sw-select-selection-list__item-holder {
+        max-width: 100%;
+    }
 }

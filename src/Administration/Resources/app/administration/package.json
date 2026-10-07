@@ -302,6 +302,8 @@
     "prosemirror-view": "1.42.3",
     "proxy-addr": "2.0.8",
     "source-map-js": "1.2.2",
+    "shell-quote": "1.11.0",
+    "pbkdf2": "3.1.7",
     "@lhci/cli": {
       "uuid": "11.1.1"
     }

@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\CallableClass;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Shopware\Core\Test\Integration\Traits\EventHookBehaviour;
 
 /**
  * @internal
@@ -18,6 +18,7 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
 #[Package('after-sales')]
 class CacheFlowLoaderTest extends TestCase
 {
+    use EventHookBehaviour;
     use IntegrationTestBehaviour;
 
     public function testGetSubscribedEvents(): void
@@ -29,12 +30,9 @@ class CacheFlowLoaderTest extends TestCase
 
     public function testClearFlowCache(): void
     {
-        /** @var EventDispatcher $dispatcher */
-        $dispatcher = static::getContainer()->get('event_dispatcher');
-
         $listener = $this->createMock(CallableClass::class);
         $listener->expects($this->once())->method('__invoke');
-        $dispatcher->addListener(FlowEvents::FLOW_WRITTEN_EVENT, $listener);
+        $this->onEvent(FlowEvents::FLOW_WRITTEN_EVENT, $listener);
 
         $flowLoader = static::getContainer()->get(CachedFlowLoader::class);
         $class = new \ReflectionClass($flowLoader);

@@ -43,7 +43,7 @@ class ApiControllerVersionTest extends TestCase
 
         static::assertSame(Response::HTTP_NO_CONTENT, $response->getStatusCode(), (string) $response->getContent());
 
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
 
         $this->getBrowser()->jsonRequest(
             'POST',
@@ -77,7 +77,7 @@ class ApiControllerVersionTest extends TestCase
         $browser->jsonRequest('POST', '/api/product', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $this->assertEntityExists($browser, 'product', $id);
@@ -96,7 +96,7 @@ class ApiControllerVersionTest extends TestCase
         $browser->jsonRequest('POST', '/api/_action/version/' . $response['versionId'] . '/product/' . $id);
         $response = json_decode((string) $browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertEmpty($response);
+        static::assertSame([], $response);
 
         $this->assertEntityExists($browser, 'product', $id);
 

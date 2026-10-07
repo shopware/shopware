@@ -569,7 +569,7 @@ class RequestCriteriaBuilderTest extends TestCase
 
         $criteria = $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
 
-        static::assertEmpty($criteria->getAssociations());
+        static::assertCount(0, $criteria->getAssociations());
     }
 
     #[DataProvider('providerTotalCount')]

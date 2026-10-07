@@ -141,7 +141,7 @@ EOF;
 
         static::assertCount(1, $data);
         static::assertSame(Uuid::fromHexToBytes($id), $data[0]['id']);
-        static::assertEmpty($data[0]['protected']);
+        static::assertNull($data[0]['protected']);
     }
 
     public function testWriteWithPermission(): void

@@ -161,7 +161,7 @@ class ApiControllerSearchTest extends TestCase
         $this->getBrowser()->jsonRequest('POST', '/api/product', $data);
         $response = $this->getBrowser()->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $this->getBrowser()->getResponse()->getStatusCode(), (string) $this->getBrowser()->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $data = [
@@ -248,7 +248,7 @@ class ApiControllerSearchTest extends TestCase
         $browser->jsonRequest('POST', '/api/product', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/product/' . $id, $response->headers->get('Location'));
 
         $data = [
@@ -430,7 +430,7 @@ class ApiControllerSearchTest extends TestCase
         $browser->jsonRequest('POST', '/api/country', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         TestUser::createNewTestUser(
@@ -477,7 +477,7 @@ class ApiControllerSearchTest extends TestCase
         $browser->jsonRequest('POST', '/api/country', $data);
         $response = $browser->getResponse();
         static::assertSame(Response::HTTP_NO_CONTENT, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
-        static::assertNotEmpty($response->headers->get('Location'));
+        static::assertNotNull($response->headers->get('Location'));
         static::assertSame('http://localhost/api/country/' . $id, $response->headers->get('Location'));
 
         TestUser::createNewTestUser(
@@ -768,7 +768,7 @@ class ApiControllerSearchTest extends TestCase
         $content = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r((string) $response->getContent(), true));
-        static::assertNotEmpty($content);
+        static::assertIsArray($content);
 
         static::assertArrayHasKey('aggregations', $content);
         $aggregations = $content['aggregations'];

@@ -109,7 +109,7 @@ class AssetServiceTest extends TestCase
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
 
-        static::assertNotEmpty($adapter->visibilities);
+        static::assertNotCount(0, $adapter->visibilities);
         static::assertSame([Visibility::PRIVATE], array_values(array_unique($adapter->visibilities)));
     }
 
@@ -132,7 +132,7 @@ class AssetServiceTest extends TestCase
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
 
-        static::assertNotEmpty($adapter->visibilities);
+        static::assertNotCount(0, $adapter->visibilities);
         static::assertSame([Visibility::PRIVATE], array_values(array_unique($adapter->visibilities)));
     }
 
@@ -153,7 +153,7 @@ class AssetServiceTest extends TestCase
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
 
-        static::assertNotEmpty($adapter->visibilities);
+        static::assertNotCount(0, $adapter->visibilities);
         static::assertSame([Visibility::PRIVATE], array_values(array_unique($adapter->visibilities)));
     }
 
@@ -172,7 +172,7 @@ class AssetServiceTest extends TestCase
 
         $assetService->copyAssetsFromBundle('ExampleBundle');
 
-        static::assertNotEmpty($adapter->visibilities);
+        static::assertNotCount(0, $adapter->visibilities);
         static::assertSame([Visibility::PUBLIC], array_values(array_unique($adapter->visibilities)));
     }
 
@@ -282,7 +282,7 @@ class AssetServiceTest extends TestCase
 
         $assetService->copyAssetsFromApp('TestApp', __DIR__ . '/foo');
 
-        static::assertEmpty($filesystem->listContents('bundles')->toArray());
+        static::assertCount(0, $filesystem->listContents('bundles')->toArray());
     }
 
     public function testCopyAssetsWithApp(): void

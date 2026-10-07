@@ -535,7 +535,7 @@ class PluginLifecycleServiceTest extends TestCase
 
         $pluginLifecycleService->uninstallPlugin($plugin, Context::createDefaultContext());
 
-        static::assertEmpty($replacedEventDispatcher->getListeners());
+        static::assertCount(0, $replacedEventDispatcher->getListeners());
         static::assertCount(1, $this->eventDispatcher->getListeners());
     }
 

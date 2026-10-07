@@ -676,8 +676,35 @@ export default Shopware.Component.wrapComponentConfig({
             });
         },
 
-        onUpdateRadioPanelProperty(key: string, value: string): void {
-            this.onUpdateField(key, value);
+        // Option keys are strings for the DOM; the emitted value is the declared enum entry, so an
+        // integer or boolean enum is written in its declared type.
+        getRadioPanelEmitValue(
+            key: string,
+            property: ContentSystemElementTypeProperty,
+            optionKey: string,
+        ): string | number | boolean {
+            if (!Array.isArray(property.enum)) {
+                // Without an enum the choices come from adminUI.props.options, whose keys are the string values.
+                if (property.type === 'string') {
+                    return optionKey;
+                }
+
+                throw new Error(
+                    `The radio-panel property "${key}" of type ${JSON.stringify(property.type)} declares no enum, so option "${optionKey}" has no value to emit.`,
+                );
+            }
+
+            const enumValue = property.enum.find((value) => String(value) === optionKey);
+
+            if (enumValue === undefined) {
+                throw new Error(`The option "${optionKey}" of the radio-panel property "${key}" matches no enum entry.`);
+            }
+
+            return enumValue;
+        },
+
+        onUpdateRadioPanelProperty(key: string, property: ContentSystemElementTypeProperty, optionKey: string): void {
+            this.onUpdateField(key, this.getRadioPanelEmitValue(key, property, optionKey));
         },
 
         toNumberOrFallback(value: unknown, fallback: number): number {

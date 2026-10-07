@@ -38,6 +38,6 @@ runNpmAudit({
         'https://github.com/advisories/GHSA-7pqw-9j4j-h8q3', // extract-zip arbitrary file writes via symlink archive entries, devDep only; no fix in extract-zip itself and the fixed Puppeteer requires Node 22.12+ while this package still supports Node 20
         'https://github.com/advisories/GHSA-vfj7-8cjw-p6xm', // braces stack-exhaustion DoS on deeply nested patterns, build tooling only (chokidar/micromatch via sass, vite, jscodeshift, patch-package), patterns are developer-controlled and never reach the shipped bundle; no patched braces release exists yet (<=3.0.3 is the latest)
         'https://github.com/advisories/GHSA-rj75-hqrm-r3gf', // postcss-selector-parser quadratic parsing, moderate, devDep only; 7.x is overridden to 7.1.6, the 6.x copy used by stylelint 14 has no fix outside 7.x
-        'https://github.com/advisories/GHSA-g2v6-rqmx-r4w6', // @vue/server-renderer attribute XSS, only affects server-side rendering, which the browser-only Administration never uses; the patched vue 3.5.43 breaks $refs to sw-select-result-list inside sw-select-base slots, so the update needs its own change
+        'https://github.com/advisories/GHSA-g2v6-rqmx-r4w6', // @vue/server-renderer attribute XSS, only affects server-side rendering, which the browser-only Administration never uses; the patched vue 3.5.43 breaks $refs to sw-select-result-list inside sw-select-base slots, so the update needs its own change, tracked in https://github.com/shopware/shopware/issues/21307
     ],
 });

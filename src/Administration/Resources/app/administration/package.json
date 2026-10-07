@@ -61,7 +61,7 @@
     "@babel/parser": "7.29.7",
     "@babel/types": "7.29.7",
     "@jridgewell/sourcemap-codec": "1.5.5",
-    "@shopware-ag/dive": "4.0.2",
+    "@shopware-ag/dive": "4.1.0",
     "@shopware-ag/meteor-admin-sdk": "6.15.0",
     "@shopware-ag/meteor-component-library": "5.8.0",
     "@shopware-ag/meteor-icon-kit": "5.11.0",

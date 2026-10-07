@@ -4,5 +4,10 @@
         "phpstan/phpstan": "2.2.5",
         "rector/rector": "2.5.7"
     },
-    "sort-packages": true
+    "sort-packages": true,
+    "config": {
+        "platform": {
+            "php": "8.5"
+        }
+    }
 }

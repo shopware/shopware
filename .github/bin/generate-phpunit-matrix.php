@@ -35,13 +35,13 @@ $php = ['8.2'];
 $db = ['mysql:8.0'];
 
 if ($nightly) {
-    $php = ['8.2', '8.5'];
+    $php = ['8.2', '8.6'];
 }
 
 $includes = [
     [
         'test' => ['testsuite' => 'devops'],
-        'php' => '8.5',
+        'php' => '8.6',
         'db' => 'mariadb:11'
     ],
     // MySQL 8.4 defaults restrict_fk_on_non_standard_key to ON; NonStandardFkGuardTest
@@ -54,7 +54,7 @@ $includes = [
 ];
 
 if ($nightly) {
-    // The DB spread runs on PHP 8.2 only and the PHP spread (8.5) on mysql:8.0 only:
+    // The DB spread runs on PHP 8.2 only and the PHP spread (8.6) on mysql:8.0 only:
     // DB behaviour does not depend on the PHP version, so the full cross product
     // adds jobs but no signal.
     $nightlyDbs = ['mysql:9.7', 'mariadb:11', 'mariadb:12.3', 'quay.io/mariadb-foundation/mariadb-devel:verylatest'];

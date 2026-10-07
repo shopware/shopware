@@ -569,7 +569,8 @@ export default {
             bind.error = this.getFieldError(element.name);
 
             // Inheritance bindings
-            bind.inheritedValue = this.getInheritedValue(element);
+            // mt-checkbox shows the inheritance switch whenever inheritedValue is not null
+            bind.inheritedValue = mapInheritance?.isInheritField ? this.getInheritedValue(element) : null;
             bind.isInheritanceField = mapInheritance?.isInheritField;
             bind.isInherited = mapInheritance?.isInherited;
             bind.disabled = mapInheritance?.isInherited || element.config?.disabled;

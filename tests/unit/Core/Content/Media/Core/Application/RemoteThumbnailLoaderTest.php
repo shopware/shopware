@@ -19,6 +19,7 @@ use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -449,5 +450,52 @@ class RemoteThumbnailLoaderTest extends TestCase
         $thumbnail = $thumbnails->first();
         static::assertInstanceOf(MediaThumbnailEntity::class, $thumbnail);
         static::assertSame('http://localhost:8000/foo/bar.png?width=200&ts=', $thumbnail->getUrl());
+    }
+
+    public function testDoesNotDispatchExtensionWhenNoListenerIsRegistered(): void
+    {
+        $ids = new IdsCollection();
+        $filesystem = new Filesystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchAllAssociative')->willReturnOnConsecutiveCalls([], [[
+            'folder_id' => $ids->get('mediaFolderId'),
+            'configuration_id' => $ids->get('mediaFolderConfigurationId'),
+            'create_thumbnails' => '1',
+        ]]);
+
+        $dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $dispatcher->expects($this->exactly(9))
+            ->method('hasListeners')
+            ->willReturn(false);
+        $dispatcher->expects($this->never())->method('dispatch');
+
+        $entity = (new PartialEntity())->assign([
+            'id' => $ids->get('media'),
+            'path' => 'foo/bar.png',
+            'mediaFolderId' => $ids->get('mediaFolderId'),
+            'private' => false,
+        ]);
+
+        $prefixFilesystem = static::createStub(PrefixFilesystem::class);
+        $prefixFilesystem->method('publicUrl')->willReturn('http://localhost:8000');
+
+        $loader = new RemoteThumbnailLoader(
+            new MediaUrlGenerator($filesystem),
+            $connection,
+            $prefixFilesystem,
+            new ExtensionDispatcher($dispatcher),
+            '{mediaUrl}/{mediaPath}?width={width}&ts={mediaUpdatedAt}',
+            [
+                ['width' => 200, 'height' => 200],
+                ['width' => 400, 'height' => 400],
+                ['width' => 600, 'height' => 600],
+            ]
+        );
+
+        $loader->load([$entity]);
+
+        static::assertSame('http://localhost:8000/foo/bar.png', $entity->get('url'));
+        static::assertCount(3, $entity->get('thumbnails'));
     }
 }

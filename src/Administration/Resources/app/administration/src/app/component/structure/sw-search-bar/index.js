@@ -375,13 +375,13 @@ export default {
 
         onFocusInput() {
             this.isActive = true;
+            this.showModuleFiltersContainer = false;
 
             if (this.searchTerm === '#') {
                 this.showTypeContainer();
             }
 
             if (this.resultsSearchTrends?.length) {
-                this.showModuleFiltersContainer = false;
                 this.showResultsSearchTrends = true;
                 return;
             }

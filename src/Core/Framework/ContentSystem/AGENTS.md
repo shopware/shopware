@@ -13,40 +13,33 @@
 - Which error codes are a client defect — [docs/client-defect-codes.md](docs/client-defect-codes.md)
 - The six extension mechanisms — [docs/extending.md](docs/extending.md)
 - DI tags, base classes, value objects, enums, events — [docs/service-tags-and-types.md](docs/service-tags-and-types.md)
-- Rendering pipeline data-flow diagram — [docs/data-flow.md](docs/data-flow.md)
-- A worked layout combining entity rendering, data loading and context distribution — [docs/product-detail-page.md](docs/product-detail-page.md)
-- How classes in this module are named — [NAMING.md](NAMING.md), routing on to [docs/stored-and-rendered.md](docs/stored-and-rendered.md) (which of the two element models a name is about) and [docs/role-suffixes.md](docs/role-suffixes.md) (what each role suffix promises)
+- Data-flow diagram: [docs/data-flow.md](docs/data-flow.md)
+- A worked layout (entity rendering, data loading, context distribution): [docs/product-detail-page.md](docs/product-detail-page.md)
+- Class naming: [NAMING.md](NAMING.md), then [docs/stored-and-rendered.md](docs/stored-and-rendered.md) (which element model a name is about) and [docs/role-suffixes.md](docs/role-suffixes.md) (what a role suffix promises)
 
 ## Source Code References
 
-- **Pipeline**: `ContentPipeline`, `RenderingMode` (FULL vs SKELETON); the ordered steps are in [docs/pipeline-steps.md](docs/pipeline-steps.md)
-- **Store API**: `SalesChannel/ContentRoute` — one class, DI-parameterized per format and section
-- **Entity Specification Sources**: `Content/Product/Aggregate/ProductContentLayout/ProductSpecificationSource`, `Content/Category/Aggregate/CategoryContentLayout/CategorySpecificationSource`, `Content/LandingPage/Aggregate/LandingPageContentLayout/LandingPageSpecificationSource`
-- **Header/Footer Sources**: `Storefront/ContentSystem/HeaderContentLayout/HeaderSpecificationSource`, `Storefront/ContentSystem/FooterContentLayout/FooterSpecificationSource`
-- **Resolver**: `Adapter/RenderingSpecificationResolver` (3 instances: main, header, footer — see DI config)
+- **Pipeline and Store API**: `ContentPipeline`, `RenderingMode` (FULL vs SKELETON); ordered steps: [docs/pipeline-steps.md](docs/pipeline-steps.md). `SalesChannel/ContentRoute` — one class, DI-parameterized per format and section
+- **Specification Sources**: entity: `Content/Product/Aggregate/ProductContentLayout/ProductSpecificationSource`, `Content/Category/Aggregate/CategoryContentLayout/CategorySpecificationSource`, `Content/LandingPage/Aggregate/LandingPageContentLayout/LandingPageSpecificationSource`; header/footer: `Storefront/ContentSystem/HeaderContentLayout/HeaderSpecificationSource`, `Storefront/ContentSystem/FooterContentLayout/FooterSpecificationSource`
+- **Resolver**: `Adapter/RenderingSpecificationResolver` (3 instances: main, header, footer — see DI config); assignment-free `resolveWithoutLayout()` selects via `supportsEntityType()`; `RenderingSpecificationFactory::createWithoutLayout()` builds a `RenderingSpecification` with no layout id
 - **Root Source Registry**: `Adapter/RootSourceRegistry` (`knownRootSources()`, `entityRootSources()`, `resolve()`, `sourceFor()`), `Adapter/NoneSpecificationSource`
-- **Events**: `Event/ContentTreePreparationEvent`, `Event/RenderedTreeFinalizationEvent`
-- **Layout Value Objects**: `RenderableLayout` (reference + stored elements), `LayoutReference` (id, name, version), `ResolvedContentLayout` (layout ID + `RenderingSpecification`)
-- **Admin Preview API**: `Api/ContentPreviewController` — one route minting a short-lived token for an unsaved draft layout and returning a Storefront preview URL that renders it against real entity data, assignment-free. Route, mint-time admission, the absent direct render route and the payload store's contract are in [Api/AGENTS.md](Api/AGENTS.md); the wire contract in [Api/docs/preview-url.md](Api/docs/preview-url.md)
+- **Events and value objects**: `Event/ContentTreePreparationEvent`, `Event/RenderedTreeFinalizationEvent`; `RenderableLayout` (reference + stored elements), `LayoutReference` (id, name, version), `ResolvedContentLayout` (layout ID + `RenderingSpecification`)
+- **Admin Preview API**: `Api/ContentPreviewController` — one route that mints a short-lived token for an unsaved draft and returns a Storefront preview URL rendering it against real entity data, assignment-free. Route, mint-time admission, the absent direct render route, payload store: [Api/AGENTS.md](Api/AGENTS.md); wire contract: [Api/docs/preview-url.md](Api/docs/preview-url.md). Its draft check, `DraftLayoutChecker` (module root), runs the persistence gate's `LayoutDiagnostics` intrinsic subset
 - **Resolution & Diagnostics**: `Resolution/ElementResolver` + `Resolution/AvailableContextResolver` (kernel), `Diagnostics/LayoutDiagnostics` (`analyze(tree, rootContext)` → `LayoutAnalysis`: per-element `PropertyResolution`s + a `DiagnosticsReport`), `Diagnostics/RootContextMapper` (bound source → root-ambient context). `ViolationCode` resolves a violation's scope (intrinsic/binding) + severity
-- **Write-time gates**: the resolvability gate, the write-boundary default seeder and the delete protection — [docs/layout-write-gates.md](docs/layout-write-gates.md)
-- **Default-layout gate**: `Validation/ContentLayoutDefaultValidator` validates the product and category default layout in system config and refuses deleting a layout that is a default; see [Validation/AGENTS.md](Validation/AGENTS.md)
-- **Draft Check**: `DraftLayoutChecker` (module root) — the preview action's draft-layout check; runs the same `LayoutDiagnostics` intrinsic subset as the persistence gate
-- **Resolve-and-diagnose route**: `Api/ContentDiagnoseController` (`POST /api/_action/content-system/layout/diagnose`); operates only on a draft layout tree from the request, never the persisted `content_layout` entity; an optional `rootSource` in the request resolves its root-ambient context via `Adapter/RootSourceRegistry::resolveGated()` (empty/absent → intrinsic well-formedness only)
+- **Write-time gates**: the resolvability gate, the write-boundary default seeder, the delete protection — [docs/layout-write-gates.md](docs/layout-write-gates.md); the default-layout gate `Validation/ContentLayoutDefaultValidator` guards the system-config default layout of product and category and refuses deleting a default — [Validation/AGENTS.md](Validation/AGENTS.md)
+- **Resolve-and-diagnose route**: `Api/ContentDiagnoseController` (`POST /api/_action/content-system/layout/diagnose`): draft tree only, never the persisted `content_layout`; an optional `rootSource` resolves root-ambient context via `Adapter/RootSourceRegistry::resolveGated()` (absent or empty → intrinsic well-formedness only)
 - **Layout mutation**: `Mutation/MutationPipeline`, its `Mutation/Op` operations and `Mutation/PersistedLayoutMutator` — [docs/layout-mutation.md](docs/layout-mutation.md)
-- **Assignment-free resolution**: `Adapter/RenderingSpecificationResolver::resolveWithoutLayout()` selects a source via `supportsEntityType()`; `RenderingSpecificationFactory::createWithoutLayout()` assembles a `RenderingSpecification` with no layout id
-- **Introspection**: the element-type, style-option and root-source registries, the two compiler passes and the `/api/_info/` endpoints — [docs/introspection-endpoints.md](docs/introspection-endpoints.md)
+- **Introspection and compiler passes**: the element-type, style-option and root-source registries and the `/api/_info/` endpoints — [docs/introspection-endpoints.md](docs/introspection-endpoints.md); passes: `ContentSystemDataLoaderCompilerPass`, `ContentSystemCompilerPass`, `ContentSystemStyleOptionCompilerPass`, `ContentLayoutAssignableCompilerPass`, `ContentRouteCompilerPass`
 - **Element style**: `Layout/Element/Style/Registry/ContentSystemStyleOptionRegistry` and where an element's `style` is stored, encoded and served — [docs/element-styles.md](docs/element-styles.md)
 - **Binding Specification System**: `Binding/Specification/BindingSpecification`, `Binding/BindingApplicator`, `Binding/AttributionReconciler` — [docs/binding-specifications.md](docs/binding-specifications.md)
-- **Compiler passes**: `ContentSystemDataLoaderCompilerPass`, `ContentSystemCompilerPass`, `ContentSystemStyleOptionCompilerPass`, `ContentLayoutAssignableCompilerPass`, `ContentRouteCompilerPass`
 
 ## Constraints
 
 - `RenderingSpecificationResolver`: iterates sources via `supports()` bool check, first match wins — NOT null-return
 - OpenAPI schemas: update `src/Core/Framework/Api/ApiDefinition/Generator/Schema/StoreApi/` when modifying endpoints
-- Constraints owned by a reference document: pipeline step order and language reduction — [docs/pipeline-steps.md](docs/pipeline-steps.md); introspection assembly and the `storageSchema` fold — [docs/introspection-endpoints.md](docs/introspection-endpoints.md); primitive property satisfaction, the anchor rule for a translatable property, and what each write-time gate admits — [docs/layout-write-gates.md](docs/layout-write-gates.md); which error codes count as a client defect — [docs/client-defect-codes.md](docs/client-defect-codes.md)
+- Constraints owned elsewhere: pipeline step order and language reduction — [docs/pipeline-steps.md](docs/pipeline-steps.md); introspection assembly and the `storageSchema` fold — [docs/introspection-endpoints.md](docs/introspection-endpoints.md); primitive property satisfaction, the translatable anchor rule and what each write-time gate admits — [docs/layout-write-gates.md](docs/layout-write-gates.md); client-defect error codes — [docs/client-defect-codes.md](docs/client-defect-codes.md)
 
 ## Quick Reference
 
 - Exception class: `ContentSystemException`
-- DI config: `content-system.php` contains only framework-owned infrastructure; domain-specific services are registered in their owning module's DI
+- DI config: `content-system.php` contains only framework-owned infrastructure; domain services register in their owning module's DI

@@ -78,7 +78,7 @@ moved:
 ## Reference
 
 - [docs/operations.md](docs/operations.md) - the operations one by one: insert, remove, move, replace,
-  duplicate, wrap, unwrap, attach, bind, update properties, translate
+  duplicate, wrap, unwrap, attach, attach a list, bind, update properties, translate
 - [docs/replace-element.md](docs/replace-element.md) - what a type swap carries over, and what it drops
 - [docs/translate-element.md](docs/translate-element.md) - the translatable-key gate, rule order, and write privilege
 - [docs/runners.md](docs/runners.md) - `MutationPipeline`, `PersistedLayoutMutator`, and result assembly

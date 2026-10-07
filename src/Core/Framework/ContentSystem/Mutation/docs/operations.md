@@ -88,9 +88,11 @@ The context the container *provided* is not reported, a carve-out stated with th
 
 ## AttachElement
 
-`__construct(AbstractContentSystemElementTypeRegistry $registry, StoredElement $element, ?string $parentElementId = null, ?string $slot = null, ?int $index = null)`.
+`__construct(AbstractContentSystemElementTypeRegistry $registry, StoredElement $element, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator, ?string $parentElementId = null, ?string $slot = null, ?int $index = null)`.
 
-Splices a caller-supplied element subtree into a parent slot (or the root), reminting every id. The inverse of the
+Splices a caller-supplied element subtree into a parent slot (or the root), reminting every id, then fill-applies the
+type default binding to every element of the subtree (`applyDefaultBindingToSubtree()`; wiring the subtree already
+carries wins, more than one default throws `bindingSpecificationDefaultAmbiguous` `409`). The inverse of the
 detachment a replace reports through `orphaned`: it re-places a detached subtree, or a copied one, without trusting
 client ids. `requireRegistered($this->element->component)`: the supplied root's component must be a registered type,
 else `mutationUnknownType`, matching the check insert/replace/wrap run. Clients never supply ids; the server-minted
@@ -98,6 +100,12 @@ ids come back in `affected = subtreeIds($clone)`, and `created` carries the same
 the spliced subtree being new to the layout. Placement mirrors `Op/InsertElement` (slot required with a parent →
 `mutationSlotRequired`; parent must exist → `mutationTargetNotFound`). Detaches nothing:
 `orphaned`/`droppedWiring`/`droppedProperties` stay empty.
+
+## AttachElements
+
+`__construct(AbstractContentSystemElementTypeRegistry $registry, array $elements, AbstractContentSystemBindingSpecificationRegistry $bindingRegistry, BindingApplicator $bindingApplicator, ?string $parentElementId = null, ?string $slot = null, ?int $index = null)`.
+
+Attaches a list of caller-supplied element subtrees by running `AttachElement` over each one in list order, into the same parent slot (or the root). Every rule, error and result of `AttachElement` applies per element, so the first element that fails aborts the whole operation. With an `$index`, element `n` of the list is placed at `$index + n`, keeping list order; with none, each is appended. `affected` and `created` are the unions of the per-element sets. An empty list changes nothing. The preset-insert route is its caller.
 
 ## BindElement
 

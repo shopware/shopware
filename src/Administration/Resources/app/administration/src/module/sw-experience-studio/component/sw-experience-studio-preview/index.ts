@@ -6,7 +6,7 @@ const PREVIEW_RELOAD_DEBOUNCE_MS = 800;
 
 const { cloneDeep } = Shopware.Utils.object;
 
-type Viewport = 'mobile' | 'tablet-landscape' | 'desktop';
+type Viewport = 'mobile' | 'tablet-landscape' | 'desktop' | 'custom';
 
 type ContentSystemPreviewService = {
     previewEntityUrl: (payload: {

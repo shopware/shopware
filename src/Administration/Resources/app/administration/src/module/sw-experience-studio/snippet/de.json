@@ -7,6 +7,33 @@
       "moduleTitle": "Experience Studio",
       "createNewLayout": "Neues Layout erstellen"
     },
+    "workspace": {
+      "saveAll": "Alle Layouts speichern",
+      "saved": "Alle geöffneten Layouts wurden gespeichert.",
+      "savePartialFailure": "Einige Layouts konnten nicht gespeichert werden: {layouts}",
+      "layoutPicker": {
+        "title": "Layout öffnen",
+        "searchLabel": "Layouts suchen",
+        "searchPlaceholder": "Layoutnamen eingeben...",
+        "emptyTitle": "Keine Layouts gefunden",
+        "emptyDescription": "Erstelle ein Layout, um mit der Bearbeitung zu beginnen.",
+        "loadError": "Die Layoutliste konnte nicht geladen werden.",
+        "open": "Layout öffnen",
+        "activate": "Layout anzeigen"
+      },
+      "layouts": {
+        "title": "Layouts",
+        "create": "Erstellen",
+        "unsaved": "Ungespeicherte Änderungen",
+        "focus": "Auf {name} fokussieren",
+        "assignments": "Zuweisungen für {name} verwalten",
+        "close": "{name} schließen"
+      },
+      "closeDirty": {
+        "title": "Änderungen speichern?",
+        "description": "Änderungen an {name} vor dem Schließen speichern?"
+      }
+    },
     "mapping": {
       "category": {
         "name": {
@@ -185,8 +212,29 @@
         "previewEntityPlaceholder": "Entität für die Vorschau auswählen",
         "previewSalesChannel": "Verkaufskanal",
         "previewSalesChannelPlaceholder": "Verkaufskanal für die Vorschau auswählen",
-        "assignments": "Zuweisungen",
         "save": "Layout speichern"
+      },
+      "canvas": {
+        "customViewport": "Benutzerdefiniert",
+        "viewportToolbar": "Vorschau-Viewport",
+        "moveFrame": "Vorschau verschieben. Mit den Pfeiltasten positionieren.",
+        "closeFrame": "Layout {name} schließen",
+        "panelsToolbar": "Canvas-Bereiche",
+        "structure": "Struktur",
+        "settings": "Einstellungen",
+        "closePanel": "Bereich schließen",
+        "zoomToolbar": "Canvas-Zoomsteuerung",
+        "zoomOut": "Verkleinern",
+        "zoomIn": "Vergrößern",
+        "fit": "Vorschau in Canvas einpassen",
+        "resizeNorth": "Vorschau am oberen Rand skalieren",
+        "resizeNorthEast": "Vorschau an der oberen rechten Ecke skalieren",
+        "resizeEast": "Vorschau am rechten Rand skalieren",
+        "resizeSouthEast": "Vorschau an der unteren rechten Ecke skalieren",
+        "resizeSouth": "Vorschau am unteren Rand skalieren",
+        "resizeSouthWest": "Vorschau an der unteren linken Ecke skalieren",
+        "resizeWest": "Vorschau am linken Rand skalieren",
+        "resizeNorthWest": "Vorschau an der oberen linken Ecke skalieren"
       },
       "assignmentModal": {
         "title": "Layout-Zuweisungen",

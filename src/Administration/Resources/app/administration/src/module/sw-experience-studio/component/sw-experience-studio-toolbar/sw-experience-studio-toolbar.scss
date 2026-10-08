@@ -2,7 +2,7 @@
 
 .sw-experience-studio-toolbar {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
     align-items: stretch;
     gap: 16px;
     padding: 12px 20px;
@@ -15,19 +15,12 @@
         gap: 24px;
     }
 
-    &__center,
     &__right {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 12px;
-    }
-
-    &__center {
-        justify-content: center;
-    }
-
-    &__right {
         justify-content: flex-end;
+        gap: 12px;
     }
 
     &__page-info {
@@ -179,26 +172,11 @@
         }
     }
 
-    &__device-actions {
-        display: grid;
-        grid-template-columns: 24px 24px 24px;
-        grid-column-gap: 20px;
-        align-content: center;
-        align-items: center;
-        justify-content: start;
-        justify-items: center;
+    @media screen and (max-width: 1100px) {
+        grid-template-columns: minmax(0, 1fr);
 
-        .mt-icon {
-            color: var(--color-icon-secondary-default);
-            cursor: pointer;
-
-            &:hover {
-                color: var(--color-text-primary-default);
-            }
-
-            &.is--active {
-                color: var(--color-text-brand-default);
-            }
+        &__right {
+            justify-content: flex-start;
         }
     }
 }

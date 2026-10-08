@@ -4,9 +4,14 @@ import type { ContentElementNode } from 'src/core/service/content-element.types'
 import { createEditorHistoryEntry, trimHistoryStack } from '../util/editor-history.util';
 
 type ExperienceStudioEditorState = {
-    layoutId: string | null;
-    past: EditorHistoryEntry[];
-    future: EditorHistoryEntry[];
+    activeLayoutId: string | null;
+    historyByLayoutId: Record<
+        string,
+        {
+            past: EditorHistoryEntry[];
+            future: EditorHistoryEntry[];
+        }
+    >;
 };
 
 /**
@@ -17,63 +22,95 @@ const experienceStudioEditorStore = Shopware.Store.register({
     id: 'experienceStudioEditor',
 
     state: (): ExperienceStudioEditorState => ({
-        layoutId: null,
-        past: [],
-        future: [],
+        activeLayoutId: null,
+        historyByLayoutId: {},
     }),
 
     getters: {
-        canUndo: (state): boolean => state.past.length > 0,
+        canUndo: (state): boolean => {
+            const activeHistory = state.activeLayoutId ? state.historyByLayoutId[state.activeLayoutId] : null;
 
-        canRedo: (state): boolean => state.future.length > 0,
+            return Boolean(activeHistory?.past.length);
+        },
+
+        canRedo: (state): boolean => {
+            const activeHistory = state.activeLayoutId ? state.historyByLayoutId[state.activeLayoutId] : null;
+
+            return Boolean(activeHistory?.future.length);
+        },
     },
 
     actions: {
         initialize(layoutId: string): void {
-            if (this.layoutId === layoutId) {
-                return;
+            if (!this.historyByLayoutId[layoutId]) {
+                this.historyByLayoutId[layoutId] = {
+                    past: [],
+                    future: [],
+                };
             }
 
-            this.reset();
-            this.layoutId = layoutId;
+            this.activeLayoutId = layoutId;
+        },
+
+        removeLayout(layoutId: string): void {
+            delete this.historyByLayoutId[layoutId];
+
+            if (this.activeLayoutId === layoutId) {
+                this.activeLayoutId = null;
+            }
         },
 
         reset(): void {
-            this.layoutId = null;
-            this.past = [];
-            this.future = [];
+            this.activeLayoutId = null;
+            this.historyByLayoutId = {};
         },
 
         pushToHistory(layout: ContentElementNode[], selectedElementId: string | null): void {
-            this.past.push(createEditorHistoryEntry(layout, selectedElementId));
-            trimHistoryStack(this.past, EXPERIENCE_STUDIO_MAX_HISTORY_SIZE);
-            this.future = [];
+            const activeHistory = this.getActiveHistory();
+
+            if (!activeHistory) {
+                return;
+            }
+
+            activeHistory.past.push(createEditorHistoryEntry(layout, selectedElementId));
+            trimHistoryStack(activeHistory.past, EXPERIENCE_STUDIO_MAX_HISTORY_SIZE);
+            activeHistory.future = [];
         },
 
         undo(currentLayout: ContentElementNode[], currentSelectedElementId: string | null): EditorHistoryEntry | null {
-            const previousEntry = this.past.pop();
+            const activeHistory = this.getActiveHistory();
+            const previousEntry = activeHistory?.past.pop();
 
-            if (!previousEntry) {
+            if (!previousEntry || !activeHistory) {
                 return null;
             }
 
-            this.future.push(createEditorHistoryEntry(currentLayout, currentSelectedElementId));
-            trimHistoryStack(this.future, EXPERIENCE_STUDIO_MAX_HISTORY_SIZE);
+            activeHistory.future.push(createEditorHistoryEntry(currentLayout, currentSelectedElementId));
+            trimHistoryStack(activeHistory.future, EXPERIENCE_STUDIO_MAX_HISTORY_SIZE);
 
             return previousEntry;
         },
 
         redo(currentLayout: ContentElementNode[], currentSelectedElementId: string | null): EditorHistoryEntry | null {
-            const nextEntry = this.future.pop();
+            const activeHistory = this.getActiveHistory();
+            const nextEntry = activeHistory?.future.pop();
 
-            if (!nextEntry) {
+            if (!nextEntry || !activeHistory) {
                 return null;
             }
 
-            this.past.push(createEditorHistoryEntry(currentLayout, currentSelectedElementId));
-            trimHistoryStack(this.past, EXPERIENCE_STUDIO_MAX_HISTORY_SIZE);
+            activeHistory.past.push(createEditorHistoryEntry(currentLayout, currentSelectedElementId));
+            trimHistoryStack(activeHistory.past, EXPERIENCE_STUDIO_MAX_HISTORY_SIZE);
 
             return nextEntry;
+        },
+
+        getActiveHistory(): ExperienceStudioEditorState['historyByLayoutId'][string] | null {
+            if (!this.activeLayoutId) {
+                return null;
+            }
+
+            return this.historyByLayoutId[this.activeLayoutId] ?? null;
         },
     },
 });

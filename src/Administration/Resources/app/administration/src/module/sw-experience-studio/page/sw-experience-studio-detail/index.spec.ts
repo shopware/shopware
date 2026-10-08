@@ -7,11 +7,43 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
     const computed = (detailComponent as unknown as { computed: Record<string, (...args: unknown[]) => unknown> }).computed;
 
     it('offers layout assignments only for saved product and category layouts', () => {
-        expect(computed.canManageAssignments.call({ isCreateMode: false, layoutRootSource: 'product' })).toBe(true);
-        expect(computed.canManageAssignments.call({ isCreateMode: false, layoutRootSource: 'category' })).toBe(true);
-        expect(computed.canManageAssignments.call({ isCreateMode: true, layoutRootSource: 'category' })).toBe(false);
-        expect(computed.canManageAssignments.call({ isCreateMode: false, layoutRootSource: 'landing_page' })).toBe(false);
-        expect(computed.canManageAssignments.call({ isCreateMode: false, layoutRootSource: null })).toBe(false);
+        const vm = { getLayoutRootSource: methods.getLayoutRootSource };
+
+        expect(methods.canManageLayoutAssignments.call(vm, { isNew: false, layout: { rootSource: 'product' } })).toBe(true);
+        expect(methods.canManageLayoutAssignments.call(vm, { isNew: false, layout: { rootSource: 'category' } })).toBe(true);
+        expect(methods.canManageLayoutAssignments.call(vm, { isNew: true, layout: { rootSource: 'category' } })).toBe(false);
+        expect(methods.canManageLayoutAssignments.call(vm, { isNew: false, layout: { rootSource: 'landing_page' } })).toBe(
+            false,
+        );
+        expect(methods.canManageLayoutAssignments.call(vm, { isNew: false, layout: { rootSource: null } })).toBe(false);
+    });
+
+    it('opens assignment management for the selected layout', () => {
+        const vm = {
+            assignmentLayoutId: null as string | null,
+            isAssignmentModalOpen: false,
+        };
+
+        methods.onOpenAssignmentModal.call(vm, 'layout-2');
+
+        expect(vm.assignmentLayoutId).toBe('layout-2');
+        expect(vm.isAssignmentModalOpen).toBe(true);
+    });
+
+    it('resolves the assignment modal layout independently of the active layout', () => {
+        const assignmentLayout = { id: 'layout-2', layout: { rootSource: 'category' } };
+        const vm = {
+            assignmentLayoutId: 'layout-2',
+            assignmentLayout,
+            openLayouts: [
+                { id: 'layout-1', layout: { rootSource: 'product' } },
+                assignmentLayout,
+            ],
+            getLayoutRootSource: methods.getLayoutRootSource,
+        };
+
+        expect(computed.assignmentLayout.call(vm)).toBe(assignmentLayout);
+        expect(computed.assignmentRootSource.call(vm)).toBe('category');
     });
 
     it('uses layout rootSource for draft mutation payloads', () => {
@@ -23,6 +55,22 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         };
 
         expect(methods.resolveMutationRootSource.call(vm)).toBe('product');
+    });
+
+    it('opens settings when an element is selected', () => {
+        const openSettingsPanel = jest.fn();
+        const vm = {
+            selectedElementId: null,
+            syncActiveLayoutState: jest.fn(),
+            $refs: {
+                experienceStudioCanvas: { openSettingsPanel },
+            },
+        };
+
+        methods.onElementSelect.call(vm, 'element-id');
+
+        expect(vm.selectedElementId).toBe('element-id');
+        expect(openSettingsPanel).toHaveBeenCalledTimes(1);
     });
 
     it('resizes the element settings panel while preserving a minimum preview width', () => {
@@ -95,6 +143,16 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         methods.adjustElementSettingsWidth.call(vm);
 
         expect(vm.elementSettingsWidth).toBe(640);
+    });
+
+    it('resets the settings panel width when it closes', () => {
+        const vm = {
+            elementSettingsWidth: 640,
+        };
+
+        methods.onSettingsPanelClose.call(vm);
+
+        expect(vm.elementSettingsWidth).toBe(320);
     });
 
     it('returns null rootSource when no rootSource is set', () => {

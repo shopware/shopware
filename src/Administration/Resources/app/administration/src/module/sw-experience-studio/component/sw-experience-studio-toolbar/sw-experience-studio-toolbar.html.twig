@@ -53,40 +53,13 @@
     </div>
     {% endblock %}
 
-    {% block sw_experience_studio_toolbar_center %}
-    <div class="sw-experience-studio-toolbar__center">
-        <div class="sw-experience-studio-toolbar__device-actions">
-            {% block sw_experience_studio_toolbar_device_actions_mobile %}
-            <mt-icon
-                name="regular-mobile"
-                :class="{ 'is--active': currentViewport === 'mobile' }"
-                @click="onViewportChange('mobile')"
-            />
-            {% endblock %}
-
-            {% block sw_experience_studio_toolbar_device_actions_tablet_landscape %}
-            <mt-icon
-                name="regular-tablet"
-                :class="{ 'is--active': currentViewport === 'tablet-landscape' }"
-                @click="onViewportChange('tablet-landscape')"
-            />
-            {% endblock %}
-
-            {% block sw_experience_studio_toolbar_device_actions_desktop %}
-            <mt-icon
-                name="regular-desktop"
-                :class="{ 'is--active': currentViewport === 'desktop' }"
-                @click="onViewportChange('desktop')"
-            />
-            {% endblock %}
-        </div>
-    </div>
-    {% endblock %}
-
     {% block sw_experience_studio_toolbar_right %}
     <div class="sw-experience-studio-toolbar__right">
         {% block sw_experience_studio_toolbar_entity_select %}
-        <div class="sw-experience-studio-toolbar__entity-field">
+        <div
+            v-if="!isWorkspace"
+            class="sw-experience-studio-toolbar__entity-field"
+        >
             <label class="sw-experience-studio-toolbar__field-label">
                 {{ $t('sw-experience-studio.detail.toolbar.previewEntity') }}
             </label>
@@ -124,25 +97,13 @@
         </div>
         {% endblock %}
 
-        {% block sw_experience_studio_toolbar_assignments %}
-        <mt-button
-            v-if="canManageAssignments"
-            class="sw-experience-studio-toolbar__assignments"
-            variant="secondary"
-            :disabled="isLoading || undefined"
-            @click="onOpenAssignments"
-        >
-            {{ $t('sw-experience-studio.detail.toolbar.assignments') }}
-        </mt-button>
-        {% endblock %}
-
         <mt-button
             variant="primary"
-            :disabled="!allowSave || isLoading || undefined"
-            :is-loading="isLoading"
+            :disabled="!allowSave || isLoading || isSavingAll || undefined"
+            :is-loading="isLoading || isSavingAll"
             @click="onSave"
         >
-            {{ $t('sw-experience-studio.detail.toolbar.save') }}
+            {{ $t(isWorkspace ? 'sw-experience-studio.workspace.saveAll' : 'sw-experience-studio.detail.toolbar.save') }}
         </mt-button>
     </div>
     {% endblock %}

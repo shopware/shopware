@@ -38,6 +38,21 @@ Shopware.Component.register('sw-experience-studio-toolbar', () => import('./comp
  * @sw-package discovery
  */
 Shopware.Component.register(
+    'sw-experience-studio-layout-picker',
+    () => import('./component/sw-experience-studio-layout-picker'),
+);
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register('sw-experience-studio-canvas', () => import('./component/sw-experience-studio-canvas'));
+
+/**
+ * @private
+ * @sw-package discovery
+ */
+Shopware.Component.register(
     'sw-experience-studio-sidebar-tree',
     () => import('./component/sw-experience-studio-sidebar-tree'),
 );
@@ -155,7 +170,7 @@ Shopware.Module.register('sw-experience-studio', {
 
     routes: {
         index: {
-            component: 'sw-experience-studio-list',
+            component: 'sw-experience-studio-detail',
             path: 'index',
             meta: {
                 privilege: 'experience_studio.viewer',

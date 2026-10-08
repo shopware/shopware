@@ -4,8 +4,6 @@ import { getStorefrontSalesChannelCriteria } from 'src/module/sw-experience-stud
 import template from './sw-experience-studio-toolbar.html.twig';
 import './sw-experience-studio-toolbar.scss';
 
-type Viewport = 'mobile' | 'tablet-landscape' | 'desktop';
-
 /**
  * @private
  * @sw-package discovery
@@ -23,11 +21,6 @@ export default Shopware.Component.wrapComponentConfig({
             type: Boolean,
             required: false,
             default: false,
-        },
-        currentViewport: {
-            type: String,
-            required: false,
-            default: 'desktop',
         },
         allowSave: {
             type: Boolean,
@@ -59,7 +52,12 @@ export default Shopware.Component.wrapComponentConfig({
             required: false,
             default: false,
         },
-        canManageAssignments: {
+        isWorkspace: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        isSavingAll: {
             type: Boolean,
             required: false,
             default: false,
@@ -68,13 +66,11 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: [
         'back',
-        'viewport-change',
         'save',
         'preview-sales-channel-change',
         'preview-entity-id-change',
         'undo',
         'redo',
-        'open-assignments',
     ],
 
     computed: {
@@ -92,10 +88,6 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         onBack(): void {
             this.$emit('back');
-        },
-
-        onViewportChange(viewport: Viewport): void {
-            this.$emit('viewport-change', viewport);
         },
 
         onPreviewSalesChannelChange(salesChannelId: string | null): void {
@@ -116,10 +108,6 @@ export default Shopware.Component.wrapComponentConfig({
 
         onRedo(): void {
             this.$emit('redo');
-        },
-
-        onOpenAssignments(): void {
-            this.$emit('open-assignments');
         },
     },
 });

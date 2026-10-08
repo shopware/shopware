@@ -344,6 +344,8 @@ return static function (ContainerConfigurator $container): void {
     $services->set(McpToolResultCacheCleanupTask::class)
         ->tag('shopware.scheduled.task');
 
+    // The monolog.logger tag puts both logger arguments on the mcp channel: the parent's exception
+    // logger and the one the handler reports the cleanup outcome on.
     $services->set(McpToolResultCacheCleanupTaskHandler::class)
         ->args([
             service('scheduled_task.repository'),

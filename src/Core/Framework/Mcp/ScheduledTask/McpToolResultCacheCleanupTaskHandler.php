@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Mcp\ScheduledTask;
 
 use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
@@ -45,7 +46,8 @@ final class McpToolResultCacheCleanupTaskHandler extends ScheduledTaskHandler
 
         $deleted = $this->storage->deleteOlderThan($threshold);
 
-        $this->mcpLogger->info('Removed expired MCP tool results', [
+        // Hourly, so a run without anything to remove stays out of the info log.
+        $this->mcpLogger->log($deleted > 0 ? LogLevel::INFO : LogLevel::DEBUG, 'Removed expired MCP tool results', [
             'deleted' => $deleted,
             'threshold' => $threshold->format(\DateTimeInterface::ATOM),
         ]);

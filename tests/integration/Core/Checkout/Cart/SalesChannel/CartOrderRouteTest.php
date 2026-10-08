@@ -342,7 +342,8 @@ class CartOrderRouteTest extends TestCase
 
         $response = $this->addProductToCart('p2');
         $token = $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        static::assertNotNull($token);
+        static::assertIsString($token);
+        static::assertNotSame('', $token);
         $guestToken = $token;
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $guestToken);
 
@@ -726,7 +727,8 @@ class CartOrderRouteTest extends TestCase
         }
 
         if ($contextToken === null) {
-            static::assertNotNull($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertIsString($response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertNotSame('', $response->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
             return;
         }

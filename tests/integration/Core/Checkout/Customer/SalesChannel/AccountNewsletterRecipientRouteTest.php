@@ -157,7 +157,8 @@ class AccountNewsletterRecipientRouteTest extends TestCase
         $registerResponse = $this->browser->getResponse();
         static::assertTrue($registerResponse->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         $contextToken = $registerResponse->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        static::assertNotNull($contextToken);
+        static::assertIsString($contextToken);
+        static::assertNotSame('', $contextToken);
 
         $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 

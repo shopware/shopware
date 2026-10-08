@@ -100,7 +100,8 @@ class CustomerRouteTest extends TestCase
         $registerResponse = $this->browser->getResponse();
         static::assertTrue($registerResponse->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
         $contextToken = $registerResponse->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
-        static::assertNotNull($contextToken);
+        static::assertIsString($contextToken);
+        static::assertNotSame('', $contextToken);
 
         ['id' => $id, 'email' => $email] = json_decode((string) $registerResponse->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 

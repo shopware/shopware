@@ -107,7 +107,8 @@ class RegisterRouteTest extends TestCase
         static::assertArrayHasKey('domainId', $result);
 
         static::assertSame('customer', $response['apiAlias']);
-        static::assertNotNull($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -251,7 +252,8 @@ class RegisterRouteTest extends TestCase
         if ($expectedStatus === 200) {
             static::assertSame('customer', $response['apiAlias']);
             static::assertArrayNotHasKey('errors', $response);
-            static::assertNotNull($browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertIsString($browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertNotSame('', $browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
             $browser->request(
                 'POST',
@@ -290,9 +292,11 @@ class RegisterRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('customer', $response['apiAlias']);
-        static::assertNotNull($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $contextToken = $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN);
+        static::assertIsString($contextToken);
+        static::assertNotSame('', $contextToken);
 
-        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $contextToken);
 
         $this->browser
             ->request(
@@ -380,7 +384,8 @@ class RegisterRouteTest extends TestCase
         static::assertSame(200, $browser->getResponse()->getStatusCode(), (string) $browser->getResponse()->getContent());
         static::assertArrayNotHasKey('errors', $response);
         static::assertSame('customer', $response['apiAlias']);
-        static::assertNotNull($browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertIsString($browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
     }
 
     public function testRegistrationAcceptsForeignStorefrontUrlWithoutDoubleOptIn(): void
@@ -855,7 +860,8 @@ class RegisterRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame($accountType, $response['accountType']);
-        static::assertNotNull($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -967,7 +973,8 @@ class RegisterRouteTest extends TestCase
         static::assertArrayHasKey('accountType', $customerDefinition->getDefaults());
         static::assertSame($customerDefinition->getDefaults()['accountType'], $response['accountType']);
 
-        static::assertNotNull($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -1008,7 +1015,8 @@ class RegisterRouteTest extends TestCase
         static::assertArrayHasKey('accountType', $customerDefinition->getDefaults());
         static::assertSame($customerDefinition->getDefaults()['accountType'], $response['accountType']);
 
-        static::assertNotNull($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -1057,7 +1065,8 @@ class RegisterRouteTest extends TestCase
 
         static::assertSame('customer', $response['apiAlias']);
         static::assertSame(['DE123456789'], $response['vatIds']);
-        static::assertNotNull($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -1107,7 +1116,8 @@ class RegisterRouteTest extends TestCase
         } else {
             static::assertSame('customer', $response['apiAlias']);
             static::assertCount(0, $response['vatIds']);
-            static::assertNotNull($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+            static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
             $this->browser
                 ->request(
@@ -1238,7 +1248,8 @@ class RegisterRouteTest extends TestCase
         $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
         static::assertSame('customer', $response['apiAlias']);
-        static::assertNotNull($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(
@@ -1386,7 +1397,8 @@ class RegisterRouteTest extends TestCase
         static::assertSame('Test Department 1', $addressesDepartment[0]);
         static::assertSame('Test Department 2', $addressesDepartment[1]);
 
-        static::assertNotNull($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertIsString($this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
+        static::assertNotSame('', $this->browser->getResponse()->headers->get(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
         $this->browser
             ->request(

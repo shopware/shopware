@@ -231,7 +231,8 @@ class ShippingMethodRouteTest extends TestCase
         $response = json_decode($this->browser->getResponse()->getContent() ?: '', true, 512, \JSON_THROW_ON_ERROR) ?: [];
 
         static::assertSame(3, $response['total']);
-        static::assertNotNull($response['elements'][0]['availabilityRule']);
+        static::assertIsArray($response['elements'][0]['availabilityRule']);
+        static::assertNotCount(0, $response['elements'][0]['availabilityRule']);
     }
 
     public static function httpMethodProvider(): \Generator

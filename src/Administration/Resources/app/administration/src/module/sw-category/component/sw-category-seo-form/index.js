@@ -1,11 +1,6 @@
 import template from './sw-category-seo-form.html.twig';
 import './sw-category-seo-form.scss';
 
-// Google truncates longer titles in the SERP snippet
-const RECOMMENDED_META_TITLE_LENGTH = 70;
-// Google trims at about 175 characters by pixel width, 150 keeps the description from being cut off
-const RECOMMENDED_META_DESCRIPTION_LENGTH = 150;
-
 /**
  * @sw-package discovery
  */
@@ -24,11 +19,13 @@ export default {
 
     computed: {
         recommendedMetaTitleLength() {
-            return RECOMMENDED_META_TITLE_LENGTH;
+            // Google truncates longer titles in the SERP snippet
+            return 70;
         },
 
         recommendedMetaDescriptionLength() {
-            return RECOMMENDED_META_DESCRIPTION_LENGTH;
+            // Google trims at about 175 characters by pixel width, 150 keeps the description from being cut off
+            return 150;
         },
 
         metaTitleLength() {
@@ -37,6 +34,28 @@ export default {
 
         metaDescriptionLength() {
             return this.category.metaDescription?.length ?? 0;
+        },
+
+        isMetaTitleExceeded() {
+            return this.metaTitleLength > this.recommendedMetaTitleLength;
+        },
+
+        isMetaDescriptionExceeded() {
+            return this.metaDescriptionLength > this.recommendedMetaDescriptionLength;
+        },
+
+        metaTitleHint() {
+            return this.$t('sw-category.base.seo.recommendedLength', {
+                count: this.metaTitleLength,
+                max: this.recommendedMetaTitleLength,
+            });
+        },
+
+        metaDescriptionHint() {
+            return this.$t('sw-category.base.seo.recommendedLength', {
+                count: this.metaDescriptionLength,
+                max: this.recommendedMetaDescriptionLength,
+            });
         },
     },
 };

@@ -1,3 +1,5 @@
-.sw-category-seo-form__recommended-length.is--exceeded {
-    color: var(--color-text-attention-default);
+.sw-category-seo-form {
+    &__recommended-length.is--exceeded {
+        color: var(--color-text-attention-default);
+    }
 }

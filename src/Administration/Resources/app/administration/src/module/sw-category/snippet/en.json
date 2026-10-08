@@ -95,7 +95,7 @@
         "placeholderMetaTitle": "Enter meta title...",
         "placeholderMetaDescription": "Enter a description...",
         "placeholderKeywords": "Enter one or more keywords...",
-        "recommendedLength": "{count}/{max} characters recommended"
+        "recommendedLength": "Recommended: max. {max} characters ({count} used)"
       },
       "menu": {
         "title": "Menu settings",

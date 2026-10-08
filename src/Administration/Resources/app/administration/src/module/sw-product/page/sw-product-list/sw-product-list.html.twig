@@ -85,6 +85,7 @@
                         disabled: acl.can('product.creator'),
                         showOnDisabledElements: true
                     }"
+                    data-analytics-id="sw_product.list.add_digital_product"
                     :router-link="{ name: 'sw.product.create', query: { creationType: 'digital' } }"
                     :disabled="!acl.can('product.creator')"
                 >

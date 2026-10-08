@@ -26,6 +26,7 @@ use Symfony\Component\Validator\Violation\ConstraintViolationBuilderInterface;
  */
 #[Package('checkout')]
 #[CoversClass(CustomerVatIdentificationValidator::class)]
+#[CoversClass(CustomerVatIdentification::class)]
 class CustomerVatIdentificationValidatorTest extends TestCase
 {
     private const DE_ID = '0199f1c4b0d3736a9f3d0f2c5a1b0de0';

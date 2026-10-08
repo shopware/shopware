@@ -37,6 +37,12 @@ Shopware.Component.register('sw-experience-studio-toolbar', () => import('./comp
  * @private
  * @sw-package discovery
  */
+Shopware.Component.register('sw-experience-studio-canvas', () => import('./component/sw-experience-studio-canvas'));
+
+/**
+ * @private
+ * @sw-package discovery
+ */
 Shopware.Component.register(
     'sw-experience-studio-sidebar-tree',
     () => import('./component/sw-experience-studio-sidebar-tree'),

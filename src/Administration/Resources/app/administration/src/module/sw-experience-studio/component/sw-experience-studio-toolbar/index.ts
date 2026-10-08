@@ -4,8 +4,6 @@ import { getStorefrontSalesChannelCriteria } from 'src/module/sw-experience-stud
 import template from './sw-experience-studio-toolbar.html.twig';
 import './sw-experience-studio-toolbar.scss';
 
-type Viewport = 'mobile' | 'tablet-landscape' | 'desktop';
-
 /**
  * @private
  * @sw-package discovery
@@ -23,11 +21,6 @@ export default Shopware.Component.wrapComponentConfig({
             type: Boolean,
             required: false,
             default: false,
-        },
-        currentViewport: {
-            type: String,
-            required: false,
-            default: 'desktop',
         },
         allowSave: {
             type: Boolean,
@@ -68,7 +61,6 @@ export default Shopware.Component.wrapComponentConfig({
 
     emits: [
         'back',
-        'viewport-change',
         'save',
         'preview-sales-channel-change',
         'preview-entity-id-change',
@@ -92,10 +84,6 @@ export default Shopware.Component.wrapComponentConfig({
     methods: {
         onBack(): void {
             this.$emit('back');
-        },
-
-        onViewportChange(viewport: Viewport): void {
-            this.$emit('viewport-change', viewport);
         },
 
         onPreviewSalesChannelChange(salesChannelId: string | null): void {

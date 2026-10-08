@@ -25,7 +25,6 @@
                 <sw-experience-studio-toolbar
                     :layout="layout"
                     :is-loading="isLoading"
-                    :current-viewport="currentViewport"
                     :allow-save="allowSave"
                     :preview-sales-channel-id="previewSalesChannelId"
                     :preview-entity-type="previewEntityType"
@@ -34,7 +33,6 @@
                     :can-redo="canRedo"
                     :can-manage-assignments="canManageAssignments"
                     @back="onClickBack"
-                    @viewport-change="onViewportChange"
                     @preview-sales-channel-change="onPreviewSalesChannelChange"
                     @preview-entity-id-change="onPreviewEntityIdChange"
                     @save="onSave"
@@ -45,66 +43,68 @@
             {% endblock %}
 
             {% block sw_experience_studio_detail_workspace %}
-                <div ref="workspace" class="sw-experience-studio-detail__workspace" :class="{ 'is-resizing': isResizingElementSettings, 'has-rich-text-settings': selectedElementHasRichText }" :style="{ '--element-settings-width': elementSettingsWidth + 'px' }">
-                {% block sw_experience_studio_detail_sidebar_tree %}
-                    <sw-experience-studio-sidebar-tree
-                        class="sw-experience-studio-detail__sidebar-tree"
-                        :layout="layout"
-                        :selected-element-id="selectedElementId"
-                        :validate-move-target="validateMoveTarget"
-                        @select-element="onSelectElement"
-                        @add-element="onAddElement"
-                        @duplicate-element="onDuplicateElement"
-                        @delete-element="onDeleteElement"
-                        @move-element="onMoveElement"
-                    />
-                {% endblock %}
-
-                {% block sw_experience_studio_detail_preview %}
-                    <sw-experience-studio-preview
-                        class="sw-experience-studio-detail__preview"
-                        :layout="layout"
+                <div ref="workspace" class="sw-experience-studio-detail__workspace" :class="{ 'is-resizing': isResizingElementSettings }">
+                    <sw-experience-studio-canvas
+                        ref="experienceStudioCanvas"
+                        :layout-id="layoutId"
+                        :layout-name="layout?.name ?? ''"
                         :viewport="currentViewport"
-                        :sales-channel-id="previewSalesChannelId"
-                        :entity-type="previewEntityType"
-                        :entity-id="previewEntityId"
-                        @select-element="onSelectElement"
-                    />
-                {% endblock %}
+                        :settings-width="elementSettingsWidth"
+                        :is-resizing-settings="isResizingElementSettings"
+                        @viewport-change="onViewportChange"
+                        @settings-resize-start="onElementSettingsResizeStart"
+                        @settings-close="onSettingsPanelClose"
+                    >
+                        {% block sw_experience_studio_detail_preview %}
+                        <template #preview>
+                            <sw-experience-studio-preview
+                                :layout="layout"
+                                :viewport="currentViewport"
+                                :sales-channel-id="previewSalesChannelId"
+                                :entity-type="previewEntityType"
+                                :entity-id="previewEntityId"
+                                @select-element="onElementSelect"
+                            />
+                        </template>
+                        {% endblock %}
 
-                {% block sw_experience_studio_detail_settings_resizer %}
-                    <div
-                        class="sw-experience-studio-detail__settings-resizer"
-                        role="separator"
-                        aria-orientation="vertical"
-                        :aria-valuenow="elementSettingsWidth"
-                        aria-valuemin="280"
-                        aria-valuemax="800"
-                        tabindex="0"
-                        @pointerdown="onElementSettingsResizeStart"
-                    ></div>
-                {% endblock %}
+                        {% block sw_experience_studio_detail_sidebar_tree %}
+                        <template #structure>
+                            <sw-experience-studio-sidebar-tree
+                                :layout="layout"
+                                :selected-element-id="selectedElementId"
+                                :validate-move-target="validateMoveTarget"
+                                @select-element="onElementSelect"
+                                @add-element="onAddElement"
+                                @duplicate-element="onDuplicateElement"
+                                @delete-element="onDeleteElement"
+                                @move-element="onMoveElement"
+                            />
+                        </template>
+                        {% endblock %}
 
-                {% block sw_experience_studio_detail_element_settings %}
-                    <sw-experience-studio-element-settings
-                        class="sw-experience-studio-detail__element-settings"
-                        :layout="layout"
-                        :selected-element-id="selectedElementId"
-                        :selected-element="selectedElement"
-                        :selected-element-type="selectedElementType"
-                        :style-options="styleOptionStore.optionsByName"
-                        :is-loading-types="elementTypeStore.isLoading"
-                        :is-loading-style-options="styleOptionStore.isLoading"
-                        :type-load-error="elementTypeStore.loadError"
-                        :style-option-load-error="styleOptionStore.loadError"
-                        :allow-edit="allowSave"
-                        :mapping-candidates="mappingCandidates"
-                        :violations="selectedElementViolations"
-                        @update-properties="onElementSettingsChange"
-                        @update-style="onElementStyleChange"
-                        @update-mapping="onElementMappingChange"
-                    />
-                {% endblock %}
+                        {% block sw_experience_studio_detail_element_settings %}
+                        <template #settings>
+                            <sw-experience-studio-element-settings
+                                :layout="layout"
+                                :selected-element-id="selectedElementId"
+                                :selected-element="selectedElement"
+                                :selected-element-type="selectedElementType"
+                                :style-options="styleOptionStore.optionsByName"
+                                :is-loading-types="elementTypeStore.isLoading"
+                                :is-loading-style-options="styleOptionStore.isLoading"
+                                :type-load-error="elementTypeStore.loadError"
+                                :style-option-load-error="styleOptionStore.loadError"
+                                :allow-edit="allowSave"
+                                :mapping-candidates="mappingCandidates"
+                                :violations="selectedElementViolations"
+                                @update-properties="onElementSettingsChange"
+                                @update-style="onElementStyleChange"
+                                @update-mapping="onElementMappingChange"
+                            />
+                        </template>
+                        {% endblock %}
+                    </sw-experience-studio-canvas>
                 </div>
             {% endblock %}
 

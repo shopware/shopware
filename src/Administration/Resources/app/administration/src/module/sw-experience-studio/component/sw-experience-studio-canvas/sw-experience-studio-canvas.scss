@@ -1,0 +1,438 @@
+.sw-experience-studio-canvas {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background-color: var(--color-background-secondary-default);
+    isolation: isolate;
+
+    &__background {
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(var(--color-border-primary-default) 1px, transparent 1px);
+        background-size: 24px 24px;
+        cursor: grab;
+        touch-action: none;
+    }
+
+    &.is--gesturing {
+        user-select: none;
+
+        .sw-experience-studio-canvas__background {
+            cursor: grabbing;
+        }
+    }
+
+    &__world {
+        position: absolute;
+        inset: 0;
+        transform-origin: center center;
+        pointer-events: none;
+    }
+
+    &__world.is--viewport-transitioning {
+        transition: transform 300ms ease;
+    }
+
+    &__frame {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: 6px;
+        background: var(--color-elevation-surface-default);
+        box-shadow: 0 4px 18px 0 var(--color-elevation-shadow-default);
+        pointer-events: auto;
+    }
+
+    &__frame.is--viewport-transitioning {
+        transition: width 300ms ease, height 300ms ease;
+    }
+
+    &__frame-toolbar {
+        z-index: 2;
+        display: flex;
+        flex: 0 0 48px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        min-width: 0;
+        padding: 0 12px;
+        border-bottom: 1px solid var(--color-border-primary-default);
+        background: var(--color-elevation-surface-default);
+    }
+
+    &__move-handle {
+        display: flex;
+        flex: 1 1 auto;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        padding: 6px 8px;
+        overflow: hidden;
+        border: 0;
+        border-radius: 4px;
+        background: transparent;
+        color: var(--color-text-primary-default);
+        cursor: grab;
+        text-align: left;
+
+        &:active {
+            cursor: grabbing;
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-border-brand-default);
+            outline-offset: 1px;
+        }
+
+        span {
+            overflow: hidden;
+            font-weight: var(--font-weight-semibold);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
+    &__viewport-controls {
+        display: flex;
+        flex: 0 0 auto;
+        align-items: center;
+        gap: 4px;
+    }
+
+    &__viewport-button,
+    &__close-panel,
+    &__zoom-controls button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        min-height: 32px;
+        padding: 4px;
+        border: 0;
+        border-radius: 4px;
+        background: transparent;
+        color: var(--color-icon-secondary-default);
+        cursor: pointer;
+
+        &:hover:not(:disabled) {
+            background: var(--color-background-tertiary-default);
+            color: var(--color-text-primary-default);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-border-brand-default);
+            outline-offset: 1px;
+        }
+
+        &:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+    }
+
+    &__viewport-button[aria-pressed="true"] {
+        background: var(--color-background-brand-default);
+        color: var(--color-text-brand-default);
+    }
+
+    &__custom-viewport {
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: var(--color-background-tertiary-default);
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+        white-space: nowrap;
+    }
+
+    &__preview {
+        display: flex;
+        flex: 1 1 auto;
+        min-width: 0;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    &__resize-handle {
+        position: absolute;
+        z-index: 3;
+        display: block;
+        width: 12px;
+        height: 12px;
+        padding: 0;
+        border: 1px solid var(--color-elevation-surface-default);
+        border-radius: 50%;
+        background: var(--color-text-secondary-default);
+        opacity: 0;
+        pointer-events: none;
+
+        &:focus-visible {
+            opacity: 1;
+            outline: 2px solid var(--color-border-brand-default);
+            outline-offset: 2px;
+        }
+    }
+
+    &__frame:hover &__resize-handle,
+    &__frame:focus-within &__resize-handle {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    &__resize-handle.is--n,
+    &__resize-handle.is--s {
+        left: calc(50% - 6px);
+        cursor: ns-resize;
+    }
+
+    &__resize-handle.is--n {
+        top: -6px;
+    }
+
+    &__resize-handle.is--s {
+        bottom: -6px;
+    }
+
+    &__resize-handle.is--e,
+    &__resize-handle.is--w {
+        top: calc(50% - 6px);
+        cursor: ew-resize;
+    }
+
+    &__resize-handle.is--e {
+        right: -6px;
+    }
+
+    &__resize-handle.is--w {
+        left: -6px;
+    }
+
+    &__resize-handle.is--ne,
+    &__resize-handle.is--se,
+    &__resize-handle.is--sw,
+    &__resize-handle.is--nw {
+        width: 14px;
+        height: 14px;
+    }
+
+    &__resize-handle.is--ne {
+        top: -7px;
+        right: -7px;
+        cursor: nesw-resize;
+    }
+
+    &__resize-handle.is--se {
+        right: -7px;
+        bottom: -7px;
+        cursor: nwse-resize;
+    }
+
+    &__resize-handle.is--sw {
+        bottom: -7px;
+        left: -7px;
+        cursor: nesw-resize;
+    }
+
+    &__resize-handle.is--nw {
+        top: -7px;
+        left: -7px;
+        cursor: nwse-resize;
+    }
+
+    &__tool-rail {
+        position: absolute;
+        z-index: 10;
+        top: 24px;
+        left: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 8px;
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: 8px;
+        background: var(--color-elevation-surface-default);
+        box-shadow: 0 2px 8px 0 var(--color-elevation-shadow-default);
+    }
+
+    &__tool {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--color-text-secondary-default);
+        cursor: pointer;
+
+        &:hover {
+            background: var(--color-background-tertiary-default);
+            color: var(--color-text-primary-default);
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--color-border-brand-default);
+            outline-offset: 1px;
+        }
+
+        &.is--active {
+            background: var(--color-background-brand-default);
+            color: var(--color-text-brand-default);
+        }
+    }
+
+    &__panel {
+        position: absolute;
+        z-index: 9;
+        top: 24px;
+        bottom: auto;
+        left: 90px;
+        display: flex;
+        flex-direction: column;
+        width: 320px;
+        height: auto;
+        max-height: calc(100% - 48px);
+        max-width: calc(100% - 114px);
+        overflow: hidden;
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: 8px;
+        background: var(--color-elevation-surface-default);
+        box-shadow: 0 4px 16px 0 var(--color-elevation-shadow-default);
+    }
+
+    &__panel--settings {
+        right: 24px;
+        left: auto;
+        min-width: 320px;
+        max-width: min(800px, calc(100% - 48px));
+    }
+
+    &__panel--settings.is--resizing {
+        user-select: none;
+    }
+
+    &__panel-header {
+        z-index: 1;
+        display: flex;
+        flex: 0 0 48px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 0 12px 0 16px;
+        border-bottom: 1px solid var(--color-border-primary-default);
+        background: var(--color-elevation-surface-default);
+
+        h2 {
+            margin: 0;
+            color: var(--color-text-primary-default);
+            font-size: var(--font-size-s);
+            font-weight: var(--font-weight-semibold);
+        }
+    }
+
+    &__panel-content {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: auto;
+    }
+
+    &__panel-content > * {
+        height: 100%;
+    }
+
+    &__settings-resizer {
+        position: absolute;
+        z-index: 2;
+        top: 48px;
+        bottom: 0;
+        left: -4px;
+        width: 8px;
+        cursor: col-resize;
+
+        &:hover,
+        &:focus-visible {
+            background: var(--color-shopware-brand-50);
+            outline: 0;
+        }
+    }
+
+    &__zoom-controls {
+        position: absolute;
+        z-index: 8;
+        right: 24px;
+        bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        border: 1px solid var(--color-border-primary-default);
+        border-radius: 8px;
+        background: var(--color-elevation-surface-default);
+        box-shadow: 0 2px 8px 0 var(--color-elevation-shadow-default);
+        color: var(--color-text-secondary-default);
+        font-size: var(--font-size-xs);
+
+        > span {
+            min-width: 40px;
+            text-align: center;
+        }
+    }
+
+    &__zoom-controls &__fit-button {
+        width: auto;
+        gap: 6px;
+        padding: 4px 8px;
+        border-left: 1px solid var(--color-border-primary-default);
+        border-radius: 0;
+        color: var(--color-text-primary-default);
+        white-space: nowrap;
+    }
+
+    @media screen and (max-width: 900px) {
+        &__tool-rail {
+            top: 12px;
+            left: 8px;
+            padding: 4px;
+        }
+
+        &__tool {
+            width: 40px;
+            height: 40px;
+        }
+
+        &__panel {
+            top: 12px;
+            bottom: auto;
+            left: 74px;
+            max-height: calc(100% - 24px);
+            max-width: calc(100% - 86px);
+        }
+
+        &__panel--settings {
+            right: 12px;
+            left: auto;
+            min-width: 280px;
+            max-width: min(800px, calc(100% - 24px));
+        }
+
+        &__zoom-controls {
+            right: 12px;
+            bottom: 12px;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &__world.is--viewport-transitioning,
+        &__frame.is--viewport-transitioning {
+            transition: none;
+        }
+    }
+}

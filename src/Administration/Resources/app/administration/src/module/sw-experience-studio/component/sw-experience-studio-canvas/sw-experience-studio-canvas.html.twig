@@ -1,0 +1,235 @@
+/* eslint-disable vuejs-accessibility/no-static-element-interactions */
+<div
+    ref="workspace"
+    role="application"
+    class="sw-experience-studio-canvas"
+    :class="{ 'is--gesturing': isDraggingCanvas }"
+    :aria-label="layoutName"
+    @pointerdown="onBackgroundPointerDown"
+    @wheel="onCanvasWheel"
+    @keydown.esc="closePanel"
+>
+    <div
+        ref="background"
+        class="sw-experience-studio-canvas__background"
+        :style="backgroundStyle"
+    ></div>
+
+    <div
+        class="sw-experience-studio-canvas__world"
+        :class="{ 'is--viewport-transitioning': isViewportTransitioning }"
+        :style="worldStyle"
+    >
+        <section
+            class="sw-experience-studio-canvas__frame"
+            :class="{ 'is--viewport-transitioning': isViewportTransitioning }"
+            :style="frameStyle"
+            :aria-label="layoutName"
+        >
+            <header class="sw-experience-studio-canvas__frame-toolbar">
+                <button
+                    class="sw-experience-studio-canvas__move-handle"
+                    type="button"
+                    :aria-label="$t('sw-experience-studio.detail.canvas.moveFrame')"
+                    :title="$t('sw-experience-studio.detail.canvas.moveFrame')"
+                    @pointerdown.stop="onFrameMoveStart"
+                    @keydown="onFrameMoveKeydown"
+                >
+                    <mt-icon
+                        name="regular-arrows"
+                        size="16px"
+                    />
+                    <span>{{ layoutName }}</span>
+                </button>
+
+                <div
+                    class="sw-experience-studio-canvas__viewport-controls"
+                    role="toolbar"
+                    :aria-label="$t('sw-experience-studio.detail.canvas.viewportToolbar')"
+                >
+                    <span
+                        v-if="viewport === 'custom'"
+                        class="sw-experience-studio-canvas__custom-viewport"
+                    >
+                        {{ $t('sw-experience-studio.detail.canvas.customViewport') }}
+                    </span>
+                    <button
+                        class="sw-experience-studio-canvas__viewport-button"
+                        type="button"
+                        :aria-label="$t('sw-experience-studio.detail.toolbar.viewportMobile')"
+                        :aria-pressed="viewport === 'mobile'"
+                        :title="$t('sw-experience-studio.detail.toolbar.viewportMobile')"
+                        @pointerdown.stop
+                        @click="onViewportChange('mobile')"
+                    >
+                        <mt-icon name="regular-mobile" />
+                    </button>
+                    <button
+                        class="sw-experience-studio-canvas__viewport-button"
+                        type="button"
+                        :aria-label="$t('sw-experience-studio.detail.toolbar.viewportTablet')"
+                        :aria-pressed="viewport === 'tablet-landscape'"
+                        :title="$t('sw-experience-studio.detail.toolbar.viewportTablet')"
+                        @pointerdown.stop
+                        @click="onViewportChange('tablet-landscape')"
+                    >
+                        <mt-icon name="regular-tablet" />
+                    </button>
+                    <button
+                        class="sw-experience-studio-canvas__viewport-button"
+                        type="button"
+                        :aria-label="$t('sw-experience-studio.detail.toolbar.viewportDesktop')"
+                        :aria-pressed="viewport === 'desktop'"
+                        :title="$t('sw-experience-studio.detail.toolbar.viewportDesktop')"
+                        @pointerdown.stop
+                        @click="onViewportChange('desktop')"
+                    >
+                        <mt-icon name="regular-desktop" />
+                    </button>
+                </div>
+            </header>
+
+            <div class="sw-experience-studio-canvas__preview">
+                <slot name="preview"></slot>
+            </div>
+
+            <button
+                v-for="direction in resizeDirections"
+                :key="direction"
+                class="sw-experience-studio-canvas__resize-handle"
+                :class="`is--${direction}`"
+                type="button"
+                :aria-label="resizeHandleLabel(direction)"
+                @pointerdown.stop="onFrameResizeStart($event, direction)"
+                @keydown="onFrameResizeKeydown($event, direction)"
+            ></button>
+        </section>
+    </div>
+
+    <div
+        class="sw-experience-studio-canvas__tool-rail"
+        role="toolbar"
+        :aria-label="$t('sw-experience-studio.detail.canvas.panelsToolbar')"
+    >
+        <button
+            v-tooltip.top="{ message: $t('sw-experience-studio.detail.canvas.structure'), width: 'auto' }"
+            class="sw-experience-studio-canvas__tool"
+            :class="{ 'is--active': activePanel === 'structure' }"
+            type="button"
+            :aria-label="$t('sw-experience-studio.detail.canvas.structure')"
+            :aria-pressed="activePanel === 'structure'"
+            @pointerdown.stop
+            @click="togglePanel('structure')"
+        >
+            <mt-icon name="regular-sitemap" />
+        </button>
+        <button
+            v-tooltip.top="{ message: $t('sw-experience-studio.detail.canvas.settings'), width: 'auto' }"
+            class="sw-experience-studio-canvas__tool"
+            :class="{ 'is--active': isSettingsOpen }"
+            type="button"
+            :aria-label="$t('sw-experience-studio.detail.canvas.settings')"
+            :aria-pressed="isSettingsOpen"
+            @pointerdown.stop
+            @click="togglePanel('settings')"
+        >
+            <mt-icon name="regular-cog" />
+        </button>
+    </div>
+
+    <aside
+        v-if="activePanel === 'structure'"
+        class="sw-experience-studio-canvas__panel sw-experience-studio-canvas__panel--structure"
+        role="region"
+        :aria-label="$t('sw-experience-studio.detail.canvas.structure')"
+    >
+        <header class="sw-experience-studio-canvas__panel-header">
+            <h2>{{ $t('sw-experience-studio.detail.canvas.structure') }}</h2>
+            <button
+                class="sw-experience-studio-canvas__close-panel"
+                type="button"
+                :aria-label="$t('sw-experience-studio.detail.canvas.closePanel')"
+                @click="closeStructurePanel"
+            >
+                <mt-icon name="regular-times" />
+            </button>
+        </header>
+        <div class="sw-experience-studio-canvas__panel-content">
+            <slot name="structure"></slot>
+        </div>
+    </aside>
+
+    <aside
+        v-if="isSettingsOpen"
+        class="sw-experience-studio-canvas__panel sw-experience-studio-canvas__panel--settings"
+        :class="{ 'is--resizing': isResizingSettings }"
+        :style="{ width: settingsWidth + 'px' }"
+        role="region"
+        :aria-label="$t('sw-experience-studio.detail.canvas.settings')"
+    >
+        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
+        <div
+            class="sw-experience-studio-canvas__settings-resizer"
+            role="separator"
+            aria-orientation="vertical"
+            :aria-valuenow="settingsWidth"
+            aria-valuemin="320"
+            aria-valuemax="800"
+            tabindex="0"
+            @pointerdown="$emit('settings-resize-start', $event)"
+        ></div>
+        <header class="sw-experience-studio-canvas__panel-header">
+            <h2>{{ $t('sw-experience-studio.detail.canvas.settings') }}</h2>
+            <button
+                class="sw-experience-studio-canvas__close-panel"
+                type="button"
+                :aria-label="$t('sw-experience-studio.detail.canvas.closePanel')"
+                @click="closeSettingsPanel"
+            >
+                <mt-icon name="regular-times" />
+            </button>
+        </header>
+        <div class="sw-experience-studio-canvas__panel-content">
+            <slot name="settings"></slot>
+        </div>
+    </aside>
+
+    <div
+        class="sw-experience-studio-canvas__zoom-controls"
+        role="toolbar"
+        :aria-label="$t('sw-experience-studio.detail.canvas.zoomToolbar')"
+    >
+        <button
+            type="button"
+            :aria-label="$t('sw-experience-studio.detail.canvas.zoomOut')"
+            :title="$t('sw-experience-studio.detail.canvas.zoomOut')"
+            :disabled="canvasZoom <= 0.1"
+            @pointerdown.stop
+            @click="changeCanvasZoom(-0.1)"
+        >
+            <mt-icon name="regular-minus" />
+        </button>
+        <span>{{ Math.round(canvasZoom * 100) }}%</span>
+        <button
+            type="button"
+            :aria-label="$t('sw-experience-studio.detail.canvas.zoomIn')"
+            :title="$t('sw-experience-studio.detail.canvas.zoomIn')"
+            :disabled="canvasZoom >= 1.5"
+            @pointerdown.stop
+            @click="changeCanvasZoom(0.1)"
+        >
+            <mt-icon name="regular-plus" />
+        </button>
+        <button
+            class="sw-experience-studio-canvas__fit-button"
+            type="button"
+            :aria-label="$t('sw-experience-studio.detail.canvas.fit')"
+            :title="$t('sw-experience-studio.detail.canvas.fit')"
+            @pointerdown.stop
+            @click="resetCanvasZoom"
+        >
+            <mt-icon name="regular-compress-arrows"
+                     size="var(--scale-size-18)" />
+        </button>
+    </div>
+</div>

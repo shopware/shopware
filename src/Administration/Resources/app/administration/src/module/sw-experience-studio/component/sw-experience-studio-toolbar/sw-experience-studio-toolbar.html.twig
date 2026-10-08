@@ -53,36 +53,6 @@
     </div>
     {% endblock %}
 
-    {% block sw_experience_studio_toolbar_center %}
-    <div class="sw-experience-studio-toolbar__center">
-        <div class="sw-experience-studio-toolbar__device-actions">
-            {% block sw_experience_studio_toolbar_device_actions_mobile %}
-            <mt-icon
-                name="regular-mobile"
-                :class="{ 'is--active': currentViewport === 'mobile' }"
-                @click="onViewportChange('mobile')"
-            />
-            {% endblock %}
-
-            {% block sw_experience_studio_toolbar_device_actions_tablet_landscape %}
-            <mt-icon
-                name="regular-tablet"
-                :class="{ 'is--active': currentViewport === 'tablet-landscape' }"
-                @click="onViewportChange('tablet-landscape')"
-            />
-            {% endblock %}
-
-            {% block sw_experience_studio_toolbar_device_actions_desktop %}
-            <mt-icon
-                name="regular-desktop"
-                :class="{ 'is--active': currentViewport === 'desktop' }"
-                @click="onViewportChange('desktop')"
-            />
-            {% endblock %}
-        </div>
-    </div>
-    {% endblock %}
-
     {% block sw_experience_studio_toolbar_right %}
     <div class="sw-experience-studio-toolbar__right">
         {% block sw_experience_studio_toolbar_entity_select %}

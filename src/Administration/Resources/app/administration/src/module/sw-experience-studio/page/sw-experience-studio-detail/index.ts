@@ -45,7 +45,7 @@ const { Mixin } = Shopware;
 const { Criteria } = Shopware.Data;
 const { cloneDeep } = Shopware.Utils.object;
 
-type Viewport = 'mobile' | 'tablet-landscape' | 'desktop';
+type Viewport = 'mobile' | 'tablet-landscape' | 'desktop' | 'custom';
 
 type LayoutMutationResult =
     | false
@@ -86,6 +86,10 @@ type LayoutPreviewContext = {
     entityType: string;
     entityId: string | null;
     salesChannelId: string | null;
+};
+
+type ExperienceStudioCanvasRef = {
+    openSettingsPanel: () => void;
 };
 
 type DraftMutationOperation =
@@ -466,6 +470,10 @@ export default Shopware.Component.wrapComponentConfig({
             this.currentViewport = viewport;
         },
 
+        onSettingsPanelClose(): void {
+            this.elementSettingsWidth = MIN_ELEMENT_SETTINGS_WIDTH;
+        },
+
         onOpenAssignmentModal(): void {
             this.isAssignmentModalOpen = true;
         },
@@ -770,8 +778,15 @@ export default Shopware.Component.wrapComponentConfig({
             this.previewEntityId = entityId;
         },
 
-        onSelectElement(elementId: string | null): void {
+        onElementSelect(elementId: string | null): void {
             this.selectedElementId = elementId;
+
+            if (!elementId) {
+                return;
+            }
+
+            const canvas = this.$refs.experienceStudioCanvas as ExperienceStudioCanvasRef | undefined;
+            canvas?.openSettingsPanel();
         },
 
         onAddElement(payload: AddElementPayload): void {

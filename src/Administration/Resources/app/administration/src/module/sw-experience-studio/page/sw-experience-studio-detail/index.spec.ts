@@ -25,6 +25,21 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         expect(methods.resolveMutationRootSource.call(vm)).toBe('product');
     });
 
+    it('opens settings when an element is selected', () => {
+        const openSettingsPanel = jest.fn();
+        const vm = {
+            selectedElementId: null,
+            $refs: {
+                experienceStudioCanvas: { openSettingsPanel },
+            },
+        };
+
+        methods.onElementSelect.call(vm, 'element-id');
+
+        expect(vm.selectedElementId).toBe('element-id');
+        expect(openSettingsPanel).toHaveBeenCalledTimes(1);
+    });
+
     it('resizes the element settings panel while preserving a minimum preview width', () => {
         const vm = {
             isResizingElementSettings: true,
@@ -95,6 +110,16 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail', () => {
         methods.adjustElementSettingsWidth.call(vm);
 
         expect(vm.elementSettingsWidth).toBe(640);
+    });
+
+    it('resets the settings panel width when it closes', () => {
+        const vm = {
+            elementSettingsWidth: 640,
+        };
+
+        methods.onSettingsPanelClose.call(vm);
+
+        expect(vm.elementSettingsWidth).toBe(320);
     });
 
     it('returns null rootSource when no rootSource is set', () => {

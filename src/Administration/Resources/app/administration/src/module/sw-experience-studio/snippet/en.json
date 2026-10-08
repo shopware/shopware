@@ -178,6 +178,27 @@
         "assignments": "Assignments",
         "save": "Save layout"
       },
+      "canvas": {
+        "customViewport": "Custom",
+        "viewportToolbar": "Preview viewport",
+        "moveFrame": "Move preview frame. Use arrow keys to reposition.",
+        "panelsToolbar": "Canvas panels",
+        "structure": "Structure",
+        "settings": "Settings",
+        "closePanel": "Close panel",
+        "zoomToolbar": "Canvas zoom controls",
+        "zoomOut": "Zoom out",
+        "zoomIn": "Zoom in",
+        "fit": "Fit preview to canvas",
+        "resizeNorth": "Resize preview frame from the top",
+        "resizeNorthEast": "Resize preview frame from the top right",
+        "resizeEast": "Resize preview frame from the right",
+        "resizeSouthEast": "Resize preview frame from the bottom right",
+        "resizeSouth": "Resize preview frame from the bottom",
+        "resizeSouthWest": "Resize preview frame from the bottom left",
+        "resizeWest": "Resize preview frame from the left",
+        "resizeNorthWest": "Resize preview frame from the top left"
+      },
       "assignmentModal": {
         "title": "Layout assignments",
         "description": "Experience Studio assignments take precedence over Shopping Experiences layouts. Entities without an assignment use the default layout of their type, or their Shopping Experiences layout if no default is set.",

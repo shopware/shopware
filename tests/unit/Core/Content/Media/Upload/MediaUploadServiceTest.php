@@ -25,7 +25,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -135,11 +134,8 @@ class MediaUploadServiceTest extends TestCase
 
     public function testUploadFromRequest(): void
     {
-        $tempFile = tempnam(sys_get_temp_dir(), 'test');
-        file_put_contents($tempFile, 'test content');
-
         $uploadedFile = new UploadedFile(
-            $tempFile,
+            __DIR__ . '/../fixtures/shopware.jpg',
             'test.jpg',
             'image/jpeg',
             null,
@@ -169,8 +165,6 @@ class MediaUploadServiceTest extends TestCase
         static::assertIsString($result);
         static::assertTrue(Uuid::isValid($result));
         static::assertCount(1, $this->mediaRepository->creates);
-
-        (new Filesystem())->remove($tempFile);
     }
 
     public function testUploadFromRequestWithoutFile(): void

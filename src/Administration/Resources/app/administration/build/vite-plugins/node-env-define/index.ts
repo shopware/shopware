@@ -7,8 +7,8 @@ import type { Plugin } from 'vite';
 /**
  * @private
  *
- * vite-plugin-node-polyfills injects `import process from '.../shims/process'` into the source modules during
- * development. Vite replaces `process.env.NODE_ENV` only afterwards and skips it then, because `process` is no global
+ * In the bundled dev mode, vite-plugin-node-polyfills injects `import process from '.../shims/process'` into the
+ * source modules. Vite replaces `process.env.NODE_ENV` only afterwards and skips it then, because `process` is no global
  * identifier anymore. This plugin replaces it before the polyfills are injected, like it happens in production builds.
  */
 export default function NodeEnvDefinePlugin(): Plugin {

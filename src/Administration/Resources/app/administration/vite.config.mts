@@ -125,6 +125,16 @@ export default defineConfig(({ command }) => {
 
                 // Twig.JS loads node modules, so we need to polyfill them
                 nodePolyfills({
+                    // In the unbundled dev mode, the globals are only provided via the pre-bundled dependencies.
+                    // Injecting them into every source module costs a lot of time on each server start.
+                    globals:
+                        isDev && !useBundledDev
+                            ? {
+                                  Buffer: 'dev',
+                                  global: 'dev',
+                                  process: 'dev',
+                              }
+                            : undefined,
                     // To add only specific polyfills, add them here. If no option is passed, adds all polyfills
                     include: [
                         'path',

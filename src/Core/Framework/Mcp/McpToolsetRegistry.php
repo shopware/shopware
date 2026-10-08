@@ -4,6 +4,7 @@ namespace Shopware\Core\Framework\Mcp;
 
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\AllowList\McpAllowlistProvider;
+use Shopware\Core\Framework\Mcp\Tool\AbstractToolSearchTool;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -15,7 +16,7 @@ class McpToolsetRegistry
 
     final public const ENABLE_TOOLSET_TOOL = 'shopware-toolset-enable';
 
-    final public const TOOL_SEARCH_TOOL = 'shopware-tool-search';
+    final public const TOOL_SEARCH_TOOL = AbstractToolSearchTool::NAME;
 
     /**
      * The always-advertised discovery interface (tool-search + toolsets-list/-enable). It is the
@@ -40,8 +41,8 @@ class McpToolsetRegistry
     ];
 
     /**
-     * The catch-all toolset for tools without a group, and for tools that claimed the reserved
-     * discovery group.
+     * The toolset for tools that claimed the reserved discovery group, and for an ungrouped tool whose
+     * name has no prefix to group it by (see McpCapabilityCatalog).
      */
     final public const FALLBACK_GROUP = 'other';
 

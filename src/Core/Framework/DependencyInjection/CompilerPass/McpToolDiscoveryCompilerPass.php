@@ -8,6 +8,8 @@ use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\McpToolsetRegistry;
+use Shopware\Core\Framework\Routing\ApiRouteScope;
+use Shopware\Core\Framework\Routing\StoreApiRouteScope;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
@@ -95,7 +97,7 @@ class McpToolDiscoveryCompilerPass implements CompilerPassInterface
         $storeApiToolIds = array_keys($container->findTaggedServiceIds('shopware.store_api_mcp.tool'));
 
         $demoted = [];
-        foreach ([['api', $this->adminToolIds($container), 'shopware.mcp.advertised_tools'], ['store-api', $storeApiToolIds, 'shopware.store_api_mcp.advertised_tools']] as [$scope, $serviceIds, $advertisedParam]) {
+        foreach ([[ApiRouteScope::ID, $this->adminToolIds($container), 'shopware.mcp.advertised_tools'], [StoreApiRouteScope::ID, $storeApiToolIds, 'shopware.store_api_mcp.advertised_tools']] as [$scope, $serviceIds, $advertisedParam]) {
             $this->detectToolNameConflicts($container, $serviceIds);
             $demoted[$scope] = $this->buildAdvertisedTools($container, $serviceIds, $advertisedParam);
         }

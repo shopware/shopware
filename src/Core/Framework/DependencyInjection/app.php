@@ -1082,7 +1082,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             param('kernel.environment'),
             param('kernel.shopware_version'),
-            service('cache.app'),
+            service('cache.app_url_verification'),
             service(HttpClientInterface::class),
             service('lock.factory'),
             service('logger'),

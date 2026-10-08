@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Script;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Exception\ScriptExecutionFailedException;
@@ -12,12 +13,12 @@ use Symfony\Component\HttpFoundation\Response;
 class ScriptException extends HttpException
 {
     /**
-     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed with the deprecated core script response render method.
+     * @deprecated tag:v6.8.0 - Will be removed with the deprecated core script response render method.
      */
     public const HOOK_METHOD_OUTSIDE_SALES_CHANNEL_CONTEXT = 'FRAMEWORK__HOOK_METHOD_OUTSIDE_SALES_CHANNEL_CONTEXT';
 
     /**
-     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed with the deprecated core script response render method.
+     * @deprecated tag:v6.8.0 - Will be removed with the deprecated core script response render method.
      */
     public const HOOK_METHOD_STOREFRONT_BUNDLE_MISSING = 'FRAMEWORK__HOOK_METHOD_STOREFRONT_BUNDLE_MISSING';
     public const ACCESS_FROM_SCRIPT_EXECUTION_NOT_ALLOWED = 'FRAMEWORK__ACCESS_FROM_SCRIPT_EXECUTION_NOT_ALLOWED';
@@ -35,10 +36,12 @@ class ScriptException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed with the deprecated core script response render method.
+     * @deprecated tag:v6.8.0 - Will be removed with the deprecated core script response render method.
      */
     public static function hookMethodOutsideOfSalesChannelContext(string $method): self
     {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::HOOK_METHOD_OUTSIDE_SALES_CHANNEL_CONTEXT,
@@ -48,10 +51,12 @@ class ScriptException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed with the deprecated core script response render method.
+     * @deprecated tag:v6.8.0 - Will be removed with the deprecated core script response render method.
      */
     public static function storefrontBundleMissingForHookMethod(string $method): self
     {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
+
         return new self(
             Response::HTTP_INTERNAL_SERVER_ERROR,
             self::HOOK_METHOD_STOREFRONT_BUNDLE_MISSING,

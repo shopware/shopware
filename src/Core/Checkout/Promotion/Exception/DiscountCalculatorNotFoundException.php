@@ -2,20 +2,21 @@
 
 namespace Shopware\Core\Checkout\Promotion\Exception;
 
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @deprecated tag:v6.8.0 - reason:remove-exception - Will be removed, use PromotionException::discountCalculatorNotFound() instead
- *
- * @codeCoverageIgnore
+ * @deprecated tag:v6.8.0 - Will be removed, use PromotionException::discountCalculatorNotFound() instead
  */
 #[Package('checkout')]
 class DiscountCalculatorNotFoundException extends ShopwareHttpException
 {
     public function __construct(string $type)
     {
+        Feature::throwIfActive('v6.8.0.0', Feature::deprecatedClassMessage(self::class, 'v6.8.0.0'));
+
         parent::__construct('Promotion Discount Calculator "{{ type }}" has not been found!', ['type' => $type]);
     }
 

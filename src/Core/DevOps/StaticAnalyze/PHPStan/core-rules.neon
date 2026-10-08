@@ -45,12 +45,16 @@ rules:
 
 services:
     -
+        class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedExceptionPattern
+
+    -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceDecoratorPattern
 
     -
         class: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedMethodsThrowDeprecationRule
         arguments:
             deprecationPatterns:
+                - @Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedExceptionPattern
                 - @Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\DeprecatedServiceDecoratorPattern
         tags:
             - phpstan.rules.rule

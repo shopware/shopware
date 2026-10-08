@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\PriceDefinitionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\PriceDefinitionFieldSerializer;
@@ -38,6 +39,7 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
@@ -65,6 +67,59 @@ class PriceDefinitionFieldSerializerTest extends TestCase
                 new LineItemListPriceRule(),
             ])
         );
+    }
+
+    #[DataProvider('invalidPriceTypeProvider')]
+    public function testDecodeInvalidPriceTypeUsesDomainException(string $value, string $type): void
+    {
+        static::expectExceptionObject(DataAbstractionLayerException::invalidPriceFieldType($type));
+
+        $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $value);
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DataProvider('invalidPriceTypeProvider')]
+    public function testDecodeInvalidPriceTypeKeepsLegacyException(string $value, string $type): void
+    {
+        static::expectExceptionObject(DataAbstractionLayerException::invalidPriceFieldType($type));
+
+        $this->fieldSerializer->decode(new PriceDefinitionField('test', 'test'), $value);
+    }
+
+    #[DataProvider('invalidPriceTypeProvider')]
+    public function testEncodeInvalidPriceTypeUsesDomainException(string $value, string $type): void
+    {
+        static::expectExceptionObject(DataAbstractionLayerException::invalidPriceFieldType($type));
+
+        iterator_to_array($this->fieldSerializer->encode(
+            new PriceDefinitionField('test', 'test'),
+            new EntityExistence('', [], false, false, false, []),
+            new KeyValuePair('test', json_decode($value, true, 512, \JSON_THROW_ON_ERROR), false),
+            new WriteParameterBag(static::createStub(CurrencyDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue())
+        ));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    #[DataProvider('invalidPriceTypeProvider')]
+    public function testEncodeInvalidPriceTypeKeepsLegacyException(string $value, string $type): void
+    {
+        static::expectExceptionObject(DataAbstractionLayerException::invalidPriceFieldType($type));
+
+        iterator_to_array($this->fieldSerializer->encode(
+            new PriceDefinitionField('test', 'test'),
+            new EntityExistence('', [], false, false, false, []),
+            new KeyValuePair('test', json_decode($value, true, 512, \JSON_THROW_ON_ERROR), false),
+            new WriteParameterBag(static::createStub(CurrencyDefinition::class), WriteContext::createFromContext(Context::createDefaultContext()), '', new WriteCommandQueue())
+        ));
+    }
+
+    /**
+     * @return iterable<string, array{string, string}>
+     */
+    public static function invalidPriceTypeProvider(): iterable
+    {
+        yield 'missing type' => ['{}', 'none'];
+        yield 'unknown type' => ['{"type":"invalid"}', 'invalid'];
     }
 
     public function testEncodeConstraintViolation(): void

@@ -376,6 +376,10 @@ Previously, these routes could return unrelated records or fail because the unde
 
 <details>
 
+## Invalid price definition exceptions
+
+`PriceDefinitionFieldSerializer` now throws `DataAbstractionLayerException` for invalid price-definition types instead of the removed `InvalidPriceFieldTypeException`. Update exception catches and use `DataAbstractionLayerException::invalidPriceFieldType()` to construct this error. Its error code, status, and message remain unchanged.
+
 ## Removal of legacy `ConfigurationService` getters
 
 The `getConfiguration()` and `getResolvedConfiguration()` methods of `Shopware\Core\System\SystemConfig\Service\ConfigurationService` have been removed.

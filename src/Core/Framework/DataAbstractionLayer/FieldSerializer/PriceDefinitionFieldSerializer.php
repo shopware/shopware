@@ -8,14 +8,15 @@ use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
+use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
-use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPriceFieldTypeException;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\Price;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\PriceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\DataStack\KeyValuePair;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteParameterBag;
+use Shopware\Core\Framework\Deprecation\BCChange\ExceptionChange;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\Container;
@@ -43,6 +44,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         parent::__construct($validator, $compositeHandler);
     }
 
+    #[ExceptionChange(version: 'v6.8.0', newExceptions: [DataAbstractionLayerException::class], description: 'Invalid price definition types use the DAL domain exception instead of InvalidPriceFieldTypeException.')]
     public function encode(
         Field $field,
         EntityExistence $existence,
@@ -54,7 +56,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         // a non-array value must survive untouched, `parent::encode()` turns it into a write constraint violation
         if (\is_array($value)) {
             if (!\array_key_exists('type', $value)) {
-                throw new InvalidPriceFieldTypeException('none');
+                throw DataAbstractionLayerException::invalidPriceFieldType('none');
             }
 
             switch ($value['type']) {
@@ -122,7 +124,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
 
                     break;
                 default:
-                    throw new InvalidPriceFieldTypeException($value['type']);
+                    throw DataAbstractionLayerException::invalidPriceFieldType($value['type']);
             }
 
             unset($value['extensions']);
@@ -133,6 +135,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         yield from parent::encode($field, $existence, $data, $parameters);
     }
 
+    #[ExceptionChange(version: 'v6.8.0', newExceptions: [DataAbstractionLayerException::class], description: 'Invalid price definition types use the DAL domain exception instead of InvalidPriceFieldTypeException.')]
     public function decode(Field $field, mixed $value): ?PriceDefinitionInterface
     {
         if ($value === null) {
@@ -145,7 +148,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         }
 
         if (!\array_key_exists('type', $decoded)) {
-            throw new InvalidPriceFieldTypeException('none');
+            throw DataAbstractionLayerException::invalidPriceFieldType('none');
         }
 
         switch ($decoded['type']) {
@@ -164,7 +167,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                 return new PercentagePriceDefinition($decoded['percentage'], $this->decodeFilter($decoded));
         }
 
-        throw new InvalidPriceFieldTypeException($decoded['type']);
+        throw DataAbstractionLayerException::invalidPriceFieldType($decoded['type']);
     }
 
     /**

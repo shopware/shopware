@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\AdapterException;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Rule\Exception\UnsupportedOperatorException;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -19,6 +20,19 @@ use Twig\Node\Expression\AbstractExpression;
 #[CoversClass(AdapterException::class)]
 class AdapterExceptionTest extends TestCase
 {
+    public function testFilesystemFactoryChangesArePlanningMetadataNotMethodDeprecations(): void
+    {
+        foreach (['filesystemFactoryNotFound', 'duplicateFilesystemFactory'] as $name) {
+            $method = new \ReflectionMethod(AdapterException::class, $name);
+            $attributes = $method->getAttributes(ReturnTypeNarrowing::class);
+
+            static::assertCount(1, $attributes);
+            static::assertSame('v6.8.0', $attributes[0]->newInstance()->version);
+            static::assertSame('self', $attributes[0]->newInstance()->newType);
+            static::assertStringNotContainsString('@deprecated', $method->getDocComment() ?: '');
+        }
+    }
+
     public function testUnsupportedOperator(): void
     {
         $exception = AdapterException::unsupportedOperator('$', 'testClass');

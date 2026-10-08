@@ -57,6 +57,8 @@ The compiler pass removes the service definition when the flag is active. `shopw
 Symfony service aliases cannot be tagged. For an alias scheduled for removal, add an adjacent `// @deprecated tag:vX.Y.Z` comment and list its ID under the matching `vX.Y.Z.0` key in `FeatureFlagCompilerPass::ALIASES_TO_REMOVE`. The compiler pass removes listed aliases when the flag is active, and PHPStan checks that annotated aliases are listed under the correct flag. Keep `->deprecate(...)` for Symfony's deprecation notice; its version argument is when the deprecation was introduced, not the removal version.
 
 ### Using flags in methods
+
+Removed exception constructors and factories use `Feature::throwIfActive($majorFlag, $message)`: it stays silent before removal and throws when the flag is active, even inside `Feature::silent()`. Error metadata methods remain callable so formatting does not mask the original failure. Factories that remain available but change their return type use `ReturnTypeNarrowing`, not a method deprecation.
 When there is no option via the container you can use additional helper functions:
 ```php
 use Shopware\Core\Framework\Feature;

@@ -30,22 +30,16 @@ class AuthThrottledException extends ShopwareHttpException
 
     public function getErrorCode(): string
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
-
         return 'FRAMEWORK__AUTH_THROTTLED';
     }
 
     public function getStatusCode(): int
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
-
         return Response::HTTP_TOO_MANY_REQUESTS;
     }
 
     public function getWaitTime(): int
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0'));
-
         return $this->waitTime;
     }
 }

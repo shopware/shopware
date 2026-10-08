@@ -91,6 +91,40 @@ class SeoUrlPersisterTest extends TestCase
         $this->salesChannel = $salesChannels->first();
     }
 
+    public function testExplicitTakeoverIsNotUndoneByThePreviousOwnersRegeneration(): void
+    {
+        $parent = Uuid::randomHex();
+        $variant = Uuid::randomHex();
+        $this->persistSeoUrl($parent, 'parent-old');
+        $this->persistSeoUrl($parent, 'parent');
+        $this->persistSeoUrl($variant, 'variant');
+
+        $this->persistSeoUrl($variant, 'parent', explicit: true);
+        $this->persistSeoUrl($parent, 'parent');
+
+        static::assertSame('parent', $this->getCanonicalSeoUrl($variant)->getSeoPathInfo());
+        $parentCanonical = $this->getCanonicalSeoUrl($parent);
+        static::assertSame('parent-old', $parentCanonical->getSeoPathInfo());
+        static::assertTrue($parentCanonical->getIsModified());
+    }
+
+    public function testAutomaticTakeoverIsUndoneByThePreviousOwnersRegeneration(): void
+    {
+        $page = Uuid::randomHex();
+        $other = Uuid::randomHex();
+        $this->persistSeoUrl($page, 'page-old');
+        $this->persistSeoUrl($page, 'page');
+        $this->persistSeoUrl($other, 'page');
+
+        $fallback = $this->getCanonicalSeoUrl($page);
+        static::assertSame('page-old', $fallback->getSeoPathInfo());
+        static::assertFalse($fallback->getIsModified());
+
+        $this->persistSeoUrl($page, 'page');
+
+        static::assertSame('page', $this->getCanonicalSeoUrl($page)->getSeoPathInfo());
+    }
+
     public function testUpdateSeoUrlsDefault(): void
     {
         $context = Context::createDefaultContext();
@@ -1062,5 +1096,35 @@ class SeoUrlPersisterTest extends TestCase
             Context::createDefaultContext(),
             $salesChannel
         );
+    }
+
+    private function persistSeoUrl(string $foreignKey, string $seoPathInfo, bool $explicit = false): void
+    {
+        $seoUrls = [[
+            'salesChannelId' => $this->salesChannel->getId(),
+            'foreignKey' => $foreignKey,
+            'pathInfo' => '/detail/' . $foreignKey,
+            'seoPathInfo' => $seoPathInfo,
+            'isModified' => $explicit,
+        ]];
+
+        if ($explicit) {
+            $this->seoUrlPersister->forceUpdateSeoUrls(Context::createDefaultContext(), 'r', [$foreignKey], $seoUrls, $this->salesChannel);
+
+            return;
+        }
+
+        $this->seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'r', [$foreignKey], $seoUrls, $this->salesChannel);
+    }
+
+    private function getCanonicalSeoUrl(string $foreignKey): SeoUrlEntity
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('foreignKey', $foreignKey), new EqualsFilter('isCanonical', true));
+
+        $seoUrl = $this->seoUrlRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertInstanceOf(SeoUrlEntity::class, $seoUrl);
+
+        return $seoUrl;
     }
 }

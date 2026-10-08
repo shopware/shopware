@@ -216,7 +216,18 @@ class SeoUrlPersisterTest extends TestCase
         );
     }
 
-    public function testUpdateSeoUrlsWithInuseSeoPaths(): void
+    /**
+     * @return iterable<string, array{0: bool, 1: bool, 2: int}>
+     */
+    public static function takeoverWriteProtectionProvider(): iterable
+    {
+        yield 'automatic regeneration lets the previous owner claim its URL again' => [false, false, 0];
+        yield 'a manually modified URL write-protects the previous owner\'s fallback' => [false, true, 1];
+        yield 'an explicit admin update write-protects the previous owner\'s fallback' => [true, false, 1];
+    }
+
+    #[DataProvider('takeoverWriteProtectionProvider')]
+    public function testUpdateSeoUrlsWithInuseSeoPaths(bool $force, bool $isModified, int $expectedFallbackIsModified): void
     {
         $connection = $this->createMock(Connection::class);
         $seoUrlPersister = $this->createSeoUrlPersister($connection);
@@ -229,6 +240,7 @@ class SeoUrlPersisterTest extends TestCase
                 'routeName' => 'test-route',
                 'pathInfo' => 'path1',
                 'seoPathInfo' => 'path1',
+                'isModified' => $isModified,
             ],
             [
                 'languageId' => Uuid::randomHex(),
@@ -237,6 +249,7 @@ class SeoUrlPersisterTest extends TestCase
                 'routeName' => 'test-route',
                 'pathInfo' => 'path2',
                 'seoPathInfo' => 'path2',
+                'isModified' => $isModified,
             ],
         ];
 
@@ -270,23 +283,22 @@ class SeoUrlPersisterTest extends TestCase
         $connection->expects($this->once())
             ->method('executeStatement')
             ->with(
-                'UPDATE seo_url SET is_canonical = 1, is_modified = 1 WHERE id IN (:ids)',
-                ['ids' => $expectedIds],
+                'UPDATE seo_url SET is_canonical = 1, is_modified = :isModified WHERE id IN (:ids)',
+                ['ids' => $expectedIds, 'isModified' => $expectedFallbackIsModified],
                 ['ids' => ArrayParameterType::BINARY]
             );
 
         $seoChannel = new SalesChannelEntity();
         $seoChannel->setId(Uuid::randomHex());
 
-        $seoUrlPersister->updateSeoUrls(
-            Context::createDefaultContext(),
-            'test-route',
-            [
-                'foreignKey' => Uuid::randomHex(),
-            ],
-            $seoUrls,
-            $seoChannel
-        );
+        $foreignKeys = [Uuid::randomHex()];
+        if ($force) {
+            $seoUrlPersister->forceUpdateSeoUrls(Context::createDefaultContext(), 'test-route', $foreignKeys, $seoUrls, $seoChannel);
+
+            return;
+        }
+
+        $seoUrlPersister->updateSeoUrls(Context::createDefaultContext(), 'test-route', $foreignKeys, $seoUrls, $seoChannel);
     }
 
     /**

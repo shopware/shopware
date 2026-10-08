@@ -60,6 +60,10 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Automatically taken over SEO URLs are no longer write-protected
+
+When indexing generates an SEO URL that another entity already uses as its canonical URL, the generated URL takes it over and the other entity falls back to its oldest remaining SEO URL. That fallback is no longer marked as modified, so the entity gets its own URL back with its next indexing. A takeover by an SEO URL set in the Administration or via the API still write-protects the fallback, so later indexing does not undo the manual change.
+
 ### Product stream builders can migrate without dropping the legacy contract
 
 `AbstractProductStreamBuilder` now implements the deprecated `ProductStreamBuilderInterface` and forwards `buildFilters()` to `enrichCriteria()`. Extensions can therefore migrate their implementations to the abstract class while remaining compatible with code that still consumes the legacy interface.
@@ -549,6 +553,14 @@ Check your Administration extensions for these changes:
 - Text-entry fields forward the `autocomplete` attribute to the native input.
 
 ## Storefront
+
+### Link categories no longer get new SEO URLs
+
+Link categories no longer get new SEO URLs during category indexing, so a link category named like its target does not take over the target's SEO URL anymore. Their existing SEO URLs are kept and still redirect to the link target.
+
+When several canonical SEO URLs match a request, the storefront now resolves the one stored exactly as requested. This ends the endless redirect between a link category and its target when their URLs differ only in case or a trailing slash.
+
+If category indexing ran on 6.7.13.0 or later, a target category can still show under a fallback URL. Find affected categories with the query in [#21106](https://github.com/shopware/shopware/issues/21106) and set their SEO URL again in the Administration.
 
 ### Extension component aliases work in the dev server
 

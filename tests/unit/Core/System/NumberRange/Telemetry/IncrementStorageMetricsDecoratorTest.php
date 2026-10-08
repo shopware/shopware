@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\System\NumberRange\Telemetry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\System\NumberRange\Telemetry\IncrementStorageMetricsDecorator;
 use Shopware\Core\System\NumberRange\Telemetry\NumberRangeTypeResolver;
 use Shopware\Core\System\NumberRange\ValueGenerator\Pattern\IncrementStorage\AbstractIncrementStorage;
@@ -37,7 +38,7 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
                 'storage' => 'mysql',
                 'result' => 'success',
             ],
-            $duration->labels,
+            $this->meter->getLabels('number_range.allocation.duration'),
         );
     }
 
@@ -51,9 +52,7 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
 
         $this->createDecorator($decorated, 'mysql')->reserve($config);
 
-        $duration = $this->meter->getMetric('number_range.allocation.duration');
-        $labels = $duration->labels;
-        static::assertIsArray($labels);
+        $labels = $this->meter->getLabels('number_range.allocation.duration');
         static::assertSame('number_range_type_label:', $labels['number_range_type']);
     }
 
@@ -74,9 +73,7 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
         static::assertNotNull($thrown, 'the original exception must propagate');
         static::assertSame($exception, $thrown);
 
-        $duration = $this->meter->getMetric('number_range.allocation.duration');
-        $labels = $duration->labels;
-        static::assertIsArray($labels);
+        $labels = $this->meter->getLabels('number_range.allocation.duration');
         static::assertSame('failed', $labels['result']);
         static::assertSame('number_range_type_label:order', $labels['number_range_type']);
         static::assertSame('mysql', $labels['storage']);
@@ -148,7 +145,7 @@ class IncrementStorageMetricsDecoratorTest extends TestCase
             static fn (?string $technicalName): string => 'number_range_type_label:' . $technicalName
         );
 
-        return new IncrementStorageMetricsDecorator($decorated, $this->meter, $typeResolver, $storage);
+        return new IncrementStorageMetricsDecorator($decorated, new Telemetry($this->meter, 'test'), $typeResolver, $storage);
     }
 
     /**

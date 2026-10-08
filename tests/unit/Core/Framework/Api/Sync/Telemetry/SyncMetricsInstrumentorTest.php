@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\Sync\Telemetry\SyncMetricsInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\EntityGroupResolver;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Telemetry\Metrics\Metric\ConfiguredMetric;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
 
 /**
@@ -51,8 +52,7 @@ class SyncMetricsInstrumentorTest extends TestCase
         $duration = $this->meter->getMetric('api.sync.duration');
         static::assertIsFloat($duration->value);
         static::assertGreaterThanOrEqual(0.0, $duration->value);
-        $labels = $duration->labels;
-        static::assertIsArray($labels);
+        $labels = $this->meter->getLabels('api.sync.duration');
         static::assertSame('default', $labels['indexing_behavior']);
         static::assertSame('success', $labels['result']);
     }
@@ -65,9 +65,7 @@ class SyncMetricsInstrumentorTest extends TestCase
             fn (): SyncResult => new SyncResult([]),
         );
 
-        $duration = $this->meter->getMetric('api.sync.duration');
-        $labels = $duration->labels;
-        static::assertIsArray($labels);
+        $labels = $this->meter->getLabels('api.sync.duration');
         static::assertSame('use-queue-indexing', $labels['indexing_behavior']);
     }
 
@@ -119,7 +117,7 @@ class SyncMetricsInstrumentorTest extends TestCase
                 [$this->operation('product')],
                 new SyncBehavior(),
                 function (): SyncResult {
-                    throw new \RuntimeException('boom');
+                    throw new \RuntimeException('sync operation failed');
                 },
             );
         } catch (\RuntimeException $e) {
@@ -127,11 +125,9 @@ class SyncMetricsInstrumentorTest extends TestCase
         }
 
         static::assertNotNull($thrown, 'the original exception must propagate');
-        static::assertSame('boom', $thrown->getMessage());
+        static::assertSame('sync operation failed', $thrown->getMessage());
 
-        $duration = $this->meter->getMetric('api.sync.duration');
-        $labels = $duration->labels;
-        static::assertIsArray($labels);
+        $labels = $this->meter->getLabels('api.sync.duration');
         static::assertSame('failed', $labels['result']);
         static::assertSame([], $this->meter->getMetrics('api.sync.entities.affected'));
     }
@@ -166,7 +162,7 @@ class SyncMetricsInstrumentorTest extends TestCase
     {
         $this->meter = new CollectingMeter();
 
-        return new SyncMetricsInstrumentor($this->meter, new EntityGroupResolver());
+        return new SyncMetricsInstrumentor(new Telemetry($this->meter, 'test'), new EntityGroupResolver());
     }
 
     private function operation(string $entity): SyncOperation

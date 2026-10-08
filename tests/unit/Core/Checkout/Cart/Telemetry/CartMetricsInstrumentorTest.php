@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\Cart\Telemetry\CartMetricsInstrumentor;
 use Shopware\Core\Checkout\Promotion\Cart\PromotionProcessor;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\System\SalesChannel\Telemetry\SalesChannelTypeResolver;
@@ -47,7 +48,7 @@ class CartMetricsInstrumentorTest extends TestCase
         $duration = $this->meter->getMetric('cart.calculation.duration');
         static::assertIsFloat($duration->value);
         static::assertGreaterThanOrEqual(0.0, $duration->value);
-        static::assertSame(['sales_channel_type' => 'storefront', 'has_promotions' => 'no'], $duration->labels);
+        static::assertSame(['sales_channel_type' => 'storefront', 'has_promotions' => 'no', 'result' => 'success'], $this->meter->getLabels('cart.calculation.duration'));
 
         $lineItems = $this->meter->getMetric('cart.line_items.count');
         static::assertSame(2, $lineItems->value);
@@ -144,11 +145,37 @@ class CartMetricsInstrumentorTest extends TestCase
         static::assertSame('api', $labels['sales_channel_type']);
     }
 
+    public function testFailingCalculationIsRethrownAndDurationRecordedAsFailed(): void
+    {
+        $thrown = null;
+
+        try {
+            $this->createInstrumentor()->measure($this->createContext(), function (): Cart {
+                throw new \RuntimeException('cart calculation failed');
+            });
+        } catch (\RuntimeException $e) {
+            $thrown = $e;
+        }
+
+        static::assertNotNull($thrown, 'the original exception must propagate');
+        static::assertSame('cart calculation failed', $thrown->getMessage());
+
+        // the duration is still recorded; the cart is unknown, so has_promotions falls back to 'no'
+        $labels = $this->meter->getLabels('cart.calculation.duration');
+        static::assertSame('failed', $labels['result']);
+        static::assertSame('no', $labels['has_promotions']);
+
+        // follow-up metrics need the calculated cart and are skipped
+        $names = $this->meter->getMetricNames();
+        static::assertNotContains('cart.line_items.count', $names);
+        static::assertNotContains('cart.errors.count', $names);
+    }
+
     private function createInstrumentor(): CartMetricsInstrumentor
     {
         $this->meter = new CollectingMeter();
 
-        return new CartMetricsInstrumentor($this->meter, new SalesChannelTypeResolver());
+        return new CartMetricsInstrumentor(new Telemetry($this->meter, 'test'), new SalesChannelTypeResolver());
     }
 
     private function createContext(string $typeId = Defaults::SALES_CHANNEL_TYPE_STOREFRONT): SalesChannelContext

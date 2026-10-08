@@ -162,8 +162,12 @@ shopware:
                         # SalesChannelTypeResolver (known: storefront, api, product_comparison, agentic_commerce)
                         sales_channel_type:
                             policy: open
+                        # 'no' for failed calculations: the resulting cart is unknown
                         has_promotions:
                             allowed_values: ['yes', 'no']
+                        # failed calculations are timed too, kept out of the healthy distribution
+                        result:
+                            allowed_values: [success, failed]
 
                 cart.line_items.count:
                     description: 'Line items at end of cart calculation'

@@ -9,6 +9,7 @@ use Shopware\Core\Content\Flow\Telemetry\FlowMetricsInstrumentor;
 use Shopware\Core\Content\Flow\Telemetry\TriggerGroupResolver;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
 
 /**
@@ -27,7 +28,7 @@ class FlowMetricsInstrumentorTest extends TestCase
         $duration = $this->meter->getMetric('flow.execution.duration');
         static::assertIsFloat($duration->value);
         static::assertGreaterThanOrEqual(0, $duration->value);
-        static::assertSame(['trigger_group' => 'trigger_group_label:checkout.order.placed', 'result' => 'success'], $duration->labels);
+        static::assertSame(['trigger_group' => 'trigger_group_label:checkout.order.placed', 'result' => 'success'], $this->meter->getLabels('flow.execution.duration'));
     }
 
     public function testCallbackIsInvokedExactlyOnce(): void
@@ -47,18 +48,16 @@ class FlowMetricsInstrumentorTest extends TestCase
 
         try {
             $this->createInstrumentor()->measureExecution($this->createFlow('checkout.order.placed'), function (): void {
-                throw new \RuntimeException('boom');
+                throw new \RuntimeException('flow execution failed');
             });
         } catch (\RuntimeException $e) {
             $thrown = $e;
         }
 
         static::assertNotNull($thrown, 'the original exception must propagate');
-        static::assertSame('boom', $thrown->getMessage());
+        static::assertSame('flow execution failed', $thrown->getMessage());
 
-        $duration = $this->meter->getMetric('flow.execution.duration');
-        $labels = $duration->labels;
-        static::assertIsArray($labels);
+        $labels = $this->meter->getLabels('flow.execution.duration');
         static::assertSame('failed', $labels['result']);
         static::assertSame('trigger_group_label:checkout.order.placed', $labels['trigger_group']);
     }
@@ -73,7 +72,7 @@ class FlowMetricsInstrumentorTest extends TestCase
             static fn (string $eventName): string => 'trigger_group_label:' . $eventName
         );
 
-        return new FlowMetricsInstrumentor($this->meter, $triggerGroupResolver);
+        return new FlowMetricsInstrumentor(new Telemetry($this->meter, 'test'), $triggerGroupResolver);
     }
 
     private function createFlow(string $eventName): StorableFlow

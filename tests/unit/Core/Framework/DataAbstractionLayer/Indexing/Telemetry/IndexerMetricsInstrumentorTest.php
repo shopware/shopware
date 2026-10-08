@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexer;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\EntityIndexingMessage;
 use Shopware\Core\Framework\DataAbstractionLayer\Indexing\Telemetry\IndexerMetricsInstrumentor;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Telemetry\Telemetry;
 use Shopware\Core\Test\Stub\Telemetry\CollectingMeter;
 
 /**
@@ -35,7 +36,7 @@ class IndexerMetricsInstrumentorTest extends TestCase
         $duration = $this->meter->getMetric('indexer.run.duration');
         static::assertIsFloat($duration->value);
         static::assertGreaterThanOrEqual(0.0, $duration->value);
-        static::assertSame(['indexer' => 'product.indexer', 'mode' => 'full', 'result' => 'success'], $duration->labels);
+        static::assertSame(['indexer' => 'product.indexer', 'mode' => 'full', 'result' => 'success'], $this->meter->getLabels('indexer.run.duration'));
     }
 
     public function testModeIsPartialWhenNotFullIndexing(): void
@@ -99,7 +100,7 @@ class IndexerMetricsInstrumentorTest extends TestCase
                 $this->createIndexer('product.indexer'),
                 $this->createMessage(['a', 'b'], isFullIndexing: true),
                 function (): void {
-                    throw new \RuntimeException('boom');
+                    throw new \RuntimeException('indexing failed');
                 },
             );
         } catch (\RuntimeException $e) {
@@ -107,7 +108,7 @@ class IndexerMetricsInstrumentorTest extends TestCase
         }
 
         static::assertNotNull($thrown, 'the original exception must propagate');
-        static::assertSame('boom', $thrown->getMessage());
+        static::assertSame('indexing failed', $thrown->getMessage());
 
         // batch size is emitted up front, duration is still recorded on the failure path (labelled failed)
         static::assertSame(2, $this->meter->getMetric('indexer.batch.size')->value);
@@ -119,7 +120,7 @@ class IndexerMetricsInstrumentorTest extends TestCase
     {
         $this->meter = new CollectingMeter();
 
-        return new IndexerMetricsInstrumentor($this->meter);
+        return new IndexerMetricsInstrumentor(new Telemetry($this->meter, 'test'));
     }
 
     private function createIndexer(string $name): EntityIndexer&Stub

@@ -2,22 +2,21 @@
 
 namespace Shopware\Tests\Unit\Core\Content\Product\SalesChannel\Detail;
 
+use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Result;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\SalesChannel\Detail\AvailableCombinationLoader;
-use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Content\Product\Stock\AbstractStockStorage;
 use Shopware\Core\Content\Product\Stock\StockData;
 use Shopware\Core\Content\Product\Stock\StockDataCollection;
 use Shopware\Core\Framework\Context;
-use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Dbal\QueryBuilder;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
-use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticSalesChannelRepository;
 
 /**
  * @internal
@@ -117,48 +116,50 @@ class AvailableCombinationLoaderTest extends TestCase
         ?AbstractStockStorage $stockStorage = null,
         ?SystemConfigService $systemConfigService = null
     ): AvailableCombinationLoader {
+        $connection = $this->getMockedConnection();
+
         return new AvailableCombinationLoader(
-            $this->getProductRepository(),
+            $connection,
             $stockStorage ?? static::createStub(AbstractStockStorage::class),
             $systemConfigService ?? static::createStub(SystemConfigService::class),
         );
     }
 
-    /**
-     * @return StaticSalesChannelRepository<SalesChannelProductCollection>
-     */
-    private function getProductRepository(): StaticSalesChannelRepository
+    private function getMockedConnection(): Connection
     {
-        $variants = [
-            $this->createVariant('product-1', ['green', 'red'], true, false),
-            $this->createVariant('product-2', ['green'], false, true),
-        ];
-
-        /** @var StaticSalesChannelRepository<SalesChannelProductCollection> $repository */
-        $repository = new StaticSalesChannelRepository([
-            static function (Criteria $criteria) use ($variants): array {
-                static::assertSame(['optionIds', 'productNumber', 'available', 'isCloseout'], $criteria->getFields());
-
-                return $variants;
-            },
+        $result = static::createStub(Result::class);
+        $result->method('fetchAllAssociative')->willReturn([
+            [
+                'id' => 'product-1',
+                'available' => true,
+                'isCloseout' => false,
+                'options' => json_encode([
+                    'green',
+                    'red',
+                ]),
+            ],
+            [
+                'id' => 'product-2',
+                'available' => false,
+                'isCloseout' => true,
+                'options' => json_encode([
+                    'green',
+                ]),
+            ],
+            [
+                'id' => 'invalid',
+                'available' => false,
+                'isCloseout' => false,
+                'options' => '{ bar: "baz" }',
+            ],
         ]);
 
-        return $repository;
-    }
+        $queryBuilder = static::createStub(QueryBuilder::class);
+        $queryBuilder->method('executeQuery')->willReturn($result);
 
-    /**
-     * @param list<string> $optionIds
-     */
-    private function createVariant(string $id, array $optionIds, bool $available, bool $isCloseout): PartialEntity
-    {
-        $variant = new PartialEntity([
-            'optionIds' => $optionIds,
-            'productNumber' => $id,
-            'available' => $available,
-            'isCloseout' => $isCloseout,
-        ]);
-        $variant->setUniqueIdentifier($id);
+        $connection = static::createStub(Connection::class);
+        $connection->method('createQueryBuilder')->willReturn($queryBuilder);
 
-        return $variant;
+        return $connection;
     }
 }

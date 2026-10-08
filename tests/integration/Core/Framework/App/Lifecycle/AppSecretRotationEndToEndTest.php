@@ -692,7 +692,7 @@ class AppSecretRotationEndToEndTest extends TestCase
     private function lastConfirm(): RequestInterface
     {
         $confirms = $this->confirmRequests();
-        static::assertNotEmpty($confirms, 'expected at least one confirm to have been sent');
+        static::assertNotCount(0, $confirms, 'expected at least one confirm to have been sent');
 
         return $confirms[array_key_last($confirms)];
     }

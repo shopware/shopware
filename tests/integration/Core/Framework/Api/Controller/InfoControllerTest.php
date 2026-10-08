@@ -364,7 +364,7 @@ class InfoControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $version = mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3);
-        static::assertNotEmpty($version);
+        static::assertNotSame('', $version);
         static::assertStringStartsWith($version, $content);
     }
 
@@ -384,7 +384,7 @@ class InfoControllerTest extends TestCase
         static::assertSame(Response::HTTP_OK, $client->getResponse()->getStatusCode());
 
         $version = mb_substr(json_encode($expected, \JSON_THROW_ON_ERROR), 0, -3);
-        static::assertNotEmpty($version);
+        static::assertNotSame('', $version);
         static::assertStringStartsWith($version, $content);
     }
 
@@ -485,7 +485,7 @@ class InfoControllerTest extends TestCase
 
         foreach ($expected as $event) {
             $actualEvents = array_values(array_filter($response, static fn ($x) => $x['name'] === $event['name']));
-            static::assertNotEmpty($actualEvents, 'Event with name "' . $event['name'] . '" not found');
+            static::assertNotCount(0, $actualEvents, 'Event with name "' . $event['name'] . '" not found');
             sort($event['aware']);
             sort($actualEvents[0]['aware']);
             static::assertCount(1, $actualEvents);
@@ -520,7 +520,7 @@ class InfoControllerTest extends TestCase
 
         foreach ($expected as $action) {
             $actualActions = array_values(array_filter($response, static fn ($x) => $x['name'] === $action['name']));
-            static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
+            static::assertNotCount(0, $actualActions, 'Event with name "' . $action['name'] . '" not found');
             static::assertCount(1, $actualActions);
             static::assertSame($action, $actualActions[0]);
         }
@@ -560,7 +560,7 @@ class InfoControllerTest extends TestCase
 
         foreach ($expected as $action) {
             $actualActions = array_values(array_filter($response, static fn ($x) => $x['name'] === $action['name']));
-            static::assertNotEmpty($actualActions, 'Event with name "' . $action['name'] . '" not found');
+            static::assertNotCount(0, $actualActions, 'Event with name "' . $action['name'] . '" not found');
             static::assertCount(1, $actualActions);
             static::assertSame($action, $actualActions[0]);
         }
@@ -630,7 +630,7 @@ class InfoControllerTest extends TestCase
                 return $x['name'] === $event['name'];
             }));
 
-            static::assertNotEmpty($actualEvent, 'Event with name "' . $event['name'] . '" not found');
+            static::assertNotCount(0, $actualEvent, 'Event with name "' . $event['name'] . '" not found');
             static::assertCount(1, $actualEvent);
             static::assertSame($event, $actualEvent[0]);
         }

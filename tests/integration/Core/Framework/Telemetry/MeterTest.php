@@ -71,6 +71,6 @@ class MeterTest extends TestCase
         static::assertIsString($firstConfiguredMetric);
         $this->traceableTransport->reset();
         $this->meter->emit(new ConfiguredMetric(name: $firstConfiguredMetric, value: 1, labels: []));
-        static::assertEmpty($this->traceableTransport->getEmittedMetrics());
+        static::assertCount(0, $this->traceableTransport->getEmittedMetrics());
     }
 }

@@ -247,9 +247,10 @@ class JsonApiEncoderTest extends TestCase
             if ($included['type'] !== 'extension') {
                 continue;
             }
-            static::assertNotEmpty($included['relationships']['toOne']['data'], 'The relationship data to the loaded extension association is missing');
+            static::assertIsArray($included['relationships']['toOne']['data'], 'The relationship data to the loaded extension association is missing');
             static::assertSame('extended_product', $included['relationships']['toOne']['data']['type']);
-            static::assertNotEmpty($included['relationships']['toOne']['data']['id']);
+            static::assertIsString($included['relationships']['toOne']['data']['id']);
+            static::assertNotSame('', $included['relationships']['toOne']['data']['id']);
         }
     }
 
@@ -295,10 +296,11 @@ class JsonApiEncoderTest extends TestCase
             if ($included['type'] !== 'extension') {
                 continue;
             }
-            static::assertNotEmpty($included['relationships']['oneToMany']['data'], 'The relationship data to the loaded extension association is missing');
+            static::assertIsArray($included['relationships']['oneToMany']['data'], 'The relationship data to the loaded extension association is missing');
             static::assertCount(2, $included['relationships']['oneToMany']['data']);
             static::assertSame('extended_product', $included['relationships']['oneToMany']['data'][0]['type']);
-            static::assertNotEmpty($included['relationships']['oneToMany']['data'][0]['id']);
+            static::assertIsString($included['relationships']['oneToMany']['data'][0]['id']);
+            static::assertNotSame('', $included['relationships']['oneToMany']['data'][0]['id']);
         }
     }
 

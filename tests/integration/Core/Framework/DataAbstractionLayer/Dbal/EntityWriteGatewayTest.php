@@ -316,7 +316,7 @@ class EntityWriteGatewayTest extends TestCase
         static::assertSame(['a'], $customFields['e']);
 
         static::assertIsArray($customFields['f']);
-        static::assertEmpty($customFields['f']);
+        static::assertCount(0, $customFields['f']);
         static::assertSame($customFields['g'], 'test');
     }
 

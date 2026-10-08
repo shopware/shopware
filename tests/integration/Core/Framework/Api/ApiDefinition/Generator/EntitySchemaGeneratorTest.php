@@ -28,7 +28,7 @@ final class EntitySchemaGeneratorTest extends TestCase
 
         $definitions = (new EntitySchemaGenerator())->getSchema($definitionRegistry->getDefinitions());
 
-        static::assertNotEmpty($definitions);
+        static::assertNotCount(0, $definitions);
 
         foreach ($definitions as $definition) {
             static::assertArrayHasKey('write-protected', $definition);

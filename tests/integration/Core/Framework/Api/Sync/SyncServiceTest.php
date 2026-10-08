@@ -121,7 +121,7 @@ class SyncServiceTest extends TestCase
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['media-2']))],
             ['ids' => ArrayParameterType::BINARY]
         );
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
     }
 
     public function testSingleOperationWithDeletesAndWrites(): void
@@ -220,14 +220,14 @@ class SyncServiceTest extends TestCase
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['t1', 't2']))],
             ['ids' => ArrayParameterType::BINARY]
         );
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
 
         $exists = $this->connection->fetchAllAssociative(
             'SELECT id FROM country WHERE id IN (:ids)',
             ['ids' => Uuid::fromHexToBytesList($ids->getList(['c1', 'c2']))],
             ['ids' => ArrayParameterType::BINARY]
         );
-        static::assertEmpty($exists);
+        static::assertCount(0, $exists);
     }
 
     public function testSingleOperationParameter(): void

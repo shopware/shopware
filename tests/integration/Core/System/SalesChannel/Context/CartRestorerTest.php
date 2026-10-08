@@ -464,7 +464,7 @@ class CartRestorerTest extends TestCase
         static::assertFalse($restoreCart->isModified());
         static::assertIsString($productLineItem3->getReferencedId());
         // The deleted product will be removed from the cart as a result of recalculation
-        static::assertEmpty($restoreCart->getLineItems()->get($productLineItem3->getReferencedId()));
+        static::assertNull($restoreCart->getLineItems()->get($productLineItem3->getReferencedId()));
 
         static::assertArrayHasKey(CartMergedEvent::class, $this->events);
         $cartMergedEvent = $this->events[CartMergedEvent::class];

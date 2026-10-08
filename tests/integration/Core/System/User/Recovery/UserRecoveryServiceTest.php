@@ -201,7 +201,7 @@ class UserRecoveryServiceTest extends TestCase
         );
 
         static::assertInstanceOf(UserRecoveryRequestEvent::class, $validator->event);
-        static::assertNotEmpty($validator->event->getContext()->getRuleIds());
+        static::assertNotCount(0, $validator->event->getContext()->getRuleIds());
     }
 
     private function createRecovery(string $email): void

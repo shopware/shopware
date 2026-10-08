@@ -37,6 +37,10 @@ class UnusedMediaSubscriber implements EventSubscriberInterface
 
     public function removeUsedMedia(UnusedMediaSearchEvent $event): void
     {
+        if ($event->getUnusedIds() === []) {
+            return;
+        }
+
         $context = Context::createDefaultContext();
         $allThemeIds = $this->themeRepository->searchIds(new Criteria(), $context)->getIds();
 

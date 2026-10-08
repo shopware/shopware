@@ -4,8 +4,10 @@ namespace Shopware\Tests\Unit\Core\Content\Media;
 
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Media\Event\UnusedMediaSearchEvent;
+use Shopware\Core\Content\Media\Event\UnusedMediaSearchStartEvent;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Content\Media\MediaException;
@@ -27,11 +29,12 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -807,16 +810,15 @@ class UnusedMediaPurgerTest extends TestCase
         $media1 = $this->createMedia($id1);
         $media2 = $this->createMedia($id2);
 
-        $repo = StaticEntityRepository::of(
-            MediaCollection::class,
+        $repo = $this->repositoryWithCounts(
             [
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 [$id1, $id2],
                 // fake the grace period filter
                 static fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
-            $mediaDefinition
+            $mediaDefinition,
+            [10]
         );
 
         $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
@@ -849,11 +851,8 @@ class UnusedMediaPurgerTest extends TestCase
         $media3 = $this->createMedia($id3);
         $media4 = $this->createMedia($id4);
 
-        $repo = StaticEntityRepository::of(
-            MediaCollection::class,
+        $repo = $this->repositoryWithCounts(
             [
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
-
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -875,7 +874,8 @@ class UnusedMediaPurgerTest extends TestCase
                 },
                 [],
             ],
-            $mediaDefinition
+            $mediaDefinition,
+            [10]
         );
 
         $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
@@ -910,11 +910,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id3 = Uuid::randomHex();
         $id4 = Uuid::randomHex();
 
-        $repo = StaticEntityRepository::of(
-            MediaCollection::class,
+        $repo = $this->repositoryWithCounts(
             [
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
-
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -950,7 +947,8 @@ class UnusedMediaPurgerTest extends TestCase
                 },
                 [],
             ],
-            $mediaDefinition
+            $mediaDefinition,
+            [10]
         );
 
         $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
@@ -970,11 +968,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id3 = Uuid::randomHex();
         $id4 = Uuid::randomHex();
 
-        $repo = StaticEntityRepository::of(
-            MediaCollection::class,
+        $repo = $this->repositoryWithCounts(
             [
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
-
                 static function (Criteria $criteria, Context $context) use ($id1, $id2, $id3, $id4) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -984,7 +979,8 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
-            $mediaDefinition
+            $mediaDefinition,
+            [10]
         );
 
         $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
@@ -1016,10 +1012,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        $repo = StaticEntityRepository::of(
-            MediaCollection::class,
+        $repo = $this->repositoryWithCounts(
             [
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -1042,7 +1036,8 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
-            $mediaDefinition
+            $mediaDefinition,
+            [10]
         );
 
         $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
@@ -1071,10 +1066,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        $repo = StaticEntityRepository::of(
-            MediaCollection::class,
+        $repo = $this->repositoryWithCounts(
             [
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -1097,7 +1090,8 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
-            $mediaDefinition
+            $mediaDefinition,
+            [10]
         );
 
         $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
@@ -1133,10 +1127,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        $repo = StaticEntityRepository::of(
-            MediaCollection::class,
+        $repo = $this->repositoryWithCounts(
             [
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -1159,7 +1151,8 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
-            $mediaDefinition
+            $mediaDefinition,
+            [10]
         );
 
         $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
@@ -1188,10 +1181,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        $repo = StaticEntityRepository::of(
-            MediaCollection::class,
+        $repo = $this->repositoryWithCounts(
             [
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -1201,7 +1192,8 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
-            $mediaDefinition
+            $mediaDefinition,
+            [10]
         );
 
         $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
@@ -1226,13 +1218,12 @@ class UnusedMediaPurgerTest extends TestCase
             'Media' => $mediaDefinition = $this->getMediaDefinition([]),
         ]);
 
-        $repo = StaticEntityRepository::of(
-            MediaCollection::class,
+        $repo = $this->repositoryWithCounts(
             [
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 2), // candidate count query, folder entity given
             ],
-            $mediaDefinition
+            $mediaDefinition,
+            // the folder lookup throws before the candidate count runs
+            [10]
         );
 
         $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
@@ -1253,11 +1244,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        $repo = StaticEntityRepository::of(
-            MediaCollection::class,
+        $repo = $this->repositoryWithCounts(
             [
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 2), // candidate count query, folder entity given
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     $filters = $criteria->getFilters();
 
@@ -1279,7 +1267,8 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
-            $mediaDefinition
+            $mediaDefinition,
+            [10, 2]
         );
 
         $connection = static::createStub(Connection::class);
@@ -1324,10 +1313,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        $repo = StaticEntityRepository::of(
-            MediaCollection::class,
+        $repo = $this->repositoryWithCounts(
             [
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -1337,7 +1324,8 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
-            $mediaDefinition
+            $mediaDefinition,
+            [10]
         );
 
         $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
@@ -1365,10 +1353,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        $repo = StaticEntityRepository::of(
-            MediaCollection::class,
+        $repo = $this->repositoryWithCounts(
             [
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -1378,7 +1364,8 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
-            $mediaDefinition
+            $mediaDefinition,
+            [10]
         );
 
         $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
@@ -1404,10 +1391,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        $repo = StaticEntityRepository::of(
-            MediaCollection::class,
+        $repo = $this->repositoryWithCounts(
             [
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -1417,7 +1402,8 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
-            $mediaDefinition
+            $mediaDefinition,
+            [10]
         );
 
         $eventDispatcher = new EventDispatcher();
@@ -1447,10 +1433,8 @@ class UnusedMediaPurgerTest extends TestCase
         $id1 = Uuid::randomHex();
         $id2 = Uuid::randomHex();
 
-        $repo = StaticEntityRepository::of(
-            MediaCollection::class,
+        $repo = $this->repositoryWithCounts(
             [
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -1460,7 +1444,8 @@ class UnusedMediaPurgerTest extends TestCase
                 static fn (Criteria $criteria) => $criteria->getIds(),
                 [],
             ],
-            $mediaDefinition
+            $mediaDefinition,
+            [10]
         );
 
         $eventDispatcher = new EventDispatcher();
@@ -1488,10 +1473,8 @@ class UnusedMediaPurgerTest extends TestCase
 
         $media1 = $this->createMedia($id1);
 
-        $repo = StaticEntityRepository::of(
-            MediaCollection::class,
+        $repo = $this->repositoryWithCounts(
             [
-                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 [$id1, $id2],
                 // the grace period query, the only one left now that the fixture has no association
                 static function (Criteria $criteria) use ($id1, $id2) {
@@ -1501,7 +1484,8 @@ class UnusedMediaPurgerTest extends TestCase
                 },
                 [],
             ],
-            $mediaDefinition
+            $mediaDefinition,
+            [10]
         );
 
         $purger = new UnusedMediaPurger($repo, static::createStub(Connection::class), new EventDispatcher(), new NativeClock());
@@ -1515,6 +1499,72 @@ class UnusedMediaPurgerTest extends TestCase
             ],
             $repo->deletes
         );
+    }
+
+    public function testDeleteNotUsedMediaReportsTheMediaCountAsCandidatesWithoutFolderRestriction(): void
+    {
+        $this->configureRegistry([
+            'Media' => $mediaDefinition = $this->getMediaDefinition([]),
+        ]);
+
+        // without a folder restriction every media item is a candidate, so it is counted only once
+        $repo = $this->repositoryWithCounts([[]], $mediaDefinition, [10]);
+
+        $startEvent = $this->deleteAndCaptureStartEvent($repo, static::createStub(Connection::class));
+
+        static::assertSame(10, $startEvent->totalMedia);
+        static::assertSame(10, $startEvent->totalMediaDeletionCandidates);
+    }
+
+    public function testDeleteNotUsedMediaReportsTheCandidatesOfTheRestrictedFolder(): void
+    {
+        $this->configureRegistry([
+            'Media' => $mediaDefinition = $this->getMediaDefinition([]),
+        ]);
+
+        $repo = $this->repositoryWithCounts([[]], $mediaDefinition, [25, 7]);
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('fetchOne')->willReturn('id1');
+        $connection->method('fetchAllAssociativeIndexed')->willReturn([]);
+
+        $startEvent = $this->deleteAndCaptureStartEvent($repo, $connection, 'media_gallery');
+
+        static::assertSame(25, $startEvent->totalMedia);
+        static::assertSame(7, $startEvent->totalMediaDeletionCandidates);
+    }
+
+    public function testDeleteNotUsedMediaReportsZeroWhenTheCountIsMissing(): void
+    {
+        $this->configureRegistry([
+            'Media' => $mediaDefinition = $this->getMediaDefinition([]),
+        ]);
+
+        $repo = $this->repositoryWithCounts([[]], $mediaDefinition, [null]);
+
+        $startEvent = $this->deleteAndCaptureStartEvent($repo, static::createStub(Connection::class));
+
+        static::assertSame(0, $startEvent->totalMedia);
+        static::assertSame(0, $startEvent->totalMediaDeletionCandidates);
+    }
+
+    /**
+     * @param StaticEntityRepository<MediaCollection> $repo
+     */
+    private function deleteAndCaptureStartEvent(StaticEntityRepository $repo, Connection $connection, ?string $folderEntity = null): UnusedMediaSearchStartEvent
+    {
+        $startEvent = null;
+        $eventDispatcher = new EventDispatcher();
+        $eventDispatcher->addListener(UnusedMediaSearchStartEvent::class, static function (UnusedMediaSearchStartEvent $event) use (&$startEvent): void {
+            $startEvent = $event;
+        });
+
+        $purger = new UnusedMediaPurger($repo, $connection, $eventDispatcher, new NativeClock());
+        $purger->deleteNotUsedMedia(folderEntity: $folderEntity);
+
+        static::assertInstanceOf(UnusedMediaSearchStartEvent::class, $startEvent);
+
+        return $startEvent;
     }
 
     /**
@@ -1676,6 +1726,41 @@ class UnusedMediaPurgerTest extends TestCase
                 ]);
             }
         };
+    }
+
+    /**
+     * `StaticEntityRepository` has no `aggregate()` and is `@final`, so the count queries cannot go
+     * through its search queue. Only that one method is overridden; the queue still drives the rest.
+     *
+     * Like the real repository, a count is only returned when the criteria asks for the
+     * `media-count` aggregation; `null` stands for a result without it.
+     *
+     * @param array<mixed> $searches
+     * @param list<int|null> $counts
+     *
+     * @return StaticEntityRepository<MediaCollection>&MockObject
+     */
+    private function repositoryWithCounts(array $searches, EntityDefinition $definition, array $counts): StaticEntityRepository
+    {
+        $repository = $this->getMockBuilder(StaticEntityRepository::class)
+            ->setConstructorArgs([$searches, $definition])
+            ->onlyMethods(['aggregate'])
+            ->getMock();
+
+        $repository
+            ->expects($this->exactly(\count($counts)))
+            ->method('aggregate')
+            ->willReturnCallback(static function (Criteria $criteria) use (&$counts): AggregationResultCollection {
+                $count = array_shift($counts);
+
+                if ($count === null || $criteria->getAggregation('media-count') === null) {
+                    return new AggregationResultCollection();
+                }
+
+                return new AggregationResultCollection([new CountResult('media-count', $count)]);
+            });
+
+        return $repository;
     }
 
     private function createMedia(string $id): MediaEntity

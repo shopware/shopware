@@ -269,7 +269,6 @@ class UnusedMediaPurgerTest extends TestCase
         $usedByProduct = Uuid::randomHex();
         $unused = Uuid::randomHex();
 
-        // both media live in the product download folder, only one of them is referenced anywhere
         $this->mediaRepo->create([
             $this->mediaPayload($usedByProduct, $downloadFolderId),
             $this->mediaPayload($unused, $downloadFolderId),

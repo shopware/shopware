@@ -16,6 +16,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\IgnoreInUnusedMediaS
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Metric\CountAggregation;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\Metric\CountResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -107,12 +109,7 @@ class UnusedMediaPurger
 
         $totalMedia = $this->getTotal(new Criteria(), $context);
 
-        // resolving the folder tree costs two queries, so the candidate criteria is built once and shared
         $candidateCriteria = $this->createCandidateCriteria($folderEntity);
-        // counts the media that will be scanned, not the media that turns out to be unused: an exact
-        // count cannot be bound to a single batch of ids, and counting across every media association
-        // is the query that exceeds MySQL's MAX_JOIN_SIZE on large datasets. Without a folder entity the
-        // candidates are every media, which $totalMedia already counted
         $totalCandidates = $folderEntity === null
             ? $totalMedia
             : $this->getTotal($candidateCriteria, $context);
@@ -154,14 +151,12 @@ class UnusedMediaPurger
 
     private function getTotal(Criteria $criteria, Context $context): int
     {
-        // the caller keeps its criteria reusable: the limit and the count mode set here would otherwise
-        // leak into the candidate query, and TOTAL_COUNT_MODE_EXACT makes every batch count the folder
         $criteria = clone $criteria;
-        $criteria->setLimit(1);
-        $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
+        $criteria->addAggregation(new CountAggregation('media-count', 'id'));
 
-        // only the total is read, so there is nothing to hydrate
-        return $this->mediaRepo->searchIds($criteria, $context)->getTotal();
+        $aggregation = $this->mediaRepo->aggregate($criteria, $context)->get('media-count');
+
+        return $aggregation instanceof CountResult ? $aggregation->getCount() : 0;
     }
 
     /**
@@ -189,7 +184,6 @@ class UnusedMediaPurger
      */
     private function getUnusedMediaIds(Context $context, int $limit, ?int $offset, Criteria $candidateCriteria): \Generator
     {
-        // the caller may still hold this criteria, so the sorting and the limit go on a copy
         $criteria = clone $candidateCriteria;
         $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));
         $criteria->setLimit($limit);
@@ -216,8 +210,6 @@ class UnusedMediaPurger
                 break;
             }
 
-            // the cursor advances over the candidates, not over the unused subset, otherwise a batch
-            // without any unused media would restart the iteration from the same id
             $lastId = end($ids);
             $unusedIds = $this->dispatchEvent($this->filterOutUsedMedia($ids, $context), $context);
 
@@ -256,10 +248,6 @@ class UnusedMediaPurger
         return $this->isInsideTopLevelDomain($domain, $definition->getParentDefinition());
     }
 
-    /**
-     * Restricts the media that is scanned, without touching any media association: the candidate query
-     * has to stay cheap, because the reference check below is what makes the query expensive.
-     */
     private function createCandidateCriteria(?string $folderEntity = null): Criteria
     {
         $criteria = new Criteria();
@@ -289,23 +277,12 @@ class UnusedMediaPurger
 
         $ids = [$rootMediaFolderId, ...$this->getChildFolderIds($rootMediaFolderId, $folders)];
 
-        // filters on the foreign key that media already carries, traversing the association instead
-        // would join media_folder onto every candidate row for no gain
         $criteria->addFilter(new EqualsAnyFilter('media.mediaFolderId', $ids));
 
         return $criteria;
     }
 
     /**
-     * Keeps the media that nothing references. Every media association is checked, folder membership says
-     * where a media file is placed and never whether something still points at it.
-     *
-     * Each association is checked by its own query rather than as one criteria carrying every join.
-     * `max_join_size` is enforced against the optimizer's estimate for the whole plan, which is the product
-     * of the per-table estimates, so pinning the driving set to one batch of ids caps the first factor only:
-     * a single query joining all ~25 media associations exceeds the limit however few ids drive it. One
-     * association per query keeps every plan to two or three tables, resolved by the foreign key index.
-     *
      * @param list<string> $mediaIds
      *
      * @return list<string>
@@ -313,8 +290,6 @@ class UnusedMediaPurger
     private function filterOutUsedMedia(array $mediaIds, Context $context): array
     {
         foreach ($this->getUsageFilters() as $filter) {
-            // every association narrows the input of the next one, and media referenced anywhere is out
-            // for good, so there is nothing left to ask about once the batch is empty
             if ($mediaIds === []) {
                 break;
             }
@@ -329,10 +304,6 @@ class UnusedMediaPurger
     }
 
     /**
-     * One filter per association that can reference media, in definition order. Staying definition-driven
-     * is what keeps associations added through an `EntityExtension` covered and keeps
-     * `IgnoreInUnusedMediaSearch` the single explicit way to exclude one.
-     *
      * @return \Generator<EqualsFilter>
      */
     private function getUsageFilters(): \Generator

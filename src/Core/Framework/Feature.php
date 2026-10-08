@@ -80,8 +80,6 @@ class Feature
         $before = self::$registeredFeatures;
         $serverVarsBackup = $_SERVER;
 
-        $result = null;
-
         try {
             self::$registeredFeatures = [];
             foreach ($_SERVER as $key => $value) {

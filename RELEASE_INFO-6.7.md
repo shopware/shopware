@@ -309,6 +309,10 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
 
+### MCP removes many-to-many links through the mapping entity
+
+`shopware-entity-delete` now accepts mapping entities such as `product_category`, so an MCP client can remove a product from a category, or a property option from a product, without deleting either side. `ids` is then a list of objects that name every key field, for example `[{"productId": "…", "categoryId": "…"}]`. `shopware-entity-schema` reports the `mappingEntity` of each many-to-many association.
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation

@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Test\PHPUnit\EventHook;
 
 use PHPUnit\Event\Code\Phpt;
 use PHPUnit\Event\Test\PreparationStarted;
-use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversNothing;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Integration\EventDispatcher\EventHookDispatcher;
@@ -15,9 +15,11 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * @internal
+ *
+ * The subscriber is excluded from the coverage source, so this test covers nothing.
  */
 #[Package('framework')]
-#[CoversClass(ResetEventHooksSubscriber::class)]
+#[CoversNothing]
 class ResetEventHooksSubscriberTest extends TestCase
 {
     public function testNotifyClearsTheHooksOfTheCurrentDispatcher(): void

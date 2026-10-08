@@ -1,10 +1,15 @@
 import Iterator from 'src/helper/iterator.helper.js';
+import Feature from 'src/helper/feature.helper';
 
 /**
  * @package storefront
  * @deprecated tag:v6.8.0 - Use native alternatives like forEach instead. Test case will be removed.
  */
 describe('iterator.helper.js', () => {
+    beforeEach(() => {
+        window.Feature = Feature;
+    });
+
     test('it iterates over maps', () => {
         const testMap = new Map();
         testMap.set('first', 1);

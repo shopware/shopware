@@ -29,6 +29,20 @@ class McpToolResultParserTest extends TestCase
         static::assertSame(['total' => 3], $result->meta);
     }
 
+    public function testKeepsKeysNextToTheEnvelopeFieldsAsMetadata(): void
+    {
+        // The shape of agentic-commerce's UCP previews: the flags sit next to `data`, not in `_meta`.
+        $result = (new McpToolResultParser())->parse('{"success":true,"data":{"id":"cart"},"dryRun":true,"preview":true,"_meta":{"total":1,"dryRun":false}}');
+
+        static::assertInstanceOf(McpToolResult::class, $result);
+        static::assertSame(['total' => 1, 'dryRun' => false, 'preview' => true], $result->meta, '`_meta` wins over a key of the same name');
+
+        $failure = (new McpToolResultParser())->parse('{"success":false,"error":"Rejected","code":"invalid_arguments","dryRun":true}');
+        static::assertInstanceOf(McpToolResult::class, $failure);
+        static::assertSame(['dryRun' => true], $failure->meta);
+        static::assertSame('invalid_arguments', $failure->error?->code);
+    }
+
     public function testParsesASuccessEnvelopeWithoutData(): void
     {
         $result = (new McpToolResultParser())->parse('{"success":true}');

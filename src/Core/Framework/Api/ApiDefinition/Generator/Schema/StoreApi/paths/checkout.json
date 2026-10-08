@@ -587,6 +587,16 @@
                 ],
                 "parameters": [
                     {
+                        "name": "orderId",
+                        "in": "query",
+                        "description": "Evaluates the availability for this order of the current customer instead of the current session.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[0-9a-f]{32}$"
+                        }
+                    },
+                    {
                         "$ref": "#/components/parameters/swLanguageId"
                     }
                 ]

@@ -40,6 +40,6 @@ class AccessTokenTest extends TestCase
         static::assertSame($client, $token->getClient());
         $token->setExpiryDateTime(new \DateTimeImmutable());
 
-        static::assertNotEmpty($token->toString());
+        static::assertNotSame('', $token->toString());
     }
 }

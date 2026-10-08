@@ -13,7 +13,7 @@ import { MtTextField, MtUrlField } from '@shopware-ag/meteor-component-library';
 import kebabCase from 'lodash-es/kebabCase';
 import uuid from 'test/_helper_/uuid';
 import 'src/app/filter/media-name.filter';
-import 'src/app/filter/unicode-uri';
+import 'src/app/filter/unicode-uri.filter';
 
 /** @type Wrapper */
 let wrapper;

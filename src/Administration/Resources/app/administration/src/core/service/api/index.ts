@@ -5,7 +5,7 @@
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default () => {
     // @ts-expect-error
-    const context = import.meta.glob(['./**/*.{j,t}s', '!./**/*.spec.{j,t}s'], {
+    const context = import.meta.glob('./**/*.service.{j,t}s', {
         eager: true,
         import: 'default',
     });

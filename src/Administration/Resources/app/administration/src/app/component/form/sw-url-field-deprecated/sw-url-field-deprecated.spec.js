@@ -9,7 +9,7 @@ import 'src/app/component/form/field-base/sw-contextual-field';
 import 'src/app/component/form/field-base/sw-block-field';
 import 'src/app/component/form/field-base/sw-base-field';
 import 'src/app/component/form/field-base/sw-field-error';
-import 'src/app/filter/unicode-uri';
+import 'src/app/filter/unicode-uri.filter';
 import { nextTick, ref } from 'vue';
 
 async function createWrapper({ provide, ...additionalOptions } = {}) {

@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-describe('src/app/filter/unicode-uri.ts', () => {
+describe('src/app/filter/unicode-uri.filter.ts', () => {
     const unicodeUriFilter = Shopware.Filter.getByName('unicodeUri');
 
     it('should contain a filter', () => {

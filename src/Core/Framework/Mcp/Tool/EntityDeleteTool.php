@@ -89,7 +89,7 @@ class EntityDeleteTool extends McpToolResponse
      * product and the category next to the deleted mapping row. Labelling those "delete" tells a client,
      * and a model reading a dry run, that the product and the category would be deleted.
      *
-     * @return list<array{entity: string, ids: list<string>, operation: string}>
+     * @return list<array{entity: string, ids: list<string|array<string, string>>, operation: string}>
      */
     private function formatDeleteEvents(EntityWrittenContainerEvent $events): array
     {

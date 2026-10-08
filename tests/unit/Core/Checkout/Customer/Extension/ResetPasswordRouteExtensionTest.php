@@ -26,7 +26,7 @@ class ResetPasswordRouteExtensionTest extends TestCase
         $dispatcher->addSubscriber(new ResetPasswordRouteExample());
 
         $coreCalled = false;
-        $result = (new ExtensionDispatcher($dispatcher))->publish(
+        (new ExtensionDispatcher($dispatcher))->publish(
             name: ResetPasswordRouteExtension::NAME,
             extension: new ResetPasswordRouteExtension(
                 new RequestDataBag(),

@@ -102,7 +102,7 @@ class AdapterExceptionTest extends TestCase
         static::assertSame(Response::HTTP_INTERNAL_SERVER_ERROR, $exception->getStatusCode());
         static::assertSame(AdapterException::INVALID_ARGUMENT, $exception->getErrorCode());
         static::assertSame('test', $exception->getMessage());
-        static::assertEmpty($exception->getParameters());
+        static::assertCount(0, $exception->getParameters());
     }
 
     public function testMissingRequiredParameter(): void

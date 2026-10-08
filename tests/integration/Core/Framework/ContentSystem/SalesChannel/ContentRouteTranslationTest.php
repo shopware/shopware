@@ -105,7 +105,7 @@ class ContentRouteTranslationTest extends TestCase
             $this->ids->get('language-regional') => self::REGIONAL_TEXT,
         ]);
 
-        static::assertSame(self::ANCHOR_TEXT, $this->servedProperties(null)['text'] ?? null);
+        static::assertSame(self::ANCHOR_TEXT, $this->servedProperties()['text'] ?? null);
     }
 
     /**
@@ -129,7 +129,7 @@ class ContentRouteTranslationTest extends TestCase
             $this->ids->get('language-regional') => self::REGIONAL_TEXT,
         ]);
 
-        static::assertSame($expectedText, $this->servedProperties($this->ids->get($requestedLanguage))['text'] ?? null);
+        static::assertSame($expectedText, $this->servedPropertiesForLanguage($this->ids->get($requestedLanguage))['text'] ?? null);
     }
 
     /**
@@ -164,7 +164,7 @@ class ContentRouteTranslationTest extends TestCase
     {
         $this->persistTextLayout([$this->ids->get('dangling-language') => self::DANGLING_TEXT]);
 
-        static::assertArrayNotHasKey('text', $this->servedProperties(null));
+        static::assertArrayNotHasKey('text', $this->servedProperties());
     }
 
     /**
@@ -180,7 +180,7 @@ class ContentRouteTranslationTest extends TestCase
     {
         $this->persistTextLayout([Defaults::LANGUAGE_SYSTEM => self::ANCHOR_TEXT]);
 
-        static::assertSame(self::ANCHOR_TEXT, $this->servedProperties($this->ids->get('language-dialect'))['text'] ?? null);
+        static::assertSame(self::ANCHOR_TEXT, $this->servedPropertiesForLanguage($this->ids->get('language-dialect'))['text'] ?? null);
     }
 
     /**
@@ -199,9 +199,13 @@ class ContentRouteTranslationTest extends TestCase
             $this->ids->get('language-regional') => true,
         ]);
 
-        static::assertFalse($this->servedProperties(null, 'toggle')['enabled'] ?? null);
-        static::assertTrue($this->servedProperties($this->ids->get('language-regional'), 'toggle')['enabled'] ?? null);
-        static::assertTrue($this->servedProperties($this->ids->get('language-dialect'), 'toggle')['enabled'] ?? null);
+        $systemServed = $this->servedProperties('toggle');
+        $regionalServed = $this->servedPropertiesForLanguage($this->ids->get('language-regional'), 'toggle');
+        $dialectServed = $this->servedPropertiesForLanguage($this->ids->get('language-dialect'), 'toggle');
+
+        static::assertFalse($systemServed['enabled'] ?? null);
+        static::assertTrue($regionalServed['enabled'] ?? null);
+        static::assertTrue($dialectServed['enabled'] ?? null);
     }
 
     /**
@@ -216,7 +220,7 @@ class ContentRouteTranslationTest extends TestCase
 
         $this->persistToggleLayout([Defaults::LANGUAGE_SYSTEM => false]);
 
-        static::assertFalse($this->servedProperties($this->ids->get('language-dialect'), 'toggle')['enabled'] ?? null);
+        static::assertFalse($this->servedPropertiesForLanguage($this->ids->get('language-dialect'), 'toggle')['enabled'] ?? null);
     }
 
     /**
@@ -365,25 +369,42 @@ class ContentRouteTranslationTest extends TestCase
     }
 
     /**
-     * The rendered property map of the served root element, requested under the given language. A null
-     * language id sends no header, which is the sales channel's own language — the system language here.
-     * The map rather than the `text` value alone, so a caller can assert the key is absent.
+     * The rendered property map of the served root element, requested with no language header, which is the
+     * sales channel's own language — the system language here. The map rather than the `text` value alone, so a
+     * caller can assert the key is absent.
      *
      * The element id is keyed rather than passed, because the ids collection is instance state resolved by the
      * caller's key; the typed cases serve a different root and pass their own key.
      *
      * @return array<string, mixed>
      */
-    private function servedProperties(?string $languageId, string $elementIdKey = 'text'): array
+    private function servedProperties(string $elementIdKey = 'text'): array
     {
-        if ($languageId !== null) {
-            $this->browser->setServerParameter(
-                'HTTP_' . str_replace('-', '_', mb_strtoupper(PlatformRequest::HEADER_LANGUAGE_ID)),
-                $languageId,
-            );
-        }
+        return $this->requestServedProperties($elementIdKey, []);
+    }
 
-        $this->browser->request('GET', '/store-api/content/category/' . $this->ids->get('category'));
+    /**
+     * Same as {@see servedProperties()}, requested under the given language. The header travels in this
+     * request's server array: `setServerParameter()` would persist on the shared browser and leak into a later
+     * header-less call.
+     *
+     * @return array<string, mixed>
+     */
+    private function servedPropertiesForLanguage(string $languageId, string $elementIdKey = 'text'): array
+    {
+        return $this->requestServedProperties($elementIdKey, [
+            'HTTP_' . str_replace('-', '_', mb_strtoupper(PlatformRequest::HEADER_LANGUAGE_ID)) => $languageId,
+        ]);
+    }
+
+    /**
+     * @param array<string, string> $server
+     *
+     * @return array<string, mixed>
+     */
+    private function requestServedProperties(string $elementIdKey, array $server): array
+    {
+        $this->browser->request('GET', '/store-api/content/category/' . $this->ids->get('category'), server: $server);
 
         $response = $this->browser->getResponse();
         $content = (string) $response->getContent();

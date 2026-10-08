@@ -4,10 +4,12 @@ namespace Shopware\Tests\Integration\Core\Framework\ContentSystem\Api;
 
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\ContentSystem\ContentSystemException;
 use Shopware\Core\Framework\ContentSystem\Layout\Type\Registry\ContentSystemElementTypeRegistry;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminFunctionalTestBehaviour;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\TestDefaults;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -186,6 +188,29 @@ class ContentPreviewControllerTest extends TestCase
             implode("\n", array_column($body['errors'], 'detail')),
         );
         static::assertStringNotContainsString('"url"', (string) $response->getContent());
+    }
+
+    #[TestDox('previewUrl mints a token for a language map on a translatable property')]
+    public function testPreviewUrlMintsATokenForALanguageMapOnATranslatableProperty(): void
+    {
+        $this->getBrowser()->jsonRequest('POST', self::PREVIEW_URL_URL, [
+            'layout' => [[
+                'id' => 'el-1',
+                'component' => 'Sw:Content:Text',
+                'properties' => ['text' => [Defaults::LANGUAGE_SYSTEM => 'Some text']],
+            ]],
+            'entityType' => 'product',
+            'entityId' => Uuid::fromStringToHex('preview-product'),
+            'salesChannelId' => TestDefaults::SALES_CHANNEL,
+        ]);
+
+        $response = $this->getBrowser()->getResponse();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertIsString($body['url'] ?? null);
+        static::assertStringContainsString('/content-system/preview/', $body['url']);
     }
 
     /**

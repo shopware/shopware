@@ -17,24 +17,24 @@ use Shopware\Tests\Integration\Core\Framework\ContentSystem\ContentLayoutFixture
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Pins the other leg of the two ternaries {@see ListingLayoutQueryParameterRenderTest} reads its `listingLayout`
- * value from: no `listingLayout` query parameter at all. `Sw/Product/Listing.html.twig:47` falls back to
- * `'default'` and `:42` falls back to the per-viewport column map, so a request that never supplies the
- * parameter must render `is--layout-default` cards and the multi-viewport column set, not the horizontal ones.
+ * Pins the falsy-but-present leg of the `listingLayout` ternaries in `Sw/Product/Listing.html.twig`: a
+ * `listingLayout` query parameter that is present and empty. Line 69 falls back to `'default'` through
+ * `listingLayout ? listingLayout : 'default'`, so an empty value must render `is--layout-default` cards, and
+ * line 64 selects the per-viewport column map for anything but `'horizontal'`.
  *
- * This case cannot live in {@see ListingLayoutQueryParameterRenderTest}: `TwigAppVariable::getRequest()`
- * memoizes the first `app.request` read per container (see that class's own docblock), so a second render in
- * the same class would be asserted against the first request's query string. `setUpBeforeClass()` therefore
- * boots a fresh kernel here too, whose container carries its own, unarmed memo.
+ * `TwigAppVariable::getRequest()` memoizes the first `app.request` read per container, so a render is only
+ * asserted against its own query string when the container has not served an earlier request.
+ * `setUpBeforeClass()` therefore boots a fresh kernel, whose container carries an unarmed memo, and the class
+ * issues exactly one request.
  *
  * `strict_variables` is false, so a template member that stops resolving renders empty and the route still
  * answers 200; a status assertion proves nothing on its own. The assertions therefore address concrete rendered
- * nodes, the same way the sibling class does.
+ * nodes.
  *
  * @internal
  */
 #[Package('framework')]
-class ListingLayoutDefaultPresentationRenderTest extends TestCase
+class ListingLayoutEmptyParameterRenderTest extends TestCase
 {
     use ContentLayoutFixtureBehaviour;
     use IntegrationTestBehaviour;
@@ -67,8 +67,8 @@ class ListingLayoutDefaultPresentationRenderTest extends TestCase
         $this->persistLayout();
     }
 
-    #[TestDox('renders the default card presentation and the multi-viewport column set when listingLayout is absent')]
-    public function testAbsentListingLayoutParameterRendersTheDefaultPresentation(): void
+    #[TestDox('renders the default card presentation and the multi-viewport column set when listingLayout is present but empty')]
+    public function testEmptyListingLayoutParameterRendersTheDefaultPresentation(): void
     {
         $html = $this->render();
 
@@ -86,7 +86,7 @@ class ListingLayoutDefaultPresentationRenderTest extends TestCase
 
     private function render(): string
     {
-        $response = $this->request('GET', 'content/category/' . $this->ids->get('category'), []);
+        $response = $this->request('GET', 'content/category/' . $this->ids->get('category'), ['listingLayout' => '']);
 
         $html = (string) $response->getContent();
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $html);
@@ -174,7 +174,7 @@ class ListingLayoutDefaultPresentationRenderTest extends TestCase
 
     private function persistLayout(): void
     {
-        $this->persistContentLayout($this->ids->create('layout'), 'listing-layout-default-presentation', '1.0.0', 'category', [[
+        $this->persistContentLayout($this->ids->create('layout'), 'listing-layout-empty-parameter', '1.0.0', 'category', [[
             'id' => $this->ids->create('listing'),
             'component' => 'Sw:Product:Listing',
             'properties' => [
@@ -196,7 +196,7 @@ class ListingLayoutDefaultPresentationRenderTest extends TestCase
     {
         $this->repository('category.repository')->create([[
             'id' => $this->ids->create('category'),
-            'name' => 'Listing layout default category',
+            'name' => 'Listing layout empty parameter category',
             'active' => true,
             'products' => $this->products(),
         ]], Context::createDefaultContext());
@@ -226,12 +226,12 @@ class ListingLayoutDefaultPresentationRenderTest extends TestCase
             $products[] = [
                 'id' => $id,
                 'productNumber' => $id,
-                'name' => 'Listing layout default product ' . $index,
+                'name' => 'Listing layout empty parameter product ' . $index,
                 'active' => true,
                 'stock' => 10,
                 'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 15, 'net' => 10, 'linked' => false]],
-                'tax' => ['id' => $this->ids->create('tax-' . $index), 'name' => 'listing-layout-default', 'taxRate' => 19],
-                'manufacturer' => ['id' => $this->ids->create('manufacturer-' . $index), 'name' => 'listing-layout-default'],
+                'tax' => ['id' => $this->ids->create('tax-' . $index), 'name' => 'listing-layout-empty-parameter', 'taxRate' => 19],
+                'manufacturer' => ['id' => $this->ids->create('manufacturer-' . $index), 'name' => 'listing-layout-empty-parameter'],
                 'visibilities' => $visibilities,
             ];
         }

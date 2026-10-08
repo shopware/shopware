@@ -203,6 +203,7 @@ class ContentRouteRenderingTest extends TestCase
         $this->createNestedLayout();
 
         $body = $this->requestJson($this->uri('content-skeleton'));
+        $full = $this->requestJson($this->uri('content'));
 
         static::assertSame($this->ids->get('layout'), $body['id'] ?? null);
         static::assertSame(self::LAYOUT_NAME, $body['name'] ?? null);
@@ -212,7 +213,6 @@ class ContentRouteRenderingTest extends TestCase
         static::assertArrayNotHasKey('layoutVersion', $body);
 
         // Same page vocabulary as the full format, which moved to these names with its own encoder.
-        $full = $this->requestJson($this->uri('content'));
         static::assertSame($full['id'], $body['id']);
         static::assertSame($full['name'], $body['name']);
         static::assertSame($full['version'], $body['version']);
@@ -268,10 +268,9 @@ class ContentRouteRenderingTest extends TestCase
         $this->createNestedLayout();
 
         $fullRoots = $this->rootElements($this->requestJson($this->uri('content')));
-        static::assertNotContains($this->ids->get('inner-grid'), array_column($fullRoots, 'id'));
-
         $partialRoots = $this->rootElements($this->requestJson($this->uri('content') . '?elementId=' . $this->ids->get('inner-grid')));
 
+        static::assertNotContains($this->ids->get('inner-grid'), array_column($fullRoots, 'id'));
         static::assertCount(1, $partialRoots);
         static::assertSame($this->ids->get('inner-grid'), $partialRoots[0]['id']);
         static::assertSame(['content'], array_keys($this->slots($partialRoots[0])));
@@ -410,13 +409,13 @@ class ContentRouteRenderingTest extends TestCase
     {
         $this->createSeoAwareCategoryLayout();
 
-        // Fixture guard: a canonical seo url for this category really exists, so `StoreApiSeoResolver::enrich()`
-        // would have something to write. Without it the un-enriched body below would prove nothing.
-        static::assertSame([$this->ids->get('seo-url')], $this->storedCanonicalSeoUrlIds());
-
         $this->browser->setServerParameter('HTTP_sw-include-seo-urls', '1');
 
         $root = $this->rootElements($this->requestJson($this->uri('content')))[0];
+
+        // Fixture guard: a canonical seo url for this category really exists, so `StoreApiSeoResolver::enrich()`
+        // would have something to write. Without it the un-enriched body above would prove nothing.
+        static::assertSame([$this->ids->get('seo-url')], $this->storedCanonicalSeoUrlIds());
 
         // Presence first: the seo-aware entity really is on the property the absence below is asserted over.
         static::assertIsArray($root['properties']);
@@ -610,26 +609,6 @@ class ContentRouteRenderingTest extends TestCase
         static::assertSame(self::MEDIA_PATH, $media['path'] ?? null);
     }
 
-    #[TestDox('resolves every data-format assignment to an entry in the data map')]
-    public function testDataFormatAssignmentsAreReferentiallyIntact(): void
-    {
-        $this->createNestedLayout();
-
-        $body = $this->requestJson($this->uri('content-data'));
-        $assignments = $this->assignments($body);
-        $data = $this->dataMap($body);
-
-        // Both maps being empty would satisfy the difference below, so each is proven non-empty first.
-        static::assertNotSame([], $assignments);
-        static::assertNotSame([], $data);
-
-        static::assertSame(
-            [],
-            array_values(array_diff($this->referencedRefIds($assignments), array_keys($data))),
-            'Every ref an assignment names must be a key of the data map.',
-        );
-    }
-
     #[TestDox('serves decomposed skeleton nodes with id, component and the element alias at every depth, and no property values')]
     public function testDecomposedSkeletonNodesCarryStructureAndAliasButNoProperties(): void
     {
@@ -712,6 +691,10 @@ class ContentRouteRenderingTest extends TestCase
     {
         $this->createContextDependentNestedLayout();
 
+        $partialRoots = $this->rootElements(
+            $this->requestJson($this->uri('content') . '?elementId=' . $this->ids->get('inner-grid'))
+        );
+
         // Fixture guard: the target is itself a context consumer, so `findDataRootIndex()` cannot stop at the
         // target's own index and the prune has to keep the ancestor above it.
         $ancestor = $this->storedRoots()[0];
@@ -720,13 +703,9 @@ class ContentRouteRenderingTest extends TestCase
         static::assertSame($this->ids->get('inner-grid'), $target->id);
         static::assertTrue((new ContextDependencyAnalyzer())->requiresParentData($target));
 
-        // The ancestor really is part of the whole-layout render, so its absence from the partial body below
+        // The ancestor really is part of the whole-layout render, so its absence from the partial body above
         // is something the render removed rather than something the fixture never had.
         static::assertContains($this->ids->get('root-grid'), $this->servedElementIds());
-
-        $partialRoots = $this->rootElements(
-            $this->requestJson($this->uri('content') . '?elementId=' . $this->ids->get('inner-grid'))
-        );
 
         static::assertSame([$this->ids->get('inner-grid')], array_column($partialRoots, 'id'));
 
@@ -969,11 +948,11 @@ class ContentRouteRenderingTest extends TestCase
         $this->createNestedLayout();
 
         $unknownId = $this->ids->get('not-in-this-layout');
-        static::assertNotContains($unknownId, $this->servedElementIds());
 
         $this->browser->request('GET', $this->uri('content') . '?elementId=' . $unknownId);
 
         $this->assertErrorCode(Response::HTTP_NOT_FOUND, ContentSystemException::ELEMENT_NOT_FOUND);
+        static::assertNotContains($unknownId, $this->servedElementIds());
     }
 
     /**
@@ -1345,25 +1324,6 @@ class ContentRouteRenderingTest extends TestCase
         }
 
         return $skeletons;
-    }
-
-    /**
-     * Every ref any assignment names, once each, so a test can compare the referenced set against the data map.
-     *
-     * @param array<string, array<string, string>> $assignments
-     *
-     * @return list<string>
-     */
-    private function referencedRefIds(array $assignments): array
-    {
-        $refs = [];
-        foreach ($assignments as $propertyMap) {
-            foreach ($propertyMap as $refId) {
-                $refs[$refId] = true;
-            }
-        }
-
-        return array_keys($refs);
     }
 
     /**

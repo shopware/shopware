@@ -113,6 +113,24 @@ class BindingConvenienceLayerExtensionParityTest extends TestCase
         );
     }
 
+    #[TestDox('gates only the unfilled required input when one of the two required inputs carries a value')]
+    public function testGatesOnlyUnfilledRequiredKeyWhenOneRequiredInputFilled(): void
+    {
+        $report = $this->diagnostics()->analyze([$this->wiredImage(['loading' => 'eager'])], [])->report;
+
+        static::assertFalse($report->isResolvable());
+
+        $errors = $report->bindingErrors();
+        static::assertSame(
+            [ViolationCode::UnfilledRequiredInput],
+            array_map(static fn (Violation $violation): ViolationCode => $violation->code, $errors),
+        );
+        static::assertSame(
+            ['height'],
+            array_map(static fn (Violation $violation): ?string => $violation->key, $errors),
+        );
+    }
+
     #[TestDox('raises no unfilled_required_input for the test loader wiring once both required inputs carry a value')]
     public function testNoUnfilledRequiredInputWhenTestLoaderInputsFilled(): void
     {

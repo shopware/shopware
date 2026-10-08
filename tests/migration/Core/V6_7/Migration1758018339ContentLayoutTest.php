@@ -71,9 +71,12 @@ class Migration1758018339ContentLayoutTest extends TestCase
                 'Unique index on (name, version) must exist',
             );
         } finally {
-            // restore the parent table so its dependents and sibling tests keep a consistent schema, then re-enable enforcement
-            $migration->update($this->connection);
-            $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS=1');
+            // restore the parent table so its dependents keep a consistent schema, then re-enable enforcement
+            try {
+                $migration->update($this->connection);
+            } finally {
+                $this->connection->executeStatement('SET FOREIGN_KEY_CHECKS=1');
+            }
         }
     }
 }

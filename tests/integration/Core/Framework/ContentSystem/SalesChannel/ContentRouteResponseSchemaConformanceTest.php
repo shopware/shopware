@@ -258,23 +258,20 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
     {
         $result = $this->validator()->validate($body, self::SCHEMA_DOCUMENT_URI . $this->declaredResponseSchemaRef($schemaPath));
 
-        $error = $result->error();
-        if ($error === null) {
-            return [];
-        }
-
         $formatter = new ErrorFormatter();
 
-        /** @var array<string, list<string>> $keyed */
-        $keyed = $formatter->formatKeyed(
-            $error,
-            static fn (ValidationError $leaf): string => \sprintf('[%s] %s', $leaf->keyword(), $formatter->formatErrorMessage($leaf)),
-        );
-
         $violations = [];
-        foreach ($keyed as $pointer => $messages) {
-            foreach ($messages as $message) {
-                $violations[] = $pointer . ' ' . $message;
+        foreach (array_filter([$result->error()]) as $error) {
+            /** @var array<string, list<string>> $keyed */
+            $keyed = $formatter->formatKeyed(
+                $error,
+                static fn (ValidationError $leaf): string => \sprintf('[%s] %s', $leaf->keyword(), $formatter->formatErrorMessage($leaf)),
+            );
+
+            foreach ($keyed as $pointer => $messages) {
+                foreach ($messages as $message) {
+                    $violations[] = $pointer . ' ' . $message;
+                }
             }
         }
 
@@ -339,14 +336,11 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
 
     /**
      * Derived from the path key the schema hangs off, so the request and the schema cannot drift apart. Only
-     * the main family's keys carry `{path}`; the header and footer keys are already the whole route.
+     * the main family's keys carry `{path}`; the header and footer keys are already the whole route, so the
+     * replacement leaves them unchanged.
      */
     private function requestUri(string $schemaPath): string
     {
-        if (!str_contains($schemaPath, '{path}')) {
-            return '/store-api' . $schemaPath;
-        }
-
         return '/store-api' . str_replace('{path}', 'category/' . $this->ids->get('category'), $schemaPath);
     }
 
@@ -441,9 +435,7 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
      */
     private function persistLayout(string $section, array $tree): void
     {
-        if ($section === self::SECTION_MAIN) {
-            $this->createCategory();
-        }
+        $this->createCategory();
 
         $this->persistContentLayout(
             $this->ids->get('layout'),
@@ -466,21 +458,17 @@ class ContentRouteResponseSchemaConformanceTest extends TestCase
      */
     private function assignmentPayload(string $section): array
     {
-        if ($section === self::SECTION_MAIN) {
-            return [
-                'id' => $this->ids->get('assignment'),
-                'categoryId' => $this->ids->get('category'),
-                'salesChannelId' => null,
-                'contentLayoutId' => $this->ids->get('layout'),
-            ];
-        }
+        $browserScope = ['domainId' => null, 'salesChannelId' => $this->getSalesChannelApiSalesChannelId()];
+        $scopeBySection = [
+            self::SECTION_MAIN => ['categoryId' => $this->ids->get('category'), 'salesChannelId' => null],
+            self::SECTION_HEADER => $browserScope,
+            self::SECTION_FOOTER => $browserScope,
+        ];
 
         return [
             'id' => $this->ids->get('assignment'),
-            'domainId' => null,
-            'salesChannelId' => $this->getSalesChannelApiSalesChannelId(),
             'contentLayoutId' => $this->ids->get('layout'),
-        ];
+        ] + $scopeBySection[$section];
     }
 
     private function createCategory(): void

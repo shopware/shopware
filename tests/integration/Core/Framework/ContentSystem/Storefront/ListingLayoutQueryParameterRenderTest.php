@@ -129,14 +129,13 @@ class ListingLayoutQueryParameterRenderTest extends TestCase
         foreach ($cards as $card) {
             static::assertInstanceOf(\DOMElement::class, $card);
 
-            foreach ($this->classTokens($card) as $token) {
-                if (str_starts_with($token, 'is--layout-')) {
-                    $classes[] = $token;
-                }
-            }
+            $classes[] = array_values(array_filter(
+                $this->classTokens($card),
+                static fn (string $token): bool => str_starts_with($token, 'is--layout-')
+            ));
         }
 
-        return $classes;
+        return array_merge([], ...$classes);
     }
 
     /**

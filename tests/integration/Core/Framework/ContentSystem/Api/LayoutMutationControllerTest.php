@@ -198,7 +198,81 @@ class LayoutMutationControllerTest extends TestCase
         static::assertContains(ContentSystemException::LAYOUT_PRESET_NOT_FOUND, array_column($body['errors'], 'code'));
     }
 
-    #[TestDox('rejects a structural impossibility with a 400 without persisting')]
+    #[TestDox('inserts an element at the requested index of a container slot')]
+    public function testInsertElementIntoContainerSlotAtIndex(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $container = $this->element('container', $component);
+        $container['slots'] = ['content' => [$this->element('block-b', $component)]];
+
+        $body = $this->mutate('insert-element', [
+            'layout' => [$container],
+            'type' => $component,
+            'parentElementId' => 'container',
+            'slot' => 'content',
+            'index' => 0,
+        ]);
+
+        static::assertCount(1, $body['layout']);
+        static::assertSame([$body['affectedElementIds'][0], 'block-b'], array_column($body['layout'][0]['slots']['content'], 'id'));
+    }
+
+    #[TestDox('moves a root element to the requested index of a container slot')]
+    public function testMoveElementIntoContainerSlotAtIndex(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $container = $this->element('container', $component);
+        $container['slots'] = ['content' => [$this->element('block-b', $component)]];
+
+        $body = $this->mutate('move-element', [
+            'layout' => [$container, $this->element('block-a', $component)],
+            'elementId' => 'block-a',
+            'newParentId' => 'container',
+            'newSlot' => 'content',
+            'index' => 0,
+        ]);
+
+        static::assertSame(['container'], array_column($body['layout'], 'id'));
+        static::assertSame(['block-a', 'block-b'], array_column($body['layout'][0]['slots']['content'], 'id'));
+    }
+
+    #[TestDox('attaches a supplied subtree at the requested index of a container slot')]
+    public function testAttachElementIntoContainerSlotAtIndex(): void
+    {
+        $component = TestElementTypeLoader::RESOLVABLE;
+
+        $container = $this->element('container', $component);
+        $container['slots'] = ['content' => [$this->element('block-b', $component)]];
+
+        $body = $this->mutate('attach-element', [
+            'layout' => [$container],
+            'element' => $this->element('incoming', $component),
+            'parentElementId' => 'container',
+            'slot' => 'content',
+            'index' => 0,
+        ]);
+
+        static::assertCount(1, $body['layout']);
+        static::assertSame([$body['affectedElementIds'][0], 'block-b'], array_column($body['layout'][0]['slots']['content'], 'id'));
+    }
+
+    #[TestDox('inserts a core preset subtree into a container slot')]
+    public function testInsertPresetIntoContainerSlot(): void
+    {
+        $body = $this->mutate('insert-preset', [
+            'layout' => [$this->element('container', TestElementTypeLoader::RESOLVABLE)],
+            'presetId' => 'Sw:MediaAndText',
+            'parentElementId' => 'container',
+            'slot' => 'content',
+        ]);
+
+        static::assertCount(1, $body['layout']);
+        static::assertSame([$body['affectedElementIds'][0]], array_column($body['layout'][0]['slots']['content'], 'id'));
+    }
+
+    #[TestDox('rejects a structural impossibility with a 400')]
     public function testStructuralImpossibilityReturns400(): void
     {
         $component = TestElementTypeLoader::RESOLVABLE;
@@ -207,8 +281,12 @@ class LayoutMutationControllerTest extends TestCase
             'layout' => [$this->element('block-a', $component)],
             'elementId' => 'ghost',
         ]);
+        $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertContains(ContentSystemException::MUTATION_TARGET_NOT_FOUND, array_column($body['errors'], 'code'));
     }
 
     #[TestDox('rejects a numeric wiring key in the draft layout with a 400 invalidLayoutStructure before any mutation runs')]
@@ -392,8 +470,19 @@ class LayoutMutationControllerTest extends TestCase
             'containerType' => $component,
             'slot' => 'content',
         ]);
+        $response = $this->getBrowser()->getResponse();
 
-        static::assertSame(Response::HTTP_BAD_REQUEST, $this->getBrowser()->getResponse()->getStatusCode());
+        static::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode(), (string) $response->getContent());
+
+        // the ids 1 and 2 are absent from the layout, so a request that passed the boundary would be refused by the
+        // op with mutationTargetNotFound: only the type violation names the string requirement
+        $body = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        // one violation per id, joined into the single error entry's detail
+        static::assertSame(
+            ["This value should be of type string.\nThis value should be of type string."],
+            array_column($body['errors'], 'detail'),
+        );
+        static::assertNotContains(ContentSystemException::MUTATION_TARGET_NOT_FOUND, array_column($body['errors'], 'code'));
     }
 
     #[TestDox('rejects an unknown rootSource with a 400 and the unknownRootSource code, never reaching resolve')]
@@ -703,12 +792,10 @@ class LayoutMutationControllerTest extends TestCase
      */
     private function resolutionFor(array $resolutions, string $key): array
     {
-        foreach ($resolutions as $resolution) {
-            if ($resolution['key'] === $key) {
-                return $resolution;
-            }
-        }
+        $resolutionsByKey = array_column($resolutions, null, 'key');
+        static::assertArrayHasKey($key, $resolutionsByKey, \sprintf('No resolution found for key "%s"', $key));
+        static::assertIsArray($resolutionsByKey[$key]);
 
-        static::fail(\sprintf('No resolution found for key "%s"', $key));
+        return $resolutionsByKey[$key];
     }
 }

@@ -254,28 +254,8 @@ class SnippetFinderTest extends TestCase
         $plugins = array_map($getBundleMockByPath, $pluginPaths);
         $activePlugins = array_map($getBundleMockByPath, $activePluginPaths);
 
-        $adminBundle = static::createStub(Administration::class);
-
-        $adminBundleFileName = (new \ReflectionClass(Administration::class))->getFileName();
-        static::assertNotFalse($adminBundleFileName);
-
-        $adminBundle
-            ->method('getPath')
-            ->willReturn(\dirname($adminBundleFileName));
-
-        $property = new \ReflectionProperty(Administration::class, 'name');
-        $property->setValue($adminBundle, 'Administration');
-
-        $storefrontBundle = static::createStub(Storefront::class);
-        $storefrontBundleFileName = (new \ReflectionClass(Storefront::class))->getFileName();
-        static::assertNotFalse($storefrontBundleFileName);
-
-        $storefrontBundle
-            ->method('getPath')
-            ->willReturn(\dirname($storefrontBundleFileName));
-
-        $property = new \ReflectionProperty(Storefront::class, 'name');
-        $property->setValue($storefrontBundle, 'Storefront');
+        $adminBundle = new Administration();
+        $storefrontBundle = new Storefront();
 
         $bundles = [
             ...array_map($getBundleMockByPath, $bundlePaths),

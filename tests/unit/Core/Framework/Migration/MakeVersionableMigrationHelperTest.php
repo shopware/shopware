@@ -10,7 +10,6 @@ use Doctrine\DBAL\Schema\ForeignKeyConstraint\ReferentialAction;
 use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\Name\OptionallyQualifiedName;
-use Doctrine\DBAL\Schema\Name\UnqualifiedName;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -95,13 +94,13 @@ class MakeVersionableMigrationHelperTest extends TestCase
             ->willReturnCallback(static function (OptionallyQualifiedName $name): PrimaryKeyConstraint {
                 $nameString = $name->getUnqualifiedName()->getValue();
                 if ($nameString === UnitDefinition::ENTITY_NAME) {
-                    return new PrimaryKeyConstraint(null, [UnqualifiedName::quoted('id')], true);
+                    return PrimaryKeyConstraint::editor()->setQuotedColumnNames('id')->create();
                 }
                 if ($nameString === UnitTranslationDefinition::ENTITY_NAME) {
-                    return new PrimaryKeyConstraint(null, [UnqualifiedName::quoted('unit_id'), UnqualifiedName::quoted('language_id')], true);
+                    return PrimaryKeyConstraint::editor()->setQuotedColumnNames('unit_id', 'language_id')->create();
                 }
                 if ($nameString === ProductDefinition::ENTITY_NAME) {
-                    return new PrimaryKeyConstraint(null, [UnqualifiedName::quoted('id'), UnqualifiedName::quoted('version_id')], true);
+                    return PrimaryKeyConstraint::editor()->setQuotedColumnNames('id', 'version_id')->create();
                 }
                 static::fail('Missing configured return value for: ' . $nameString);
             });

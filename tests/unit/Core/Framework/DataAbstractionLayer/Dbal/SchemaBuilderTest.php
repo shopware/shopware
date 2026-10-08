@@ -2,7 +2,6 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer\Dbal;
 
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
@@ -132,133 +131,133 @@ class SchemaBuilderTest extends TestCase
         static::assertSame('id', $table->getPrimaryKeyConstraint()?->getColumnNames()[0]->toString());
 
         static::assertTrue($table->hasColumn('id'));
-        static::assertSame(Type::getType(Types::BINARY), $table->getColumn('id')->getType());
+        static::assertSame(Types::BINARY, $table->getColumn('id')->getTypeName());
 
         static::assertTrue($table->hasColumn('version_id'));
-        static::assertSame(Type::getType(Types::BINARY), $table->getColumn('version_id')->getType());
+        static::assertSame(Types::BINARY, $table->getColumn('version_id')->getTypeName());
 
         static::assertTrue($table->hasColumn('created_by_id'));
-        static::assertSame(Type::getType(Types::BINARY), $table->getColumn('created_by_id')->getType());
+        static::assertSame(Types::BINARY, $table->getColumn('created_by_id')->getTypeName());
 
         static::assertTrue($table->hasColumn('updated_by_id'));
-        static::assertSame(Type::getType(Types::BINARY), $table->getColumn('updated_by_id')->getType());
+        static::assertSame(Types::BINARY, $table->getColumn('updated_by_id')->getTypeName());
 
         static::assertTrue($table->hasColumn('state_id'));
-        static::assertSame(Type::getType(Types::BINARY), $table->getColumn('state_id')->getType());
+        static::assertSame(Types::BINARY, $table->getColumn('state_id')->getTypeName());
 
         static::assertTrue($table->hasColumn('created_at'));
-        static::assertSame(Type::getType(Types::DATETIME_MUTABLE), $table->getColumn('created_at')->getType());
+        static::assertSame(Types::DATETIME_MUTABLE, $table->getColumn('created_at')->getTypeName());
 
         static::assertTrue($table->hasColumn('updated_at'));
-        static::assertSame(Type::getType(Types::DATETIME_MUTABLE), $table->getColumn('updated_at')->getType());
+        static::assertSame(Types::DATETIME_MUTABLE, $table->getColumn('updated_at')->getTypeName());
 
         static::assertTrue($table->hasColumn('datetime'));
-        static::assertSame(Type::getType(Types::DATETIME_MUTABLE), $table->getColumn('datetime')->getType());
+        static::assertSame(Types::DATETIME_MUTABLE, $table->getColumn('datetime')->getTypeName());
 
         static::assertTrue($table->hasColumn('date'));
-        static::assertSame(Type::getType(Types::DATE_MUTABLE), $table->getColumn('date')->getType());
+        static::assertSame(Types::DATE_MUTABLE, $table->getColumn('date')->getTypeName());
 
         static::assertTrue($table->hasColumn('cart_price'));
-        static::assertSame(Type::getType(Types::JSON), $table->getColumn('cart_price')->getType());
+        static::assertSame(Types::JSON, $table->getColumn('cart_price')->getTypeName());
 
         static::assertTrue($table->hasColumn('calculated_price'));
-        static::assertSame(Type::getType(Types::JSON), $table->getColumn('calculated_price')->getType());
+        static::assertSame(Types::JSON, $table->getColumn('calculated_price')->getTypeName());
 
         static::assertTrue($table->hasColumn('price'));
-        static::assertSame(Type::getType(Types::JSON), $table->getColumn('price')->getType());
+        static::assertSame(Types::JSON, $table->getColumn('price')->getTypeName());
 
         static::assertTrue($table->hasColumn('price_definition'));
-        static::assertSame(Type::getType(Types::JSON), $table->getColumn('price_definition')->getType());
+        static::assertSame(Types::JSON, $table->getColumn('price_definition')->getTypeName());
 
         static::assertTrue($table->hasColumn('json'));
-        static::assertSame(Type::getType(Types::JSON), $table->getColumn('json')->getType());
+        static::assertSame(Types::JSON, $table->getColumn('json')->getTypeName());
 
         static::assertTrue($table->hasColumn('list'));
-        static::assertSame(Type::getType(Types::JSON), $table->getColumn('list')->getType());
+        static::assertSame(Types::JSON, $table->getColumn('list')->getTypeName());
 
         static::assertTrue($table->hasColumn('config_json'));
-        static::assertSame(Type::getType(Types::JSON), $table->getColumn('config_json')->getType());
+        static::assertSame(Types::JSON, $table->getColumn('config_json')->getTypeName());
 
         static::assertTrue($table->hasColumn('custom_fields'));
-        static::assertSame(Type::getType(Types::JSON), $table->getColumn('custom_fields')->getType());
+        static::assertSame(Types::JSON, $table->getColumn('custom_fields')->getTypeName());
 
         static::assertTrue($table->hasColumn('breadcrumb'));
-        static::assertSame(Type::getType(Types::JSON), $table->getColumn('breadcrumb')->getType());
+        static::assertSame(Types::JSON, $table->getColumn('breadcrumb')->getTypeName());
 
         static::assertTrue($table->hasColumn('cash_rounding_config'));
-        static::assertSame(Type::getType(Types::JSON), $table->getColumn('cash_rounding_config')->getType());
+        static::assertSame(Types::JSON, $table->getColumn('cash_rounding_config')->getTypeName());
 
         static::assertTrue($table->hasColumn('object'));
-        static::assertSame(Type::getType(Types::JSON), $table->getColumn('object')->getType());
+        static::assertSame(Types::JSON, $table->getColumn('object')->getTypeName());
 
         static::assertTrue($table->hasColumn('tax_free_config'));
-        static::assertSame(Type::getType(Types::JSON), $table->getColumn('tax_free_config')->getType());
+        static::assertSame(Types::JSON, $table->getColumn('tax_free_config')->getTypeName());
 
         static::assertTrue($table->hasColumn('tree_breadcrumb'));
-        static::assertSame(Type::getType(Types::JSON), $table->getColumn('tree_breadcrumb')->getType());
+        static::assertSame(Types::JSON, $table->getColumn('tree_breadcrumb')->getTypeName());
 
         static::assertTrue($table->hasColumn('variant_listing_config'));
-        static::assertSame(Type::getType(Types::JSON), $table->getColumn('variant_listing_config')->getType());
+        static::assertSame(Types::JSON, $table->getColumn('variant_listing_config')->getTypeName());
 
         static::assertTrue($table->hasColumn('version_data_payload'));
-        static::assertSame(Type::getType(Types::JSON), $table->getColumn('version_data_payload')->getType());
+        static::assertSame(Types::JSON, $table->getColumn('version_data_payload')->getTypeName());
 
         static::assertTrue($table->hasColumn('child_count'));
-        static::assertSame(Type::getType(Types::INTEGER), $table->getColumn('child_count')->getType());
+        static::assertSame(Types::INTEGER, $table->getColumn('child_count')->getTypeName());
 
         static::assertTrue($table->hasColumn('auto_increment'));
-        static::assertSame(Type::getType(Types::INTEGER), $table->getColumn('auto_increment')->getType());
+        static::assertSame(Types::INTEGER, $table->getColumn('auto_increment')->getTypeName());
 
         static::assertTrue($table->hasColumn('int'));
-        static::assertSame(Type::getType(Types::INTEGER), $table->getColumn('int')->getType());
+        static::assertSame(Types::INTEGER, $table->getColumn('int')->getTypeName());
 
         static::assertTrue($table->hasColumn('auto_increment'));
-        static::assertSame(Type::getType(Types::INTEGER), $table->getColumn('auto_increment')->getType());
+        static::assertSame(Types::INTEGER, $table->getColumn('auto_increment')->getTypeName());
 
         static::assertTrue($table->hasColumn('tree_level'));
-        static::assertSame(Type::getType(Types::INTEGER), $table->getColumn('tree_level')->getType());
+        static::assertSame(Types::INTEGER, $table->getColumn('tree_level')->getTypeName());
 
         static::assertTrue($table->hasColumn('bool'));
-        static::assertSame(Type::getType(Types::BOOLEAN), $table->getColumn('bool')->getType());
+        static::assertSame(Types::BOOLEAN, $table->getColumn('bool')->getTypeName());
 
         static::assertTrue($table->hasColumn('locked'));
-        static::assertSame(Type::getType(Types::BOOLEAN), $table->getColumn('locked')->getType());
+        static::assertSame(Types::BOOLEAN, $table->getColumn('locked')->getTypeName());
 
         static::assertTrue($table->hasColumn('password'));
-        static::assertSame(Type::getType(Types::STRING), $table->getColumn('password')->getType());
+        static::assertSame(Types::STRING, $table->getColumn('password')->getTypeName());
 
         static::assertTrue($table->hasColumn('string'));
-        static::assertSame(Type::getType(Types::STRING), $table->getColumn('string')->getType());
+        static::assertSame(Types::STRING, $table->getColumn('string')->getTypeName());
 
         static::assertTrue($table->hasColumn('timezone'));
-        static::assertSame(Type::getType(Types::STRING), $table->getColumn('timezone')->getType());
+        static::assertSame(Types::STRING, $table->getColumn('timezone')->getTypeName());
 
         static::assertTrue($table->hasColumn('cron_interval'));
-        static::assertSame(Type::getType(Types::STRING), $table->getColumn('cron_interval')->getType());
+        static::assertSame(Types::STRING, $table->getColumn('cron_interval')->getTypeName());
 
         static::assertTrue($table->hasColumn('date_interval'));
-        static::assertSame(Type::getType(Types::STRING), $table->getColumn('date_interval')->getType());
+        static::assertSame(Types::STRING, $table->getColumn('date_interval')->getTypeName());
 
         static::assertTrue($table->hasColumn('email'));
-        static::assertSame(Type::getType(Types::STRING), $table->getColumn('email')->getType());
+        static::assertSame(Types::STRING, $table->getColumn('email')->getTypeName());
 
         static::assertTrue($table->hasColumn('remote_address'));
-        static::assertSame(Type::getType(Types::STRING), $table->getColumn('remote_address')->getType());
+        static::assertSame(Types::STRING, $table->getColumn('remote_address')->getTypeName());
 
         static::assertTrue($table->hasColumn('number_range'));
-        static::assertSame(Type::getType(Types::STRING), $table->getColumn('number_range')->getType());
+        static::assertSame(Types::STRING, $table->getColumn('number_range')->getTypeName());
 
         static::assertTrue($table->hasColumn('blob'));
-        static::assertSame(Type::getType(Types::BLOB), $table->getColumn('blob')->getType());
+        static::assertSame(Types::BLOB, $table->getColumn('blob')->getTypeName());
 
         static::assertTrue($table->hasColumn('float'));
-        static::assertSame(Type::getType(Types::DECIMAL), $table->getColumn('float')->getType());
+        static::assertSame(Types::DECIMAL, $table->getColumn('float')->getTypeName());
 
         static::assertTrue($table->hasColumn('tree_path'));
-        static::assertSame(Type::getType(Types::TEXT), $table->getColumn('tree_path')->getType());
+        static::assertSame(Types::TEXT, $table->getColumn('tree_path')->getTypeName());
 
         static::assertTrue($table->hasColumn('long_text'));
-        static::assertSame(Type::getType(Types::TEXT), $table->getColumn('long_text')->getType());
+        static::assertSame(Types::TEXT, $table->getColumn('long_text')->getTypeName());
     }
 
     public function testForeignKeys(): void
@@ -270,31 +269,31 @@ class SchemaBuilderTest extends TestCase
         static::assertSame('id', $table->getPrimaryKeyConstraint()?->getColumnNames()[0]->toString());
 
         static::assertTrue($table->hasColumn('id'));
-        static::assertSame(Type::getType(Types::BINARY), $table->getColumn('id')->getType());
+        static::assertSame(Types::BINARY, $table->getColumn('id')->getTypeName());
 
         static::assertTrue($table->hasColumn('version_id'));
-        static::assertSame(Type::getType(Types::BINARY), $table->getColumn('version_id')->getType());
+        static::assertSame(Types::BINARY, $table->getColumn('version_id')->getTypeName());
 
         static::assertTrue($table->hasColumn('parent_id'));
-        static::assertSame(Type::getType(Types::BINARY), $table->getColumn('parent_id')->getType());
+        static::assertSame(Types::BINARY, $table->getColumn('parent_id')->getTypeName());
 
         static::assertTrue($table->hasColumn('parent_version_id'));
-        static::assertSame(Type::getType(Types::BINARY), $table->getColumn('parent_version_id')->getType());
+        static::assertSame(Types::BINARY, $table->getColumn('parent_version_id')->getTypeName());
 
         static::assertTrue($table->hasColumn('created_at'));
-        static::assertSame(Type::getType(Types::DATETIME_MUTABLE), $table->getColumn('created_at')->getType());
+        static::assertSame(Types::DATETIME_MUTABLE, $table->getColumn('created_at')->getTypeName());
 
         static::assertTrue($table->hasColumn('updated_at'));
-        static::assertSame(Type::getType(Types::DATETIME_MUTABLE), $table->getColumn('updated_at')->getType());
+        static::assertSame(Types::DATETIME_MUTABLE, $table->getColumn('updated_at')->getTypeName());
 
         static::assertTrue($table->hasColumn('association_id'));
-        static::assertSame(Type::getType(Types::BINARY), $table->getColumn('association_id')->getType());
+        static::assertSame(Types::BINARY, $table->getColumn('association_id')->getTypeName());
 
         static::assertTrue($table->hasColumn('association_id2'));
-        static::assertSame(Type::getType(Types::BINARY), $table->getColumn('association_id2')->getType());
+        static::assertSame(Types::BINARY, $table->getColumn('association_id2')->getTypeName());
 
         static::assertTrue($table->hasColumn('association_id3'));
-        static::assertSame(Type::getType(Types::BINARY), $table->getColumn('association_id3')->getType());
+        static::assertSame(Types::BINARY, $table->getColumn('association_id3')->getTypeName());
 
         static::assertTrue($table->hasForeignKey('fk__test_entity_with_foreign_keys__association_id'));
         static::assertTrue($table->hasForeignKey('fk__test_entity_with_foreign_keys__association_id2'));

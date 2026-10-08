@@ -8,6 +8,9 @@ use Doctrine\DBAL\Platforms\MySQL\CollationMetadataProvider;
 use Doctrine\DBAL\Platforms\MySQL\Comparator;
 use Doctrine\DBAL\Platforms\MySQL\DefaultTableOptions;
 use Doctrine\DBAL\Platforms\MySQLPlatform;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
+use Doctrine\DBAL\Schema\Index;
 use Doctrine\DBAL\Schema\MySQLSchemaManager;
 use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
@@ -74,7 +77,7 @@ class MigrationQueryGeneratorTest extends TestCase
 
         static::assertCount(2, $queries);
         static::assertStringContainsString('ALTER TABLE test ADD priority INT NOT NULL, ADD test2_id VARCHAR(255) NOT NULL', $queries[0]);
-        static::assertStringContainsString('ALTER TABLE test ADD CONSTRAINT fk_column_id FOREIGN KEY (test2_id) REFERENCES test2 (id)', $queries[1]);
+        static::assertStringContainsString('ALTER TABLE `test` ADD CONSTRAINT fk_column_id FOREIGN KEY (test2_id) REFERENCES test2 (id)', $queries[1]);
     }
 
     public function testGenerateQueriesForNewTable(): void
@@ -89,45 +92,50 @@ class MigrationQueryGeneratorTest extends TestCase
 
         static::assertCount(2, $queries);
         static::assertStringContainsString('CREATE TABLE test (id VARCHAR(255) NOT NULL, name VARCHAR(255) NOT NULL, priority INT NOT NULL, created_at DATETIME NOT NULL, updated_at DATETIME NOT NULL, test2_id VARCHAR(255) NOT NULL, PRIMARY KEY (`id`))', $queries[0]);
-        static::assertStringContainsString('ALTER TABLE test ADD CONSTRAINT fk_column_id FOREIGN KEY (test2_id) REFERENCES test2 (id)', $queries[1]);
+        static::assertStringContainsString('ALTER TABLE `test` ADD CONSTRAINT fk_column_id FOREIGN KEY (test2_id) REFERENCES test2 (id)', $queries[1]);
     }
 
     private function getOriginalTable(): Table
     {
-        $table = new Table('test');
+        $table = Table::editor()->setUnquotedName('test');
 
-        $table->addColumn('id', 'string', ['length' => 255]);
-        $table->addColumn('name', 'string', ['length' => 255]);
-        $table->addColumn('created_at', 'datetime');
-        $table->addColumn('updated_at', 'datetime');
+        $table->addColumn(Column::editor()->setUnquotedName('id')->setTypeName('string')->setLength(255)->create());
+        $table->addColumn(Column::editor()->setUnquotedName('name')->setTypeName('string')->setLength(255)->create());
+        $table->addColumn(Column::editor()->setUnquotedName('created_at')->setTypeName('datetime')->create());
+        $table->addColumn(Column::editor()->setUnquotedName('updated_at')->setTypeName('datetime')->create());
 
         $pk = PrimaryKeyConstraint::editor();
         $pk->setQuotedColumnNames('id');
         $table->addPrimaryKeyConstraint($pk->create());
 
-        $table->addIndex(['name']);
+        $table->addIndex(Index::editor()->addUnquotedColumnName('name'));
 
-        return $table;
+        return $table->create();
     }
 
     private function getNewTable(): Table
     {
-        $table = new Table('test');
+        $table = Table::editor()->setUnquotedName('test');
 
-        $table->addColumn('id', 'string', ['length' => 255]);
-        $table->addColumn('name', 'string', ['length' => 255]);
-        $table->addColumn('priority', 'integer');
-        $table->addColumn('created_at', 'datetime');
-        $table->addColumn('updated_at', 'datetime');
-        $table->addColumn('test2_id', 'string', ['length' => 255]);
+        $table->addColumn(Column::editor()->setUnquotedName('id')->setTypeName('string')->setLength(255)->create());
+        $table->addColumn(Column::editor()->setUnquotedName('name')->setTypeName('string')->setLength(255)->create());
+        $table->addColumn(Column::editor()->setUnquotedName('priority')->setTypeName('integer')->create());
+        $table->addColumn(Column::editor()->setUnquotedName('created_at')->setTypeName('datetime')->create());
+        $table->addColumn(Column::editor()->setUnquotedName('updated_at')->setTypeName('datetime')->create());
+        $table->addColumn(Column::editor()->setUnquotedName('test2_id')->setTypeName('string')->setLength(255)->create());
 
-        $table->addForeignKeyConstraint('test2', ['test2_id'], ['id'], [], 'fk_column_id');
+        $table->addForeignKeyConstraint(ForeignKeyConstraint::editor()
+            ->setUnquotedName('fk_column_id')
+            ->setUnquotedReferencingColumnNames('test2_id')
+            ->setUnquotedReferencedTableName('test2')
+            ->setUnquotedReferencedColumnNames('id')
+            ->create());
         $pk = PrimaryKeyConstraint::editor();
         $pk->setQuotedColumnNames('id');
         $table->addPrimaryKeyConstraint($pk->create());
 
-        $table->addIndex(['priority']);
+        $table->addIndex(Index::editor()->addUnquotedColumnName('priority'));
 
-        return $table;
+        return $table->create();
     }
 }

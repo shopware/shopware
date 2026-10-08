@@ -5,7 +5,6 @@ namespace Shopware\Tests\Unit\Core\System\CustomEntity\Schema;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
-use Doctrine\DBAL\Types\Type;
 use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -24,28 +23,26 @@ class SchemaUpdaterTest extends TestCase
 {
     public function testDefaultFields(): void
     {
-        $entity = [
-            'name' => 'custom_entity_empty_entity',
-            'fields' => '[]',
-        ];
-        $schema = new Schema();
+        $schema = Schema::editor()->create();
 
         $updater = new SchemaUpdater(new CustomEntityNameValidator());
-        $updater->applyCustomEntities($schema, [$entity]);
+        $schema = $updater->applyCustomEntities($schema, [[
+            'name' => 'custom_entity_empty_entity',
+            'fields' => '[]',
+        ]]);
 
         $this->assertColumns($schema, 'custom_entity_empty_entity', ['id', 'created_at', 'updated_at']);
     }
 
     public function testShortPrefix(): void
     {
-        $entity = [
-            'name' => 'ce_empty_entity',
-            'fields' => '[]',
-        ];
-        $schema = new Schema();
+        $schema = Schema::editor()->create();
 
         $updater = new SchemaUpdater(new CustomEntityNameValidator());
-        $updater->applyCustomEntities($schema, [$entity]);
+        $schema = $updater->applyCustomEntities($schema, [[
+            'name' => 'ce_empty_entity',
+            'fields' => '[]',
+        ]]);
 
         $this->assertColumns($schema, 'ce_empty_entity', ['id', 'created_at', 'updated_at']);
     }
@@ -56,7 +53,7 @@ class SchemaUpdaterTest extends TestCase
 
         $this->expectExceptionObject(CustomEntityException::invalidFieldName('ce_poc', 'foo bar'));
 
-        $updater->applyCustomEntities(new Schema(), [[
+        $updater->applyCustomEntities(Schema::editor()->create(), [[
             'name' => 'ce_poc',
             'fields' => \json_encode([['name' => 'foo bar', 'type' => 'int', 'storeApiAware' => true]], \JSON_THROW_ON_ERROR),
         ]]);
@@ -64,12 +61,12 @@ class SchemaUpdaterTest extends TestCase
 
     public function testExtendingExistingTables(): void
     {
-        $schema = new Schema([
-            new Table('product', [
-                new Column('id', Type::getType(Types::BINARY)),
-                new Column('version_id', Type::getType(Types::BINARY)),
-            ]),
-        ]);
+        $schema = Schema::editor()->setTables(
+            Table::editor()->setUnquotedName('product')->setColumns(
+                Column::editor()->setUnquotedName('id')->setTypeName(Types::BINARY)->create(),
+                Column::editor()->setUnquotedName('version_id')->setTypeName(Types::BINARY)->create(),
+            )->create(),
+        )->create();
 
         $customEntity = [
             'name' => 'custom_entity_extension',
@@ -77,7 +74,7 @@ class SchemaUpdaterTest extends TestCase
         ];
 
         $updater = new SchemaUpdater(new CustomEntityNameValidator());
-        $updater->applyCustomEntities($schema, [$customEntity]);
+        $schema = $updater->applyCustomEntities($schema, [$customEntity]);
 
         $this->assertColumns($schema, 'product', ['customentityextensionproduct']);
 
@@ -98,17 +95,17 @@ class SchemaUpdaterTest extends TestCase
             ],
         ];
 
-        $schema = new Schema([
-            new Table('product', [
-                new Column('id', Type::getType(Types::BINARY)),
-                new Column('version_id', Type::getType(Types::BINARY)),
-            ]),
-            new Table('user', [new Column('id', Type::getType(Types::BINARY))]),
-            new Table('language', [new Column('id', Type::getType(Types::BINARY))]),
-        ]);
+        $schema = Schema::editor()->setTables(
+            Table::editor()->setUnquotedName('product')->setColumns(
+                Column::editor()->setUnquotedName('id')->setTypeName(Types::BINARY)->create(),
+                Column::editor()->setUnquotedName('version_id')->setTypeName(Types::BINARY)->create(),
+            )->create(),
+            Table::editor()->setUnquotedName('user')->addColumn(Column::editor()->setUnquotedName('id')->setTypeName(Types::BINARY)->create())->create(),
+            Table::editor()->setUnquotedName('language')->addColumn(Column::editor()->setUnquotedName('id')->setTypeName(Types::BINARY)->create())->create(),
+        )->create();
 
         $updater = new SchemaUpdater(new CustomEntityNameValidator());
-        $updater->applyCustomEntities($schema, $entities);
+        $schema = $updater->applyCustomEntities($schema, $entities);
 
         $this->assertColumns($schema, 'custom_entity_blog', ['id', 'top_seller_id', 'author_id', 'created_at', 'updated_at', 'position', 'rating']);
         $this->assertColumns($schema, 'custom_entity_blog_comment', ['id', 'created_at', 'updated_at']);
@@ -121,10 +118,10 @@ class SchemaUpdaterTest extends TestCase
     #[DataProvider('associationPairsProvider')]
     public function testAssociations(array $entities, array $expectedSchema): void
     {
-        $schema = new Schema();
+        $schema = Schema::editor()->create();
 
         $updater = new SchemaUpdater(new CustomEntityNameValidator());
-        $updater->applyCustomEntities($schema, $entities);
+        $schema = $updater->applyCustomEntities($schema, $entities);
 
         foreach ($expectedSchema as $tableName => $columns) {
             $this->assertColumns($schema, $tableName, $columns);
@@ -209,10 +206,10 @@ class SchemaUpdaterTest extends TestCase
     #[DataProvider('associationWithIgnoreMissingReferencePairsProvider')]
     public function testAssociationsWithIgnoreMissingReference(array $entities, array $notExpectedSchema, array $expectedNonExistTableNames): void
     {
-        $schema = new Schema();
+        $schema = Schema::editor()->create();
 
         $updater = new SchemaUpdater(new CustomEntityNameValidator());
-        $updater->applyCustomEntities($schema, $entities);
+        $schema = $updater->applyCustomEntities($schema, $entities);
 
         foreach ($expectedNonExistTableNames as $nonExistTableName) {
             // the reference table should not be created if the ignoreMissingReference attribute is true
@@ -294,11 +291,11 @@ class SchemaUpdaterTest extends TestCase
     #[DataProvider('associationWithoutIgnoreMissingReferenceProvider')]
     public function testAssociationWithoutIgnoreMissingReference(array $entities): void
     {
-        $schema = new Schema();
         $updater = new SchemaUpdater(new CustomEntityNameValidator());
-        $this->expectException(CustomEntityException::class);
-        $this->expectExceptionMessageMatches('/Association reference table "custom_entity_right" not found/');
-        $updater->applyCustomEntities($schema, $entities);
+
+        $this->expectExceptionObject(CustomEntityException::associationReferenceTableNotFound('custom_entity_right'));
+
+        $updater->applyCustomEntities(Schema::editor()->create(), $entities);
     }
 
     public static function associationWithoutIgnoreMissingReferenceProvider(): \Generator

@@ -8,6 +8,7 @@ use Doctrine\DBAL\Schema\AbstractSchemaManager;
 use Doctrine\DBAL\Schema\Table;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\MockObject\MockBuilder;
+use PHPUnit\Framework\MockObject\Rule\InvokedCount;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Migration\MigrationStep;
 
@@ -19,10 +20,10 @@ final class NonStandardFkGuardTestHelper
     public static function assertIndexCreationSurvivesNonStandardForeignKeyGuard(TestCase $test, MigrationStep $migration, string $table): void
     {
         $tableSchema = (new MockBuilder($test, Table::class))->disableOriginalConstructor()->getMock();
-        $tableSchema->method('hasIndex')->willReturn(false);
+        $tableSchema->expects(new InvokedCount(1))->method('hasIndex')->willReturn(false);
 
         $schemaManager = (new MockBuilder($test, AbstractSchemaManager::class))->disableOriginalConstructor()->getMock();
-        $schemaManager->method('introspectTableByUnquotedName')->willReturn($tableSchema);
+        $schemaManager->expects(new InvokedCount(1))->method('introspectTableByUnquotedName')->willReturn($tableSchema);
 
         $failure = new class(1553, 'Cannot drop index \'<unknown key name>\': needed in a foreign key constraint') extends DriverException {
             public function __construct(int $errorCode, string $message)
@@ -34,9 +35,9 @@ final class NonStandardFkGuardTestHelper
 
         $statements = [];
         $connection = (new MockBuilder($test, Connection::class))->disableOriginalConstructor()->getMock();
-        $connection->method('createSchemaManager')->willReturn($schemaManager);
-        $connection->method('fetchAssociative')->willReturn(['Variable_name' => 'restrict_fk_on_non_standard_key', 'Value' => 'ON']);
-        $connection->method('executeStatement')->willReturnCallback(static function (string $sql) use (&$statements, $failure): int {
+        $connection->expects(new InvokedCount(1))->method('createSchemaManager')->willReturn($schemaManager);
+        $connection->expects(new InvokedCount(1))->method('fetchAssociative')->willReturn(['Variable_name' => 'restrict_fk_on_non_standard_key', 'Value' => 'ON']);
+        $connection->expects(new InvokedCount(4))->method('executeStatement')->willReturnCallback(static function (string $sql) use (&$statements, $failure): int {
             $statements[] = $sql;
 
             if (\count($statements) === 1) {

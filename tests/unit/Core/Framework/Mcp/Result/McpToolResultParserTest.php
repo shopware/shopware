@@ -61,6 +61,7 @@ class McpToolResultParserTest extends TestCase
         static::assertEquals(new McpToolResultLink('shopware://tool-result/abc', 'tool-result', 'Too large.', 'application/json', 123456), $result->links[0]);
         static::assertSame('Too large.', $result->summary);
         static::assertArrayNotHasKey('note', $result->meta, 'the note is the summary, so the model reads it once');
+        static::assertArrayNotHasKey('expiresAt', $result->meta, 'the expiry is the result\'s own, not metadata');
         static::assertSame('2026-09-28T11:00:00+00:00', $result->expiresAt?->format(\DateTimeInterface::ATOM));
     }
 

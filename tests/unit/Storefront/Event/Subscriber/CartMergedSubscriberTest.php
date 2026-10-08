@@ -51,6 +51,28 @@ class CartMergedSubscriberTest extends TestCase
         static::assertSame('checkout.cart-merged-hint', $infoFlash[0]);
     }
 
+    public function testMergedHintIsNotAddedWhenPreviousCartIsEmpty(): void
+    {
+        $session = new Session(new MockArraySessionStorage());
+        $session->start();
+        $request = new Request();
+        $request->setSession($session);
+        $requestStack = new RequestStack();
+        $requestStack->push($request);
+
+        $translator = $this->createMock(TranslatorInterface::class);
+        $translator->expects($this->never())->method('trans');
+
+        $subscriber = new CartMergedSubscriber($translator, $requestStack);
+
+        $context = Generator::generateSalesChannelContext(token: 'currentToken');
+        $event = new CartMergedEvent(new Cart('customerToken'), $context, new Cart('currentToken'));
+
+        $subscriber->addCartMergedNoticeFlash($event);
+
+        static::assertEmpty($session->getFlashBag()->get('info'));
+    }
+
     public function testGetSubscribedEventsReturnsAddCartMergedNoticeFlash(): void
     {
         static::assertSame(

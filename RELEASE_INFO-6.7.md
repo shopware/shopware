@@ -300,13 +300,6 @@ Use `onPre()` to change input objects such as the `Criteria` in place or to repl
 
 Digital products are no longer limited to one unit per order regardless of `maxPurchase`, as they were since 6.7.14.0. Digital products without a `maxPurchase`, for example created through the API, now fall back to `core.cart.maxQuantity`. Set `maxPurchase` to `1` to keep one unit per order.
 
-In the Administration, the deliverability card of digital products has a "Manage stock" switch and a new "Allow multiple units per order" switch to let merchants modify the stock and order quantities:
-
-- Turn "Manage stock" on to set the stock, or off to sell the product regardless of its stock.
-- Turn "Allow multiple units per order" on to set `minPurchase`, `purchaseSteps` and `maxPurchase`, or off to limit the product to one unit per order.
-
-Bulk edit no longer hides the order quantities. Each field of `sw-product-deliverability-downloadable-form` has its own Twig block.
-
 ### GARAN labels in mails come from the `garanLabels` template variable
 
 The order confirmation mail reads the GARAN label from the new `garanLabels` template variable. The `sw_garan_label_mail` Twig filter is deprecated. A migration updates the template for shops that never edited it.
@@ -550,6 +543,10 @@ Check your Administration extensions for these changes:
 - The time zone hint of datetime `mt-datepicker` fields is rendered by `mt-field-hint`. Styles targeting `.mt-datepicker__hint-icon` or `.mt-datepicker__hint p` no longer apply; `data-testid="time-zone-hint"` is unchanged.
 - The search input of `mt-select` gets the field's `name`, or a generated id, as its `id` and opts out of browser autofill.
 - Text-entry fields forward the `autocomplete` attribute to the native input.
+
+### Order quantities of digital products can be set in the Administration
+
+The deliverability card of digital products has a new "Allow multiple units per order" switch. Turn it on to set `minPurchase`, `purchaseSteps` and `maxPurchase`, or off to limit the digital product to one unit per order. Bulk edit no longer hides these fields for digital products.
 
 ## Storefront
 

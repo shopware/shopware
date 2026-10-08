@@ -73,7 +73,6 @@ class BaseSalesChannelContextFactoryTest extends TestCase
         false|string $fetchParentLanguageResult,
         array $entitySearchResult,
         ?\Exception $expectedException = null,
-        bool $currencyOverridden = false,
     ): void {
         if ($expectedException !== null) {
             $this->expectExceptionObject($expectedException);
@@ -127,15 +126,9 @@ class BaseSalesChannelContextFactoryTest extends TestCase
         $context = $factory->create(TestDefaults::SALES_CHANNEL, $options);
         $salesChannel = $context->getSalesChannel();
 
-        // only values matching the sales channel's own configuration are set on the entity
-        if ($currencyOverridden) {
-            static::assertNull($salesChannel->getCurrency());
-        } else {
-            static::assertSame($context->getCurrencyId(), $salesChannel->getCurrency()?->getId());
-        }
-        static::assertSame($context->getShippingLocation()->getCountry()->getId(), $salesChannel->getCountry()?->getId());
-        static::assertSame($context->getPaymentMethod()->getId(), $salesChannel->getPaymentMethod()?->getId());
-        static::assertSame($context->getShippingMethod()->getId(), $salesChannel->getShippingMethod()?->getId());
+        static::assertSame($salesChannel->getCurrencyId(), $salesChannel->getCurrency()?->getId());
+        static::assertSame($options[SalesChannelContextService::CURRENCY_ID] ?? $salesChannel->getCurrencyId(), $context->getCurrencyId());
+        static::assertSame($context->getCurrentCustomerGroup(), $salesChannel->getCustomerGroup());
     }
 
     /**
@@ -714,7 +707,24 @@ class BaseSalesChannelContextFactoryTest extends TestCase
                 ],
             ] + $successfulEntitySearchResult,
             'expectedException' => null,
-            'currencyOverridden' => true,
+        ];
+
+        $salesChannelWithoutDefaultCurrency = clone $salesChannelWithOtherCurrency;
+        $salesChannelWithoutDefaultCurrency->setCurrencies(new CurrencyCollection([$otherCurrency]));
+
+        yield 'default currency missing while an assigned alternative is selected' => [
+            'options' => [
+                SalesChannelContextService::LANGUAGE_ID => Defaults::LANGUAGE_SYSTEM,
+                SalesChannelContextService::CURRENCY_ID => $otherCurrencyId,
+            ],
+            'fetchDataResult' => $successfulFetchDataResult,
+            'fetchParentLanguageResult' => false,
+            'entitySearchResult' => [
+                SalesChannelDefinition::ENTITY_NAME => [
+                    TestDefaults::SALES_CHANNEL => $salesChannelWithoutDefaultCurrency,
+                ],
+            ] + $successfulEntitySearchResult,
+            'expectedException' => SalesChannelException::currencyNotFound($currencyId),
         ];
 
         yield 'create base context with original context' => [

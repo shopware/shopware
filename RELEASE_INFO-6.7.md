@@ -2,6 +2,10 @@
 
 ## Critical Fixes
 
+### Sales channel contexts expose the default currency again
+
+`SalesChannelContext::getSalesChannel()->getCurrency()` returns the sales channel's default currency again, including when another currency is selected for the context. This restores the behavior before 6.7.15.0 for extensions that read the default currency. Use `SalesChannelContext::getCurrency()` for the currently selected currency.
+
 ### Line item conditions evaluate line items by the data they carry
 
 Since 6.7.14.0, most line item conditions of the Rule Builder evaluated only line items of the type `product`. Custom and credit line items and line items that extensions add to the cart no longer matched them, and a single custom line item could hide shipping methods or block promotions under a negated condition such as "Item with tag / All / Are none of".
@@ -55,6 +59,16 @@ With the newly added tabs feature, plugin developers can now add another layer o
 ```
 
 ## Core
+
+### Asset installation on S3-compatible storage
+
+Asset installation now overwrites existing files without deleting their directory first when using `--force` or rebuilding a missing asset manifest. This prevents delayed storage deletions from removing freshly uploaded files. Obsolete files are still removed, and no configuration changes are required.
+
+Deactivating a plugin now removes its asset manifest entry but retains its public files until uninstall. This avoids a pending directory deletion removing files uploaded after reactivation. Uninstall still removes the plugin's public files.
+
+### Product stream builders can migrate without dropping the legacy contract
+
+`AbstractProductStreamBuilder` now implements the deprecated `ProductStreamBuilderInterface` and forwards `buildFilters()` to `enrichCriteria()`. Extensions can therefore migrate their implementations to the abstract class while remaining compatible with code that still consumes the legacy interface.
 
 ### Feature flags can belong to a major version
 
@@ -305,6 +319,18 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 `AccountService::loginByCredentials()`, which the login route uses, now publishes `LoginByCredentialsExtension`. Subscribe to `LoginByCredentialsExtension::onPre()` to check the credentials yourself, for example against an external identity provider: assign the context token to `$extension->result` and call `stopPropagation()`.
 
+### Shared order restoration for Store API routes
+
+`Shopware\Core\Checkout\Cart\Order\OrderRestorer::restore()` builds the sales channel context and cart of an existing order through `OrderConverter`, so its decorators and the context assembled events keep being invoked; `addRequiredAssociations()` adds the associations the order has to be loaded with. Read-only Store API routes opt in with the route default `_allowOrderRestoration`. For a request with an `orderId`, the restored objects are stored as `sw-effective-sales-channel-context`, `sw-effective-context` and `sw-effective-cart` and injected by the `SalesChannelContext`, `Context`, `Cart` and `Criteria` argument resolvers; the session attributes and `sw-context-token` stay untouched. A failing restoration answers `CHECKOUT__ORDER_RESTORATION_FAILED`.
+
+`AccountEditOrderPageLoader` and `SetPaymentOrderRoute` take `OrderRestorer` instead of `OrderConverter` and `CartService` in their constructors; the restored cart they pass to the checkout gateway now carries the order's deliveries.
+
+### Sorting by `product.price` works with Elasticsearch
+
+The product index now contains `product.price`, so sorting, filtering and aggregating on it work with Elasticsearch. Before, a sorting on `product.price` (e.g. the "Default price" listing sorting) failed with `No mapping found for [price.c_....gross]`.
+
+Run `bin/console es:index` after deploying. Existing documents have no price until they are reindexed.
+
 ### Reduced remote thumbnail URL generation overhead
 
 Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
@@ -348,6 +374,10 @@ Store API responses contain the new properties wherever they contain a regulatio
 ### REST API indexing behavior header is honored
 
 The `indexing-behavior` header now supports `use-queue-indexing` and `disable-indexing` on REST API writes, matching the existing Sync API behavior. Requests without this header retain the current synchronous indexing behavior.
+
+### Store API payment, shipping and checkout gateway routes accept an `orderId`
+
+`/store-api/payment-method`, `/store-api/shipping-method` and `/store-api/checkout/gateway` accept an optional `orderId` (query or body). Combined with `onlyAvailable`, they evaluate availability for that order instead of the session: the order's currency, language, customer, addresses and stored rule IDs, without re-evaluating rules. The order must be loadable through `/store-api/order` for the logged-in customer or guest; unknown and foreign orders both answer `CHECKOUT__ORDER_ORDER_NOT_FOUND`. These responses are not cacheable. `POST /store-api/order/payment` validates on the same basis.
 
 ## Administration
 
@@ -510,6 +540,19 @@ migrate it to `useCmsElement` by hand.
 ### Mail template trigger event is preselected
 
 The trigger event select in the mail template detail sidebars is now preselected with the event of the active flows sending a template of the selected type, if they all use the same event. Preselection requires the `flow:read` privilege.
+
+### Meteor Component Library updated to 5.8.0
+
+The Administration now uses Meteor Component Library `5.8.0`, Meteor Admin SDK `6.15.0` and Meteor Icon Kit `5.11.0`.
+Autofilled form fields are now readable in dark mode.
+
+Check your Administration extensions for these changes:
+
+- The global font settings changed, so some glyphs look different and text renders slightly narrower, for example a single-storey `a` and closed digits.
+- `mt-select` centers its content, and small selects (`size="small"`) have a height of 32px. Remove custom paddings that only compensated for the previous alignment.
+- The time zone hint of datetime `mt-datepicker` fields is rendered by `mt-field-hint`. Styles targeting `.mt-datepicker__hint-icon` or `.mt-datepicker__hint p` no longer apply; `data-testid="time-zone-hint"` is unchanged.
+- The search input of `mt-select` gets the field's `name`, or a generated id, as its `id` and opts out of browser autofill.
+- Text-entry fields forward the `autocomplete` attribute to the native input.
 
 ## Storefront
 

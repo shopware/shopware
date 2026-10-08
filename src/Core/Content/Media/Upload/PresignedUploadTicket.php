@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  *
+ * @codeCoverageIgnore
+ *
  * Result of a presigned upload request: the media id, the opaque token to hand back at confirm, and the instructions
  * for the direct-to-remote-storage upload. The client sends `headers` verbatim so it never has to reproduce the
  * server's Content-Type canonicalisation.

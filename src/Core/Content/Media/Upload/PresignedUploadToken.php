@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * @internal
  *
+ * @codeCoverageIgnore
+ *
  * Signed context for a presigned upload. Minted at request time and handed back at confirm; it carries everything
  * needed to create the media entity once the bytes exist, so no database row is written before confirm. Serialisation
  * and signing are handled by {@see PresignedUploadTokenSigner}.

@@ -68,6 +68,7 @@ Administration and storefront snippets are now also loaded from the private file
 - Storefront: `snippets/storefront/<source>/<name>.<language>.json` (or `.<locale>.json`, optionally `.base.json`), for example `files/snippets/storefront/MyIntegration/storefront.de.json`
 
 They form the lowest-priority layer, so snippet files shipped by the core, plugins or apps always win. Use them for keys nobody else provides. The source directory becomes the author and technical name of storefront snippets. Files survive updates and deployments and are never cleaned up by Shopware, except for the administration subdirectories it writes itself for themes, which are named after the theme's technical name, so pick a different source name. Run `cache:clear` after adding or changing a file (for administration snippets, invalidating the `admin-snippet` cache tag is enough). The constants live in `Shopware\Core\System\Snippet\Files\FilesystemAdministrationSnippets` and `FilesystemStorefrontSnippets`. `snippet:validate` ignores these files.
+
 ### Asset installation on S3-compatible storage
 
 Asset installation now overwrites existing files without deleting their directory first when using `--force` or rebuilding a missing asset manifest. This prevents delayed storage deletions from removing freshly uploaded files. Obsolete files are still removed, and no configuration changes are required.
@@ -376,11 +377,13 @@ Remote thumbnail URL generation now avoids unnecessary extension dispatching whe
 When an app adds, changes or removes MCP tools, prompts or resources, every open MCP session on the Admin API endpoint now receives `notifications/tools/list_changed` (or the prompt or resource variant) after its next request, whichever server it is connected to. Before, only sessions known to the server that processed the app change were notified, because each server kept its own list of sessions.
 
 The list of sessions is gone, together with the `shopware.mcp.session_registry_cache` and `mcp.store_api.session_registry_cache` services. If you overrode them to share the list between servers, remove the override. A shared `framework.lock` is no longer needed for MCP notifications.
+
 ### Stored MCP tool results are removed after 24 hours
 
 MCP tool results larger than 100 KB are stored in `mcp_tool_result_cache` and read back by the client with `resources/read`. Until now they were only removed when the client ended its session with `DELETE /api/_mcp` or `DELETE /store-api/_mcp`, so results of clients that never sent it stayed in the database. The new hourly scheduled task `mcp_tool_result_cache.cleanup` removes results older than 24 hours.
 
 Stored results can contain customer and order data. To keep them shorter, set `shopware.mcp.tool_result_cache_ttl` (in seconds, at least 60). The cleanup only runs where scheduled tasks are consumed, see [Scheduled tasks](https://developer.shopware.com/docs/guides/hosting/infrastructure/scheduled-task.html).
+
 ### MCP removes many-to-many links through the mapping entity
 
 `shopware-entity-delete` now accepts mapping entities such as `product_category`, so an MCP client can remove a product from a category, or a property option from a product, without deleting either side. `ids` is then a list of objects that name every key field, for example `[{"productId": "…", "categoryId": "…"}]`. `shopware-entity-schema` reports the `mappingEntity` of each many-to-many association.
@@ -401,6 +404,7 @@ With the `v6.8.0.0` feature flag, the first text block holds the plain data or t
 A tool result larger than 100 KB is stored and linked instead of returned inline. The link is now a signed pointer for the caller: the integration or user on `/api/_mcp`, the sales channel and `sw-context-token` on `/store-api/_mcp`. It expires after an hour and can be read on any later request of the same caller, with or without an MCP session. Another caller gets "not found".
 
 The result keeps `_meta.resourceUri` in the text block and adds `_meta.expiresAt`. Clients on protocol 2025-06-18 or later also get the link as a `resource_link` content block. The Store API endpoint can now read these results with `resources/read`; before, its links could not be resolved. Store API clients have to send the same `sw-context-token` on the read. A Store API call without `sw-context-token` gets its result inline, because the token minted for that one request could never read it back.
+
 ### Extensions can add their own spatial media types
 
 A media type that implements `Shopware\Core\Content\Media\MediaType\SpatialMediaTypeInterface` is shown by the spatial viewer instead of as a picture. `MediaEntity::isSpatial()` checks for it in PHP and in Twig, while `MediaEntity::isSpatialObject()` still matches GLB files only. `SpatialObjectType` implements the interface.

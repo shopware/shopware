@@ -13,8 +13,5 @@ const featureConfigPath = resolve(
     '../../../../Core/Framework/Resources/config/packages/feature.yaml',
 );
 
-// FEATURE_ALL is `major` or a single major (`v6.8.0.0`), the lanes integration-major.yml runs.
-global.activeFeatureFlags = getMajorFeatureFlags(
-    parse(readFileSync(featureConfigPath, 'utf8')),
-    process.env.FEATURE_ALL ?? '',
-);
+// Major CI lanes set their version flag directly; FEATURE_ALL enables every flag.
+global.activeFeatureFlags = getMajorFeatureFlags(parse(readFileSync(featureConfigPath, 'utf8')), process.env);

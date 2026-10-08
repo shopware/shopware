@@ -20,6 +20,9 @@ class McpToolResultFormatTest extends TestCase
     use AdminApiTestBehaviour;
     use KernelTestBehaviour;
 
+    /**
+     * @deprecated tag:v6.8.0 - Tests the legacy envelope, will be removed
+     */
     public function testASuccessfulCallCarriesStructuredContentAndKeepsTheLegacyText(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -36,6 +39,9 @@ class McpToolResultFormatTest extends TestCase
         static::assertArrayHasKey('shopware/generatedAt', $result['_meta'] ?? []);
     }
 
+    /**
+     * @deprecated tag:v6.8.0 - Tests the legacy envelope, will be removed
+     */
     public function testAFailedCallIsReportedAsIsError(): void
     {
         Feature::skipTestIfActive('v6.8.0.0', $this);
@@ -43,7 +49,7 @@ class McpToolResultFormatTest extends TestCase
         $result = $this->callTool('shopware-entity-schema', ['entity' => 'no_such_entity']);
 
         static::assertTrue($result['isError'] ?? false);
-        static::assertSame('tool_error', $result['structuredContent']['error']['code'] ?? null);
+        static::assertSame('invalid_arguments', $result['structuredContent']['error']['code'] ?? null);
         static::assertStringContainsString('no_such_entity', $result['structuredContent']['error']['message']);
 
         $text = json_decode($result['content'][0]['text'], true, 512, \JSON_THROW_ON_ERROR);

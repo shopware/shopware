@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Mcp\Attribute\McpToolDependsOn;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolRequires;
 use Shopware\Core\Framework\Mcp\Context\McpContextProvider;
+use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\ShopwareHttpException;
 
 /**
@@ -55,7 +56,7 @@ class EntityReadTool extends McpToolResponse
         $context = $this->contextProvider->getContext();
 
         if (!$this->registry->has($entity)) {
-            return $this->error(\sprintf('Entity "%s" not found. Use the shopware://entities resource for available entity names.', $entity));
+            return $this->error(\sprintf('Entity "%s" not found. Use the shopware://entities resource for available entity names.', $entity), McpToolError::INVALID_ARGUMENTS);
         }
 
         if ($error = $this->requirePrivilege($context, $entity . ':read')) {
@@ -98,7 +99,7 @@ class EntityReadTool extends McpToolResponse
         $entityResult = $result->getEntities()->get($id);
 
         if ($entityResult === null) {
-            return $this->error(\sprintf('Entity "%s" with ID "%s" not found.', $entity, $id));
+            return $this->error(\sprintf('Entity "%s" with ID "%s" not found.', $entity, $id), McpToolError::NOT_FOUND);
         }
 
         $encoded = $this->encoder->encode($criteriaObj, $definition, $entityResult, '/api');

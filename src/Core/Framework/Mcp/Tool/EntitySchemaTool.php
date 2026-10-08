@@ -19,6 +19,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToOneAssociationField;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Attribute\McpToolGroup;
+use Shopware\Core\Framework\Mcp\Result\McpToolError;
 
 /**
  * @experimental stableVersion:v6.8.0
@@ -43,7 +44,7 @@ class EntitySchemaTool extends McpToolResponse
     public function __invoke(string $entity): string
     {
         if (!$this->registry->has($entity)) {
-            return $this->error(\sprintf('Entity "%s" not found. Use the shopware://entities resource for available entity names.', $entity));
+            return $this->error(\sprintf('Entity "%s" not found. Use the shopware://entities resource for available entity names.', $entity), McpToolError::INVALID_ARGUMENTS);
         }
 
         $definition = $this->registry->getByEntityName($entity);

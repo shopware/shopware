@@ -33,7 +33,7 @@ The intent is clarity, not false certainty. Where the current state is not verif
 | Spec surface | What the spec allows | Shopware today | Confidence | Follow-up |
 |---|---|---|---|---|
 | Tools | `tools/list`, `tools/call`, optional `notifications/tools/list_changed`, paginated `tools/list`, metadata like `title`, `description`, `icons`, `inputSchema`, optional `outputSchema` | Core tools and extension tools exist; `tools/list` and `tools/call` clearly exist; names, descriptions, and input schemas are documented | clear | Audit whether `listChanged` is advertised/emitted and whether Shopware should start using `title`, `icons`, and `outputSchema` |
-| Tool results | `content[]`, optional `structuredContent`, optional `isError`, optional `_meta` | Current helpers are text-first and often serialize a Shopware-local JSON envelope such as `{\"success\": true, \"data\": ...}` | clear | Review `McpToolResponse` and related helpers against spec-native `content[]`, `structuredContent`, `isError`, and `outputSchema` |
+| Tool results | `content[]`, optional `structuredContent`, optional `isError`, optional `_meta` | `McpToolResultRenderer` sends `structuredContent`, `isError` with a stable error code, and `_meta`. The text block keeps the legacy `{\"success\": …}` envelope until the `v6.8.0.0` flag replaces it with the plain data | clear | `outputSchema` per tool, and tools returning `McpToolResult` directly (phase 2, #21306) |
 | Prompts | `prompts/list`, `prompts/get`, optional `notifications/prompts/list_changed`, paginated `prompts/list`, metadata like `title`, `description`, `icons`, prompt arguments | Core `shopware-context` prompt exists; app-backed prompts exist | clear | Audit pagination, `listChanged`, and whether prompt metadata should use more spec fields |
 | Resources | `resources/list`, `resources/read`, `resources/templates/list`, optional `resources/subscribe`, optional `resources/unsubscribe`, optional `notifications/resources/updated`, optional `notifications/resources/list_changed`, paginated list operations | Small fixed set of reference resources exists; app-backed resources exist; resources are treated as read-only reference data | partial | Audit `resources/templates/list`, subscriptions, update notifications, metadata fields, and real pagination behavior |
 | Utilities: Completion | `completion/complete` for prompt arguments and URI template arguments | Support is not documented clearly enough yet | unknown | Audit `symfony/mcp-bundle` and SDK support, then decide whether Shopware should expose domain-specific completions like entity names or state-machine actions |
@@ -65,9 +65,9 @@ This is the highest-value alignment topic because it affects every tool.
 
 | Current Shopware pattern | MCP-native alternative | Why it matters | Decision needed |
 |---|---|---|---|
-| Tool returns a `string` and often serializes `{\"success\": true, \"data\": ..., \"_meta\": ...}` | `content[]` plus optional `structuredContent` and optional `isError` | The current helper is practical, but it is not the same as the protocol’s native result model | Decide whether the current envelope is transitional or long-term |
+| Tool returns a `string` and often serializes `{\"success\": true, \"data\": ..., \"_meta\": ...}` | `content[]` plus optional `structuredContent` and optional `isError` | The current helper is practical, but it is not the same as the protocol’s native result model | Decided: transitional, see `adr/2026-09-24-mcp-tool-result-envelope.md`. The renderer maps it today, the string is removed with 6.8.0 |
 | No `outputSchema` usage in current docs | Tool definition can advertise `outputSchema` | Better machine-readable contracts for clients and for docs | Decide whether to start adding `outputSchema` for stable tools |
-| Business errors often encoded inside the JSON envelope | MCP-native result can mark `isError`, while transport-level failures stay JSON-RPC errors | Cleaner distinction between expected tool errors and protocol failures | Define a consistent error-mapping rule |
+| Business errors often encoded inside the JSON envelope | MCP-native result can mark `isError`, while transport-level failures stay JSON-RPC errors | Cleaner distinction between expected tool errors and protocol failures | Done: a failed call sets `isError` with a code from `McpToolError` (`invalid_arguments`, `missing_privilege`, `not_found`, `tool_error`); protocol failures stay JSON-RPC errors |
 
 ## Observability split
 
@@ -86,5 +86,5 @@ This is not purely a spec issue, but it affects how we talk about MCP logging an
 | 1 | Audit actual `initialize` capability advertisement | No over-promising in capability flags |
 | 2 | Audit `tools/list`, `prompts/list`, `resources/list`, and `resources/templates/list` for pagination behavior | Honest docs and capability claims |
 | 3 | ~~Decide whether Shopware wants real MCP logging utility support~~ — answered by SEP-2577: telemetry plus support logs, no protocol logging | Clear logging story |
-| 4 | Review `McpToolResponse` against `content[]`, `structuredContent`, `isError`, and `outputSchema` | Cleaner tool result contract |
+| 4 | ~~Review `McpToolResponse` against `content[]`, `structuredContent`, `isError`, and `outputSchema`~~ Done for `content[]`, `structuredContent` and `isError`; `outputSchema` follows with #21306 | Cleaner tool result contract |
 | 5 | Mirror the final matrix into official docs on `developer.shopware.com/docs` | One canonical public explanation |

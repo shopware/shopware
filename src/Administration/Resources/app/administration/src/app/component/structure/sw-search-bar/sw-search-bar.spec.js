@@ -2137,4 +2137,24 @@ describe('src/app/component/structure/sw-search-bar', () => {
             expect(wrapper.vm.getSearchTypeManifest('unknown')).toBeUndefined();
         });
     });
+
+    it('should merge criteria supplied by search types into the criteria collection', async () => {
+        const customCriteria = new Criteria(1, 11).addAssociation('coupon');
+        const criteriaFactory = jest.fn(() => customCriteria);
+
+        wrapper = await createWrapper(
+            {},
+            {
+                ...searchTypeServiceTypes,
+                custom_entity: {
+                    entityName: 'custom_entity',
+                    criteria: criteriaFactory,
+                },
+            },
+        );
+
+        expect(wrapper.vm.criteriaCollection.custom_entity).toBe(customCriteria);
+        expect(criteriaFactory).toHaveBeenCalledWith(wrapper.vm.searchLimit + 1);
+        expect(Object.keys(wrapper.vm.criteriaCollection)).toEqual(['custom_entity']);
+    });
 });

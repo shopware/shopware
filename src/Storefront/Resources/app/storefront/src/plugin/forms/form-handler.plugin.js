@@ -110,8 +110,8 @@ export default class FormHandler extends Plugin {
      */
     set formFields(formFields) {
         window.Feature.triggerDeprecationOrThrow(
-            'v6.8.0.0', 
-            'The "formFields" property is deprecated. It will be removed in v6.8.0.0. Please use the "formFieldSelector" property instead.'
+            'v6.8.0.0',
+            'The "formFields" property is deprecated. It will be removed in v6.8.0.0. Please use the "formFieldSelector" property instead.',
         );
 
         this._formFields = formFields;

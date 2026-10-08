@@ -16,8 +16,8 @@ export default class DomAccess {
      */
     static isNode(element) {
         window.Feature.triggerDeprecationOrThrow(
-            'v6.8.0.0', 
-            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.'
+            'v6.8.0.0',
+            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.',
         );
 
         if (typeof element !== 'object' || element === null) {
@@ -43,8 +43,8 @@ export default class DomAccess {
      */
     static hasAttribute(element, attribute) {
         window.Feature.triggerDeprecationOrThrow(
-            'v6.8.0.0', 
-            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.'
+            'v6.8.0.0',
+            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.',
         );
 
         if (!DomAccess.isNode(element)) {
@@ -70,8 +70,8 @@ export default class DomAccess {
      */
     static getAttribute(element, attribute, strict = true) {
         window.Feature.triggerDeprecationOrThrow(
-            'v6.8.0.0', 
-            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.'
+            'v6.8.0.0',
+            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.',
         );
 
         if (strict && DomAccess.hasAttribute(element, attribute) === false) {
@@ -104,8 +104,8 @@ export default class DomAccess {
      */
     static getDataAttribute(element, key, strict = true) {
         window.Feature.triggerDeprecationOrThrow(
-            'v6.8.0.0', 
-            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.'
+            'v6.8.0.0',
+            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.',
         );
 
         const keyWithoutData = key.replace(/^data(|-)/, '');
@@ -153,8 +153,8 @@ export default class DomAccess {
      */
     static querySelector(parentNode, selector, strict = true) {
         window.Feature.triggerDeprecationOrThrow(
-            'v6.8.0.0', 
-            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.'
+            'v6.8.0.0',
+            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.',
         );
 
         if (strict && !DomAccess.isNode(parentNode)) {
@@ -185,8 +185,8 @@ export default class DomAccess {
      */
     static querySelectorAll(parentNode, selector, strict = true) {
         window.Feature.triggerDeprecationOrThrow(
-            'v6.8.0.0', 
-            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.'
+            'v6.8.0.0',
+            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.',
         );
 
         if (strict && !DomAccess.isNode(parentNode)) {
@@ -215,8 +215,8 @@ export default class DomAccess {
      */
     static getFocusableElements(parentNode = document.body) {
         window.Feature.triggerDeprecationOrThrow(
-            'v6.8.0.0', 
-            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.'
+            'v6.8.0.0',
+            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.',
         );
 
         const focusAbleElements = `
@@ -241,8 +241,8 @@ export default class DomAccess {
      */
     static getFirstFocusableElement(parentNode = document.body) {
         window.Feature.triggerDeprecationOrThrow(
-            'v6.8.0.0', 
-            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.'
+            'v6.8.0.0',
+            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.',
         );
 
         return this.getFocusableElements(parentNode)[0];
@@ -258,8 +258,8 @@ export default class DomAccess {
      */
     static getLastFocusableElement(parentNode = document) {
         window.Feature.triggerDeprecationOrThrow(
-            'v6.8.0.0', 
-            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.'
+            'v6.8.0.0',
+            'The "DomAccess" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like querySelector instead.',
         );
 
         const result = this.getFocusableElements(parentNode);

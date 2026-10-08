@@ -44,8 +44,8 @@ export default class CountryStateSelectPlugin extends Plugin {
     /** @deprecated tag:v6.8.0 - initClient is deprecated because client instance is no longer needed. Use native fetch API instead. */
     initClient() {
         window.Feature.triggerDeprecationOrThrow(
-            'v6.8.0.0', 
-            'The "initClient" method is deprecated. It will be removed in v6.8.0.0. Please use native fetch API instead.'
+            'v6.8.0.0',
+            'The "initClient" method is deprecated. It will be removed in v6.8.0.0. Please use native fetch API instead.',
         );
 
         /** @deprecated tag:v6.8.0 - HttpClient is deprecated. Use native fetch API instead. */

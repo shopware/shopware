@@ -59,8 +59,8 @@ export default class FormValidation extends Plugin {
 
     init() {
         window.Feature.triggerDeprecationOrThrow(
-            'v6.8.0.0', 
-            'The "FormValidation" class is deprecated. It will be removed in v6.8.0.0. Please use the "FormHandlerPlugin" class instead.'
+            'v6.8.0.0',
+            'The "FormValidation" class is deprecated. It will be removed in v6.8.0.0. Please use the "FormHandlerPlugin" class instead.',
         );
 
         if (this._isFormElement() === false) {

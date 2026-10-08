@@ -22,8 +22,8 @@ export default class Iterator {
      */
     static iterate(source, callback) {
         window.Feature.triggerDeprecationOrThrow(
-            'v6.8.0.0', 
-            'The "Iterator" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like forEach instead.'
+            'v6.8.0.0',
+            'The "Iterator" class is deprecated. It will be removed in v6.8.0.0. Please use native browser API like forEach instead.',
         );
 
         if (source instanceof Map) {

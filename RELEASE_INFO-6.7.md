@@ -60,6 +60,10 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Preview three 6.8 behavior changes independently
+
+Set `MEDIA_URL_PATH_ENCODING=1` to test encoded media URL paths, `PROPORTIONAL_CART_TAXES=1` to test proportional tax calculation for percentage prices and split line items, or `DELETE_CART_AFTER_ORDER_CREATION=1` to test the earlier persisted-cart deletion during checkout. Each flag can be enabled without the other 6.8 changes. When `V6_8_0_0=1`, all three activate unless explicitly disabled. The corresponding migration guidance is in `UPGRADE-6.8.md`.
+
 ### Asset installation on S3-compatible storage
 
 Asset installation now overwrites existing files without deleting their directory first when using `--force` or rebuilding a missing asset manifest. This prevents delayed storage deletions from removing freshly uploaded files. Obsolete files are still removed, and no configuration changes are required.

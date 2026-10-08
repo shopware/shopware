@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Framework\Mcp\ScheduledTask;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 use Psr\Log\NullLogger;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -60,8 +61,8 @@ class McpToolResultCacheCleanupTaskHandlerTest extends TestCase
 
         $mcpLogger = $this->createMock(LoggerInterface::class);
         $mcpLogger->expects($this->once())
-            ->method('info')
-            ->with('Removed expired MCP tool results', static::callback(static fn (array $context): bool => $context['deleted'] === 7));
+            ->method('log')
+            ->with(LogLevel::INFO, 'Removed expired MCP tool results', static::callback(static fn (array $context): bool => $context['deleted'] === 7));
 
         $handler = new McpToolResultCacheCleanupTaskHandler(
             static::createStub(EntityRepository::class),

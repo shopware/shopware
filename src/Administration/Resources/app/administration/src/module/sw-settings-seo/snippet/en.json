@@ -42,7 +42,7 @@
     "titleCard": "SEO URLs",
     "labelSalesChannelSelect": "Sales Channel",
     "labelSeoPathInfo": "SEO path",
-    "textEmptySeoUrls": "There are no SEO URLs yet.",
+    "textEmptySeoUrls": "No SEO URLs yet",
     "textSeoUrlsNotSupported": "SEO URLs cannot be assigned to this type of Sales Channel.",
     "errorInvalidCharacters": "The SEO path contains characters that are not allowed in URLs (for example #, \\ or a stray %).",
     "labelMainCategory": "Main category",

@@ -147,7 +147,7 @@
       "textCreditTax": "auto",
       "taxDetail": "{taxRate}%: {tax}",
       "contextMenuShowProduct": "Produkt anzeigen",
-      "messageEmptyItem": "Noch keine Positionen vorhanden",
+      "messageEmptyItem": "Noch keine Positionen hinzugefügt",
       "buttonAddItems": "Positionen hinzufügen",
       "buttonAddProduct": "Produkt hinzufügen",
       "buttonAddBlankProduct": "Leere Position hinzufügen",
@@ -218,7 +218,7 @@
       "summaryLabelAmountTotalRounded": "Gesamtsumme gerundet inkl. MwSt.",
       "summaryLabelShippingCosts": "Versandkosten",
       "discountLabelShippingCosts": "Versandkostenrabatt",
-      "summaryLabelTaxes": "zzgl. {taxRate}% MwSt.",
+      "summaryLabelTaxes": "{taxRate}% MwSt.",
       "labelOrderStatus": "Bestellstatus",
       "labelPaymentStatus": "Zahlungsstatus",
       "labelSalesChannel": "Verkaufskanal",
@@ -310,7 +310,7 @@
       "headlineTabCreateAddress": "Adresse erstellen",
       "currentlySelected": "Aktuelle Auswahl",
       "searchAddressToolbarPlaceholder": "Adressen suchen ...",
-      "emptySearchResults": "Keine Adressen gefunden."
+      "emptySearchResults": "Keine Adressen gefunden"
     },
     "leavePageModal": {
       "description": "Es existieren ungespeicherte Änderungen. Soll die Seite trotzdem verlassen werden?",

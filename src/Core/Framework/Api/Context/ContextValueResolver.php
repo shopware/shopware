@@ -21,6 +21,7 @@ class ContextValueResolver implements ValueResolverInterface
             return;
         }
 
-        yield $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
+        yield $request->attributes->get(PlatformRequest::ATTRIBUTE_EFFECTIVE_CONTEXT_OBJECT)
+            ?? $request->attributes->get(PlatformRequest::ATTRIBUTE_CONTEXT_OBJECT);
     }
 }

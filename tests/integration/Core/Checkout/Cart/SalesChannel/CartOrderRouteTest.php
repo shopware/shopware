@@ -719,7 +719,7 @@ class CartOrderRouteTest extends TestCase
 
     private static function assertImplicitContextTokenHeader(Response $response, ?string $contextToken = null): void
     {
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             static::assertFalse($response->headers->has(PlatformRequest::HEADER_CONTEXT_TOKEN));
 
             return;

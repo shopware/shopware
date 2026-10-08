@@ -18,13 +18,33 @@ inputs:
   migration-coverage:
     default: "false"
     description: "Rewrite phpunit.xml.dist to scope coverage to the */Migration directories (migration suite)"
+  phpunit-version:
+    default: ""
+    description: "Composer constraint PHPUnit is forced to after the test install (e.g. `^13.3`); empty keeps the locked PHPUnit. Used by the phpunit-13 gate job."
 
-# Note: the caller controls feature flags via job-level env (e.g. FEATURE_ALL: major); the steps below
+# Note: the caller controls feature flags via job-level env (e.g. V6_8_0_0: 1); the steps below
 # inherit it, so this action stays flag-agnostic. The caller must run actions/checkout before using this
 # local action, and provide a database (service container, or via mysql-version).
 runs:
   using: composite
   steps:
+    - name: Export the canonical PHPUnit environment
+      # every PHPUnit job runs against the same test app and service endpoints; exporting them here
+      # keeps the values out of each job's env block (feature flags stay with the caller: they are
+      # matrix- and workflow-specific). APP_SECRET is a fixed test value, not a real secret.
+      shell: bash
+      run: |
+        {
+          echo "APP_ENV=test"
+          echo "DATABASE_URL=mysql://root@127.0.0.1:3306/root"
+          echo "APP_URL=http://localhost:8000"
+          echo "APP_SECRET=def00000bb5acb32b54ff8ee130270586eec0e878f7337dc7a837acc31d3ff00f93a56b595448b4b29664847dd51991b3314ff65aeeeb761a133b0ec0e070433bff08e48"
+          echo "OPENSEARCH_URL=127.0.0.1:9200"
+          echo "ADMIN_OPENSEARCH_URL=127.0.0.1:9200"
+          echo "BLUE_GREEN_DEPLOYMENT=1"
+          echo "PUPPETEER_SKIP_DOWNLOAD=true"
+        } >> "$GITHUB_ENV"
+
     - name: Setup Shopware
       uses: shopware/setup-shopware@main
       with:
@@ -33,6 +53,19 @@ runs:
         keep-composer-tools: ${{ inputs.keep-composer-tools }}
         shopware-version: ${{ github.ref }}
         shopware-repository: ${{ github.repository }}
+        # Keeps setup-shopware's default ini values; zend.assertions can't be enabled at runtime.
+        php-ini-values: "session.gc_probability=0,session.save_path=/tmp/php-sessions,zend.assertions=1"
+        # setup-shopware's default extension list plus zstd, which CartCompressorTest and RedisCartPersisterTest
+        # skip without; keep in sync with the action's default when it changes.
+        php-extensions: "gd, xml, dom, curl, pdo, mysqli, mbstring, pdo_mysql, bcmath, pcov, zip, zstd"
+
+    - name: Verify the PHP extensions the suites guard on are loaded
+      shell: bash
+      # a missing extension must fail the run, the tests that need it would only skip
+      run: |
+        for extension in imagick pdo_sqlite zstd; do
+          php -m | grep -qix "$extension" || { echo "The $extension PHP extension is not loaded"; exit 1; }
+        done
 
     - name: Wait for OpenSearch/Elasticsearch
       if: ${{ inputs.needs-opensearch == 'true' }}
@@ -65,3 +98,16 @@ runs:
     - name: Install Shopware
       shell: bash
       run: php src/Core/TestBootstrap.php
+
+    - name: Force PHPUnit ${{ inputs.phpunit-version }}
+      if: ${{ inputs.phpunit-version != '' }}
+      shell: bash
+      # composer require rewrites the root constraint for this run only, so every other job
+      # keeps resolving the locked PHPUnit (a shared ||-constraint made composer pick the newer one everywhere)
+      env:
+        PHPUNIT_VERSION: ${{ inputs.phpunit-version }}
+      run: |
+        # dev packages that depend on PHPUnit cap it, and --update-with-all-dependencies only follows PHPUnit's own
+        # dependencies, never its dependants; let those float within their root constraints first
+        composer update shopware/dev-tools
+        composer require --dev --update-with-all-dependencies "phpunit/phpunit:${PHPUNIT_VERSION}"

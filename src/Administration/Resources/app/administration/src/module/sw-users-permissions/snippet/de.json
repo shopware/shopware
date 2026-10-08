@@ -42,7 +42,7 @@
             "role-grid": {
                 "labelName": "Name",
                 "labelDescription": "Beschreibung",
-                "messageEmptyTitle": "Noch keine Rollen vorhanden",
+                "messageEmptyTitle": "Noch keine Rollen",
                 "messageEmptySubline": "Erstelle Rollen, um Benutzerrechte zu organisieren.",
                 "titleModalDelete": "Rolle löschen",
                 "textModalDelete": "Möchtest Du die Rolle \"{name}\" wirklich löschen?",
@@ -171,7 +171,7 @@
                 "contextMenuEdit": "Integration bearbeiten",
                 "textChangePassword": "Mit einem Klick auf 'Ändern' wird das Passwort direkt gespeichert.",
                 "addAccessKey": "Zugangsschlüssel erstellen",
-                "noAccessKeysTitle": "Keine Zugangsschlüssel vorhanden",
+                "noAccessKeysTitle": "Noch keine Zugangsschlüssel",
                 "noAccessKeysSubline": "Erstelle hier Zugangsschlüssel",
                 "labelAccessKey": "Zugangsschlüssel",
                 "labelPermissions": "Berechtigungen",

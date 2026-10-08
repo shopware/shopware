@@ -346,10 +346,11 @@ final class StoredTreePreparer
      */
     private function substitute(string $input, PlaceholderValues $values): string
     {
+        $replacements = [];
         foreach ($values->all() as $key => $value) {
-            $input = str_replace('{{' . $key . '}}', (string) $value, $input);
+            $replacements['{{' . $key . '}}'] = (string) $value;
         }
 
-        return $input;
+        return strtr($input, $replacements);
     }
 }

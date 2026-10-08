@@ -196,6 +196,18 @@ class StoredTreePreparerTest extends TestCase
         yield 'the placeholder values map is empty' => ['Product {{productId}}', []];
     }
 
+    #[TestDox('keeps a token carried by a substituted value literal, even when that token is declared')]
+    public function testPrepareDoesNotExpandATokenInsideASubstitutedValue(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', 'Product {{productId}}')
+            ->build();
+
+        $prepared = $this->prepare([$element], ['productId' => '{{categoryId}}', 'categoryId' => 'cat-1']);
+
+        static::assertSame('Product {{categoryId}}', $prepared[0]->property('title')?->asString());
+    }
+
     #[TestDox('records that the virtual root did not survive a prune that cut it away')]
     public function testPrepareRecordsAVirtualRootThePruneRemoved(): void
     {

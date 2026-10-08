@@ -376,7 +376,7 @@ class DebugMcpCommand extends Command
             ['Title' => $tool->title !== null && $tool->title !== '' ? $tool->title : '-'],
             ['Type' => 'tool'],
             ['Scope' => $scopeLabel],
-            ['Group' => $toolData['group'] ?? 'other'],
+            ['Group' => $toolData['group'] ?? McpToolsetRegistry::FALLBACK_GROUP],
         ];
         if ($deps !== []) {
             $meta[] = ['Dependencies' => implode(', ', $deps)];

@@ -3,16 +3,31 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Order\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Checkout\Order\Rule\DaysSinceOrderPlacedRule;
 use Shopware\Core\Content\Flow\Rule\FlowRuleScope;
+use Shopware\Core\Content\Rule\Aggregate\RuleCondition\RuleConditionDefinition;
+use Shopware\Core\Content\Rule\RuleValidator;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\InsertCommand;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityExistence;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\PreWriteValidationEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Rule\RuleScope;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @internal
@@ -71,5 +86,56 @@ class DaysSinceOrderPlacedRuleTest extends TestCase
             'type' => 'int',
             'config' => ['unit' => RuleConfig::UNIT_TIME],
         ], $rule->getConfig()->getData()['fields']['daysPassed']);
+    }
+
+    /**
+     * @return iterable<string, array{float|string|null}>
+     */
+    public static function invalidDayCounts(): iterable
+    {
+        yield 'missing required value' => [null];
+        yield 'fractional day count' => [30.5];
+        yield 'numeric string' => ['30'];
+    }
+
+    #[DataProvider('invalidDayCounts')]
+    public function testRuleValidatorRejectsMissingOrNonIntegerDayCounts(float|string|null $daysPassed): void
+    {
+        $registry = new StaticDefinitionInstanceRegistry(
+            [RuleConditionDefinition::class],
+            static::createStub(ValidatorInterface::class),
+            static::createStub(EntityWriteGatewayInterface::class)
+        );
+        $definition = $registry->get(RuleConditionDefinition::class);
+        $primaryKey = ['id' => Uuid::randomBytes()];
+
+        $validator = new RuleValidator(
+            Validation::createValidator(),
+            new RuleConditionRegistry([new DaysSinceOrderPlacedRule()]),
+            static::createStub(EntityRepository::class),
+            static::createStub(EntityRepository::class)
+        );
+
+        $event = new PreWriteValidationEvent(
+            WriteContext::createFromContext(Context::createDefaultContext()),
+            [
+                new InsertCommand(
+                    $definition,
+                    [
+                        'type' => DaysSinceOrderPlacedRule::RULE_NAME,
+                        'value' => json_encode(['operator' => Rule::OPERATOR_LTE, 'daysPassed' => $daysPassed], \JSON_THROW_ON_ERROR),
+                    ],
+                    $primaryKey,
+                    EntityExistence::createForEntity(RuleConditionDefinition::ENTITY_NAME, $primaryKey),
+                    '/0'
+                ),
+            ]
+        );
+
+        $validator->preValidate($event);
+
+        $violations = iterator_to_array($event->getExceptions()->getErrors());
+
+        static::assertSame(['/0/value/daysPassed'], array_column(array_column($violations, 'source'), 'pointer'));
     }
 }

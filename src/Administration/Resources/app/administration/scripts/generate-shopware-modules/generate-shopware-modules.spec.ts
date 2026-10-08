@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { extractModuleRegistry } from './extract-modules';
+import type * as Generator from './extract-modules';
 import { renderDeclarations, REGENERATE_COMMAND } from './render-declarations';
 import { renderRegistry, REGISTRY_FILE, DECLARATIONS_FILE } from './index';
 
@@ -15,6 +16,21 @@ const administrationRoot = path.resolve(__dirname, '../..');
 const registry = extractModuleRegistry(administrationRoot);
 
 describe('scripts/generate-shopware-modules', () => {
+    it('extracts the registry without loading the legacy TypeScript compiler', () => {
+        try {
+            jest.isolateModules(() => {
+                jest.doMock('typescript', () => {
+                    throw new Error('The registry generator must not load the legacy TypeScript compiler.');
+                });
+                const { extractModuleRegistry: extract } = jest.requireActual<typeof Generator>('./extract-modules');
+
+                expect(extract(administrationRoot)).toEqual(registry);
+            });
+        } finally {
+            jest.dontMock('typescript');
+        }
+    });
+
     it('has a checked-in registry that matches the Administration sources', () => {
         expect(
             fs.readFileSync(REGISTRY_FILE, 'utf8'),

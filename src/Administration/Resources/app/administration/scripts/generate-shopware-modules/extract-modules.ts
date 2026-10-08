@@ -67,7 +67,8 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import ts from 'typescript';
+import { parse as parseSource } from '@babel/parser';
+import * as t from '@babel/types';
 import type { ModuleRegistry } from '../../build/vite-plugins/virtual-shopware-modules/definitions';
 
 const UTILS_SOURCE = 'src/core/service/util.service.ts';
@@ -82,10 +83,14 @@ const GLOBAL_TYPES_SOURCE = 'src/global.types.ts';
  * below recognises a literal shape in the file, which is why a refactor that keeps the meaning but
  * changes the shape drops entries rather than failing.
  */
-function parse(administrationRoot: string, relativePath: string): ts.SourceFile {
+function parse(administrationRoot: string, relativePath: string): t.File {
     const filePath = path.join(administrationRoot, relativePath);
 
-    return ts.createSourceFile(filePath, fs.readFileSync(filePath, 'utf8'), ts.ScriptTarget.Latest, true);
+    return parseSource(fs.readFileSync(filePath, 'utf8'), {
+        sourceType: 'module',
+        sourceFilename: filePath,
+        plugins: ['typescript'],
+    });
 }
 
 /**
@@ -95,11 +100,15 @@ function parse(administrationRoot: string, relativePath: string): ts.SourceFile 
  *     'sw-form-field': typeof X  → "sw-form-field"   (string literal, which is how hyphenated keys look)
  *     [SOME_CONST]: { … }        → undefined         (computed: the name is only known at runtime)
  */
-function memberName(name: ts.PropertyName | undefined): string | undefined {
+function memberName(name: t.Node | null | undefined): string | undefined {
     // Identifier covers `debug`, StringLiteral covers `'sw-form-field'`. Anything else — a computed key,
     // a numeric literal, a private name — has no key this generator can write into the registry.
-    if (name && (ts.isIdentifier(name) || ts.isStringLiteral(name))) {
-        return name.text;
+    if (t.isIdentifier(name)) {
+        return name.name;
+    }
+
+    if (t.isStringLiteral(name)) {
+        return name.value;
     }
 
     return undefined;
@@ -114,14 +123,12 @@ function memberName(name: ts.PropertyName | undefined): string | undefined {
  * A spread, a method, a getter or an accessor yields no key and is skipped, so a namespace written as
  * `{ ...base, warn() {} }` would publish less than it holds.
  */
-function objectLiteralKeys(literal: ts.ObjectLiteralExpression): string[] {
+function objectLiteralKeys(literal: t.ObjectExpression): string[] {
     return literal.properties
         .map((property) =>
-            // PropertyAssignment is `warn: warn`; ShorthandPropertyAssignment is the bare `debug`.
-            // Both name a key; SpreadAssignment, MethodDeclaration and accessors do not.
-            ts.isPropertyAssignment(property) || ts.isShorthandPropertyAssignment(property)
-                ? memberName(property.name)
-                : undefined,
+            // ObjectProperty covers both `warn: warn` and the shorthand `debug`.
+            // Spreads, methods, accessors, and computed properties do not name a literal key.
+            t.isObjectProperty(property) && !property.computed ? memberName(property.key) : undefined,
         )
         .filter((name): name is string => name !== undefined);
 }
@@ -141,12 +148,19 @@ function objectLiteralKeys(literal: ts.ObjectLiteralExpression): string[] {
  * Throws rather than returning nothing, because a branch that stopped being a literal — reassembled at
  * runtime, say — would otherwise silently publish an empty module.
  */
-function defaultExportLiteral(sourceFile: ts.SourceFile, relativePath: string): ts.ObjectLiteralExpression {
-    // ExportAssignment is `export default <expression>` (and also `export = <expression>`). Only a
+function defaultExportLiteral(sourceFile: t.File, relativePath: string): t.ObjectExpression {
+    // Match `export default <expression>` (and also `export = <expression>`). Only a
     // literal right-hand side can be read without a type checker.
-    const literal = sourceFile.statements.find(ts.isExportAssignment)?.expression;
+    const statement = sourceFile.program.body.find(
+        (node) => t.isExportDefaultDeclaration(node) || t.isTSExportAssignment(node),
+    );
+    const literal = t.isExportDefaultDeclaration(statement)
+        ? statement.declaration
+        : t.isTSExportAssignment(statement)
+          ? statement.expression
+          : undefined;
 
-    if (!literal || !ts.isObjectLiteralExpression(literal)) {
+    if (!t.isObjectExpression(literal)) {
         throw new Error(`Expected "${relativePath}" to have an "export default { ... }" object literal.`);
     }
 
@@ -173,29 +187,22 @@ function defaultExportLiteral(sourceFile: ts.SourceFile, relativePath: string): 
  * Top-level only, deliberately: a const nested in a block or a namespace is not what the default export
  * re-lists.
  */
-function namedObjectExports(sourceFile: ts.SourceFile): Record<string, string[]> {
+function namedObjectExports(sourceFile: t.File): Record<string, string[]> {
     const namespaces: Record<string, string[]> = {};
 
-    sourceFile.statements.forEach((statement) => {
-        // VariableStatement is the whole `export const debug = { … };` line, declarations included.
-        if (!ts.isVariableStatement(statement)) {
+    sourceFile.program.body.forEach((statement) => {
+        // An unexported const is an implementation detail of the module.
+        if (!t.isExportNamedDeclaration(statement) || !t.isVariableDeclaration(statement.declaration)) {
             return;
         }
 
-        // The `export` keyword itself. An unexported const is an implementation detail of the module.
-        const isExported = statement.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword);
-
-        if (!isExported) {
-            return;
-        }
-
-        statement.declarationList.declarations.forEach((declaration) => {
-            const initializer = declaration.initializer;
+        statement.declaration.declarations.forEach((declaration) => {
+            const initializer = declaration.init;
 
             // `debug` must be a plain name, not a destructuring pattern, and the right-hand side must be
             // the literal itself — `export const debug = makeDebug()` has no keys to read from syntax.
-            if (ts.isIdentifier(declaration.name) && initializer && ts.isObjectLiteralExpression(initializer)) {
-                namespaces[declaration.name.text] = objectLiteralKeys(initializer);
+            if (t.isIdentifier(declaration.id) && t.isObjectExpression(initializer)) {
+                namespaces[declaration.id.name] = objectLiteralKeys(initializer);
             }
         });
     });
@@ -224,28 +231,26 @@ function namedObjectExports(sourceFile: ts.SourceFile): Record<string, string[]>
  * therefore only as honest as the interface: a key here that nobody registers type-checks and then
  * throws on import.
  */
-function interfaceKeys(sourceFile: ts.SourceFile, interfaceName: string): string[] {
+function interfaceKeys(sourceFile: t.File, interfaceName: string): string[] {
     const keys: string[] = [];
 
     // Recursive, unlike the const matcher above: both interfaces sit inside `declare global { … }`
     // rather than at the top level of the file.
-    const visit = (node: ts.Node): void => {
-        if (ts.isInterfaceDeclaration(node) && node.name.text === interfaceName) {
-            node.members.forEach((member) => {
-                // PropertySignature is `notification: typeof NotificationMixin`. A method signature or
-                // an index signature names no single key.
-                const name = ts.isPropertySignature(member) ? memberName(member.name) : undefined;
-
-                if (name !== undefined) {
-                    keys.push(name);
-                }
-            });
+    t.traverseFast(sourceFile, (node) => {
+        if (!t.isTSInterfaceDeclaration(node) || node.id.name !== interfaceName) {
+            return;
         }
 
-        ts.forEachChild(node, visit);
-    };
+        node.body.body.forEach((member) => {
+            // PropertySignature is `notification: typeof NotificationMixin`. A method signature or
+            // an index signature names no single key.
+            const name = t.isTSPropertySignature(member) && !member.computed ? memberName(member.key) : undefined;
 
-    visit(sourceFile);
+            if (name !== undefined) {
+                keys.push(name);
+            }
+        });
+    });
 
     // An empty result means the interface was renamed or moved, not that it has no members. Publishing
     // nothing would look like a valid registry.
@@ -270,19 +275,15 @@ const CENTRAL_MIXIN_DIR = './app/mixin/';
  * Membership is read from where `MixinContainer` imports each mixin's type, so moving a mixin file
  * moves it between the two groups on its own.
  */
-function centralMixinKeys(sourceFile: ts.SourceFile): string[] {
+function centralMixinKeys(sourceFile: t.File): string[] {
     const fromCentralDir = new Set<string>();
 
-    sourceFile.statements.forEach((statement) => {
-        if (
-            !ts.isImportDeclaration(statement) ||
-            !ts.isStringLiteral(statement.moduleSpecifier) ||
-            !statement.moduleSpecifier.text.startsWith(CENTRAL_MIXIN_DIR)
-        ) {
+    sourceFile.program.body.forEach((statement) => {
+        if (!t.isImportDeclaration(statement) || !statement.source.value.startsWith(CENTRAL_MIXIN_DIR)) {
             return;
         }
 
-        const name = statement.importClause?.name?.text;
+        const name = statement.specifiers.find((specifier) => t.isImportDefaultSpecifier(specifier))?.local.name;
 
         if (name !== undefined) {
             fromCentralDir.add(name);
@@ -291,27 +292,25 @@ function centralMixinKeys(sourceFile: ts.SourceFile): string[] {
 
     const central: string[] = [];
 
-    const visit = (node: ts.Node): void => {
-        if (ts.isInterfaceDeclaration(node) && node.name.text === 'MixinContainer') {
-            node.members.forEach((member) => {
-                const key = ts.isPropertySignature(member) ? memberName(member.name) : undefined;
-                const type = ts.isPropertySignature(member) ? member.type : undefined;
-
-                // `notification: typeof NotificationMixin` — the query names the imported type.
-                if (key === undefined || !type || !ts.isTypeQueryNode(type) || !ts.isIdentifier(type.exprName)) {
-                    return;
-                }
-
-                if (fromCentralDir.has(type.exprName.text)) {
-                    central.push(key);
-                }
-            });
+    t.traverseFast(sourceFile, (node) => {
+        if (!t.isTSInterfaceDeclaration(node) || node.id.name !== 'MixinContainer') {
+            return;
         }
 
-        ts.forEachChild(node, visit);
-    };
+        node.body.body.forEach((member) => {
+            const key = t.isTSPropertySignature(member) && !member.computed ? memberName(member.key) : undefined;
+            const type = t.isTSPropertySignature(member) ? member.typeAnnotation?.typeAnnotation : undefined;
 
-    visit(sourceFile);
+            // `notification: typeof NotificationMixin` — the query names the imported type.
+            if (key === undefined || !t.isTSTypeQuery(type) || !t.isIdentifier(type.exprName)) {
+                return;
+            }
+
+            if (fromCentralDir.has(type.exprName.name)) {
+                central.push(key);
+            }
+        });
+    });
 
     if (central.length === 0) {
         throw new Error(`Found no MixinContainer member imported from "${CENTRAL_MIXIN_DIR}".`);

@@ -60,6 +60,12 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
+### Event for parsed request criteria
+
+Subscribe to `Shopware\Core\Framework\DataAbstractionLayer\Event\RequestCriteriaParsedEvent` to validate or adjust request criteria without decorating `RequestCriteriaBuilder`. The event exposes the criteria, entity definition, and context after parsing and API validation. It fires once for the complete criteria tree for GET, POST, compressed criteria, and direct `fromArray()` calls.
+
+Direct instantiations and parent constructor calls now require an `EventDispatcherInterface` as the fifth argument, before the optional `$maxLimit`.
+
 ### Asset installation on S3-compatible storage
 
 Asset installation now overwrites existing files without deleting their directory first when using `--force` or rebuilding a missing asset manifest. This prevents delayed storage deletions from removing freshly uploaded files. Obsolete files are still removed, and no configuration changes are required.

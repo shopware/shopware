@@ -148,6 +148,7 @@ class SyncServiceTest extends TestCase
                 static::createStub(ApiCriteriaValidator::class),
                 new CriteriaArrayConverter(new AggregationParser()),
                 new CompressedCriteriaDecoder(),
+                new EventDispatcher(),
                 100
             ),
             static::createStub(AclCriteriaValidator::class),

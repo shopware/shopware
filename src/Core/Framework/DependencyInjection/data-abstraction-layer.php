@@ -270,6 +270,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ApiCriteriaValidator::class),
             service(CriteriaArrayConverter::class),
             service(CompressedCriteriaDecoder::class),
+            service(EventDispatcherInterface::class),
             param('shopware.api.max_limit'),
         ]);
 
@@ -305,6 +306,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(ApiCriteriaValidator::class),
             service(CriteriaArrayConverter::class),
             service(CompressedCriteriaDecoder::class),
+            service(EventDispatcherInterface::class),
             param('shopware.api.store.max_limit'),
         ]);
 

@@ -12,8 +12,11 @@ use Shopware\Core\Content\Product\Aggregate\ProductOption\ProductOptionDefinitio
 use Shopware\Core\Content\Product\Aggregate\ProductPrice\ProductPriceDefinition;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
+use Shopware\Core\Framework\Api\Context\SalesChannelApiSource;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Event\RequestCriteriaParsedEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\ApiProtectionException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPageQueryException;
@@ -34,6 +37,7 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Base64;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -49,9 +53,13 @@ class RequestCriteriaBuilderTest extends TestCase
 
     private StaticDefinitionInstanceRegistry $staticDefinitionRegistry;
 
+    private EventDispatcher $eventDispatcher;
+
     protected function setUp(): void
     {
         $aggregationParser = new AggregationParser();
+
+        $this->eventDispatcher = new EventDispatcher();
 
         $this->staticDefinitionRegistry = new StaticDefinitionInstanceRegistry(
             [
@@ -71,6 +79,116 @@ class RequestCriteriaBuilderTest extends TestCase
             new ApiCriteriaValidator($this->staticDefinitionRegistry),
             new CriteriaArrayConverter($aggregationParser),
             new CompressedCriteriaDecoder(),
+            $this->eventDispatcher,
+        );
+    }
+
+    #[DataProvider('criteriaEntryPointProvider')]
+    public function testDispatchesParsedCriteriaOnce(?string $method, bool $compressed): void
+    {
+        $payload = [
+            'limit' => 10,
+            'filter' => [['type' => 'equals', 'field' => 'active', 'value' => true]],
+            'sort' => [['field' => 'id', 'order' => 'ASC']],
+            'aggregations' => [['name' => 'active', 'type' => 'terms', 'field' => 'active']],
+            'associations' => [
+                'categories' => ['limit' => 3, 'associations' => ['children' => ['limit' => 2]]],
+            ],
+        ];
+        $criteria = new Criteria();
+        $definition = $this->staticDefinitionRegistry->get(ProductDefinition::class);
+        $context = Context::createDefaultContext();
+        $dispatchCount = 0;
+
+        $this->eventDispatcher->addListener(RequestCriteriaParsedEvent::class, static function (RequestCriteriaParsedEvent $event) use ($criteria, $definition, $context, &$dispatchCount): void {
+            ++$dispatchCount;
+            static::assertSame($criteria, $event->criteria);
+            static::assertSame($definition, $event->definition);
+            static::assertSame($context, $event->getContext());
+            static::assertSame(10, $event->criteria->getLimit());
+            static::assertCount(1, $event->criteria->getFilters());
+            static::assertCount(1, $event->criteria->getSorting());
+            static::assertCount(1, $event->criteria->getAggregations());
+            static::assertSame(3, $event->criteria->getAssociation('categories')->getLimit());
+            static::assertSame(2, $event->criteria->getAssociation('categories.children')->getLimit());
+
+            $event->criteria->setLimit(7);
+        });
+
+        if ($method === null) {
+            $result = $this->requestCriteriaBuilder->fromArray($payload, $criteria, $definition, $context);
+        } else {
+            if ($compressed) {
+                $payload = ['_criteria' => self::gzipAndBase64UrlEncode(json_encode($payload, \JSON_THROW_ON_ERROR))];
+            }
+
+            $request = $method === Request::METHOD_GET ? new Request($payload) : new Request([], $payload);
+            $request->setMethod($method);
+            $result = $this->requestCriteriaBuilder->handleRequest($request, $criteria, $definition, $context);
+        }
+
+        static::assertSame(1, $dispatchCount);
+        static::assertSame($criteria, $result);
+        static::assertSame(7, $result->getLimit());
+    }
+
+    /**
+     * @return iterable<string, array{string|null, bool}>
+     */
+    public static function criteriaEntryPointProvider(): iterable
+    {
+        yield 'array criteria' => [null, false];
+        yield 'GET criteria' => [Request::METHOD_GET, false];
+        yield 'POST criteria' => [Request::METHOD_POST, false];
+        yield 'compressed GET criteria' => [Request::METHOD_GET, true];
+    }
+
+    public function testDoesNotDispatchWhenParsingFails(): void
+    {
+        $this->eventDispatcher->addListener(RequestCriteriaParsedEvent::class, static function (): void {
+            static::fail('Invalid criteria must not be dispatched.');
+        });
+
+        $this->expectException(SearchRequestException::class);
+
+        $this->requestCriteriaBuilder->fromArray(
+            ['limit' => -1],
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+    }
+
+    public function testDoesNotDispatchWhenApiValidationFails(): void
+    {
+        $this->eventDispatcher->addListener(RequestCriteriaParsedEvent::class, static function (): void {
+            static::fail('API-protected criteria must not be dispatched.');
+        });
+
+        $this->expectExceptionObject(new ApiProtectionException('product.featureSetId'));
+
+        $this->requestCriteriaBuilder->fromArray(
+            ['sort' => [['field' => 'featureSetId', 'order' => 'ASC']]],
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            new Context(new SalesChannelApiSource('test'))
+        );
+    }
+
+    public function testListenerCanRejectCriteria(): void
+    {
+        $exception = new ApiProtectionException('product.active');
+        $this->eventDispatcher->addListener(RequestCriteriaParsedEvent::class, static function () use ($exception): void {
+            throw $exception;
+        });
+
+        $this->expectExceptionObject($exception);
+
+        $this->requestCriteriaBuilder->fromArray(
+            ['filter' => [['type' => 'equals', 'field' => 'active', 'value' => true]]],
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
         );
     }
 
@@ -98,6 +216,7 @@ class RequestCriteriaBuilderTest extends TestCase
             new ApiCriteriaValidator($this->staticDefinitionRegistry),
             new CriteriaArrayConverter($aggregationParser),
             new CompressedCriteriaDecoder(),
+            $this->eventDispatcher,
             $max
         );
 
@@ -579,6 +698,7 @@ class RequestCriteriaBuilderTest extends TestCase
             new ApiCriteriaValidator($this->staticDefinitionRegistry),
             new CriteriaArrayConverter($aggregationParser),
             new CompressedCriteriaDecoder(),
+            $this->eventDispatcher,
             100
         );
 
@@ -710,6 +830,7 @@ class RequestCriteriaBuilderTest extends TestCase
             new ApiCriteriaValidator($this->staticDefinitionRegistry),
             new CriteriaArrayConverter($aggregationParser),
             new CompressedCriteriaDecoder(),
+            $this->eventDispatcher,
             $maxLimit
         );
 

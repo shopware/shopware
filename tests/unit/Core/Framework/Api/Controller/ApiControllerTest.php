@@ -40,6 +40,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\Encoder\DecoderInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @internal
@@ -272,7 +273,8 @@ class ApiControllerTest extends TestCase
             $aggregationParser,
             new ApiCriteriaValidator($definitionInstanceRegistry),
             new CriteriaArrayConverter($aggregationParser),
-            static::createStub(CompressedCriteriaDecoder::class)
+            static::createStub(CompressedCriteriaDecoder::class),
+            static::createStub(EventDispatcherInterface::class)
         );
 
         return new ApiController(

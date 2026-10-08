@@ -8,6 +8,7 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
 use Shopware\Core\Content\Media\MediaDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Api\Acl\Role\AclUserRoleDefinition;
+use Shopware\Core\Framework\ContentSystem\Workspace\ContentWorkspaceDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityProtection\CloneProtection;
@@ -127,6 +128,7 @@ class UserDefinition extends EntityDefinition
             new OneToManyAssociationField('updatedOrders', OrderDefinition::class, 'updated_by_id', 'id'),
             new OneToManyAssociationField('createdCustomers', CustomerDefinition::class, 'created_by_id', 'id'),
             new OneToManyAssociationField('updatedCustomers', CustomerDefinition::class, 'updated_by_id', 'id'),
+            (new OneToManyAssociationField('createdContentWorkspaces', ContentWorkspaceDefinition::class, 'created_by_id'))->addFlags(new SetNullOnDelete()),
         ]);
     }
 }

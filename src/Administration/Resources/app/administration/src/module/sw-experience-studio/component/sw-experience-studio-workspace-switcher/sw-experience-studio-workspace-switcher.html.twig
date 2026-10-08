@@ -1,0 +1,78 @@
+{% block sw_experience_studio_workspace_switcher %}
+<mt-dropdown-menu-root @update:open="onOpenChange">
+    <mt-dropdown-menu-trigger
+        as-child
+        :disabled="disabled"
+    >
+        <mt-button
+            class="sw-experience-studio-workspace-switcher"
+            variant="secondary"
+            :disabled="disabled"
+        >
+            <template #iconFront>
+                <mt-icon
+                    name="regular-layout"
+                    size="16px"
+                    decorative
+                />
+            </template>
+
+            <span class="sw-experience-studio-workspace-switcher__name">
+                {{ workspaceStore.activeWorkspace?.name ?? $t('sw-experience-studio.workspace.manager.title') }}
+            </span>
+
+            <template #iconBack>
+                <mt-icon
+                    name="regular-chevron-down-xs"
+                    size="12px"
+                    decorative
+                />
+            </template>
+        </mt-button>
+    </mt-dropdown-menu-trigger>
+
+    <mt-dropdown-menu-portal>
+        <mt-action-menu class="sw-experience-studio-workspace-switcher__menu">
+            <mt-action-menu-group v-if="workspaceStore.workspaces.length">
+                <mt-action-menu-item
+                    v-for="workspace in workspaceStore.workspaces"
+                    :key="workspace.id"
+                    class="sw-experience-studio-workspace-switcher__entry"
+                    :class="{ 'is--active': workspaceStore.activeWorkspace?.id === workspace.id }"
+                    :aria-current="workspaceStore.activeWorkspace?.id === workspace.id ? 'true' : undefined"
+                    icon="regular-layout"
+                    @select="$emit('select', workspace.id)"
+                >
+                    <div class="sw-experience-studio-workspace-switcher__entry-content">
+                        <span class="sw-experience-studio-workspace-switcher__name">{{ workspace.name }}</span>
+                        <small class="sw-experience-studio-workspace-switcher__creator">
+                            {{ $t('sw-experience-studio.workspace.manager.createdBy', { name: workspace.createdBy ? `${workspace.createdBy.firstName} ${workspace.createdBy.lastName}` : $t('sw-experience-studio.workspace.manager.deletedUser') }) }}
+                        </small>
+                        <sw-avatar
+                            :image-url="workspace.createdBy?.avatarMedia?.url"
+                            :first-name="workspace.createdBy?.firstName"
+                            :last-name="workspace.createdBy?.lastName"
+                            size="20px"
+                        />
+                    </div>
+                </mt-action-menu-item>
+            </mt-action-menu-group>
+
+            <mt-action-menu-group>
+                <mt-action-menu-item
+                    icon="regular-plus"
+                    @select="$emit('create')"
+                >
+                    {{ $t('sw-experience-studio.workspace.manager.create') }}
+                </mt-action-menu-item>
+                <mt-action-menu-item
+                    icon="regular-cog"
+                    @select="$emit('browse')"
+                >
+                    {{ $t('sw-experience-studio.workspace.manager.manage') }}
+                </mt-action-menu-item>
+            </mt-action-menu-group>
+        </mt-action-menu>
+    </mt-dropdown-menu-portal>
+</mt-dropdown-menu-root>
+{% endblock %}

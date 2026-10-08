@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Controller;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -14,6 +15,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Storefront\Page\LandingPage\LandingPageLoadedHook;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @internal
@@ -42,6 +44,97 @@ class LandingPageControllerTest extends TestCase
         $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(LandingPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    #[DataProvider('contentLayoutProvider')]
+    public function testRendersAssignedContentLayout(bool $withCmsPage, bool $salesChannelAssignment): void
+    {
+        $context = Context::createDefaultContext();
+        $landingPage = [
+            'id' => $this->ids->get('landing-page'),
+            'name' => 'Assigned landing page',
+            'metaTitle' => 'Landing campaign title',
+        ];
+        if (!$withCmsPage) {
+            $landingPage['cmsPageId'] = null;
+        }
+        static::getContainer()->get('landing_page.repository')->update([$landingPage], $context);
+        $this->assignContentLayout($salesChannelAssignment);
+
+        $response = $this->request('GET', '/myUrl', []);
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+        static::assertStringContainsString('data-page-id="' . $this->ids->get('content-layout') . '"', $content);
+        static::assertStringContainsString('data-element-id="' . $this->ids->get('content-text') . '"', $content);
+        static::assertStringContainsString('Assigned landing page', $content);
+        static::assertStringContainsString('Landing campaign title', $content);
+
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
+        static::assertArrayHasKey(LandingPageLoadedHook::HOOK_NAME, $traces);
+    }
+
+    /**
+     * @return \Generator<string, array{bool, bool}>
+     */
+    public static function contentLayoutProvider(): \Generator
+    {
+        yield 'global assignment without a legacy CMS page' => [false, false];
+        yield 'content layout takes precedence over legacy CMS' => [true, false];
+        yield 'sales channel assignment without a legacy CMS page' => [false, true];
+    }
+
+    public function testLandingPageWithoutAnyLayoutIsNotFound(): void
+    {
+        static::getContainer()->get('landing_page.repository')->update([[
+            'id' => $this->ids->get('landing-page'),
+            'cmsPageId' => null,
+        ]], Context::createDefaultContext());
+
+        $response = $this->request('GET', '/myUrl', []);
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    public function testAssignedLayoutDoesNotExposeInactiveLandingPage(): void
+    {
+        $this->assignContentLayout(salesChannelAssignment: false);
+        static::getContainer()->get('landing_page.repository')->update([[
+            'id' => $this->ids->get('landing-page'),
+            'active' => false,
+            'cmsPageId' => null,
+        ]], Context::createDefaultContext());
+
+        $response = $this->request('GET', '/myUrl', []);
+
+        static::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    private function assignContentLayout(bool $salesChannelAssignment): void
+    {
+        $context = Context::createDefaultContext();
+        static::getContainer()->get('content_layout.repository')->create([[
+            'id' => $this->ids->create('content-layout'),
+            'name' => 'Landing campaign',
+            'rootSource' => 'landing_page',
+            'version' => '1.0.0',
+            'layout' => [[
+                'id' => $this->ids->create('content-root'),
+                'component' => 'Sw:Grid:Container',
+                'properties' => [],
+                'slots' => ['content' => [[
+                    'id' => $this->ids->create('content-text'),
+                    'component' => 'Sw:Content:Text',
+                    'properties' => ['text' => '{{map:landing_page.name}}'],
+                ]]],
+            ]],
+        ]], $context);
+        static::getContainer()->get('landing_page_content_layout.repository')->create([[
+            'id' => $this->ids->create('content-assignment'),
+            'landingPageId' => $this->ids->get('landing-page'),
+            'salesChannelId' => $salesChannelAssignment ? $this->getSalesChannelId() : null,
+            'contentLayoutId' => $this->ids->get('content-layout'),
+        ]], $context);
     }
 
     private function createData(): void

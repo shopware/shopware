@@ -9,8 +9,8 @@ describe('module/sw-experience-studio/page/sw-experience-studio-detail custom-fi
         const vm = {
             mappingCandidateStore: { loadMappingCandidates },
             loadMappingCandidates: methods.loadMappingCandidates,
-            loadLayout: jest.fn(),
-            loadDefaultPreviewSalesChannel: jest.fn(),
+            $route: { params: {} },
+            workspaceStore: { activate: jest.fn() },
             loadElementTypes: jest.fn(),
             loadStyleOptions: jest.fn(),
             loadLayoutPresets: jest.fn(),

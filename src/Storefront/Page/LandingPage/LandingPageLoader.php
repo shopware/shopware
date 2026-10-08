@@ -5,6 +5,10 @@ namespace Shopware\Storefront\Page\LandingPage;
 use Shopware\Core\Content\Cms\Exception\PageNotFoundException;
 use Shopware\Core\Content\LandingPage\LandingPageException;
 use Shopware\Core\Content\LandingPage\SalesChannel\AbstractLandingPageRoute;
+use Shopware\Core\Framework\ContentSystem\ContentSystemException;
+use Shopware\Core\Framework\ContentSystem\Output\Struct\ContentPage;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\AbstractContentRoute;
+use Shopware\Core\Framework\ContentSystem\SalesChannel\ContentRouteResponse;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -26,7 +30,8 @@ class LandingPageLoader
     public function __construct(
         private readonly GenericPageLoaderInterface $genericPageLoader,
         private readonly AbstractLandingPageRoute $landingPageRoute,
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly ?AbstractContentRoute $contentRoute = null,
     ) {
     }
 
@@ -39,7 +44,9 @@ class LandingPageLoader
 
         $landingPage = $this->landingPageRoute->load($landingPageId, $request, $context)->getLandingPage();
 
-        if ($landingPage->getCmsPage() === null) {
+        $contentPage = $this->loadContentPage($landingPageId, $request, $context);
+
+        if ($landingPage->getCmsPage() === null && $contentPage === null) {
             // @deprecated tag:v6.8.0 - remove this if block
             if (!Feature::isActive('v6.8.0.0')) {
                 throw new PageNotFoundException($landingPageId); // @phpstan-ignore shopware.domainException
@@ -50,6 +57,10 @@ class LandingPageLoader
 
         $page = $this->genericPageLoader->load($request, $context);
         $page = LandingPage::createFrom($page);
+
+        if ($contentPage !== null) {
+            $page->addExtension('contentPage', $contentPage);
+        }
 
         $page->setLandingPage($landingPage);
         $page->setNavigationId($landingPage->getId());
@@ -69,5 +80,24 @@ class LandingPageLoader
         );
 
         return $page;
+    }
+
+    private function loadContentPage(string $landingPageId, Request $request, SalesChannelContext $context): ?ContentPage
+    {
+        if ($this->contentRoute === null) {
+            return null;
+        }
+
+        try {
+            $response = $this->contentRoute->load('/landing-page/' . $landingPageId, $request, $context);
+        } catch (ContentSystemException $exception) {
+            if ($exception->getErrorCode() === ContentSystemException::LAYOUT_ASSIGNMENT_NOT_FOUND) {
+                return null;
+            }
+
+            throw $exception;
+        }
+
+        return $response instanceof ContentRouteResponse ? $response->getContentPage() : null;
     }
 }

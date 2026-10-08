@@ -27,7 +27,7 @@ export function getContentElementLabel(element: ContentElementNode): string {
  * @private
  * @sw-package discovery
  */
-export function formatComponentName(component: string): string {
+function formatComponentName(component: string): string {
     const parts = component.split(':');
 
     return parts[parts.length - 1] || component;

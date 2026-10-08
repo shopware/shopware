@@ -1,206 +1,97 @@
 import type { ContentElementNode } from 'src/core/service/content-element.types';
 import detailComponent from './index';
 
-describe('module/sw-experience-studio/page/sw-experience-studio-detail save', () => {
-    const methods = (detailComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
+const methods = (detailComponent as unknown as { methods: Record<string, (...args: unknown[]) => unknown> }).methods;
 
-    it('surfaces the API error detail and stops loading when the save is refused', async () => {
-        const authoredLayout: ContentElementNode[] = [
-            { id: 'element-1', component: 'Sw:Media:Image', properties: {} },
-        ];
-        const rejection = {
-            response: {
-                data: {
-                    errors: [
-                        {
-                            code: 'unfilled_required_input',
-                            status: '400',
-                            detail: 'Required property "media" is wired from "mediaId", which has no value.',
-                        },
-                    ],
-                },
-            },
-        };
-        const save = jest.fn().mockRejectedValue(rejection);
-        const get = jest.fn();
-        const $t = jest.fn((key: string, values?: Record<string, string>) => `${key}:${values?.detail ?? ''}`);
-        const vm = {
-            layout: { id: 'layout-1', name: 'Landing page', layout: authoredLayout },
-            allowSave: true,
-            layoutRootSource: 'product',
-            layoutLoadCriteria: {},
-            layoutRepository: { save, get },
-            applyPreviewContextDefaults: jest.fn(),
-            createNotificationSuccess: jest.fn(),
-            createNotificationError: jest.fn(),
-            notifySaveError: methods.notifySaveError,
-            extractApiErrorDetail: methods.extractApiErrorDetail,
-            diagnoseLayout: jest.fn().mockResolvedValue(undefined),
-            showDiagnostics: false,
-            $t,
-            $router: { push: jest.fn() },
-            isCreateMode: true,
-            isLoading: false,
-        };
+function createEditor(elements: ContentElementNode[] = []) {
+    const layout = { id: 'layout-1', name: 'Layout', rootSource: 'category', layout: elements };
+    return {
+        layout,
+        activeLayoutId: layout.id,
+        allowSave: true,
+        openLayouts: [{ id: layout.id, layout, savedState: '', isNew: true, isSaving: false, saveError: null }],
+        layoutLoadCriteria: {},
+        layoutRepository: {
+            save: jest.fn().mockResolvedValue(undefined),
+            get: jest.fn().mockResolvedValue(layout),
+        },
+        serializeLayoutState: methods.serializeLayoutState,
+        getLayoutRootSource: (value: typeof layout) => value.rootSource,
+        extractApiErrorDetail: methods.extractApiErrorDetail,
+        $t: (key: string) => key,
+    };
+}
 
-        await methods.onSave.call(vm);
-
-        expect(vm.isLoading).toBe(false);
-        expect(get).not.toHaveBeenCalled();
-        expect(vm.createNotificationSuccess).not.toHaveBeenCalled();
-        expect(vm.$router.push).not.toHaveBeenCalled();
-        expect(vm.createNotificationError).toHaveBeenCalledWith({
-            message:
-                'sw-experience-studio.detail.messageSaveErrorDetail:Required property "media" is wired from "mediaId", which has no value.',
+describe('workspace layout save errors and reload', () => {
+    it('keeps the API error detail on the layout when saving is refused', async () => {
+        const editor = createEditor([{ id: 'image', component: 'Sw:Media:Image', properties: {} }]);
+        const authored = structuredClone(editor.layout);
+        editor.layoutRepository.save.mockRejectedValue({
+            response: { data: { errors: [{ detail: 'Required property "media" has no value.' }] } },
         });
-        expect(vm.layout.layout).toEqual(authoredLayout);
+
+        expect(await methods.saveOpenLayout.call(editor, 'layout-1')).toBe(false);
+
+        expect(editor.openLayouts[0].saveError).toBe('Required property "media" has no value.');
+        expect(editor.openLayouts[0].isSaving).toBe(false);
+        expect(editor.openLayouts[0].isNew).toBe(true);
+        expect(editor.layoutRepository.get).not.toHaveBeenCalled();
+        expect(editor.layout).toEqual(authored);
     });
 
-    it('falls back to the generic save error when the rejection carries no API detail', async () => {
-        const save = jest.fn().mockRejectedValue(new Error('network down'));
-        const $t = jest.fn((key: string) => key);
-        const vm = {
-            layout: { id: 'layout-1', name: 'Landing page', layout: [] as ContentElementNode[] },
-            allowSave: true,
-            layoutRootSource: 'product',
-            layoutLoadCriteria: {},
-            layoutRepository: { save, get: jest.fn() },
-            applyPreviewContextDefaults: jest.fn(),
-            createNotificationSuccess: jest.fn(),
-            createNotificationError: jest.fn(),
-            notifySaveError: methods.notifySaveError,
-            extractApiErrorDetail: methods.extractApiErrorDetail,
-            diagnoseLayout: jest.fn().mockResolvedValue(undefined),
-            showDiagnostics: false,
-            $t,
-            isCreateMode: false,
-            isLoading: false,
-        };
+    it('uses the generic error when the rejection carries no API detail', async () => {
+        const editor = createEditor();
+        editor.layoutRepository.save.mockRejectedValue(new Error('Network down'));
 
-        await methods.onSave.call(vm);
+        expect(await methods.saveOpenLayout.call(editor, 'layout-1')).toBe(false);
 
-        expect(vm.isLoading).toBe(false);
-        expect(vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-experience-studio.detail.messageSaveError',
-        });
+        expect(editor.openLayouts[0].saveError).toBe('sw-experience-studio.detail.messageSaveError');
+        expect(editor.openLayouts[0].isSaving).toBe(false);
     });
 
-    it('keeps the successful save when only the reload fails', async () => {
-        const authoredLayout: ContentElementNode[] = [
-            { id: 'element-1', component: 'Sw:Media:Image', properties: {} },
-        ];
-        const save = jest.fn().mockResolvedValue(undefined);
-        const get = jest.fn().mockRejectedValue(new Error('network down'));
-        const $t = jest.fn((key: string) => key);
-        const vm = {
-            layout: { id: 'layout-1', name: 'Landing page', layout: authoredLayout },
-            allowSave: true,
-            layoutRootSource: 'product',
-            layoutLoadCriteria: {},
-            layoutRepository: { save, get },
-            applyPreviewContextDefaults: jest.fn(),
-            createNotificationSuccess: jest.fn(),
-            createNotificationError: jest.fn(),
-            notifySaveError: methods.notifySaveError,
-            extractApiErrorDetail: methods.extractApiErrorDetail,
-            diagnoseLayout: jest.fn().mockResolvedValue(undefined),
-            showDiagnostics: false,
-            $t,
-            $router: { push: jest.fn() },
-            isCreateMode: true,
-            isLoading: false,
-        };
+    it('retains the saved snapshot when the subsequent reload fails', async () => {
+        const editor = createEditor();
+        editor.layoutRepository.get.mockRejectedValue(new Error('Network down'));
 
-        await methods.onSave.call(vm);
+        expect(await methods.saveOpenLayout.call(editor, 'layout-1')).toBe(false);
 
-        expect(save).toHaveBeenCalledTimes(1);
-        expect(vm.isLoading).toBe(false);
-        expect(vm.createNotificationSuccess).toHaveBeenCalledWith({
-            message: 'sw-experience-studio.detail.messageSaved',
-        });
-        expect(vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'sw-experience-studio.detail.messageReloadError',
-        });
-        expect(vm.applyPreviewContextDefaults).not.toHaveBeenCalled();
-        expect(vm.layout.layout).toEqual(authoredLayout);
-        expect(vm.$router.push).toHaveBeenCalledWith({
-            name: 'sw.experience.studio.detail',
-            params: { id: 'layout-1' },
-        });
+        expect(editor.layoutRepository.save).toHaveBeenCalledTimes(1);
+        expect(editor.openLayouts[0].isNew).toBe(false);
+        expect(editor.openLayouts[0].savedState).toBe(
+            JSON.stringify({ name: 'Layout', rootSource: 'category', layout: [] }),
+        );
+        expect(editor.openLayouts[0].isSaving).toBe(false);
+        expect(editor.openLayouts[0].saveError).toBe('sw-experience-studio.detail.messageSaveError');
     });
 
-    it('adopts the server-canonical layout returned by the save reload without client-side re-normalization', async () => {
-        // Authored client-side: style as a bare scalar, no seeded default, keys in author order.
+    it('adopts the server-canonical layout after saving without client-side normalization', async () => {
         const authoredElement: ContentElementNode = {
             component: 'Sw:Filter:Panel',
             style: { 'col-span': 6 },
             id: 'element-1',
             properties: { visibleFilterCount: 5 },
         };
-        // Server-canonical: `ElementStyleNormalizer::normalizeValue()` broadcasts a breakpoint-aware
-        // scalar across every `Breakpoint::values()` entry, `LayoutDefaultSeeder::seedElement()` appends
-        // the `showLayoutSwitch: true` default the type declares and the author left out, and
-        // `StoredElement::jsonSerialize()` fixes the key order.
         const canonicalElement: ContentElementNode = {
             id: 'element-1',
             component: 'Sw:Filter:Panel',
             properties: { visibleFilterCount: 5, showLayoutSwitch: true },
             style: { 'col-span': { xs: 6, sm: 6, md: 6, lg: 6, xl: 6, xxl: 6 } },
         };
-        const reloadedLayout = {
-            id: 'layout-1',
-            name: 'Landing page',
-            layout: [canonicalElement],
-        };
-        const save = jest.fn().mockResolvedValue(undefined);
-        const get = jest.fn().mockResolvedValue(reloadedLayout);
-        const vm = {
-            layout: {
-                id: 'layout-1',
-                name: 'Landing page',
-                layout: [authoredElement],
-            } as unknown as typeof reloadedLayout,
-            allowSave: true,
-            layoutRootSource: 'product',
-            layoutLoadCriteria: {},
-            layoutRepository: { save, get },
-            applyPreviewContextDefaults: jest.fn(),
-            createNotificationSuccess: jest.fn(),
-            $t: jest.fn().mockReturnValue('saved'),
-            isCreateMode: false,
-            isLoading: false,
-            showDiagnostics: true,
-        };
+        const editor = createEditor([authoredElement]);
+        const reloaded = { ...editor.layout, layout: [canonicalElement] };
+        editor.layoutRepository.get.mockResolvedValue(reloaded);
 
-        await methods.onSave.call(vm);
+        expect(await methods.saveOpenLayout.call(editor, 'layout-1')).toBe(true);
 
-        const saveCalls = save.mock.calls as unknown[][];
-
-        expect(saveCalls[0][0]).toEqual({
-            id: 'layout-1',
-            name: 'Landing page',
-            layout: [
-                {
-                    component: 'Sw:Filter:Panel',
-                    style: { 'col-span': 6 },
-                    id: 'element-1',
-                    properties: { visibleFilterCount: 5 },
-                },
-            ],
-        });
-        expect(vm.showDiagnostics).toBe(false);
-        expect(vm.isLoading).toBe(false);
-        expect(vm.layout).toBe(reloadedLayout);
-        expect(vm.layout.layout[0]).toBe(canonicalElement);
-        expect(Object.keys(vm.layout.layout[0])).toEqual([
-            'id',
-            'component',
-            'properties',
-            'style',
-        ]);
-        expect(vm.layout.layout[0].style).toEqual({
-            'col-span': { xs: 6, sm: 6, md: 6, lg: 6, xl: 6, xxl: 6 },
-        });
-        expect(vm.layout.layout[0].properties).toEqual({ visibleFilterCount: 5, showLayoutSwitch: true });
+        expect(editor.layoutRepository.save).toHaveBeenCalledWith(
+            expect.objectContaining({ layout: [authoredElement] }),
+            Shopware.Context.api,
+        );
+        expect(editor.layout).toBe(reloaded);
+        expect(editor.openLayouts[0].layout).toBe(reloaded);
+        expect(editor.layout.layout[0]).toBe(canonicalElement);
+        expect(editor.openLayouts[0].savedState).toBe(
+            JSON.stringify({ name: reloaded.name, rootSource: reloaded.rootSource, layout: [canonicalElement] }),
+        );
     });
 });

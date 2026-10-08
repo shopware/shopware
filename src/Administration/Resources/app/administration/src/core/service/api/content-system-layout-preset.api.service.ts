@@ -24,7 +24,7 @@ export interface ContentSystemLayoutPreset {
 /**
  * @private
  */
-export interface ContentSystemLayoutPresetResponse {
+interface ContentSystemLayoutPresetResponse {
     presets: ContentSystemLayoutPreset[];
 }
 

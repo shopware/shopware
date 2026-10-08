@@ -8,6 +8,7 @@ use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLog
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaEntity;
 use Shopware\Core\Framework\Api\Acl\Role\AclRoleCollection;
+use Shopware\Core\Framework\ContentSystem\Workspace\ContentWorkspaceCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCustomFieldsTrait;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -87,6 +88,8 @@ class UserEntity extends Entity
     protected ?CustomerCollection $createdCustomers = null;
 
     protected ?CustomerCollection $updatedCustomers = null;
+
+    protected ?ContentWorkspaceCollection $createdContentWorkspaces = null;
 
     protected string $timeZone;
 
@@ -360,6 +363,16 @@ class UserEntity extends Entity
     public function setUpdatedCustomers(CustomerCollection $updatedCustomers): void
     {
         $this->updatedCustomers = $updatedCustomers;
+    }
+
+    public function getCreatedContentWorkspaces(): ?ContentWorkspaceCollection
+    {
+        return $this->createdContentWorkspaces;
+    }
+
+    public function setCreatedContentWorkspaces(ContentWorkspaceCollection $createdContentWorkspaces): void
+    {
+        $this->createdContentWorkspaces = $createdContentWorkspaces;
     }
 
     public function getLastUpdatedPasswordAt(): ?\DateTimeInterface

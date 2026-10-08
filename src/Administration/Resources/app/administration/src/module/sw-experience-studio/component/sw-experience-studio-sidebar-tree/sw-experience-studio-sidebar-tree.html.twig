@@ -2,7 +2,22 @@
 <div class="sw-experience-studio-sidebar-tree">
     {% block sw_experience_studio_sidebar_tree_header %}
     <div class="sw-experience-studio-sidebar-tree__header">
-        <h3>{{ $t('sw-experience-studio.detail.sidebarTree.title') }}</h3>
+        <button
+            v-if="showBackButton"
+            class="sw-experience-studio-sidebar-tree__back-button"
+            type="button"
+            :aria-label="$t('sw-experience-studio.workspace.layouts.title')"
+            :title="$t('global.default.back')"
+            @click="$emit('back')"
+        >
+            <mt-icon
+                name="regular-chevron-left"
+                size="16px"
+            />
+        </button>
+        <h3 :title="panelTitle">
+            {{ panelTitle }}
+        </h3>
 
         <button
             v-tooltip="{

@@ -7046,11 +7046,6 @@
       "count": 1
     }
   },
-  "src/module/sw-experience-studio/component/sw-experience-studio-element-picker/index.spec.ts": {
-    "sw-test-rules/no-vm-access": {
-      "count": 1
-    }
-  },
   "src/module/sw-experience-studio/component/sw-experience-studio-inline-text-field/parse-feedback.spec.ts": {
     "sw-test-rules/no-vm-access": {
       "count": 1

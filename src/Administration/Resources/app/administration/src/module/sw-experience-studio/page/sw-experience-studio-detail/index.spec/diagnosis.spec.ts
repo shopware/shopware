@@ -118,30 +118,4 @@ describe('Experience Studio diagnosis failures', () => {
             jest.useRealTimers();
         }
     });
-
-    it('reports a failed follow-up diagnosis after a refused save without changing the layout', async () => {
-        const diagnosis = createVm(jest.fn().mockRejectedValue(new Error('Diagnosis unavailable')));
-        const saveError = new Error('Save refused');
-        const vm = {
-            ...diagnosis,
-            allowSave: true,
-            layoutRootSource: 'product',
-            layoutRepository: { save: jest.fn().mockRejectedValue(saveError) },
-            notifySaveError: jest.fn(),
-            showDiagnostics: false,
-            isLoading: false,
-        };
-        const authoredLayout = structuredClone(vm.layout);
-
-        await methods.onSave.call(vm);
-
-        expect(vm.notifySaveError).toHaveBeenCalledWith(saveError);
-        expect(vm.createNotificationError).toHaveBeenCalledWith({
-            message: 'translated:sw-experience-studio.detail.messageDiagnoseError',
-        });
-        expect(vm.diagnostics).toEqual([]);
-        expect(vm.showDiagnostics).toBe(true);
-        expect(vm.isLoading).toBe(false);
-        expect(vm.layout).toEqual(authoredLayout);
-    });
 });

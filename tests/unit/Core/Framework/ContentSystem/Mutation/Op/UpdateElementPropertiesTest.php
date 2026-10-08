@@ -87,16 +87,6 @@ class UpdateElementPropertiesTest extends TestCase
         ];
     }
 
-    #[TestDox('writes a present null under a non-translatable primitive')]
-    public function testWritesAPresentNull(): void
-    {
-        $result = (new UpdateElementProperties($this->registry(), 'block-a', ['headline' => null], []))->apply(new StoredTree([$this->target()]));
-
-        $stored = $this->elementOf($result, 'block-a')->property('headline');
-        static::assertNotNull($stored, 'the key is present, carrying the null variant');
-        static::assertTrue($stored->isNull());
-    }
-
     #[TestDox('drops exactly the named property key and leaves every other key in place')]
     public function testRemovesAKey(): void
     {
@@ -133,17 +123,6 @@ class UpdateElementPropertiesTest extends TestCase
         static::assertSame([], $update->created());
     }
 
-    #[TestDox('detaches nothing, so the orphan and drop channels stay empty')]
-    public function testDetachmentChannelsStayEmpty(): void
-    {
-        $update = new UpdateElementProperties($this->registry(), 'block-a', ['headline' => 'New'], ['tag']);
-        $update->apply(new StoredTree([$this->target()]));
-
-        static::assertSame([], $update->orphaned());
-        static::assertSame([], $update->droppedWiring());
-        static::assertSame([], $update->droppedProperties());
-    }
-
     #[TestDox('splices the target in wholesale, so its untouched children stay the identical instances')]
     public function testUntouchedChildrenKeepInstanceIdentity(): void
     {
@@ -173,6 +152,27 @@ class UpdateElementPropertiesTest extends TestCase
         // input subtree by reference, so whether the sibling comes back as the same instance or an equal one is
         // not this op's promise to keep.
         static::assertEquals($sibling, $result->roots[1]);
+    }
+
+    #[TestDox('writes a present null under a non-translatable primitive')]
+    public function testWritesAPresentNull(): void
+    {
+        $result = (new UpdateElementProperties($this->registry(), 'block-a', ['headline' => null], []))->apply(new StoredTree([$this->target()]));
+
+        $stored = $this->elementOf($result, 'block-a')->property('headline');
+        static::assertNotNull($stored, 'the key is present, carrying the null variant');
+        static::assertTrue($stored->isNull());
+    }
+
+    #[TestDox('detaches nothing, so the orphan and drop channels stay empty')]
+    public function testDetachmentChannelsStayEmpty(): void
+    {
+        $update = new UpdateElementProperties($this->registry(), 'block-a', ['headline' => 'New'], ['tag']);
+        $update->apply(new StoredTree([$this->target()]));
+
+        static::assertSame([], $update->orphaned());
+        static::assertSame([], $update->droppedWiring());
+        static::assertSame([], $update->droppedProperties());
     }
 
     #[TestDox('rejects an element id that is not in the tree with a 400')]

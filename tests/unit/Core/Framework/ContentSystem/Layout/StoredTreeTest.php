@@ -37,12 +37,6 @@ class StoredTreeTest extends TestCase
         static::assertSame('grandchild-1', $tree->find('grandchild-1')?->id);
     }
 
-    #[TestDox('find returns null for an id the forest does not carry')]
-    public function testFindReturnsNullForAnUnknownId(): void
-    {
-        static::assertNull($this->tree()->find('absent'));
-    }
-
     #[TestDox('locate reports a root element with its index and no parent')]
     public function testLocateReportsARootElementWithoutAParent(): void
     {
@@ -53,24 +47,6 @@ class StoredTreeTest extends TestCase
         static::assertSame(1, $location['index']);
         static::assertNull($location['parentId']);
         static::assertNull($location['slot']);
-    }
-
-    #[TestDox('locate reports a nested element with its parent, slot and sibling index')]
-    public function testLocateReportsANestedElementWithItsParentSlotAndIndex(): void
-    {
-        $location = $this->tree()->locate('child-b');
-
-        static::assertNotNull($location);
-        static::assertSame('child-b', $location['element']->id);
-        static::assertSame(1, $location['index']);
-        static::assertSame('root-1', $location['parentId']);
-        static::assertSame('main', $location['slot']);
-    }
-
-    #[TestDox('locate returns null for an id the forest does not carry')]
-    public function testLocateReturnsNullForAnUnknownId(): void
-    {
-        static::assertNull($this->tree()->locate('absent'));
     }
 
     #[TestDox('locate reports an element nested two levels down with its parent, slot and sibling index')]
@@ -121,14 +97,6 @@ class StoredTreeTest extends TestCase
         $tree->remove('child-a');
 
         static::assertSame(['root-1', 'child-a', 'grandchild-1', 'child-b', 'root-2'], $tree->ids());
-    }
-
-    #[TestDox('remove returns a structurally unchanged forest for an id the forest does not carry')]
-    public function testRemoveIsANoOpForAnUnknownId(): void
-    {
-        $tree = $this->tree();
-
-        static::assertSame($this->serialize($tree), $this->serialize($tree->remove('absent')));
     }
 
     #[TestDox('insertAtRoot places the nodes at the given index')]
@@ -217,16 +185,6 @@ class StoredTreeTest extends TestCase
         static::assertTrue($carried->equals(StoredValue::fromDecoded($translations)));
     }
 
-    #[TestDox('insertIntoSlot returns a structurally unchanged forest for a parent id the forest does not carry')]
-    public function testInsertIntoSlotIsANoOpForAnUnknownParentId(): void
-    {
-        $tree = $this->tree();
-
-        $inserted = $tree->insertIntoSlot('absent', 'main', null, [$this->element('child-new')]);
-
-        static::assertSame($this->serialize($tree), $this->serialize($inserted));
-    }
-
     #[TestDox('replace swaps a nested element for the supplied one')]
     public function testReplaceSwapsANestedElement(): void
     {
@@ -243,14 +201,6 @@ class StoredTreeTest extends TestCase
         static::assertSame(['root-1', 'child-a', 'grandchild-1', 'child-b', 'root-z'], $replaced->ids());
     }
 
-    #[TestDox('replace returns a structurally unchanged forest for an id the forest does not carry')]
-    public function testReplaceIsANoOpForAnUnknownId(): void
-    {
-        $tree = $this->tree();
-
-        static::assertSame($this->serialize($tree), $this->serialize($tree->replace('absent', $this->element('replacement'))));
-    }
-
     #[TestDox('replace preserves an untargeted root by value')]
     public function testReplacePreservesAnUntargetedRootByValue(): void
     {
@@ -260,12 +210,6 @@ class StoredTreeTest extends TestCase
         $replaced = $tree->replace('root-1', $this->element('root-z'));
 
         static::assertEquals($untargeted, $replaced->roots[1]);
-    }
-
-    #[TestDox('names no duplicate for a forest whose ids are all unique')]
-    public function testNamesNoDuplicateForAWellFormedForest(): void
-    {
-        static::assertSame([], $this->tree()->duplicateElementIds());
     }
 
     #[TestDox('names an id reused across two roots')]
@@ -300,6 +244,62 @@ class StoredTreeTest extends TestCase
         ]);
 
         static::assertSame(['root-1'], $tree->duplicateElementIds());
+    }
+
+    #[TestDox('locate reports a nested element with its parent, slot and sibling index')]
+    public function testLocateReportsANestedElementWithItsParentSlotAndIndex(): void
+    {
+        $location = $this->tree()->locate('child-b');
+
+        static::assertNotNull($location);
+        static::assertSame('child-b', $location['element']->id);
+        static::assertSame(1, $location['index']);
+        static::assertSame('root-1', $location['parentId']);
+        static::assertSame('main', $location['slot']);
+    }
+
+    #[TestDox('remove returns a structurally unchanged forest for an id the forest does not carry')]
+    public function testRemoveIsANoOpForAnUnknownId(): void
+    {
+        $tree = $this->tree();
+
+        static::assertSame($this->serialize($tree), $this->serialize($tree->remove('absent')));
+    }
+
+    #[TestDox('insertIntoSlot returns a structurally unchanged forest for a parent id the forest does not carry')]
+    public function testInsertIntoSlotIsANoOpForAnUnknownParentId(): void
+    {
+        $tree = $this->tree();
+
+        $inserted = $tree->insertIntoSlot('absent', 'main', null, [$this->element('child-new')]);
+
+        static::assertSame($this->serialize($tree), $this->serialize($inserted));
+    }
+
+    #[TestDox('replace returns a structurally unchanged forest for an id the forest does not carry')]
+    public function testReplaceIsANoOpForAnUnknownId(): void
+    {
+        $tree = $this->tree();
+
+        static::assertSame($this->serialize($tree), $this->serialize($tree->replace('absent', $this->element('replacement'))));
+    }
+
+    #[TestDox('names no duplicate for a forest whose ids are all unique')]
+    public function testNamesNoDuplicateForAWellFormedForest(): void
+    {
+        static::assertSame([], $this->tree()->duplicateElementIds());
+    }
+
+    #[TestDox('find returns null for an id the forest does not carry')]
+    public function testFindReturnsNullForAnUnknownId(): void
+    {
+        static::assertNull($this->tree()->find('absent'));
+    }
+
+    #[TestDox('locate returns null for an id the forest does not carry')]
+    public function testLocateReturnsNullForAnUnknownId(): void
+    {
+        static::assertNull($this->tree()->locate('absent'));
     }
 
     private function tree(): StoredTree

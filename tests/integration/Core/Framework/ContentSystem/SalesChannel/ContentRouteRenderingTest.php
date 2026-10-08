@@ -664,28 +664,6 @@ class ContentRouteRenderingTest extends TestCase
         );
     }
 
-    #[TestDox('assigns to every skeleton element the value index holds an entry for')]
-    public function testEverySkeletonElementWithAnIndexEntryIsAssignedTo(): void
-    {
-        $this->createNestedLayout();
-
-        $skeletonIds = array_column($this->flatten($this->rootElements($this->requestJson($this->uri('content-skeleton')))), 'id');
-        $indexedIds = $this->propertyBearingElementIds();
-        $assignments = $this->assignments($this->requestJson($this->uri('content-data')));
-
-        // The qualifier is load-bearing: `ResolvedValueIndexFactory` writes no assignment entry for an element
-        // with zero rendered properties, so the reverse direction is stated over the elements the index holds
-        // an entry for rather than over every skeleton id.
-        static::assertNotSame([], $indexedIds);
-        static::assertSame([], array_values(array_diff($indexedIds, $skeletonIds)));
-
-        static::assertSame(
-            [],
-            array_values(array_diff($indexedIds, array_keys($assignments))),
-            'Every skeleton element the value index holds an entry for must carry its assignments entry.',
-        );
-    }
-
     #[TestDox('serves only the addressed subtree when the prune had to keep the target\'s context-providing ancestor')]
     public function testPartialRenderExtractsATargetWhoseAncestorThePruneKeeps(): void
     {
@@ -865,6 +843,28 @@ class ContentRouteRenderingTest extends TestCase
         foreach ($this->flatten($roots) as $element) {
             static::assertNotSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $element['id']);
         }
+    }
+
+    #[TestDox('assigns to every skeleton element the value index holds an entry for')]
+    public function testEverySkeletonElementWithAnIndexEntryIsAssignedTo(): void
+    {
+        $this->createNestedLayout();
+
+        $skeletonIds = array_column($this->flatten($this->rootElements($this->requestJson($this->uri('content-skeleton')))), 'id');
+        $indexedIds = $this->propertyBearingElementIds();
+        $assignments = $this->assignments($this->requestJson($this->uri('content-data')));
+
+        // The qualifier is load-bearing: `ResolvedValueIndexFactory` writes no assignment entry for an element
+        // with zero rendered properties, so the reverse direction is stated over the elements the index holds
+        // an entry for rather than over every skeleton id.
+        static::assertNotSame([], $indexedIds);
+        static::assertSame([], array_values(array_diff($indexedIds, $skeletonIds)));
+
+        static::assertSame(
+            [],
+            array_values(array_diff($indexedIds, array_keys($assignments))),
+            'Every skeleton element the value index holds an entry for must carry its assignments entry.',
+        );
     }
 
     /**

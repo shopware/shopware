@@ -133,6 +133,46 @@ class ContentRouteTranslationTest extends TestCase
     }
 
     /**
+     * The typed counterpart of the string reduction cases: a translatable boolean is reduced through the same
+     * chain and served as the plain boolean, never as a language map and never coerced to a string. The two
+     * entries differ, so the served value proves which entry the chain selected rather than a constant the map
+     * would carry either way.
+     */
+    #[TestDox('serves the reduced entry of a translatable boolean per requested language')]
+    public function testTypedTranslatablePropertyIsServedPerRequestedLanguage(): void
+    {
+        $this->installToggleElementType();
+
+        $this->persistToggleLayout([
+            Defaults::LANGUAGE_SYSTEM => false,
+            $this->ids->get('language-regional') => true,
+        ]);
+
+        $systemServed = $this->servedProperties('toggle');
+        $regionalServed = $this->servedPropertiesForLanguage($this->ids->get('language-regional'), 'toggle');
+        $dialectServed = $this->servedPropertiesForLanguage($this->ids->get('language-dialect'), 'toggle');
+
+        static::assertFalse($systemServed['enabled'] ?? null);
+        static::assertTrue($regionalServed['enabled'] ?? null);
+        static::assertTrue($dialectServed['enabled'] ?? null);
+    }
+
+    /**
+     * Anchor fallback on the typed shape: the map carries the anchor entry alone, so the dialect's request has
+     * to walk its whole chain before it reaches it. The `false` anchor is served as a boolean, which is the case
+     * a truthiness-based reduction or a string coercion would lose.
+     */
+    #[TestDox('falls back to the anchor entry of a translatable boolean')]
+    public function testTypedTranslatablePropertyFallsBackToTheAnchorEntry(): void
+    {
+        $this->installToggleElementType();
+
+        $this->persistToggleLayout([Defaults::LANGUAGE_SYSTEM => false]);
+
+        static::assertFalse($this->servedPropertiesForLanguage($this->ids->get('language-dialect'), 'toggle')['enabled'] ?? null);
+    }
+
+    /**
      * Key existence against the `language` table is not a write constraint: the write judges the key format
      * alone, so a map entry naming no language row is stored verbatim. That is what makes the dangling entry a
      * diagnostics warning rather than a rejection.
@@ -181,46 +221,6 @@ class ContentRouteTranslationTest extends TestCase
         $this->persistTextLayout([Defaults::LANGUAGE_SYSTEM => self::ANCHOR_TEXT]);
 
         static::assertSame(self::ANCHOR_TEXT, $this->servedPropertiesForLanguage($this->ids->get('language-dialect'))['text'] ?? null);
-    }
-
-    /**
-     * The typed counterpart of the string reduction cases: a translatable boolean is reduced through the same
-     * chain and served as the plain boolean, never as a language map and never coerced to a string. The two
-     * entries differ, so the served value proves which entry the chain selected rather than a constant the map
-     * would carry either way.
-     */
-    #[TestDox('serves the reduced entry of a translatable boolean per requested language')]
-    public function testTypedTranslatablePropertyIsServedPerRequestedLanguage(): void
-    {
-        $this->installToggleElementType();
-
-        $this->persistToggleLayout([
-            Defaults::LANGUAGE_SYSTEM => false,
-            $this->ids->get('language-regional') => true,
-        ]);
-
-        $systemServed = $this->servedProperties('toggle');
-        $regionalServed = $this->servedPropertiesForLanguage($this->ids->get('language-regional'), 'toggle');
-        $dialectServed = $this->servedPropertiesForLanguage($this->ids->get('language-dialect'), 'toggle');
-
-        static::assertFalse($systemServed['enabled'] ?? null);
-        static::assertTrue($regionalServed['enabled'] ?? null);
-        static::assertTrue($dialectServed['enabled'] ?? null);
-    }
-
-    /**
-     * Anchor fallback on the typed shape: the map carries the anchor entry alone, so the dialect's request has
-     * to walk its whole chain before it reaches it. The `false` anchor is served as a boolean, which is the case
-     * a truthiness-based reduction or a string coercion would lose.
-     */
-    #[TestDox('falls back to the anchor entry of a translatable boolean')]
-    public function testTypedTranslatablePropertyFallsBackToTheAnchorEntry(): void
-    {
-        $this->installToggleElementType();
-
-        $this->persistToggleLayout([Defaults::LANGUAGE_SYSTEM => false]);
-
-        static::assertFalse($this->servedPropertiesForLanguage($this->ids->get('language-dialect'), 'toggle')['enabled'] ?? null);
     }
 
     /**

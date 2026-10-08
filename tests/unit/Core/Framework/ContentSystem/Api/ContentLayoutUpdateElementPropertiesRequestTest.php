@@ -23,6 +23,24 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(ContentLayoutUpdateElementPropertiesRequest::class)]
 class ContentLayoutUpdateElementPropertiesRequestTest extends TestCase
 {
+    #[DataProvider('acceptedRequestProvider')]
+    #[TestDox('accepts a request carrying $_dataName')]
+    public function testAcceptsARequestCarryingAWrite(ContentLayoutUpdateElementPropertiesRequest $request): void
+    {
+        $violations = $this->validator()->validate($request);
+
+        static::assertCount(0, $violations);
+    }
+
+    /**
+     * @return iterable<string, array{ContentLayoutUpdateElementPropertiesRequest}>
+     */
+    public static function acceptedRequestProvider(): iterable
+    {
+        yield 'only values' => [new ContentLayoutUpdateElementPropertiesRequest(elementId: 'block-a', expectedVersion: null, values: ['headline' => 'Hi'])];
+        yield 'only removeKeys' => [new ContentLayoutUpdateElementPropertiesRequest(elementId: 'block-a', expectedVersion: null, removeKeys: ['tag'])];
+    }
+
     #[TestDox('rejects a request that writes nothing and removes nothing, on the values property')]
     public function testRejectsARequestWithBothListsEmpty(): void
     {
@@ -50,24 +68,6 @@ class ContentLayoutUpdateElementPropertiesRequestTest extends TestCase
         static::assertCount(1, $violations);
         static::assertSame($expectedPropertyPath, $violations->get(0)->getPropertyPath());
         static::assertSame($expectedMessage, (string) $violations->get(0)->getMessage());
-    }
-
-    #[DataProvider('acceptedRequestProvider')]
-    #[TestDox('accepts a request carrying $_dataName')]
-    public function testAcceptsARequestCarryingAWrite(ContentLayoutUpdateElementPropertiesRequest $request): void
-    {
-        $violations = $this->validator()->validate($request);
-
-        static::assertCount(0, $violations);
-    }
-
-    /**
-     * @return iterable<string, array{ContentLayoutUpdateElementPropertiesRequest}>
-     */
-    public static function acceptedRequestProvider(): iterable
-    {
-        yield 'only values' => [new ContentLayoutUpdateElementPropertiesRequest(elementId: 'block-a', expectedVersion: null, values: ['headline' => 'Hi'])];
-        yield 'only removeKeys' => [new ContentLayoutUpdateElementPropertiesRequest(elementId: 'block-a', expectedVersion: null, removeKeys: ['tag'])];
     }
 
     /**

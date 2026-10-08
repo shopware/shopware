@@ -100,20 +100,6 @@ class LayoutMutationControllerTest extends TestCase
     }
 
     /**
-     * @param \Closure(mixed): mixed $accessor
-     */
-    #[DataProvider('replaceOptionalFieldsProvider')]
-    #[TestDox('serializes the populated optional replace fields in the response')]
-    public function testReplaceSerializesOptionalFields(MutationResult $result, string $field, \Closure $accessor, mixed $expected): void
-    {
-        $controller = $this->controller($this->pipelineReturning($result));
-
-        $response = $controller->replace(new ReplaceElementRequest('el', 'Sw:New'), Context::createDefaultContext());
-
-        static::assertSame($expected, $accessor($this->decode($response)[$field]));
-    }
-
-    /**
      * @param list<ProvidedContext>|null $resolved
      */
     #[DataProvider('threadsResolvedRootContextProvider')]
@@ -154,6 +140,20 @@ class LayoutMutationControllerTest extends TestCase
         ];
 
         yield 'an absent root source resolves to no bound context' => [null, null];
+    }
+
+    /**
+     * @param \Closure(mixed): mixed $accessor
+     */
+    #[DataProvider('replaceOptionalFieldsProvider')]
+    #[TestDox('serializes the populated optional replace fields in the response')]
+    public function testReplaceSerializesOptionalFields(MutationResult $result, string $field, \Closure $accessor, mixed $expected): void
+    {
+        $controller = $this->controller($this->pipelineReturning($result));
+
+        $response = $controller->replace(new ReplaceElementRequest('el', 'Sw:New'), Context::createDefaultContext());
+
+        static::assertSame($expected, $accessor($this->decode($response)[$field]));
     }
 
     #[TestDox('encodes an empty resolutions map as a JSON object, not an array')]

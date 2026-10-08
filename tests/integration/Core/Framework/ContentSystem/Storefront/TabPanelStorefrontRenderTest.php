@@ -104,30 +104,6 @@ class TabPanelStorefrontRenderTest extends TestCase
         );
     }
 
-    #[TestDox('opens the first tab even when a later tab still carries a leftover stored active flag')]
-    public function testFirstTabOpensEvenWhenALaterTabWasFlaggedActiveInStorage(): void
-    {
-        $this->persistLeftoverActiveLayout();
-
-        $xpath = $this->renderedLayout();
-
-        static::assertSame('sw-tab-' . $this->ids->get('description'), $this->openNavigationItem($xpath)->getAttribute('id'));
-    }
-
-    #[TestDox('marks no pane active when a later tab still carries a leftover stored active flag')]
-    public function testNoPaneIsActiveWhenALaterTabCarriesALeftoverActiveFlag(): void
-    {
-        $this->persistLeftoverActiveLayout();
-
-        $xpath = $this->renderedLayout();
-
-        $contentPanes = '//div[contains(concat(" ", normalize-space(@class), " "), " sw-tabs__content ")]/div';
-
-        $activePanes = $xpath->query($contentPanes . '[contains(concat(" ", normalize-space(@class), " "), " active ")]');
-        static::assertInstanceOf(\DOMNodeList::class, $activePanes);
-        static::assertCount(0, $activePanes);
-    }
-
     #[TestDox('renders the shipped tab panel preset as a panel with two paired tabs')]
     public function testShippedPresetRendersAWorkingPanel(): void
     {
@@ -153,6 +129,30 @@ class TabPanelStorefrontRenderTest extends TestCase
         }
 
         static::assertSame('Description', trim($this->openNavigationItem($xpath)->textContent));
+    }
+
+    #[TestDox('opens the first tab even when a later tab still carries a leftover stored active flag')]
+    public function testFirstTabOpensEvenWhenALaterTabWasFlaggedActiveInStorage(): void
+    {
+        $this->persistLeftoverActiveLayout();
+
+        $xpath = $this->renderedLayout();
+
+        static::assertSame('sw-tab-' . $this->ids->get('description'), $this->openNavigationItem($xpath)->getAttribute('id'));
+    }
+
+    #[TestDox('marks no pane active when a later tab still carries a leftover stored active flag')]
+    public function testNoPaneIsActiveWhenALaterTabCarriesALeftoverActiveFlag(): void
+    {
+        $this->persistLeftoverActiveLayout();
+
+        $xpath = $this->renderedLayout();
+
+        $contentPanes = '//div[contains(concat(" ", normalize-space(@class), " "), " sw-tabs__content ")]/div';
+
+        $activePanes = $xpath->query($contentPanes . '[contains(concat(" ", normalize-space(@class), " "), " active ")]');
+        static::assertInstanceOf(\DOMNodeList::class, $activePanes);
+        static::assertCount(0, $activePanes);
     }
 
     /**

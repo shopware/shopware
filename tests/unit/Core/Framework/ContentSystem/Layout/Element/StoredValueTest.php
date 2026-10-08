@@ -235,47 +235,6 @@ class StoredValueTest extends TestCase
         static::assertSame(['x' => $value], StoredValue::ofMap(['x' => $value])->asMap());
     }
 
-    #[DataProvider('nullVariantProvider')]
-    #[TestDox('returns true only for the null variant, never for a falsy payload')]
-    public function testIsNullIsTrueOnlyForTheNullVariant(StoredValue $value, bool $expected): void
-    {
-        static::assertSame($expected, $value->isNull());
-    }
-
-    #[DataProvider('mapVariantProvider')]
-    #[TestDox('returns true only for the map variant, never for a list')]
-    public function testIsMapIsTrueOnlyForTheMapVariant(StoredValue $value, bool $expected): void
-    {
-        static::assertSame($expected, $value->isMap());
-    }
-
-    /**
-     * @return iterable<string, array{StoredValue, bool}>
-     */
-    public static function mapVariantProvider(): iterable
-    {
-        yield 'map variant' => [StoredValue::ofMap(['x' => StoredValue::ofString('a')]), true];
-        yield 'decoded keyed array' => [StoredValue::fromDecoded(['x' => 'a']), true];
-        yield 'list variant' => [StoredValue::ofList([StoredValue::ofString('a')]), false];
-        yield 'decoded empty array' => [StoredValue::fromDecoded([]), false];
-        yield 'null variant' => [StoredValue::ofNull(), false];
-        yield 'string variant' => [StoredValue::ofString('a'), false];
-    }
-
-    #[TestDox('rejects an empty map at construction, keeping `[]` a list everywhere')]
-    public function testOfMapRejectsTheEmptyMap(): void
-    {
-        $this->expectExceptionObject(ContentSystemException::invalidFieldValueType('StoredValue', 'non-empty map', 'empty array'));
-        StoredValue::ofMap([]);
-    }
-
-    #[TestDox('rejects a keyed array at list construction rather than building a list that serializes as an object')]
-    public function testOfListRejectsAKeyedArray(): void
-    {
-        $this->expectExceptionObject(ContentSystemException::invalidFieldValueType('StoredValue', 'list', 'keyed array'));
-        StoredValue::ofList(['x' => StoredValue::ofString('a')]); // @phpstan-ignore argument.type (deliberately violates the declared list to prove the runtime guard)
-    }
-
     #[DataProvider('decodableValueProvider')]
     #[TestDox('wraps a raw decoded value so it unwraps back unchanged')]
     public function testFromDecodedRoundTripsARawValue(mixed $raw): void
@@ -304,6 +263,33 @@ class StoredValueTest extends TestCase
     {
         static::assertSame($expected, $left->equals($right));
         static::assertSame($expected, $right->equals($left));
+    }
+
+    #[DataProvider('mapVariantProvider')]
+    #[TestDox('returns true only for the map variant, never for a list')]
+    public function testIsMapIsTrueOnlyForTheMapVariant(StoredValue $value, bool $expected): void
+    {
+        static::assertSame($expected, $value->isMap());
+    }
+
+    /**
+     * @return iterable<string, array{StoredValue, bool}>
+     */
+    public static function mapVariantProvider(): iterable
+    {
+        yield 'map variant' => [StoredValue::ofMap(['x' => StoredValue::ofString('a')]), true];
+        yield 'decoded keyed array' => [StoredValue::fromDecoded(['x' => 'a']), true];
+        yield 'list variant' => [StoredValue::ofList([StoredValue::ofString('a')]), false];
+        yield 'decoded empty array' => [StoredValue::fromDecoded([]), false];
+        yield 'null variant' => [StoredValue::ofNull(), false];
+        yield 'string variant' => [StoredValue::ofString('a'), false];
+    }
+
+    #[DataProvider('nullVariantProvider')]
+    #[TestDox('returns true only for the null variant, never for a falsy payload')]
+    public function testIsNullIsTrueOnlyForTheNullVariant(StoredValue $value, bool $expected): void
+    {
+        static::assertSame($expected, $value->isNull());
     }
 
     #[DataProvider('mismatchedAccessorProvider')]
@@ -347,5 +333,19 @@ class StoredValueTest extends TestCase
         );
 
         StoredValue::fromDecoded(new \stdClass());
+    }
+
+    #[TestDox('rejects an empty map at construction, keeping `[]` a list everywhere')]
+    public function testOfMapRejectsTheEmptyMap(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::invalidFieldValueType('StoredValue', 'non-empty map', 'empty array'));
+        StoredValue::ofMap([]);
+    }
+
+    #[TestDox('rejects a keyed array at list construction rather than building a list that serializes as an object')]
+    public function testOfListRejectsAKeyedArray(): void
+    {
+        $this->expectExceptionObject(ContentSystemException::invalidFieldValueType('StoredValue', 'list', 'keyed array'));
+        StoredValue::ofList(['x' => StoredValue::ofString('a')]); // @phpstan-ignore argument.type (deliberately violates the declared list to prove the runtime guard)
     }
 }

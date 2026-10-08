@@ -73,20 +73,6 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         static::assertSame('[properties][count]', $violations->get(1)->getPropertyPath());
     }
 
-    #[TestDox('reports nothing, and never reaches the throwing lookup, for a component the registry does not know')]
-    public function testEmitsNothingForAnUnregisteredComponent(): void
-    {
-        // get() throws the way both concrete registries do, so a regression from has()-guarded to unguarded
-        // surfaces as the 404 escaping the constraint pass rather than as a missing violation.
-        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('has')->willReturn(false);
-        $registry->method('get')->willThrowException(ContentSystemException::elementTypeNotFound('Sw:Ghost'));
-
-        $element = ['id' => 'el-1', 'component' => 'Sw:Ghost', 'properties' => ['headline' => 42]];
-
-        static::assertCount(0, $this->validate($element, $registry));
-    }
-
     #[DataProvider('ignoresMalformedElementProvider')]
     #[TestDox('reports no violation for an element with $_dataName')]
     public function testIgnoresAMalformedElement(mixed $element): void
@@ -102,6 +88,30 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         yield 'a non-string component' => [['component' => 7, 'properties' => ['headline' => 42]]];
         yield 'a missing component' => [['properties' => ['headline' => 42]]];
         yield 'non-array properties' => [['component' => 'Sw:Block', 'properties' => 'oops']];
+    }
+
+    #[TestDox('reports one violation per non-language key, and none for a language key beside them')]
+    public function testReportsOneViolationPerNonLanguageKey(): void
+    {
+        $violations = $this->validate($this->element(['text' => [Defaults::LANGUAGE_SYSTEM => 'Hallo', 'de-DE' => 'Hallo', 'en-GB' => 'Hi']]));
+
+        static::assertCount(2, $violations);
+        static::assertStringContainsString('"de-DE" is not', (string) $violations->get(0)->getMessage());
+        static::assertStringContainsString('"en-GB" is not', (string) $violations->get(1)->getMessage());
+    }
+
+    #[TestDox('reports nothing, and never reaches the throwing lookup, for a component the registry does not know')]
+    public function testEmitsNothingForAnUnregisteredComponent(): void
+    {
+        // get() throws the way both concrete registries do, so a regression from has()-guarded to unguarded
+        // surfaces as the 404 escaping the constraint pass rather than as a missing violation.
+        $registry = static::createStub(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('has')->willReturn(false);
+        $registry->method('get')->willThrowException(ContentSystemException::elementTypeNotFound('Sw:Ghost'));
+
+        $element = ['id' => 'el-1', 'component' => 'Sw:Ghost', 'properties' => ['headline' => 42]];
+
+        static::assertCount(0, $this->validate($element, $registry));
     }
 
     /**
@@ -166,16 +176,6 @@ class PropertyTypeConformanceValidatorTest extends TestCase
         yield 'an upper-case UUID hex key' => [strtoupper(Defaults::LANGUAGE_SYSTEM)];
         yield 'a key that is not UUID hex at all' => ['de-DE'];
         yield 'a UUID hex key one character short' => [substr(Defaults::LANGUAGE_SYSTEM, 0, 31)];
-    }
-
-    #[TestDox('reports one violation per non-language key, and none for a language key beside them')]
-    public function testReportsOneViolationPerNonLanguageKey(): void
-    {
-        $violations = $this->validate($this->element(['text' => [Defaults::LANGUAGE_SYSTEM => 'Hallo', 'de-DE' => 'Hallo', 'en-GB' => 'Hi']]));
-
-        static::assertCount(2, $violations);
-        static::assertStringContainsString('"de-DE" is not', (string) $violations->get(0)->getMessage());
-        static::assertStringContainsString('"en-GB" is not', (string) $violations->get(1)->getMessage());
     }
 
     /**

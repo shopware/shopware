@@ -362,43 +362,6 @@ class ContentSystemElementTypePersisterTest extends TestCase
         static::assertFalse($lockHeld);
     }
 
-    #[TestDox('releases the lock and leaves the cache untouched when the transaction fails')]
-    public function testReleasesLockWhenTransactionFails(): void
-    {
-        $failure = new \RuntimeException('transaction failed');
-
-        $connection = static::createStub(Connection::class);
-        $connection->method('transactional')->willThrowException($failure);
-
-        $lock = static::createMock(SharedLockInterface::class);
-        $lock->expects($this->once())->method('acquire')->with(true)->willReturn(true);
-        $lock->expects($this->once())->method('release');
-
-        $lockFactory = static::createStub(LockFactory::class);
-        $lockFactory->method('createLock')->willReturn($lock);
-
-        $registry = static::createMock(AbstractContentSystemElementTypeRegistry::class);
-        $registry->method('all')->willReturn([]);
-        $registry->expects($this->never())->method('invalidate');
-
-        $presetRegistry = $this->createMock(AbstractContentSystemLayoutPresetRegistry::class);
-        $presetRegistry->expects($this->never())->method('invalidate');
-
-        $repo = new StaticEntityRepository([
-            new AppContentSystemElementTypeCollection(),
-            new AppContentSystemElementTypeCollection(),
-        ]);
-
-        $this->expectExceptionObject($failure);
-        $this->buildPersister(
-            $repo,
-            registry: $registry,
-            connection: $connection,
-            lockFactory: $lockFactory,
-            presetRegistry: $presetRegistry,
-        )->persist($this->buildContext($this->buildRealFilesystem()));
-    }
-
     #[TestDox('returns early when loader returns empty and no existing types exist')]
     public function testEarlyReturnWhenBothEmpty(): void
     {
@@ -587,6 +550,43 @@ class ContentSystemElementTypePersisterTest extends TestCase
             ContentSystemException::elementTypeDuplicate('DemoApp:Hero', 'app:OtherApp', 'app:DemoApp')
         );
         $persister->persist($this->buildContext($this->buildRealFilesystem()));
+    }
+
+    #[TestDox('releases the lock and leaves the cache untouched when the transaction fails')]
+    public function testReleasesLockWhenTransactionFails(): void
+    {
+        $failure = new \RuntimeException('transaction failed');
+
+        $connection = static::createStub(Connection::class);
+        $connection->method('transactional')->willThrowException($failure);
+
+        $lock = static::createMock(SharedLockInterface::class);
+        $lock->expects($this->once())->method('acquire')->with(true)->willReturn(true);
+        $lock->expects($this->once())->method('release');
+
+        $lockFactory = static::createStub(LockFactory::class);
+        $lockFactory->method('createLock')->willReturn($lock);
+
+        $registry = static::createMock(AbstractContentSystemElementTypeRegistry::class);
+        $registry->method('all')->willReturn([]);
+        $registry->expects($this->never())->method('invalidate');
+
+        $presetRegistry = $this->createMock(AbstractContentSystemLayoutPresetRegistry::class);
+        $presetRegistry->expects($this->never())->method('invalidate');
+
+        $repo = new StaticEntityRepository([
+            new AppContentSystemElementTypeCollection(),
+            new AppContentSystemElementTypeCollection(),
+        ]);
+
+        $this->expectExceptionObject($failure);
+        $this->buildPersister(
+            $repo,
+            registry: $registry,
+            connection: $connection,
+            lockFactory: $lockFactory,
+            presetRegistry: $presetRegistry,
+        )->persist($this->buildContext($this->buildRealFilesystem()));
     }
 
     /**

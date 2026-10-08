@@ -626,48 +626,6 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertCount(2, $error->candidates);
     }
 
-    #[TestDox('emits an unresolved_optional warning naming the element and key for an optional reference with no candidate, without blocking resolvability')]
-    public function testOptionalReferenceWithoutCandidateIsUnresolvedOptional(): void
-    {
-        $tree = [new StoredElement('el-1', 'Sw:Block')];
-
-        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class)->build()])
-            ->analyze($tree, [])->report;
-
-        $warning = $this->single($report->violations);
-        static::assertSame(ViolationCode::UnresolvedOptional, $warning->code);
-        static::assertSame('el-1', $warning->elementId);
-        static::assertSame('product', $warning->key);
-        static::assertSame('Optional property "product" has no source.', $warning->message);
-        static::assertSame([], $warning->candidates);
-        static::assertSame([], $report->bindingErrors());
-    }
-
-    #[TestDox('emits no unresolved_optional warning for an optional reference whose competing candidates leave it unresolved')]
-    public function testOptionalReferenceWithAmbiguousCandidatesIsNotUnresolvedOptional(): void
-    {
-        $rootContext = [
-            $this->rootAmbientProductContext()[0],
-            new ProvidedContext(
-                contextKey: 'featuredProduct',
-                fqcn: SalesChannelProductEntity::class,
-                contextType: ContextType::Single,
-                providerElementId: null,
-                distribution: DistributionStrategy::Broadcast,
-                root: true,
-            ),
-        ];
-
-        $analysis = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class)->build()])
-            ->analyze([new StoredElement('el-1', 'Sw:Block')], $rootContext);
-
-        // Pins the state this case turns on: the optional reference is unresolved while candidates exist, so only
-        // the empty-candidates condition keeps the unresolved_optional warning from firing.
-        static::assertNull($analysis->resolutions['el-1'][0]->resolved);
-        static::assertCount(2, $analysis->resolutions['el-1'][0]->candidates);
-        static::assertSame([], $analysis->report->violations);
-    }
-
     #[TestDox('raises an independent mismatched_reference_type intrinsic violation and unresolved_required binding violation for a required reference whose applied wiring produces the wrong type')]
     public function testMismatchedAppliedWiringRaisesIntrinsicAndBindingViolationsIndependently(): void
     {
@@ -798,468 +756,6 @@ class LayoutDiagnosticsTest extends TestCase
         $this->expectExceptionObject(ContentSystemException::layoutNotFound('x'));
 
         $diagnostics->analyze([$element], null);
-    }
-
-    #[TestDox('treats a required primitive carrying an authored value and no default as resolvable')]
-    public function testRequiredPrimitiveWithAuthoredValueResolves(): void
-    {
-        $tree = [StoredElementBuilder::create('Sw:Block', 'el-1')->withProperty('headline', 'Authored headline')->build()];
-
-        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true)->build()])
-            ->analyze($tree, [])->report;
-
-        static::assertSame([], $report->bindingErrors());
-    }
-
-    #[DataProvider('acceptsFilledInputValueProvider')]
-    #[TestDox('emits no unfilled_required_input, and stays resolvable, when the stored-wired input property carries a value')]
-    public function testStoredRequiredReferenceWithFilledInputIsResolvable(string $storedValue): void
-    {
-        $element = $this->mediaLoaderWiredElement(['productId' => $storedValue]);
-
-        $report = $this->analyzeMediaLoaderWiring($element);
-
-        static::assertTrue($report->isResolvable());
-        static::assertSame([], $report->bindingErrors());
-    }
-
-    #[TestDox('reports a colliding element with descendants exactly once, naming the element that declares the collision')]
-    public function testProviderDeliveryCollisionOnAnElementWithDescendantsIsReportedOnce(): void
-    {
-        // Descendant axis: the collision sits on an element with three descendants. analyze() calls
-        // resolve() once per element and resolve() re-validates the whole ancestor path from scratch, so
-        // the same collision surfaces four times — once for the owner, once per descendant. The count is
-        // the discriminating assertion: a presence assertion holds with all four entries present, three of
-        // them naming a descendant that declares nothing.
-        $grandchild = StoredElementBuilder::create('Sw:Block', 'el-grandchild')->build();
-        $child = StoredElementBuilder::create('Sw:Block', 'el-child')->withSlot('content', [$grandchild])->build();
-        $sibling = StoredElementBuilder::create('Sw:Block', 'el-sibling')->build();
-        $owner = StoredElementBuilder::create('Sw:Block', 'el-owner')
-            ->withProvider('product', BroadcastDistributionConfig::aliased('item'))
-            ->withProvider('category', BroadcastDistributionConfig::aliased('item'))
-            ->withSlot('content', [$child, $sibling])
-            ->build();
-
-        // The intrinsic ERROR subset: the owner's two providers are consumed by nobody, so the full list
-        // also carries two orphaned_provider warnings that say nothing about the collision.
-        $violations = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
-            ->analyze([$owner], null)->report->intrinsicErrors();
-
-        static::assertCount(1, $violations);
-        static::assertSame('el-owner', $violations[0]->elementId);
-        static::assertSame([], array_values(array_intersect(
-            array_map(static fn (Violation $violation): string => $violation->elementId, $violations),
-            ['el-child', 'el-grandchild', 'el-sibling'],
-        )));
-    }
-
-    #[TestDox('produces an unresolved_required binding error for a required primitive whose key is absent from the stored property map')]
-    public function testRequiredPrimitiveWithAbsentKeyIsUnresolved(): void
-    {
-        $element = StoredElementBuilder::create('Sw:Block', 'el-1')->build();
-
-        // Pins the fixture's state: an absent key, which the storage model reports as a null property.
-        static::assertNull($element->property('headline'));
-
-        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true)->build()])
-            ->analyze([$element], [])->report;
-
-        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
-    }
-
-    #[TestDox('reports a required primitive carrying a type default but no authored value as unresolved_required')]
-    public function testRequiredPrimitiveWithDefaultButNoValueIsUnresolved(): void
-    {
-        $tree = [new StoredElement('el-1', 'Sw:Block')];
-
-        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true, default: 'Default headline')->build()])
-            ->analyze($tree, [])->report;
-
-        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
-    }
-
-    #[TestDox('emits one unfilled_required_input keyed on the input property when the wired input key is absent from the stored property map')]
-    public function testStoredRequiredReferenceWithAbsentInputKeyGates(): void
-    {
-        $element = $this->mediaLoaderWiredElement([]);
-
-        $report = $this->analyzeMediaLoaderWiring($element);
-
-        // Pins the fixture's state: an absent key, which the storage model reports as a null property.
-        static::assertNull($element->property('productId'));
-        static::assertFalse($report->isResolvable());
-        $error = $this->onlyBindingError($report->bindingErrors());
-        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
-        static::assertSame('productId', $error->key);
-        static::assertSame('Required property "product" is wired from "productId", which has no value.', $error->message);
-    }
-
-    #[TestDox('reports no style violation for an option the registry knows')]
-    public function testRegisteredStyleOptionProducesNoViolation(): void
-    {
-        $tree = [new StoredElement('el-1', 'Sw:Block', style: new ElementStyle(['align-self' => ['xs' => 'center']]))];
-
-        $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()],
-            styleOptionRegistry: $this->styleOptionRegistry(['align-self']),
-        )->analyze($tree, null)->report;
-
-        static::assertTrue($report->isWellFormed());
-        static::assertSame([], $report->intrinsicErrors());
-    }
-
-    #[TestDox('emits no unfilled_required_input for an optional reference that stored wiring resolves, even when its input property is empty')]
-    public function testOptionalStoredReferenceDoesNotGateOnUnfilledInput(): void
-    {
-        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
-            ->build();
-
-        $analysis = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
-                ->reference('product', SalesChannelProductEntity::class, required: false)
-                ->primitive('productId', 'string')
-                ->build()],
-            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
-                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
-            ])),
-            $this->encodingSerializers(['property' => 'productId']),
-            $this->storedLoaderProvider(SalesChannelProductEntity::class),
-        )->analyze([$element], []);
-
-        // The Stored pick is the state the required/optional guard is being isolated from: without it, an
-        // unresolved optional reference exits at the next guard and still reports no binding error.
-        static::assertSame([], $analysis->report->bindingErrors());
-        static::assertNotNull($analysis->resolutions['el-1'][0]->resolved);
-        static::assertSame(CandidateOrigin::Stored, $analysis->resolutions['el-1'][0]->resolved->origin);
-    }
-
-    #[TestDox('does not gate a required reference whose loader declares an optional propertyReference key, mirroring the navigation shape')]
-    public function testOptionalPropertyReferenceKeyNeverGates(): void
-    {
-        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withDataRequirement('tree', 'navigation_loader', static::createStub(AbstractContentDataLoaderConfig::class))
-            ->build();
-
-        $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
-                ->reference('tree', SalesChannelProductEntity::class, required: true)
-                ->primitive('activeProperty', 'string')
-                ->build()],
-            $this->loaderConfigMap('navigation_loader', new LoaderConfigSpecification([
-                new ConfigKeySpecification('activeProperty', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true),
-            ])),
-            $this->encodingSerializers(['activeProperty' => 'activeProperty']),
-            $this->storedLoaderProvider(SalesChannelProductEntity::class),
-        )->analyze([$element], [])->report;
-
-        static::assertSame([], $report->bindingErrors());
-    }
-
-    #[TestDox('emits no unfilled_required_input when a required propertyReference config value is not a string')]
-    public function testNonStringConfiguredPropertyReferenceDoesNotGate(): void
-    {
-        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
-            ->build();
-
-        $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
-                ->reference('product', SalesChannelProductEntity::class, required: true)
-                ->primitive('productId', 'string')
-                ->build()],
-            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
-                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
-            ])),
-            $this->encodingSerializers(['property' => ['not', 'a', 'string']]),
-            $this->storedLoaderProvider(SalesChannelProductEntity::class),
-        )->analyze([$element], [])->report;
-
-        static::assertSame([], $report->bindingErrors());
-    }
-
-    #[TestDox('keys the violation on the reference property and names the configured key when the wired property is not declared on the type')]
-    public function testUnfilledInputKeysOnReferenceWhenConfiguredPropertyUndeclared(): void
-    {
-        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
-            ->build();
-
-        $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
-                ->reference('product', SalesChannelProductEntity::class, required: true)
-                ->build()],
-            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
-                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
-            ])),
-            $this->encodingSerializers(['property' => 'ghostProperty']),
-            $this->storedLoaderProvider(SalesChannelProductEntity::class),
-        )->analyze([$element], [])->report;
-
-        $error = $this->onlyBindingError($report->bindingErrors());
-        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
-        static::assertSame('product', $error->key);
-        static::assertSame('Required property "product" is wired from "ghostProperty", which has no value.', $error->message);
-    }
-
-    #[TestDox('reports a style option the registry does not know as an intrinsic error keyed on the option name')]
-    public function testUnknownStyleOptionIsIntrinsicError(): void
-    {
-        $tree = [new StoredElement('el-1', 'Sw:Block', style: new ElementStyle(['gone-option' => ['xs' => 'x']]))];
-
-        $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()],
-            styleOptionRegistry: $this->styleOptionRegistry(['align-self']),
-        )->analyze($tree, null)->report;
-
-        $violation = $this->onlyIntrinsicError($report->intrinsicErrors());
-
-        static::assertFalse($report->isWellFormed());
-        static::assertSame(ViolationCode::UnknownStyleOption, $violation->code);
-        static::assertSame('gone-option', $violation->key);
-        static::assertSame('el-1', $violation->elementId);
-    }
-
-    #[TestDox('reports no property-type violation for a stored null under a declared primitive, leaving that to the required-input rule')]
-    public function testStoredNullUnderAPrimitiveProducesNoPropertyTypeViolation(): void
-    {
-        $tree = [StoredElementBuilder::create('Sw:Block', 'el-1')->withProperty('count', null)->build()];
-
-        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('count', 'integer')->build()])
-            ->analyze($tree, null)->report;
-
-        static::assertTrue($report->isWellFormed());
-        static::assertSame([], $report->intrinsicErrors());
-    }
-
-    #[TestDox('produces an unresolved_required binding error for a required primitive authored as an explicit null, which is a present stored value')]
-    public function testRequiredPrimitiveAuthoredAsNullIsUnresolved(): void
-    {
-        $element = StoredElementBuilder::create('Sw:Block', 'el-1')->withProperty('headline', null)->build();
-
-        // Pins the state this case turns on: the key is PRESENT and its stored value's variant is null, which is
-        // the state a single-term `property($key) === null` satisfaction test would silently credit as resolved.
-        $stored = $element->property('headline');
-
-        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true)->build()])
-            ->analyze([$element], [])->report;
-
-        static::assertNotNull($stored);
-        static::assertTrue($stored->isNull());
-        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
-    }
-
-    #[TestDox('emits one unfilled_required_input keyed on the input property when the wired input is authored as an explicit null, which is a present stored value')]
-    public function testStoredRequiredReferenceWithAuthoredNullInputGates(): void
-    {
-        $element = $this->mediaLoaderWiredElement(['productId' => null]);
-        $stored = $element->property('productId');
-
-        $report = $this->analyzeMediaLoaderWiring($element);
-
-        // Pins the state this case turns on: the key is PRESENT and its stored value's variant is null, which is
-        // the state a single-term `property($key) !== null` early return would silently credit as filled.
-        static::assertNotNull($stored);
-        static::assertTrue($stored->isNull());
-        static::assertFalse($report->isResolvable());
-        $error = $this->onlyBindingError($report->bindingErrors());
-        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
-        static::assertSame('productId', $error->key);
-        static::assertSame('Required property "product" is wired from "productId", which has no value.', $error->message);
-    }
-
-    #[TestDox('reports an undecodable applied config on a declared reference as invalid_config, never mismatched_reference_type')]
-    public function testUndecodableConfigOnDeclaredReferenceIsInvalidConfigNotMismatch(): void
-    {
-        // The reference property is declared, so the mismatch check would run if the config resolved. It does
-        // not: resolveType throws a client-defect, so the single intrinsic error must be InvalidConfig and
-        // never MismatchedReferenceType.
-        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
-            ->build();
-
-        $loader = static::createStub(AbstractContentDataLoader::class);
-        $loader->method('resolveProducedType')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
-
-        $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()],
-            loaderProvider: $this->loaderProvider($loader),
-        )->analyze([$element], [])->report;
-
-        static::assertFalse($report->isWellFormed());
-        static::assertSame(ViolationCode::InvalidConfig, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
-    }
-
-    #[TestDox('does not throw on colliding child-facing provider keys; reports them as invalid_config and gives the element no resolutions')]
-    public function testProviderDeliveryCollisionIsEmbeddedAsInvalidConfig(): void
-    {
-        // Collision axis: distinct provider map keys whose broadcast configs both rename the matched child
-        // key to 'item'. The context walk throws providerDeliveryCollision; analyze() must embed it as an
-        // invalid_config violation (the write gate's verdict) instead of propagating the raw exception, and
-        // the colliding element resolves nothing.
-        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withProvider('product', BroadcastDistributionConfig::aliased('item'))
-            ->withProvider('category', BroadcastDistributionConfig::aliased('item'))
-            ->build();
-
-        $analysis = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
-            ->analyze([$element], null);
-
-        static::assertFalse($analysis->report->isWellFormed());
-        $error = $this->onlyIntrinsicError($analysis->report->intrinsicErrors());
-        static::assertSame(ViolationCode::InvalidConfig, $error->code);
-        static::assertSame('el-1', $error->elementId);
-        static::assertSame(
-            'Child-facing key "item" is used by both "product" and "category". Each child-facing key must be unique within an element.',
-            $error->message,
-        );
-        static::assertArrayNotHasKey('el-1', $analysis->resolutions);
-    }
-
-    #[DataProvider('acceptsAnchorTranslationProvider')]
-    #[TestDox('treats a required translatable property whose anchor entry matches the declared primitive as resolvable: $_dataName')]
-    public function testRequiredTranslatableWithAnchorEntryResolves(string $declaredType, string|int|bool $anchorTranslation): void
-    {
-        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => $anchorTranslation])
-            ->build();
-
-        $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', $declaredType, required: true, translatable: true)->build()],
-            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
-        )->analyze([$element], [])->report;
-
-        static::assertSame([], $report->bindingErrors());
-    }
-
-    #[DataProvider('rejectsWrongPrimitiveAnchorProvider')]
-    #[TestDox('produces an unresolved_required binding error for a required translatable property whose anchor entry is $_dataName')]
-    public function testRequiredTranslatableWithWrongPrimitiveAnchorEntryIsUnresolved(string $declaredType, string|int|bool $anchorTranslation): void
-    {
-        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => $anchorTranslation])
-            ->build();
-
-        $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', $declaredType, required: true, translatable: true)->build()],
-            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
-        )->analyze([$element], [])->report;
-
-        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
-    }
-
-    #[TestDox('produces an unresolved_required binding error for a required translatable property whose anchor entry holds the null variant')]
-    public function testRequiredTranslatableWithNullAnchorEntryIsUnresolved(): void
-    {
-        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => null])
-            ->build();
-
-        $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', required: true, translatable: true)->build()],
-            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
-        )->analyze([$element], [])->report;
-
-        // Pins the state this case turns on, and separates it from the absent-anchor case below: the anchor key
-        // is PRESENT and its stored value's variant is null.
-        $stored = $element->property('text');
-        static::assertNotNull($stored);
-        static::assertTrue($stored->asMap()[Defaults::LANGUAGE_SYSTEM]->isNull());
-        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
-    }
-
-    #[TestDox('produces an unresolved_required binding error for a required translatable property whose language map carries no anchor entry')]
-    public function testRequiredTranslatableWithAbsentAnchorEntryIsUnresolved(): void
-    {
-        $otherLanguageId = Uuid::randomHex();
-        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withProperty('text', [$otherLanguageId => 'Ciao'])
-            ->build();
-
-        $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', required: true, translatable: true)->build()],
-            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM, $otherLanguageId),
-        )->analyze([$element], [])->report;
-
-        // Pins the state this case turns on: a present, non-empty map whose anchor key is ABSENT — the state a
-        // present-and-not-null satisfaction test would credit as resolved.
-        $stored = $element->property('text');
-        static::assertNotNull($stored);
-        static::assertArrayNotHasKey(Defaults::LANGUAGE_SYSTEM, $stored->asMap());
-        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
-    }
-
-    #[TestDox('emits one unfilled_required_input when the stored-wired translatable input property carries no anchor entry')]
-    public function testStoredRequiredReferenceWithAnchorlessTranslatableInputGates(): void
-    {
-        $otherLanguageId = Uuid::randomHex();
-        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
-            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
-            ->withProperty('productId', [$otherLanguageId => 'a-product-id'])
-            ->build();
-
-        $report = $this->diagnostics(
-            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
-                ->reference('product', SalesChannelProductEntity::class, required: true)
-                ->primitive('productId', 'string', translatable: true)
-                ->build()],
-            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
-                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
-            ])),
-            $this->encodingSerializers(['property' => 'productId']),
-            $this->storedLoaderProvider(SalesChannelProductEntity::class),
-            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM, $otherLanguageId),
-        )->analyze([$element], [])->report;
-
-        $error = $this->onlyBindingError($report->bindingErrors());
-        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
-        static::assertSame('productId', $error->key);
-        static::assertSame('Required property "product" is wired from "productId", which has no value.', $error->message);
-    }
-
-    /**
-     * @param array<string, int|bool>|int $storedValue
-     */
-    #[DataProvider('rejectsInputOutsideReferencedTypeProvider')]
-    #[TestDox('emits one unfilled_required_input keyed on the input property when the stored-wired input holds a value its string config key never hands the loader: $_dataName')]
-    public function testStoredRequiredReferenceWithInputOutsideReferencedTypeGates(string $inputType, bool $translatable, array|int $storedValue): void
-    {
-        $element = $this->mediaLoaderWiredElement(['productId' => $storedValue]);
-
-        $report = $this->analyzeMediaLoaderWiring($element, $inputType, $translatable);
-
-        // Pins the state this case turns on: the stored value conforms to its declaration, so the stored-value
-        // rule alone credits it as filled, while the loader is handed null for it.
-        static::assertSame([], $report->intrinsicErrors());
-        $error = $this->onlyBindingError($report->bindingErrors());
-        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
-        static::assertSame('productId', $error->key);
-    }
-
-    #[TestDox('emits one unfilled_required_input when the stored-wired translatable integer input carries a string anchor entry its declaration rejects, though the string key would admit it')]
-    public function testStoredRequiredReferenceWithDeclarationRejectedAnchorInputGates(): void
-    {
-        $element = $this->mediaLoaderWiredElement(['productId' => [Defaults::LANGUAGE_SYSTEM => 'a-product-id']]);
-
-        $report = $this->analyzeMediaLoaderWiring($element, 'integer', true);
-
-        // Pins the state this case turns on: the anchor entry is a string, which the string key admits, while
-        // the integer declaration rejects it (an intrinsic error), so only the stored-value rule leaves it unfilled.
-        static::assertSame(ViolationCode::MismatchedPropertyType, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
-        $error = $this->onlyBindingError($report->bindingErrors());
-        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
-        static::assertSame('productId', $error->key);
-    }
-
-    #[TestDox('emits no unfilled_required_input when the stored-wired translatable string input carries a string anchor entry')]
-    public function testStoredRequiredReferenceWithTranslatableStringAnchorInputIsResolvable(): void
-    {
-        $element = $this->mediaLoaderWiredElement(['productId' => [Defaults::LANGUAGE_SYSTEM => 'a-product-id']]);
-
-        $report = $this->analyzeMediaLoaderWiring($element, 'string', true);
-
-        static::assertTrue($report->isResolvable());
-        static::assertSame([], $report->bindingErrors());
     }
 
     /**
@@ -1423,6 +919,510 @@ class LayoutDiagnosticsTest extends TestCase
         static::assertCount(1, $before->violations);
         static::assertSame(ViolationCode::DanglingLanguage, $before->violations[0]->code);
         static::assertSame([], $after->violations);
+    }
+
+    #[TestDox('treats a required primitive carrying an authored value and no default as resolvable')]
+    public function testRequiredPrimitiveWithAuthoredValueResolves(): void
+    {
+        $tree = [StoredElementBuilder::create('Sw:Block', 'el-1')->withProperty('headline', 'Authored headline')->build()];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true)->build()])
+            ->analyze($tree, [])->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[DataProvider('acceptsFilledInputValueProvider')]
+    #[TestDox('emits no unfilled_required_input, and stays resolvable, when the stored-wired input property carries a value')]
+    public function testStoredRequiredReferenceWithFilledInputIsResolvable(string $storedValue): void
+    {
+        $element = $this->mediaLoaderWiredElement(['productId' => $storedValue]);
+
+        $report = $this->analyzeMediaLoaderWiring($element);
+
+        static::assertTrue($report->isResolvable());
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('reports a colliding element with descendants exactly once, naming the element that declares the collision')]
+    public function testProviderDeliveryCollisionOnAnElementWithDescendantsIsReportedOnce(): void
+    {
+        // Descendant axis: the collision sits on an element with three descendants. analyze() calls
+        // resolve() once per element and resolve() re-validates the whole ancestor path from scratch, so
+        // the same collision surfaces four times — once for the owner, once per descendant. The count is
+        // the discriminating assertion: a presence assertion holds with all four entries present, three of
+        // them naming a descendant that declares nothing.
+        $grandchild = StoredElementBuilder::create('Sw:Block', 'el-grandchild')->build();
+        $child = StoredElementBuilder::create('Sw:Block', 'el-child')->withSlot('content', [$grandchild])->build();
+        $sibling = StoredElementBuilder::create('Sw:Block', 'el-sibling')->build();
+        $owner = StoredElementBuilder::create('Sw:Block', 'el-owner')
+            ->withProvider('product', BroadcastDistributionConfig::aliased('item'))
+            ->withProvider('category', BroadcastDistributionConfig::aliased('item'))
+            ->withSlot('content', [$child, $sibling])
+            ->build();
+
+        // The intrinsic ERROR subset: the owner's two providers are consumed by nobody, so the full list
+        // also carries two orphaned_provider warnings that say nothing about the collision.
+        $violations = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
+            ->analyze([$owner], null)->report->intrinsicErrors();
+
+        static::assertCount(1, $violations);
+        static::assertSame('el-owner', $violations[0]->elementId);
+        static::assertSame([], array_values(array_intersect(
+            array_map(static fn (Violation $violation): string => $violation->elementId, $violations),
+            ['el-child', 'el-grandchild', 'el-sibling'],
+        )));
+    }
+
+    #[TestDox('produces an unresolved_required binding error for a required primitive whose key is absent from the stored property map')]
+    public function testRequiredPrimitiveWithAbsentKeyIsUnresolved(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')->build();
+
+        // Pins the fixture's state: an absent key, which the storage model reports as a null property.
+        static::assertNull($element->property('headline'));
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true)->build()])
+            ->analyze([$element], [])->report;
+
+        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
+    #[TestDox('reports a required primitive carrying a type default but no authored value as unresolved_required')]
+    public function testRequiredPrimitiveWithDefaultButNoValueIsUnresolved(): void
+    {
+        $tree = [new StoredElement('el-1', 'Sw:Block')];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true, default: 'Default headline')->build()])
+            ->analyze($tree, [])->report;
+
+        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
+    #[TestDox('emits one unfilled_required_input keyed on the input property when the wired input key is absent from the stored property map')]
+    public function testStoredRequiredReferenceWithAbsentInputKeyGates(): void
+    {
+        $element = $this->mediaLoaderWiredElement([]);
+
+        $report = $this->analyzeMediaLoaderWiring($element);
+
+        // Pins the fixture's state: an absent key, which the storage model reports as a null property.
+        static::assertNull($element->property('productId'));
+        static::assertFalse($report->isResolvable());
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
+        static::assertSame('productId', $error->key);
+        static::assertSame('Required property "product" is wired from "productId", which has no value.', $error->message);
+    }
+
+    #[DataProvider('acceptsAnchorTranslationProvider')]
+    #[TestDox('treats a required translatable property whose anchor entry matches the declared primitive as resolvable: $_dataName')]
+    public function testRequiredTranslatableWithAnchorEntryResolves(string $declaredType, string|int|bool $anchorTranslation): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => $anchorTranslation])
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', $declaredType, required: true, translatable: true)->build()],
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
+        )->analyze([$element], [])->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[DataProvider('rejectsWrongPrimitiveAnchorProvider')]
+    #[TestDox('produces an unresolved_required binding error for a required translatable property whose anchor entry is $_dataName')]
+    public function testRequiredTranslatableWithWrongPrimitiveAnchorEntryIsUnresolved(string $declaredType, string|int|bool $anchorTranslation): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => $anchorTranslation])
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', $declaredType, required: true, translatable: true)->build()],
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
+        )->analyze([$element], [])->report;
+
+        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
+    #[TestDox('produces an unresolved_required binding error for a required translatable property whose language map carries no anchor entry')]
+    public function testRequiredTranslatableWithAbsentAnchorEntryIsUnresolved(): void
+    {
+        $otherLanguageId = Uuid::randomHex();
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProperty('text', [$otherLanguageId => 'Ciao'])
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', required: true, translatable: true)->build()],
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM, $otherLanguageId),
+        )->analyze([$element], [])->report;
+
+        // Pins the state this case turns on: a present, non-empty map whose anchor key is ABSENT — the state a
+        // present-and-not-null satisfaction test would credit as resolved.
+        $stored = $element->property('text');
+        static::assertNotNull($stored);
+        static::assertArrayNotHasKey(Defaults::LANGUAGE_SYSTEM, $stored->asMap());
+        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
+    #[TestDox('emits one unfilled_required_input when the stored-wired translatable input property carries no anchor entry')]
+    public function testStoredRequiredReferenceWithAnchorlessTranslatableInputGates(): void
+    {
+        $otherLanguageId = Uuid::randomHex();
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->withProperty('productId', [$otherLanguageId => 'a-product-id'])
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('product', SalesChannelProductEntity::class, required: true)
+                ->primitive('productId', 'string', translatable: true)
+                ->build()],
+            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            ])),
+            $this->encodingSerializers(['property' => 'productId']),
+            $this->storedLoaderProvider(SalesChannelProductEntity::class),
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM, $otherLanguageId),
+        )->analyze([$element], [])->report;
+
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
+        static::assertSame('productId', $error->key);
+        static::assertSame('Required property "product" is wired from "productId", which has no value.', $error->message);
+    }
+
+    /**
+     * @param array<string, int|bool>|int $storedValue
+     */
+    #[DataProvider('rejectsInputOutsideReferencedTypeProvider')]
+    #[TestDox('emits one unfilled_required_input keyed on the input property when the stored-wired input holds a value its string config key never hands the loader: $_dataName')]
+    public function testStoredRequiredReferenceWithInputOutsideReferencedTypeGates(string $inputType, bool $translatable, array|int $storedValue): void
+    {
+        $element = $this->mediaLoaderWiredElement(['productId' => $storedValue]);
+
+        $report = $this->analyzeMediaLoaderWiring($element, $inputType, $translatable);
+
+        // Pins the state this case turns on: the stored value conforms to its declaration, so the stored-value
+        // rule alone credits it as filled, while the loader is handed null for it.
+        static::assertSame([], $report->intrinsicErrors());
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
+        static::assertSame('productId', $error->key);
+    }
+
+    #[TestDox('emits no unfilled_required_input when the stored-wired translatable string input carries a string anchor entry')]
+    public function testStoredRequiredReferenceWithTranslatableStringAnchorInputIsResolvable(): void
+    {
+        $element = $this->mediaLoaderWiredElement(['productId' => [Defaults::LANGUAGE_SYSTEM => 'a-product-id']]);
+
+        $report = $this->analyzeMediaLoaderWiring($element, 'string', true);
+
+        static::assertTrue($report->isResolvable());
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('reports no style violation for an option the registry knows')]
+    public function testRegisteredStyleOptionProducesNoViolation(): void
+    {
+        $tree = [new StoredElement('el-1', 'Sw:Block', style: new ElementStyle(['align-self' => ['xs' => 'center']]))];
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()],
+            styleOptionRegistry: $this->styleOptionRegistry(['align-self']),
+        )->analyze($tree, null)->report;
+
+        static::assertTrue($report->isWellFormed());
+        static::assertSame([], $report->intrinsicErrors());
+    }
+
+    #[TestDox('emits no unfilled_required_input for an optional reference that stored wiring resolves, even when its input property is empty')]
+    public function testOptionalStoredReferenceDoesNotGateOnUnfilledInput(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $analysis = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('product', SalesChannelProductEntity::class, required: false)
+                ->primitive('productId', 'string')
+                ->build()],
+            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            ])),
+            $this->encodingSerializers(['property' => 'productId']),
+            $this->storedLoaderProvider(SalesChannelProductEntity::class),
+        )->analyze([$element], []);
+
+        // The Stored pick is the state the required/optional guard is being isolated from: without it, an
+        // unresolved optional reference exits at the next guard and still reports no binding error.
+        static::assertSame([], $analysis->report->bindingErrors());
+        static::assertNotNull($analysis->resolutions['el-1'][0]->resolved);
+        static::assertSame(CandidateOrigin::Stored, $analysis->resolutions['el-1'][0]->resolved->origin);
+    }
+
+    #[TestDox('does not gate a required reference whose loader declares an optional propertyReference key, mirroring the navigation shape')]
+    public function testOptionalPropertyReferenceKeyNeverGates(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('tree', 'navigation_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('tree', SalesChannelProductEntity::class, required: true)
+                ->primitive('activeProperty', 'string')
+                ->build()],
+            $this->loaderConfigMap('navigation_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('activeProperty', ConfigKeyKind::PropertyReference, 'string', required: false, hasDefault: true),
+            ])),
+            $this->encodingSerializers(['activeProperty' => 'activeProperty']),
+            $this->storedLoaderProvider(SalesChannelProductEntity::class),
+        )->analyze([$element], [])->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('emits no unfilled_required_input when a required propertyReference config value is not a string')]
+    public function testNonStringConfiguredPropertyReferenceDoesNotGate(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('product', SalesChannelProductEntity::class, required: true)
+                ->primitive('productId', 'string')
+                ->build()],
+            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            ])),
+            $this->encodingSerializers(['property' => ['not', 'a', 'string']]),
+            $this->storedLoaderProvider(SalesChannelProductEntity::class),
+        )->analyze([$element], [])->report;
+
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('keys the violation on the reference property and names the configured key when the wired property is not declared on the type')]
+    public function testUnfilledInputKeysOnReferenceWhenConfiguredPropertyUndeclared(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'media_loader', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()
+                ->reference('product', SalesChannelProductEntity::class, required: true)
+                ->build()],
+            $this->loaderConfigMap('media_loader', new LoaderConfigSpecification([
+                new ConfigKeySpecification('property', ConfigKeyKind::PropertyReference, 'string', required: true),
+            ])),
+            $this->encodingSerializers(['property' => 'ghostProperty']),
+            $this->storedLoaderProvider(SalesChannelProductEntity::class),
+        )->analyze([$element], [])->report;
+
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
+        static::assertSame('product', $error->key);
+        static::assertSame('Required property "product" is wired from "ghostProperty", which has no value.', $error->message);
+    }
+
+    #[TestDox('reports a style option the registry does not know as an intrinsic error keyed on the option name')]
+    public function testUnknownStyleOptionIsIntrinsicError(): void
+    {
+        $tree = [new StoredElement('el-1', 'Sw:Block', style: new ElementStyle(['gone-option' => ['xs' => 'x']]))];
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()],
+            styleOptionRegistry: $this->styleOptionRegistry(['align-self']),
+        )->analyze($tree, null)->report;
+
+        $violation = $this->onlyIntrinsicError($report->intrinsicErrors());
+
+        static::assertFalse($report->isWellFormed());
+        static::assertSame(ViolationCode::UnknownStyleOption, $violation->code);
+        static::assertSame('gone-option', $violation->key);
+        static::assertSame('el-1', $violation->elementId);
+    }
+
+    #[TestDox('emits an unresolved_optional warning naming the element and key for an optional reference with no candidate, without blocking resolvability')]
+    public function testOptionalReferenceWithoutCandidateIsUnresolvedOptional(): void
+    {
+        $tree = [new StoredElement('el-1', 'Sw:Block')];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class)->build()])
+            ->analyze($tree, [])->report;
+
+        $warning = $this->single($report->violations);
+        static::assertSame(ViolationCode::UnresolvedOptional, $warning->code);
+        static::assertSame('el-1', $warning->elementId);
+        static::assertSame('product', $warning->key);
+        static::assertSame('Optional property "product" has no source.', $warning->message);
+        static::assertSame([], $warning->candidates);
+        static::assertSame([], $report->bindingErrors());
+    }
+
+    #[TestDox('emits no unresolved_optional warning for an optional reference whose competing candidates leave it unresolved')]
+    public function testOptionalReferenceWithAmbiguousCandidatesIsNotUnresolvedOptional(): void
+    {
+        $rootContext = [
+            $this->rootAmbientProductContext()[0],
+            new ProvidedContext(
+                contextKey: 'featuredProduct',
+                fqcn: SalesChannelProductEntity::class,
+                contextType: ContextType::Single,
+                providerElementId: null,
+                distribution: DistributionStrategy::Broadcast,
+                root: true,
+            ),
+        ];
+
+        $analysis = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class)->build()])
+            ->analyze([new StoredElement('el-1', 'Sw:Block')], $rootContext);
+
+        // Pins the state this case turns on: the optional reference is unresolved while candidates exist, so only
+        // the empty-candidates condition keeps the unresolved_optional warning from firing.
+        static::assertNull($analysis->resolutions['el-1'][0]->resolved);
+        static::assertCount(2, $analysis->resolutions['el-1'][0]->candidates);
+        static::assertSame([], $analysis->report->violations);
+    }
+
+    #[TestDox('reports no property-type violation for a stored null under a declared primitive, leaving that to the required-input rule')]
+    public function testStoredNullUnderAPrimitiveProducesNoPropertyTypeViolation(): void
+    {
+        $tree = [StoredElementBuilder::create('Sw:Block', 'el-1')->withProperty('count', null)->build()];
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('count', 'integer')->build()])
+            ->analyze($tree, null)->report;
+
+        static::assertTrue($report->isWellFormed());
+        static::assertSame([], $report->intrinsicErrors());
+    }
+
+    #[TestDox('produces an unresolved_required binding error for a required primitive authored as an explicit null, which is a present stored value')]
+    public function testRequiredPrimitiveAuthoredAsNullIsUnresolved(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')->withProperty('headline', null)->build();
+
+        // Pins the state this case turns on: the key is PRESENT and its stored value's variant is null, which is
+        // the state a single-term `property($key) === null` satisfaction test would silently credit as resolved.
+        $stored = $element->property('headline');
+
+        $report = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('headline', 'string', required: true)->build()])
+            ->analyze([$element], [])->report;
+
+        static::assertNotNull($stored);
+        static::assertTrue($stored->isNull());
+        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
+    #[TestDox('emits one unfilled_required_input keyed on the input property when the wired input is authored as an explicit null, which is a present stored value')]
+    public function testStoredRequiredReferenceWithAuthoredNullInputGates(): void
+    {
+        $element = $this->mediaLoaderWiredElement(['productId' => null]);
+        $stored = $element->property('productId');
+
+        $report = $this->analyzeMediaLoaderWiring($element);
+
+        // Pins the state this case turns on: the key is PRESENT and its stored value's variant is null, which is
+        // the state a single-term `property($key) !== null` early return would silently credit as filled.
+        static::assertNotNull($stored);
+        static::assertTrue($stored->isNull());
+        static::assertFalse($report->isResolvable());
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
+        static::assertSame('productId', $error->key);
+        static::assertSame('Required property "product" is wired from "productId", which has no value.', $error->message);
+    }
+
+    #[TestDox('produces an unresolved_required binding error for a required translatable property whose anchor entry holds the null variant')]
+    public function testRequiredTranslatableWithNullAnchorEntryIsUnresolved(): void
+    {
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProperty('text', [Defaults::LANGUAGE_SYSTEM => null])
+            ->build();
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->primitive('text', 'string', required: true, translatable: true)->build()],
+            languageLoader: $this->languageLoader(Defaults::LANGUAGE_SYSTEM),
+        )->analyze([$element], [])->report;
+
+        // Pins the state this case turns on, and separates it from the absent-anchor case below: the anchor key
+        // is PRESENT and its stored value's variant is null.
+        $stored = $element->property('text');
+        static::assertNotNull($stored);
+        static::assertTrue($stored->asMap()[Defaults::LANGUAGE_SYSTEM]->isNull());
+        static::assertSame(ViolationCode::UnresolvedRequired, $this->onlyBindingError($report->bindingErrors())->code);
+    }
+
+    #[TestDox('reports an undecodable applied config on a declared reference as invalid_config, never mismatched_reference_type')]
+    public function testUndecodableConfigOnDeclaredReferenceIsInvalidConfigNotMismatch(): void
+    {
+        // The reference property is declared, so the mismatch check would run if the config resolved. It does
+        // not: resolveType throws a client-defect, so the single intrinsic error must be InvalidConfig and
+        // never MismatchedReferenceType.
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withDataRequirement('product', 'entity', static::createStub(AbstractContentDataLoaderConfig::class))
+            ->build();
+
+        $loader = static::createStub(AbstractContentDataLoader::class);
+        $loader->method('resolveProducedType')->willThrowException(ContentSystemException::unknownLoaderEntity('prodct'));
+
+        $report = $this->diagnostics(
+            ['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->reference('product', SalesChannelProductEntity::class, required: true)->build()],
+            loaderProvider: $this->loaderProvider($loader),
+        )->analyze([$element], [])->report;
+
+        static::assertFalse($report->isWellFormed());
+        static::assertSame(ViolationCode::InvalidConfig, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
+    }
+
+    #[TestDox('does not throw on colliding child-facing provider keys; reports them as invalid_config and gives the element no resolutions')]
+    public function testProviderDeliveryCollisionIsEmbeddedAsInvalidConfig(): void
+    {
+        // Collision axis: distinct provider map keys whose broadcast configs both rename the matched child
+        // key to 'item'. The context walk throws providerDeliveryCollision; analyze() must embed it as an
+        // invalid_config violation (the write gate's verdict) instead of propagating the raw exception, and
+        // the colliding element resolves nothing.
+        $element = StoredElementBuilder::create('Sw:Block', 'el-1')
+            ->withProvider('product', BroadcastDistributionConfig::aliased('item'))
+            ->withProvider('category', BroadcastDistributionConfig::aliased('item'))
+            ->build();
+
+        $analysis = $this->diagnostics(['Sw:Block' => ContentSystemElementTypeSpecificationBuilder::create()->build()])
+            ->analyze([$element], null);
+
+        static::assertFalse($analysis->report->isWellFormed());
+        $error = $this->onlyIntrinsicError($analysis->report->intrinsicErrors());
+        static::assertSame(ViolationCode::InvalidConfig, $error->code);
+        static::assertSame('el-1', $error->elementId);
+        static::assertSame(
+            'Child-facing key "item" is used by both "product" and "category". Each child-facing key must be unique within an element.',
+            $error->message,
+        );
+        static::assertArrayNotHasKey('el-1', $analysis->resolutions);
+    }
+
+    #[TestDox('emits one unfilled_required_input when the stored-wired translatable integer input carries a string anchor entry its declaration rejects, though the string key would admit it')]
+    public function testStoredRequiredReferenceWithDeclarationRejectedAnchorInputGates(): void
+    {
+        $element = $this->mediaLoaderWiredElement(['productId' => [Defaults::LANGUAGE_SYSTEM => 'a-product-id']]);
+
+        $report = $this->analyzeMediaLoaderWiring($element, 'integer', true);
+
+        // Pins the state this case turns on: the anchor entry is a string, which the string key admits, while
+        // the integer declaration rejects it (an intrinsic error), so only the stored-value rule leaves it unfilled.
+        static::assertSame(ViolationCode::MismatchedPropertyType, $this->onlyIntrinsicError($report->intrinsicErrors())->code);
+        $error = $this->onlyBindingError($report->bindingErrors());
+        static::assertSame(ViolationCode::UnfilledRequiredInput, $error->code);
+        static::assertSame('productId', $error->key);
     }
 
     /**

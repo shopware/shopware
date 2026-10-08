@@ -73,6 +73,36 @@ class ContentLayoutWriteValidatorTest extends TestCase
         static::assertSame('renamed-layout', $layout->getName());
     }
 
+    /**
+     * The stored map is read back rather than only the row id, so a write that admitted the layout and then
+     * dropped the property would fail here instead of reading as an accepted write.
+     */
+    #[TestDox('persists a layout whose required translatable property carries the anchor entry')]
+    public function testAcceptsARequiredTranslatablePropertyCarryingTheAnchorEntry(): void
+    {
+        $context = Context::createDefaultContext();
+        $layoutId = $this->ids->get('layout');
+
+        $payload = $this->layout('category', TestElementTypeLoader::TRANSLATABLE_REQUIRED, $layoutId);
+        $payload['layout'] = $this->translatableTree([Defaults::LANGUAGE_SYSTEM => 'Label copy']);
+
+        $this->repository()->create([$payload], $context);
+
+        $persisted = $this->repository()->search(new Criteria([$layoutId]), $context)->getEntities()->first();
+        static::assertInstanceOf(ContentLayoutEntity::class, $persisted);
+
+        $stored = $persisted->getLayout()[0] ?? null;
+        static::assertInstanceOf(StoredElement::class, $stored);
+
+        $label = $stored->property('label');
+        static::assertNotNull($label);
+
+        $raw = $label->jsonSerialize();
+        static::assertIsArray($raw);
+        // The anchor key alone, not the whole map: MySQL reorders stored JSON object keys, MariaDB does not.
+        static::assertSame('Label copy', $raw[Defaults::LANGUAGE_SYSTEM] ?? null);
+    }
+
     #[TestDox('bypasses every check when the write context carries the skip flag')]
     public function testSkipFlagBypassesGate(): void
     {
@@ -236,36 +266,6 @@ class ContentLayoutWriteValidatorTest extends TestCase
         }
 
         static::assertNull($this->repository()->searchIds(new Criteria([$layoutId]), $context)->firstId());
-    }
-
-    /**
-     * The stored map is read back rather than only the row id, so a write that admitted the layout and then
-     * dropped the property would fail here instead of reading as an accepted write.
-     */
-    #[TestDox('persists a layout whose required translatable property carries the anchor entry')]
-    public function testAcceptsARequiredTranslatablePropertyCarryingTheAnchorEntry(): void
-    {
-        $context = Context::createDefaultContext();
-        $layoutId = $this->ids->get('layout');
-
-        $payload = $this->layout('category', TestElementTypeLoader::TRANSLATABLE_REQUIRED, $layoutId);
-        $payload['layout'] = $this->translatableTree([Defaults::LANGUAGE_SYSTEM => 'Label copy']);
-
-        $this->repository()->create([$payload], $context);
-
-        $persisted = $this->repository()->search(new Criteria([$layoutId]), $context)->getEntities()->first();
-        static::assertInstanceOf(ContentLayoutEntity::class, $persisted);
-
-        $stored = $persisted->getLayout()[0] ?? null;
-        static::assertInstanceOf(StoredElement::class, $stored);
-
-        $label = $stored->property('label');
-        static::assertNotNull($label);
-
-        $raw = $label->jsonSerialize();
-        static::assertIsArray($raw);
-        // The anchor key alone, not the whole map: MySQL reorders stored JSON object keys, MariaDB does not.
-        static::assertSame('Label copy', $raw[Defaults::LANGUAGE_SYSTEM] ?? null);
     }
 
     #[TestDox('rejects an update that changes the immutable root source and leaves the stored value unchanged')]

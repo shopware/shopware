@@ -102,6 +102,14 @@ class TranslateElementTest extends TestCase
         static::assertSame([], $translate->created());
     }
 
+    #[TestDox('declares the translate privilege as the one its persisted write requires')]
+    public function testWritePrivilegeIsTheTranslatePrivilege(): void
+    {
+        $translate = new TranslateElement($this->registry(), 'block-a', ['label' => [Defaults::LANGUAGE_SYSTEM => 'New']]);
+
+        static::assertSame('content_layout:translate', $translate->writePrivilege());
+    }
+
     #[TestDox('detaches nothing from a target carrying a slot child and wiring: both stay on it and the orphan and drop channels stay empty')]
     public function testDetachmentChannelsStayEmpty(): void
     {
@@ -123,14 +131,6 @@ class TranslateElementTest extends TestCase
         static::assertSame([], $translate->orphaned());
         static::assertSame([], $translate->droppedWiring());
         static::assertSame([], $translate->droppedProperties());
-    }
-
-    #[TestDox('declares the translate privilege as the one its persisted write requires')]
-    public function testWritePrivilegeIsTheTranslatePrivilege(): void
-    {
-        $translate = new TranslateElement($this->registry(), 'block-a', ['label' => [Defaults::LANGUAGE_SYSTEM => 'New']]);
-
-        static::assertSame('content_layout:translate', $translate->writePrivilege());
     }
 
     #[TestDox('rejects an element id that is not in the tree with a 400')]

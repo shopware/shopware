@@ -155,125 +155,6 @@ class PropertyTypeTest extends TestCase
         ];
     }
 
-    #[DataProvider('rejectedValueProvider')]
-    #[TestDox('rejects a stored value that does not conform to the declared type: $_dataName')]
-    public function testRejectsNonConformingStoredValue(PropertyType $type, StoredValue $value): void
-    {
-        static::assertFalse($type->admits($value));
-    }
-
-    /**
-     * @return iterable<string, array{PropertyType, StoredValue}>
-     */
-    public static function rejectedValueProvider(): iterable
-    {
-        // The wire shape of "an empty map": `[]` decodes to the (empty) list variant — the map variant itself
-        // cannot be empty ({@see StoredValue::ofMap()}) — and no translations is the key being absent.
-        yield 'empty array on a translatable string' => [
-            new PropertyType('string', true, null, null),
-            StoredValue::fromDecoded([]),
-        ];
-
-        yield 'bare string on a translatable string' => [
-            new PropertyType('string', true, null, null),
-            StoredValue::ofString('Willkommen'),
-        ];
-
-        yield 'null on a translatable string' => [
-            new PropertyType('string', true, null, null),
-            StoredValue::ofNull(),
-        ];
-
-        yield 'list on a translatable string' => [
-            new PropertyType('string', true, null, null),
-            StoredValue::ofList([StoredValue::ofString('Willkommen')]),
-        ];
-
-        yield 'language map holding a null entry' => [
-            new PropertyType('string', true, null, null),
-            StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofNull()]),
-        ];
-
-        // Declared-type-dependent: the translatable integer admits this entry.
-        yield 'language map holding an integer entry on a translatable string' => [
-            new PropertyType('string', true, null, null),
-            StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofInt(3)]),
-        ];
-
-        // `integer` admits no float, inside a language map as outside one.
-        yield 'language map holding a float entry on a translatable integer' => [
-            new PropertyType('integer', true, null, null),
-            StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofFloat(3.5)]),
-        ];
-
-        yield 'language map holding a string entry on a translatable boolean' => [
-            new PropertyType('boolean', true, null, null),
-            StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('true')]),
-        ];
-
-        yield 'language map holding a boolean entry on a translatable number' => [
-            new PropertyType('number', true, null, null),
-            StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofBool(true)]),
-        ];
-
-        yield 'bare boolean on a translatable boolean' => [
-            new PropertyType('boolean', true, null, null),
-            StoredValue::ofBool(false),
-        ];
-
-        // The only row whose first entry is a valid string: it pins that the entry loop judges every entry
-        // rather than the first one, which every other rejected map row would still admit.
-        yield 'language map holding a wrong-primitive entry after a valid one' => [
-            new PropertyType('string', true, null, null),
-            StoredValue::ofMap([
-                Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Willkommen'),
-                'language-de' => StoredValue::ofInt(3),
-            ]),
-        ];
-
-        yield 'language map holding a nested map entry' => [
-            new PropertyType('string', true, null, null),
-            StoredValue::ofMap([
-                Defaults::LANGUAGE_SYSTEM => StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Willkommen')]),
-            ]),
-        ];
-
-        yield 'map on a non-translatable lone string' => [
-            new PropertyType('string', false, null, null),
-            StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Willkommen')]),
-        ];
-
-        yield 'integer on a lone string declaration' => [
-            new PropertyType('string', false, null, null),
-            StoredValue::ofInt(3),
-        ];
-
-        yield 'list on a lone string declaration' => [
-            new PropertyType('string', false, null, null),
-            StoredValue::fromDecoded(['a']),
-        ];
-
-        yield 'string on a lone boolean declaration' => [
-            new PropertyType('boolean', false, null, null),
-            StoredValue::ofString('true'),
-        ];
-
-        yield 'float on a lone integer declaration' => [
-            new PropertyType('integer', false, null, null),
-            StoredValue::ofFloat(3.5),
-        ];
-
-        yield 'string on a lone number declaration' => [
-            new PropertyType('number', false, null, null),
-            StoredValue::ofString('3.5'),
-        ];
-
-        yield 'boolean on an all-primitive union of string and integer' => [
-            new PropertyType(['string', 'integer'], false, null, null),
-            StoredValue::ofBool(true),
-        ];
-    }
-
     /**
      * @param list<string>|null $expected
      */
@@ -545,25 +426,6 @@ class PropertyTypeTest extends TestCase
         ], $type->toSchema());
     }
 
-    #[DataProvider('translatableFlagProvider')]
-    #[TestDox('reports the declared translatable flag through its schema: $_dataName')]
-    public function testToSchemaReportsTheDeclaredTranslatableFlag(bool $translatable): void
-    {
-        $type = new PropertyType('string', $translatable, null, null);
-
-        static::assertSame($translatable, $type->toSchema()['translatable']);
-    }
-
-    /**
-     * @return iterable<string, array{bool}>
-     */
-    public static function translatableFlagProvider(): iterable
-    {
-        yield 'translatable declaration' => [true];
-
-        yield 'non-translatable declaration' => [false];
-    }
-
     /**
      * @param string|list<string> $declaredType
      */
@@ -586,5 +448,143 @@ class PropertyTypeTest extends TestCase
         yield 'FQCN' => [SalesChannelProductEntity::class, false];
 
         yield 'union of one primitive' => [['string'], false];
+    }
+
+    #[DataProvider('translatableFlagProvider')]
+    #[TestDox('reports the declared translatable flag through its schema: $_dataName')]
+    public function testToSchemaReportsTheDeclaredTranslatableFlag(bool $translatable): void
+    {
+        $type = new PropertyType('string', $translatable, null, null);
+
+        static::assertSame($translatable, $type->toSchema()['translatable']);
+    }
+
+    /**
+     * @return iterable<string, array{bool}>
+     */
+    public static function translatableFlagProvider(): iterable
+    {
+        yield 'translatable declaration' => [true];
+
+        yield 'non-translatable declaration' => [false];
+    }
+
+    #[DataProvider('rejectedValueProvider')]
+    #[TestDox('rejects a stored value that does not conform to the declared type: $_dataName')]
+    public function testRejectsNonConformingStoredValue(PropertyType $type, StoredValue $value): void
+    {
+        static::assertFalse($type->admits($value));
+    }
+
+    /**
+     * @return iterable<string, array{PropertyType, StoredValue}>
+     */
+    public static function rejectedValueProvider(): iterable
+    {
+        // The wire shape of "an empty map": `[]` decodes to the (empty) list variant — the map variant itself
+        // cannot be empty ({@see StoredValue::ofMap()}) — and no translations is the key being absent.
+        yield 'empty array on a translatable string' => [
+            new PropertyType('string', true, null, null),
+            StoredValue::fromDecoded([]),
+        ];
+
+        yield 'bare string on a translatable string' => [
+            new PropertyType('string', true, null, null),
+            StoredValue::ofString('Willkommen'),
+        ];
+
+        yield 'null on a translatable string' => [
+            new PropertyType('string', true, null, null),
+            StoredValue::ofNull(),
+        ];
+
+        yield 'list on a translatable string' => [
+            new PropertyType('string', true, null, null),
+            StoredValue::ofList([StoredValue::ofString('Willkommen')]),
+        ];
+
+        yield 'language map holding a null entry' => [
+            new PropertyType('string', true, null, null),
+            StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofNull()]),
+        ];
+
+        // Declared-type-dependent: the translatable integer admits this entry.
+        yield 'language map holding an integer entry on a translatable string' => [
+            new PropertyType('string', true, null, null),
+            StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofInt(3)]),
+        ];
+
+        // `integer` admits no float, inside a language map as outside one.
+        yield 'language map holding a float entry on a translatable integer' => [
+            new PropertyType('integer', true, null, null),
+            StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofFloat(3.5)]),
+        ];
+
+        yield 'language map holding a string entry on a translatable boolean' => [
+            new PropertyType('boolean', true, null, null),
+            StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('true')]),
+        ];
+
+        yield 'language map holding a boolean entry on a translatable number' => [
+            new PropertyType('number', true, null, null),
+            StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofBool(true)]),
+        ];
+
+        yield 'bare boolean on a translatable boolean' => [
+            new PropertyType('boolean', true, null, null),
+            StoredValue::ofBool(false),
+        ];
+
+        // The only row whose first entry is a valid string: it pins that the entry loop judges every entry
+        // rather than the first one, which every other rejected map row would still admit.
+        yield 'language map holding a wrong-primitive entry after a valid one' => [
+            new PropertyType('string', true, null, null),
+            StoredValue::ofMap([
+                Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Willkommen'),
+                'language-de' => StoredValue::ofInt(3),
+            ]),
+        ];
+
+        yield 'language map holding a nested map entry' => [
+            new PropertyType('string', true, null, null),
+            StoredValue::ofMap([
+                Defaults::LANGUAGE_SYSTEM => StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Willkommen')]),
+            ]),
+        ];
+
+        yield 'map on a non-translatable lone string' => [
+            new PropertyType('string', false, null, null),
+            StoredValue::ofMap([Defaults::LANGUAGE_SYSTEM => StoredValue::ofString('Willkommen')]),
+        ];
+
+        yield 'integer on a lone string declaration' => [
+            new PropertyType('string', false, null, null),
+            StoredValue::ofInt(3),
+        ];
+
+        yield 'list on a lone string declaration' => [
+            new PropertyType('string', false, null, null),
+            StoredValue::fromDecoded(['a']),
+        ];
+
+        yield 'string on a lone boolean declaration' => [
+            new PropertyType('boolean', false, null, null),
+            StoredValue::ofString('true'),
+        ];
+
+        yield 'float on a lone integer declaration' => [
+            new PropertyType('integer', false, null, null),
+            StoredValue::ofFloat(3.5),
+        ];
+
+        yield 'string on a lone number declaration' => [
+            new PropertyType('number', false, null, null),
+            StoredValue::ofString('3.5'),
+        ];
+
+        yield 'boolean on an all-primitive union of string and integer' => [
+            new PropertyType(['string', 'integer'], false, null, null),
+            StoredValue::ofBool(true),
+        ];
     }
 }

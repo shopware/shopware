@@ -22,15 +22,6 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[CoversClass(DatabaseLayoutPresetLoader::class)]
 class DatabaseLayoutPresetLoaderTest extends TestCase
 {
-    #[TestDox('returns nothing in dev, where app presets come from the filesystem')]
-    public function testDevReturnsEmpty(): void
-    {
-        $connection = $this->createMock(Connection::class);
-        $connection->expects($this->never())->method('fetchAllAssociative');
-
-        static::assertSame([], $this->loader($connection, 'dev')->load());
-    }
-
     #[TestWith(['prod'])]
     #[TestWith(['test'])]
     #[TestWith(['staging'])]
@@ -67,6 +58,31 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
         static::assertSame(['MyApp:First', 'MyApp:Second'], array_map(static fn ($preset): string => $preset->id, $presets));
     }
 
+    #[TestDox('aborts the load on a row whose stored data is valid JSON but not an array')]
+    public function testNonArrayDataAbortsLoad(): void
+    {
+        $loader = $this->loader($this->connectionWithRows([
+            ['name' => 'MyApp:Scalar', 'schema' => '"just a string"', 'app_name' => 'MyApp'],
+        ]), 'prod');
+
+        try {
+            $loader->load();
+            static::fail('Expected the load to abort.');
+        } catch (ContentSystemException $e) {
+            static::assertSame(ContentSystemException::LAYOUT_PRESET_LOAD_FAILED, $e->getErrorCode());
+            static::assertSame('Failed to load layout preset from "app:MyApp:MyApp:Scalar": Persisted data must decode to an array/map, got string', $e->getMessage());
+        }
+    }
+
+    #[TestDox('returns nothing in dev, where app presets come from the filesystem')]
+    public function testDevReturnsEmpty(): void
+    {
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())->method('fetchAllAssociative');
+
+        static::assertSame([], $this->loader($connection, 'dev')->load());
+    }
+
     #[TestDox('names an unnamed row "<unknown>" in the load failure')]
     public function testUnnamedRowFailureNamesItUnknown(): void
     {
@@ -97,22 +113,6 @@ class DatabaseLayoutPresetLoaderTest extends TestCase
             static::assertSame(ContentSystemException::LAYOUT_PRESET_LOAD_FAILED, $e->getErrorCode());
             static::assertSame('Failed to load layout preset from "app:MyApp:MyApp:Broken": Invalid JSON data: Syntax error', $e->getMessage());
             static::assertInstanceOf(\JsonException::class, $e->getPrevious());
-        }
-    }
-
-    #[TestDox('aborts the load on a row whose stored data is valid JSON but not an array')]
-    public function testNonArrayDataAbortsLoad(): void
-    {
-        $loader = $this->loader($this->connectionWithRows([
-            ['name' => 'MyApp:Scalar', 'schema' => '"just a string"', 'app_name' => 'MyApp'],
-        ]), 'prod');
-
-        try {
-            $loader->load();
-            static::fail('Expected the load to abort.');
-        } catch (ContentSystemException $e) {
-            static::assertSame(ContentSystemException::LAYOUT_PRESET_LOAD_FAILED, $e->getErrorCode());
-            static::assertSame('Failed to load layout preset from "app:MyApp:MyApp:Scalar": Persisted data must decode to an array/map, got string', $e->getMessage());
         }
     }
 

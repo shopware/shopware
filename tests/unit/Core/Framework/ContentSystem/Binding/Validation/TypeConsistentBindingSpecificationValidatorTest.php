@@ -207,102 +207,6 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         static::assertStringContainsString('not a registered element type', (string) $violations->get(0)->getMessage());
     }
 
-    #[TestDox('rethrows a non-client-defect ContentSystemException raised while decoding a resolves config')]
-    public function testRethrowsNonClientDefectExceptionFromDecode(): void
-    {
-        $type = new ContentSystemElementTypeSpecification(
-            'Sw:Media:Image',
-            'Image',
-            '',
-            null,
-            null,
-            new CopilotSpecification('', []),
-            ['media' => new PropertySpecification(
-                'media',
-                new PropertyType(Entity::class, false, null, null),
-                false,
-                '',
-                '',
-                null,
-            )],
-            [],
-        );
-
-        $registry = $this->registryServing($type);
-
-        // INVALID_FIELD_TYPE is NOT in CLIENT_DEFECT_CODES, so decodeConfig() must rethrow it rather than
-        // turning it into a violation.
-        $provider = static::createStub(DataLoaderConfigSerializerProvider::class);
-        $provider->method('decode')->willThrowException(ContentSystemException::invalidFieldType('A', 'B'));
-
-        $validator = new TypeConsistentBindingSpecificationValidator(
-            $registry,
-            $provider,
-            static::createStub(RootContextMapper::class),
-            static::createStub(AbstractContentSystemDataLoaderMapResolver::class),
-        );
-        $validator->initialize(static::createStub(ExecutionContextInterface::class));
-
-        $dto = new BindingSpecificationDto(
-            type: 'Sw:Media:Image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => []]],
-            inputs: [],
-        );
-
-        try {
-            $validator->validate(new BindingSpecificationDtoCollection([self::ID => $dto]), new TypeConsistentBindingSpecification());
-            static::fail('Expected a ContentSystemException to be rethrown.');
-        } catch (ContentSystemException $e) {
-            static::assertSame(ContentSystemException::INVALID_FIELD_TYPE, $e->getErrorCode());
-        }
-    }
-
-    #[TestDox('rethrows a non-client-defect ContentSystemException raised while resolving a produced type')]
-    public function testRethrowsNonClientDefectExceptionFromProducedTypeResolution(): void
-    {
-        // Sibling of the decode rethrow above: decode succeeds, then resolveProducedType() raises a non-client
-        // defect (INVALID_FIELD_TYPE is NOT in CLIENT_DEFECT_CODES), which must escape rather than become a
-        // config violation.
-        $validator = $this->validatorFailingProducedTypeWith(ContentSystemException::invalidFieldType('A', 'B'));
-        $validator->initialize(static::createStub(ExecutionContextInterface::class));
-
-        $dto = new BindingSpecificationDto(
-            type: 'image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => []]],
-            inputs: [],
-        );
-
-        try {
-            $validator->validate(new BindingSpecificationDtoCollection([self::ID => $dto]), new TypeConsistentBindingSpecification());
-            static::fail('Expected a ContentSystemException to be rethrown.');
-        } catch (ContentSystemException $e) {
-            static::assertSame(ContentSystemException::INVALID_FIELD_TYPE, $e->getErrorCode());
-        }
-    }
-
-    #[TestDox('throws an UnexpectedTypeException when handed a constraint other than TypeConsistentBindingSpecification')]
-    public function testThrowsOnForeignConstraint(): void
-    {
-        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
-        $constraint = new NotBlank();
-
-        $this->expectExceptionObject(new UnexpectedTypeException($constraint, TypeConsistentBindingSpecification::class));
-
-        $validator->validate(new BindingSpecificationDtoCollection([]), $constraint);
-    }
-
-    #[TestDox('throws an UnexpectedTypeException when handed a value that is not a BindingSpecificationDtoCollection')]
-    public function testThrowsOnNonCollectionValue(): void
-    {
-        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
-
-        $this->expectExceptionObject(new UnexpectedTypeException('not-a-collection', BindingSpecificationDtoCollection::class));
-
-        $validator->validate('not-a-collection', new TypeConsistentBindingSpecification());
-    }
-
     #[TestDox('flags a resolves entry in the unsupported "context" form as a violation')]
     public function testResolvesEntryContextFormIsViolation(): void
     {
@@ -362,44 +266,6 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         static::assertCount(1, $violations);
         static::assertSame('bindings[' . self::ID . '].resolves[media]', $violations->get(0)->getPropertyPath());
         static::assertStringContainsString('not a registered data loader', (string) $violations->get(0)->getMessage());
-    }
-
-    #[TestDox('flags a resolves entry whose config fails to decode as a config violation')]
-    public function testResolvesEntryConfigDecodeFailureIsViolation(): void
-    {
-        $validator = $this->validatorFailingDecodeWith(ContentSystemException::invalidFieldValueType('property', 'string', 'integer'));
-
-        $dto = new BindingSpecificationDto(
-            type: 'image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => []]],
-            inputs: [],
-        );
-
-        $violations = $this->validateWith($dto, $validator);
-
-        static::assertCount(1, $violations);
-        static::assertSame('bindings[' . self::ID . '].resolves[media].config', $violations->get(0)->getPropertyPath());
-        static::assertStringContainsString('config is invalid', (string) $violations->get(0)->getMessage());
-    }
-
-    #[TestDox('flags a resolves entry whose produced type fails to resolve as a config violation')]
-    public function testResolvesEntryProducedTypeResolutionFailureIsViolation(): void
-    {
-        $validator = $this->validatorFailingProducedTypeWith(ContentSystemException::unknownLoaderEntity('ghost-entity'));
-
-        $dto = new BindingSpecificationDto(
-            type: 'image',
-            label: 'label',
-            resolves: ['media' => ['loader' => 'entity', 'config' => []]],
-            inputs: [],
-        );
-
-        $violations = $this->validateWith($dto, $validator);
-
-        static::assertCount(1, $violations);
-        static::assertSame('bindings[' . self::ID . '].resolves[media].config', $violations->get(0)->getPropertyPath());
-        static::assertStringContainsString('config is invalid', (string) $violations->get(0)->getMessage());
     }
 
     #[TestDox('flags a resolves entry whose produced type is not assignable to the declared reference type as a violation')]
@@ -653,6 +519,140 @@ class TypeConsistentBindingSpecificationValidatorTest extends TestCase
         );
 
         static::assertCount(0, $this->validateWith($dto, $validator));
+    }
+
+    #[TestDox('rethrows a non-client-defect ContentSystemException raised while decoding a resolves config')]
+    public function testRethrowsNonClientDefectExceptionFromDecode(): void
+    {
+        $type = new ContentSystemElementTypeSpecification(
+            'Sw:Media:Image',
+            'Image',
+            '',
+            null,
+            null,
+            new CopilotSpecification('', []),
+            ['media' => new PropertySpecification(
+                'media',
+                new PropertyType(Entity::class, false, null, null),
+                false,
+                '',
+                '',
+                null,
+            )],
+            [],
+        );
+
+        $registry = $this->registryServing($type);
+
+        // INVALID_FIELD_TYPE is NOT in CLIENT_DEFECT_CODES, so decodeConfig() must rethrow it rather than
+        // turning it into a violation.
+        $provider = static::createStub(DataLoaderConfigSerializerProvider::class);
+        $provider->method('decode')->willThrowException(ContentSystemException::invalidFieldType('A', 'B'));
+
+        $validator = new TypeConsistentBindingSpecificationValidator(
+            $registry,
+            $provider,
+            static::createStub(RootContextMapper::class),
+            static::createStub(AbstractContentSystemDataLoaderMapResolver::class),
+        );
+        $validator->initialize(static::createStub(ExecutionContextInterface::class));
+
+        $dto = new BindingSpecificationDto(
+            type: 'Sw:Media:Image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => []]],
+            inputs: [],
+        );
+
+        try {
+            $validator->validate(new BindingSpecificationDtoCollection([self::ID => $dto]), new TypeConsistentBindingSpecification());
+            static::fail('Expected a ContentSystemException to be rethrown.');
+        } catch (ContentSystemException $e) {
+            static::assertSame(ContentSystemException::INVALID_FIELD_TYPE, $e->getErrorCode());
+        }
+    }
+
+    #[TestDox('rethrows a non-client-defect ContentSystemException raised while resolving a produced type')]
+    public function testRethrowsNonClientDefectExceptionFromProducedTypeResolution(): void
+    {
+        // Sibling of the decode rethrow above: decode succeeds, then resolveProducedType() raises a non-client
+        // defect (INVALID_FIELD_TYPE is NOT in CLIENT_DEFECT_CODES), which must escape rather than become a
+        // config violation.
+        $validator = $this->validatorFailingProducedTypeWith(ContentSystemException::invalidFieldType('A', 'B'));
+        $validator->initialize(static::createStub(ExecutionContextInterface::class));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => []]],
+            inputs: [],
+        );
+
+        try {
+            $validator->validate(new BindingSpecificationDtoCollection([self::ID => $dto]), new TypeConsistentBindingSpecification());
+            static::fail('Expected a ContentSystemException to be rethrown.');
+        } catch (ContentSystemException $e) {
+            static::assertSame(ContentSystemException::INVALID_FIELD_TYPE, $e->getErrorCode());
+        }
+    }
+
+    #[TestDox('throws an UnexpectedTypeException when handed a constraint other than TypeConsistentBindingSpecification')]
+    public function testThrowsOnForeignConstraint(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+        $constraint = new NotBlank();
+
+        $this->expectExceptionObject(new UnexpectedTypeException($constraint, TypeConsistentBindingSpecification::class));
+
+        $validator->validate(new BindingSpecificationDtoCollection([]), $constraint);
+    }
+
+    #[TestDox('throws an UnexpectedTypeException when handed a value that is not a BindingSpecificationDtoCollection')]
+    public function testThrowsOnNonCollectionValue(): void
+    {
+        $validator = $this->validator($this->imageType(), $this->map(['entity' => $this->loaderSpec()]));
+
+        $this->expectExceptionObject(new UnexpectedTypeException('not-a-collection', BindingSpecificationDtoCollection::class));
+
+        $validator->validate('not-a-collection', new TypeConsistentBindingSpecification());
+    }
+
+    #[TestDox('flags a resolves entry whose config fails to decode as a config violation')]
+    public function testResolvesEntryConfigDecodeFailureIsViolation(): void
+    {
+        $validator = $this->validatorFailingDecodeWith(ContentSystemException::invalidFieldValueType('property', 'string', 'integer'));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => []]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('config is invalid', (string) $violations->get(0)->getMessage());
+    }
+
+    #[TestDox('flags a resolves entry whose produced type fails to resolve as a config violation')]
+    public function testResolvesEntryProducedTypeResolutionFailureIsViolation(): void
+    {
+        $validator = $this->validatorFailingProducedTypeWith(ContentSystemException::unknownLoaderEntity('ghost-entity'));
+
+        $dto = new BindingSpecificationDto(
+            type: 'image',
+            label: 'label',
+            resolves: ['media' => ['loader' => 'entity', 'config' => []]],
+            inputs: [],
+        );
+
+        $violations = $this->validateWith($dto, $validator);
+
+        static::assertCount(1, $violations);
+        static::assertSame('bindings[' . self::ID . '].resolves[media].config', $violations->get(0)->getPropertyPath());
+        static::assertStringContainsString('config is invalid', (string) $violations->get(0)->getMessage());
     }
 
     /**

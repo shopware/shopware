@@ -42,20 +42,6 @@ class StoredSchemaResolverTest extends TestCase
         ], $this->resolver([])->resolve($type));
     }
 
-    #[TestDox('marks a translatable property entry with the flag and leaves the key off a non-translatable one')]
-    public function testResolveMarksOnlyTranslatablePropertyEntriesWithTheFlag(): void
-    {
-        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
-            ->primitive('text', 'string', default: '<p>Willkommen</p>', translatable: true)
-            ->primitive('mode', 'string', default: 'auto-fit')
-            ->build();
-
-        static::assertSame([
-            'text' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => '<p>Willkommen</p>', 'translatable' => true],
-            'mode' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => 'auto-fit'],
-        ], $this->resolver([])->resolve($type));
-    }
-
     /**
      * The flag beside a non-string `type` reads "a language map of that primitive", the shape PropertyType::admits()
      * accepts for the same declaration, so the fold has to carry the declared primitive unchanged.
@@ -109,51 +95,6 @@ class StoredSchemaResolverTest extends TestCase
         ], $this->resolver(['core:Sw:Media:Image' => $specification], $this->entityLoaderKeys())->resolve($type));
     }
 
-    #[TestDox('publishes the reference token of an authored specification as a config entry')]
-    public function testResolveAuthoredSpecificationReferenceTokenToConfigEntry(): void
-    {
-        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Media:Image')
-            ->reference('media', MediaEntity::class, required: true)
-            ->build();
-
-        // 'media-picker' !== 'Sw:Media:Image', so this specification is not the type's default, and its
-        // storage-key config key is a plain config entry despite being named 'property'.
-        $specification = new BindingSpecification(
-            'media-picker',
-            'Sw:Media:Image',
-            'Media Picker',
-            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])],
-            [],
-            'core',
-        );
-
-        static::assertSame([
-            'mediaId' => ['kind' => 'config', 'type' => 'string', 'required' => true],
-        ], $this->resolver(['core:media-picker' => $specification], $this->entityLoaderKeys())->resolve($type));
-    }
-
-    #[TestDox('publishes a config key referencedType rather than its own type, falls the token back to the key default, and emits no default at all: both keys declare type string, both declare a default, only associationOverride references a list')]
-    public function testResolvePublishesReferencedTypeOfConfigKeyRatherThanItsOwnType(): void
-    {
-        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Product:Listing')
-            ->reference('products', ProductListingResult::class)
-            ->build();
-
-        $specification = new BindingSpecification(
-            'listing-with-associations',
-            'Sw:Product:Listing',
-            'Product Listing',
-            ['products' => new LoaderBinding('product_listing', [])],
-            [],
-            'core',
-        );
-
-        static::assertSame([
-            'navigationId' => ['kind' => 'config', 'type' => 'string', 'required' => false],
-            'associations' => ['kind' => 'config', 'type' => 'list<string>', 'required' => false],
-        ], $this->resolver(['core:listing-with-associations' => $specification], $this->listingLoaderKeys())->resolve($type));
-    }
-
     #[TestDox('prefers the property entry over a binding token naming the same stored key')]
     public function testResolvePrefersPropertyEntryOverBindingTokenOnSameStoredKey(): void
     {
@@ -178,43 +119,6 @@ class StoredSchemaResolverTest extends TestCase
             'navigationId' => ['kind' => 'property', 'type' => 'string', 'required' => true],
             'associations' => ['kind' => 'config', 'type' => 'list<string>', 'required' => false],
         ], $this->resolver(['core:listing-with-associations' => $specification], $this->listingLoaderKeys())->resolve($type));
-    }
-
-    #[TestDox('prefers the resolvedByStorage entry over a config entry naming the same stored key')]
-    public function testResolvePrefersResolvedByStorageEntryOverConfigEntryOnSameStoredKey(): void
-    {
-        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Product:Listing')
-            ->reference('products', ProductListingResult::class)
-            ->build();
-
-        // The default specification is listed first, so a plain last-write-wins traversal would leave the
-        // authored specification's config entry as the winner on 'navigationId'.
-        $default = new BindingSpecification(
-            'Sw:Product:Listing',
-            'Sw:Product:Listing',
-            'Listing',
-            ['products' => new LoaderBinding('product_listing', ['property' => 'navigationId'])],
-            [],
-            'core',
-        );
-
-        $authored = new BindingSpecification(
-            'listing-with-config',
-            'Sw:Product:Listing',
-            'Listing With Config',
-            ['products' => new LoaderBinding('product_listing', ['associationOverride' => 'navigationId'])],
-            [],
-            'core',
-        );
-
-        // The losing candidate on 'navigationId' is a config entry of type list<string>; the winner is string.
-        static::assertSame([
-            'associations' => ['kind' => 'config', 'type' => 'list<string>', 'required' => false],
-            'navigationId' => ['kind' => 'resolvedByStorage', 'type' => 'string', 'required' => false],
-        ], $this->resolver(
-            ['core:Sw:Product:Listing' => $default, 'core:listing-with-config' => $authored],
-            $this->listingLoaderKeys(),
-        )->resolve($type));
     }
 
     #[TestDox('skips a binding token naming a declared FQCN property, which claims storage where none exists')]
@@ -286,6 +190,88 @@ class StoredSchemaResolverTest extends TestCase
         yield 'an empty token' => [['entity' => 'media', 'property' => '']];
     }
 
+    #[TestDox('publishes the reference token of an authored specification as a config entry')]
+    public function testResolveAuthoredSpecificationReferenceTokenToConfigEntry(): void
+    {
+        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Media:Image')
+            ->reference('media', MediaEntity::class, required: true)
+            ->build();
+
+        // 'media-picker' !== 'Sw:Media:Image', so this specification is not the type's default, and its
+        // storage-key config key is a plain config entry despite being named 'property'.
+        $specification = new BindingSpecification(
+            'media-picker',
+            'Sw:Media:Image',
+            'Media Picker',
+            ['media' => new LoaderBinding('entity', ['entity' => 'media', 'property' => 'mediaId'])],
+            [],
+            'core',
+        );
+
+        static::assertSame([
+            'mediaId' => ['kind' => 'config', 'type' => 'string', 'required' => true],
+        ], $this->resolver(['core:media-picker' => $specification], $this->entityLoaderKeys())->resolve($type));
+    }
+
+    #[TestDox('publishes a config key referencedType rather than its own type, falls the token back to the key default, and emits no default at all: both keys declare type string, both declare a default, only associationOverride references a list')]
+    public function testResolvePublishesReferencedTypeOfConfigKeyRatherThanItsOwnType(): void
+    {
+        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Product:Listing')
+            ->reference('products', ProductListingResult::class)
+            ->build();
+
+        $specification = new BindingSpecification(
+            'listing-with-associations',
+            'Sw:Product:Listing',
+            'Product Listing',
+            ['products' => new LoaderBinding('product_listing', [])],
+            [],
+            'core',
+        );
+
+        static::assertSame([
+            'navigationId' => ['kind' => 'config', 'type' => 'string', 'required' => false],
+            'associations' => ['kind' => 'config', 'type' => 'list<string>', 'required' => false],
+        ], $this->resolver(['core:listing-with-associations' => $specification], $this->listingLoaderKeys())->resolve($type));
+    }
+
+    #[TestDox('prefers the resolvedByStorage entry over a config entry naming the same stored key')]
+    public function testResolvePrefersResolvedByStorageEntryOverConfigEntryOnSameStoredKey(): void
+    {
+        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Product:Listing')
+            ->reference('products', ProductListingResult::class)
+            ->build();
+
+        // The default specification is listed first, so a plain last-write-wins traversal would leave the
+        // authored specification's config entry as the winner on 'navigationId'.
+        $default = new BindingSpecification(
+            'Sw:Product:Listing',
+            'Sw:Product:Listing',
+            'Listing',
+            ['products' => new LoaderBinding('product_listing', ['property' => 'navigationId'])],
+            [],
+            'core',
+        );
+
+        $authored = new BindingSpecification(
+            'listing-with-config',
+            'Sw:Product:Listing',
+            'Listing With Config',
+            ['products' => new LoaderBinding('product_listing', ['associationOverride' => 'navigationId'])],
+            [],
+            'core',
+        );
+
+        // The losing candidate on 'navigationId' is a config entry of type list<string>; the winner is string.
+        static::assertSame([
+            'associations' => ['kind' => 'config', 'type' => 'list<string>', 'required' => false],
+            'navigationId' => ['kind' => 'resolvedByStorage', 'type' => 'string', 'required' => false],
+        ], $this->resolver(
+            ['core:Sw:Product:Listing' => $default, 'core:listing-with-config' => $authored],
+            $this->listingLoaderKeys(),
+        )->resolve($type));
+    }
+
     #[TestDox('ignores a config key that is not a property reference, even when its value could name a stored key')]
     public function testResolveIgnoresNonPropertyReferenceConfigKey(): void
     {
@@ -308,6 +294,20 @@ class StoredSchemaResolverTest extends TestCase
             'mediaId' => ['kind' => 'config', 'type' => 'string', 'required' => true],
             'height' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => 'auto'],
         ], $this->resolver(['core:media-picker' => $specification], $this->entityLoaderKeys())->resolve($type));
+    }
+
+    #[TestDox('marks a translatable property entry with the flag and leaves the key off a non-translatable one')]
+    public function testResolveMarksOnlyTranslatablePropertyEntriesWithTheFlag(): void
+    {
+        $type = ContentSystemElementTypeSpecificationBuilder::create('Sw:Content:Text')
+            ->primitive('text', 'string', default: '<p>Willkommen</p>', translatable: true)
+            ->primitive('mode', 'string', default: 'auto-fit')
+            ->build();
+
+        static::assertSame([
+            'text' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => '<p>Willkommen</p>', 'translatable' => true],
+            'mode' => ['kind' => 'property', 'type' => 'string', 'required' => false, 'default' => 'auto-fit'],
+        ], $this->resolver([])->resolve($type));
     }
 
     #[TestDox('resolves a type with neither primitives nor binding specifications to an empty map')]

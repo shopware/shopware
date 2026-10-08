@@ -85,18 +85,6 @@ class InsertElementTest extends TestCase
         static::assertSame($style->toArray(), $result->roots[0]->style->toArray());
     }
 
-    #[TestDox('prepends to the root when index zero is given without a parent')]
-    public function testInsertAtRootIndexZero(): void
-    {
-        $tree = new StoredTree([new StoredElement('existing', 'Sw:Block')]);
-
-        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), index: 0);
-        $result = $insert->apply($tree);
-
-        static::assertSame('Sw:Card', $result->roots[0]->component);
-        static::assertSame('existing', $result->roots[1]->id);
-    }
-
     #[TestDox('seeds top-level primitive properties that declare a default')]
     public function testInsertSeedsPrimitiveDefaultsOnly(): void
     {
@@ -323,6 +311,18 @@ class InsertElementTest extends TestCase
             'product',
             new PropertyType(SalesChannelProductEntity::class, false, null, 'ignored-default'),
         ];
+    }
+
+    #[TestDox('prepends to the root when index zero is given without a parent')]
+    public function testInsertAtRootIndexZero(): void
+    {
+        $tree = new StoredTree([new StoredElement('existing', 'Sw:Block')]);
+
+        $insert = new InsertElement($this->registryWith('Sw:Card'), 'Sw:Card', $this->bindingRegistry([]), $this->unboundApplicator(), index: 0);
+        $result = $insert->apply($tree);
+
+        static::assertSame('Sw:Card', $result->roots[0]->component);
+        static::assertSame('existing', $result->roots[1]->id);
     }
 
     #[TestDox('rejects an unregistered type with a 400')]

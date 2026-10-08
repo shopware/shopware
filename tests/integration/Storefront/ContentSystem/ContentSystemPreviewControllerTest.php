@@ -193,35 +193,6 @@ class ContentSystemPreviewControllerTest extends TestCase
         static::assertStringNotContainsString('Unreachable copy', $content);
     }
 
-    #[TestDox('renders a draft layout without elements as a page with an empty content region')]
-    public function testEmptyStoredEnvelopeRenders(): void
-    {
-        $token = $this->storePreviewRequest(new ContentPreviewRequest(
-            layout: [],
-            entityType: 'product',
-            entityId: $this->createProduct(),
-            salesChannelId: $this->getSalesChannelId(),
-        ));
-
-        $response = $this->request('GET', 'content-system/preview/' . $token, []);
-        $content = (string) $response->getContent();
-
-        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
-        static::assertMatchesRegularExpression('/data-page-id="[0-9a-f]{32}"/', $content);
-        static::assertStringNotContainsString('data-element-id=', $content);
-    }
-
-    #[TestDox('allows framing by the referer origin including its port')]
-    public function testRefererWithPortIsTheFrameAncestor(): void
-    {
-        $response = $this->renderPreview(['HTTP_REFERER' => 'https://admin.example.test:8443/admin#/sw/content']);
-
-        static::assertSame(
-            'frame-ancestors \'self\' https://admin.example.test:8443;',
-            $response->headers->get('Content-Security-Policy')
-        );
-    }
-
     #[TestDox('allows framing by the referer origin without a port')]
     public function testRefererWithoutPortIsTheFrameAncestor(): void
     {
@@ -255,12 +226,41 @@ class ContentSystemPreviewControllerTest extends TestCase
         );
     }
 
+    #[TestDox('allows framing by the referer origin including its port')]
+    public function testRefererWithPortIsTheFrameAncestor(): void
+    {
+        $response = $this->renderPreview(['HTTP_REFERER' => 'https://admin.example.test:8443/admin#/sw/content']);
+
+        static::assertSame(
+            'frame-ancestors \'self\' https://admin.example.test:8443;',
+            $response->headers->get('Content-Security-Policy')
+        );
+    }
+
     #[TestDox('sends a non-enforcing frame options header so the frame-ancestors policy decides')]
     public function testFrameOptionsHeaderIsNonEnforcing(): void
     {
         $response = $this->renderPreview([]);
 
         static::assertSame('ALLOWALL', $response->headers->get(PlatformRequest::HEADER_FRAME_OPTIONS));
+    }
+
+    #[TestDox('renders a draft layout without elements as a page with an empty content region')]
+    public function testEmptyStoredEnvelopeRenders(): void
+    {
+        $token = $this->storePreviewRequest(new ContentPreviewRequest(
+            layout: [],
+            entityType: 'product',
+            entityId: $this->createProduct(),
+            salesChannelId: $this->getSalesChannelId(),
+        ));
+
+        $response = $this->request('GET', 'content-system/preview/' . $token, []);
+        $content = (string) $response->getContent();
+
+        static::assertSame(Response::HTTP_OK, $response->getStatusCode(), $content);
+        static::assertMatchesRegularExpression('/data-page-id="[0-9a-f]{32}"/', $content);
+        static::assertStringNotContainsString('data-element-id=', $content);
     }
 
     /**

@@ -97,22 +97,6 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame(['root-id', 'target-id', 'sibling-id'], $this->collectIds($prepared->prePruneForest));
     }
 
-    #[TestDox('substitutes a declared token in a Literal loader-config value')]
-    public function testPrepareResolvesLiteralConfigValues(): void
-    {
-        $config = new NavigationLoaderConfig('{{rootId}}');
-
-        $element = StoredElementBuilder::create('navigation', 'root-id')
-            ->withDataRequirement('navigationTree', 'test_literal', $config)
-            ->build();
-
-        $prepared = $this->prepare([$element], ['rootId' => 'cat-42']);
-
-        $resolved = $prepared[0]->dataRequirements['navigationTree']->config;
-
-        static::assertSame('cat-42', $resolved->jsonSerialize()['rootId']);
-    }
-
     #[DataProvider('nonStringPropertyProvider')]
     #[TestDox('leaves a $_dataName property untouched')]
     public function testPrepareLeavesNonStringPropertiesUntouched(string|int|float|bool|null $value): void
@@ -146,43 +130,6 @@ class StoredTreePreparerTest extends TestCase
 
         static::assertSame([$root], $prepared->tree);
         static::assertFalse($prepared->scaffolding->virtualRootSurvivedPrune);
-    }
-
-    /**
-     * Identity is the assertion, so it holds both passes at once: neither the language map nor the token
-     * survives a run that rebuilt the element, and the skeleton response reads neither.
-     */
-    #[TestDox('returns the tree unchanged in SKELETON mode, language maps and placeholder tokens alike')]
-    public function testPrepareResolvesNothingInSkeletonMode(): void
-    {
-        $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty('title', 'Product {{productId}}')
-            ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'anchor copy'])
-            ->build();
-
-        $prepared = $this->preparer()->prepare(
-            [$element],
-            $this->specification(['productId' => 'prod-1']),
-            RenderingMode::SKELETON,
-            $this->salesChannelContext()
-        );
-
-        static::assertSame([$element], $prepared->tree);
-    }
-
-    #[TestDox('wraps the roots in a virtual root and carries the wrapped forest as the pre-prune forest for page-level data requirements')]
-    public function testPrepareWrapsRootAndCarriesForestForPageLevelDataRequirements(): void
-    {
-        $root = StoredElementBuilder::create('section', 'root-id')->build();
-
-        $prepared = $this->preparer()->prepare([$root], $this->pageContextSpecification(), RenderingMode::SKELETON, $this->salesChannelContext());
-
-        // The wrap runs before the prune, so the wrapper is part of what validation judges.
-        static::assertCount(1, $prepared->tree);
-        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $prepared->tree[0]->id);
-        static::assertCount(1, $prepared->prePruneForest);
-        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $prepared->prePruneForest[0]->id);
-        static::assertTrue($prepared->scaffolding->virtualRootSurvivedPrune);
     }
 
     /**
@@ -272,25 +219,6 @@ class StoredTreePreparerTest extends TestCase
 
         static::assertSame(['target-id'], $this->collectIds($prepared->tree));
         static::assertFalse($prepared->scaffolding->virtualRootSurvivedPrune);
-    }
-
-    #[TestDox('treats an empty target element id as no partial render at all')]
-    public function testPrepareTreatsAnEmptyTargetElementIdAsNoTarget(): void
-    {
-        $root = $this->targetAndSiblingRoot();
-
-        $prepared = $this->preparer()->prepare([$root], $this->targetedSpecification(''), RenderingMode::SKELETON, $this->salesChannelContext());
-
-        static::assertNull($prepared->scaffolding->extractTargetId);
-        static::assertSame([$root], $prepared->tree);
-    }
-
-    #[TestDox('leaves an empty tree of roots empty')]
-    public function testPrepareHandlesAnEmptyTreeOfRoots(): void
-    {
-        $prepared = $this->prepare([], ['productId' => 'prod-1']);
-
-        static::assertSame([], $prepared);
     }
 
     /**
@@ -402,6 +330,52 @@ class StoredTreePreparerTest extends TestCase
         );
     }
 
+    #[TestDox('leaves a declared non-translatable property whole, a language-map-shaped value included')]
+    public function testPrepareLeavesADeclaredNonTranslatablePropertyWhole(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', [Defaults::LANGUAGE_SYSTEM => 'anchor copy', 'language-child' => 'child copy'])
+            ->build();
+
+        $prepared = $this->prepare([$element], [], ['language-child', Defaults::LANGUAGE_SYSTEM]);
+
+        static::assertSame(
+            [Defaults::LANGUAGE_SYSTEM => 'anchor copy', 'language-child' => 'child copy'],
+            $prepared[0]->property('title')?->jsonSerialize()
+        );
+    }
+
+    /**
+     * Placeholders substitute into string values and never descend into a map, so a token inside a
+     * translation can only resolve once reduction has collapsed the map ahead of them.
+     */
+    #[TestDox('substitutes a token carried inside the selected translation')]
+    public function testPrepareResolvesAPlaceholderInsideTheSelectedTranslation(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'Produkt {{productId}}'])
+            ->build();
+
+        $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
+
+        static::assertSame('Produkt prod-1', $prepared[0]->property('headline')?->asString());
+    }
+
+    #[TestDox('wraps the roots in a virtual root and carries the wrapped forest as the pre-prune forest for page-level data requirements')]
+    public function testPrepareWrapsRootAndCarriesForestForPageLevelDataRequirements(): void
+    {
+        $root = StoredElementBuilder::create('section', 'root-id')->build();
+
+        $prepared = $this->preparer()->prepare([$root], $this->pageContextSpecification(), RenderingMode::SKELETON, $this->salesChannelContext());
+
+        // The wrap runs before the prune, so the wrapper is part of what validation judges.
+        static::assertCount(1, $prepared->tree);
+        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $prepared->tree[0]->id);
+        static::assertCount(1, $prepared->prePruneForest);
+        static::assertSame(VirtualRootWrapper::VIRTUAL_ROOT_ID, $prepared->prePruneForest[0]->id);
+        static::assertTrue($prepared->scaffolding->virtualRootSurvivedPrune);
+    }
+
     #[TestDox('carries the reduced and substituted values in the pre-prune forest, discarded subtree included')]
     public function testPrepareCarriesPreparedValuesInTheFullModePrePruneForest(): void
     {
@@ -432,19 +406,42 @@ class StoredTreePreparerTest extends TestCase
         static::assertSame('child copy', $discardedSibling->property('headline')?->asString());
     }
 
-    #[TestDox('leaves a declared non-translatable property whole, a language-map-shaped value included')]
-    public function testPrepareLeavesADeclaredNonTranslatablePropertyWhole(): void
+    #[TestDox('substitutes a declared token in a Literal loader-config value')]
+    public function testPrepareResolvesLiteralConfigValues(): void
     {
-        $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty('title', [Defaults::LANGUAGE_SYSTEM => 'anchor copy', 'language-child' => 'child copy'])
+        $config = new NavigationLoaderConfig('{{rootId}}');
+
+        $element = StoredElementBuilder::create('navigation', 'root-id')
+            ->withDataRequirement('navigationTree', 'test_literal', $config)
             ->build();
 
-        $prepared = $this->prepare([$element], [], ['language-child', Defaults::LANGUAGE_SYSTEM]);
+        $prepared = $this->prepare([$element], ['rootId' => 'cat-42']);
 
-        static::assertSame(
-            [Defaults::LANGUAGE_SYSTEM => 'anchor copy', 'language-child' => 'child copy'],
-            $prepared[0]->property('title')?->jsonSerialize()
+        $resolved = $prepared[0]->dataRequirements['navigationTree']->config;
+
+        static::assertSame('cat-42', $resolved->jsonSerialize()['rootId']);
+    }
+
+    /**
+     * Identity is the assertion, so it holds both passes at once: neither the language map nor the token
+     * survives a run that rebuilt the element, and the skeleton response reads neither.
+     */
+    #[TestDox('returns the tree unchanged in SKELETON mode, language maps and placeholder tokens alike')]
+    public function testPrepareResolvesNothingInSkeletonMode(): void
+    {
+        $element = StoredElementBuilder::create('text', 'root-id')
+            ->withProperty('title', 'Product {{productId}}')
+            ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'anchor copy'])
+            ->build();
+
+        $prepared = $this->preparer()->prepare(
+            [$element],
+            $this->specification(['productId' => 'prod-1']),
+            RenderingMode::SKELETON,
+            $this->salesChannelContext()
         );
+
+        static::assertSame([$element], $prepared->tree);
     }
 
     /**
@@ -477,20 +474,23 @@ class StoredTreePreparerTest extends TestCase
         yield 'optional' => ['headline'];
     }
 
-    /**
-     * Placeholders substitute into string values and never descend into a map, so a token inside a
-     * translation can only resolve once reduction has collapsed the map ahead of them.
-     */
-    #[TestDox('substitutes a token carried inside the selected translation')]
-    public function testPrepareResolvesAPlaceholderInsideTheSelectedTranslation(): void
+    #[TestDox('treats an empty target element id as no partial render at all')]
+    public function testPrepareTreatsAnEmptyTargetElementIdAsNoTarget(): void
     {
-        $element = StoredElementBuilder::create('text', 'root-id')
-            ->withProperty('headline', [Defaults::LANGUAGE_SYSTEM => 'Produkt {{productId}}'])
-            ->build();
+        $root = $this->targetAndSiblingRoot();
 
-        $prepared = $this->prepare([$element], ['productId' => 'prod-1']);
+        $prepared = $this->preparer()->prepare([$root], $this->targetedSpecification(''), RenderingMode::SKELETON, $this->salesChannelContext());
 
-        static::assertSame('Produkt prod-1', $prepared[0]->property('headline')?->asString());
+        static::assertNull($prepared->scaffolding->extractTargetId);
+        static::assertSame([$root], $prepared->tree);
+    }
+
+    #[TestDox('leaves an empty tree of roots empty')]
+    public function testPrepareHandlesAnEmptyTreeOfRoots(): void
+    {
+        $prepared = $this->prepare([], ['productId' => 'prod-1']);
+
+        static::assertSame([], $prepared);
     }
 
     /**

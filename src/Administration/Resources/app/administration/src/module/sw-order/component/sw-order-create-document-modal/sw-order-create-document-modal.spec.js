@@ -291,8 +291,9 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
         );
     });
 
-    it('emits the document configuration when creating a V2 document', async () => {
-        const wrapper = await createWrapper();
+    it.each(['1000', 'manual-number'])('submits document number %s without reserving it', async (documentNumber) => {
+        const numberRangeReserveMock = jest.fn().mockResolvedValue({ number: '1000' });
+        const wrapper = await createWrapper({ numberRangeReserveMock });
         await flushPromises();
 
         await wrapper
@@ -319,15 +320,21 @@ describe('src/module/sw-order/component/sw-order-create-document-modal', () => {
             .trigger('click');
         await flushPromises();
 
+        const numberInput = wrapper.find('.sw-order-create-document-modal__document-number input');
+        await numberInput.setValue(documentNumber);
         await wrapper.find('.sw-order-create-document-modal__create-button').trigger('click');
 
         expect(wrapper.emitted()['document-create']).toBeTruthy();
         expect(wrapper.emitted()['document-create'][0][0]).toStrictEqual({
             documentComment: '',
             documentDate: '1970-01-01T00:00:00.000Z',
-            documentNumber: '1000',
+            documentNumber: documentNumber === '1000' ? '' : documentNumber,
+            documentNumberPreview: '1000',
             requestedFileFormats: ['html', 'pdf'],
         });
+        expect(numberRangeReserveMock).toHaveBeenCalledTimes(1);
+        expect(numberRangeReserveMock).toHaveBeenCalledWith('document_invoice', 'sales-channel-id', true);
+        expect(numberInput.element.value).toBe(documentNumber);
     });
 
     it('emits the send action when using the generate and send menu item', async () => {

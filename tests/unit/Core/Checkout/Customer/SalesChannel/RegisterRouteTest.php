@@ -1021,6 +1021,53 @@ class RegisterRouteTest extends TestCase
         );
     }
 
+    /**
+     * @param list<string> $vatIds
+     * @param list<string>|null $expected
+     */
+    #[DataProvider('businessVatIdsProvider')]
+    public function testRegisterWritesTheVatIdsOfABusinessCustomer(array $vatIds, ?array $expected): void
+    {
+        $country = new CountryEntity();
+        $country->setId(Uuid::randomHex());
+        $country->setVatIdRequired(false);
+
+        $countryRepository = static::createStub(SalesChannelRepository::class);
+        $countryRepository->method('search')->willReturn(
+            new EntitySearchResult(
+                CountryDefinition::ENTITY_NAME,
+                1,
+                new CountryCollection([$country]),
+                null,
+                new Criteria(),
+                Context::createDefaultContext()
+            )
+        );
+
+        $customerRepository = $this->createCustomerRepository();
+        $register = $this->createRegisterRoute(customerRepository: $customerRepository, countryRepository: $countryRepository);
+
+        $data = $this->createRegistrationData([
+            'accountType' => CustomerEntity::ACCOUNT_TYPE_BUSINESS,
+            'vatIds' => $vatIds,
+        ]);
+        $data['billingAddress']['countryId'] = $country->getId();
+        $data['billingAddress']['company'] = 'Test Company';
+
+        $register->register(new RequestDataBag($data), Generator::generateSalesChannelContext(), false);
+
+        $customer = $customerRepository->creates[0][0];
+        static::assertIsArray($customer);
+        static::assertSame('Test Company', $customer['company']);
+        static::assertSame($expected, $customer['vatIds'] ?? null);
+    }
+
+    public static function businessVatIdsProvider(): \Generator
+    {
+        yield 'VAT IDs are written as a list' => [['DE123456789'], ['DE123456789']];
+        yield 'an empty VAT ID list is not written' => [[], null];
+    }
+
     #[TestDox('Accepts customer names with the maximum allowed length of 255 characters')]
     public function testRegisterAcceptsMaximumNameLengths(): void
     {

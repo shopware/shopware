@@ -64,6 +64,16 @@ class VatIdPatternProviderTest extends TestCase
         static::assertSame(['NL' => 'NL\d{9}B\d{2}'], $provider->getEuPatterns());
     }
 
+    public function testDropsMemberStatesWithoutAnIsoCode(): void
+    {
+        $provider = $this->createProvider([
+            ['iso' => null, 'id' => self::BE_ID, 'vatIdPattern' => 'BE\d{10}'],
+            ['iso' => 'NL', 'id' => self::NL_ID, 'vatIdPattern' => 'NL\d{9}B\d{2}'],
+        ]);
+
+        static::assertSame(['NL' => 'NL\d{9}B\d{2}'], $provider->getEuPatterns());
+    }
+
     public function testDropsPatternsThatBreakOutOfTheDelimiters(): void
     {
         $provider = $this->createProvider([
@@ -544,7 +554,7 @@ class VatIdPatternProviderTest extends TestCase
     }
 
     /**
-     * @param list<array{iso: string, id: string, vatIdPattern: string|null}> $euCountries
+     * @param list<array{iso: string|null, id: string, vatIdPattern: string|null}> $euCountries
      */
     private function createProvider(array $euCountries): VatIdPatternProvider
     {
@@ -560,7 +570,7 @@ class VatIdPatternProviderTest extends TestCase
     }
 
     /**
-     * @param list<array{iso: string, id: string, vatIdPattern: string|null}> $euCountries
+     * @param list<array{iso: string|null, id: string, vatIdPattern: string|null}> $euCountries
      * @param array{isEu: bool, checkVatIdPattern: bool, vatIdPattern: string|null}|null $country
      *
      * @return EntityRepository<CountryCollection>
@@ -576,7 +586,7 @@ class VatIdPatternProviderTest extends TestCase
     }
 
     /**
-     * @param list<array{iso: string, id: string, vatIdPattern: string|null}> $euCountries
+     * @param list<array{iso: string|null, id: string, vatIdPattern: string|null}> $euCountries
      * @param array{isEu: bool, checkVatIdPattern: bool, vatIdPattern: string|null}|null $country
      *
      * @return EntityRepository<CountryCollection>
@@ -594,7 +604,7 @@ class VatIdPatternProviderTest extends TestCase
     /**
      * Answers the EU country list for a criteria without ids and the requested country otherwise.
      *
-     * @param list<array{iso: string, id: string, vatIdPattern: string|null}> $euCountries
+     * @param list<array{iso: string|null, id: string, vatIdPattern: string|null}> $euCountries
      * @param array{isEu: bool, checkVatIdPattern: bool, vatIdPattern: string|null}|null $country
      *
      * @return EntitySearchResult<CountryCollection>
@@ -617,7 +627,7 @@ class VatIdPatternProviderTest extends TestCase
         return new EntitySearchResult(CountryDefinition::ENTITY_NAME, $countries->count(), $countries, null, $criteria, $context);
     }
 
-    private static function createCountry(string $id, string $iso, ?string $vatIdPattern, bool $isEu, bool $checkVatIdPattern): CountryEntity
+    private static function createCountry(string $id, ?string $iso, ?string $vatIdPattern, bool $isEu, bool $checkVatIdPattern): CountryEntity
     {
         $country = new CountryEntity();
         $country->setId($id);

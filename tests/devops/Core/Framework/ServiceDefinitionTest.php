@@ -98,6 +98,12 @@ class ServiceDefinitionTest extends TestCase
 
 /**
  * @internal
+ *
+ * Runs with production service definitions: the test environment loads services_test.php
+ * (formerly services_test.xml), whose replacement services can hide invalid production wiring.
+ * The production environment has no test.service_container, so this compiler pass makes
+ * Shopware services public before Symfony removes or inlines them, allowing direct instantiation
+ * and container linting without replacing their production arguments or factories.
  */
 #[Package('framework')]
 class ServiceDefinitionTestKernel extends TestKernel implements CompilerPassInterface

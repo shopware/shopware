@@ -118,6 +118,64 @@ describe('src/app/component/structure/sw-search-bar-item', () => {
         expect(spyRecentlySearchServiceAdd).toHaveBeenCalledWith('userId', 'product', 'productId', {});
     });
 
+    it('should emit click-search-result after adding the result to the recently searched stack', async () => {
+        wrapper = await createWrapper({
+            entityIconName: 'regular-shopping-basket',
+            entityIconColor: 'blue',
+            column: 1,
+            index: 1,
+            type: 'product',
+            item: {
+                id: 'productId',
+                name: 'Awesome Product',
+            },
+        });
+
+        await wrapper.vm.$nextTick();
+        await wrapper.find('.sw-search-bar-item__link').trigger('click');
+
+        expect(wrapper.emitted('click-search-result')).toHaveLength(1);
+        expect(wrapper.emitted('click-search-result')[0]).toEqual(['product', 'productId', {}]);
+    });
+
+    it('should track and emit clicks on results of entities without a dedicated template', async () => {
+        Shopware.Module.register('sw-manufacturer', {
+            type: 'core',
+            name: 'manufacturer',
+            title: 'sw-manufacturer.general.mainMenuItemGeneral',
+            entity: 'product_manufacturer',
+            routes: {
+                detail: {
+                    component: 'sw-manufacturer-detail',
+                    path: 'detail/:id',
+                },
+            },
+        });
+
+        wrapper = await createWrapper({
+            entityIconName: 'regular-tag',
+            entityIconColor: 'blue',
+            column: 1,
+            index: 1,
+            type: 'product_manufacturer',
+            item: {
+                id: 'manufacturerId',
+                name: 'Awesome Manufacturer',
+            },
+        });
+
+        await wrapper.vm.$nextTick();
+
+        expect(wrapper.find('a.sw-search-bar-item__link').exists()).toBe(true);
+
+        await wrapper.find('a.sw-search-bar-item__link').trigger('click');
+
+        expect(spyRecentlySearchServiceAdd).toHaveBeenCalledWith('userId', 'product_manufacturer', 'manufacturerId', {});
+        expect(wrapper.emitted('click-search-result')[0]).toEqual(['product_manufacturer', 'manufacturerId', {}]);
+
+        Shopware.Module.getModuleRegistry().delete('sw-manufacturer');
+    });
+
     it('should get correct name of variant products', async () => {
         wrapper = await createWrapper({
             item: {

@@ -64,7 +64,7 @@ class KernelPluginIntegrationTest extends TestCase
         $this->kernel = $this->makeKernel($loader);
         $this->kernel->boot();
 
-        static::assertEmpty($this->kernel->getPluginLoader()->getPluginInstances()->all());
+        static::assertCount(0, $this->kernel->getPluginLoader()->getPluginInstances()->all());
     }
 
     public function testInactive(): void
@@ -80,7 +80,7 @@ class KernelPluginIntegrationTest extends TestCase
         $this->kernel->boot();
 
         $plugins = $this->kernel->getPluginLoader()->getPluginInstances();
-        static::assertNotEmpty($plugins->all());
+        static::assertNotCount(0, $plugins->all());
 
         $testPlugin = $plugins->get(SwagTestPlugin::class);
         static::assertNotNull($testPlugin);

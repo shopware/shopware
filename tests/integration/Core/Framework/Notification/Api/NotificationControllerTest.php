@@ -152,7 +152,8 @@ class NotificationControllerTest extends TestCase
         static::assertSame($data['message'], $content['notifications'][0]['message']);
         static::assertSame($data['adminOnly'], $content['notifications'][0]['adminOnly']);
         static::assertSame($data['requiredPrivileges'], $content['notifications'][0]['requiredPrivileges']);
-        static::assertNotEmpty($content['timestamp']);
+        static::assertIsString($content['timestamp']);
+        static::assertNotSame('', $content['timestamp']);
     }
 
     /**

@@ -81,6 +81,13 @@ parameters:
         # runs against a database on purpose
         kernelInUnitTestsEnabledNamespaces:
             - 'Shopware\Tests\Unit\'
+        # narrows PregDollarWithoutDRule to the namespaces whose preg_* patterns are audited; consumers append
+        # their own namespaces once their patterns carry the D modifier
+        pregDollarWithoutDEnabledNamespaces:
+            - 'Shopware\Core\'
+            - 'Shopware\Administration\'
+            - 'Shopware\Storefront\'
+            - 'Shopware\Elasticsearch\'
 
 services:
     -   factory: Shopware\Core\DevOps\StaticAnalyze\PHPStan\Configuration(%shopware%)
@@ -95,4 +102,5 @@ parametersSchema:
         createMockWithoutExpectationsEnabledNamespaces: list(string),
         featureSkipInUnitTestsEnabledNamespaces: list(string),
         kernelInUnitTestsEnabledNamespaces: list(string),
+        pregDollarWithoutDEnabledNamespaces: list(string),
 ])

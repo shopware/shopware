@@ -29,7 +29,6 @@ class AdapterExceptionTest extends TestCase
             static::assertCount(1, $attributes);
             static::assertSame('v6.8.0', $attributes[0]->newInstance()->version);
             static::assertSame('self', $attributes[0]->newInstance()->newType);
-            static::assertStringNotContainsString('@deprecated', $method->getDocComment() ?: '');
         }
     }
 

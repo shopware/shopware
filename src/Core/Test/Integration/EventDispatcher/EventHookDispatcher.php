@@ -9,13 +9,9 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * Test-environment decorator of the shared event dispatcher that lets a test hook into dispatched events
- * without adding listeners to the dispatcher at runtime, which Symfony 8.2 deprecates for its compiled
- * dispatcher. Hooks run after the dispatcher's own listeners and are skipped once propagation is stopped.
- * It decorates closest to the base dispatcher, so nested events re-dispatched by outer decorators reach it.
- *
- * Tests get it with {@see self::fromContainer()}. The test bootstrap registers a PHPUnit subscriber that clears the
- * hooks before each test.
+ * Lets integration tests hook into dispatched events without adding runtime listeners, which Symfony 8.2
+ * deprecates. Hooks run after the listeners, respect stopped propagation and are cleared before each test.
+ * Get it with {@see self::fromContainer()}.
  *
  * @internal
  */

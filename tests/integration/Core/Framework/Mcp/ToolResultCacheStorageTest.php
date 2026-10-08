@@ -10,7 +10,6 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
-use Symfony\Component\Clock\NativeClock;
 
 /**
  * Runs the batched age-based delete against the real database, including the integer LIMIT binding.
@@ -32,7 +31,7 @@ class ToolResultCacheStorageTest extends TestCase
         $at = $this->insert($connection, $threshold);
         $after = $this->insert($connection, $threshold->modify('+1 millisecond'));
 
-        $deleted = (new ToolResultCacheStorage($connection, new NativeClock()))->deleteOlderThan($threshold);
+        $deleted = static::getContainer()->get(ToolResultCacheStorage::class)->deleteOlderThan($threshold);
 
         static::assertSame(2, $deleted);
         static::assertSame([$after], $this->remaining($connection, [$before, $at, $after]));

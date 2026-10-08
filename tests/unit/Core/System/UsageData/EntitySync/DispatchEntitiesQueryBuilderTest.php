@@ -93,14 +93,14 @@ class DispatchEntitiesQueryBuilderTest extends TestCase
             ]))
         );
 
-        static::assertEmpty(QueryBuilderDataExtractor::getSelect($this->queryHelper->getQueryBuilder()));
+        static::assertCount(0, QueryBuilderDataExtractor::getSelect($this->queryHelper->getQueryBuilder()));
     }
 
     public function testWithPrimaryKeyAddsNothingForEmptyArray(): void
     {
         static::assertSame($this->queryHelper, $this->queryHelper->withPrimaryKeys([]));
 
-        static::assertEmpty(QueryBuilderDataExtractor::getWhere($this->queryHelper->getQueryBuilder()));
+        static::assertNull(QueryBuilderDataExtractor::getWhere($this->queryHelper->getQueryBuilder()));
     }
 
     public function testWithPrimaryKeysWithCombinedPrimaryKey(): void

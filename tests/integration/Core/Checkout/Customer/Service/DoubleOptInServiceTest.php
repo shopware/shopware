@@ -155,7 +155,7 @@ class DoubleOptInServiceTest extends TestCase
         $this->createService($eventDispatcher)->resendDoubleOptInMail($customer, $context);
 
         static::assertInstanceOf(CustomerDoubleOptInRegistrationEvent::class, $dispatched);
-        static::assertNotEmpty($domain->getUrl());
+        static::assertNotSame('', $domain->getUrl());
         static::assertStringStartsWith($domain->getUrl(), $dispatched->getConfirmUrl());
     }
 

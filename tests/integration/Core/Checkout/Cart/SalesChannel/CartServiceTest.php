@@ -305,7 +305,7 @@ class CartServiceTest extends TestCase
         static::assertTrue($lineItem->isStackable());
         static::assertTrue($lineItem->isRemovable());
 
-        $cart = $cartService->update($cart, ['foo' => [
+        $cartService->update($cart, ['foo' => [
             'id' => $productId,
             'quantity' => 20,
             'payload' => ['foo' => 'bar'],

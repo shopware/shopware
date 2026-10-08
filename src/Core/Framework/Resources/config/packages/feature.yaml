@@ -58,6 +58,7 @@ shopware:
         description: "Experimental! Enable new caching, includes following breaking changes: Only include rule ids which are relevant for different content in the HTTP cache context key; Remove cache states and cache pages for logged in customers or when the cart is filled by default; Enable caching for Store-API."
       - name: DEFERRED_CART_ERRORS
         default: false
+        major: v6.8.0.0
         toggleable: true
         description: "Defers cart errors that happen during SalesChannelContext creation\nThis feature will be standard as of v6.8.0"
       - name: SHIPPING_PRICE_RANGE_CURRENCY_CONVERSION
@@ -77,6 +78,7 @@ shopware:
         description: "Automatic promotions cannot be removed anymore and are therefore no longer tracked as blocked after removal."
       - name: METEOR_TEXT_EDITOR
         default: false
+        major: v6.8.0.0
         toggleable: true
         description: "Enables the Meteor text editor in the administration."
       - name: JSON_LD_DATA

@@ -65,7 +65,7 @@ class AddPaymentMethodExtensionsCommandHandlerTest extends TestCase
         $expected = new ArrayStruct(['foo' => 'bar', 1 => 2]);
 
         static::assertEquals(['foo_key' => $expected], $payment1->getExtensions());
-        static::assertEmpty($payment2->getExtensions());
+        static::assertCount(0, $payment2->getExtensions());
     }
 
     public function testUnknownMethodIsLogged(): void

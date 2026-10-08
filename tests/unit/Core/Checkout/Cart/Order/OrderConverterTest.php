@@ -252,7 +252,7 @@ class OrderConverterTest extends TestCase
 
         $result = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), $orderConversionContext);
 
-        static::assertEmpty($result['deliveries']);
+        static::assertCount(0, $result['deliveries']);
     }
 
     public function testConvertToOrderShouldNotContainDeliveriesWithNoAddressButHaveOriginalAddressId(): void
@@ -273,7 +273,7 @@ class OrderConverterTest extends TestCase
 
         $result = $this->orderConverter->convertToOrder($cart, $this->getSalesChannelContext(true), $orderConversionContext);
 
-        static::assertNotEmpty($result['deliveries']);
+        static::assertNotCount(0, $result['deliveries']);
     }
 
     public function testConvertToOrderWithDeliveries(): void
@@ -1029,8 +1029,10 @@ class OrderConverterTest extends TestCase
         $productDownloadRepository->method('search')->willReturnCallback(static function (Criteria $criteria) use ($productDownload): EntitySearchResult {
             $filters = $criteria->getFilters();
             if (isset($filters[0]) && $filters[0] instanceof EqualsAnyFilter) {
-                $value = (new \ReflectionProperty(EqualsAnyFilter::class, 'value'))->getValue($filters[0]);
-                $productDownload->setProductId($value[0] ?? null);
+                $productId = $filters[0]->getValue()[0] ?? null;
+                if (\is_string($productId)) {
+                    $productDownload->setProductId($productId);
+                }
             }
 
             return new EntitySearchResult(

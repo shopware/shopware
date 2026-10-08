@@ -1170,7 +1170,8 @@ class SendMailActionTest extends TestCase
     private function getMailTemplateId(string $technicalName): ?string
     {
         $mailTemplateTypeId = $this->getMailTemplateTypeId($technicalName);
-        static::assertNotNull($mailTemplateTypeId);
+        static::assertIsString($mailTemplateTypeId);
+        static::assertNotSame('', $mailTemplateTypeId);
 
         $result = $this->connection->fetchOne(
             'SELECT `id` FROM `mail_template` WHERE `mail_template_type_id` = :mailTemplateTypeId',

@@ -634,7 +634,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
 
     $services->set('shopware.app_system.trusted_url_resolver', TrustedUrlResolver::class)
         ->args([
-            '', // Intentionally reintroduce #21321 to validate the draft's production-container checks; restore before merging.
+            null,
             true,
             param('shopware.app_system.allowed_private_ip_addresses'),
         ])

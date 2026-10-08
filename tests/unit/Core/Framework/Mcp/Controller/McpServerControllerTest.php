@@ -124,7 +124,7 @@ class McpServerControllerTest extends TestCase
         static::assertSame('integration-id', $integrationMeta->id ?? null);
     }
 
-    public function testInitializeRegistersMcpSession(): void
+    public function testInitializeSyncsTheNewSession(): void
     {
         $body = json_encode([
             'jsonrpc' => '2.0',
@@ -176,6 +176,29 @@ class McpServerControllerTest extends TestCase
         $response = $controller->handle(new Request());
 
         static::assertSame(405, $response->getStatusCode());
+    }
+
+    public function testAnExistingSessionIsSyncedAsNotNew(): void
+    {
+        $sessionId = '0198c0de-0000-7000-8000-000000000001';
+
+        $notifier = $this->createMock(McpListChangedNotifier::class);
+        $notifier->expects($this->once())->method('syncSession')->with($sessionId, false);
+
+        $psrRequest = new ServerRequest('GET', '/api/_mcp', [PlatformRequest::HEADER_MCP_SESSION_ID => $sessionId]);
+        $httpFoundationFactory = static::createStub(HttpFoundationFactoryInterface::class);
+        $httpFoundationFactory->method('createResponse')->willReturn(new Response('', 405));
+
+        $controller = $this->buildController(
+            $psrRequest,
+            $httpFoundationFactory,
+            listChangedNotifier: $notifier,
+        );
+
+        $request = new Request();
+        $request->headers->set(PlatformRequest::HEADER_MCP_SESSION_ID, $sessionId);
+
+        $controller->handle($request);
     }
 
     public function testDoesNotSyncListVersionsWithoutASession(): void

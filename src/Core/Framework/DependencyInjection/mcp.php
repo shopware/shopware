@@ -199,10 +199,8 @@ return static function (ContainerConfigurator $container): void {
 
     // Store-api-scoped discovery stack: second instances of the scope-neutral discovery classes,
     // pointed at the store-api registry and params, so enabling an admin toolset never notifies
-    // store-api sessions and vice versa.
-
-    // App capabilities only reach the Admin API server, so store-api lists change per session only
-    // (toolset enable) and need no shared list versions.
+    // store-api sessions and vice versa. App capabilities only reach the Admin API server, so
+    // store-api lists change per session only (toolset enable) and need no shared list versions.
     $services->set('mcp.store_api.list_changed_notifier', McpListChangedNotifier::class)
         ->args([
             service('mcp.server.store_api.session.store')->nullOnInvalid(),

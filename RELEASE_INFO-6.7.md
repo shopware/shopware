@@ -56,11 +56,11 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
-### `ProductNoLongerAvailableEvent` only contains products that are no longer available
+### New `ProductBackInStockEvent`
 
-`Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent` was also dispatched for products that became available, for example after a restock of a closeout product. It now only contains products whose `available` flag changed from `true` to `false`.
+The new `Shopware\Core\Content\Product\Events\ProductBackInStockEvent` is dispatched with the ids of products whose `available` flag changed from `false` to `true`, for example after a restock of a closeout product.
 
-Products that became available are dispatched with the new `Shopware\Core\Content\Product\Events\ProductBackInStockEvent`. If your subscriber reacts to both directions, for example to invalidate caches, subscribe to both events.
+`Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent` now only contains products whose `available` flag changed from `true` to `false`. If your subscriber reacts to both directions, for example to invalidate caches, subscribe to both events.
 
 ### Feature flags can belong to a major version
 

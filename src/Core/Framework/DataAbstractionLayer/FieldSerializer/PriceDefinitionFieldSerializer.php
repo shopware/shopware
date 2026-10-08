@@ -22,7 +22,7 @@ use Shopware\Core\Framework\Rule\Collector\RuleConditionRegistry;
 use Shopware\Core\Framework\Rule\Container\Container;
 use Shopware\Core\Framework\Rule\Rule;
 use Shopware\Core\Framework\Rule\UnknownConditionRule;
-use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
+use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -87,7 +87,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                     }
                     $violations = $this->validateRules($value['filter'], $parameters->getPath() . '/filter');
                     if ($violations->count() > 0) {
-                        throw new WriteConstraintViolationException($violations, $parameters->getPath());
+                        throw DataAbstractionLayerException::invalidWriteConstraintViolation($violations, $parameters->getPath());
                     }
 
                     break;
@@ -103,7 +103,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
 
                     $violations = $this->validateRules($value['filter'], $parameters->getPath() . '/filter');
                     if ($violations->count() > 0) {
-                        throw new WriteConstraintViolationException($violations, $parameters->getPath());
+                        throw DataAbstractionLayerException::invalidWriteConstraintViolation($violations, $parameters->getPath());
                     }
 
                     break;
@@ -119,7 +119,7 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
                     }
                     $violations = $this->validateRules($value['filter'], $parameters->getPath() . '/filter');
                     if ($violations->count() > 0) {
-                        throw new WriteConstraintViolationException($violations, $parameters->getPath());
+                        throw DataAbstractionLayerException::invalidWriteConstraintViolation($violations, $parameters->getPath());
                     }
 
                     break;
@@ -182,6 +182,9 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         return $this->decodeRule($decoded['filter']);
     }
 
+    /**
+     * @param array<string, mixed> $data
+     */
     private function validateRules(array $data, string $basePath): ConstraintViolationList
     {
         $violationList = new ConstraintViolationList();
@@ -227,6 +230,9 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         return $violationList;
     }
 
+    /**
+     * @param array<string, mixed> $rule
+     */
     private function decodeRule(array $rule): Rule
     {
         if (!$this->ruleConditionRegistry->has($rule['_name'])) {
@@ -250,6 +256,10 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         return $object;
     }
 
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, list<Constraint>> $constraints
+     */
     private function validateProperties(array $data, array $constraints, string $path): void
     {
         foreach ($constraints as $key => $constraint) {
@@ -263,6 +273,9 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         }
     }
 
+    /**
+     * @param array<string, string> $parameters
+     */
     private function buildViolation(
         string $messageTemplate,
         array $parameters,
@@ -278,6 +291,10 @@ class PriceDefinitionFieldSerializer extends JsonFieldSerializer
         );
     }
 
+    /**
+     * @param array<string, list<Constraint>> $fieldValidations
+     * @param array<string, mixed> $payload
+     */
     private function validateConsistence(string $basePath, array $fieldValidations, array $payload): ConstraintViolationList
     {
         $list = new ConstraintViolationList();

@@ -28,10 +28,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsAnyFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -810,8 +810,7 @@ class UnusedMediaPurgerTest extends TestCase
         $repo = StaticEntityRepository::of(
             MediaCollection::class,
             [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 [$id1, $id2],
                 // fake the grace period filter
                 static fn (Criteria $criteria) => $criteria->getIds(),
@@ -853,8 +852,7 @@ class UnusedMediaPurgerTest extends TestCase
         $repo = StaticEntityRepository::of(
             MediaCollection::class,
             [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
 
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
@@ -915,8 +913,7 @@ class UnusedMediaPurgerTest extends TestCase
         $repo = StaticEntityRepository::of(
             MediaCollection::class,
             [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 4, new MediaCollection(), null, $criteria, $context), // purgable media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
 
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
@@ -976,8 +973,7 @@ class UnusedMediaPurgerTest extends TestCase
         $repo = StaticEntityRepository::of(
             MediaCollection::class,
             [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
 
                 static function (Criteria $criteria, Context $context) use ($id1, $id2, $id3, $id4) {
                     self::assertCount(0, $criteria->getFilters());
@@ -1023,8 +1019,7 @@ class UnusedMediaPurgerTest extends TestCase
         $repo = StaticEntityRepository::of(
             MediaCollection::class,
             [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -1079,8 +1074,7 @@ class UnusedMediaPurgerTest extends TestCase
         $repo = StaticEntityRepository::of(
             MediaCollection::class,
             [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -1142,8 +1136,7 @@ class UnusedMediaPurgerTest extends TestCase
         $repo = StaticEntityRepository::of(
             MediaCollection::class,
             [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -1198,8 +1191,7 @@ class UnusedMediaPurgerTest extends TestCase
         $repo = StaticEntityRepository::of(
             MediaCollection::class,
             [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -1237,8 +1229,8 @@ class UnusedMediaPurgerTest extends TestCase
         $repo = StaticEntityRepository::of(
             MediaCollection::class,
             [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 2), // candidate count query, folder entity given
             ],
             $mediaDefinition
         );
@@ -1264,8 +1256,8 @@ class UnusedMediaPurgerTest extends TestCase
         $repo = StaticEntityRepository::of(
             MediaCollection::class,
             [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 2), // candidate count query, folder entity given
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     $filters = $criteria->getFilters();
 
@@ -1274,6 +1266,12 @@ class UnusedMediaPurgerTest extends TestCase
                     self::assertInstanceOf(EqualsAnyFilter::class, $filters[0]);
                     self::assertSame('media.mediaFolderId', $filters[0]->getField());
                     self::assertSame(['id1', 'id2', 'id3', 'id4'], $filters[0]->getValue());
+
+                    // the candidate criteria is shared with the count above, so it must come back
+                    // untouched by it: an inherited TOTAL_COUNT_MODE_EXACT would make every batch
+                    // count the whole folder, and an inherited limit of 1 would shrink the batch
+                    self::assertSame(Criteria::TOTAL_COUNT_MODE_NONE, $criteria->getTotalCountMode());
+                    self::assertSame(50, $criteria->getLimit());
 
                     return [$id1, $id2];
                 },
@@ -1329,8 +1327,7 @@ class UnusedMediaPurgerTest extends TestCase
         $repo = StaticEntityRepository::of(
             MediaCollection::class,
             [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -1371,8 +1368,7 @@ class UnusedMediaPurgerTest extends TestCase
         $repo = StaticEntityRepository::of(
             MediaCollection::class,
             [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -1411,8 +1407,7 @@ class UnusedMediaPurgerTest extends TestCase
         $repo = StaticEntityRepository::of(
             MediaCollection::class,
             [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -1455,8 +1450,7 @@ class UnusedMediaPurgerTest extends TestCase
         $repo = StaticEntityRepository::of(
             MediaCollection::class,
             [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 static function (Criteria $criteria, Context $context) use ($id1, $id2) {
                     self::assertCount(0, $criteria->getFilters());
 
@@ -1497,8 +1491,7 @@ class UnusedMediaPurgerTest extends TestCase
         $repo = StaticEntityRepository::of(
             MediaCollection::class,
             [
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 10, new MediaCollection(), null, $criteria, $context), // total media count query
-                static fn (Criteria $criteria, Context $context) => new EntitySearchResult('media', 2, new MediaCollection(), null, $criteria, $context), // purgable media count query
+                static fn (Criteria $criteria, Context $context) => IdSearchResult::fromIds([], $criteria, $context, 10), // total media count query; without a folder entity it is also the candidate count
                 [$id1, $id2],
                 // the grace period query, the only one left now that the fixture has no association
                 static function (Criteria $criteria) use ($id1, $id2) {

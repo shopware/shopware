@@ -106,15 +106,21 @@ class UnusedMediaPurger
         $context = Context::createDefaultContext();
 
         $totalMedia = $this->getTotal(new Criteria(), $context);
+
+        // resolving the folder tree costs two queries, so the candidate criteria is built once and shared
+        $candidateCriteria = $this->createCandidateCriteria($folderEntity);
         // counts the media that will be scanned, not the media that turns out to be unused: an exact
         // count cannot be bound to a single batch of ids, and counting across every media association
-        // is the query that exceeds MySQL's MAX_JOIN_SIZE on large datasets
-        $totalCandidates = $this->getTotal($this->createCandidateCriteria($folderEntity), $context);
+        // is the query that exceeds MySQL's MAX_JOIN_SIZE on large datasets. Without a folder entity the
+        // candidates are every media, which $totalMedia already counted
+        $totalCandidates = $folderEntity === null
+            ? $totalMedia
+            : $this->getTotal($candidateCriteria, $context);
 
         $this->eventDispatcher->dispatch(new UnusedMediaSearchStartEvent($totalMedia, $totalCandidates));
 
         $totalDeleted = 0;
-        foreach ($this->getUnusedMediaIds($context, $limit, $offset, $folderEntity) as $idBatch) {
+        foreach ($this->getUnusedMediaIds($context, $limit, $offset, $candidateCriteria) as $idBatch) {
             $idBatch = $this->filterOutNewMedia($idBatch, $gracePeriodDays, $context);
 
             if ($idBatch !== []) {
@@ -148,10 +154,14 @@ class UnusedMediaPurger
 
     private function getTotal(Criteria $criteria, Context $context): int
     {
+        // the caller keeps its criteria reusable: the limit and the count mode set here would otherwise
+        // leak into the candidate query, and TOTAL_COUNT_MODE_EXACT makes every batch count the folder
+        $criteria = clone $criteria;
         $criteria->setLimit(1);
         $criteria->setTotalCountMode(Criteria::TOTAL_COUNT_MODE_EXACT);
 
-        return $this->mediaRepo->search($criteria, $context)->getTotal();
+        // only the total is read, so there is nothing to hydrate
+        return $this->mediaRepo->searchIds($criteria, $context)->getTotal();
     }
 
     /**
@@ -177,9 +187,10 @@ class UnusedMediaPurger
     /**
      * @return \Generator<int, list<string>>
      */
-    private function getUnusedMediaIds(Context $context, int $limit, ?int $offset = null, ?string $folderEntity = null): \Generator
+    private function getUnusedMediaIds(Context $context, int $limit, ?int $offset, Criteria $candidateCriteria): \Generator
     {
-        $criteria = $this->createCandidateCriteria($folderEntity);
+        // the caller may still hold this criteria, so the sorting and the limit go on a copy
+        $criteria = clone $candidateCriteria;
         $criteria->addSorting(new FieldSorting('id', FieldSorting::ASCENDING));
         $criteria->setLimit($limit);
 

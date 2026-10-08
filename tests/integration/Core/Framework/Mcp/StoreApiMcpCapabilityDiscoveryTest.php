@@ -112,6 +112,16 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
         );
     }
 
+    public function testStoreApiToolResultsGoThroughTheResultRenderer(): void
+    {
+        $browser = $this->createSalesChannelBrowser();
+        $sessionId = $this->initialize($browser);
+
+        $result = $this->callTool($browser, $sessionId, 'shopware-toolsets-list', []);
+
+        static::assertArrayHasKey('shopware/generatedAt', $result['_meta'] ?? [], 'the Store API server must wrap its reference handler too');
+    }
+
     private function initialize(KernelBrowser $browser): string
     {
         $browser->request('POST', '/store-api/_mcp', [], [], ['CONTENT_TYPE' => 'application/json'], json_encode([
@@ -151,11 +161,11 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
     /**
      * @param array<string, mixed> $arguments
      *
-     * @return array{content: list<array{text: string}>}
+     * @return array{content: list<array{text: string}>, _meta?: array<string, mixed>}
      */
     private function callTool(KernelBrowser $browser, string $sessionId, string $name, array $arguments): array
     {
-        /** @var array{content: list<array{text: string}>} $result */
+        /** @var array{content: list<array{text: string}>, _meta?: array<string, mixed>} $result */
         $result = $this->rpc($browser, $sessionId, [
             'jsonrpc' => '2.0',
             'method' => 'tools/call',
@@ -170,7 +180,7 @@ class StoreApiMcpCapabilityDiscoveryTest extends TestCase
      * The tool's data and metadata in either result format: the legacy envelope in the first text
      * block, or, with `v6.8.0.0`, the plain data followed by a `{"_meta": …}` block.
      *
-     * @param array{content: list<array{text: string}>} $result
+     * @param array{content: list<array{text: string}>, _meta?: array<string, mixed>} $result
      *
      * @return array{data: mixed, _meta: array<mixed>}
      */

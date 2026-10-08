@@ -375,12 +375,13 @@ Previously, these routes could return unrelated records or fail because the unde
 Tool results of both MCP servers (`/api/_mcp` and `/store-api/_mcp`) carry their data in `structuredContent`, and a failed call sets `isError: true`. Until 6.8.0 the first text block additionally contained the legacy envelope `{"success": true, "data": …, "_meta": …}` or `{"success": false, "error": …}`. With 6.8.0 that envelope is removed:
 
 - The first text block holds the result data as plain JSON (the copy of `structuredContent` the MCP specification asks for), or the error message for a failed call.
+- A failed call follows with its details as a text block `{"details": {…}}`, when it has any.
 - A summary, if the tool gives one, follows as a separate text block.
 - The metadata (for example `dryRun`, `total`, `resourceUri`, `usage`) follows as a text block `{"_meta": {…}}`, and is also sent in the result's `_meta` with the prefix `shopware/` (for example `shopware/dryRun`).
 
 If your MCP client or integration parses `content[0].text` as `{"success": …, "data": …}`:
 
-- Read `structuredContent` for the data and `isError` for the outcome. Both are already sent on 6.7, so you can switch before updating.
+- Read `structuredContent` for the data and `isError` for the outcome. Both are already sent on 6.7, so you can switch before updating. `structuredContent` requires protocol revision 2025-06-18 or later; on older revisions read the first text block.
 - Read metadata from the result's `_meta` (`shopware/<key>`) instead of the envelope's `_meta`.
 - For error details, read `structuredContent.error` (`code`, `message`, `details`) instead of the envelope's `error` and `code`.
 

@@ -139,12 +139,12 @@ Rules:
 ### What the client receives
 
 The envelope above is the text block. `McpToolResultReferenceHandler` wraps the SDK reference handler of both servers (`McpToolResultRendererCompilerPass`), parses the envelope into a `McpToolResult` and renders it with `McpToolResultRenderer` into a `CallToolResult`:
-- `structuredContent` holds `data`. On the handshake era it must be an object, so a list or scalar is wrapped as `{"result": ...}`. A failure becomes `{"error": {"code": ..., "message": ...}}` and sets `isError: true`
+- `structuredContent` holds `data`. On the handshake era it must be an object, so a list or scalar is wrapped as `{"result": ...}`. A failure becomes `{"error": {"code": ..., "message": ..., "details": ...}}` and sets `isError: true`. Clients that negotiated a protocol revision before 2025-06-18 get no `structuredContent`, because it doesn't exist there; they read the text block
 - `structuredContent` and the text copy are both sent, as the spec asks. Size is limited only by the 100 KB offload in `McpToolResponse::success()`. Moving that decision into the renderer is phase 2 of the result format ADR
 - `_meta["shopware/generatedAt"]` is always set
-- With `v6.8.0.0` active, the text block holds the plain data (or the error message) instead of the envelope, and the envelope `_meta` moves to the result `_meta` with a `shopware/` prefix
+- With `v6.8.0.0` active, the envelope is replaced by separate text blocks: the data as plain JSON, then the summary, then `{"_meta": …}`. A failure sends its message, then `{"details": …}` and `{"_meta": …}` when there are any. The metadata also goes into the result `_meta` with a `shopware/` prefix. Keys next to the envelope fields, such as `dryRun`, count as metadata
 
-A tool may also return a `McpToolResult` directly; it is rendered the same way. Tools that return a `CallToolResult` themselves bypass the renderer.
+A tool may also return a `McpToolResult` directly; it is rendered the same way. Until 6.8.0, the text block of such a result is a rebuilt envelope, which carries the data, the metadata and the error message and code, but not a summary or error details. Tools that return a `CallToolResult` themselves bypass the renderer.
 
 ## Pagination with shopware-entity-search
 

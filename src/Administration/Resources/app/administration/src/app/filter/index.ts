@@ -5,7 +5,7 @@
 
 export default (): any[] => {
     // @ts-expect-error
-    const context = import.meta.glob<$TSFixMe>('./**/!(*.spec).{j,t}s', {
+    const context = import.meta.glob<$TSFixMe>(['./**/*.{j,t}s', '!./**/*.spec.{j,t}s'], {
         eager: true,
     });
 

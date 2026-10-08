@@ -544,6 +544,7 @@ Check your Administration extensions for these changes:
 - Built JavaScript targets the "Baseline Widely Available" browsers (Chrome 111, Edge 111, Firefox 114, Safari 16.4). Syntax these browsers support natively is no longer transpiled.
 - CSS is minified by Lightning CSS. Invalid CSS that esbuild kept is now dropped from the output and reported as a `[lightningcss minify]` warning during the build.
 - The generated `.vite/entrypoints.json` and `.vite/manifest.json` keep their format, so templates and the Symfony integration need no change.
+- `import.meta.glob()` no longer supports extglob patterns such as `./**/!(*.spec).js`; they silently match nothing. Exclude files with a negated pattern instead: `import.meta.glob(['./**/*.js', '!./**/*.spec.js'])`.
 
 ## Storefront
 

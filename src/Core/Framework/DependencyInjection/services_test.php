@@ -146,9 +146,10 @@ return static function (ContainerConfigurator $containerConfigurator): void {
     $services->set(StoreApiSessionListener::class)
         ->tag('kernel.event_subscriber');
 
-    // closest to the base dispatcher, so nested events re-dispatched by the outer decorators reach the hooks
+    // closest to the base dispatcher, so nested events re-dispatched by the outer decorators reach the hooks;
+    // above any plugin decorator of the dispatcher, so the hooks stay innermost regardless of definition order
     $services->set(EventHookDispatcher::class)
-        ->decorate('event_dispatcher', null, 10000)
+        ->decorate('event_dispatcher', null, 100000)
         ->args([
             service(EventHookDispatcher::class . '.inner'),
         ]);

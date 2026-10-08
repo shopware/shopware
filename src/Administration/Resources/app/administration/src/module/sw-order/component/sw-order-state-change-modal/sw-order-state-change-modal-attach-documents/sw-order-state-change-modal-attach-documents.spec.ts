@@ -1,12 +1,14 @@
 /**
  * @sw-package checkout
  */
-import { mount } from '@vue/test-utils';
+import { mount, type VueWrapper } from '@vue/test-utils';
 
 const STORAGE_KEY = 'sw-order-state-change-modal-send-mail';
 
+let mountedWrapper: VueWrapper | undefined;
+
 async function createWrapper() {
-    return mount(await wrapTestComponent('sw-order-state-change-modal-attach-documents', { sync: true }), {
+    const wrapper = mount(await wrapTestComponent('sw-order-state-change-modal-attach-documents', { sync: true }), {
         props: {
             order: { id: 'orderId' },
             isLoading: false,
@@ -19,11 +21,20 @@ async function createWrapper() {
             },
         },
     });
+
+    mountedWrapper = wrapper;
+
+    return wrapper;
 }
 
 describe('sw-order-state-change-modal-attach-documents', () => {
     beforeEach(() => {
         localStorage.clear();
+    });
+
+    afterEach(() => {
+        mountedWrapper?.unmount();
+        mountedWrapper = undefined;
     });
 
     it('should default sendMail to true without stored value', async () => {

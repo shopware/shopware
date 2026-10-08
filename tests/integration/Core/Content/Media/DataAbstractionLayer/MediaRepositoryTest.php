@@ -120,7 +120,7 @@ class MediaRepositoryTest extends TestCase
 
         static::assertSame([$ids->get('cover-product')], $event->getDeletedPrimaryKeys('product'));
         static::assertSame([], $this->getProductUpdates($event));
-        static::assertNull($productRepository->search(new Criteria([$ids->get('cover-product')]), $this->context)->first());
+        static::assertNull($productRepository->search(new Criteria([$ids->get('cover-product')]), $this->context)->getEntities()->first());
     }
 
     public function testDeletingAProductWithACoverThroughTheSyncApiReportsItAsDeleted(): void

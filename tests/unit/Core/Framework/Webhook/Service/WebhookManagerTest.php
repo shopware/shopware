@@ -247,7 +247,7 @@ class WebhookManagerTest extends TestCase
 
         $this->getWebhookManager(false)->dispatch($event);
         $messages = $this->bus->getMessages();
-        static::assertEmpty($messages);
+        static::assertCount(0, $messages);
     }
 
     public function testWebhookCacheKeepsInactiveAppStateUntilCleared(): void
@@ -308,7 +308,7 @@ class WebhookManagerTest extends TestCase
         $this->getWebhookManager(false)->dispatch($event);
 
         $messages = $this->bus->getMessages();
-        static::assertEmpty($messages);
+        static::assertCount(0, $messages);
     }
 
     public function testWebhooksForLiveVersionOnlyAreSentIfPayloadDoesNotHaveAnyVersionId(): void

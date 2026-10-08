@@ -56,14 +56,11 @@ With the newly added tabs feature, plugin developers can now add another layer o
 
 ## Core
 
-### New `ProductBecameAvailableEvent`
+### `ProductNoLongerAvailableEvent` only contains products that are no longer available
 
-The new `Shopware\Core\Content\Product\Events\ProductBecameAvailableEvent` is dispatched with the ids of products whose `available` flag changed from `false` to `true`, for example after a restock of a closeout product.
+`Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent` was also dispatched for products that became available, for example after a restock of a closeout product. It now only contains products whose `available` flag changed from `true` to `false`.
 
-Until now, `ProductNoLongerAvailableEvent` contained every product whose availability changed, including products that became available. This is kept until 6.8; with the `v6.8.0.0` feature flag active, `ProductNoLongerAvailableEvent` only contains products that are no longer available. If your listener needs both directions, also subscribe to `ProductBecameAvailableEvent`.
-### Product stream builders can migrate without dropping the legacy contract
-
-`AbstractProductStreamBuilder` now implements the deprecated `ProductStreamBuilderInterface` and forwards `buildFilters()` to `enrichCriteria()`. Extensions can therefore migrate their implementations to the abstract class while remaining compatible with code that still consumes the legacy interface.
+Products that became available are dispatched with the new `Shopware\Core\Content\Product\Events\ProductBackInStockEvent`. If your subscriber reacts to both directions, for example to invalidate caches, subscribe to both events.
 
 ### Feature flags can belong to a major version
 

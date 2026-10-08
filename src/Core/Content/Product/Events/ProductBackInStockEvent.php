@@ -13,7 +13,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  * @codeCoverageIgnore
  */
 #[Package('inventory')]
-class ProductBecameAvailableEvent extends Event implements ShopwareEvent, ProductChangedEventInterface
+class ProductBackInStockEvent extends Event implements ShopwareEvent, ProductChangedEventInterface
 {
     /**
      * @param list<string> $ids

@@ -13,7 +13,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemEntity;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
-use Shopware\Core\Content\Product\Events\ProductBecameAvailableEvent;
+use Shopware\Core\Content\Product\Events\ProductBackInStockEvent;
 use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\ProductDefinition;
@@ -24,7 +24,6 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\CountryAddToSalesChannelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
@@ -71,7 +70,7 @@ class StockStorageTest extends TestCase
     /**
      * @var list<string>
      */
-    private array $becameAvailableIds = [];
+    private array $backInStockIds = [];
 
     private AbstractSalesChannelContextFactory $contextFactory;
 
@@ -310,7 +309,7 @@ class StockStorageTest extends TestCase
     }
 
     #[DataProvider('availabilityEventsOnCreateProvider')]
-    public function testAvailabilityEventsOnCreate(int $stock, bool $closeout, bool $becameAvailable): void
+    public function testAvailabilityEventsOnCreate(int $stock, bool $closeout, bool $backInStock): void
     {
         $ids = new IdsCollection();
 
@@ -324,7 +323,7 @@ class StockStorageTest extends TestCase
 
         $this->productRepository->create([$product], Context::createDefaultContext());
 
-        $this->assertAvailabilityEvents($ids->get('p1'), noLongerAvailable: false, becameAvailable: $becameAvailable);
+        $this->assertAvailabilityEvents($ids->get('p1'), noLongerAvailable: false, backInStock: $backInStock);
     }
 
     public static function availabilityEventsOnAlterProvider(): \Generator
@@ -334,7 +333,7 @@ class StockStorageTest extends TestCase
             'closeout' => true,
             'after' => 0,
             'noLongerAvailable' => false,
-            'becameAvailable' => false,
+            'backInStock' => false,
         ];
 
         yield 'Closeout, not stock, after 1' => [
@@ -342,7 +341,7 @@ class StockStorageTest extends TestCase
             'closeout' => true,
             'after' => 1,
             'noLongerAvailable' => false,
-            'becameAvailable' => true,
+            'backInStock' => true,
         ];
 
         yield 'Closeout, stock, after 0' => [
@@ -350,7 +349,7 @@ class StockStorageTest extends TestCase
             'closeout' => true,
             'after' => 0,
             'noLongerAvailable' => true,
-            'becameAvailable' => false,
+            'backInStock' => false,
         ];
 
         yield 'Closeout, stock, after 1' => [
@@ -358,7 +357,7 @@ class StockStorageTest extends TestCase
             'closeout' => true,
             'after' => 1,
             'noLongerAvailable' => false,
-            'becameAvailable' => false,
+            'backInStock' => false,
         ];
 
         // changing stock of none closeout products should never change the availability
@@ -367,7 +366,7 @@ class StockStorageTest extends TestCase
             'closeout' => false,
             'after' => 0,
             'noLongerAvailable' => false,
-            'becameAvailable' => false,
+            'backInStock' => false,
         ];
 
         yield 'None closeout, not stock, after 1' => [
@@ -375,7 +374,7 @@ class StockStorageTest extends TestCase
             'closeout' => false,
             'after' => 1,
             'noLongerAvailable' => false,
-            'becameAvailable' => false,
+            'backInStock' => false,
         ];
 
         yield 'None closeout, stock, after 0' => [
@@ -383,7 +382,7 @@ class StockStorageTest extends TestCase
             'closeout' => false,
             'after' => 0,
             'noLongerAvailable' => false,
-            'becameAvailable' => false,
+            'backInStock' => false,
         ];
 
         yield 'None closeout, stock, after 1' => [
@@ -391,12 +390,12 @@ class StockStorageTest extends TestCase
             'closeout' => false,
             'after' => 1,
             'noLongerAvailable' => false,
-            'becameAvailable' => false,
+            'backInStock' => false,
         ];
     }
 
     #[DataProvider('availabilityEventsOnAlterProvider')]
-    public function testAvailabilityEventsOnAlter(int $stock, bool $closeout, int $after, bool $noLongerAvailable, bool $becameAvailable): void
+    public function testAvailabilityEventsOnAlter(int $stock, bool $closeout, int $after, bool $noLongerAvailable, bool $backInStock): void
     {
         $ids = new IdsCollection();
 
@@ -414,7 +413,7 @@ class StockStorageTest extends TestCase
 
         $this->productRepository->update([['id' => $product['id'], 'stock' => $after]], $context);
 
-        $this->assertAvailabilityEvents($ids->get('p1'), $noLongerAvailable, $becameAvailable);
+        $this->assertAvailabilityEvents($ids->get('p1'), $noLongerAvailable, $backInStock);
     }
 
     public function testStockAfterOrderProduct(): void
@@ -1092,19 +1091,14 @@ class StockStorageTest extends TestCase
             $this->noLongerAvailableIds = [...$this->noLongerAvailableIds, ...$event->getIds()];
         });
 
-        $this->addEventListener($dispatcher, ProductBecameAvailableEvent::class, function (ProductBecameAvailableEvent $event): void {
-            $this->becameAvailableIds = [...$this->becameAvailableIds, ...$event->getIds()];
+        $this->addEventListener($dispatcher, ProductBackInStockEvent::class, function (ProductBackInStockEvent $event): void {
+            $this->backInStockIds = [...$this->backInStockIds, ...$event->getIds()];
         });
     }
 
-    private function assertAvailabilityEvents(string $productId, bool $noLongerAvailable, bool $becameAvailable): void
+    private function assertAvailabilityEvents(string $productId, bool $noLongerAvailable, bool $backInStock): void
     {
-        // @deprecated tag:v6.8.0 - remove the legacy expectation, products which became available are no longer part of the event
-        if (!Feature::isActive('v6.8.0.0')) {
-            $noLongerAvailable = $noLongerAvailable || $becameAvailable;
-        }
-
         static::assertSame($noLongerAvailable ? [$productId] : [], $this->noLongerAvailableIds);
-        static::assertSame($becameAvailable ? [$productId] : [], $this->becameAvailableIds);
+        static::assertSame($backInStock ? [$productId] : [], $this->backInStockIds);
     }
 }

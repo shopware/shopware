@@ -9,9 +9,7 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Dispatched with the ids of products whose `available` flag changed from true to false.
- * Products which became available are dispatched with the `ProductBecameAvailableEvent`.
- *
- * Until v6.8.0.0, the event also contains the ids of products which became available.
+ * Products which became available are dispatched with the `ProductBackInStockEvent`.
  *
  * @codeCoverageIgnore
  */

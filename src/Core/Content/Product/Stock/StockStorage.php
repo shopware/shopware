@@ -4,13 +4,12 @@ namespace Shopware\Core\Content\Product\Stock;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Content\Product\Events\ProductBecameAvailableEvent;
+use Shopware\Core\Content\Product\Events\ProductBackInStockEvent;
 use Shopware\Core\Content\Product\Events\ProductNoLongerAvailableEvent;
 use Shopware\Core\Content\Product\Events\ProductStockAlteredEvent;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\RetryableQuery;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -138,7 +137,7 @@ class StockStorage extends AbstractStockStorage
         );
 
         $noLongerAvailable = [];
-        $becameAvailable = [];
+        $backInStock = [];
         foreach ($before as $id => $available) {
             if ((bool) $available === (bool) $after[$id]) {
                 continue;
@@ -150,20 +149,15 @@ class StockStorage extends AbstractStockStorage
                 continue;
             }
 
-            $becameAvailable[] = (string) $id;
-        }
-
-        // @deprecated tag:v6.8.0 - remove the legacy branch, the event will only contain products which are no longer available
-        if (!Feature::isActive('v6.8.0.0')) {
-            $noLongerAvailable = [...$noLongerAvailable, ...$becameAvailable];
+            $backInStock[] = (string) $id;
         }
 
         if ($noLongerAvailable !== []) {
             $this->dispatcher->dispatch(new ProductNoLongerAvailableEvent($noLongerAvailable, $context));
         }
 
-        if ($becameAvailable !== []) {
-            $this->dispatcher->dispatch(new ProductBecameAvailableEvent($becameAvailable, $context));
+        if ($backInStock !== []) {
+            $this->dispatcher->dispatch(new ProductBackInStockEvent($backInStock, $context));
         }
     }
 }

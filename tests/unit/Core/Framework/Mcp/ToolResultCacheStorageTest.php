@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Framework\Mcp;
 
 use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
@@ -134,9 +135,11 @@ class ToolResultCacheStorageTest extends TestCase
                 ),
                 [
                     'threshold' => '2026-09-23 12:00:00.000',
-                    'limit' => 1000,
+                    'limit' => 100,
                 ],
-                static::anything(),
+                [
+                    'limit' => ParameterType::INTEGER,
+                ],
             )
             ->willReturn(3);
 
@@ -152,10 +155,10 @@ class ToolResultCacheStorageTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection->expects($this->exactly(3))
             ->method('executeStatement')
-            ->willReturnOnConsecutiveCalls(1000, 1000, 42);
+            ->willReturnOnConsecutiveCalls(100, 100, 42);
 
         $storage = new ToolResultCacheStorage($connection, new NativeClock());
 
-        static::assertSame(2042, $storage->deleteOlderThan($threshold));
+        static::assertSame(242, $storage->deleteOlderThan($threshold));
     }
 }

@@ -309,6 +309,12 @@ If you customized the order confirmation mail, replace `nestedItem.productId|sw_
 
 Remote thumbnail URL generation now avoids unnecessary extension dispatching when no listeners are registered. Existing extensions that listen to remote thumbnail URL events continue to work unchanged.
 
+### Stored MCP tool results are removed after 24 hours
+
+MCP tool results larger than 100 KB are stored in `mcp_tool_result_cache` and read back by the client with `resources/read`. Until now they were only removed when the client ended its session with `DELETE /api/_mcp` or `DELETE /store-api/_mcp`, so results of clients that never sent it stayed in the database. The new hourly scheduled task `mcp_tool_result_cache.cleanup` removes results older than 24 hours.
+
+Stored results can contain customer and order data. To keep them shorter, set `shopware.mcp.tool_result_cache_ttl` (in seconds, at least 60). The cleanup only runs where scheduled tasks are consumed, see [Scheduled tasks](https://developer.shopware.com/docs/guides/hosting/infrastructure/scheduled-task.html).
+
 ## API
 
 ### HTML in customer name and address fields is rejected with a dedicated violation

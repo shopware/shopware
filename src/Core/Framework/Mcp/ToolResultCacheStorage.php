@@ -12,28 +12,23 @@ use Shopware\Core\Framework\Uuid\Uuid;
 /**
  * @experimental stableVersion:v6.8.0
  *
- * Persists large tool results in the DB for the duration of an MCP session.
- * Each stored result is scoped to a session ID so it cannot be read by other sessions.
- * Rows are removed when the MCP session ends (DELETE /api/_mcp), and by the periodic
- * age-based McpToolResultCacheCleanupTask when a client disconnects without DELETE
- * (or when the modern era answers DELETE with 405 and there is no session store).
+ * Persists large tool results in the DB. Each stored result is scoped to a session ID so it cannot
+ * be read by other sessions. Rows are removed on DELETE of the session and by age, see
+ * {@see \Shopware\Core\Framework\Mcp\ScheduledTask\McpToolResultCacheCleanupTaskHandler}.
  */
 #[Package('framework')]
 class ToolResultCacheStorage
 {
     /**
-     * How long a cached oversized tool result may remain after `created_at`.
-     * Results are only read during the call that produced them and the model's immediate
-     * follow-up `resources/read`, so a fixed age is safe, unlike mcp_toolset_session,
-     * which must wait for session-store liveness.
+     * Default of `shopware.mcp.tool_result_cache_ttl`: seconds a stored result is kept after `created_at`.
      */
     public const DEFAULT_TTL_SECONDS = 86400;
 
     /**
-     * Bounded DELETE batch size for TTL GC. Matches CleanupCustomerRecoveryTaskHandler.
-     * Keeps lock / undo / replication pressure finite when the first run drains a backlog.
+     * Every row holds more than 100 KB (`McpToolResponse::MAX_RESPONSE_SIZE`), so a batch stays around
+     * 10 MB of row data, well below transaction size limits such as Group Replication's.
      */
-    private const CLEANUP_BATCH_SIZE = 1000;
+    private const CLEANUP_BATCH_SIZE = 100;
 
     /**
      * @internal
@@ -99,9 +94,7 @@ class ToolResultCacheStorage
     }
 
     /**
-     * Deletes rows older than `$threshold` (inclusive of equality at the boundary).
-     * Used by the scheduled TTL GC. Does not consult session stores.
-     * Deletes in bounded LIMIT batches to avoid one unbounded transaction on backlog.
+     * Deletes rows created at or before `$threshold`, in batches of CLEANUP_BATCH_SIZE.
      *
      * @return int Number of deleted rows
      */

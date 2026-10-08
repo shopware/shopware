@@ -9,6 +9,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEve
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
+use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Util\Json;
@@ -120,9 +121,13 @@ abstract class McpToolResponse
         return $json;
     }
 
-    protected function error(string $message): string
+    /**
+     * @param string $code a stable code clients can match on, see {@see McpToolError}; it ends up in
+     *                     `structuredContent.error.code` next to `isError: true`
+     */
+    protected function error(string $message, string $code = McpToolError::TOOL_ERROR): string
     {
-        return Json::encode(['success' => false, 'error' => $message]);
+        return Json::encode(['success' => false, 'error' => $message, 'code' => $code]);
     }
 
     /**
@@ -145,7 +150,7 @@ abstract class McpToolResponse
     protected function invalidCriteriaError(ShopwareHttpException $e): string
     {
         if (!$e instanceof SearchRequestException) {
-            return $this->error($e->getMessage());
+            return $this->error($e->getMessage(), McpToolError::INVALID_ARGUMENTS);
         }
 
         $details = [];
@@ -158,10 +163,10 @@ abstract class McpToolResponse
         // generator over caller-supplied state and a message with nothing after
         // the colon would be worse than the generic one it replaces.
         if ($details === []) {
-            return $this->error($e->getMessage());
+            return $this->error($e->getMessage(), McpToolError::INVALID_ARGUMENTS);
         }
 
-        return $this->error(\sprintf('Invalid criteria: %s', \implode('; ', $details)));
+        return $this->error(\sprintf('Invalid criteria: %s', \implode('; ', $details)), McpToolError::INVALID_ARGUMENTS);
     }
 
     /**
@@ -172,11 +177,11 @@ abstract class McpToolResponse
         try {
             $result = json_decode($json, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
-            return $this->error(\sprintf('Invalid JSON for "%s": %s', $fieldName, $e->getMessage()));
+            return $this->error(\sprintf('Invalid JSON for "%s": %s', $fieldName, $e->getMessage()), McpToolError::INVALID_ARGUMENTS);
         }
 
         if (!\is_array($result)) {
-            return $this->error(\sprintf('"%s" must be a JSON object or array', $fieldName));
+            return $this->error(\sprintf('"%s" must be a JSON object or array', $fieldName), McpToolError::INVALID_ARGUMENTS);
         }
 
         return $result;
@@ -204,7 +209,7 @@ abstract class McpToolResponse
      */
     protected function missingPrivilegesError(array $privileges): string
     {
-        return $this->error(\sprintf('Missing privilege: %s', implode(', ', $privileges)));
+        return $this->error(\sprintf('Missing privilege: %s', implode(', ', $privileges)), McpToolError::MISSING_PRIVILEGE);
     }
 
     /**

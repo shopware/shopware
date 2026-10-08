@@ -1,8 +1,8 @@
 {
     "require-dev": {
-        "frosh/shopware-rector": "0.5.10",
-        "phpstan/phpstan": "2.2.5",
-        "rector/rector": "2.5.7"
+        "frosh/shopware-rector": "0.6.0",
+        "phpstan/phpstan": "2.3.0",
+        "rector/rector": "2.7.0"
     },
     "sort-packages": true
 }

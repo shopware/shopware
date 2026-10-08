@@ -7,6 +7,7 @@ use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseAvailableThemeProvider;
 use Shopware\Storefront\Theme\ConfigLoader\DatabaseConfigLoader;
 use Shopware\Storefront\Theme\ConfigLoader\StaticFileAvailableThemeProvider;
@@ -19,6 +20,7 @@ use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConf
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StaticFileConfigDumper::class)]
 class StaticFileConfigDumperTest extends TestCase
 {

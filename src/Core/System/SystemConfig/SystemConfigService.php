@@ -10,6 +10,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
 use Shopware\Core\Framework\Bundle;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\MultiInsertQueryQueue;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\ConfigJsonField;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Util\Json;
@@ -181,13 +182,6 @@ class SystemConfigService implements ResetInterface
                 }
             }
 
-            $inheritedValuePresent = \array_key_exists($key, $merged);
-            $valueConsideredEmpty = !\is_bool($value) && empty($value);
-
-            if ($inheritedValuePresent && $valueConsideredEmpty) {
-                continue;
-            }
-
             $merged[$key] = $value;
         }
 
@@ -202,13 +196,12 @@ class SystemConfigService implements ResetInterface
 
     /**
      * @param array<mixed>|bool|float|int|string|null $value
-     *
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
      */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', defaultValue: true)]
     public function set(string $key, $value, ?string $salesChannelId = null /* , bool $silent = true */): void
     {
         // @deprecated tag:v6.8.0 - remove whole if statement below
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             $silent = \func_num_args() >= 4 ? (bool) func_get_arg(3) : true;
         } else {
             $silent = \func_num_args() >= 4 ? (bool) func_get_arg(3) : false;
@@ -219,13 +212,12 @@ class SystemConfigService implements ResetInterface
 
     /**
      * @param array<string, array<mixed>|bool|float|int|string|null> $values
-     *
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
      */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', defaultValue: true)]
     public function setMultiple(array $values, ?string $salesChannelId = null /* , bool $silent = true */): void
     {
         // @deprecated tag:v6.8.0 - remove whole if statement below
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             $silent = \func_num_args() >= 3 ? (bool) func_get_arg(2) : true;
         } else {
             $silent = \func_num_args() >= 3 ? (bool) func_get_arg(2) : false;
@@ -352,13 +344,11 @@ class SystemConfigService implements ResetInterface
         $this->dispatcher->dispatch(new SystemConfigMultipleChangedEvent($values, $salesChannelId));
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $silent will be added in v6.8.0, default will be true
-     */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'silent', parameterType: 'bool', defaultValue: true)]
     public function delete(string $key, ?string $salesChannel = null /* , bool $silent = true */): void
     {
         // @deprecated tag:v6.8.0 - remove whole if statement below
-        if (Feature::isActive('v6.8.0.0') || Feature::isActive('CACHE_REWORK')) {
+        if (Feature::isActive('CACHE_REWORK')) {
             $silent = \func_num_args() >= 3 ? (bool) func_get_arg(2) : true;
         } else {
             $silent = \func_num_args() >= 3 ? (bool) func_get_arg(2) : false;
@@ -378,9 +368,7 @@ class SystemConfigService implements ResetInterface
             return;
         }
 
-        $prefix = $bundle->getName() . '.config.';
-
-        $this->saveConfig($config, $prefix, $override);
+        $this->saveConfig($config, $bundle->getName() . '.config.', $override);
     }
 
     /**
@@ -390,15 +378,17 @@ class SystemConfigService implements ResetInterface
     {
         $relevantSettings = $this->getDomain($prefix);
 
-        foreach ($config as $card) {
-            foreach ($card['elements'] as $element) {
-                $key = $prefix . $element['name'];
-                if (!isset($element['defaultValue'])) {
-                    continue;
-                }
+        foreach ($config as $tab) {
+            foreach ($tab['cards'] as $card) {
+                foreach ($card['elements'] as $element) {
+                    $key = $prefix . $element['name'];
+                    if (!isset($element['defaultValue'])) {
+                        continue;
+                    }
 
-                if ($override || !isset($relevantSettings[$key])) {
-                    $this->set($key, $element['defaultValue'], null, false);
+                    if ($override || !isset($relevantSettings[$key])) {
+                        $this->set($key, $element['defaultValue'], null, false);
+                    }
                 }
             }
         }
@@ -421,11 +411,13 @@ class SystemConfigService implements ResetInterface
     public function deleteExtensionConfiguration(string $extensionName, array $config): void
     {
         $prefix = $extensionName . '.config.';
-
         $configKeys = [];
-        foreach ($config as $card) {
-            foreach ($card['elements'] as $element) {
-                $configKeys[] = $prefix . $element['name'];
+
+        foreach ($config as $tab) {
+            foreach ($tab['cards'] as $card) {
+                foreach ($card['elements'] as $element) {
+                    $configKeys[] = $prefix . $element['name'];
+                }
             }
         }
 

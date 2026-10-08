@@ -145,7 +145,7 @@ class WishlistController extends StorefrontController
             return new JsonResponse([]);
         }
 
-        return new JsonResponse($res->getProductListing()->getIds());
+        return new JsonResponse($res->getProductListing()->getEntities()->getIds());
     }
 
     #[Route(

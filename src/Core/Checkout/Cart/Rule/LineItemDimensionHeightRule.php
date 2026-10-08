@@ -41,6 +41,10 @@ class LineItemDimensionHeightRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if ($lineItem->getDeliveryInformation() === null && !\array_key_exists(LineItem::PAYLOAD_PRODUCT_TYPE, $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchHeightDimension($lineItem)) {
                 return true;
             }

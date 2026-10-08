@@ -76,14 +76,24 @@ class NetPriceCalculatorTest extends TestCase
 
     public static function regulationPriceCalculationProvider(): \Generator
     {
-        yield 'test calculation without reference price' => [
+        yield 'test calculation without regulation price' => [
             null,
             null,
         ];
 
-        yield 'test calculation with reference price' => [
-            100,
-            new RegulationPrice(100),
+        yield 'test calculation with zero regulation price' => [
+            0.0,
+            null,
+        ];
+
+        yield 'test calculation with negative regulation price' => [
+            -100.0,
+            null,
+        ];
+
+        yield 'test calculation with valid regulation price' => [
+            200.0,
+            RegulationPrice::createFromUnitPrice(100, 200),
         ];
     }
 
@@ -115,6 +125,41 @@ class NetPriceCalculatorTest extends TestCase
             200.0,
             ListPrice::createFromUnitPrice(100, 200),
         ];
+    }
+
+    public function testListPriceIsRoundedBeforePercentageIsCalculated(): void
+    {
+        // Regression for issue #16687: list and unit price differ only below the currency
+        // precision (50.004 vs 50.00), so no discount may be shown. isCalculated is set
+        // explicitly because that is the branch the old rounding guard skipped.
+        $definition = new QuantityPriceDefinition(50.00, new TaxRuleCollection(), 1);
+        $definition->setIsCalculated(true);
+        $definition->setListPrice(50.004);
+
+        $calculator = new NetPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+
+        $listPrice = $price->getListPrice();
+        static::assertNotNull($listPrice);
+        static::assertSame(50.0, $listPrice->getPrice());
+        static::assertSame(0.0, $listPrice->getDiscount());
+        static::assertSame(0.0, $listPrice->getPercentage());
+    }
+
+    public function testRegulationPriceIsRounded(): void
+    {
+        // Regression for issue #16687: the regulation price must be rounded to the
+        // currency precision as well, also when the definition is already calculated.
+        $definition = new QuantityPriceDefinition(50.00, new TaxRuleCollection(), 1);
+        $definition->setIsCalculated(true);
+        $definition->setRegulationPrice(50.004);
+
+        $calculator = new NetPriceCalculator(new TaxCalculator(), new CashRounding());
+        $price = $calculator->calculate($definition, new CashRoundingConfig(2, 0.01, true));
+
+        $regulationPrice = $price->getRegulationPrice();
+        static::assertNotNull($regulationPrice);
+        static::assertSame(50.0, $regulationPrice->getPrice());
     }
 
     public function testTaxesAreRoundedProperly(): void

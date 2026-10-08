@@ -58,4 +58,33 @@ class QueryBuilderTest extends TestCase
         static::assertArrayHasKey(1, $matches);
         static::assertSame($title, $matches[1]);
     }
+
+    public function testOrderByIsExposedAsPairsAndAsStrings(): void
+    {
+        $this->queryBuilder->orderBy('`product`.`stock`');
+        $this->queryBuilder->orderBy('`product`.`name`', 'DESC');
+        $this->queryBuilder->addOrderBy('MIN(`product`.`price`)');
+
+        static::assertSame(
+            [['`product`.`name`', 'DESC'], ['MIN(`product`.`price`)', 'ASC']],
+            $this->queryBuilder->getOrderByPairs()
+        );
+
+        static::assertSame(
+            ['`product`.`name` DESC', 'MIN(`product`.`price`) ASC'],
+            $this->queryBuilder->getOrderByParts()
+        );
+    }
+
+    public function testCriteriaTitleWithControlCharactersStaysInTheSqlComment(): void
+    {
+        $this->queryBuilder->select('id')
+            ->from('product_manufacturer')
+            ->setTitle("first\0\r\nsecond");
+
+        $sql = $this->queryBuilder->getSQL();
+
+        static::assertStringStartsWith('-- first   second' . \PHP_EOL, $sql);
+        static::assertSame(1, substr_count($sql, \PHP_EOL));
+    }
 }

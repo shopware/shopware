@@ -24,6 +24,38 @@ class IgnoredPhpstanErrorsInTouchedFilesTest extends TestCase
     {
         $context = $this->createContext(
             ['src/Core/Framework/Api/ApiController.php', 'src/Core/Framework/Api/Clean.php'],
+            "'path' => __DIR__ . 'src/Core/Framework/Api/ApiController.php'\n",
+        );
+
+        (new IgnoredPhpstanErrorsInTouchedFiles())($context);
+
+        static::assertCount(1, $context->getFailures());
+        static::assertStringContainsString('contain ignored PHPStan errors', $context->getFailures()[0]);
+        static::assertStringContainsString('src/Core/Framework/Api/ApiController.php', $context->getFailures()[0]);
+        static::assertStringNotContainsString('Clean.php', $context->getFailures()[0]);
+    }
+
+    #[TestDox('Fails when a touched file still has baselined PHPStan errors ignoring any path prefix')]
+    public function testFailsForTouchedFileWithBaselinedErrorsWithOnlyFilePath(): void
+    {
+        $context = $this->createContext(
+            ['src/Core/Framework/Api/ApiController.php', 'src/Core/Framework/Api/Clean.php'],
+            "'src/Core/Framework/Api/ApiController.php'\n",
+        );
+
+        (new IgnoredPhpstanErrorsInTouchedFiles())($context);
+
+        static::assertCount(1, $context->getFailures());
+        static::assertStringContainsString('contain ignored PHPStan errors', $context->getFailures()[0]);
+        static::assertStringContainsString('src/Core/Framework/Api/ApiController.php', $context->getFailures()[0]);
+        static::assertStringNotContainsString('Clean.php', $context->getFailures()[0]);
+    }
+
+    #[TestDox('Fails when a touched file still has baselined PHPStan errors in yaml style')]
+    public function testFailsForTouchedFileWithBaselinedErrorsWithYamlStyleConfig(): void
+    {
+        $context = $this->createContext(
+            ['src/Core/Framework/Api/ApiController.php', 'src/Core/Framework/Api/Clean.php'],
             "path: src/Core/Framework/Api/ApiController.php\n",
         );
 
@@ -40,7 +72,7 @@ class IgnoredPhpstanErrorsInTouchedFilesTest extends TestCase
     {
         $context = $this->createContext(
             ['src/Core/Framework/Api/Clean.php'],
-            "path: src/Core/Framework/Api/ApiController.php\n",
+            "'path' => __DIR__ . 'src/Core/Framework/Api/ApiController.php'\n",
         );
 
         (new IgnoredPhpstanErrorsInTouchedFiles())($context);
@@ -53,7 +85,7 @@ class IgnoredPhpstanErrorsInTouchedFilesTest extends TestCase
     {
         $context = $this->createContext(
             ['src/Core/Framework/Api/ApiController.php'],
-            "path: src/Core/Framework/Api/ApiController.php\n",
+            "'path' => __DIR__ . 'src/Core/Framework/Api/ApiController.php'\n",
             ['Skip-Danger-PHPStan-Baseline'],
         );
 

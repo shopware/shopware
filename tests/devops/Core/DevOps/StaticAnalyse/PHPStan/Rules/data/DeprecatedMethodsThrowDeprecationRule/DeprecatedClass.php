@@ -9,6 +9,10 @@ use Shopware\Core\Framework\Feature;
  */
 class DeprecatedClass
 {
+    public function __construct()
+    {
+    }
+
     public function publicMethodWithoutTrigger(): void
     {
     }

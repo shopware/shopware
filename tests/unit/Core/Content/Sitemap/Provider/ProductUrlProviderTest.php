@@ -24,6 +24,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Shopware\Core\Test\TestDefaults;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -103,7 +104,7 @@ class ProductUrlProviderTest extends TestCase
             ],
         ]);
 
-        $this->entityRouteResolver->method('getRouteNameForEntityName')->willReturn('frontend.detail.page');
+        $this->entityRouteResolver->method('getRouteNameForEntityName')->willReturn(ProductPageSeoUrlRoute::ROUTE_NAME);
         $this->entityRouteResolver->method('generateUrl')->willReturn('product/2/detail');
 
         $queryBuilderMock = static::createStub(QueryBuilder::class);

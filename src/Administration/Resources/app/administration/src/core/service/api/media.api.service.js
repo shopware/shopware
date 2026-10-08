@@ -24,7 +24,6 @@ class MediaApiService extends ApiService {
         this.name = 'mediaService';
         this.uploads = [];
         this.$listeners = {};
-        this.cacheDefaultFolder = {};
         this.maxConcurrentUploads = 5;
     }
 
@@ -76,10 +75,7 @@ class MediaApiService extends ApiService {
         const tagListener = this.hasListeners(uploadTag) ? this.$listeners[uploadTag] : [];
         const defaultListeners = this.hasDefaultListeners() ? this.$listeners.default : [];
 
-        return [
-            ...tagListener,
-            ...defaultListeners,
-        ];
+        return [...tagListener, ...defaultListeners];
     }
 
     _createUploadEvent(action, uploadTag, payload) {
@@ -333,22 +329,21 @@ class MediaApiService extends ApiService {
     async getDefaultFolderId(entity) {
         const { Criteria } = Shopware.Data;
 
-        if (this.cacheDefaultFolder[entity]) {
-            return this.cacheDefaultFolder[entity];
-        }
-
         const defaultFolderRepository = Shopware.Service('repositoryFactory').create('media_default_folder');
 
         const criteria = new Criteria(1, 1).addFilter(Criteria.equals('entity', entity));
 
-        const items = await defaultFolderRepository.search(criteria);
+        const items = await defaultFolderRepository.search(criteria, {
+            cacheKey: ['media-default-folder', entity],
+        });
+
         if (items.length !== 1) {
             return null;
         }
+
         const defaultFolder = items[0];
 
         if (defaultFolder.folder?.id) {
-            this.cacheDefaultFolder[entity] = defaultFolder.folder.id;
             return defaultFolder.folder.id;
         }
 

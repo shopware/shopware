@@ -34,8 +34,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         array $idsSearchResult = [],
         ?string $exception = null
     ): void {
-        /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
-        $snippetSetRepository = new StaticEntityRepository($idsSearchResult);
+        $snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, $idsSearchResult);
 
         $foundSnippetSetId = $snippetSetId;
         if (!$foundSnippetSetId) {
@@ -127,8 +126,7 @@ class SalesChannelCreateStorefrontCommandTest extends TestCase
         array $idsSearchResult,
         \Exception $exception
     ): void {
-        /** @var StaticEntityRepository<SnippetSetCollection> $snippetSetRepository */
-        $snippetSetRepository = new StaticEntityRepository($idsSearchResult);
+        $snippetSetRepository = StaticEntityRepository::of(SnippetSetCollection::class, $idsSearchResult);
 
         $mockSalesChannelCreator = static::createStub(SalesChannelCreator::class);
 

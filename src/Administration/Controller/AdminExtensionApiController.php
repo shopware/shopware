@@ -2,6 +2,7 @@
 
 namespace Shopware\Administration\Controller;
 
+use Shopware\Core\Framework\Api\ApiException;
 use Shopware\Core\Framework\App\ActionButton\AppAction;
 use Shopware\Core\Framework\App\ActionButton\Executor;
 use Shopware\Core\Framework\App\AppCollection;
@@ -43,7 +44,15 @@ class AdminExtensionApiController extends AbstractController
     #[Route(path: '/api/_action/extension-sdk/run-action', name: 'api.action.extension-sdk.run-action', methods: ['POST'])]
     public function runAction(RequestDataBag $requestDataBag, Context $context): Response
     {
-        $appName = $requestDataBag->get('appName');
+        $appName = $requestDataBag->getString('appName');
+        if ($appName === '') {
+            throw AppException::missingRequestParameter('appName');
+        }
+
+        if (!$context->isAllowed('app.all') && !$context->isAllowed('app.' . $appName)) {
+            throw ApiException::missingPrivileges(['app.' . $appName]);
+        }
+
         $criteria = new Criteria();
         $criteria->addFilter(
             new EqualsFilter('name', $appName)
@@ -59,7 +68,16 @@ class AdminExtensionApiController extends AbstractController
         }
 
         $targetUrl = $requestDataBag->getString('url');
-        $targetHost = \parse_url($targetUrl, \PHP_URL_HOST);
+        if ($targetUrl === '') {
+            throw AppException::missingRequestParameter('url');
+        }
+
+        $urlParts = \parse_url($targetUrl);
+        if ($urlParts === false || !isset($urlParts['scheme'], $urlParts['host'])) {
+            throw AppException::invalidArgument(\sprintf('%s is not a valid url', $targetUrl));
+        }
+
+        $targetHost = $urlParts['host'];
         $allowedHosts = $app->getAllowedHosts() ?? [];
         if (!$targetHost || !\in_array($targetHost, $allowedHosts, true)) {
             throw AppException::hostNotAllowed($targetUrl, $app->getName());
@@ -86,7 +104,15 @@ class AdminExtensionApiController extends AbstractController
     #[Route(path: '/api/_action/extension-sdk/sign-uri', name: 'api.action.extension-sdk.sign-uri', methods: ['POST'])]
     public function signUri(RequestDataBag $requestDataBag, Context $context): Response
     {
-        $appName = $requestDataBag->get('appName');
+        $appName = $requestDataBag->getString('appName');
+        if ($appName === '') {
+            throw AppException::missingRequestParameter('appName');
+        }
+
+        if (!$context->isAllowed('app.all') && !$context->isAllowed('app.' . $appName)) {
+            throw ApiException::missingPrivileges(['app.' . $appName]);
+        }
+
         $criteria = new Criteria();
         $criteria->addFilter(
             new EqualsFilter('name', $appName)
@@ -97,7 +123,23 @@ class AdminExtensionApiController extends AbstractController
             throw AppException::appNotFoundByName($appName);
         }
 
-        $uri = $this->querySigner->signUri($requestDataBag->get('uri'), $app, $context)->__toString();
+        $uri = $requestDataBag->getString('uri');
+        if ($uri === '') {
+            throw AppException::missingRequestParameter('uri');
+        }
+
+        $uriParts = \parse_url($uri);
+        if ($uriParts === false || !isset($uriParts['scheme'], $uriParts['host'])) {
+            throw AppException::invalidArgument(\sprintf('%s is not a valid url', $uri));
+        }
+
+        $targetHost = $uriParts['host'];
+        $allowedHosts = $app->getAllowedHosts() ?? [];
+        if (!$targetHost || !\in_array($targetHost, $allowedHosts, true)) {
+            throw AppException::hostNotAllowed($uri, $app->getName());
+        }
+
+        $uri = $this->querySigner->signUri($uri, $app, $context)->__toString();
 
         return new JsonResponse([
             'uri' => $uri,

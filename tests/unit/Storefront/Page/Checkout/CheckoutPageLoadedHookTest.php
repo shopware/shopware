@@ -7,6 +7,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\Hook\CartAware;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Page\Checkout\Cart\CheckoutCartPage;
@@ -23,6 +24,7 @@ use Shopware\Storefront\Page\PageLoadedHook;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(CheckoutCartPageLoadedHook::class)]
 #[CoversClass(CheckoutConfirmPageLoadedHook::class)]
 #[CoversClass(CheckoutInfoWidgetLoadedHook::class)]

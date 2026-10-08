@@ -424,6 +424,10 @@ class SalesChannelRequestContextResolverTest extends TestCase
 
         $this->createSalesChannel([
             'id' => $this->ids->create('sales-channel'),
+            'currencies' => [
+                ['id' => Defaults::CURRENCY],
+                ['id' => $usdCurrencyId],
+            ],
             'domains' => [
                 [
                     'id' => $this->ids->get('eur-domain'),

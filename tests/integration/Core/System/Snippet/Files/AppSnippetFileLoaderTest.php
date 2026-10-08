@@ -17,9 +17,11 @@ use Shopware\Core\Kernel;
 use Shopware\Core\System\Snippet\Files\AppSnippetFileLoader;
 use Shopware\Core\System\Snippet\Files\SnippetFileCollection;
 use Shopware\Core\System\Snippet\Files\SnippetFileLoader;
+use Shopware\Core\System\Snippet\Files\StorefrontSnippetStorage;
 use Shopware\Core\System\Snippet\Service\TranslationLoader;
 use Shopware\Core\System\Snippet\Struct\TranslationConfig;
 use Shopware\Core\Test\AppSystemTestBehaviour;
+use Symfony\Component\Filesystem\Filesystem as Io;
 
 /**
  * @internal
@@ -34,20 +36,27 @@ class AppSnippetFileLoaderTest extends TestCase
 
     private SnippetFileLoader $snippetFileLoader;
 
+    private string $mirrorDirectory;
+
     protected function setUp(): void
     {
         $flySystem = new Flysystem(new InMemoryFilesystemAdapter(), ['public_url' => 'http://localhost:8000']);
+        $this->mirrorDirectory = sys_get_temp_dir() . '/' . uniqid('shopware-app-snippet-mirror-', true);
         $this->snippetFileLoader = new SnippetFileLoader(
-            $this->createMock(Kernel::class),
+            static::createStub(Kernel::class),
             static::getContainer()->get(Connection::class),
             static::getContainer()->get(AppSnippetFileLoader::class),
             static::getContainer()->get(ActiveAppsLoader::class),
             static::getContainer()->get(TranslationConfig::class),
             static::getContainer()->get(TranslationLoader::class),
             $flySystem,
-            static::getContainer()->get(SourceResolver::class),
-            new NullLogger()
+            new StorefrontSnippetStorage($flySystem, static::getContainer()->get(SourceResolver::class), new NullLogger(), $this->mirrorDirectory)
         );
+    }
+
+    protected function tearDown(): void
+    {
+        (new Io())->remove($this->mirrorDirectory);
     }
 
     public function testLoadSnippetFilesIntoCollectionWithoutSnippetFiles(): void
@@ -73,7 +82,8 @@ class AppSnippetFileLoaderTest extends TestCase
 
         $snippetFile = $collection->getSnippetFilesByIso('de')[0];
         static::assertSame('storefront.de', $snippetFile->getName());
-        static::assertSame(
+        static::assertStringStartsWith($this->mirrorDirectory . '/', $snippetFile->getPath());
+        static::assertFileEquals(
             __DIR__ . '/_fixtures/Apps/AppWithSnippets/Resources/snippet/storefront.de.json',
             $snippetFile->getPath()
         );
@@ -83,7 +93,8 @@ class AppSnippetFileLoaderTest extends TestCase
 
         $snippetFile = $collection->getSnippetFilesByIso('en')[0];
         static::assertSame('storefront.en', $snippetFile->getName());
-        static::assertSame(
+        static::assertStringStartsWith($this->mirrorDirectory . '/', $snippetFile->getPath());
+        static::assertFileEquals(
             __DIR__ . '/_fixtures/Apps/AppWithSnippets/Resources/snippet/storefront.en.json',
             $snippetFile->getPath()
         );
@@ -115,7 +126,8 @@ class AppSnippetFileLoaderTest extends TestCase
 
         $snippetFile = $collection->getSnippetFilesByIso('de')[0];
         static::assertSame('storefront.de', $snippetFile->getName());
-        static::assertSame(
+        static::assertStringStartsWith($this->mirrorDirectory . '/', $snippetFile->getPath());
+        static::assertFileEquals(
             __DIR__ . '/_fixtures/Apps/AppWithBaseSnippets/Resources/snippet/storefront.de.base.json',
             $snippetFile->getPath()
         );
@@ -125,7 +137,8 @@ class AppSnippetFileLoaderTest extends TestCase
 
         $snippetFile = $collection->getSnippetFilesByIso('en')[0];
         static::assertSame('storefront.en', $snippetFile->getName());
-        static::assertSame(
+        static::assertStringStartsWith($this->mirrorDirectory . '/', $snippetFile->getPath());
+        static::assertFileEquals(
             __DIR__ . '/_fixtures/Apps/AppWithBaseSnippets/Resources/snippet/storefront.en.base.json',
             $snippetFile->getPath()
         );

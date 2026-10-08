@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class OrderStateChangeCriteriaEvent extends Event implements ShopwareEvent
 {

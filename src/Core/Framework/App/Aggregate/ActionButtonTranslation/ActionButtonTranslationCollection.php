@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
  * @internal
  *
  * @extends EntityCollection<ActionButtonTranslationEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class ActionButtonTranslationCollection extends EntityCollection

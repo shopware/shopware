@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Shopware\Tests\Integration\Core\Checkout\Promotion\DataAbstractionLayer;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
@@ -103,9 +104,10 @@ class PromotionRedemptionUpdaterTest extends TestCase
         $this->assertUpdatedCounts();
     }
 
-    public function testIndividualCodeGotCustomerAssignment(): void
+    #[DataProvider('individualCodeDataProvider')]
+    public function testIndividualCodeGotCustomerAssignment(string $orderCode): void
     {
-        $this->createPromotionsAndOrder();
+        $this->createPromotionsAndOrder($orderCode);
 
         $voucherD = $this->ids->get('voucherD');
 
@@ -167,6 +169,15 @@ class PromotionRedemptionUpdaterTest extends TestCase
             $expected_json,
             $promotionIndividualCode[0]['payload']
         );
+    }
+
+    /**
+     * @return iterable<string, array{string}>
+     */
+    public static function individualCodeDataProvider(): iterable
+    {
+        yield 'stored casing' => ['test-FABPB-test'];
+        yield 'different casing' => ['TEST-fabpb-TEST'];
     }
 
     public function testRemoveItemMultipleOrders(): void
@@ -274,7 +285,54 @@ class PromotionRedemptionUpdaterTest extends TestCase
         static::assertNull($promotionAEvenLater->getOrdersPerCustomerCount());
     }
 
-    private function createPromotionsAndOrder(): void
+    public function testLineItemOfAnotherTypeCountsTowardsRedemptions(): void
+    {
+        $this->createPromotionsAndOrder();
+
+        /** @var EntityRepository<PromotionCollection> $promotionRepository */
+        $promotionRepository = static::getContainer()->get('promotion.repository');
+        $promotionId = $this->ids->create('customLineItemPromotion');
+        $this->createPromotion($promotionId, $promotionId, $promotionRepository, $this->salesChannelContext);
+
+        $lineItemId = Uuid::randomHex();
+        static::getContainer()->get('order_line_item.repository')->create([[
+            'id' => $lineItemId,
+            'orderId' => $this->ids->get('order'),
+            'orderVersionId' => Defaults::LIVE_VERSION,
+            'identifier' => $lineItemId,
+            'type' => 'custom',
+            'quantity' => 1,
+            'position' => 1,
+            'label' => 'label',
+            'promotionId' => $promotionId,
+            'price' => new CalculatedPrice(0, 0, new CalculatedTaxCollection(), new TaxRuleCollection()),
+        ]], Context::createDefaultContext());
+
+        static::assertSame(1, $this->fetchPromotion($promotionId)->getOrderCount());
+
+        static::getContainer()
+            ->get('order_line_item.repository')
+            ->delete([['id' => $lineItemId]], Context::createDefaultContext());
+
+        static::assertSame(0, $this->fetchPromotion($promotionId)->getOrderCount());
+    }
+
+    private function fetchPromotion(string $promotionId): PromotionEntity
+    {
+        /** @var EntityRepository<PromotionCollection> $promotionRepository */
+        $promotionRepository = static::getContainer()->get('promotion.repository');
+
+        $promotion = $promotionRepository
+            ->search(new Criteria([$promotionId]), Context::createDefaultContext())
+            ->getEntities()
+            ->first();
+
+        static::assertInstanceOf(PromotionEntity::class, $promotion);
+
+        return $promotion;
+    }
+
+    private function createPromotionsAndOrder(string $orderCode = 'test-FABPB-test'): void
     {
         /** @var EntityRepository<PromotionCollection> */
         $promotionRepository = static::getContainer()->get('promotion.repository');
@@ -297,7 +355,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         );
 
         $this->ids->set('customer', $this->createCustomer('johndoe@example.com'));
-        $this->createOrder($this->ids->get('customer'));
+        $this->createOrder($this->ids->get('customer'), $orderCode);
 
         $lineItems = $this->connection->fetchAllAssociative('SELECT id FROM order_line_item;');
 
@@ -381,7 +439,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
         return $salesChannelContextFactory->create($token, TestDefaults::SALES_CHANNEL, $options);
     }
 
-    private function createOrder(string $customerId): void
+    private function createOrder(string $customerId, string $individualCode): void
     {
         static::getContainer()->get('order.repository')->create(
             [[
@@ -441,7 +499,7 @@ class PromotionRedemptionUpdaterTest extends TestCase
                         'quantity' => 1,
                         'payload' => [
                             'promotionId' => $this->ids->get('voucherD'),
-                            'code' => 'test-FABPB-test',
+                            'code' => $individualCode,
                             'promotionCodeType' => 'individual',
                         ],
                         'promotionId' => $this->ids->get('voucherD'),

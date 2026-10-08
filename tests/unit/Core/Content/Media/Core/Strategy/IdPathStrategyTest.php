@@ -66,4 +66,18 @@ class IdPathStrategyTest extends TestCase
             'media/fd/18/g0/1609459200/test.jpg',
         ];
     }
+
+    public function testStrategyWithoutPathCacheBuster(): void
+    {
+        $strategy = new IdPathStrategy(false);
+
+        static::assertSame(
+            ['foo' => 'media/ac/bd/18/test.jpg'],
+            $strategy->generate([new MediaLocationStruct('foo', 'jpg', 'test', new \DateTimeImmutable('2021-01-01'))])
+        );
+        static::assertSame(
+            ['thumbnail' => 'thumbnail/ac/bd/18/test_100x100.jpg'],
+            $strategy->generate([new ThumbnailLocationStruct('thumbnail', 100, 100, new MediaLocationStruct('foo', 'jpg', 'test', new \DateTimeImmutable('2021-01-01')))])
+        );
+    }
 }

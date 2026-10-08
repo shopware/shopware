@@ -21,6 +21,7 @@ use Shopware\Core\Checkout\Promotion\PromotionCollection;
 use Shopware\Core\Checkout\Promotion\PromotionEntity;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
+use Shopware\Core\Content\Flow\Dispatching\BufferedFlowExecutor;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportFile\ImportExportFileEntity;
 use Shopware\Core\Content\ImportExport\Aggregate\ImportExportLog\ImportExportLogEntity;
 use Shopware\Core\Content\ImportExport\Event\EnrichExportCriteriaEvent;
@@ -39,6 +40,7 @@ use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReader;
 use Shopware\Core\Content\ImportExport\Processing\Reader\CsvReaderFactory;
 use Shopware\Core\Content\ImportExport\Processing\Writer\AbstractWriter;
 use Shopware\Core\Content\ImportExport\Processing\Writer\CsvFileWriterFactory;
+use Shopware\Core\Content\ImportExport\Service\CustomerNumberRangeConfigService;
 use Shopware\Core\Content\ImportExport\Service\FileService;
 use Shopware\Core\Content\ImportExport\Service\ImportExportService;
 use Shopware\Core\Content\ImportExport\Strategy\Import\BatchImportStrategy;
@@ -84,6 +86,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\NotFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\NumberRange\NumberRangeEntity;
 use Shopware\Core\System\Tax\TaxCollection;
 use Shopware\Core\System\Tax\TaxDefinition;
 use Shopware\Core\System\Tax\TaxEntity;
@@ -930,7 +933,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             'records' => 5,
         ]);
 
-        $importExportService = $this->createMock(ImportExportService::class);
+        $importExportService = static::createStub(ImportExportService::class);
         $importExportService->method('findLog')->willReturn($logEntity);
 
         $importExport = new ImportExport(
@@ -939,12 +942,12 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             static::getContainer()->get('shopware.filesystem.private'),
             $this->listener,
             static::getContainer()->get(Connection::class),
-            $this->createMock(EntityRepository::class),
+            static::createStub(EntityRepository::class),
             $pipe,
             $reader,
             $writer,
             static::getContainer()->get(FileService::class),
-            $this->createMock(ImportStrategyService::class)
+            static::createStub(ImportStrategyService::class)
         );
 
         $importExportService->method('getProgress')
@@ -1332,8 +1335,7 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             'customers.csv',
             $profile->getId(),
         );
-
-        $this->listener->removeListener(MailSentEvent::class, $listenerClosure);
+        static::getContainer()->get(BufferedFlowExecutor::class)->executeBufferedFlows();
 
         static::assertTrue($context->hasState(Context::SKIP_TRIGGER_FLOW));
         static::assertFalse($mailSent, 'The mail.sent Event did run');
@@ -1450,6 +1452,28 @@ SWTEST;1;' . $productName . ';9.35;10;0c17372fe6aa46059a97fc28b40f46c4;7;7%%;%s'
             'id' => '01902502a01172ad948f5a50096da0bd',
             'name' => 'Sales-Channel-Name',
         ]);
+
+        $numberRangeRepository = self::getContainer()->get('number_range.repository');
+
+        $numberRangeCriteria = new Criteria();
+        $numberRangeCriteria->addAssociation('type');
+        $numberRangeCriteria->addFilter(new EqualsFilter(
+            'type.technicalName',
+            CustomerDefinition::ENTITY_NAME,
+        ));
+        $numberRangeCriteria->addFilter(new EqualsFilter('global', true));
+
+        $customerNumberRange = $numberRangeRepository
+            ->search($numberRangeCriteria, $context)->getEntities()->first();
+
+        static::assertNotNull($customerNumberRange);
+        static::assertInstanceOf(NumberRangeEntity::class, $customerNumberRange);
+
+        $numberRangeRepository->update([[
+            'id' => $customerNumberRange->getId(),
+            'pattern' => 'SWDEMO{n}',
+        ]], $context);
+        static::getContainer()->get(CustomerNumberRangeConfigService::class)->reset();
 
         $progress = $this->import(
             $context,

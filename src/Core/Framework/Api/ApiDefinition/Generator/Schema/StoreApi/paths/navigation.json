@@ -90,11 +90,9 @@
                                                 "format": "int32"
                                             },
                                             "buildTree": {
-                                                "description": "Return the categories as a tree or as a flat list.",
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "object"
-                                                }
+                                                "description": "Return the categories as a tree or as a flat list. Defaults to true.",
+                                                "type": "boolean",
+                                                "default": true
                                             }
                                         },
                                         "type": "object"
@@ -114,6 +112,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "The `activeId` or `rootId` does not reference a category that is reachable in this sales channel."
                     }
                 },
                 "security": [
@@ -187,16 +197,12 @@
                     {
                         "name": "buildTree",
                         "in": "query",
-                        "description": "Return the categories as a tree or as a flat list.",
+                        "description": "Return the categories as a tree or as a flat list. Defaults to true.",
                         "required": false,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "object"
-                            }
-                        },
-                        "style": "deepObject",
-                        "explode": true
+                            "type": "boolean",
+                            "default": true
+                        }
                     },
                     {
                         "x-parameter-group": "noneFieldsCriteria"
@@ -212,6 +218,18 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "The `activeId` or `rootId` does not reference a category that is reachable in this sales channel."
                     }
                 },
                 "security": [

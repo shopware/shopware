@@ -6,6 +6,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheCompilerPass;
 use Shopware\Core\Framework\Adapter\Cache\CacheValueCompressor;
 use Shopware\Core\Framework\Adapter\Cache\ReverseProxy\ReverseProxyCompilerPass;
 use Shopware\Core\Framework\Adapter\Cache\StampedeProtectionConfigurator;
+use Shopware\Core\Framework\Adapter\Database\ReplicaConnectionResetter;
 use Shopware\Core\Framework\Adapter\Redis\RedisConnectionsCompilerPass;
 use Shopware\Core\Framework\DataAbstractionLayer\AttributeEntityCompiler;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\AssetBundleRegistrationCompilerPass;
@@ -21,6 +22,7 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\FeatureFlagCompiler
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FilesystemConfigMigrationCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\FrameworkMigrationReplacementCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\HttpCacheConfigCompilerPass;
+use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpDebugCommandCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpServerBuilderCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolAnalysisCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\McpToolDiscoveryCompilerPass;
@@ -30,7 +32,6 @@ use Shopware\Core\Framework\DependencyInjection\CompilerPass\RateLimiterCompiler
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RedisPrefixCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\RouteScopeCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\ScheduledTaskExecutorCompilerPass;
-use Shopware\Core\Framework\DependencyInjection\CompilerPass\StoreApiMcpServerBuilderCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TelemetrySubscriberCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigEnvironmentCompilerPass;
 use Shopware\Core\Framework\DependencyInjection\CompilerPass\TwigLoaderConfigCompilerPass;
@@ -48,7 +49,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
  * @internal
@@ -73,50 +73,47 @@ class Framework extends Bundle
     {
         $container->setParameter('locale', 'en-GB');
 
-        // @codeCoverageIgnoreStart
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
         $phpLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/DependencyInjection/'));
 
-        $loader->load('services.xml');
+        $phpLoader->load('http_discovery.php');
         $phpLoader->load('acl.php');
-        $loader->load('cache.xml');
         $phpLoader->load('api.php');
+        $phpLoader->load('services.php');
+        $phpLoader->load('cache.php');
         $phpLoader->load('app.php');
         $phpLoader->load('custom-field.php');
         $phpLoader->load('data-abstraction-layer.php');
-        $loader->load('demodata.xml');
-        $loader->load('event.xml');
+        $phpLoader->load('demodata.php');
+        $phpLoader->load('event.php');
         $phpLoader->load('hydrator.php');
-        $loader->load('filesystem.xml');
-        $loader->load('message-queue.xml');
+        $phpLoader->load('filesystem.php');
+        $phpLoader->load('message-queue.php');
         $phpLoader->load('plugin.php');
-        $loader->load('rule.xml');
-        $loader->load('scheduled-task.xml');
+        $phpLoader->load('rule.php');
         $phpLoader->load('store.php');
+        $phpLoader->load('scheduled-task.php');
         $phpLoader->load('script.php');
-        $loader->load('language.xml');
-        $loader->load('update.xml');
+        $phpLoader->load('language.php');
         $phpLoader->load('validation.php');
-        $loader->load('seo.xml');
+        $phpLoader->load('update.php');
+        $phpLoader->load('seo.php');
         $phpLoader->load('rate-limiter.php');
         $phpLoader->load('webhook.php');
-        $loader->load('increment.xml');
-        $loader->load('flag.xml');
-        $loader->load('health.xml');
-        $loader->load('telemetry.xml');
-        $loader->load('notification.xml');
+        $phpLoader->load('increment.php');
+        $phpLoader->load('flag.php');
+        $phpLoader->load('health.php');
+        $phpLoader->load('telemetry.php');
+        $phpLoader->load('notification.php');
         $phpLoader->load('sso.php');
 
-        // @codeCoverageIgnoreStart
         $phpLoader->load('mcp.php');
 
         if ($container->getParameter('kernel.environment') === 'test') {
-            $loader->load('services_test.xml');
+            $phpLoader->load('services_test.php');
             $phpLoader->load('store_test.php');
-            $loader->load('seo_test.xml');
+            $phpLoader->load('seo_test.php');
             $phpLoader->load('app_test.php');
         }
-        // @codeCoverageIgnoreEnd
 
         /** Needs to run after @see RegisterAutoconfigureAttributesPass (priority 100) to include all services that are autoconfigured */
         $container->addCompilerPass(new AttributeEntityCompilerPass(new AttributeEntityCompiler()), PassConfig::TYPE_BEFORE_OPTIMIZATION, 99);
@@ -152,10 +149,13 @@ class Framework extends Bundle
         }
 
         $container->addCompilerPass(new FrameworkMigrationReplacementCompilerPass());
-        $container->addCompilerPass(new McpToolDiscoveryCompilerPass()); // @codeCoverageIgnore
-        $container->addCompilerPass(new McpToolAnalysisCompilerPass()); // @codeCoverageIgnore
-        $container->addCompilerPass(new McpServerBuilderCompilerPass()); // @codeCoverageIgnore
-        $container->addCompilerPass(new StoreApiMcpServerBuilderCompilerPass()); // @codeCoverageIgnore
+        // The discovery pass assigns plugin capabilities to an MCP server through the
+        // "mcp.servers.elements" parameter, so it has to run before the bundle's own McpPass reads
+        // it. That one is registered with the default priority.
+        $container->addCompilerPass(new McpToolDiscoveryCompilerPass(), priority: 20);
+        $container->addCompilerPass(new McpToolAnalysisCompilerPass());
+        $container->addCompilerPass(new McpServerBuilderCompilerPass());
+        $container->addCompilerPass(new McpDebugCommandCompilerPass());
 
         $container->addCompilerPass(new DemodataCompilerPass());
 
@@ -183,5 +183,11 @@ class Framework extends Bundle
 
         $stampedeProtectionConfigurator = $this->container->get(StampedeProtectionConfigurator::class);
         $stampedeProtectionConfigurator->apply();
+
+        // ServicesResetter only resets initialized services; Symfony 8.1 removes this requirement.
+        // https://github.com/symfony/symfony/pull/63751
+        // The test verifies whether the Symfony fix resolves this and lets us remove this workaround safely.
+        // @see \Shopware\Tests\Integration\Core\Framework\Adapter\Database\ReplicaConnectionResetterTest::testServicesResetterInitializesReplicaConnectionResetter()
+        $this->container->get(ReplicaConnectionResetter::class);
     }
 }

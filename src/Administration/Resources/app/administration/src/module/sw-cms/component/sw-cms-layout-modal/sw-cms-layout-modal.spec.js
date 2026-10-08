@@ -76,9 +76,7 @@ async function createWrapper() {
                                 name: 'custom_entity_detail',
                                 icon: 'regular-tag',
                                 title: 'sw-cms.detail.label.pageType.customEntityDetail',
-                                class: [
-                                    'sw-cms-create-wizard__page-type-custom-entity-detail',
-                                ],
+                                class: ['sw-cms-create-wizard__page-type-custom-entity-detail'],
                                 hideInList: false,
                             };
                         },
@@ -136,11 +134,7 @@ describe('module/sw-cms/component/sw-cms-layout-modal', () => {
         const wrapper = await createWrapper();
 
         await wrapper.setProps({
-            cmsPageTypes: [
-                'page',
-                'landingpage',
-                'product_list',
-            ],
+            cmsPageTypes: ['page', 'landingpage', 'product_list'],
         });
         await wrapper.vm.getList();
 

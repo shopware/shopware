@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CurrencyPriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PercentagePriceDefinition;
 use Shopware\Core\Checkout\Cart\Price\Struct\PriceDefinitionInterface;
 use Shopware\Core\Checkout\Cart\Price\Struct\QuantityPriceDefinition;
+use Shopware\Core\Checkout\Cart\Price\Struct\ReferencePriceDefinition;
 use Shopware\Core\Checkout\Cart\Rule\LineItemCustomFieldRule;
 use Shopware\Core\Checkout\Cart\Rule\LineItemListPriceRule;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRule;
@@ -37,6 +38,8 @@ use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\Currency\CurrencyDefinition;
 use Shopware\Core\System\Currency\Rule\CurrencyRule;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -80,6 +83,41 @@ class PriceDefinitionFieldSerializerTest extends TestCase
             new KeyValuePair('test', $definition, true),
             new WriteParameterBag(static::createStub(CurrencyDefinition::class), $writeContext, '', new WriteCommandQueue())
         ));
+    }
+
+    /**
+     * The serializer pre-processes the payload before `JsonFieldSerializer::encode()` validates it. A scalar
+     * used to reach that pre-processing and abort the request with a PHP `Error` instead of a violation.
+     */
+    #[DataProvider('nonArrayValueProvider')]
+    public function testEncodeRejectsNonArrayValue(mixed $value): void
+    {
+        $this->expectExceptionObject(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('This value should be of type array.', 'This value should be of type {{ type }}.', [], null, '/test', $value),
+            ])
+        ));
+
+        iterator_to_array($this->fieldSerializer->encode(
+            new PriceDefinitionField('test', 'test'),
+            new EntityExistence('', [], false, false, false, []),
+            new KeyValuePair('test', $value, false),
+            new WriteParameterBag(
+                static::createStub(CurrencyDefinition::class),
+                WriteContext::createFromContext(Context::createDefaultContext()),
+                '',
+                new WriteCommandQueue()
+            )
+        ));
+    }
+
+    /**
+     * @return iterable<string, array{mixed}>
+     */
+    public static function nonArrayValueProvider(): iterable
+    {
+        yield 'number, where PHP reads the offset as an array index' => [12.5];
+        yield 'string, where PHP reads the offset as a string offset' => ['2025-10-09'];
     }
 
     public function testEncodeDecodeWithEmptyOperatorCondition(): void
@@ -296,6 +334,11 @@ class PriceDefinitionFieldSerializerTest extends TestCase
         yield 'quantity price definition' => [
             new QuantityPriceDefinition(100, new TaxRuleCollection([new TaxRule(19, 50), new TaxRule(7, 50)]), 3),
         ];
+
+        $withReferencePrice = new QuantityPriceDefinition(100, new TaxRuleCollection([new TaxRule(19)]), 3);
+        $withReferencePrice->setReferencePriceDefinition(new ReferencePriceDefinition(0.5, 1.0, 'Liter'));
+
+        yield 'quantity price definition with reference price' => [$withReferencePrice];
 
         yield 'absolute price definition' => [
             new AbsolutePriceDefinition(20, $rule),

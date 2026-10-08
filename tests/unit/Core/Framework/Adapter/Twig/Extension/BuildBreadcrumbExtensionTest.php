@@ -14,6 +14,7 @@ use Shopware\Core\Content\Category\Service\CategoryBreadcrumbBuilder;
 use Shopware\Core\Framework\Adapter\Twig\Extension\BuildBreadcrumbExtension;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
 use Shopware\Core\Framework\Log\Package;
@@ -57,7 +58,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
     {
         $salesChannelContext = Generator::generateSalesChannelContext();
 
-        $categoryBreadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $categoryBreadcrumbBuilder = static::createStub(CategoryBreadcrumbBuilder::class);
         $categoryBreadcrumbBuilder->method('build')->willReturn([]);
 
         $breadCrumb = $this->getBuildBreadcrumbExtension($categoryBreadcrumbBuilder)
@@ -73,7 +74,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
         $categoryId = Uuid::randomHex();
         $notConsideredCategoryId = Uuid::randomHex();
 
-        $categoryBreadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $categoryBreadcrumbBuilder = static::createStub(CategoryBreadcrumbBuilder::class);
         $categoryBreadcrumbBuilder->method('build')->willReturn([$categoryId => 'Home', $notConsideredCategoryId => 'Not considered']);
 
         $breadCrumb = $this->getBuildBreadcrumbExtension($categoryBreadcrumbBuilder, $categoryId)
@@ -124,7 +125,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
         $categoryId = Uuid::randomHex();
         $notConsideredCategoryId = Uuid::randomHex();
 
-        $categoryBreadcrumbBuilder = $this->createMock(CategoryBreadcrumbBuilder::class);
+        $categoryBreadcrumbBuilder = static::createStub(CategoryBreadcrumbBuilder::class);
         $categoryBreadcrumbBuilder->method('build')->willReturn([$categoryId => 'Home', $notConsideredCategoryId => 'Not considered']);
 
         $breadCrumb = $this->getBuildBreadcrumbExtension($categoryBreadcrumbBuilder, $categoryId)
@@ -143,6 +144,7 @@ class BuildBreadcrumbExtensionTest extends TestCase
         if ($categoryId !== null) {
             $category = new SalesChannelCategoryEntity();
             $category->setUniqueIdentifier($categoryId);
+            $category->internalSetEntityData(CategoryDefinition::ENTITY_NAME, new FieldVisibility([]));
             $categories->add($category);
         }
 
@@ -160,7 +162,6 @@ class BuildBreadcrumbExtensionTest extends TestCase
             $entitySearchResult, clone $entitySearchResult,
         ]);
 
-        /** @var StaticEntityRepository<CategoryCollection> $categoryRepository */
         $categoryRepository = new StaticEntityRepository([]);
 
         return new BuildBreadcrumbExtension($categoryBreadcrumbBuilder, $salesChannelCategoryRepository, $categoryRepository);

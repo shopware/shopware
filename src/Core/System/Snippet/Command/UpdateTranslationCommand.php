@@ -56,6 +56,7 @@ class UpdateTranslationCommand extends Command
         TranslationCommandHelper::executeLoadWithProgressBar(
             $localesRequiringUpdate,
             $output,
+            'Updating translations',
             fn (string $locale) => $this->translationLoader->load($locale, $context),
         );
 

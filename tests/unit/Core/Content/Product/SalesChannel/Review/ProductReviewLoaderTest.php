@@ -59,12 +59,12 @@ class ProductReviewLoaderTest extends TestCase
             $review,
         ]);
 
-        $productReviewRouteMock = $this->createMock(ProductReviewRoute::class);
-        $productReviewLoader = $this->getProductReviewLoader($productReviewRouteMock);
+        $productReviewRoute = static::createStub(ProductReviewRoute::class);
+        $productReviewLoader = $this->getProductReviewLoader($productReviewRoute);
 
         $reviewResult = $this->getDefaultResult($reviews, $request, $salesChannelContext);
 
-        $productReviewRouteMock
+        $productReviewRoute
             ->method('load')
             ->willReturn(
                 new ProductReviewRouteResponse($reviewResult)
@@ -91,19 +91,23 @@ class ProductReviewLoaderTest extends TestCase
             $review,
         ]);
 
-        $productReviewRouteMock = $this->createMock(ProductReviewRoute::class);
-        $productReviewLoader = $this->getProductReviewLoader($productReviewRouteMock);
+        $productReviewRoute = $this->createMock(ProductReviewRoute::class);
+        $productReviewLoader = $this->getProductReviewLoader($productReviewRoute);
 
         $reviewResult = $this->getDefaultResult($reviews, $request, $salesChannelContext);
 
         $criteria = $this->createCriteria($request, $salesChannelContext);
 
-        $productReviewRouteMock
-            ->method('load')
-            ->with($productId, $request, $salesChannelContext, $criteria)
-            ->willReturn(
-                new ProductReviewRouteResponse($reviewResult)
-            );
+        $productReviewRoute->expects($this->once())->method('load')->willReturnCallback(
+            static function (string $actualProductId, Request $actualRequest, SalesChannelContext $actualContext, Criteria $actualCriteria) use ($productId, $request, $salesChannelContext, $criteria, $reviewResult): ProductReviewRouteResponse {
+                static::assertSame($productId, $actualProductId);
+                static::assertSame($request, $actualRequest);
+                static::assertSame($salesChannelContext, $actualContext);
+                static::assertEquals($criteria, $actualCriteria);
+
+                return new ProductReviewRouteResponse($reviewResult);
+            }
+        );
 
         $result = $productReviewLoader->load($request, $salesChannelContext, $productId);
 
@@ -128,19 +132,23 @@ class ProductReviewLoaderTest extends TestCase
             $review,
         ]);
 
-        $productReviewRouteMock = $this->createMock(ProductReviewRoute::class);
-        $productReviewLoader = $this->getProductReviewLoader($productReviewRouteMock);
+        $productReviewRoute = $this->createMock(ProductReviewRoute::class);
+        $productReviewLoader = $this->getProductReviewLoader($productReviewRoute);
 
         $reviewResult = $this->getDefaultResult($reviews, $request, $salesChannelContext);
 
         $criteria = $this->createCriteria($request, $salesChannelContext);
 
-        $productReviewRouteMock
-            ->method('load')
-            ->with($productId, $request, $salesChannelContext, $criteria)
-            ->willReturn(
-                new ProductReviewRouteResponse($reviewResult)
-            );
+        $productReviewRoute->expects($this->once())->method('load')->willReturnCallback(
+            static function (string $actualProductId, Request $actualRequest, SalesChannelContext $actualContext, Criteria $actualCriteria) use ($productId, $request, $salesChannelContext, $criteria, $reviewResult): ProductReviewRouteResponse {
+                static::assertSame($productId, $actualProductId);
+                static::assertSame($request, $actualRequest);
+                static::assertSame($salesChannelContext, $actualContext);
+                static::assertEquals($criteria, $actualCriteria);
+
+                return new ProductReviewRouteResponse($reviewResult);
+            }
+        );
 
         $result = $productReviewLoader->load($request, $salesChannelContext, $productId);
 
@@ -164,12 +172,12 @@ class ProductReviewLoaderTest extends TestCase
             $review,
         ]);
 
-        $productReviewRouteMock = $this->createMock(ProductReviewRoute::class);
-        $productReviewLoader = $this->getProductReviewLoader($productReviewRouteMock);
+        $productReviewRoute = static::createStub(ProductReviewRoute::class);
+        $productReviewLoader = $this->getProductReviewLoader($productReviewRoute);
 
         $reviewResult = $this->getDefaultResult($reviews, $request, $salesChannelContext);
 
-        $productReviewRouteMock
+        $productReviewRoute
             ->method('load')
             ->willReturn(
                 new ProductReviewRouteResponse($reviewResult)
@@ -197,12 +205,12 @@ class ProductReviewLoaderTest extends TestCase
             $review,
         ]);
 
-        $productReviewRouteMock = $this->createMock(ProductReviewRoute::class);
-        $productReviewLoader = $this->getProductReviewLoader($productReviewRouteMock);
+        $productReviewRoute = static::createStub(ProductReviewRoute::class);
+        $productReviewLoader = $this->getProductReviewLoader($productReviewRoute);
 
         $reviewResult = $this->getDefaultResult($reviews, $request, $salesChannelContext);
 
-        $productReviewRouteMock
+        $productReviewRoute
             ->method('load')
             ->willReturn(
                 new ProductReviewRouteResponse($reviewResult)
@@ -228,10 +236,10 @@ class ProductReviewLoaderTest extends TestCase
     }
 
     private function getProductReviewLoader(
-        ProductReviewRoute $productReviewRouteMock
+        ProductReviewRoute $productReviewRoute
     ): ProductReviewLoader {
         return new ProductReviewLoader(
-            $productReviewRouteMock,
+            $productReviewRoute,
             $this->systemConfigService,
             static::createStub(EventDispatcherInterface::class)
         );

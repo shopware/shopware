@@ -8,10 +8,7 @@ import './sw-users-permissions-detailed-additional-permissions.scss';
 export default {
     template,
 
-    inject: [
-        'privileges',
-        'aclApiService',
-    ],
+    inject: ['privileges', 'aclApiService'],
 
     props: {
         role: {
@@ -76,10 +73,7 @@ export default {
         },
 
         isEntitySelected(identifier) {
-            const allPrivileges = [
-                ...this.allGeneralSelectedPrivileges,
-                ...this.detailedPrivileges,
-            ];
+            const allPrivileges = [...this.allGeneralSelectedPrivileges, ...this.detailedPrivileges];
 
             return allPrivileges.includes(identifier);
         },

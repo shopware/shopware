@@ -13,7 +13,6 @@ use Shopware\Core\Framework\App\ActiveAppsLoader;
 use Shopware\Core\Framework\App\Source\SourceResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Dbal\Common\IteratorFactory;
 use Shopware\Core\Framework\Notification\NotificationService;
-use Shopware\Core\Framework\Plugin\BundleConfigStyleFileResolver;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\System\SystemConfig\Service\ConfigurationService;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -45,6 +44,7 @@ use Shopware\Storefront\Theme\Extension\LanguageExtension;
 use Shopware\Storefront\Theme\Extension\MediaExtension;
 use Shopware\Storefront\Theme\Extension\SalesChannelExtension;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
+use Shopware\Storefront\Theme\Message\CompileThemeFailedSubscriber;
 use Shopware\Storefront\Theme\Message\CompileThemeHandler;
 use Shopware\Storefront\Theme\Message\DeleteThemeFilesHandler;
 use Shopware\Storefront\Theme\ResolvedConfigLoader;
@@ -77,6 +77,7 @@ use Shopware\Storefront\Theme\ThemeService;
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilder;
 use Shopware\Storefront\Theme\Twig\ThemeInheritanceBuilderInterface;
 use Shopware\Storefront\Theme\Twig\ThemeNamespaceHierarchyBuilder;
+use Shopware\Storefront\Theme\UnusedThemeDirectoryDeleter;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -105,10 +106,11 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ])
         ->tag('kernel.reset', ['method' => 'reset']);
 
-    $services->set(BundleConfigStyleFileResolver::class, StorefrontBundleConfigStyleFileResolver::class)
+    $services->set(StorefrontBundleConfigStyleFileResolver::class)
         ->args([
             service(StorefrontPluginRegistry::class),
-        ]);
+        ])
+        ->tag('shopware.bundle_config.style_file_resolver');
 
     $services->set(ScssPhpCompiler::class);
 
@@ -196,7 +198,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service(ResolvedConfigLoader::class),
         ])
-        ->deprecate('shopware/core', '6.8.0', 'tag:v6.8.0 - The %service_id% service will be removed in v6.8.0.0 without replacement');
+        ->deprecate('shopware/core', '6.8.0', 'tag:v6.8.0 - The %service_id% service will be removed in v6.8.0.0 without replacement')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(ThemeConfigCacheInvalidator::class)
         ->args([
@@ -261,7 +264,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service('shopware.filesystem.theme'),
             service(AbstractThemePathBuilder::class),
         ])
-        ->tag('messenger.message_handler');
+        ->tag('messenger.message_handler')
+        ->tag('shopware.inactiveFeature', ['flag' => 'v6.8.0.0']);
 
     $services->set(CompileThemeHandler::class)
         ->args([
@@ -271,8 +275,26 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(NotificationService::class),
             service('sales_channel.repository'),
             service(ThemeRuntimeConfigService::class),
+            service('theme_sales_channel.repository'),
+            service('event_dispatcher'),
+            service(SystemConfigService::class),
         ])
         ->tag('messenger.message_handler');
+
+    $services->set(CompileThemeFailedSubscriber::class)
+        ->args([
+            service(NotificationService::class),
+            service(SystemConfigService::class),
+        ])
+        ->tag('kernel.event_subscriber');
+
+    $services->set(UnusedThemeDirectoryDeleter::class)
+        ->args([
+            service(Connection::class),
+            service('shopware.filesystem.theme'),
+            service(AbstractThemePathBuilder::class),
+            service(ClockInterface::class),
+        ]);
 
     $services->set(DeleteThemeFilesTask::class)
         ->tag('shopware.scheduled.task');
@@ -281,10 +303,7 @@ return static function (ContainerConfigurator $containerConfigurator): void {
         ->args([
             service('scheduled_task.repository'),
             service('logger'),
-            service(Connection::class),
-            service('shopware.filesystem.theme'),
-            service(AbstractThemePathBuilder::class),
-            service(ClockInterface::class),
+            service(UnusedThemeDirectoryDeleter::class),
         ])
         ->tag('messenger.message_handler');
 
@@ -369,8 +388,6 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             service(StorefrontPluginRegistry::class),
             service('sales_channel.repository'),
             service('theme.repository'),
-            service('theme_sales_channel.repository'),
-            service('media_thumbnail.repository'),
         ])
         ->tag('console.command');
 

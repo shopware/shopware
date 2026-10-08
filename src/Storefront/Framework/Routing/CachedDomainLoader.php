@@ -8,12 +8,13 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Framework\Routing\Struct\DomainCollection;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Service\ResetInterface;
 
 /**
  * @phpstan-import-type Domain from AbstractDomainLoader
  */
 #[Package('discovery')]
-class CachedDomainLoader extends AbstractDomainLoader
+class CachedDomainLoader extends AbstractDomainLoader implements ResetInterface
 {
     /**
      * @deprecated tag:v6.8.0 - reason:becomes-unused - Will be removed together with the deprecated load(), use DOMAIN_COLLECTION_CACHE_KEY instead
@@ -21,6 +22,13 @@ class CachedDomainLoader extends AbstractDomainLoader
     final public const CACHE_KEY = 'routing-domains';
 
     final public const DOMAIN_COLLECTION_CACHE_KEY = 'routing-domain-collection';
+
+    /**
+     * @var array<string, Domain>|null
+     */
+    private ?array $domains = null;
+
+    private ?DomainCollection $domainCollection = null;
 
     /**
      * @internal
@@ -48,25 +56,59 @@ class CachedDomainLoader extends AbstractDomainLoader
             Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0', 'loadDomains()')
         );
 
-        $value = $this->cache->get(self::CACHE_KEY, fn (ItemInterface $item) => CacheValueCompressor::compress(
-            $this->getDecorated()->load()
-        ));
+        if ($this->domains !== null) {
+            return $this->domains;
+        }
+
+        $fresh = null;
+
+        $value = $this->cache->get(self::CACHE_KEY, function (ItemInterface $item) use (&$fresh): string {
+            $fresh = $this->getDecorated()->load();
+
+            return CacheValueCompressor::compress($fresh);
+        });
+
+        // the domains were loaded in this call, return them directly instead of
+        // uncompressing the cache payload that was just compressed from them
+        if ($fresh !== null) {
+            return $this->domains = $fresh;
+        }
 
         /** @var array<string, Domain> $value */
         $value = CacheValueCompressor::uncompress($value);
 
-        return $value;
+        return $this->domains = $value;
     }
 
     public function loadDomains(): DomainCollection
     {
-        $value = $this->cache->get(self::DOMAIN_COLLECTION_CACHE_KEY, fn (ItemInterface $item) => CacheValueCompressor::compress(
-            $this->getDecorated()->loadDomains()
-        ));
+        if ($this->domainCollection !== null) {
+            return $this->domainCollection;
+        }
+
+        $fresh = null;
+
+        $value = $this->cache->get(self::DOMAIN_COLLECTION_CACHE_KEY, function (ItemInterface $item) use (&$fresh): string {
+            $fresh = $this->getDecorated()->loadDomains();
+
+            return CacheValueCompressor::compress($fresh);
+        });
+
+        // the domains were loaded in this call, return them directly instead of
+        // uncompressing the cache payload that was just compressed from them
+        if ($fresh instanceof DomainCollection) {
+            return $this->domainCollection = $fresh;
+        }
 
         /** @var DomainCollection $value */
         $value = CacheValueCompressor::uncompress($value);
 
-        return $value;
+        return $this->domainCollection = $value;
+    }
+
+    public function reset(): void
+    {
+        $this->domains = null;
+        $this->domainCollection = null;
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Event;
 
+use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressEntity;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
@@ -9,12 +10,14 @@ use Symfony\Contracts\EventDispatcher\Event;
 
 /**
  * Allows the manipulation of the sales channel context options before it is assembled from the order
+ *
+ * @codeCoverageIgnore
  */
 #[Package('checkout')]
 class BeforeSalesChannelContextAssembledEvent extends Event
 {
     /**
-     * @param array<string, array<string, bool>|string|null> $options
+     * @param array<string, array<string, bool>|string|CustomerAddressEntity|null> $options
      *
      * @internal
      */
@@ -36,7 +39,7 @@ class BeforeSalesChannelContextAssembledEvent extends Event
     }
 
     /**
-     * @return array<string, array<string, bool>|string|null>
+     * @return array<string, array<string, bool>|string|CustomerAddressEntity|null>
      */
     public function getOptions(): array
     {
@@ -44,7 +47,7 @@ class BeforeSalesChannelContextAssembledEvent extends Event
     }
 
     /**
-     * @param array<string, array<string, bool>|string|null> $options
+     * @param array<string, array<string, bool>|string|CustomerAddressEntity|null> $options
      */
     public function setOptions(array $options): void
     {

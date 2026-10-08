@@ -1,4 +1,6 @@
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
+import ShopwareError from 'src/core/data/ShopwareError';
+import EntityValidationService from 'src/app/service/entity-validation.service';
 
 /**
  * @sw-package checkout
@@ -49,18 +51,19 @@ function createCustomerMock() {
 }
 
 async function createWrapper(propsData, customerResponse = createCustomerMock()) {
+    // The customer is shared between all address selections of an order, so it is loaded through the store.
+    jest.spyOn(Shopware.Store.get('swOrderDetail'), 'loadCustomer').mockImplementation(() => {
+        Shopware.Store.get('swOrderDetail').customer = customerResponse;
+
+        return Promise.resolve(customerResponse);
+    });
+
     return mount(await wrapTestComponent('sw-order-address-selection', { sync: true }), {
         global: {
-            directives: {
-                popover: {},
-            },
             stubs: {
                 'sw-modal': await wrapTestComponent('sw-modal'),
                 'sw-select-result': {
-                    props: [
-                        'item',
-                        'index',
-                    ],
+                    props: ['item', 'index'],
                     template: `<li :class="componentClasses" class="sw-select-result" @click.stop="onClickResult">
                         <slot></slot></li>`,
                     methods: {
@@ -70,9 +73,7 @@ async function createWrapper(propsData, customerResponse = createCustomerMock())
                     },
                     computed: {
                         componentClasses() {
-                            return [
-                                `sw-select-option--${this.index}`,
-                            ];
+                            return [`sw-select-option--${this.index}`];
                         },
                     },
                 },
@@ -118,7 +119,6 @@ async function createWrapper(propsData, customerResponse = createCustomerMock())
                         save: () => {
                             return Promise.resolve();
                         },
-                        get: () => Promise.resolve(customerResponse),
                         create: () => ({
                             _isNew: true,
                             getEntityName: () => 'customer_address',
@@ -169,38 +169,32 @@ async function createWrapper(propsData, customerResponse = createCustomerMock())
 describe('src/module/sw-order/component/sw-order-address-selection', () => {
     let wrapper;
 
-    beforeAll(() => {
-        Shopware.Store.unregister('swOrderDetail');
-        Shopware.Store.register({
-            id: 'swOrderDetail',
-            state: () => ({
-                isLoading: false,
-                isSavedSuccessful: false,
-                versionContext: {},
-                order: {
-                    addresses: [
-                        {
-                            street: 'Denesik Bridge',
-                            zipcode: '05132',
-                            city: 'Bernierstad',
-                            id: '38e8895864a649a1b2ec806dad02ab87',
-                            country: {
-                                translated: {
-                                    name: 'Buzbach',
-                                },
-                            },
+    beforeEach(async () => {
+        const orderDetailStore = Shopware.Store.get('swOrderDetail');
+
+        orderDetailStore.$reset();
+        orderDetailStore.resetCustomer();
+        orderDetailStore.versionContext = {};
+        orderDetailStore.order = {
+            addresses: [
+                {
+                    street: 'Denesik Bridge',
+                    zipcode: '05132',
+                    city: 'Bernierstad',
+                    id: '38e8895864a649a1b2ec806dad02ab87',
+                    country: {
+                        translated: {
+                            name: 'Buzbach',
                         },
-                    ],
-                    billingAddressId: '38e8895864a649a1b2ec806dad02ab87',
-                    orderCustomer: {
-                        customerId: '63e27affb5804538b5b06cb4e344b130',
                     },
                 },
-            }),
-        });
-    });
+            ],
+            billingAddressId: '38e8895864a649a1b2ec806dad02ab87',
+            orderCustomer: {
+                customerId: '63e27affb5804538b5b06cb4e344b130',
+            },
+        };
 
-    beforeEach(async () => {
         wrapper = await createWrapper();
     });
 
@@ -212,9 +206,9 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const selectEdit = wrapper.find('.sw-select-option--0');
+        const selectEdit = new DOMWrapper(document.body).get('.sw-select-option--0');
 
-        await selectEdit.find('.sw-context-menu-item').trigger('click');
+        await selectEdit.get('.sw-context-menu-item').trigger('click');
 
         await wrapper.vm.$nextTick();
 
@@ -249,7 +243,7 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const select = wrapper.find('.sw-select-option--1');
+        const select = new DOMWrapper(document.body).get('.sw-select-option--1');
 
         await select.trigger('click');
         await flushPromises();
@@ -273,9 +267,9 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const newAddress = wrapper.find('.sw-select-result-list__content ul:nth-of-type(1)');
+        const newAddress = new DOMWrapper(document.body).get('.sw-select-result-list__content ul:nth-of-type(1)');
 
-        await newAddress.find('.sw-select-result__add-new-address').trigger('click');
+        await newAddress.get('.sw-select-result__add-new-address').trigger('click');
         await flushPromises();
 
         expect(wrapper.vm.currentAddress._isNew).toBe(true);
@@ -293,8 +287,8 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await flushPromises();
 
         expect(wrapper.vm.customer).toBeNull();
-        expect(wrapper.find('.sw-select-result__add-new-address').exists()).toBe(false);
-        expect(wrapper.findAll('.sw-select-result')).toHaveLength(1);
+        expect(new DOMWrapper(document.body).find('.sw-select-result__add-new-address').exists()).toBeFalsy();
+        expect(new DOMWrapper(document.body).findAll('.sw-select-result')).toHaveLength(1);
     });
 
     it('should select a newly created address after saving it', async () => {
@@ -331,23 +325,124 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         ]);
     });
 
+    it('should read the customer from the order detail store so all address selections stay in sync', async () => {
+        await flushPromises();
+
+        expect(wrapper.vm.customer).toBe(Shopware.Store.get('swOrderDetail').customer);
+        expect(Shopware.Store.get('swOrderDetail').loadCustomer).toHaveBeenCalledWith('63e27affb5804538b5b06cb4e344b130');
+    });
+
+    it('should write the customer back to the store, so inheriting modules can still replace it', async () => {
+        await flushPromises();
+
+        const replacement = createCustomerMock();
+        replacement.id = 'replacedCustomerId';
+
+        wrapper.vm.customer = replacement;
+
+        expect(Shopware.Store.get('swOrderDetail').customer.id).toBe('replacedCustomerId');
+        expect(wrapper.vm.customer).toBe(Shopware.Store.get('swOrderDetail').customer);
+    });
+
+    // @deprecated tag:v6.8.0 - The test will be removed with the `customerCriteria` computed property.
+    it.deprecated('v6.8.0.0')('should still provide the deprecated customerCriteria', async () => {
+        await flushPromises();
+
+        const { associations } = wrapper.vm.customerCriteria.parse();
+
+        expect(Object.keys(associations)).toEqual(['addresses']);
+        expect(Object.keys(associations.addresses.associations)).toEqual(['country']);
+    });
+
+    it('should reload the shared customer after saving an address, so it is selectable in the other selections', async () => {
+        await flushPromises();
+
+        wrapper.vm.createNewCustomerAddress();
+        Object.assign(wrapper.vm.currentAddress, {
+            id: 'newCustomerAddressId',
+            firstName: 'Ada',
+            lastName: 'Lovelace',
+            street: 'Example Street 1',
+            zipcode: '12345',
+            city: 'Example City',
+            countryId: 'countryId',
+        });
+
+        wrapper.vm.isValidAddress = jest.fn(() => true);
+
+        await wrapper.vm.onSaveAddress();
+
+        expect(Shopware.Store.get('swOrderDetail').loadCustomer).toHaveBeenCalledWith(
+            '63e27affb5804538b5b06cb4e344b130',
+            true,
+        );
+    });
+
+    it('should keep id on options for addresses where id is not enumerable via spread', async () => {
+        await flushPromises();
+
+        const newAddressId = 'new-customer-address-without-enumerable-id';
+        const draft = {
+            street: 'Ada Street 1',
+            zipcode: '12345',
+            city: 'Example City',
+            country: {
+                translated: {
+                    name: 'Buzbach',
+                },
+            },
+            hash: 'brandNewAddress',
+            getEntityName: () => 'customer_address',
+        };
+        // Mimic Entity proxy: id is readable but missing from Object spread / own keys
+        const entityLikeAddress = new Proxy(draft, {
+            get(target, property) {
+                if (property === 'id') {
+                    return newAddressId;
+                }
+
+                return target[property];
+            },
+        });
+
+        wrapper.vm.customer.addresses.push(entityLikeAddress);
+
+        const option = wrapper.vm.addressOptions.find((item) => item.street === 'Ada Street 1');
+
+        expect(option).toBeDefined();
+        expect(option.id).toBe(newAddressId);
+        // Selecting uses option.id as customerAddressId; without the explicit assignment this is undefined
+        expect({ ...draft }.id).toBeUndefined();
+
+        wrapper.vm.onAddressChange(option.id);
+
+        expect(wrapper.emitted('change-address').at(-1)).toEqual([
+            {
+                orderAddressId: '38e8895864a649a1b2ec806dad02ab87',
+                customerAddressId: newAddressId,
+                type: 'billing',
+                edited: false,
+            },
+        ]);
+    });
+
     it('should be able to get the options with props', async () => {
         const addressSelection = wrapper.find('.sw-order-address-selection');
 
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const list = wrapper.find('.sw-select-result-list__item-list');
+        const list = new DOMWrapper(document.body).get('.sw-select-result-list__item-list');
 
         expect(list.findAll('.sw-select-result')).toHaveLength(2);
 
-        const firstSelection = list.findAll('.sw-select-result').at(0).find('.sw-order-address-selection__information');
+        const firstSelection = list.get('.sw-select-result .sw-order-address-selection__information');
         expect(firstSelection.findAll('p').at(1).text()).toBe('Muster SE - People & Culture');
         expect(firstSelection.findAll('p').at(2).text()).toBe('Denesik Bridge');
         expect(firstSelection.findAll('p').at(3).text()).toBe('05132 Bernierstad');
         expect(firstSelection.findAll('p').at(4).text()).toBe('Buzbach');
 
-        const secondSelection = list.findAll('.sw-select-result').at(1).find('.sw-order-address-selection__information');
+        const secondSelection = list.findAll('.sw-select-result .sw-order-address-selection__information').at(1);
         expect(secondSelection.findAll('p').at(1).text()).toBe('Stehr Divide');
         expect(secondSelection.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
         expect(secondSelection.findAll('p').at(3).text()).toBe('Buzbach');
@@ -366,14 +461,141 @@ describe('src/module/sw-order/component/sw-order-address-selection', () => {
         await addressSelection.find('.sw-select__selection').trigger('click');
         await flushPromises();
 
-        const list = wrapper.find('.sw-select-result-list__item-list');
+        const list = new DOMWrapper(document.body).get('.sw-select-result-list__item-list');
 
-        const information = list.findAll('.sw-select-result').at(0).find('.sw-order-address-selection__information');
+        const information = list.get('.sw-select-result .sw-order-address-selection__information');
 
         expect(list.findAll('.sw-select-result')).toHaveLength(2);
         expect(information.findAll('p').at(1).text()).toBe('Stehr Divide');
         expect(information.findAll('p').at(2).text()).toBe('64885-2245 Faheyshire');
         expect(information.findAll('p').at(3).text()).toBe('Buzbach');
+    });
+
+    it('should report and clear required field errors when validating an address', async () => {
+        await flushPromises();
+
+        const errorStore = Shopware.Store.get('error');
+        jest.spyOn(Shopware.EntityDefinition, 'getRequiredFields').mockReturnValue({
+            firstName: {},
+            lastName: {},
+        });
+
+        const address = {
+            id: 'new-address-id',
+            firstName: '',
+            lastName: 'Lovelace',
+            getEntityName: () => 'customer_address',
+        };
+
+        errorStore.addApiError({
+            expression: 'customer_address.new-address-id.lastName',
+            error: new ShopwareError({ code: EntityValidationService.ERROR_CODE_REQUIRED }),
+        });
+
+        expect(wrapper.vm.isValidAddress(address)).toBe(false);
+
+        expect(errorStore.getApiError(address, 'firstName')).toBeInstanceOf(ShopwareError);
+        expect(errorStore.getApiError(address, 'lastName')).toBeNull();
+    });
+
+    it('should keep a server reported error when validating an address', async () => {
+        await flushPromises();
+
+        const errorStore = Shopware.Store.get('error');
+        jest.spyOn(Shopware.EntityDefinition, 'getRequiredFields').mockReturnValue({
+            firstName: {},
+            lastName: {},
+        });
+
+        const address = {
+            id: 'new-address-id',
+            firstName: '',
+            lastName: 'Lovelace',
+            getEntityName: () => 'customer_address',
+        };
+
+        errorStore.addApiError({
+            expression: 'customer_address.new-address-id.lastName',
+            error: new ShopwareError({ code: 'LAST_NAME_IS_TOO_LONG' }),
+        });
+
+        expect(wrapper.vm.isValidAddress(address)).toBe(false);
+
+        expect(errorStore.getApiError(address, 'lastName')).toBeInstanceOf(ShopwareError);
+    });
+
+    it('should not leave any warnings on the order page when the address modal is closed', async () => {
+        await flushPromises();
+
+        const errorStore = Shopware.Store.get('error');
+
+        wrapper.vm.currentAddress = {
+            id: 'closed-address-id',
+            getEntityName: () => 'customer_address',
+        };
+
+        await expect(wrapper.vm.onSaveAddress()).rejects.toBeUndefined();
+
+        expect(errorStore.getErrorsForEntity('customer_address', 'closed-address-id')).not.toBeNull();
+
+        wrapper.vm.currentAddress = null;
+        await flushPromises();
+
+        expect(errorStore.getErrorsForEntity('customer_address', 'closed-address-id')).toBeNull();
+    });
+
+    it('should keep a server reported error when the address modal is closed', async () => {
+        await flushPromises();
+
+        const errorStore = Shopware.Store.get('error');
+        const address = { id: 'kept-address-id', getEntityName: () => 'customer_address' };
+
+        errorStore.addApiError({
+            expression: 'customer_address.kept-address-id.additionalAddressLine1',
+            error: new ShopwareError({ code: 'ADDITIONAL_ADDR1_IS_TOO_LONG' }),
+        });
+
+        wrapper.vm.currentAddress = address;
+        await flushPromises();
+
+        wrapper.vm.currentAddress = null;
+        await flushPromises();
+
+        expect(errorStore.getApiError(address, 'additionalAddressLine1')).toBeInstanceOf(ShopwareError);
+    });
+
+    it('should clear pending required field errors when the component is torn down', async () => {
+        await flushPromises();
+
+        const errorStore = Shopware.Store.get('error');
+        const address = { id: 'torn-down-address-id', getEntityName: () => 'customer_address' };
+
+        errorStore.addApiError({
+            expression: 'customer_address.torn-down-address-id.firstName',
+            error: new ShopwareError({ code: EntityValidationService.ERROR_CODE_REQUIRED }),
+        });
+
+        wrapper.vm.currentAddress = address;
+        await flushPromises();
+
+        wrapper.unmount();
+
+        expect(errorStore.getApiError(address, 'firstName')).toBeNull();
+    });
+
+    it('should show a notification when trying to save an invalid address', async () => {
+        await flushPromises();
+
+        const notificationSpy = jest.spyOn(wrapper.vm, 'createNotificationError');
+
+        wrapper.vm.currentAddress = {
+            id: 'new-address-id',
+            firstName: '',
+            getEntityName: () => 'customer_address',
+        };
+
+        await expect(wrapper.vm.onSaveAddress()).rejects.toBeUndefined();
+        expect(notificationSpy).toHaveBeenCalled();
     });
 
     it('renders the selected address details below the select', async () => {

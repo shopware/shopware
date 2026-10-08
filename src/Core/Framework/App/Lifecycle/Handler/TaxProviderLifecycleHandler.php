@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\Lifecycle\Handler;
 
+use Shopware\Core\Framework\App\AppHandlerIdentifier;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -62,8 +63,7 @@ class TaxProviderLifecycleHandler extends AbstractLifecycleHandler
         foreach ($taxProviders as $taxProvider) {
             $payload = $taxProvider->toArray($context->defaultLocale);
             $payload['priority'] = (int) $payload['priority'];
-            $payload['identifier'] = \sprintf(
-                'app\\%s_%s',
+            $payload['identifier'] = AppHandlerIdentifier::build(
                 $context->manifest->getMetadata()->getName(),
                 $taxProvider->getIdentifier()
             );

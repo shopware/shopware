@@ -10,7 +10,9 @@ use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityD
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Listing\ProductListingLoader;
 use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
+use Shopware\Core\Content\ProductStream\Service\AbstractProductStreamBuilder;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilder;
+use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -48,7 +50,7 @@ class ProductStreamBuilderTest extends TestCase
 
     private SalesChannelContext $salesChannelContext;
 
-    private ProductStreamBuilder $service;
+    private AbstractProductStreamBuilder&ProductStreamBuilderInterface $service;
 
     protected function setUp(): void
     {

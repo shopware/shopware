@@ -20,21 +20,14 @@ const mockTools = [
         requiredPrivileges: {
             static: [],
             entityParam: 'entity',
-            operations: [
-                'create',
-                'update',
-            ],
+            operations: ['create', 'update'],
         },
     },
     {
         name: 'merchant-product-create',
         description: 'Create products',
         requiredPrivileges: {
-            static: [
-                'product:create',
-                'product:read',
-                'tax:read',
-            ],
+            static: ['product:create', 'product:read', 'tax:read'],
             entityParam: null,
             operations: [],
         },
@@ -56,10 +49,7 @@ async function createWrapper(options = {}) {
         {
             id: 'int-1',
             mcpAllowlist: {
-                tools: [
-                    'shopware-system-config-read',
-                    'shopware-entity-read',
-                ],
+                tools: ['shopware-system-config-read', 'shopware-entity-read'],
                 resources: null,
                 prompts: null,
             },
@@ -182,9 +172,7 @@ describe('module/sw-users-permissions/component/sw-users-permissions-role-mcp-re
 
     it('treats integrations with tools=null as "all tools allowed"', async () => {
         const wrapper = await createWrapper({
-            mcpIntegrations: [
-                { id: 'int-1', mcpAllowlist: { tools: null, resources: [], prompts: null } },
-            ],
+            mcpIntegrations: [{ id: 'int-1', mcpAllowlist: { tools: null, resources: [], prompts: null } }],
         });
         await flushPromises();
 
@@ -265,10 +253,7 @@ describe('module/sw-users-permissions/component/sw-users-permissions-role-mcp-re
                 {
                     id: 'int-1',
                     mcpAllowlist: {
-                        tools: [
-                            'shopware-system-config-read',
-                            'merchant-product-create',
-                        ],
+                        tools: ['shopware-system-config-read', 'merchant-product-create'],
                         resources: null,
                         prompts: null,
                     },
@@ -345,10 +330,7 @@ describe('module/sw-users-permissions/component/sw-users-permissions-role-mcp-re
                 {
                     id: 'int-1',
                     mcpAllowlist: {
-                        tools: [
-                            'shopware-system-config-read',
-                            'merchant-product-create',
-                        ],
+                        tools: ['shopware-system-config-read', 'merchant-product-create'],
                         resources: null,
                         prompts: null,
                     },

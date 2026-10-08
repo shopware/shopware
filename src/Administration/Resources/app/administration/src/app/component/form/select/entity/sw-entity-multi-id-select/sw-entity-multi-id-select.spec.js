@@ -197,9 +197,7 @@ describe('components/sw-entity-multi-id-select', () => {
 
         expect(wrapper.vm.displayVariants).toBe(true);
         expect(wrapper.vm.selectCriteria.associations).toEqual(
-            expect.arrayContaining([
-                expect.objectContaining({ association: 'options' }),
-            ]),
+            expect.arrayContaining([expect.objectContaining({ association: 'options' })]),
         );
     });
 

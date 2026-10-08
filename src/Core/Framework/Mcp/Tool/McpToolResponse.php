@@ -6,9 +6,11 @@ use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Controller\McpServerController;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\Framework\Util\Json;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -124,6 +126,45 @@ abstract class McpToolResponse
     }
 
     /**
+     * Renders a `RequestCriteriaBuilder::fromArray()` failure as an error the
+     * caller can act on, instead of letting it escape to the SDK's generic
+     * "Error while executing tool".
+     *
+     * `SearchRequestException` carries one entry per rejected pointer, so each
+     * detail is prefixed with it: "/aggregations/0/avg/field" names the element
+     * that is wrong. Every other `ShopwareHttpException` is rendered by its own
+     * message, because the builder reports bad input through several unrelated
+     * classes: `DataAbstractionLayerException` directly for e.g.
+     * `expectedArrayWithType()` on `{"includes":"id"}`,
+     * `FrameworkException::associationNotFound()` for an unknown association,
+     * and `ApiProtectionException` / `RuntimeFieldInCriteriaException` from
+     * `ApiCriteriaValidator` for a field the caller may not query. All of them
+     * name the offending part of the payload, so the message is what the caller
+     * needs; only the exception class differs.
+     */
+    protected function invalidCriteriaError(ShopwareHttpException $e): string
+    {
+        if (!$e instanceof SearchRequestException) {
+            return $this->error($e->getMessage());
+        }
+
+        $details = [];
+        foreach ($e->getErrors() as $error) {
+            $pointer = $error['source']['pointer'];
+            $details[] = $pointer === '' ? $error['detail'] : \sprintf('%s: %s', $pointer, $error['detail']);
+        }
+
+        // An empty exception is not thrown by tryToThrow(), but getErrors() is a
+        // generator over caller-supplied state and a message with nothing after
+        // the colon would be worse than the generic one it replaces.
+        if ($details === []) {
+            return $this->error($e->getMessage());
+        }
+
+        return $this->error(\sprintf('Invalid criteria: %s', \implode('; ', $details)));
+    }
+
+    /**
      * @return array<mixed>|string Returns the decoded array on success, or an error JSON string on failure.
      */
     protected function decodeJsonOrError(string $json, string $fieldName = 'input'): array|string
@@ -148,11 +189,22 @@ abstract class McpToolResponse
     {
         foreach ($privileges as $privilege) {
             if (!$context->isAllowed($privilege)) {
-                return $this->error(\sprintf('Missing privilege: %s', $privilege));
+                return $this->missingPrivilegesError([$privilege]);
             }
         }
 
         return null;
+    }
+
+    /**
+     * Canonical error format for privilege denials — all tools must use this
+     * so clients can match on a single "Missing privilege:" prefix.
+     *
+     * @param non-empty-list<string> $privileges
+     */
+    protected function missingPrivilegesError(array $privileges): string
+    {
+        return $this->error(\sprintf('Missing privilege: %s', implode(', ', $privileges)));
     }
 
     /**

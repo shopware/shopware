@@ -4,6 +4,7 @@ namespace Shopware\Tests\Integration\Core\Content\Seo\SalesChannel;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
+use Shopware\Core\Content\Seo\SeoUrlRoute\CategoryStoreApiUrlRoute;
 use Shopware\Core\Content\Test\TestNavigationSeoUrlRoute;
 use Shopware\Core\Content\Test\TestProductSeoUrlRoute;
 use Shopware\Core\Defaults;
@@ -109,6 +110,37 @@ class StoreApiSeoResolverTest extends TestCase
         static::assertIsArray($response['cmsPage']['sections'][0]['blocks'][0]['slots'][0]['data']['listing']['elements'][0]['seoUrls']);
     }
 
+    public function testEnabledHeadlessSalesChannel(): void
+    {
+        $browser = $this->createCustomSalesChannelBrowser([
+            'id' => $this->ids->create('headless-sales-channel'),
+            'typeId' => Defaults::SALES_CHANNEL_TYPE_API,
+            'navigationCategoryId' => $this->ids->get('category'),
+        ]);
+
+        $browser->setServerParameter('HTTP_sw-include-seo-urls', '1');
+
+        $browser->request('POST', '/store-api/category/home');
+
+        $content = $browser->getResponse()->getContent();
+        static::assertIsString($content);
+
+        $response = json_decode($content, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('seoUrls', $response);
+        static::assertIsArray($response['seoUrls']);
+
+        $routeNames = array_column($response['seoUrls'], 'routeName');
+
+        static::assertContains(CategoryStoreApiUrlRoute::ROUTE_NAME, $routeNames);
+        // storefront route names stay in the filter as a fallback, so their rows are returned as well
+        static::assertContains(TestNavigationSeoUrlRoute::ROUTE_NAME, $routeNames);
+
+        foreach ($response['seoUrls'] as $seoUrl) {
+            static::assertSame($this->ids->get('category'), $seoUrl['foreignKey']);
+        }
+    }
+
     public function testEnabledNoAuthentication(): void
     {
         $this->browser->setServerParameter('HTTP_sw-include-seo-urls', '1');
@@ -188,6 +220,13 @@ class StoreApiSeoResolverTest extends TestCase
                     'routeName' => TestNavigationSeoUrlRoute::ROUTE_NAME,
                     'pathInfo' => 'foo',
                     'seoPathInfo' => 'foo',
+                    'isCanonical' => true,
+                ],
+                [
+                    'languageId' => Defaults::LANGUAGE_SYSTEM,
+                    'routeName' => CategoryStoreApiUrlRoute::ROUTE_NAME,
+                    'pathInfo' => 'headless-foo',
+                    'seoPathInfo' => 'headless-foo',
                     'isCanonical' => true,
                 ],
             ],

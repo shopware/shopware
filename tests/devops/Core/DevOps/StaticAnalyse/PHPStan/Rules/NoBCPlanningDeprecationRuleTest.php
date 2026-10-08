@@ -4,7 +4,6 @@ namespace Shopware\Tests\DevOps\Core\DevOps\StaticAnalyse\PHPStan\Rules;
 
 use PHPStan\Rules\Rule;
 use PHPStan\Testing\RuleTestCase;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Shopware\Core\DevOps\StaticAnalyze\PHPStan\Rules\Deprecation\NoBCPlanningDeprecationRule;
 use Shopware\Core\Framework\Log\Package;
 
@@ -16,7 +15,6 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('framework')]
 class NoBCPlanningDeprecationRuleTest extends RuleTestCase
 {
-    #[RunInSeparateProcess]
     public function testBCPlanningReasonTagsAreReported(): void
     {
         $this->analyse([__DIR__ . '/data/NoBCPlanningDeprecationRule/BCPlanningDeprecations.php'], [
@@ -33,15 +31,18 @@ class NoBCPlanningDeprecationRuleTest extends RuleTestCase
                 21,
             ],
             [
+                'The deprecation reason "reason:parameter-default-change" is a BC-planning note, not a deprecation. Remove the deprecation annotation. Use the #[ParameterDefaultValueChange] attribute instead.',
+                28,
+            ],
+            [
                 'The deprecation reason "reason:exception-change" is a BC-planning note, not a deprecation. Remove the deprecation annotation. Use the #[ExceptionChange] attribute instead.',
-                35,
+                42,
             ],
         ]);
     }
 
     protected function getRule(): Rule
     {
-        // an empty pending list simulates the state after all annotations are migrated
-        return new NoBCPlanningDeprecationRule([]);
+        return new NoBCPlanningDeprecationRule();
     }
 }

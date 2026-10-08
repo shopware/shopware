@@ -9,6 +9,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
@@ -21,6 +22,7 @@ use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 /**
  * @internal
  */
+#[Package('discovery')]
 class MaintenanceControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -47,7 +49,7 @@ class MaintenanceControllerTest extends TestCase
 
         static::assertSame(503, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(MaintenancePageLoadedHook::HOOK_NAME, $traces);
     }
@@ -57,7 +59,7 @@ class MaintenanceControllerTest extends TestCase
         $response = $this->request('GET', '/maintenance/singlepage/' . $this->ids->get('page'), []);
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(MaintenancePageLoadedHook::HOOK_NAME, $traces);
     }

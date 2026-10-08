@@ -4,7 +4,6 @@ namespace Shopware\Tests\Unit\Core\Framework\App\Lifecycle\Handler;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppActivationContext;
 use Shopware\Core\Framework\App\Lifecycle\Handler\ScriptLifecycleHandler;
@@ -55,7 +54,6 @@ class ScriptLifecycleHandlerTest extends TestCase
      */
     private function buildScriptRepository(array $scriptIds): StaticEntityRepository
     {
-        /** @var StaticEntityRepository<ScriptCollection> $scriptRepository */
         $scriptRepository = new StaticEntityRepository([]);
         $scriptRepository->addSearch($scriptIds);
 
@@ -67,7 +65,6 @@ class ScriptLifecycleHandlerTest extends TestCase
      */
     private function buildPersister(StaticEntityRepository $scriptRepository): ScriptLifecycleHandler
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
 
         return new ScriptLifecycleHandler(

@@ -105,7 +105,11 @@ class CacheWatchDelayedCommand extends Command implements SignalableCommandInter
 
         $this->output = $output;
 
-        $interval = $this->resolveInterval((int) $input->getOption('interval'));
+        $interval = clamp(
+            (int) $input->getOption('interval'),
+            self::MIN_POLL_INTERVAL_MICROSECONDS,
+            self::DEFAULT_POLL_INTERVAL_MICROSECONDS,
+        );
         $section = $output->section();
         $table = new Table($section);
 
@@ -139,18 +143,6 @@ class CacheWatchDelayedCommand extends Command implements SignalableCommandInter
 
             usleep($interval);
         }
-    }
-
-    /**
-     * Clamps the requested poll interval into the supported range.
-     */
-    private function resolveInterval(int $microseconds): int
-    {
-        return clamp(
-            $microseconds,
-            self::MIN_POLL_INTERVAL_MICROSECONDS,
-            self::DEFAULT_POLL_INTERVAL_MICROSECONDS,
-        );
     }
 
     /**

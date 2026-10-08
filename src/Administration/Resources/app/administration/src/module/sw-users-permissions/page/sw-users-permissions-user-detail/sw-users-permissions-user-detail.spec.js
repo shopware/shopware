@@ -6,6 +6,7 @@
 import { mount } from '@vue/test-utils';
 import TimezoneService from 'src/core/service/timezone.service';
 import EntityCollection from 'src/core/data/entity-collection.data';
+import useModuleIconColors, { USER_MODULE_ICON_COLORS_CONFIG_KEY } from 'src/app/composables/use-module-icon-colors';
 
 let wrapper;
 
@@ -55,6 +56,7 @@ async function createWrapper(
 
                             return privileges.includes(identifier);
                         },
+                        isAdmin: () => !!Shopware.Store.get('session').currentUser?.admin,
                     },
                     loginService: mockedLoginService,
                     userService: {
@@ -211,6 +213,23 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         // not work with automatic unmount
         await wrapper.unmount();
         Shopware.Store.get('session').languageId = '';
+        Shopware.Store.get('session').removeCurrentUser();
+    });
+
+    it.each([
+        [true, false],
+        [false, true],
+    ])('should render the admin switch with admin %s as disabled %s', async (isAdmin, expectedDisabled) => {
+        Shopware.Store.get('session').setCurrentUser({ admin: isAdmin });
+
+        wrapper = await createWrapper(['users_and_permissions.editor']);
+        await wrapper.setData({ isLoading: false });
+        await flushPromises();
+
+        const adminSwitch = wrapper.find('.sw-settings-user-detail__grid-is-admin input');
+
+        expect(adminSwitch.exists()).toBe(true);
+        expect(adminSwitch.element.disabled).toBe(expectedDisabled);
     });
 
     it('should contain all fields', async () => {
@@ -341,9 +360,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 email: 'max@mustermann.com',
                 active: true,
             },
-            integrations: [
-                {},
-            ],
+            integrations: [{}],
         });
         await flushPromises();
 
@@ -384,9 +401,7 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
                 email: 'max@mustermann.com',
                 active: true,
             },
-            integrations: [
-                {},
-            ],
+            integrations: [{}],
         });
 
         const fieldFirstName = wrapper.find('.sw-settings-user-detail__grid-firstName');
@@ -436,6 +451,77 @@ describe('modules/sw-users-permissions/page/sw-users-permissions-user-detail', (
         const fieldActive = wrapper.findComponent('.sw-settings-user-detail__grid-active');
 
         expect(fieldActive.props().disabled).toBe(true);
+    });
+
+    it('should show the theme select only for the own user', async () => {
+        wrapper = await createWrapper('users_and_permissions.editor');
+
+        await wrapper.setData({
+            isLoading: false,
+            userId: 'current-user-id',
+            currentUser: { id: 'current-user-id' },
+            user: { id: 'current-user-id', localeId: '12345' },
+        });
+
+        expect(wrapper.find('.sw-settings-user-detail__grid-theme').exists()).toBe(true);
+
+        await wrapper.setData({
+            userId: 'other-user-id',
+            user: { id: 'other-user-id', localeId: '12345' },
+        });
+
+        expect(wrapper.find('.sw-settings-user-detail__grid-theme').exists()).toBe(false);
+    });
+
+    it('should show the module icon colors select only for the own user', async () => {
+        wrapper = await createWrapper('users_and_permissions.editor');
+
+        await wrapper.setData({
+            isLoading: false,
+            userId: 'current-user-id',
+            currentUser: { id: 'current-user-id' },
+            user: { id: 'current-user-id', localeId: '12345' },
+        });
+
+        expect(wrapper.find('.sw-settings-user-detail__grid-module-icon-colors').exists()).toBe(true);
+
+        await wrapper.setData({
+            userId: 'other-user-id',
+            user: { id: 'other-user-id', localeId: '12345' },
+        });
+
+        expect(wrapper.find('.sw-settings-user-detail__grid-module-icon-colors').exists()).toBe(false);
+    });
+
+    it('should map the module icon colors preference to the select options', async () => {
+        useModuleIconColors().enabled.value = true;
+
+        expect(wrapper.vm.userModuleIconColors).toBe('module');
+
+        wrapper.vm.userModuleIconColors = 'neutral';
+
+        expect(wrapper.vm.userModuleIconColorsSelection).toBe(false);
+        expect(wrapper.vm.userModuleIconColors).toBe('neutral');
+
+        useModuleIconColors().enabled.value = false;
+    });
+
+    it('should persist the selected module icon colors as a boolean on save', async () => {
+        Shopware.Application.$container.resetProviders();
+        Shopware.Application.addServiceProvider('localeHelper', () => ({ setLocaleWithId: () => Promise.resolve() }));
+        const upsert = jest.spyOn(Shopware.Service('userConfigService'), 'upsert').mockResolvedValue();
+        useModuleIconColors().enabled.value = true;
+
+        wrapper.vm.userModuleIconColors = 'neutral';
+        await wrapper.vm.saveUser();
+        await flushPromises();
+
+        expect(upsert).toHaveBeenCalledWith({
+            [USER_MODULE_ICON_COLORS_CONFIG_KEY]: { enabled: false },
+        });
+        expect(useModuleIconColors().enabled.value).toBe(false);
+        expect(wrapper.vm.userModuleIconColorsSelection).toBeNull();
+        expect(wrapper.vm.userModuleIconColors).toBe('neutral');
     });
 
     it('should change the password', async () => {

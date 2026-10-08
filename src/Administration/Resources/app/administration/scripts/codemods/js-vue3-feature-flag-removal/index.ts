@@ -1,4 +1,4 @@
-import { Project, ts } from "ts-morph";
+import { Project, ts } from 'ts-morph';
 import fs from 'fs';
 import path from 'path';
 
@@ -24,7 +24,7 @@ const project = new Project({
     skipAddingFilesFromTsConfig: true,
 });
 
-console.log(fromPlatformRootDirectory(targetDirectory, '**/*.{js,ts}'))
+console.log(fromPlatformRootDirectory(targetDirectory, '**/*.{js,ts}'));
 
 const nonTestSourceFiles = project.addSourceFilesAtPaths([
     fromPlatformRootDirectory(targetDirectory, '**/*.{js,ts}'),
@@ -37,10 +37,9 @@ nonTestSourceFiles.forEach((sourceFile) => {
         if (ifStatement.wasForgotten()) return;
 
         const condition = ifStatement.getExpression();
-        const isVue3FeatureFlag = [
-            'this.feature.isActive(\'VUE3\')',
-            'Shopware.Service(\'feature\').isActive(\'VUE3\')'
-        ].includes(condition.getText());
+        const isVue3FeatureFlag = ["this.feature.isActive('VUE3')", "Shopware.Service('feature').isActive('VUE3')"].includes(
+            condition.getText(),
+        );
 
         if (isVue3FeatureFlag) {
             const thenStatement = ifStatement.getThenStatement();
@@ -51,13 +50,10 @@ nonTestSourceFiles.forEach((sourceFile) => {
                 return statement.getParent() === thenStatement;
             });
 
-            ifStatement.replaceWithText(
-                filteredIfStatementContent.map((statement) => statement.getText()).join('\n')
-            );
-        } else if ([
-            '!this.feature.isActive(\'VUE3\')',
-            '!Shopware.Service(\'feature\').isActive(\'VUE3\')'
-        ].includes(condition.getText())) {
+            ifStatement.replaceWithText(filteredIfStatementContent.map((statement) => statement.getText()).join('\n'));
+        } else if (
+            ["!this.feature.isActive('VUE3')", "!Shopware.Service('feature').isActive('VUE3')"].includes(condition.getText())
+        ) {
             if (ifStatement.getElseStatement()) {
                 const elseStatement = ifStatement.getElseStatement();
                 if (!elseStatement) return;
@@ -69,9 +65,7 @@ nonTestSourceFiles.forEach((sourceFile) => {
                     return statement.getParent() === elseStatement;
                 });
 
-                ifStatement.replaceWithText(
-                    elseStatementContent.map((statement) => statement.getText()).join('\n')
-                );
+                ifStatement.replaceWithText(elseStatementContent.map((statement) => statement.getText()).join('\n'));
             } else {
                 ifStatement.remove();
             }

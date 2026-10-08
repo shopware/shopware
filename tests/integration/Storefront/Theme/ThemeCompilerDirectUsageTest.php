@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Storefront\Theme\CompilerConfiguration;
 use Shopware\Storefront\Theme\MD5ThemePathBuilder;
@@ -27,6 +28,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeCompilerDirectUsageTest extends TestCase
 {
     use KernelTestBehaviour;
@@ -64,7 +66,7 @@ class ThemeCompilerDirectUsageTest extends TestCase
             static::getContainer()->get(ThemeFilesystemResolver::class),
             ['theme' => new UrlPackage(['http://localhost'], new EmptyVersionStrategy())],
             static::getContainer()->get(CacheInvalidator::class),
-            $this->createMock(LoggerInterface::class),
+            static::createStub(LoggerInterface::class),
             new MD5ThemePathBuilder(),
             static::getContainer()->get(ScssPhpCompiler::class),
             [],

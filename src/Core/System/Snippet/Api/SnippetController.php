@@ -50,7 +50,9 @@ class SnippetController extends AbstractController
                 $request->request->getInt('page', 1),
                 $limit,
                 $context,
+                /** @phpstan-ignore argument.type (To fix this issue, the request parameter array would need to be validated to contain only allowed values. Should be fixed, once proper Request -> DTO mapping is applied) */
                 $filters,
+                /** @phpstan-ignore argument.type (To fix this issue, the request parameter array would need to be validated to contain only allowed values. Should be fixed, once proper Request -> DTO mapping is applied) */
                 $request->request->all('sort')
             )
         );

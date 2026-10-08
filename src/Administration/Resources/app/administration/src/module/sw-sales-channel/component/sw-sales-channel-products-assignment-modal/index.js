@@ -21,10 +21,9 @@ const updateElementVisibility = (element, binding) => {
 export default {
     template,
 
-    emits: [
-        'modal-close',
-        'products-add',
-    ],
+    inject: ['feature'],
+
+    emits: ['modal-close', 'products-add'],
 
     directives: {
         hide: {
@@ -47,6 +46,7 @@ export default {
 
     data() {
         return {
+            activeTab: 'singleProducts',
             singleProducts: [],
             categoryProducts: [],
             groupProducts: [],
@@ -73,14 +73,24 @@ export default {
         },
 
         products() {
-            return uniqBy(
-                [
-                    ...this.singleProducts,
-                    ...this.categoryProducts,
-                    ...this.groupProducts,
-                ],
-                'id',
-            );
+            return uniqBy([...this.singleProducts, ...this.categoryProducts, ...this.groupProducts], 'id');
+        },
+
+        productAssignmentTabs() {
+            return [
+                {
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.singleProducts'),
+                    name: 'singleProducts',
+                },
+                {
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.categories.title'),
+                    name: 'categories',
+                },
+                {
+                    label: this.$t('sw-sales-channel.detail.productAssignmentModal.dynamicProductGroups.title'),
+                    name: 'dynamicProductGroups',
+                },
+            ];
         },
     },
 

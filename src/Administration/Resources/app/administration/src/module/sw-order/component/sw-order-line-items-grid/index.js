@@ -14,11 +14,7 @@ const { get, format } = Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'orderService',
-        'acl',
-    ],
+    inject: ['repositoryFactory', 'orderService', 'acl'],
 
     emits: [
         'item-edit',
@@ -47,6 +43,8 @@ export default {
             isLoading: false,
             selectedItems: {},
             searchTerm: '',
+            page: 1,
+            limit: 10,
             nestedLineItemsModal: null,
             showDeleteModal: false,
         };
@@ -80,6 +78,16 @@ export default {
 
                 return keyWords.every((key) => targets.some((i) => i.includes(key.toLowerCase())));
             });
+        },
+
+        paginatedLineItems() {
+            const start = (this.page - 1) * this.limit;
+
+            return [...this.orderLineItems].slice(start, start + this.limit);
+        },
+
+        lineItemIds() {
+            return this.order.lineItems.map((item) => item.id);
         },
 
         lineItemTypes() {
@@ -187,6 +195,15 @@ export default {
             return Shopware.Filter.getByName('currency');
         },
     },
+
+    watch: {
+        lineItemIds(lineItemIds) {
+            Object.values(this.selectedItems)
+                .filter((item) => !lineItemIds.includes(item.id))
+                .forEach((item) => this.$refs.dataGrid?.selectItem(false, item));
+        },
+    },
+
     methods: {
         onInlineEditSave(item) {
             return new Promise((resolve) => {
@@ -222,11 +239,21 @@ export default {
             });
         },
 
-        onInlineEditCancel() {
+        onInlineEditCancel(item) {
+            if (item.isNew()) {
+                const itemIndex = this.order.lineItems.findIndex((lineItem) => lineItem?.id === item.id);
+                this.order.lineItems.splice(itemIndex, 1);
+
+                return;
+            }
+
             this.$emit('item-cancel');
         },
 
         createNewOrderLineItem() {
+            this.searchTerm = '';
+            this.$refs.itemFilter.term = '';
+
             const item = this.orderLineItemRepository.create();
             item.versionId = this.order.versionId;
             item.priceDefinition = {
@@ -257,20 +284,29 @@ export default {
             const item = this.createNewOrderLineItem();
             item.description = 'custom line item';
             item.type = this.lineItemTypes.CUSTOM;
-            this.order.lineItems.unshift(item);
+            this.insertLineItem(item);
         },
 
         onInsertExistingItem() {
             const item = this.createNewOrderLineItem();
             item.type = this.lineItemTypes.PRODUCT;
-            this.order.lineItems.unshift(item);
+            this.insertLineItem(item);
         },
 
         onInsertCreditItem() {
             const item = this.createNewOrderLineItem();
             item.description = 'credit line item';
             item.type = this.lineItemTypes.CREDIT;
+            this.insertLineItem(item);
+        },
+
+        insertLineItem(item) {
             this.order.lineItems.unshift(item);
+            this.page = 1;
+
+            this.$nextTick(() => {
+                this.$refs.dataGrid?.onDbClickCell(item);
+            });
         },
 
         onSelectionChanged(selection) {
@@ -304,8 +340,9 @@ export default {
             });
         },
 
-        onDeleteItem(item, itemIndex) {
+        onDeleteItem(item) {
             if (item.isNew()) {
+                const itemIndex = this.order.lineItems.findIndex((lineItem) => lineItem?.id === item.id);
                 this.order.lineItems.splice(itemIndex, 1);
 
                 return;
@@ -335,6 +372,12 @@ export default {
 
         onSearchTermChange(searchTerm) {
             this.searchTerm = searchTerm.toLowerCase();
+            this.page = 1;
+        },
+
+        onPageChange({ page, limit }) {
+            this.page = page;
+            this.limit = limit;
         },
 
         isCreditItem(id) {

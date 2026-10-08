@@ -18,7 +18,6 @@ use Symfony\Component\EventDispatcher\EventDispatcher;
  */
 #[Package('inventory')]
 #[CoversClass(ProductListingCriteriaExtension::class)]
-#[CoversClass(ProductListingCriteriaExtensionExample::class)]
 class ProductListingCriteriaExtensionTest extends TestCase
 {
     public function testProductListingCriteriaExample(): void

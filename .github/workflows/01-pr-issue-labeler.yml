@@ -11,10 +11,54 @@ jobs:
   label:
     runs-on: ubuntu-24.04
     if: github.event_name == 'issues' || github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      id-token: write
+      issues: write
+      pull-requests: write
     steps:
+      # sparse checkout of the automation scripts only — keeps the per-PR-event cost minimal
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github/bin/js
       - uses: srvaroa/labeler@bf262763a8a8e191f5847873aecc0f29df84f957 # v1.14.0
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      # Auto-apply major-test labels for feature-flag changes and acceptance spec changes, so the
+      # matching integration-major or acceptance-major arm runs where it matters.
+      # Piggybacks on this job to avoid a runner spin-up of its own; costs one API call per PR event.
+      # all further run conditions (action, fork head, existing labels) live in the
+      # module's `shouldDetect` where they are unit-tested
+      - id: detect-major
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const { detectMajorTestArms, labelsForMajorTestArms } = await import(
+              '${{ github.workspace }}/.github/bin/js/auto-label-major-tests.ts'
+            )
+            const arms = await detectMajorTestArms({ github, core, context })
+            const labels = labelsForMajorTestArms(arms, context.payload.pull_request.labels)
+            core.setOutput('labels', labels.join(','))
+      # an app token is required for the added label to trigger the major workflows' `labeled` runs;
+      # if minting fails we fall back to GITHUB_TOKEN — the label still lands, the matrix starts on the next push
+      - id: sts-major
+        if: steps.detect-major.outputs.labels != ''
+        continue-on-error: true
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: CreatePR
+      - if: steps.detect-major.outputs.labels != ''
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          github-token: ${{ steps.sts-major.outputs.token || secrets.GITHUB_TOKEN }}
+          script: |
+            const { addMajorTestLabels } = await import(
+              '${{ github.workspace }}/.github/bin/js/auto-label-major-tests.ts'
+            )
+            const labels = '${{ steps.detect-major.outputs.labels }}'.split(',').filter(Boolean)
+            await addMajorTestLabels({ github, context, labels })
 
   cleanup-needs-triage:
     runs-on: ubuntu-24.04
@@ -25,7 +69,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - shell: bash
         run: npm ci --prefix .github/bin/js/
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
@@ -100,7 +144,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: sts
         continue-on-error: true
         uses: shopware/octo-sts-action@main
@@ -125,7 +169,7 @@ jobs:
       issues: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - shell: bash
         run: npm ci --prefix .github/bin/js/
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
@@ -147,7 +191,7 @@ jobs:
       issues: read
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - shell: bash
         run: npm ci --prefix .github/bin/js/
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
@@ -167,7 +211,7 @@ jobs:
       id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - id: sts
         continue-on-error: true
         uses: shopware/octo-sts-action@main
@@ -196,7 +240,7 @@ jobs:
       issues: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - shell: bash
         run: npm ci --prefix .github/bin/js/
       - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9

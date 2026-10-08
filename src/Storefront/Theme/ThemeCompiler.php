@@ -4,7 +4,7 @@ namespace Shopware\Storefront\Theme;
 
 use League\Flysystem\FilesystemException;
 use League\Flysystem\FilesystemOperator;
-use League\Flysystem\UnableToDeleteDirectory;
+use League\Flysystem\FilesystemReader;
 use League\Flysystem\Visibility;
 use Psr\Log\LoggerInterface;
 use ScssPhp\ScssPhp\OutputStyle;
@@ -105,8 +105,10 @@ class ThemeCompiler implements ThemeCompilerInterface
             $styleCopyFiles = $this->getStyleCopyFiles($themePrefix, $compiledStyles);
 
             $assetCopyFiles = [];
+            $staleAssetFiles = [];
             if ($withAssets) {
                 $assetCopyFiles = $this->getAssetCopyFiles($themeConfig, $configurationCollection, $themeId);
+                $staleAssetFiles = $this->getStaleAssetFiles($themeId, $assetCopyFiles);
             }
         } catch (\Throwable $e) {
             throw ThemeException::themeCompileException(
@@ -124,6 +126,11 @@ class ThemeCompiler implements ThemeCompilerInterface
             ...$assetCopyFiles,
             ...$scriptFiles,
         );
+
+        // Never delete keys that are being overwritten: storage may apply deletes after the upload.
+        foreach ($staleAssetFiles as $staleAssetFile) {
+            $this->filesystem->delete($staleAssetFile);
+        }
 
         $this->themePathBuilder->saveSeed($salesChannelId, $themeId, $newThemeHash);
 
@@ -341,7 +348,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            $entryName = preg_replace('/\.(scss|css)$/', '', $entry['name']) ?? $entry['name'];
+            $entryName = $this->normalizeComponentEntryName($entry['name']);
             $outputFile = $entry['file'];
             $tag = str_replace('/', ':', $entryName);
 
@@ -383,11 +390,18 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
             if (isset($entry['css']) && $entry['css'] !== []) {
-                $jsToCssFiles[$entry['name']] = $entry['css'];
+                $jsToCssFiles[$this->normalizeComponentEntryName($entry['name'])] = $entry['css'];
             }
         }
 
         return $jsToCssFiles;
+    }
+
+    private function normalizeComponentEntryName(string $entryName): string
+    {
+        $entryName = preg_replace('/\.(scss|css)$/', '', $entryName) ?? $entryName;
+
+        return preg_replace('~/index$~', '', $entryName) ?? $entryName;
     }
 
     /**
@@ -558,9 +572,11 @@ class ThemeCompiler implements ThemeCompilerInterface
             return [];
         }
 
+        $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($configuration);
+
         foreach ($configuration->getAssetPaths() as $asset) {
-            if (mb_strpos((string) $asset, '@') === 0) {
-                $name = mb_substr((string) $asset, 1);
+            if (str_starts_with($asset, '@')) {
+                $name = mb_substr($asset, 1);
                 $config = $configurationCollection->getByTechnicalName($name);
                 if (!$config) {
                     throw ThemeException::couldNotFindThemeByName($name);
@@ -571,7 +587,6 @@ class ThemeCompiler implements ThemeCompilerInterface
                 continue;
             }
 
-            $fs = $this->themeFilesystemResolver->getFilesystemForStorefrontConfig($configuration);
             if ($asset[0] !== '/' && $fs->has('Resources', $asset)) {
                 $asset = $fs->path('Resources', $asset);
             }
@@ -681,7 +696,15 @@ class ThemeCompiler implements ThemeCompilerInterface
     }
 
     /**
-     * @param array{fields?: array{value: string|array<mixed>|null, scss?: bool, type: string}[]} $config
+     * @param array{
+     *     fields?: array<string, array{
+     *         value?: array<mixed>|bool|float|int|string|null,
+     *         scss?: bool|null,
+     *         type?: string|null,
+     *         ...<string, mixed>
+     *     }>,
+     *     ...<string, mixed>
+     * } $config
      *
      * @throws FilesystemException
      */
@@ -855,14 +878,36 @@ PHP_EOL;
         StorefrontPluginConfigurationCollection $configurationCollection,
         string $themeId
     ): array {
-        $assetPath = 'theme' . \DIRECTORY_SEPARATOR . $themeId;
+        return $this->getAssets($themeConfig, $configurationCollection, 'theme' . \DIRECTORY_SEPARATOR . $themeId);
+    }
 
-        try {
-            $this->filesystem->deleteDirectory($assetPath);
-        } catch (UnableToDeleteDirectory) {
+    /**
+     * @param list<CopyBatchInput> $assetCopyFiles
+     *
+     * @return list<string>
+     */
+    private function getStaleAssetFiles(string $themeId, array $assetCopyFiles): array
+    {
+        $assetPath = 'theme' . \DIRECTORY_SEPARATOR . $themeId;
+        if (!$this->filesystem->directoryExists($assetPath)) {
+            return [];
         }
 
-        return $this->getAssets($themeConfig, $configurationCollection, $assetPath);
+        $targetFiles = [];
+        foreach ($assetCopyFiles as $assetCopyFile) {
+            foreach ($assetCopyFile->getTargetFiles() as $targetFile) {
+                $targetFiles[ltrim($targetFile, '/')] = true;
+            }
+        }
+
+        $staleAssetFiles = [];
+        foreach ($this->filesystem->listContents($assetPath, FilesystemReader::LIST_DEEP) as $item) {
+            if ($item->isFile() && str_starts_with($item->path(), $assetPath . '/') && !isset($targetFiles[$item->path()])) {
+                $staleAssetFiles[] = $item->path();
+            }
+        }
+
+        return $staleAssetFiles;
     }
 
     /**

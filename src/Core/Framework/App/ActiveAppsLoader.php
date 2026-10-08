@@ -14,7 +14,7 @@ use Symfony\Contracts\Service\ResetInterface;
 /**
  * @internal only for use by the app-system
  *
- * @phpstan-type App array{name: string, path: string, author: string|null, selfManaged: bool}
+ * @phpstan-type App array{name: string, path: string, author: string|null, selfManaged: bool, version: string}
  */
 #[Package('framework')]
 class ActiveAppsLoader implements ResetInterface
@@ -55,7 +55,7 @@ class ActiveAppsLoader implements ResetInterface
     {
         try {
             $data = $this->connection->fetchAllAssociative('
-                SELECT `name`, `path`, `author`, `self_managed`
+                SELECT `name`, `path`, `author`, `self_managed`, `version`
                 FROM `app`
                 WHERE `active` = 1
             ');
@@ -65,6 +65,7 @@ class ActiveAppsLoader implements ResetInterface
                 'path' => $app['path'],
                 'author' => $app['author'],
                 'selfManaged' => (bool) $app['self_managed'],
+                'version' => $app['version'],
             ], $data);
         } catch (\Throwable $e) {
             if (!EnvironmentHelper::getVariable('TESTS_RUNNING')) {
@@ -84,6 +85,7 @@ class ActiveAppsLoader implements ResetInterface
                 'path' => Path::makeRelative($manifest->getPath(), $this->projectDir),
                 'author' => $manifest->getMetadata()->getAuthor(),
                 'selfManaged' => false,
+                'version' => $manifest->getMetadata()->getVersion(),
             ], $this->appLoader->load());
         }
     }

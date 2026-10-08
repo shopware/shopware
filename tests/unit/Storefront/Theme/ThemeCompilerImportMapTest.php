@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\AbstractScssCompiler;
 use Shopware\Storefront\Theme\AbstractThemePathBuilder;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -24,6 +25,7 @@ use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerImportMapTest extends TestCase
 {
@@ -58,6 +60,44 @@ class ThemeCompilerImportMapTest extends TestCase
         );
         static::assertSame(
             ['/bundles/storefront/storefront/components/Example/Component-HASH.css'],
+            $result['styles'] ?? []
+        );
+    }
+
+    public function testBuildComponentImportMapNormalizesAnonymousIndexEntries(): void
+    {
+        $this->writeJson(
+            'bundles/myextension/storefront/components/.vite/build-meta.json',
+            [
+                'manifest' => [
+                    'MyExtension/Search/Action/index.js' => [
+                        'file' => 'MyExtension/Search/Action/index-HASH.js',
+                        'name' => 'MyExtension/Search/Action/index',
+                        'isEntry' => true,
+                    ],
+                    'MyExtension/Search/Action/index.scss' => [
+                        'file' => 'MyExtension/Search/Action/index-HASH.css',
+                        'name' => 'MyExtension/Search/Action/index.scss',
+                        'isEntry' => true,
+                    ],
+                ],
+                'vendorMap' => [],
+            ]
+        );
+        $collection = new StorefrontPluginConfigurationCollection([
+            new StorefrontPluginConfiguration('Storefront'),
+            new StorefrontPluginConfiguration('MyExtension'),
+        ]);
+
+        $result = $this->assertImportMap($this->compiler->buildComponentImportMap($collection));
+
+        static::assertSame(
+            '/bundles/myextension/storefront/components/MyExtension/Search/Action/index-HASH.js',
+            $result['imports']['MyExtension:Search:Action']
+        );
+        static::assertArrayNotHasKey('MyExtension:Search:Action:index', $result['imports']);
+        static::assertSame(
+            ['/bundles/myextension/storefront/components/MyExtension/Search/Action/index-HASH.css'],
             $result['styles'] ?? []
         );
     }

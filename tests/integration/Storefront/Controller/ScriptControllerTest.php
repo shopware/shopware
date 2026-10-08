@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelLifecycleManager;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -21,6 +22,7 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ScriptControllerTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -37,7 +39,7 @@ class ScriptControllerTest extends TestCase
         $body = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
-        $traces = $this->getScriptTraces();
+        $traces = $this->getScriptTraces($this->getStorefrontRequestContainer());
         static::assertArrayHasKey('storefront-json-response', $traces);
         static::assertCount(1, $traces['storefront-json-response']);
         static::assertSame('some debug information', $traces['storefront-json-response'][0]['output'][0]);
@@ -56,7 +58,7 @@ class ScriptControllerTest extends TestCase
         $body = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
-        $traces = $this->getScriptTraces();
+        $traces = $this->getScriptTraces($this->getStorefrontRequestContainer());
         static::assertArrayHasKey('storefront-json-response', $traces);
         static::assertCount(1, $traces['storefront-json-response']);
         static::assertSame('some debug information', $traces['storefront-json-response'][0]['output'][0]);
@@ -80,7 +82,7 @@ class ScriptControllerTest extends TestCase
         $body = \json_decode($response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertSame(Response::HTTP_OK, $response->getStatusCode(), print_r($body, true));
 
-        $traces = $this->getScriptTraces();
+        $traces = $this->getScriptTraces($this->getStorefrontRequestContainer());
         static::assertArrayHasKey('storefront-json-response', $traces);
         static::assertCount(1, $traces['storefront-json-response']);
         static::assertSame('some debug information', $traces['storefront-json-response'][0]['output'][0]);

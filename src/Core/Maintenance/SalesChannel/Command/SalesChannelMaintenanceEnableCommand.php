@@ -7,11 +7,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
+use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -30,33 +29,25 @@ class SalesChannelMaintenanceEnableCommand extends Command
      * @param EntityRepository<SalesChannelCollection> $salesChannelRepository
      */
     public function __construct(
-        private readonly EntityRepository $salesChannelRepository
+        private readonly EntityRepository $salesChannelRepository,
     ) {
         parent::__construct();
     }
 
-    protected function configure(): void
-    {
-        $this->addArgument(
-            'ids',
-            InputArgument::IS_ARRAY | InputArgument::OPTIONAL,
-            'Which Sales Channels do you want to update maintenance mode for? (Optional when --all flag is used)',
-            []
-        )->addOption(
-            'all',
-            'a',
-            InputOption::VALUE_NONE,
-            'Set maintenance mode for all sales channels'
-        );
-    }
-
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
+    /**
+     * @param list<string> $ids
+     */
+    public function __invoke(
+        OutputInterface $output,
+        #[Argument(description: 'Which Sales Channels do you want to update maintenance mode for? (Optional when --all flag is used)')]
+        array $ids = [],
+        #[Option(description: 'Set maintenance mode for all sales channels', shortcut: 'a')]
+        bool $all = false,
+    ): int {
         $context = Context::createCLIContext();
         $criteria = new Criteria();
 
-        if (!$input->getOption('all')) {
-            $ids = $input->getArgument('ids');
+        if ($all === false) {
             if ($ids === []) {
                 $output->write('No sales channels were updated. Provide id(s) or run with --all option.');
 
@@ -66,22 +57,21 @@ class SalesChannelMaintenanceEnableCommand extends Command
             $criteria->setIds($ids);
         }
 
-        $salesChannelIds = $this->salesChannelRepository->searchIds($criteria, $context)->getIds();
-
-        if ($salesChannelIds === []) {
+        $salesChannels = $this->salesChannelRepository->searchIds($criteria, $context)->getPrimaryKeyData();
+        if ($salesChannels === []) {
             $output->write('No sales channels were updated');
 
             return self::SUCCESS;
         }
 
-        $update = array_map(fn (string $id) => [
-            'id' => $id,
-            'maintenance' => $this->setMaintenanceMode,
-        ], $salesChannelIds);
+        foreach ($salesChannels as &$salesChannel) {
+            $salesChannel['maintenance'] = $this->setMaintenanceMode;
+        }
+        unset($salesChannel);
 
-        $this->salesChannelRepository->update($update, $context);
+        $this->salesChannelRepository->update($salesChannels, $context);
 
-        $output->write(\sprintf('Updated maintenance mode for %d sales channel(s)', \count($salesChannelIds)));
+        $output->write(\sprintf('Updated maintenance mode for %d sales channel(s)', \count($salesChannels)));
 
         return self::SUCCESS;
     }

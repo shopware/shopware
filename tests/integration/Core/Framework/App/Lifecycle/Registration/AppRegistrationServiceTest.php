@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\App\Lifecycle\Registration;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
+use Psr\Log\NullLogger;
 use Shopware\Core\DevOps\Environment\EnvironmentHelper;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\App\AppCollection;
@@ -82,9 +83,9 @@ class AppRegistrationServiceTest extends TestCase
 
         $uriWithoutQuery = $registrationRequest->getUri()->withQuery('');
         static::assertSame($setup->getRegistrationUrl(), (string) $uriWithoutQuery);
-        static::assertNotEmpty($registrationRequest->getHeaderLine('sw-version'));
-        static::assertNotEmpty($registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $registrationRequest->getHeaderLine('sw-version'));
+        static::assertNotSame('', $registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
 
         $secret = $setup->getSecret();
         static::assertNotNull($secret);
@@ -118,9 +119,13 @@ class AppRegistrationServiceTest extends TestCase
             $confirmationReq->getHeaderLine('shopware-shop-signature')
         );
 
-        static::assertNotEmpty($confirmationReq->getHeaderLine('sw-version'));
-        static::assertNotEmpty($registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        // A fresh install has no earlier secret, so it must NOT send the previous-signature header that a
+        // re-registration uses.
+        static::assertFalse($confirmationReq->hasHeader('shopware-shop-signature-previous'));
+
+        static::assertNotSame('', $confirmationReq->getHeaderLine('sw-version'));
+        static::assertNotSame('', $registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testRegistrationConfirmFails(): void
@@ -236,7 +241,8 @@ class AppRegistrationServiceTest extends TestCase
             $this->shopUrl,
             $shopIdMock,
             Kernel::SHOPWARE_FALLBACK_VERSION,
-            new NativeClock()
+            new NativeClock(),
+            new NullLogger(),
         );
 
         static::expectException(AppRegistrationException::class);
@@ -254,12 +260,12 @@ class AppRegistrationServiceTest extends TestCase
 
         $registrationRequest = $this->getPastRequest(0);
         $confirmationRequest = $this->getPastRequest(1);
-        static::assertNotEmpty($registrationRequest->getHeaderLine('sw-version'));
-        static::assertNotEmpty($registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
-        static::assertNotEmpty($confirmationRequest->getHeaderLine('sw-version'));
-        static::assertNotEmpty($confirmationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
-        static::assertNotEmpty($confirmationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $registrationRequest->getHeaderLine('sw-version'));
+        static::assertNotSame('', $registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $registrationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
+        static::assertNotSame('', $confirmationRequest->getHeaderLine('sw-version'));
+        static::assertNotSame('', $confirmationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_USER_LANGUAGE));
+        static::assertNotSame('', $confirmationRequest->getHeaderLine(AuthMiddleware::SHOPWARE_CONTEXT_LANGUAGE));
     }
 
     public function testDoesNotRegisterIfNoSetupElementIsProvided(): void

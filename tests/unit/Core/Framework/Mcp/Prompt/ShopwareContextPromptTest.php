@@ -20,7 +20,7 @@ class ShopwareContextPromptTest extends TestCase
         $result = ($prompt)();
 
         static::assertIsArray($result);
-        static::assertNotEmpty($result);
+        static::assertNotCount(0, $result);
         static::assertArrayHasKey('role', $result[0]);
         static::assertArrayHasKey('content', $result[0]);
         static::assertSame('user', $result[0]['role']);
@@ -34,5 +34,9 @@ class ShopwareContextPromptTest extends TestCase
         $content = $result[0]['content'];
         static::assertStringContainsString('Shopware', $content);
         static::assertStringContainsString('entity', $content);
+        static::assertStringContainsString('shopware-tool-search', $content);
+        static::assertStringContainsString('shopware-toolsets-list', $content);
+        static::assertStringContainsString('shopware-toolset-enable', $content);
+        static::assertStringContainsString('allowlist and ACL permissions remain the security boundary', $content);
     }
 }

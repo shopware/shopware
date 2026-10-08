@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Storefront\Framework\Routing\CachedDomainLoader;
 use Shopware\Storefront\Theme\Event\ThemeAssignedEvent;
@@ -15,6 +16,7 @@ use Shopware\Storefront\Theme\ThemeConfigCacheInvalidator;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeConfigCacheInvalidator::class)]
 class ThemeConfigCacheInvalidatorTest extends TestCase
 {
@@ -40,6 +42,7 @@ class ThemeConfigCacheInvalidatorTest extends TestCase
         $expectedInvalidatedTags = [
             $name,
             CachedDomainLoader::CACHE_KEY,
+            CachedDomainLoader::DOMAIN_COLLECTION_CACHE_KEY,
             Translator::tag($salesChannelId),
         ];
 

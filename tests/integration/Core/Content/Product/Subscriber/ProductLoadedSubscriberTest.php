@@ -1138,7 +1138,7 @@ class ProductLoadedSubscriberTest extends TestCase
     }
 
     /**
-     * @return list<array{array<string, mixed>, list<array<string, string>>}>
+     * @return list<array{array<string, mixed>, list<array<string, string>>, Criteria}>
      */
     public static function optionCases(): array
     {

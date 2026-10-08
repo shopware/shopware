@@ -45,7 +45,9 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Checkout\Cart\SalesChannel\StorefrontCartFacade;
 use Shopware\Storefront\Controller\AuthController;
 use Shopware\Storefront\Controller\StorefrontController;
+use Shopware\Storefront\Framework\Routing\ClearSiteDataListener;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Routing\StorefrontRouteScope;
 use Shopware\Storefront\Page\Account\Login\AccountGuestLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoadedHook;
 use Shopware\Storefront\Page\Account\Login\AccountLoginPageLoader;
@@ -118,8 +120,7 @@ class AuthControllerTest extends TestCase
         $browser = $this->login();
         $session = $this->getSession();
 
-        // Get the sales channel ID that was used for login
-        $loginSalesChannelId = $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $loginSalesChannelId = $this->getStorefrontSalesChannelId();
 
         // Get the token for the login channel - should be stored in channel-specific key
         $loginChannelTokenKey = PlatformRequest::HEADER_CONTEXT_TOKEN . '-' . $loginSalesChannelId;
@@ -149,7 +150,7 @@ class AuthControllerTest extends TestCase
         $session = $this->getSession();
 
         $contextToken = $session->get('sw-context-token');
-        $salesChannelId = $session->get(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID);
+        $salesChannelId = $this->getStorefrontSalesChannelId();
 
         // Make another request on the same channel
         $browser->request('GET', '/');
@@ -238,6 +239,43 @@ class AuthControllerTest extends TestCase
 
         $newSessionId = $session->getId();
         static::assertNotSame($sessionId, $newSessionId);
+    }
+
+    public function testLogoutSendsNoClearSiteDataHeaderByDefault(): void
+    {
+        $browser = $this->login();
+
+        $browser->request('GET', '/account/logout');
+        $response = $browser->getResponse();
+
+        static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
+        static::assertFalse($response->headers->has('Clear-Site-Data'));
+    }
+
+    /**
+     * The container parameter cannot be changed at runtime, so the configured state is simulated by
+     * registering a second, configured listener instance on the real dispatcher.
+     */
+    public function testLogoutSendsClearSiteDataWhenDirectivesAreConfigured(): void
+    {
+        $dispatcher = static::getContainer()->get('event_dispatcher');
+        $onResponse = (new ClearSiteDataListener(['cache', 'storage']))->onResponse(...);
+        $dispatcher->addListener(StorefrontRouteScope::ID . '.scope.response', $onResponse);
+
+        try {
+            $browser = $this->login();
+            $browser->setServerParameter('HTTP_SEC_FETCH_SITE', 'same-origin');
+            $browser->setServerParameter('HTTP_SEC_FETCH_MODE', 'navigate');
+            $browser->setServerParameter('HTTP_SEC_FETCH_DEST', 'document');
+
+            $browser->request('GET', '/account/logout');
+            $response = $browser->getResponse();
+
+            static::assertSame(302, $response->getStatusCode(), (string) $response->getContent());
+            static::assertSame('"cache", "storage"', $response->headers->get('Clear-Site-Data'));
+        } finally {
+            $dispatcher->removeListener(StorefrontRouteScope::ID . '.scope.response', $onResponse);
+        }
     }
 
     public function testOneUserUseOneContextAcrossSessions(): void
@@ -339,7 +377,7 @@ class AuthControllerTest extends TestCase
     {
         $this->request('GET', '/account/login', []);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountLoginPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -604,7 +642,7 @@ class AuthControllerTest extends TestCase
             'redirectParameters' => ['deepLinkCode' => 'foo'],
         ]);
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(AccountGuestLoginPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -752,6 +790,17 @@ class AuthControllerTest extends TestCase
         static::getContainer()->get('product.repository')->create([$product], $context);
     }
 
+    private function getStorefrontSalesChannelId(): string
+    {
+        $salesChannelId = static::getContainer()->get(Connection::class)->fetchOne(
+            'SELECT LOWER(HEX(sales_channel_id)) FROM sales_channel_domain WHERE url = :url',
+            ['url' => EnvironmentHelper::getVariable('APP_URL')]
+        );
+        static::assertIsString($salesChannelId);
+
+        return $salesChannelId;
+    }
+
     private function login(): KernelBrowser
     {
         $customer = $this->createCustomer();
@@ -840,14 +889,14 @@ class AuthControllerTest extends TestCase
 
     private function getAuthController(?AbstractSendPasswordRecoveryMailRoute $sendPasswordRecoveryMailRoute = null): AuthController
     {
-        $sendPasswordRecoveryMailRoute ??= $this->createMock(AbstractSendPasswordRecoveryMailRoute::class);
+        $sendPasswordRecoveryMailRoute ??= static::createStub(AbstractSendPasswordRecoveryMailRoute::class);
 
         $controller = new AuthController(
             static::getContainer()->get(AccountLoginPageLoader::class),
             $sendPasswordRecoveryMailRoute,
             static::getContainer()->get(ResetPasswordRoute::class),
             static::getContainer()->get(LoginRoute::class),
-            $this->createMock(AbstractLogoutRoute::class),
+            static::createStub(AbstractLogoutRoute::class),
             static::getContainer()->get(ImitateCustomerRoute::class),
             static::getContainer()->get(StorefrontCartFacade::class),
             static::getContainer()->get(AccountRecoverPasswordPageLoader::class),

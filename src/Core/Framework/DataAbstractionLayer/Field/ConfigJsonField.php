@@ -6,6 +6,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\Dbal\FieldAccessorBuilder\Confi
 use Shopware\Core\Framework\DataAbstractionLayer\FieldSerializer\ConfigJsonFieldSerializer;
 use Shopware\Core\Framework\Log\Package;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class ConfigJsonField extends JsonField
 {

@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Store;
 use GuzzleHttp\Exception\ClientException;
 use Shopware\Core\Framework\Api\Context\Exception\InvalidContextSourceUserException;
 use Shopware\Core\Framework\App\AppException;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -132,9 +133,7 @@ class StoreException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function jwksNotFound(?\Throwable $e = null): self|AppException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -183,9 +182,7 @@ class StoreException extends HttpException
         return new StoreApiException($exception);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function pluginNotAZipFile(string $mimeType): self|PluginNotAZipFileException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -200,9 +197,7 @@ class StoreException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will only return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function invalidContextSourceUser(string $contextSource): self|InvalidContextSourceUserException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -227,9 +222,7 @@ class StoreException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function invalidCredentials(): self|StoreInvalidCredentialsException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -243,9 +236,7 @@ class StoreException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function shopSecretInvalid(): self|ShopSecretInvalidException
     {
         if (!Feature::isActive('v6.8.0.0')) {

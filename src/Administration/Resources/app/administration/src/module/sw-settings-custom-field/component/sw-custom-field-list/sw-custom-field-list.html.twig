@@ -205,8 +205,10 @@
     {% block sw_custom_field_list_empty_state %}
     <mt-empty-state
         v-else-if="!set.isLoading"
+        centered
         :icon="$route.meta.$module.icon"
         :headline="$t('sw-settings-custom-field.set.detail.messageCustomFieldsEmpty')"
+        description=""
     />
     {% endblock %}
 

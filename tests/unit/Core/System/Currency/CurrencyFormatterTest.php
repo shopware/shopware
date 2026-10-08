@@ -19,7 +19,7 @@ use Shopware\Core\System\Locale\LanguageLocaleCodeProvider;
 /**
  * @internal
  */
-#[Package('fundamentals@discovery')]
+#[Package('fundamentals@framework')]
 #[CoversClass(CurrencyFormatter::class)]
 class CurrencyFormatterTest extends TestCase
 {
@@ -77,10 +77,10 @@ class CurrencyFormatterTest extends TestCase
     {
         $this->formatter->formatCurrencyByLanguage(19.9999, 'EUR', Uuid::randomHex(), $this->createContext(2));
 
-        static::assertNotEmpty((new \ReflectionProperty(CurrencyFormatter::class, 'formatter'))->getValue($this->formatter));
+        static::assertNotCount(0, (new \ReflectionProperty(CurrencyFormatter::class, 'formatter'))->getValue($this->formatter));
         $this->formatter->reset();
 
-        static::assertEmpty((new \ReflectionProperty(CurrencyFormatter::class, 'formatter'))->getValue($this->formatter));
+        static::assertCount(0, (new \ReflectionProperty(CurrencyFormatter::class, 'formatter'))->getValue($this->formatter));
     }
 
     /**

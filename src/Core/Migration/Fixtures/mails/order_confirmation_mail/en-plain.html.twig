@@ -34,6 +34,12 @@ Description {{ lineItem.label|u.wordwrap(80) }},
 {{ referencePriceFeature.value.purchaseUnit }} {{ referencePriceFeature.value.unitName }}({{ referencePriceFeature.value.price|currency(currencyIsoCode) }} per {{ referencePriceFeature.value.referenceUnit }} {{ referencePriceFeature.value.unitName }}),
 {% endif %}
 {% endif %}
+{% if lineItem.productId is defined and lineItem.productId %}
+{% set garanLabel = garanLabels[lineItem.productId] ?? null %}
+{% if garanLabel %}
+Commercial guarantee of durability (GARAN) {{ garanLabel.duration|replace({',': '.'}) }} years,
+{% endif %}
+{% endif %}
 Quantity {{ lineItem.quantity }},
 Price {{ lineItem.unitPrice|currency(currencyIsoCode) }},
 Total {{ lineItem.totalPrice|currency(currencyIsoCode) }},
@@ -112,4 +118,8 @@ For better accessibility we also provide an HTML version of the documents here:
 
 For data protection reasons the HTML version requires a login.
 In case of a guest order, you can use your email address and postal code of the billing address.
+{% endif %}
+
+{% if config('core.cart.showLegalGuaranteeNotice') %}
+Notice on your legal guarantee rights: {{ context.languageId|sw_legal_guarantee_notice_link }}
 {% endif %}

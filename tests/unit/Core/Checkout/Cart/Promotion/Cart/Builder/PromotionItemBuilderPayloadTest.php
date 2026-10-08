@@ -107,6 +107,9 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'preventCombination' => false,
             'promotionCodeType' => 'fixed',
             'limitedRedemptions' => true,
+            'hasPersonaRestriction' => false,
+            'conditionRuleIds' => [],
+            'hasGlobalRedemptionLimit' => true,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -162,6 +165,9 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'preventCombination' => false,
             'promotionCodeType' => 'individual',
             'limitedRedemptions' => true,
+            'hasPersonaRestriction' => false,
+            'conditionRuleIds' => [],
+            'hasGlobalRedemptionLimit' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -216,6 +222,9 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'preventCombination' => false,
             'promotionCodeType' => 'fixed',
             'limitedRedemptions' => false,
+            'hasPersonaRestriction' => false,
+            'conditionRuleIds' => [],
+            'hasGlobalRedemptionLimit' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());
@@ -320,6 +329,9 @@ class PromotionItemBuilderPayloadTest extends TestCase
             'preventCombination' => false,
             'promotionCodeType' => 'global',
             'limitedRedemptions' => false,
+            'hasPersonaRestriction' => false,
+            'conditionRuleIds' => [],
+            'hasGlobalRedemptionLimit' => false,
         ];
 
         static::assertEquals($expected, $item->getPayload());

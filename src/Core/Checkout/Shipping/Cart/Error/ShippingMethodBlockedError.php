@@ -3,6 +3,8 @@
 namespace Shopware\Core\Checkout\Shipping\Cart\Error;
 
 use Shopware\Core\Checkout\Cart\Error\Error;
+use Shopware\Core\Framework\Deprecation\BCChange\ParameterTypeNarrowing;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
@@ -11,11 +13,8 @@ class ShippingMethodBlockedError extends Error
 {
     private const KEY = 'shipping-method-blocked';
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - The order of parameters will be changed to: $id, $name, $reason
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $id will be of type string
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $reason will be of type string
-     */
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'reason', newType: 'string')]
+    #[ParameterTypeNarrowing(version: 'v6.8.0', parameterName: 'id', newType: 'string')]
     public function __construct(
         protected readonly string $name,
         protected readonly ?string $id = null,
@@ -51,9 +50,7 @@ class ShippingMethodBlockedError extends Error
         ];
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $id will be of type string
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]
     public function getShippingMethodId(): ?string
     {
         return $this->id;
@@ -64,9 +61,7 @@ class ShippingMethodBlockedError extends Error
         return $this->name;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:parameter-type-change - $reason will be of type string
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'string')]
     public function getReason(): ?string
     {
         return $this->reason;

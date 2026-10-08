@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\Cart\Rule;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
@@ -19,11 +20,12 @@ use Shopware\Core\Framework\Rule\RuleConfig;
 use Shopware\Core\Framework\Rule\RuleConstraints;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Checkout\CartRuleFixture;
 
 /**
  * @internal
  */
-#[Package('checkout')]
+#[Package('fundamentals@after-sales')]
 #[CoversClass(LineItemPropertyValueRule::class)]
 #[Group('rules')]
 class LineItemPropertyValueRuleTest extends TestCase
@@ -132,6 +134,25 @@ class LineItemPropertyValueRuleTest extends TestCase
         ], $configData['operatorSet']);
     }
 
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemWithoutProductDataProvider')]
+    public function testLineItemWithoutProductData(string $type, bool $lineItemScope, bool $expected): void
+    {
+        $rule = new LineItemPropertyValueRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);
+
+        $lineItem = new LineItem(Uuid::randomHex(), $type);
+        $context = static::createStub(SalesChannelContext::class);
+
+        if ($lineItemScope) {
+            $scope = new LineItemScope($lineItem, $context);
+        } else {
+            $cart = new Cart(Uuid::randomHex());
+            $cart->setLineItems(new LineItemCollection([$lineItem]));
+            $scope = new CartRuleScope($cart, $context);
+        }
+
+        static::assertSame($expected, $rule->match($scope));
+    }
+
     /**
      * @return \Generator<string, array{bool, list<string>, list<string>, string}>
      */
@@ -143,5 +164,32 @@ class LineItemPropertyValueRuleTest extends TestCase
         yield 'should not match when property id is not included' => [false, [$id], [Uuid::randomHex()], Rule::OPERATOR_EQ];
         yield 'should match when property id is not included' => [true, [$id, Uuid::randomHex()], [Uuid::randomHex()], Rule::OPERATOR_NEQ];
         yield 'should not match when property id is included' => [false, [$id, Uuid::randomHex()], [$id], Rule::OPERATOR_NEQ];
+    }
+
+    #[DataProviderExternal(CartRuleFixture::class, 'lineItemTypeProvider')]
+    public function testLineItemWithDataIsEvaluated(string $type, bool $lineItemScope): void
+    {
+        $id = Uuid::randomHex();
+        $rule = new LineItemPropertyValueRule(Rule::OPERATOR_EQ, [$id]);
+        $lineItem = CartRuleFixture::createLineItem($type)->setPayloadValue('propertyIds', [$id]);
+        $context = static::createStub(SalesChannelContext::class);
+
+        $scope = $lineItemScope
+            ? new LineItemScope($lineItem, $context)
+            : new CartRuleScope(CartRuleFixture::createCart(new LineItemCollection([$lineItem])), $context);
+
+        static::assertTrue($rule->match($scope));
+    }
+
+    public function testProductWithNullValueIsEvaluatedInCart(): void
+    {
+        $rule = new LineItemPropertyValueRule(Rule::OPERATOR_NEQ, [Uuid::randomHex()]);
+        $lineItem = CartRuleFixture::createLineItem()->setPayloadValue('propertyIds', null);
+        $scope = new CartRuleScope(
+            CartRuleFixture::createCart(new LineItemCollection([$lineItem])),
+            static::createStub(SalesChannelContext::class),
+        );
+
+        static::assertTrue($rule->match($scope));
     }
 }

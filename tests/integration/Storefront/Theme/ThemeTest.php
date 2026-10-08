@@ -14,6 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\OrFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -47,6 +48,7 @@ use Symfony\Component\HttpKernel\KernelInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 class ThemeTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -558,7 +560,7 @@ class ThemeTest extends TestCase
                 })
             );
 
-        $scssCompilerMock = $this->createMock(ScssPhpCompiler::class);
+        $scssCompilerMock = static::createStub(ScssPhpCompiler::class);
 
         $kernel = new class(static::getContainer()->get('kernel')) implements KernelInterface {
             private readonly SimpleTheme $simpleTheme;

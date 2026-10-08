@@ -10,11 +10,13 @@ use Shopware\Core\Content\Newsletter\Aggregate\NewsletterRecipient\NewsletterRec
 use Shopware\Core\Content\Newsletter\Event\NewsletterConfirmEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterRegisterEvent;
 use Shopware\Core\Content\Newsletter\Event\NewsletterSubscribeUrlEvent;
+use Shopware\Core\Content\Newsletter\Extension\NewsletterSubscribeRouteExtension;
 use Shopware\Core\Content\Newsletter\NewsletterException;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
@@ -91,6 +93,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         private readonly RequestStack $requestStack,
         private readonly StoreApiCustomFieldMapper $customFieldMapper,
         private readonly EntityRepository $customerRepository,
+        private readonly ExtensionDispatcher $extensions,
     ) {
     }
 
@@ -117,17 +120,29 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
             )
         );
 
-        $response = $this->subscribeWithResponse($dataBag, $context, $validateStorefrontUrl);
+        $this->subscribeWithResponse($dataBag, $context, $validateStorefrontUrl);
 
-        if (!Feature::isActive('v6.8.0.0')) {
-            return new NoContentResponse();
-        }
-
-        return $response;
+        return new NoContentResponse();
     }
 
-    #[Route(path: '/store-api/newsletter/subscribe', name: 'store-api.newsletter.subscribe', methods: ['POST'])]
+    // Decorators that do not override this method inherit a signature without a default, and the
+    // route then fails with "Could not resolve argument $validateStorefrontUrl".
+    #[Route(
+        path: '/store-api/newsletter/subscribe',
+        name: 'store-api.newsletter.subscribe',
+        defaults: ['validateStorefrontUrl' => true],
+        methods: ['POST']
+    )]
     public function subscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl = true): NewsletterSubscribeRouteResponse
+    {
+        return $this->extensions->publish(
+            name: NewsletterSubscribeRouteExtension::NAME,
+            extension: new NewsletterSubscribeRouteExtension($dataBag, $context, $validateStorefrontUrl),
+            function: $this->_subscribeWithResponse(...),
+        );
+    }
+
+    private function _subscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context, bool $validateStorefrontUrl): NewsletterSubscribeRouteResponse
     {
         if (($request = $this->requestStack->getMainRequest()) !== null && $request->getClientIp() !== null) {
             $this->rateLimiter->ensureAccepted(RateLimiter::NEWSLETTER_FORM, $request->getClientIp());
@@ -314,7 +329,7 @@ class NewsletterSubscribeRoute extends AbstractNewsletterSubscribeRoute
         return [
             self::OPTION_DIRECT => $this->isNewsletterDoi($context, $recipientEmail) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
             self::OPTION_SUBSCRIBE => $this->isNewsletterDoi($context, $recipientEmail) ? self::STATUS_NOT_SET : self::STATUS_DIRECT,
-            self::OPTION_CONFIRM_SUBSCRIBE => self::STATUS_OPT_IN,
+            self::OPTION_CONFIRM_SUBSCRIBE => $this->isNewsletterDoi($context, $recipientEmail) ? self::STATUS_NOT_SET : self::STATUS_OPT_IN,
             self::OPTION_UNSUBSCRIBE => self::STATUS_OPT_OUT,
         ];
     }

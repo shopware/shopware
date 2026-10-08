@@ -17,7 +17,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(SalesChannelListCommand::class)]
 class SalesChannelListCommandTest extends TestCase
 {
@@ -31,7 +31,6 @@ class SalesChannelListCommandTest extends TestCase
         $salesChannel->setActive(true);
         $salesChannel->setMaintenance(false);
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection([$salesChannel])], new SalesChannelDefinition());
 
         $command = new SalesChannelListCommand($salesChannelRepository);
@@ -63,7 +62,6 @@ class SalesChannelListCommandTest extends TestCase
         $salesChannel->setActive(true);
         $salesChannel->setMaintenance(false);
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection([$salesChannel])], new SalesChannelDefinition());
 
         $command = new SalesChannelListCommand($salesChannelRepository);
@@ -90,7 +88,6 @@ class SalesChannelListCommandTest extends TestCase
         $salesChannel->setActive(true);
         $salesChannel->setMaintenance(false);
 
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection([$salesChannel])], new SalesChannelDefinition());
 
         $command = new SalesChannelListCommand($salesChannelRepository);
@@ -105,7 +102,6 @@ class SalesChannelListCommandTest extends TestCase
 
     public function testInvalidFormatReturnsError(): void
     {
-        /** @var StaticEntityRepository<SalesChannelCollection> $salesChannelRepository */
         $salesChannelRepository = new StaticEntityRepository([new SalesChannelCollection([])], new SalesChannelDefinition());
 
         $command = new SalesChannelListCommand($salesChannelRepository);

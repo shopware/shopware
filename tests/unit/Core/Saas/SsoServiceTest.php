@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Saas;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Api\OAuth\AuthCodeRepository;
 use Shopware\Core\Framework\Api\OAuth\RefreshTokenRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\Config\LoginConfigService;
@@ -35,7 +36,11 @@ class SsoServiceTest extends TestCase
             static::createStub(RouterInterface::class)
         );
 
-        $ssoService = new SsoService($loginConfigService, static::createStub(RefreshTokenRepository::class));
+        $ssoService = new SsoService(
+            $loginConfigService,
+            static::createStub(RefreshTokenRepository::class),
+            static::createStub(AuthCodeRepository::class)
+        );
 
         static::assertTrue($ssoService->isSso());
     }
@@ -45,7 +50,11 @@ class SsoServiceTest extends TestCase
         // @phpstan-ignore argument.type (LoginConfigService expected an array with specific key-value pairs)
         $loginConfigService = new LoginConfigService([], static::createStub(RouterInterface::class));
 
-        $ssoService = new SsoService($loginConfigService, static::createStub(RefreshTokenRepository::class));
+        $ssoService = new SsoService(
+            $loginConfigService,
+            static::createStub(RefreshTokenRepository::class),
+            static::createStub(AuthCodeRepository::class)
+        );
 
         static::assertFalse($ssoService->isSso());
     }
@@ -60,7 +69,12 @@ class SsoServiceTest extends TestCase
             ->method('revokeRefreshTokensForUser')
             ->with('user-id-123');
 
-        $ssoService = new SsoService($loginConfigService, $refreshTokenRepository);
+        $authCodeRepository = $this->createMock(AuthCodeRepository::class);
+        $authCodeRepository->expects($this->once())
+            ->method('revokeAuthCodesForUser')
+            ->with('user-id-123');
+
+        $ssoService = new SsoService($loginConfigService, $refreshTokenRepository, $authCodeRepository);
         $ssoService->revokeUserTokens('user-id-123');
     }
 }

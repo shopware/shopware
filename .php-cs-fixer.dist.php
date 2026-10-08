@@ -9,7 +9,8 @@ use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\Filesystem\Path;
 
 return (new Config())
-    ->setParallelConfig(ParallelConfigFactory::detect())
+    // bigger chunks keep the workers busy with actual analysis instead of per-chunk overhead
+    ->setParallelConfig(ParallelConfigFactory::detect(filesPerProcess: 100))
     ->setRiskyAllowed(true)
     ->setRules([
         '@Symfony' => true,

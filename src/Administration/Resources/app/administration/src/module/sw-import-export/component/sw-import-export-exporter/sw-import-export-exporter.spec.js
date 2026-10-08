@@ -1,7 +1,7 @@
 /**
  * @sw-package fundamentals@after-sales
  */
-import { mount } from '@vue/test-utils';
+import { DOMWrapper, mount } from '@vue/test-utils';
 
 const repositoryMockFactory = () => {
     return {
@@ -120,7 +120,7 @@ describe('components/sw-import-export-exporter', () => {
         await wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const defaultProduct = await wrapper.find('.sw-select-option--0 .sw-highlight-text');
+        const defaultProduct = new DOMWrapper(document.body).get('.sw-select-option--0 .sw-highlight-text');
         expect(defaultProduct.text()).toBe('default_product');
 
         await defaultProduct.trigger('click');
@@ -134,7 +134,7 @@ describe('components/sw-import-export-exporter', () => {
         await wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const defaultProduct = await wrapper.find('.sw-select-option--0 .sw-select-result__result-item-text');
+        const defaultProduct = new DOMWrapper(document.body).get('.sw-select-option--0 .sw-select-result__result-item-text');
         expect(defaultProduct.text()).toBe('default_product');
 
         await defaultProduct.trigger('click');
@@ -151,7 +151,7 @@ describe('components/sw-import-export-exporter', () => {
         await wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const defaultProduct = await wrapper.find('.sw-select-option--0 .sw-select-result__result-item-text');
+        const defaultProduct = new DOMWrapper(document.body).get('.sw-select-option--0 .sw-select-result__result-item-text');
         expect(defaultProduct.text()).toBe('default_product');
 
         await defaultProduct.trigger('click');
@@ -178,7 +178,7 @@ describe('components/sw-import-export-exporter', () => {
         await wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--0 .sw-select-result__result-item-text').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--0 .sw-select-result__result-item-text').trigger('click');
 
         await wrapper.setData({
             config: {
@@ -203,7 +203,7 @@ describe('components/sw-import-export-exporter', () => {
         await wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        await wrapper.find('.sw-select-option--0 .sw-select-result__result-item-text').trigger('click');
+        await new DOMWrapper(document.body).get('.sw-select-option--0 .sw-select-result__result-item-text').trigger('click');
 
         await wrapper.setData({
             config: {
@@ -230,7 +230,7 @@ describe('components/sw-import-export-exporter', () => {
         await wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const results = wrapper.findAll('.sw-highlight-text');
+        const results = new DOMWrapper(document.body).findAll('.sw-highlight-text');
         const resultNames = [];
         results.forEach((result) => resultNames.push(result.text()));
 
@@ -249,7 +249,7 @@ describe('components/sw-import-export-exporter', () => {
         await wrapper.find('.sw-import-export-exporter__profile-select .sw-select__selection').trigger('click');
         await flushPromises();
 
-        const results = await wrapper.findAll('.sw-highlight-text');
+        const results = new DOMWrapper(document.body).findAll('.sw-highlight-text');
         const resultNames = [];
         results.forEach((result) => resultNames.push(result.text()));
 

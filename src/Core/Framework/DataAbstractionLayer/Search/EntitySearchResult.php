@@ -6,14 +6,15 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\AggregationResult\AggregationResultCollection;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesReadonly;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
+use Shopware\Core\Framework\Struct\Struct;
 
 /**
  * @final
- *
- * @deprecated tag:v6.8.0 reason:class-hierarchy-change - Will no longer extend EntityCollection, but will keep extending Struct.
  *
  * @template TEntityCollection of EntityCollection
  *
@@ -22,55 +23,42 @@ use Shopware\Core\Framework\Struct\StateAwareTrait;
  * @extends EntityCollection<TElement>
  */
 #[Package('framework')]
+#[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer extend EntityCollection, but will keep extending Struct.', newParentClass: Struct::class)]
 class EntitySearchResult extends EntityCollection implements \JsonSerializable
 {
     use StateAwareTrait;
 
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
+    #[BecomesReadonly(version: 'v6.8.0')]
     protected AggregationResultCollection $aggregations;
 
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
+    #[BecomesReadonly(version: 'v6.8.0')]
     protected int $page;
 
-    /**
-     * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-     */
+    #[BecomesReadonly(version: 'v6.8.0')]
     protected ?int $limit = null;
 
     /**
-     * @deprecated tag:v6.8.0 - The constructor signature will change in v6.8.0: the $entity parameter will be removed and the remaining parameters will reorder. See UPGRADE-6.8.md.
-     *
      * @param TEntityCollection $entities
      */
     final public function __construct(
-        /**
-         * @deprecated tag:v6.8.0 - Will be removed. The entity name is no longer exposed by the result wrapper.
-         */
+        #[BecomesReadonly(version: 'v6.8.0')]
         protected string $entity,
-        /**
-         * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-         */
+        #[BecomesReadonly(version: 'v6.8.0')]
         protected int $total,
         /**
-         * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-         *
          * @var TEntityCollection
          */
+        #[BecomesReadonly(version: 'v6.8.0')]
         protected EntityCollection $entities,
         ?AggregationResultCollection $aggregations,
-        /**
-         * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-         */
+        #[BecomesReadonly(version: 'v6.8.0')]
         protected Criteria $criteria,
-        /**
-         * @deprecated tag:v6.8.0 - Will become readonly in v6.8.0.
-         */
+        #[BecomesReadonly(version: 'v6.8.0')]
         protected Context $context,
     ) {
+        $firstEntity = $entities->first();
+        \assert($firstEntity === null || $entity === $firstEntity->getApiAlias(), 'The entity name must match the entity collection.');
+
         $this->aggregations = $aggregations ?? new AggregationResultCollection();
         $this->limit = $criteria->getLimit();
         $this->page = !$criteria->getLimit() ? 1 : (int) ceil((($criteria->getOffset() ?? 0) + 1) / $criteria->getLimit());
@@ -198,18 +186,13 @@ class EntitySearchResult extends EntityCollection implements \JsonSerializable
         $this->limit = $limit;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - Will be removed. The entity name is no longer exposed by the result wrapper.
-     */
     public function getEntity(): string
     {
-        Feature::triggerDeprecationOrThrow('v6.8.0.0', Feature::deprecatedMethodMessage(static::class, __FUNCTION__, 'v6.8.0.0'));
-
         return $this->entity;
     }
 
     /**
-     * @deprecated tag:v6.8.0 - Will be removed. The entity name is no longer exposed by the result wrapper.
+     * @deprecated tag:v6.8.0 - Will be removed; the property becomes readonly.
      */
     public function setEntity(string $entity): void
     {

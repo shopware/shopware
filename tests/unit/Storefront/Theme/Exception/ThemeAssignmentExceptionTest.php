@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
  *
  * @deprecated tag:v6.8.0 - reason: the tested class is superseded by ThemeException::themeAssignmentException - to be removed
  */
-#[Package('framework')]
+#[Package('discovery')]
 #[CoversClass(ThemeAssignmentException::class)]
 #[DisabledFeatures(['v6.8.0.0'])]
 class ThemeAssignmentExceptionTest extends TestCase

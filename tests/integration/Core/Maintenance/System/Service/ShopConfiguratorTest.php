@@ -16,6 +16,7 @@ use Shopware\Core\Maintenance\System\Service\ShopConfigurator;
 use Shopware\Core\System\Currency\CurrencyCollection;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Intl\Currencies;
 
 /**
  * @internal
@@ -103,7 +104,9 @@ class ShopConfiguratorTest extends TestCase
 
         static::assertNotNull($currency);
         static::assertSame('RUB', $currency->getSymbol());
-        static::assertSame('Russian Ruble', $currency->getName());
+        // Derived from the same source as ShopConfigurator::createNewCurrency() so the
+        // expectation tracks CLDR data updates instead of pinning one spelling.
+        static::assertSame(Currencies::getName('RUB', 'en_GB'), $currency->getName());
         static::assertSame('RUB', $currency->getShortName());
         static::assertSame('RUB', $currency->getIsoCode());
         static::assertSame(1.0, $currency->getFactor());

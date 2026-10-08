@@ -3,9 +3,16 @@
 namespace Shopware\Tests\Unit\Storefront\Page\Robots;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\ContainsFilter;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainCollection;
 use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
@@ -25,6 +32,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(RobotsPageLoader::class)]
 class RobotsPageLoaderTest extends TestCase
 {
@@ -71,7 +79,7 @@ class RobotsPageLoaderTest extends TestCase
         $context = Context::createDefaultContext();
         $salesChannelId = 'test-sales-channel-id';
 
-        $domain = $this->createExampleComDomain($salesChannelId);
+        $domain = $this->createDomain('https://example.com', $salesChannelId);
         $domains = [$domain];
 
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
@@ -111,7 +119,10 @@ class RobotsPageLoaderTest extends TestCase
         $salesChannelId1 = 'test-sales-channel-id-1';
         $salesChannelId2 = 'test-sales-channel-id-2';
 
-        $domains = $this->createStandardDomains($salesChannelId1, $salesChannelId2);
+        $domains = [
+            $this->createDomain('https://example.com', $salesChannelId1),
+            $this->createDomain('https://example.com/en', $salesChannelId2),
+        ];
 
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
             'core.basicInformation.robotsRules' => [
@@ -170,7 +181,7 @@ class RobotsPageLoaderTest extends TestCase
         $context = Context::createDefaultContext();
         $salesChannelId = 'test-sales-channel-id';
 
-        $domain = $this->createExampleComDomain($salesChannelId);
+        $domain = $this->createDomain('https://example.com', $salesChannelId);
         $domains = [$domain];
 
         // Expect event to be dispatched twice (once per load call)
@@ -204,8 +215,8 @@ class RobotsPageLoaderTest extends TestCase
         $context = Context::createDefaultContext();
         $salesChannelId = 'test-sales-channel-id';
 
-        $httpDomain = $this->createExampleComHttpDomain($salesChannelId);
-        $httpsDomain = $this->createExampleComDomain($salesChannelId);
+        $httpDomain = $this->createDomain('http://example.com', $salesChannelId);
+        $httpsDomain = $this->createDomain('https://example.com', $salesChannelId);
         $domains = [$httpDomain, $httpsDomain];
 
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
@@ -242,10 +253,10 @@ class RobotsPageLoaderTest extends TestCase
         $salesChannelId2 = 'test-sales-channel-id-2';
 
         // Domain for example.com
-        $domain1 = $this->createExampleComDomain($salesChannelId1);
+        $domain1 = $this->createDomain('https://example.com', $salesChannelId1);
 
         // Domain for different.org (different hostname)
-        $domain2 = $this->createDifferentOrgDomain($salesChannelId2);
+        $domain2 = $this->createDomain('https://different.org', $salesChannelId2);
 
         $domains = [$domain1, $domain2];
 
@@ -277,6 +288,197 @@ class RobotsPageLoaderTest extends TestCase
         static::assertSame('', $domainRule->getBasePath());
     }
 
+    /**
+     * @param list<string> $domainUrls
+     */
+    #[DataProvider('selectsDomainMatchingTheRequestedHostProvider')]
+    #[TestDox('selects the domain for the requested host: $_dataName')]
+    public function testSelectsDomainMatchingTheRequestedHost(string $httpHost, array $domainUrls, string $expectedSitemap, string $expectedDirective): void
+    {
+        $request = new Request(server: ['HTTP_HOST' => $httpHost]);
+
+        // Every domain belongs to its own sales channel with its own rule
+        $domains = [];
+        $rules = [];
+        foreach ($domainUrls as $index => $url) {
+            $domains[] = $this->createDomain($url, 'sales-channel-' . $index);
+            $rules[] = 'Disallow: /sales-channel-' . $index . '/';
+        }
+
+        $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
+            'core.basicInformation.robotsRules' => $rules,
+        ]);
+
+        $this->setupEventDispatcherExpectation();
+
+        $page = $this->robotsPageLoader->load($request, Context::createDefaultContext());
+
+        static::assertEquals([$expectedSitemap], $page->getSitemaps());
+
+        $domainRule = $page->getDomainRules()->first();
+        static::assertInstanceOf(DomainRuleStruct::class, $domainRule);
+        static::assertCount(1, $domainRule->getDirectives());
+        static::assertSame($expectedDirective, $domainRule->getDirectives()[0]->value);
+        static::assertSame('', $domainRule->getBasePath());
+    }
+
+    public static function selectsDomainMatchingTheRequestedHostProvider(): iterable
+    {
+        yield 'exact host wins over a subdomain of another sales channel (#17735)' => [
+            'httpHost' => 'example.com',
+            'domainUrls' => ['https://www.example.com', 'https://example.com'],
+            'expectedSitemap' => 'https://example.com/sitemap.xml',
+            'expectedDirective' => '/sales-channel-1/',
+        ];
+
+        yield 'parent host of another sales channel is never selected (#17735)' => [
+            'httpHost' => 'www.example.com',
+            'domainUrls' => ['https://example.com', 'https://www.example.com'],
+            'expectedSitemap' => 'https://www.example.com/sitemap.xml',
+            'expectedDirective' => '/sales-channel-1/',
+        ];
+
+        yield 'host comparison ignores letter case and keeps the port' => [
+            'httpHost' => 'Example.COM:8000',
+            'domainUrls' => ['https://www.example.com', 'https://EXAMPLE.com:8000'],
+            'expectedSitemap' => 'https://EXAMPLE.com:8000/sitemap.xml',
+            'expectedDirective' => '/sales-channel-1/',
+        ];
+
+        yield 'port in the host header only matches a domain on that exact port' => [
+            'httpHost' => 'shop.test:80',
+            'domainUrls' => ['http://shop.test:8000', 'http://shop.test:8080', 'http://shop.test:80'],
+            'expectedSitemap' => 'http://shop.test:80/sitemap.xml',
+            'expectedDirective' => '/sales-channel-2/',
+        ];
+
+        yield 'explicit port 80 in the host header matches the http domain without a port' => [
+            'httpHost' => 'shop.test:80',
+            'domainUrls' => ['http://shop.test:8000', 'http://shop.test'],
+            'expectedSitemap' => 'http://shop.test/sitemap.xml',
+            'expectedDirective' => '/sales-channel-1/',
+        ];
+
+        yield 'host header without a port still matches a domain with a port' => [
+            'httpHost' => 'shop.test',
+            'domainUrls' => ['http://www.shop.test', 'http://shop.test:8000'],
+            'expectedSitemap' => 'http://shop.test:8000/sitemap.xml',
+            'expectedDirective' => '/sales-channel-1/',
+        ];
+
+        yield 'explicit https port 443 in the host header matches the https domain' => [
+            'httpHost' => 'example.com:443',
+            'domainUrls' => ['https://www.example.com', 'https://example.com'],
+            'expectedSitemap' => 'https://example.com/sitemap.xml',
+            'expectedDirective' => '/sales-channel-1/',
+        ];
+
+        yield 'https domain listed first is not replaced by the http one' => [
+            'httpHost' => 'example.com',
+            'domainUrls' => ['https://example.com', 'http://example.com'],
+            'expectedSitemap' => 'https://example.com/sitemap.xml',
+            'expectedDirective' => '/sales-channel-0/',
+        ];
+
+        yield 'subdomain fallback prefers the https domain over the http one' => [
+            'httpHost' => 'example.com',
+            'domainUrls' => ['http://www.example.com', 'https://www.example.com'],
+            'expectedSitemap' => 'https://www.example.com/sitemap.xml',
+            'expectedDirective' => '/sales-channel-1/',
+        ];
+
+        yield 'bare host falls back to its subdomain when nothing matches exactly' => [
+            'httpHost' => 'example.com',
+            'domainUrls' => ['https://www.example.com', 'https://different.org'],
+            'expectedSitemap' => 'https://www.example.com/sitemap.xml',
+            'expectedDirective' => '/sales-channel-0/',
+        ];
+
+        yield 'fallback ignores hosts that only end with the requested host' => [
+            'httpHost' => 'example.com',
+            'domainUrls' => ['https://myexample.com', 'https://www.example.com'],
+            'expectedSitemap' => 'https://www.example.com/sitemap.xml',
+            'expectedDirective' => '/sales-channel-1/',
+        ];
+    }
+
+    public function testFallbackKeepsEveryPathVariantOfTheSubdomain(): void
+    {
+        $request = new Request(server: ['HTTP_HOST' => 'example.com']);
+
+        $this->robotsPageLoader = $this->setupLoaderWithDomains([
+            $this->createDomain('https://www.example.com/de', 'sales-channel-de'),
+            $this->createDomain('https://www.example.com/us', 'sales-channel-us'),
+        ], [
+            'core.basicInformation.robotsRules' => [
+                'Disallow: /checkout/',
+                'Disallow: /account/',
+            ],
+        ]);
+
+        $this->setupEventDispatcherExpectation();
+
+        $page = $this->robotsPageLoader->load($request, Context::createDefaultContext());
+
+        static::assertEquals(
+            ['https://www.example.com/de/sitemap.xml', 'https://www.example.com/us/sitemap.xml'],
+            $page->getSitemaps()
+        );
+
+        $domainRules = $page->getDomainRules();
+        static::assertCount(2, $domainRules);
+
+        $germanRule = $domainRules->first();
+        static::assertInstanceOf(DomainRuleStruct::class, $germanRule);
+        static::assertSame('/de', $germanRule->getBasePath());
+        static::assertSame('/de/checkout/', $germanRule->getDirectives()[0]->value);
+
+        $usRule = $domainRules->last();
+        static::assertInstanceOf(DomainRuleStruct::class, $usRule);
+        static::assertSame('/us', $usRule->getBasePath());
+        static::assertSame('/us/account/', $usRule->getDirectives()[0]->value);
+    }
+
+    public function testSearchesDomainsByTheBareRequestHost(): void
+    {
+        $request = new Request(server: ['HTTP_HOST' => 'example.com:443']);
+
+        $this->salesChannelDomainRepository = StaticEntityRepository::of(SalesChannelDomainCollection::class, [
+            static function (Criteria $criteria): SalesChannelDomainCollection {
+                static::assertEquals([
+                    new ContainsFilter('url', 'example.com'),
+                    new EqualsFilter('salesChannel.typeId', Defaults::SALES_CHANNEL_TYPE_STOREFRONT),
+                ], $criteria->getFilters());
+
+                return new SalesChannelDomainCollection();
+            },
+        ]);
+
+        $this->setupEventDispatcherExpectation();
+
+        $page = $this->robotsPageLoader->load($request, Context::createDefaultContext());
+
+        $this->assertBasicPageStructure($page, 0, 0, 0);
+    }
+
+    public function testSelectsNoDomainWhenNoHostMatchesOrIsASubdomain(): void
+    {
+        $request = new Request(server: ['HTTP_HOST' => 'example.com']);
+
+        // `getDomains()` returns this for `example.com`, but it is a different shop
+        $this->robotsPageLoader = $this->setupLoaderWithDomains([
+            $this->createDomain('https://myexample.com'),
+        ], [
+            'core.basicInformation.robotsRules' => 'Disallow: /unrelated-sales-channel/',
+        ]);
+
+        $this->setupEventDispatcherExpectation();
+
+        $page = $this->robotsPageLoader->load($request, Context::createDefaultContext());
+
+        $this->assertBasicPageStructure($page, 0, 0, 0);
+    }
+
     public function testLoadWithGlobalUserAgentBlocks(): void
     {
         $request = new Request(server: ['HTTP_HOST' => 'example.com']);
@@ -284,7 +486,10 @@ class RobotsPageLoaderTest extends TestCase
         $salesChannelId1 = 'test-sales-channel-id-1';
         $salesChannelId2 = 'test-sales-channel-id-2';
 
-        $domains = $this->createStandardDomains($salesChannelId1, $salesChannelId2);
+        $domains = [
+            $this->createDomain('https://example.com', $salesChannelId1),
+            $this->createDomain('https://example.com/en', $salesChannelId2),
+        ];
 
         // Configure robots rules with User-agent blocks for both sales channels
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
@@ -343,7 +548,10 @@ class RobotsPageLoaderTest extends TestCase
         $salesChannelId1 = 'test-sales-channel-id-1';
         $salesChannelId2 = 'test-sales-channel-id-2';
 
-        $domains = $this->createStandardDomains($salesChannelId1, $salesChannelId2);
+        $domains = [
+            $this->createDomain('https://example.com', $salesChannelId1),
+            $this->createDomain('https://example.com/en', $salesChannelId2),
+        ];
 
         // Configure robots rules with User-agent blocks that have only non-path directives
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
@@ -377,7 +585,10 @@ class RobotsPageLoaderTest extends TestCase
         $salesChannelId1 = 'test-sales-channel-id-1';
         $salesChannelId2 = 'test-sales-channel-id-2';
 
-        $domains = $this->createStandardDomains($salesChannelId1, $salesChannelId2);
+        $domains = [
+            $this->createDomain('https://example.com', $salesChannelId1),
+            $this->createDomain('https://example.com/en', $salesChannelId2),
+        ];
 
         // Configure robots rules with User-agent blocks that have only path directives
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
@@ -420,7 +631,10 @@ class RobotsPageLoaderTest extends TestCase
         $salesChannelId1 = 'test-sales-channel-id-1';
         $salesChannelId2 = 'test-sales-channel-id-2';
 
-        $domains = $this->createStandardDomains($salesChannelId1, $salesChannelId2);
+        $domains = [
+            $this->createDomain('https://example.com', $salesChannelId1),
+            $this->createDomain('https://example.com/en', $salesChannelId2),
+        ];
 
         // Configure robots rules with different User-agent blocks
         $this->robotsPageLoader = $this->setupLoaderWithDomains($domains, [
@@ -462,69 +676,14 @@ class RobotsPageLoaderTest extends TestCase
         static::assertCount(2, $page->getDomainRules());
     }
 
-    /**
-     * Creates a standard test domain for example.com
-     */
-    private function createExampleComDomain(string $salesChannelId = 'test-sales-channel-id'): SalesChannelDomainEntity
+    private function createDomain(string $url, string $salesChannelId = 'test-sales-channel-id'): SalesChannelDomainEntity
     {
         $domain = new SalesChannelDomainEntity();
-        $domain->setId('test-domain-id');
-        $domain->setUrl('https://example.com');
+        $domain->setId('test-domain-id-' . md5($url));
+        $domain->setUrl($url);
         $domain->setSalesChannelId($salesChannelId);
 
         return $domain;
-    }
-
-    /**
-     * Creates a standard test domain for example.com/en
-     */
-    private function createExampleComEnDomain(string $salesChannelId = 'test-sales-channel-id'): SalesChannelDomainEntity
-    {
-        $domain = new SalesChannelDomainEntity();
-        $domain->setId('test-domain-id-en');
-        $domain->setUrl('https://example.com/en');
-        $domain->setSalesChannelId($salesChannelId);
-
-        return $domain;
-    }
-
-    /**
-     * Creates a standard test domain for example.com with HTTP
-     */
-    private function createExampleComHttpDomain(string $salesChannelId = 'test-sales-channel-id'): SalesChannelDomainEntity
-    {
-        $domain = new SalesChannelDomainEntity();
-        $domain->setId('test-domain-id-http');
-        $domain->setUrl('http://example.com');
-        $domain->setSalesChannelId($salesChannelId);
-
-        return $domain;
-    }
-
-    /**
-     * Creates a standard test domain for different.org
-     */
-    private function createDifferentOrgDomain(string $salesChannelId = 'test-sales-channel-id'): SalesChannelDomainEntity
-    {
-        $domain = new SalesChannelDomainEntity();
-        $domain->setId('test-domain-id-different');
-        $domain->setUrl('https://different.org');
-        $domain->setSalesChannelId($salesChannelId);
-
-        return $domain;
-    }
-
-    /**
-     * Creates standard two-domain setup for example.com and example.com/en
-     *
-     * @return SalesChannelDomainEntity[]
-     */
-    private function createStandardDomains(string $salesChannelId1 = 'test-sales-channel-id-1', string $salesChannelId2 = 'test-sales-channel-id-2'): array
-    {
-        return [
-            $this->createExampleComDomain($salesChannelId1),
-            $this->createExampleComEnDomain($salesChannelId2),
-        ];
     }
 
     /**

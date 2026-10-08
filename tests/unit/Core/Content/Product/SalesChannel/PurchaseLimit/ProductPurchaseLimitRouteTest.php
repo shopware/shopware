@@ -7,18 +7,24 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
+use Shopware\Core\Content\Product\Extension\ProductPurchaseLimitRouteExtension;
 use Shopware\Core\Content\Product\ProductException;
+use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitCollection;
 use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitRoute;
+use Shopware\Core\Content\Product\SalesChannel\PurchaseLimit\ProductPurchaseLimitRouteResponse;
 use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\FieldVisibility;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Extensions\ExtensionDispatcher;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
 use Shopware\Core\Test\Generator;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -65,6 +71,9 @@ class ProductPurchaseLimitRouteTest extends TestCase
             'stock' => 3,
         ]);
 
+        $productA->internalSetEntityData('product', new FieldVisibility([]));
+        $productB->internalSetEntityData('product', new FieldVisibility([]));
+
         $this->productRepository->method('search')->willReturn(
             new EntitySearchResult('product', 2, new EntityCollection([$productA, $productB]), null, new Criteria(), $context->getContext())
         );
@@ -102,6 +111,8 @@ class ProductPurchaseLimitRouteTest extends TestCase
         $product = (new PartialEntity())->assign([
             'id' => $productId,
         ]);
+
+        $product->internalSetEntityData('product', new FieldVisibility([]));
 
         $this->productRepository->method('search')->willReturn(
             new EntitySearchResult('product', 1, new EntityCollection([$product]), null, new Criteria(), $context->getContext())
@@ -151,6 +162,29 @@ class ProductPurchaseLimitRouteTest extends TestCase
         $this->route->getDecorated();
     }
 
+    public function testPublishesExtension(): void
+    {
+        $request = new Request();
+        $context = Generator::generateSalesChannelContext();
+        $response = new ProductPurchaseLimitRouteResponse(new ProductPurchaseLimitCollection());
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener('product-purchase-limit-route.read-products-purchase-limit.pre', static function (ProductPurchaseLimitRouteExtension $extension) use ($request, $context, $response): void {
+            static::assertSame(['request' => $request, 'context' => $context], $extension->getParams());
+
+            $extension->result = $response;
+            $extension->stopPropagation();
+        });
+
+        $route = new ProductPurchaseLimitRoute(
+            static::createStub(SalesChannelRepository::class),
+            static::createStub(AbstractProductMaxPurchaseCalculator::class),
+            new ExtensionDispatcher($dispatcher),
+        );
+
+        static::assertSame($response, $route->readProductsPurchaseLimit($request, $context));
+    }
+
     /**
      * @param (SalesChannelRepository<SalesChannelProductCollection>&MockObject)|null $productRepository
      */
@@ -159,6 +193,7 @@ class ProductPurchaseLimitRouteTest extends TestCase
         return new ProductPurchaseLimitRoute(
             $productRepository ?? $this->productRepository,
             $this->maxPurchaseCalculator,
+            new ExtensionDispatcher(new EventDispatcher()),
         );
     }
 }

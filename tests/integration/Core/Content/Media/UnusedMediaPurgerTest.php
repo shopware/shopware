@@ -48,7 +48,7 @@ class UnusedMediaPurgerTest extends TestCase
 
         $this->unusedMediaPurger = new UnusedMediaPurger(
             $this->mediaRepo,
-            $this->createMock(Connection::class),
+            static::createStub(Connection::class),
             new EventDispatcher(),
             new NativeClock()
         );

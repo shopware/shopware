@@ -11,18 +11,11 @@ const { mapState } = Component.getComponentHelper();
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-    ],
+    inject: ['repositoryFactory'],
 
-    emits: [
-        'modal-close',
-        'process-finish',
-    ],
+    emits: ['modal-close', 'process-finish'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         sequence: {

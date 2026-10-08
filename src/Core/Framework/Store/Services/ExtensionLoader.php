@@ -364,14 +364,6 @@ class ExtensionLoader
         string $currentLanguage,
         string $fallbackLanguage = self::DEFAULT_LOCALE
     ): ?string {
-        if (isset($translations[$currentLanguage])) {
-            return $translations[$currentLanguage];
-        }
-
-        if (isset($translations[$fallbackLanguage])) {
-            return $translations[$fallbackLanguage];
-        }
-
-        return null;
+        return $translations[$currentLanguage] ?? $translations[$fallbackLanguage] ?? null;
     }
 }

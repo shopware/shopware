@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Routing;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Storefront\Event\StorefrontRenderEvent;
 use Shopware\Storefront\Framework\Routing\StorefrontRouteEventSubscriber;
@@ -14,6 +15,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorefrontRouteEventSubscriber::class)]
 class StorefrontRouteEventSubscriberTest extends TestCase
 {

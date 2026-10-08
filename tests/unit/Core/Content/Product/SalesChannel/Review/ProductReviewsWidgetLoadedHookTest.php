@@ -30,7 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
-#[Package('inventory')]
+#[Package('after-sales')]
 #[CoversClass(ProductReviewsWidgetLoadedHook::class)]
 class ProductReviewsWidgetLoadedHookTest extends TestCase
 {
@@ -70,7 +70,7 @@ class ProductReviewsWidgetLoadedHookTest extends TestCase
         $productReview->setUniqueIdentifier($ids->get('productReview'));
         $reviewResult = ProductReviewResult::fromSearchResult(
             new EntitySearchResult(
-                'review',
+                'product_review',
                 1,
                 new ProductReviewCollection([$productReview]),
                 null,
@@ -92,9 +92,9 @@ class ProductReviewsWidgetLoadedHookTest extends TestCase
             static::createStub(SalesChannelContext::class)
         );
 
-        static::assertInstanceOf(ProductReviewsWidgetLoadedHook::class, $this->controller->calledHook);
+        static::assertInstanceOf(ProductReviewsWidgetLoadedHook::class, $this->controller->recorder()->calledHook);
 
-        $productReviewsWidgetLoadedHook = $this->controller->calledHook;
+        $productReviewsWidgetLoadedHook = $this->controller->recorder()->calledHook;
 
         static::assertSame($reviewResult, $productReviewsWidgetLoadedHook->getReviews());
     }

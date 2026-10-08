@@ -17,6 +17,9 @@ use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\PluginEntity;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('checkout')]
 class PaymentMethodEntity extends Entity implements IdAware, RuleIdAware
 {

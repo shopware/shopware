@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme\BundleConfig;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\BundleConfig\StorefrontBundleConfigStyleFileResolver;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\FileCollection;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -14,6 +15,7 @@ use Shopware\Storefront\Theme\StorefrontPluginRegistry;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorefrontBundleConfigStyleFileResolver::class)]
 class StorefrontBundleConfigStyleFileResolverTest extends TestCase
 {

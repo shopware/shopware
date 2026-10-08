@@ -139,7 +139,7 @@ class MailActionController extends AbstractController
     #[Route(
         path: '/api/_action/mail-template/simulate',
         name: 'api.action.mail_template.simulate',
-        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:read']],
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['mail_template:update']],
         methods: [Request::METHOD_POST]
     )]
     public function simulate(

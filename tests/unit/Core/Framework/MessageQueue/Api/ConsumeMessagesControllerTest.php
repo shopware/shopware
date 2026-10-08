@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\Framework\MessageQueue\Api;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Shopware\Core\Framework\Increment\AbstractIncrementer;
 use Shopware\Core\Framework\Increment\IncrementGatewayRegistry;
 use Shopware\Core\Framework\Log\Package;
@@ -13,6 +14,8 @@ use Shopware\Core\Framework\MessageQueue\Stats\AbstractStatsRepository;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Shopware\Core\Framework\MessageQueue\Subscriber\EarlyReturnMessagesListener;
 use Shopware\Core\Framework\MessageQueue\Subscriber\MessageQueueStatsSubscriber;
+use Shopware\Core\PlatformRequest;
+use Symfony\Bundle\FrameworkBundle\Routing\AttributeRouteControllerLoader;
 use Symfony\Component\Cache\Adapter\NullAdapter;
 use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -79,6 +82,14 @@ class ConsumeMessagesControllerTest extends TestCase
         $request = new Request();
         $request->request->set('receiver', 'async');
         $controller->consumeMessages($request);
+    }
+
+    public function testConsumeRouteRequiresQueueProcessPrivilege(): void
+    {
+        $route = (new AttributeRouteControllerLoader())->load(ConsumeMessagesController::class)->get('api.action.message-queue.consume');
+
+        static::assertNotNull($route, \sprintf('Route "api.action.message-queue.consume" is not defined on %s', ConsumeMessagesController::class));
+        static::assertSame(['system:queue:process'], $route->getDefault(PlatformRequest::ATTRIBUTE_ACL));
     }
 
     public function testWorkerDoesNotBusyPollReceiverDuringLongPollAfterHandlingMessage(): void
@@ -175,7 +186,8 @@ class ConsumeMessagesControllerTest extends TestCase
 
         return new MessageQueueStatsSubscriber(
             new IncrementGatewayRegistry([$incrementer]),
-            new StatsService(static::createStub(AbstractStatsRepository::class), false, new NativeClock())
+            new StatsService(static::createStub(AbstractStatsRepository::class), false, new NativeClock()),
+            new NullLogger()
         );
     }
 }

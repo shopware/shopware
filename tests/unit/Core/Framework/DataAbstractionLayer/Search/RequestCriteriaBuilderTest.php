@@ -14,8 +14,12 @@ use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidFilterQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidLimitQueryException;
+use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidPageQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InvalidSortQueryException;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\SearchRequestException;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Aggregation\Bucket\TermsAggregation;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\ApiCriteriaValidator;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\CompressedCriteriaDecoder;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -236,6 +240,38 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertCount(1, $nested->getSorting());
     }
 
+    public function testAggregationOnAssociationIdUsesForeignKeyColumn(): void
+    {
+        $request = new Request([], [
+            'aggregations' => [
+                ['name' => 'rules', 'type' => 'terms', 'field' => 'prices.rule.id'],
+            ],
+            'associations' => [
+                'prices' => [
+                    'aggregations' => [
+                        ['name' => 'products', 'type' => 'terms', 'field' => 'product.id'],
+                    ],
+                ],
+            ],
+        ]);
+        $request->setMethod(Request::METHOD_POST);
+
+        $criteria = $this->requestCriteriaBuilder->handleRequest(
+            $request,
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        $rules = $criteria->getAggregation('rules');
+        static::assertInstanceOf(TermsAggregation::class, $rules);
+        static::assertSame('product.prices.ruleId', $rules->getField());
+
+        $products = $criteria->getAssociation('prices')->getAggregation('products');
+        static::assertInstanceOf(TermsAggregation::class, $products);
+        static::assertSame('product_price.product.id', $products->getField());
+    }
+
     public function testCriteriaToArray(): void
     {
         $criteria = (new Criteria())
@@ -405,6 +441,28 @@ class RequestCriteriaBuilderTest extends TestCase
             [],
         ];
 
+        yield 'association id sorting uses the foreign key column' => [
+            [
+                'sort' => [
+                    [
+                        'field' => 'prices.rule.id',
+                    ],
+                ],
+            ],
+            [
+                new FieldSorting('product.prices.ruleId'),
+            ],
+        ];
+
+        yield 'simple association id sorting uses the foreign key column' => [
+            [
+                'sort' => '-prices.rule.id',
+            ],
+            [
+                new FieldSorting('product.prices.ruleId', FieldSorting::DESCENDING),
+            ],
+        ];
+
         yield 'invalid order option falls back to ascending' => [
             [
                 'sort' => [
@@ -467,11 +525,7 @@ class RequestCriteriaBuilderTest extends TestCase
                 Context::createDefaultContext()
             );
         } catch (SearchRequestException $e) {
-            $sortException = $e->getErrors()->current();
-            static::assertSame($expected->getErrorCode(), $sortException['code']);
-            static::assertSame($expected->getMessage(), $sortException['detail']);
-            static::assertSame($expected->getStatusCode(), (int) $sortException['status']);
-            static::assertSame($expected->getParameter('path'), $sortException['source']['pointer']);
+            self::assertSingleInnerException($e, $expected, (string) $expected->getParameter('path'));
 
             $wasThrown = true;
         }
@@ -570,7 +624,7 @@ class RequestCriteriaBuilderTest extends TestCase
 
         $criteria = $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
 
-        static::assertEmpty($criteria->getAssociations());
+        static::assertCount(0, $criteria->getAssociations());
     }
 
     #[DataProvider('providerTotalCount')]
@@ -646,6 +700,30 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertSame($expectedLimit, $criteria->getLimit());
     }
 
+    public function testPageOffsetUsesFallbackLimitWhenRequestHasNoLimit(): void
+    {
+        $aggregationParser = new AggregationParser();
+        $maxLimit = 500;
+
+        $builder = new RequestCriteriaBuilder(
+            $aggregationParser,
+            new ApiCriteriaValidator($this->staticDefinitionRegistry),
+            new CriteriaArrayConverter($aggregationParser),
+            new CompressedCriteriaDecoder(),
+            $maxLimit
+        );
+
+        $criteria = $builder->fromArray(
+            ['page' => 2],
+            new Criteria(),
+            $this->staticDefinitionRegistry->get(ProductDefinition::class),
+            Context::createDefaultContext()
+        );
+
+        static::assertSame($maxLimit, $criteria->getLimit());
+        static::assertSame($maxLimit, $criteria->getOffset());
+    }
+
     public static function providerPaging(): \Generator
     {
         yield 'offset correctly calculated' => [
@@ -677,17 +755,14 @@ class RequestCriteriaBuilderTest extends TestCase
      * @param array<string, mixed> $pagingPayload
      */
     #[DataProvider('providerInvalidPaging')]
-    public function testInvalidPaging(array $pagingPayload, string $expectedExceptionCode, string $path): void
+    public function testInvalidPaging(array $pagingPayload, InvalidPageQueryException|InvalidLimitQueryException $expected, string $pointer): void
     {
         $wasThrown = false;
 
         try {
             $this->requestCriteriaBuilder->fromArray($pagingPayload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
         } catch (SearchRequestException $e) {
-            $sortException = $e->getErrors()->current();
-            static::assertSame($expectedExceptionCode, $sortException['code']);
-            static::assertSame('400', $sortException['status']);
-            static::assertSame($path, $sortException['source']['pointer']);
+            self::assertSingleInnerException($e, $expected, $pointer);
 
             $wasThrown = true;
         }
@@ -699,59 +774,147 @@ class RequestCriteriaBuilderTest extends TestCase
     {
         yield 'empty page' => [
             ['page' => '', 'limit' => 10],
-            'FRAMEWORK__INVALID_PAGE_QUERY',
+            new InvalidPageQueryException('(empty)'),
             '/page',
         ];
 
         yield 'negative page' => [
             ['page' => '-3', 'limit' => 10],
-            'FRAMEWORK__INVALID_PAGE_QUERY',
+            new InvalidPageQueryException(-3),
             '/page',
         ];
 
         yield 'page is string' => [
             ['page' => 'foo', 'limit' => 10],
-            'FRAMEWORK__INVALID_PAGE_QUERY',
+            new InvalidPageQueryException('foo'),
             '/page',
         ];
 
         yield 'negative limit' => [
             ['page' => '3', 'limit' => '-10'],
-            'FRAMEWORK__INVALID_LIMIT_QUERY',
+            new InvalidLimitQueryException(-10),
             '/limit',
         ];
 
         yield 'empty limit' => [
             ['page' => '3', 'limit' => ''],
-            'FRAMEWORK__INVALID_LIMIT_QUERY',
+            new InvalidLimitQueryException('(empty)'),
             '/limit',
         ];
 
         yield 'limit is string' => [
             ['page' => '3', 'limit' => 'foo'],
-            'FRAMEWORK__INVALID_LIMIT_QUERY',
+            new InvalidLimitQueryException('foo'),
             '/limit',
         ];
     }
 
-    public function testSimpleFilterAddsExceptionWithArrayInValue(): void
+    /**
+     * @param array<string, mixed> $aggregation
+     */
+    #[DataProvider('invalidAggregationProvider')]
+    public function testInvalidAggregation(array $aggregation, string $message, string $pointer): void
+    {
+        try {
+            $this->requestCriteriaBuilder->fromArray(
+                ['aggregations' => [['name' => 'agg'] + $aggregation]],
+                new Criteria(),
+                $this->staticDefinitionRegistry->get(ProductDefinition::class),
+                Context::createDefaultContext()
+            );
+        } catch (SearchRequestException $e) {
+            $errors = iterator_to_array($e->getErrors(), false);
+            static::assertCount(1, $errors);
+            static::assertSame($message, $errors[0]['detail']);
+            static::assertSame($pointer, $errors[0]['source']['pointer']);
+
+            return;
+        }
+
+        static::fail('Expected a SearchRequestException');
+    }
+
+    public static function invalidAggregationProvider(): \Generator
+    {
+        $missingField = 'The aggregation should contain a "field".';
+        $missingFilter = 'The aggregation should contain an array of filters in property "filter".';
+
+        yield 'missing field' => [['type' => 'terms'], $missingField, '/aggregations/0/terms/field'];
+        yield 'empty field' => [['type' => 'terms', 'field' => ''], $missingField, '/aggregations/0/terms/field'];
+        yield 'non string field' => [['type' => 'terms', 'field' => 5], $missingField, '/aggregations/0/terms/field'];
+        yield 'missing filter' => [['type' => 'filter', 'aggregation' => ['name' => 'nested', 'type' => 'count', 'field' => 'id']], $missingFilter, '/aggregations/0/filter/field'];
+        yield 'non array filter' => [['type' => 'filter', 'filter' => 'name', 'aggregation' => ['name' => 'nested', 'type' => 'count', 'field' => 'id']], $missingFilter, '/aggregations/0/filter/field'];
+        yield 'missing nested aggregation' => [['type' => 'filter', 'filter' => [['type' => 'equals', 'field' => 'name', 'value' => 'foo']]], $missingFilter, '/aggregations/0/filter/field'];
+        yield 'non array nested aggregation' => [['type' => 'filter', 'filter' => [['type' => 'equals', 'field' => 'name', 'value' => 'foo']], 'aggregation' => 'count'], $missingFilter, '/aggregations/0/filter/field'];
+    }
+
+    public function testSimpleFilterAddsExceptionWithBlankKey(): void
     {
         $payload = [
             'filter' => [
-                'name' => ['test'],
+                'name' => 'test',
+                '' => 'test',
             ],
         ];
 
-        $this->expectException(SearchRequestException::class);
+        $pointer = '/filter/1';
+        $expected = DataAbstractionLayerException::invalidFilterQuery('The key for filter at position "1" must not be blank.', $pointer);
+        static::assertInstanceOf(InvalidFilterQueryException::class, $expected);
+
+        $this->expectExceptionObject(new SearchRequestException([$pointer => [$expected]]));
 
         try {
             $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
         } catch (SearchRequestException $e) {
-            $error = $e->getErrors()->current();
+            self::assertSingleInnerException($e, $expected, $pointer);
 
-            static::assertSame('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
-            static::assertSame('The value for filter "name" must be scalar.', $error['detail']);
-            static::assertSame('400', $error['status']);
+            throw $e;
+        }
+    }
+
+    public function testSimpleFilterAddsExceptionWithBlankValue(): void
+    {
+        $field = 'name';
+        $payload = [
+            'filter' => [
+                $field => '',
+            ],
+        ];
+
+        $pointer = '/filter/' . $field;
+        $expected = DataAbstractionLayerException::invalidFilterQuery(\sprintf('The value for filter "%s" must not be blank.', $field), $pointer);
+        static::assertInstanceOf(InvalidFilterQueryException::class, $expected);
+
+        $this->expectExceptionObject(new SearchRequestException([$pointer => [$expected]]));
+
+        try {
+            $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        } catch (SearchRequestException $e) {
+            self::assertSingleInnerException($e, $expected, $pointer);
+
+            throw $e;
+        }
+    }
+
+    public function testSimpleFilterAddsExceptionWithArrayInValue(): void
+    {
+        $field = 'name';
+        $payload = [
+            'filter' => [
+                $field => ['test'],
+            ],
+        ];
+
+        $pointer = '/filter/' . $field;
+        $expected = DataAbstractionLayerException::invalidFilterQuery(\sprintf('The value for filter "%s" must be scalar.', $field), $pointer);
+        static::assertInstanceOf(InvalidFilterQueryException::class, $expected);
+
+        $this->expectExceptionObject(new SearchRequestException([$pointer => [$expected]]));
+
+        try {
+            $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        } catch (SearchRequestException $e) {
+            self::assertSingleInnerException($e, $expected, $pointer);
 
             throw $e;
         }
@@ -765,16 +928,105 @@ class RequestCriteriaBuilderTest extends TestCase
             ],
         ];
 
-        $this->expectException(SearchRequestException::class);
+        $pointer = '/filter/0';
+        $expected = DataAbstractionLayerException::invalidFilterQuery('The filter parameter has to be an array.', $pointer);
+        static::assertInstanceOf(InvalidFilterQueryException::class, $expected);
+
+        $this->expectExceptionObject(new SearchRequestException([$pointer => [$expected]]));
 
         try {
             $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
         } catch (SearchRequestException $e) {
-            $error = $e->getErrors()->current();
+            self::assertSingleInnerException($e, $expected, $pointer);
 
-            static::assertSame('FRAMEWORK__INVALID_FILTER_QUERY', $error['code']);
-            static::assertSame('The filter parameter has to be an array.', $error['detail']);
-            static::assertSame('400', $error['status']);
+            throw $e;
+        }
+    }
+
+    public function testFilterElementIsNotArray(): void
+    {
+        $payload = [
+            'filter' => 123,
+        ];
+
+        $pointer = '/filter';
+        $expected = DataAbstractionLayerException::invalidFilterQuery('The filter parameter has to be a list of filters.', $pointer);
+        static::assertInstanceOf(InvalidFilterQueryException::class, $expected);
+
+        $this->expectExceptionObject(new SearchRequestException([$pointer => [$expected]]));
+
+        try {
+            $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        } catch (SearchRequestException $e) {
+            self::assertSingleInnerException($e, $expected, $pointer);
+
+            throw $e;
+        }
+    }
+
+    public function testSimplePostFilterAddsExceptionWithArrayInValue(): void
+    {
+        $field = 'name';
+        $payload = [
+            'post-filter' => [
+                $field => ['test'],
+            ],
+        ];
+
+        $pointer = '/post-filter/' . $field;
+        $expected = DataAbstractionLayerException::invalidFilterQuery(\sprintf('The value for post-filter "%s" must be scalar.', $field), $pointer);
+        static::assertInstanceOf(InvalidFilterQueryException::class, $expected);
+
+        $this->expectExceptionObject(new SearchRequestException([$pointer => [$expected]]));
+
+        try {
+            $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        } catch (SearchRequestException $e) {
+            self::assertSingleInnerException($e, $expected, $pointer);
+
+            throw $e;
+        }
+    }
+
+    public function testPostFilterElementIsInvalid(): void
+    {
+        $payload = [
+            'post-filter' => [
+                0 => 'test',
+            ],
+        ];
+
+        $pointer = '/post-filter/0';
+        $expected = DataAbstractionLayerException::invalidFilterQuery('The post-filter parameter has to be an array.', $pointer);
+        static::assertInstanceOf(InvalidFilterQueryException::class, $expected);
+
+        $this->expectExceptionObject(new SearchRequestException([$pointer => [$expected]]));
+
+        try {
+            $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        } catch (SearchRequestException $e) {
+            self::assertSingleInnerException($e, $expected, $pointer);
+
+            throw $e;
+        }
+    }
+
+    public function testPostFilterElementIsNotArray(): void
+    {
+        $payload = [
+            'post-filter' => 123,
+        ];
+
+        $pointer = '/post-filter';
+        $expected = DataAbstractionLayerException::invalidFilterQuery('The post-filter parameter has to be a list of filters.', $pointer);
+        static::assertInstanceOf(InvalidFilterQueryException::class, $expected);
+
+        $this->expectExceptionObject(new SearchRequestException([$pointer => [$expected]]));
+
+        try {
+            $this->requestCriteriaBuilder->fromArray($payload, new Criteria(), $this->staticDefinitionRegistry->get(ProductDefinition::class), Context::createDefaultContext());
+        } catch (SearchRequestException $e) {
+            self::assertSingleInnerException($e, $expected, $pointer);
 
             throw $e;
         }
@@ -803,7 +1055,7 @@ class RequestCriteriaBuilderTest extends TestCase
         $request = new Request(request: $payload);
         $request->setMethod(Request::METHOD_POST);
 
-        static::expectExceptionObject(DataAbstractionLayerException::expectedArrayWithType('includes', 'string'));
+        $this->expectExceptionObject(DataAbstractionLayerException::expectedArrayWithType('includes', 'string'));
 
         $this->requestCriteriaBuilder->handleRequest(
             $request,
@@ -836,7 +1088,7 @@ class RequestCriteriaBuilderTest extends TestCase
         $request = new Request([], $payload, [], [], []);
         $request->setMethod(Request::METHOD_POST);
 
-        static::expectExceptionObject(DataAbstractionLayerException::expectedArrayWithType('excludes', 'string'));
+        $this->expectExceptionObject(DataAbstractionLayerException::expectedArrayWithType('excludes', 'string'));
 
         $this->requestCriteriaBuilder->handleRequest(
             $request,
@@ -1024,6 +1276,22 @@ class RequestCriteriaBuilderTest extends TestCase
         static::assertContains('url', $includes['media']);
         static::assertContains('width', $includes['media']);
         static::assertContains('height', $includes['media']);
+    }
+
+    private static function assertSingleInnerException(
+        SearchRequestException $exception,
+        InvalidFilterQueryException|InvalidSortQueryException|InvalidLimitQueryException|InvalidPageQueryException $expected,
+        string $pointer
+    ): void {
+        $errors = iterator_to_array($exception->getErrors(), false);
+        static::assertCount(1, $errors);
+
+        $error = $errors[0];
+
+        static::assertSame($expected->getErrorCode(), $error['code']);
+        static::assertSame($expected->getMessage(), $error['detail']);
+        static::assertSame((string) $expected->getStatusCode(), $error['status']);
+        static::assertSame($pointer, $error['source']['pointer']);
     }
 
     private static function gzipAndBase64UrlEncode(string $data): string

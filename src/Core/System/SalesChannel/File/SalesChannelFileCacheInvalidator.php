@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPostActivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostDeactivateEvent;
 use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
@@ -61,13 +62,7 @@ class SalesChannelFileCacheInvalidator implements EventSubscriberInterface
         $tags = [];
 
         foreach ($event->getWriteResults() as $writeResult) {
-            $id = $this->getPrimaryKeyId($writeResult);
-
-            if ($id === null) {
-                continue;
-            }
-
-            $tags[] = self::buildCacheTag($id);
+            $tags[] = self::buildCacheTag($this->getPrimaryKeyId($writeResult));
         }
 
         // Force immediate invalidation because Admin edits should update the public file response directly.
@@ -82,14 +77,15 @@ class SalesChannelFileCacheInvalidator implements EventSubscriberInterface
         $this->cacheInvalidator->invalidate([self::buildDiscoveryCacheTag()], true);
     }
 
-    private function getPrimaryKeyId(EntityWriteResult $writeResult): ?string
+    private function getPrimaryKeyId(EntityWriteResult $writeResult): string
     {
         $primaryKey = $writeResult->getPrimaryKey();
 
-        if (\is_string($primaryKey)) {
-            return $primaryKey;
+        // This subscriber only listens to entities with a single field primary key, so a combined primary key should never occur here.
+        if (!\is_string($primaryKey)) {
+            throw SalesChannelException::unexpectedCombinedPrimaryKey($writeResult->getEntityName());
         }
 
-        return $primaryKey['id'] ?? null;
+        return $primaryKey;
     }
 }

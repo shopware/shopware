@@ -68,6 +68,26 @@ XML));
         static::assertSame('app', $metadata->getBadge());
     }
 
+    public function testToArrayKeepsOptionalTranslationsMissing(): void
+    {
+        $metadata = Metadata::fromXml(self::loadElement(<<<'XML'
+<meta>
+    <name>mail.send</name>
+    <label>Send mail</label>
+    <url>https://example.com/flow-action</url>
+</meta>
+XML));
+
+        $result = $metadata->toArray('en-US');
+
+        static::assertSame(['en-GB' => 'Send mail', 'en-US' => 'Send mail'], $result['label']);
+        static::assertNull($result['description']);
+        static::assertNull($result['headline']);
+    }
+
+    /**
+     * @param non-empty-string $xml
+     */
     private static function loadElement(string $xml): \DOMElement
     {
         $document = new \DOMDocument();

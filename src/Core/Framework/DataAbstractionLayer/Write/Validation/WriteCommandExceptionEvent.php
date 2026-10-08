@@ -8,6 +8,9 @@ use Shopware\Core\Framework\Event\ShopwareEvent;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('framework')]
 class WriteCommandExceptionEvent extends Event implements ShopwareEvent
 {
@@ -26,6 +29,9 @@ class WriteCommandExceptionEvent extends Event implements ShopwareEvent
         return $this->exception;
     }
 
+    /**
+     * @return WriteCommand[]
+     */
     public function getCommands(): array
     {
         return $this->commands;

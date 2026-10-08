@@ -84,6 +84,9 @@ const orderMock = {
     ],
 };
 
+orderMock.primaryOrderTransaction = orderMock.transactions[0];
+orderMock.primaryOrderDelivery = orderMock.deliveries[0];
+
 orderMock.transactions.last = () => ({
     stateMachineState: {
         translated: {
@@ -137,9 +140,6 @@ async function createWrapper(order = orderMock) {
                     getState: () => {
                         return { data: {} };
                     },
-                },
-                feature: {
-                    isActive: () => true,
                 },
                 repositoryFactory: {
                     create(entityName) {

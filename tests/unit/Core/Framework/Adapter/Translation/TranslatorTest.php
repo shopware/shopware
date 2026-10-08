@@ -340,9 +340,11 @@ class ArrayCache implements CacheInterface
     }
 
     /**
+     * @param array<string, mixed>|null $metadata
+     *
      * @return array{}
      */
-    public function get(string $key, callable $callback, ?float $beta = null, ?array &$metadata = null): mixed
+    public function get(string $key, callable $callback, ?float $beta = null, ?array &$metadata = null): array
     {
         return $this->cacheItems[$key];
     }

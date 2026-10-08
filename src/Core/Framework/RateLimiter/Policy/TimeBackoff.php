@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\RateLimiter\Policy;
 
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\RateLimiter\RateLimiterException;
 use Symfony\Component\Clock\Clock;
 use Symfony\Component\RateLimiter\LimiterStateInterface;
 use Symfony\Component\RateLimiter\Util\TimeUtil;
@@ -34,7 +35,7 @@ class TimeBackoff implements LimiterStateInterface
         ?int $timer = null
     ) {
         $this->timer = $timer ?? Clock::get()->now()->getTimestamp();
-        $this->unthrottledAttempts = min(array_column($this->limits, 'limit')) ?: 0;
+        $this->unthrottledAttempts = $this->limits === [] ? 0 : min(array_column($this->limits, 'limit'));
     }
 
     public function __sleep(): array
@@ -49,7 +50,7 @@ class TimeBackoff implements LimiterStateInterface
         try {
             $this->limits = json_decode($this->stringLimits, true, 512, \JSON_THROW_ON_ERROR);
         } catch (\JsonException) {
-            throw new \BadMethodCallException('Cannot unserialize ' . self::class);
+            throw RateLimiterException::backoffUnserializationFailed(self::class);
         }
 
         unset($this->stringLimits);
@@ -133,7 +134,7 @@ class TimeBackoff implements LimiterStateInterface
         foreach ($this->limits as $key => $current) {
             $next = $this->limits[$key + 1] ?? null;
 
-            if ($next === null && $count >= $current['limit']) {
+            if ($next === null && $count > $current['limit']) {
                 return $current;
             }
 
@@ -147,6 +148,10 @@ class TimeBackoff implements LimiterStateInterface
 
     private function intervalToSeconds(string $interval): int
     {
-        return TimeUtil::dateIntervalToSeconds(\DateInterval::createFromDateString($interval));
+        $dateInterval = \DateInterval::createFromDateString($interval);
+
+        \assert($dateInterval instanceof \DateInterval);
+
+        return TimeUtil::dateIntervalToSeconds($dateInterval);
     }
 }

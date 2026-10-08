@@ -81,7 +81,7 @@ class AuthController extends StorefrontController
     public function loginPage(Request $request, RequestDataBag $data, SalesChannelContext $context): Response
     {
         // Add '_httpCache' => true, to defaults in Route and remove _noStore
-        if (Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('PERFORMANCE_TWEAKS')) {
             $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
             $request->attributes->remove(PlatformRequest::ATTRIBUTE_NO_STORE);
         }
@@ -192,6 +192,8 @@ class AuthController extends StorefrontController
             $this->logoutRoute->logout($context, $dataBag);
             $this->addFlash(self::SUCCESS, $this->trans('account.logoutSucceeded'));
 
+            $request->attributes->set(PlatformRequest::ATTRIBUTE_CLEAR_SITE_DATA, true);
+
             $parameters = [];
         } catch (ConstraintViolationException $formViolations) {
             $parameters = ['formViolations' => $formViolations];
@@ -236,8 +238,14 @@ class AuthController extends StorefrontController
             $data->set('password', null);
         }
 
+        // Keep a failed login within the checkout flow instead of forwarding to the account login page.
+        $redirectTo = $request->request->getString('redirectTo');
+        $errorRoute = str_starts_with($redirectTo, 'frontend.checkout')
+            ? 'frontend.checkout.register.page'
+            : 'frontend.account.login.page';
+
         return $this->forwardToRoute(
-            'frontend.account.login.page',
+            $errorRoute,
             [
                 'loginError' => true,
                 'errorSnippet' => $errorSnippet ?? null,
@@ -254,7 +262,7 @@ class AuthController extends StorefrontController
     public function recoverAccountForm(Request $request, SalesChannelContext $context): Response
     {
         // Add '_httpCache' => true, to defaults in Route
-        if (Feature::isActive('PERFORMANCE_TWEAKS') || Feature::isActive('v6.8.0.0')) {
+        if (Feature::isActive('PERFORMANCE_TWEAKS')) {
             $request->attributes->set(PlatformRequest::ATTRIBUTE_HTTP_CACHE, true);
             $request->attributes->remove(PlatformRequest::ATTRIBUTE_NO_STORE);
         }

@@ -5,6 +5,7 @@ namespace Shopware\Storefront\Theme\Command;
 use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Storefront\Theme\ConfigLoader\AbstractAvailableThemeProvider;
 use Shopware\Storefront\Theme\ThemeService;
@@ -45,12 +46,22 @@ class ThemeCompileCommand extends Command
             ->addOption('only-themes', 'O', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Compile only themes for given theme ids')
             ->addOption('skip-themes', 'S', InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Skip compiling themes for given theme ids')
             ->addOption('sync', null, InputOption::VALUE_NONE, 'Compile the theme synchronously')
+            /** @deprecated tag:v6.8.0 - option will be removed, the cleanup runs via the theme.delete_files scheduled task */
+            ->addOption('no-cleanup', null, InputOption::VALUE_NONE, '[DEPRECATED] Has no effect, unused theme directories are removed by the theme.delete_files scheduled task')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->io = new SymfonyStyle($input, $output);
+
+        if ($input->getOption('no-cleanup')) {
+            Feature::triggerDeprecationOrThrow(
+                'v6.8.0.0',
+                'The "--no-cleanup" option of the "theme:compile" command is deprecated and will be removed in v6.8.0.0. The command no longer deletes unused theme directories, the "theme.delete_files" scheduled task does.'
+            );
+        }
+
         $context = Context::createCLIContext();
         if ($input->getOption('sync')) {
             $context->addState(ThemeService::STATE_NO_QUEUE);
@@ -94,7 +105,7 @@ class ThemeCompileCommand extends Command
 
             $start = (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT);
             $this->themeService->compileTheme($salesChannelId, $themeId, $context, null, !$input->getOption('keep-assets'));
-            $this->io->note(\sprintf('Took %f seconds', (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $start));
+            $this->io->note(\sprintf('Took %F seconds', (float) $this->clock->now()->format(Defaults::MICROTIME_FORMAT) - $start));
         }
 
         return self::SUCCESS;

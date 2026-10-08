@@ -23,9 +23,7 @@ class Migration1761739065IncreaseProductWeightPrecision extends MigrationStep
             return;
         }
 
-        $connection->executeStatement(
-            'ALTER TABLE `product` MODIFY `weight` DECIMAL(15,6) UNSIGNED NULL'
-        );
+        $this->executeDdlStatement($connection, 'ALTER TABLE `product` MODIFY `weight` DECIMAL(15,6) UNSIGNED NULL');
     }
 
     private function isProductWeightUsingDefaultPrecision(Connection $connection): bool

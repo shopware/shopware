@@ -170,7 +170,9 @@ export default {
         },
 
         tabExtensions() {
-            return Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? [];
+            return (Shopware.Store.get('tabs').tabItems[this.positionIdentifier] ?? []).filter(
+                (tabExtension) => tabExtension.visible !== false,
+            );
         },
     },
 
@@ -334,12 +336,7 @@ export default {
         },
 
         scrollTo(direction) {
-            if (
-                ![
-                    'left',
-                    'right',
-                ].includes(direction)
-            ) {
+            if (!['left', 'right'].includes(direction)) {
                 return;
             }
 

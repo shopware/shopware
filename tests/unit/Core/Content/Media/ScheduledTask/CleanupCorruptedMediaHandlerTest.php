@@ -3,7 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Media\ScheduledTask;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\MediaCollection;
@@ -33,7 +33,7 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
      */
     private StaticEntityRepository $scheduledTaskRepository;
 
-    private LoggerInterface&MockObject $logger;
+    private LoggerInterface&Stub $logger;
 
     /**
      * @var StaticEntityRepository<MediaCollection>
@@ -45,7 +45,7 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->scheduledTaskRepository = new StaticEntityRepository([]);
-        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->logger = static::createStub(LoggerInterface::class);
         $this->ids = new IdsCollection();
     }
 
@@ -56,7 +56,7 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
             $this->ids->get('media-2') => ['primaryKey' => $this->ids->get('media-2'), 'data' => []],
         ];
 
-        $this->mediaRepository = new StaticEntityRepository([
+        $this->mediaRepository = StaticEntityRepository::of(MediaCollection::class, [
             function (Criteria $criteria, Context $context) use ($data): IdSearchResult {
                 $this->assertCleanupFilters($criteria);
                 static::assertSame(500, $criteria->getLimit());
@@ -86,7 +86,7 @@ class CleanupCorruptedMediaHandlerTest extends TestCase
 
     public function testRunCleansNothingUpIfNoCorruptedMediaExists(): void
     {
-        $this->mediaRepository = new StaticEntityRepository([
+        $this->mediaRepository = StaticEntityRepository::of(MediaCollection::class, [
             function (Criteria $criteria, Context $context): IdSearchResult {
                 $this->assertCleanupFilters($criteria);
                 static::assertSame(500, $criteria->getLimit());

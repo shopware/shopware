@@ -35,7 +35,7 @@ class Migration1749644517AddListingVariantNameSystemConfigOptionTest extends Tes
 
     public function testMigration(): void
     {
-        static::assertEmpty($this->getConfig());
+        static::assertCount(0, $this->getConfig());
 
         $migration = new Migration1749644517AddListingVariantNameSystemConfigOption();
         $migration->update($this->connection);

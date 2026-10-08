@@ -23,9 +23,11 @@ class ScheduledTaskGeneratorTest extends TestCase
     {
         $generator = new ScheduledTaskGenerator();
 
-        static::assertTrue($generator->hasCommandOption());
-        static::assertNotEmpty($generator->getCommandOptionName());
-        static::assertNotEmpty($generator->getCommandOptionDescription());
+        $option = $generator->getCommandOption();
+
+        static::assertNotSame('', $option->getName());
+        static::assertNotSame('', $option->getDescription());
+        static::assertFalse($option->acceptValue());
     }
 
     #[DataProvider('addScaffoldConfigProvider')]
@@ -108,7 +110,7 @@ class ScheduledTaskGeneratorTest extends TestCase
         yield 'Option true, stubs' => [
             'config' => self::getConfig([ScheduledTaskGenerator::OPTION_NAME => true]),
             'expected' => [
-                'src/Resources/config/services.xml',
+                'src/Resources/config/services.php',
                 'src/ScheduledTask/ExampleTask.php',
             ],
         ];

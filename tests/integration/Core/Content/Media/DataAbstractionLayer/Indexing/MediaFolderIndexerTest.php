@@ -114,7 +114,7 @@ class MediaFolderIndexerTest extends TestCase
     }
 
     /**
-     * @param array<int, array<string, array<int, array<string, string>>|string>> $data
+     * @param list<array<string, list<array<string, list<array<string, list<array<string, string>>|string>>|string>>|string>> $data
      * @param list<string> $ids
      */
     private function assertCorrectPathWithOneSubFolderForEachParent(array $data, array $ids, int $depth): void
@@ -140,7 +140,7 @@ class MediaFolderIndexerTest extends TestCase
     }
 
     /**
-     * @return array{0: array<int, array<string, array<int, array<string, string>>|string>>, 1: list<string>}
+     * @return array{list<array<string, list<array<string, list<array<string, list<array<string, string>>|string>>|string>>|string>>, list<string>}
      */
     private function getData(int $depth): array
     {

@@ -16,7 +16,6 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\MultiFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Sso\SsoException;
-use Shopware\Core\Framework\Validation\DataBag\DataBag;
 use Shopware\Core\System\Language\LanguageCollection;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
@@ -58,24 +57,26 @@ class SsoUserInvitationMailService
         }
 
         $user = $this->getUserById($apiSource->getUserId(), $context);
-        $shopName = $this->systemConfigService->get('core.basicInformation.shopName');
+        $shopName = $this->systemConfigService->getString('core.basicInformation.shopName');
         $mailTemplate = $this->getMailTemplate($localeId, $context);
 
-        $mailData = new DataBag();
-        $mailData->set('templateId', $mailTemplate?->getId());
-        $mailData->set('recipients', [$recipientEmail => $recipientEmail]);
-        $mailData->set('senderName', $shopName);
-        $mailData->set('subject', $mailTemplate?->getTranslation('subject'));
-        $mailData->set('contentPlain', $mailTemplate?->getTranslation('contentPlain'));
-        $mailData->set('contentHtml', $mailTemplate?->getTranslation('contentHtml'));
+        $mailDataArray = [
+            'templateId' => $mailTemplate?->getId(),
+            'recipients' => [$recipientEmail => $recipientEmail],
+            'senderName' => $shopName,
+            'subject' => $mailTemplate?->getTranslation('subject'),
+            'contentPlain' => $mailTemplate?->getTranslation('contentPlain'),
+            'contentHtml' => $mailTemplate?->getTranslation('contentHtml'),
+        ];
 
-        $templateVariables = new DataBag();
-        $templateVariables->set('nameOfInviter', $this->createInviterName($user));
-        $templateVariables->set('storeName', $shopName);
-        $templateVariables->set('invitedEmailAddress', $recipientEmail);
-        $templateVariables->set('signupUrl', $this->createSignUpUrl());
+        $templateVariablesArray = [
+            'nameOfInviter' => $this->createInviterName($user),
+            'storeName' => $shopName,
+            'invitedEmailAddress' => $recipientEmail,
+            'signupUrl' => $this->createSignUpUrl(),
+        ];
 
-        $this->mailService->send($mailData->all(), $context, $templateVariables->all());
+        $this->mailService->send($mailDataArray, $context, $templateVariablesArray);
     }
 
     private function createSignUpUrl(): string

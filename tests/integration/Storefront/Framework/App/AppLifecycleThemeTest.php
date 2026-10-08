@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\AppSystemTestBehaviour;
@@ -29,6 +30,7 @@ use Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher;
 /**
  * @internal
  */
+#[Package('framework')]
 class AppLifecycleThemeTest extends TestCase
 {
     use AppSystemTestBehaviour;
@@ -68,7 +70,7 @@ class AppLifecycleThemeTest extends TestCase
     public function testAppWithAThemeInUseCannotBeDeactivated(): void
     {
         $context = Context::createDefaultContext();
-        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/theme');
+        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/SwagTheme');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
         $themeId = $this->themeRepo->searchIds($criteria, $context)->firstId();
@@ -95,7 +97,7 @@ class AppLifecycleThemeTest extends TestCase
     public function testAppWithAChildThemeInUseCannotBeDeactivated(): void
     {
         $context = Context::createDefaultContext();
-        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/theme');
+        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/SwagTheme');
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('technicalName', 'SwagTheme'));
         $themeId = $this->themeRepo->searchIds($criteria, $context)->firstId();
@@ -134,7 +136,7 @@ class AppLifecycleThemeTest extends TestCase
 
     public function testAppWithAThemeCanBeDeactivated(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/theme');
+        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/SwagTheme');
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();
@@ -165,7 +167,7 @@ class AppLifecycleThemeTest extends TestCase
 
     public function testAppWithAThemeCanBeActivated(): void
     {
-        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/theme', false);
+        $this->loadAppsFromDir(__DIR__ . '/../../Theme/fixtures/Apps/SwagTheme', false);
         $context = Context::createDefaultContext();
 
         $criteria = new Criteria();

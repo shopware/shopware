@@ -304,7 +304,7 @@ class ProductUrlProviderTest extends TestCase
 
     private function getComparisonUrl(string $productId): string
     {
-        $loc = $this->seoUrlPlaceholderHandler->generate('frontend.detail.page', ['productId' => $productId]);
+        $loc = $this->seoUrlPlaceholderHandler->generate(ProductPageSeoUrlRoute::ROUTE_NAME, ['productId' => $productId]);
 
         return $this->seoUrlPlaceholderHandler->replace($loc, $this->getHost($this->salesChannelContext), $this->salesChannelContext);
     }

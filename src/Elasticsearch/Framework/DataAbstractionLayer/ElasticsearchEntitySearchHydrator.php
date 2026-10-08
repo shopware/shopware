@@ -18,7 +18,18 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
     }
 
     /**
-     * @param array{ hits?: array{ hits: array<int, array{_id?: string, _score?: float, _source?: array<mixed>, inner_hits?: array{ inner?: array<mixed>}}>}, aggregations?: array<string, array<string, mixed>>} $result
+     * @param array{
+     *     hits?: array{
+     *         hits: array<int, array{
+     *             _id?: string,
+     *             _score?: float,
+     *             _source?: array<mixed>,
+     *             inner_hits?: array{inner?: array<mixed>}
+     *         }>,
+     *         total?: array{value: int}
+     *     },
+     *     aggregations?: array<string, array<string, mixed>>
+     *  } $result
      */
     public function hydrate(EntityDefinition $definition, Criteria $criteria, Context $context, array $result): IdSearchResult
     {
@@ -50,7 +61,7 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
     }
 
     /**
-     * @param array{ hits: array{ hits: array<int, array{ inner_hits?: array{ inner?: array<mixed>}}>}} $result
+     * @param array{ hits: array{ hits: array<int, array<string, mixed>>, total?: array{value: int}}, aggregations?: array<string, array<string, mixed>>} $result
      *
      * @return array<mixed>
      */
@@ -66,7 +77,7 @@ class ElasticsearchEntitySearchHydrator extends AbstractElasticsearchSearchHydra
                 continue;
             }
 
-            /** @var array{ hits: array{ hits: array<int, array<mixed>>}} $inner */
+            /** @var array{ hits: array{ hits: array<int, array<string, mixed>>}} $inner */
             $inner = $hit['inner_hits']['inner'];
 
             $innerHits = $this->extractHits($inner);

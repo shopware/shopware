@@ -9,14 +9,9 @@ const { Mixin } = Shopware;
 export default {
     template,
 
-    inject: [
-        'feature',
-        'acl',
-    ],
+    inject: ['feature', 'acl'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     data() {
         return {

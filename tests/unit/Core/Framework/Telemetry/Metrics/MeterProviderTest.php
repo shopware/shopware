@@ -24,7 +24,7 @@ class MeterProviderTest extends TestCase
     protected function setUp(): void
     {
         $this->container = $this->createMock(ContainerInterface::class);
-        $this->meter = $this->createMock(Meter::class);
+        $this->meter = static::createStub(Meter::class);
     }
 
     public function testBindMeter(): void

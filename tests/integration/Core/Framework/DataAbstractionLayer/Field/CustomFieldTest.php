@@ -27,11 +27,14 @@ use Shopware\Core\Framework\Test\TestCaseBase\BasicTestDataBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\CacheTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\Framework\Validation\WriteConstraintViolationException;
 use Shopware\Core\System\CustomField\CustomFieldCollection;
 use Shopware\Core\System\CustomField\CustomFieldTypes;
 use Shopware\Core\System\Language\LanguageEntity;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 /**
  * @internal
@@ -941,7 +944,7 @@ class CustomFieldTest extends TestCase
         $repo->create($entities, Context::createDefaultContext());
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
 
-        static::assertNotEmpty($first);
+        static::assertNotNull($first);
         static::assertSame(['assoc' => ['foo' => 'bar']], $first->get('custom'));
 
         $patch = [
@@ -952,7 +955,7 @@ class CustomFieldTest extends TestCase
         $repo->update([$patch], Context::createDefaultContext());
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
 
-        static::assertNotEmpty($first);
+        static::assertNotNull($first);
         static::assertSame(['assoc' => ['foo' => 'baz']], $first->get('custom'));
     }
 
@@ -976,7 +979,7 @@ class CustomFieldTest extends TestCase
         $repo->create($entities, Context::createDefaultContext());
         $first = $repo->search(new Criteria([$ids->get('id-1')]), Context::createDefaultContext())->getEntities()->first();
 
-        static::assertNotEmpty($first);
+        static::assertNotNull($first);
 
         $fields = $first->get('custom');
 
@@ -1004,6 +1007,64 @@ class CustomFieldTest extends TestCase
         $repo->create($entities, Context::createDefaultContext());
     }
 
+    /**
+     * only `WriteException` renders the pointer into its message, so the unit tests cannot assert it
+     */
+    public function testCustomFieldPriceRejectsNonArrayValue(): void
+    {
+        $this->addCustomFields(['price' => CustomFieldTypes::PRICE]);
+
+        $ids = new IdsCollection();
+        $entities = [
+            [
+                'id' => $ids->create('id-1'),
+                'custom' => [
+                    'price' => 12.5,
+                ],
+            ],
+        ];
+
+        $expected = (new WriteException())->add(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('This value should be of type array.', 'This value should be of type {{ type }}.', [], null, '/price', 12.5),
+            ]),
+            '/0/custom'
+        ));
+
+        $this->expectExceptionObject($expected);
+
+        $this->getTestRepository()->create($entities, Context::createDefaultContext());
+    }
+
+    /**
+     * an empty list satisfies the array check and must still be rejected further down
+     */
+    public function testCustomFieldPriceRejectsEmptyArray(): void
+    {
+        $this->addCustomFields(['price' => CustomFieldTypes::PRICE]);
+
+        $ids = new IdsCollection();
+        $entities = [
+            [
+                'id' => $ids->create('id-1'),
+                'custom' => [
+                    'price' => [],
+                ],
+            ],
+        ];
+
+        $expected = (new WriteException())->add(new WriteConstraintViolationException(
+            new ConstraintViolationList([
+                new ConstraintViolation('No price for default currency defined', 'No price for default currency defined', [], '', '/price', []),
+            ]),
+            '/0/custom'
+        ));
+
+        $this->expectExceptionObject($expected);
+
+        $this->getTestRepository()->create($entities, Context::createDefaultContext());
+    }
+
     public function testCustomFieldArray(): void
     {
         $this->addCustomFields(['array' => CustomFieldTypes::JSON]);
@@ -1017,7 +1078,7 @@ class CustomFieldTest extends TestCase
         $repo->create($entities, Context::createDefaultContext());
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
 
-        static::assertNotEmpty($first);
+        static::assertNotNull($first);
         static::assertSame(['array' => ['foo', 'bar']], $first->get('custom'));
 
         $patch = [
@@ -1028,7 +1089,7 @@ class CustomFieldTest extends TestCase
         $repo->update([$patch], Context::createDefaultContext());
         $first = $repo->search(new Criteria([$id]), Context::createDefaultContext())->getEntities()->first();
 
-        static::assertNotEmpty($first);
+        static::assertNotNull($first);
         static::assertSame(['array' => ['bar', 'baz']], $first->get('custom'));
     }
 

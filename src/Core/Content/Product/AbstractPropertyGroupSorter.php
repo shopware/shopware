@@ -6,6 +6,7 @@ use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOp
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 
@@ -22,10 +23,9 @@ abstract class AbstractPropertyGroupSorter
     abstract public function sort(EntityCollection $options): PropertyGroupCollection;
 
     /**
-     * @deprecated tag:v6.8.0 - Will become abstract in v6.8.0.
-     *
      * @param EntityCollection<PropertyGroupOptionEntity|PartialEntity> $options
      */
+    #[BecomesAbstract(version: 'v6.8.0')]
     public function sortUsingLocaleCode(EntityCollection $options, string $localeCode): PropertyGroupCollection
     {
         Feature::triggerDeprecationOrThrow(

@@ -67,6 +67,10 @@ class LineItemReleaseDateRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('releaseDate', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchesReleaseDate($lineItem, $ruleValue)) {
                 return true;
             }

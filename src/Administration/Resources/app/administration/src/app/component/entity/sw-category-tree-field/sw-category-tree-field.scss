@@ -18,8 +18,24 @@ $sw-category-tree-field-transition-results: all ease-in-out 0.2s;
 
     .sw-category-tree__input-field {
         display: block;
+        flex: 1 1 300px;
         min-width: 300px;
-        width: 300px;
+    }
+
+    .sw-category-tree-field__expand-indicator {
+        flex-shrink: 0;
+        align-self: center;
+        margin: 0 var(--scale-size-8) 0 auto;
+        cursor: pointer;
+        transition: transform 0.3s ease-in-out;
+
+        &.is--collapsed {
+            transform: rotate(180deg);
+        }
+    }
+
+    &.is--disabled .sw-category-tree-field__expand-indicator {
+        cursor: default;
     }
 
     .sw-label {

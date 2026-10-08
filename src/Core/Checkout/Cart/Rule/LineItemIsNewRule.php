@@ -40,6 +40,10 @@ class LineItemIsNewRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('isNew', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchLineItemIsNew($lineItem)) {
                 return true;
             }

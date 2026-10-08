@@ -58,12 +58,17 @@ abstract class ScheduledTaskHandler
      * @internal invoked by the {@see ScheduledTaskExecutor} to honor a subclass that overrides the deprecated
      * {@see rescheduleTask()} hook. Implement {@see DynamicallyScheduledTaskHandler} instead of overriding this.
      *
-     * @deprecated tag:v6.8.0 - reason:becomes-internal - will be removed together with the {@see rescheduleTask()}
-     * hook; the executor will always persist the schedule itself and use {@see DynamicallyScheduledTaskHandler}
-     * for custom timing. Still called from inside the core, so it does not trigger a deprecation itself.
+     * @deprecated tag:v6.8.0 - will be removed together with the {@see rescheduleTask()} hook; the executor will
+     * always persist the schedule itself and use {@see DynamicallyScheduledTaskHandler} for custom timing. Still
+     * called from inside the core, so it does not trigger a deprecation itself.
      */
     public function rescheduleNext(ScheduledTask $task, ScheduledTaskEntity $taskEntity): void
     {
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __METHOD__, 'v6.8.0.0')
+        );
+
         // Only when a subclass actually overrides the deprecated rescheduleTask() hook do we route through it,
         // so its custom logic (and the deprecation nudge it triggers) keeps working until the hook is removed in
         // v6.8.0.0. The default handler never overrides it, so it takes the doRescheduleTask() path and no
@@ -181,6 +186,7 @@ abstract class ScheduledTaskHandler
 
         $taskEntity = $this->scheduledTaskRepository
             ->search(new Criteria([$taskId]), Context::createCLIContext())
+            ->getEntities()
             ->get($taskId);
 
         if ($taskEntity === null || !$taskEntity->isExecutionAllowed()) {

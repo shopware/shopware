@@ -63,10 +63,7 @@ export default {
             }
 
             // add non sorted groups at the end of the sorted array
-            sortedGroups = [
-                ...sortedGroups,
-                ...selectedGroupsCopy,
-            ];
+            sortedGroups = [...sortedGroups, ...selectedGroupsCopy];
 
             // prepare groups
             const groups = sortedGroups.map((group, index) => {
@@ -110,17 +107,11 @@ export default {
                         };
                     });
 
-                return [
-                    ...result,
-                    ...optionsForGroup,
-                ];
+                return [...result, ...optionsForGroup];
             }, []);
 
             // assign groups and children to order objects
-            this.orderObjects = [
-                ...groups,
-                ...children,
-            ];
+            this.orderObjects = [...groups, ...children];
         },
 
         getOptionsForGroup(groupId) {

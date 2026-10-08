@@ -19,88 +19,22 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[CoversClass(CheapestPriceContainer::class)]
 class CheapestPriceContainerSalesChannelTest extends TestCase
 {
-    public function testIsVariantAvailableInSalesChannelWithMatchingId(): void
+    public function testResolveReturnsPriceWithoutStoredSalesChannelIds(): void
     {
-        $salesChannelId = Uuid::randomHex();
-        $group = [
-            'default' => [
-                'price' => [
-                    ['currencyId' => Defaults::CURRENCY, 'gross' => 100.0, 'net' => 84.03, 'linked' => true],
-                ],
-                'sales_channel_ids' => [$salesChannelId],
-                'is_ranged' => false,
-                'rule_id' => 'default',
-                'parent_id' => 'parent1',
-                'purchase_unit' => 1.0,
-                'reference_unit' => 1.0,
+        $container = new CheapestPriceContainer([
+            'variant1' => [
+                'default' => $this->createPrice(100.0, 84.03),
             ],
-        ];
+        ]);
 
-        $container = new CheapestPriceContainer([]);
-        $reflection = new \ReflectionClass($container);
-        $method = $reflection->getMethod('isVariantPriceAvailableInSalesChannel');
-        $method->setAccessible(true);
+        $cheapestPrice = $container->resolve($this->createSalesChannelContext(Uuid::randomHex()));
 
-        $price = $group['default'];
-        $result = $method->invoke($container, $price, $salesChannelId);
+        static::assertNotNull($cheapestPrice);
+        static::assertSame('variant1', $cheapestPrice->getVariantId());
 
-        static::assertTrue($result);
-    }
-
-    public function testIsVariantAvailableInSalesChannelWithNonMatchingId(): void
-    {
-        $salesChannelId = Uuid::randomHex();
-        $otherSalesChannelId = Uuid::randomHex();
-        $group = [
-            'default' => [
-                'price' => [
-                    ['currencyId' => Defaults::CURRENCY, 'gross' => 100.0, 'net' => 84.03, 'linked' => true],
-                ],
-                'sales_channel_ids' => [$otherSalesChannelId],
-                'is_ranged' => false,
-                'rule_id' => 'default',
-                'parent_id' => 'parent1',
-                'purchase_unit' => 1.0,
-                'reference_unit' => 1.0,
-            ],
-        ];
-
-        $container = new CheapestPriceContainer([]);
-        $reflection = new \ReflectionClass($container);
-        $method = $reflection->getMethod('isVariantPriceAvailableInSalesChannel');
-        $method->setAccessible(true);
-
-        $price = $group['default'];
-        $result = $method->invoke($container, $price, $salesChannelId);
-
-        static::assertFalse($result);
-    }
-
-    public function testIsVariantAvailableInSalesChannelWithoutIds(): void
-    {
-        $salesChannelId = Uuid::randomHex();
-        $group = [
-            'default' => [
-                'price' => [
-                    ['currencyId' => Defaults::CURRENCY, 'gross' => 100.0, 'net' => 84.03, 'linked' => true],
-                ],
-                'is_ranged' => false,
-                'rule_id' => 'default',
-                'parent_id' => 'parent1',
-                'purchase_unit' => 1.0,
-                'reference_unit' => 1.0,
-            ],
-        ];
-
-        $container = new CheapestPriceContainer([]);
-        $reflection = new \ReflectionClass($container);
-        $method = $reflection->getMethod('isVariantPriceAvailableInSalesChannel');
-        $method->setAccessible(true);
-
-        $price = $group['default'];
-        $result = $method->invoke($container, $price, $salesChannelId);
-
-        static::assertTrue($result);
+        $firstPrice = $cheapestPrice->getPrice()->first();
+        static::assertNotNull($firstPrice);
+        static::assertSame(100.0, $firstPrice->getGross());
     }
 
     public function testResolveWithSalesChannelFiltering(): void
@@ -110,46 +44,15 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
 
         $testData = [
             'variant1' => [
-                'default' => [
-                    'price' => [
-                        ['currencyId' => Defaults::CURRENCY, 'gross' => 50.0, 'net' => 42.02, 'linked' => true],
-                    ],
-                    'sales_channel_ids' => [$otherSalesChannelId],
-                    'is_ranged' => false,
-                    'rule_id' => 'default',
-                    'parent_id' => 'parent1',
-                    'purchase_unit' => 1.0,
-                    'reference_unit' => 1.0,
-                ],
+                'default' => $this->createPrice(50.0, 42.02, [$otherSalesChannelId]),
             ],
             'variant2' => [
-                'default' => [
-                    'price' => [
-                        ['currencyId' => Defaults::CURRENCY, 'gross' => 100.0, 'net' => 84.03, 'linked' => true],
-                    ],
-                    'sales_channel_ids' => [$currentSalesChannelId],
-                    'is_ranged' => false,
-                    'rule_id' => 'default',
-                    'parent_id' => 'parent1',
-                    'purchase_unit' => 1.0,
-                    'reference_unit' => 1.0,
-                ],
+                'default' => $this->createPrice(100.0, 84.03, [$currentSalesChannelId]),
             ],
         ];
 
-        $context = new Context(
-            new SalesChannelApiSource($currentSalesChannelId),
-            [],
-            Defaults::CURRENCY,
-            [Defaults::LANGUAGE_SYSTEM],
-            Defaults::LIVE_VERSION,
-            1.0,
-            true,
-            CartPrice::TAX_STATE_GROSS
-        );
-
         $container = new CheapestPriceContainer($testData);
-        $cheapestPrice = $container->resolve($context);
+        $cheapestPrice = $container->resolve($this->createSalesChannelContext($currentSalesChannelId));
 
         static::assertNotNull($cheapestPrice);
         static::assertSame('variant2', $cheapestPrice->getVariantId());
@@ -166,22 +69,46 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
 
         $testData = [
             'variant1' => [
-                'default' => [
-                    'price' => [
-                        ['currencyId' => Defaults::CURRENCY, 'gross' => 50.0, 'net' => 42.02, 'linked' => true],
-                    ],
-                    'sales_channel_ids' => [$otherSalesChannelId],
-                    'is_ranged' => false,
-                    'rule_id' => 'default',
-                    'parent_id' => 'parent1',
-                    'purchase_unit' => 1.0,
-                    'reference_unit' => 1.0,
-                ],
+                'default' => $this->createPrice(50.0, 42.02, [$otherSalesChannelId]),
             ],
         ];
 
-        $context = new Context(
-            new SalesChannelApiSource($currentSalesChannelId),
+        $container = new CheapestPriceContainer($testData);
+        $cheapestPrice = $container->resolve($this->createSalesChannelContext($currentSalesChannelId));
+
+        static::assertNull($cheapestPrice);
+    }
+
+    /**
+     * @param list<string>|null $salesChannelIds null omits the `sales_channel_ids` key entirely,
+     *                                           which marks the price as available everywhere
+     *
+     * @return array<string, mixed>
+     */
+    private function createPrice(float $gross, float $net, ?array $salesChannelIds = null): array
+    {
+        $price = [
+            'price' => [
+                ['currencyId' => Defaults::CURRENCY, 'gross' => $gross, 'net' => $net, 'linked' => true],
+            ],
+            'is_ranged' => false,
+            'rule_id' => 'default',
+            'parent_id' => 'parent1',
+            'purchase_unit' => 1.0,
+            'reference_unit' => 1.0,
+        ];
+
+        if ($salesChannelIds !== null) {
+            $price['sales_channel_ids'] = $salesChannelIds;
+        }
+
+        return $price;
+    }
+
+    private function createSalesChannelContext(string $salesChannelId): Context
+    {
+        return new Context(
+            new SalesChannelApiSource($salesChannelId),
             [],
             Defaults::CURRENCY,
             [Defaults::LANGUAGE_SYSTEM],
@@ -190,10 +117,5 @@ class CheapestPriceContainerSalesChannelTest extends TestCase
             true,
             CartPrice::TAX_STATE_GROSS
         );
-
-        $container = new CheapestPriceContainer($testData);
-        $cheapestPrice = $container->resolve($context);
-
-        static::assertNull($cheapestPrice);
     }
 }

@@ -5,14 +5,15 @@ namespace Shopware\Core\Content\Product\SalesChannel\Listing;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Product\SalesChannel\Sorting\ProductSortingCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Deprecation\BCChange\ClassHierarchyChange;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Struct\Struct;
 
 /**
- * @deprecated tag:v6.8.0 reason:class-hierarchy-change - Will no longer extend EntitySearchResult, but will keep extending Struct.
- *
  * @extends EntitySearchResult<ProductCollection>
  */
 #[Package('inventory')]
+#[ClassHierarchyChange(version: 'v6.8.0', description: 'Will no longer extend EntitySearchResult, but will keep extending Struct.', newParentClass: Struct::class)]
 class ProductListingResult extends EntitySearchResult
 {
     protected ?string $sorting = null;
@@ -56,6 +57,7 @@ class ProductListingResult extends EntitySearchResult
      */
     public function setPage(int $page): void
     {
+        /** @phpstan-ignore shopware.futureIncompatibility.propertyBecomesReadonly (ProductListingResult no longer extends EntitySearchResult in v6.8.0, so this code path will be removed.) */
         $this->page = $page;
     }
 
@@ -64,6 +66,7 @@ class ProductListingResult extends EntitySearchResult
      */
     public function setLimit(int $limit): void
     {
+        /** @phpstan-ignore shopware.futureIncompatibility.propertyBecomesReadonly (ProductListingResult no longer extends EntitySearchResult in v6.8.0, so this code path will be removed.) */
         $this->limit = $limit;
     }
 

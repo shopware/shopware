@@ -36,7 +36,6 @@ class InstalledExtensionsListingLoadedSubscriberTest extends TestCase
         $app1->setUniqueIdentifier(Uuid::randomHex());
         $app1->setName('Ext2');
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([
             new AppCollection([$app1]),
         ]);

@@ -6,9 +6,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\CacheTagCollector;
-use Shopware\Core\Framework\Feature;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Theme\AbstractResolvedConfigLoader;
 use Shopware\Storefront\Theme\ThemeConfigValueAccessor;
 use Shopware\Storefront\Theme\ThemeRuntimeConfig;
@@ -17,13 +18,13 @@ use Shopware\Storefront\Theme\ThemeRuntimeConfigService;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeConfigValueAccessor::class)]
 class ThemeConfigValueAccessorTest extends TestCase
 {
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testGetWithoutThemeIdOnV68(): void
     {
-        Feature::skipTestIfActive('v6.8.0.0', $this);
-
         $configLoader = static::createStub(AbstractResolvedConfigLoader::class);
         $cacheTagCollector = static::createStub(CacheTagCollector::class);
 
@@ -47,8 +48,6 @@ class ThemeConfigValueAccessorTest extends TestCase
 
     public function testGetWithoutThemeIdPostV68(): void
     {
-        Feature::skipTestIfInActive('v6.8.0.0', $this);
-
         $configLoader = static::createStub(AbstractResolvedConfigLoader::class);
         $cacheTagCollector = static::createStub(CacheTagCollector::class);
 

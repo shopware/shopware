@@ -12,8 +12,10 @@ use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEventFactory;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntityAggregatorInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
+use Shopware\Core\Framework\DataAbstractionLayer\Telemetry\DalSearchInstrumentor;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DependencyInjection\DependencyInjectionException;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -22,6 +24,7 @@ use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 use Symfony\Component\DependencyInjection\Reference;
 
 #[Package('framework')]
+#[BecomesInternal(version: 'v6.8.0')]
 class EntityCompilerPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
@@ -79,6 +82,7 @@ class EntityCompilerPass implements CompilerPassInterface
                         new Reference(EntityAggregatorInterface::class),
                         new Reference('event_dispatcher'),
                         new Reference(EntityLoadedEventFactory::class),
+                        new Reference(DalSearchInstrumentor::class),
                     ]
                 );
                 $container->setDefinition($repositoryId, $repository);

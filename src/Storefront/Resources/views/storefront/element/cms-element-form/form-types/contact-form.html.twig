@@ -105,7 +105,9 @@
         {% endblock %}
 
         {% block cms_form_contact_privacy %}
-            {% sw_include '@Storefront/storefront/component/privacy-notice.html.twig' %}
+            {% sw_include '@Storefront/storefront/component/privacy-notice.html.twig' with {
+                requiresTermsOfService: false,
+            } %}
         {% endblock %}
 
         {% block cms_form_contact_required_fields_info %}

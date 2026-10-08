@@ -23,20 +23,18 @@ class ResponseFieldsTest extends TestCase
 
     public function testIsAllowedThrowsExceptionWhenIncludesTypeIsNotArray(): void
     {
-        static::expectExceptionObject(SalesChannelException::invalidType('The includes for type "someType" must be of the type array, string given'));
+        $this->expectExceptionObject(SalesChannelException::invalidType('The includes for type "someType" must be of the type array, string given'));
 
         /** @phpstan-ignore argument.type (for test purpose) */
-        $responseFields = new ResponseFields(['someType' => 'notArray']);
-        $responseFields->isAllowed('someType', 'someProperty');
+        new ResponseFields(['someType' => 'notArray']);
     }
 
     public function testIsAllowedThrowsExceptionWhenExcludesTypeIsNotArray(): void
     {
-        static::expectExceptionObject(SalesChannelException::invalidType('The excludes for type "someType" must be of the type array, string given'));
+        $this->expectExceptionObject(SalesChannelException::invalidType('The excludes for type "someType" must be of the type array, string given'));
 
         /** @phpstan-ignore argument.type (for test purpose) */
-        $responseFields = new ResponseFields(excludes: ['someType' => 'notArray']);
-        $responseFields->isAllowed('someType', 'someProperty');
+        new ResponseFields(excludes: ['someType' => 'notArray']);
     }
 
     public function testIsAllowedReturnsFalseWhenPropertyNotIncluded(): void

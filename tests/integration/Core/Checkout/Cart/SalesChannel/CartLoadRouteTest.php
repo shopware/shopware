@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\CartPersister;
+use Shopware\Core\Checkout\Cart\Event\CartLoadedEvent;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Rule\AlwaysValidRule;
 use Shopware\Core\Checkout\Cart\Rule\CartAmountRule;
@@ -24,6 +25,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SalesChannel\Context\AbstractSalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 
@@ -92,27 +94,7 @@ class CartLoadRouteTest extends TestCase
     #[DataProvider('dataProviderPaymentMethodRule')]
     public function testFilledCart(?array $ruleConditions, int $errorCount): void
     {
-        $this->productRepository->create([
-            [
-                'id' => $this->ids->create('productId'),
-                'productNumber' => $this->ids->create('productNumber'),
-                'stock' => 1,
-                'name' => 'Test',
-                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
-                'manufacturer' => ['id' => $this->ids->create('manufacturerId'), 'name' => 'test'],
-                'tax' => ['id' => $this->ids->create('tax'), 'taxRate' => 17, 'name' => 'with id'],
-                'active' => true,
-                'visibilities' => [
-                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
-                ],
-            ],
-        ], Context::createDefaultContext());
-
-        $cart = new Cart($this->ids->create('token'));
-        $cart->add(new LineItem($this->ids->create('productId'), LineItem::PRODUCT_LINE_ITEM_TYPE, $this->ids->get('productId')));
-
-        $context = $this->salesChannelFactory->create($this->ids->get('token'), $this->ids->get('sales-channel'));
-        $this->cartPersister->save($cart, $context);
+        $context = $this->createPersistedCartWithProduct();
 
         if ($ruleConditions !== null) {
             $this->paymentMethodRepository->update([[
@@ -171,6 +153,35 @@ class CartLoadRouteTest extends TestCase
                 1,
             ],
         ];
+    }
+
+    public function testCartIsLoadedOnceForTheContextToken(): void
+    {
+        $this->createPersistedCartWithProduct();
+
+        $this->browser->setServerParameter('HTTP_SW_CONTEXT_TOKEN', $this->ids->get('token'));
+
+        $loadedCarts = [];
+        $tracker = static function (CartLoadedEvent $event) use (&$loadedCarts): void {
+            $loadedCarts[] = $event->getCart()->getToken();
+        };
+
+        $dispatcher = static::getContainer()->get('event_dispatcher');
+        $dispatcher->addListener(CartLoadedEvent::class, $tracker);
+
+        try {
+            $this->browser->request('GET', '/store-api/checkout/cart');
+        } finally {
+            $dispatcher->removeListener(CartLoadedEvent::class, $tracker);
+        }
+
+        static::assertSame([$this->ids->get('token')], $loadedCarts);
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertSame(10, $response['price']['totalPrice']);
+        static::assertCount(1, $response['lineItems']);
+        static::assertNotEmpty($response['hash']);
     }
 
     public function testDeferredCartErrors(): void
@@ -239,5 +250,32 @@ class CartLoadRouteTest extends TestCase
         $cartResponse = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
         static::assertEmpty($cartResponse['lineItems']);
         static::assertEmpty($cartResponse['errors']);
+    }
+
+    private function createPersistedCartWithProduct(): SalesChannelContext
+    {
+        $this->productRepository->create([
+            [
+                'id' => $this->ids->create('productId'),
+                'productNumber' => $this->ids->create('productNumber'),
+                'stock' => 1,
+                'name' => 'Test',
+                'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 10, 'net' => 9, 'linked' => false]],
+                'manufacturer' => ['id' => $this->ids->create('manufacturerId'), 'name' => 'test'],
+                'tax' => ['id' => $this->ids->create('tax'), 'taxRate' => 17, 'name' => 'with id'],
+                'active' => true,
+                'visibilities' => [
+                    ['salesChannelId' => $this->ids->get('sales-channel'), 'visibility' => ProductVisibilityDefinition::VISIBILITY_ALL],
+                ],
+            ],
+        ], Context::createDefaultContext());
+
+        $cart = new Cart($this->ids->create('token'));
+        $cart->add(new LineItem($this->ids->create('productId'), LineItem::PRODUCT_LINE_ITEM_TYPE, $this->ids->get('productId')));
+
+        $context = $this->salesChannelFactory->create($this->ids->get('token'), $this->ids->get('sales-channel'));
+        $this->cartPersister->save($cart, $context);
+
+        return $context;
     }
 }

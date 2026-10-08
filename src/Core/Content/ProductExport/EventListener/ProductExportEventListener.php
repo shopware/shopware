@@ -53,6 +53,7 @@ class ProductExportEventListener implements EventSubscriberInterface
                     [
                         'id' => $primaryKey,
                         'generatedAt' => null,
+                        'nextGenerationAt' => null,
                         // Reset stuck runs when a user/admin edits the export
                         'isRunning' => false,
                     ],
@@ -76,6 +77,7 @@ class ProductExportEventListener implements EventSubscriberInterface
     {
         return $writeResult->getEntityName() === ProductExportDefinition::ENTITY_NAME
             && !\array_key_exists('generatedAt', $writeResult->getPayload())
+            && !\array_key_exists('nextGenerationAt', $writeResult->getPayload())
             && !\array_key_exists('isRunning', $writeResult->getPayload());
     }
 }

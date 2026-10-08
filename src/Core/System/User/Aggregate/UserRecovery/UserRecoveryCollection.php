@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<UserRecoveryEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('fundamentals@framework')]
 class UserRecoveryCollection extends EntityCollection

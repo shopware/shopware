@@ -398,9 +398,10 @@
                         v-if="editable"
                         ref="inlineEditFieldAlt"
                         :disabled="!acl.can('media.editor')"
+                        :max-length="255"
                         compact
                         :placeholder="placeholder(item, 'alt', $t('sw-media.sidebar.metadata.altText'))"
-                        :value="item.alt"
+                        :value="item.alt ?? ''"
                         @input="onSubmitAltText"
                     />
                     <template v-else>
@@ -473,6 +474,13 @@
                     {% endblock %}
                 </template>
             </dl>
+
+            {% block sw_media_quickinfo_metadata_extension %}
+            <sw-extension-component-section
+                class="sw-media-quickinfo-metadata-extension"
+                position-identifier="sw-media-quickinfo-metadata"
+            />
+            {% endblock %}
         </template>
         {% endblock %}
     </sw-media-collapse>

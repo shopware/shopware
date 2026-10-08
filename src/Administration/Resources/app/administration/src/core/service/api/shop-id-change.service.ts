@@ -1,7 +1,7 @@
 /**
  * @sw-package framework
  */
-import type { AxiosInstance } from 'axios';
+import type { HttpClient } from 'src/core/factory/http-client.types';
 import ApiService from '../api.service';
 import type { LoginService } from '../login.service';
 
@@ -39,7 +39,7 @@ type ShopIdCheck = {
  * @private
  */
 export default class ShopIdChangeService extends ApiService {
-    constructor(httpClient: AxiosInstance, loginService: LoginService) {
+    constructor(httpClient: HttpClient, loginService: LoginService) {
         super(httpClient, loginService, '', 'application/json');
         this.name = 'shopIdChangeService';
     }
@@ -50,14 +50,9 @@ export default class ShopIdChangeService extends ApiService {
                 headers: this.getBasicHeaders(),
             })
             .then(({ data }: { data: Record<string, string> }) => {
-                return Object.entries(data).map(
-                    ([
-                        key,
-                        description,
-                    ]) => {
-                        return { name: key, description };
-                    },
-                );
+                return Object.entries(data).map(([key, description]) => {
+                    return { name: key, description };
+                });
             });
     }
 

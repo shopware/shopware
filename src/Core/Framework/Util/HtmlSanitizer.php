@@ -12,7 +12,7 @@ use Symfony\Contracts\Service\ResetInterface;
  *     name?: string,
  *     tags?: list<string>,
  *     attributes?: list<string>,
- *     options?: array<string, array{value?: mixed, values?: list<mixed>}>,
+ *     options?: array<string, bool|array{values: list<string>}>,
  *     custom_attributes?: list<array{tags: list<string>, attributes: list<string>}>,
  *     custom_tags?: list<array{tag: string, type: string, contents: string, attr_collections: list<string>, attributes: list<string>}>
  * }>
@@ -24,6 +24,8 @@ class HtmlSanitizer implements ResetInterface
      * @var \HTMLPurifier[]
      */
     private array $purifiers = [];
+
+    private ?\HTMLPurifier $plainTextPurifier = null;
 
     private readonly string $cacheDir;
 
@@ -80,6 +82,24 @@ class HtmlSanitizer implements ResetInterface
         return $this->purifiers[$hash]->purify($text);
     }
 
+    /**
+     * Removes all HTML elements and attributes from the given text while keeping their text content, except for
+     * elements like `<script>` or `<style>`, whose content is dropped. A `<` that does not start a tag and any
+     * HTML entity are kept verbatim.
+     */
+    public function stripTags(string $text): string
+    {
+        if (!str_contains($text, '<')) {
+            return $text;
+        }
+
+        $this->plainTextPurifier ??= new \HTMLPurifier($this->getPlainTextConfig());
+
+        $purified = $this->plainTextPurifier->purify(str_replace('&', '&amp;', $text));
+
+        return htmlspecialchars_decode($purified, \ENT_NOQUOTES);
+    }
+
     public function reset(): void
     {
         $this->purifiers = [];
@@ -98,6 +118,16 @@ class HtmlSanitizer implements ResetInterface
         }
 
         $config->set('Cache.SerializerPermissions', 0775 & ~umask());
+
+        return $config;
+    }
+
+    private function getPlainTextConfig(): \HTMLPurifier_Config
+    {
+        $config = $this->getBaseConfig();
+        $config->set('HTML.AllowedElements', []);
+        $config->set('HTML.AllowedAttributes', []);
+        $config->set('Core.NormalizeNewlines', false);
 
         return $config;
     }

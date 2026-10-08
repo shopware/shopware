@@ -10,15 +10,18 @@ use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\InvoiceDataProvider;
+use Shopware\Core\Checkout\DocumentV2\Struct\ProviderInput;
+use Shopware\Core\Checkout\DocumentV2\Type\DocumentTypeRegistry;
+use Shopware\Core\Checkout\DocumentV2\Type\InvoiceDocumentType;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
@@ -27,10 +30,10 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Media\MediaCollection;
 use Shopware\Core\Content\Media\MediaDefinition;
+use Shopware\Core\Framework\App\Feature\AppFeatureStorage;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\TaxFreeConfig;
-use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
@@ -38,6 +41,7 @@ use Shopware\Core\System\Country\CountryDefinition;
 use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\Currency\CurrencyEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -57,20 +61,9 @@ class InvoiceDataProviderTest extends TestCase
         static::assertSame('invoice', $this->createProvider()->getKey());
     }
 
-    #[DataProvider('supportsProvider')]
-    public function testSupportsOnlyInvoice(string $documentType, bool $expected): void
+    public function testSupportsInvoice(): void
     {
-        static::assertSame($expected, $this->createProvider()->supports($documentType));
-    }
-
-    /**
-     * @return \Generator<string, array{string, bool}>
-     */
-    public static function supportsProvider(): \Generator
-    {
-        yield 'invoice is supported' => [DocumentType::INVOICE->value, true];
-        yield 'other core type is not supported' => [DocumentType::CREDIT_NOTE->value, false];
-        yield 'plugin-defined type is not supported' => ['my_plugin_document', false];
+        static::assertTrue($this->createProvider()->supports(DocumentType::INVOICE->value));
     }
 
     public function testEnrichOrderCriteria(): void
@@ -137,7 +130,6 @@ class InvoiceDataProviderTest extends TestCase
 
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
             '12345',
@@ -145,8 +137,7 @@ class InvoiceDataProviderTest extends TestCase
         );
 
         $result = $provider->provideRenderingData(
-            $order,
-            $request,
+            new ProviderInput($order, $request),
             Context::createDefaultContext()
         );
 
@@ -161,14 +152,13 @@ class InvoiceDataProviderTest extends TestCase
         $order = self::createOrder();
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
             '12345',
             documentDate: '2026-05-05T12:00:00+00:00',
         );
 
-        $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+        $result = $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
 
         static::assertEquals(
             new \DateTimeImmutable('2026-06-04T12:00:00+00:00'),
@@ -183,14 +173,13 @@ class InvoiceDataProviderTest extends TestCase
         $order = self::createOrder();
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
             '12345',
             documentDate: 'not-a-date',
         );
 
-        $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+        $result = $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
 
         static::assertNull($result->paymentDueDate);
     }
@@ -201,7 +190,6 @@ class InvoiceDataProviderTest extends TestCase
         $order = self::createOrder();
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
             documentNumber: null,
@@ -210,15 +198,12 @@ class InvoiceDataProviderTest extends TestCase
 
         $this->expectExceptionObject(DocumentV2Exception::missingDocumentNumber(DocumentType::INVOICE->value));
 
-        $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+        $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
     }
 
+    #[DisabledFeatures(['v6.8.0.0'])]
     public function testProvideRenderingDataResolvesDeliveryDateFromDeliveriesWhenV68IsInactive(): void
     {
-        if (Feature::isActive('v6.8.0.0')) {
-            static::markTestSkipped('v6.7 fallback branch is only exercised when v6.8.0.0 is inactive.');
-        }
-
         $provider = $this->createProvider();
         $order = self::createOrder(
             country: self::createCountry(companyTaxEnabled: true, isEu: true),
@@ -226,14 +211,13 @@ class InvoiceDataProviderTest extends TestCase
         );
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
             '12345',
             documentDate: '2026-05-05T12:00:00+00:00',
         );
 
-        $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+        $result = $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
 
         static::assertEquals(new \DateTimeImmutable('2026-05-15'), $result->deliveryDate);
     }
@@ -247,14 +231,13 @@ class InvoiceDataProviderTest extends TestCase
         );
         $request = new DocumentGenerationRequest(
             $order->getId(),
-            $order->getVersionId() ?? Uuid::randomHex(),
             DocumentType::INVOICE,
             [DocumentFormat::PDF],
             '12345',
             documentDate: '2026-05-05T12:00:00+00:00',
         );
 
-        $result = $provider->provideRenderingData($order, $request, Context::createDefaultContext());
+        $result = $provider->provideRenderingData(new ProviderInput($order, $request), Context::createDefaultContext());
 
         static::assertInstanceOf(\DateTimeImmutable::class, $result->deliveryDate);
         static::assertEquals(new \DateTimeImmutable('2026-05-15'), $result->deliveryDate);
@@ -389,13 +372,11 @@ class InvoiceDataProviderTest extends TestCase
         $companyCountry->setUniqueIdentifier(self::COMPANY_COUNTRY_ID);
         $companyCountry->setId(self::COMPANY_COUNTRY_ID);
 
-        /** @var StaticEntityRepository<CountryCollection> $countryRepository */
         $countryRepository = new StaticEntityRepository(
             [new CountryCollection([$companyCountry])],
             new CountryDefinition(),
         );
 
-        /** @var StaticEntityRepository<DocumentBaseConfigCollection> $documentConfigRepository */
         $documentConfigRepository = new StaticEntityRepository(
             [new DocumentBaseConfigCollection([
                 $this->createBaseConfig($config),
@@ -403,18 +384,23 @@ class InvoiceDataProviderTest extends TestCase
             new DocumentBaseConfigDefinition(),
         );
 
-        /** @var StaticEntityRepository<MediaCollection> $mediaRepository */
         $mediaRepository = new StaticEntityRepository([new MediaCollection()], new MediaDefinition());
+
+        $storage = static::createStub(AppFeatureStorage::class);
+        $storage->method('forActiveApps')->willReturn([]);
+        $documentTypeRegistry = new DocumentTypeRegistry([new InvoiceDocumentType()], $storage);
 
         $configLoader = new DocumentConfigLoader(
             $documentConfigRepository,
             $countryRepository,
             $mediaRepository,
             static::createStub(SystemConfigService::class),
+            $documentTypeRegistry,
         );
 
         return new InvoiceDataProvider(
             $configLoader,
+            $documentTypeRegistry,
             $validator ?? static::createStub(ValidatorInterface::class),
         );
     }

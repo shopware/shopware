@@ -83,9 +83,7 @@ async function createWrapper(additionalOptions = {}, privileges = []) {
                         }),
                     },
                     validationService: {},
-                    mixins: [
-                        Mixin.getByName('listing'),
-                    ],
+                    mixins: [Mixin.getByName('listing')],
                     searchRankingService: {
                         isValidTerm: (term) => {
                             return term && term.trim().length >= 1;
@@ -158,11 +156,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         ]);
 
         // Assert that the column types are correct
-        expect(list.props().columns.map((column) => column.property)).toEqual([
-            'name',
-            'description',
-            'features',
-        ]);
+        expect(list.props().columns.map((column) => column.property)).toEqual(['name', 'description', 'features']);
 
         // Assert that the template's name links to the detail page
         expect(list.props().columns.shift().routerLink).toEqual(text.featureSetDetailRouterLink);
@@ -174,11 +168,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
             .filter((val) => val !== '');
 
         // Assert that the template is rendered correctly
-        expect(firstRowContent).toEqual([
-            text.featureSetName,
-            text.featureSetDescription,
-            text.referencePriceLabel,
-        ]);
+        expect(firstRowContent).toEqual([text.featureSetName, text.featureSetDescription, text.referencePriceLabel]);
     });
 
     it('should disable all fields when acl privileges are missing', async () => {
@@ -203,10 +193,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
     });
 
     it('should enable some fields when user has view and edit acl privileges', async () => {
-        const wrapper = await createWrapper({}, [
-            'product_feature_sets.viewer',
-            'product_feature_sets.editor',
-        ]);
+        const wrapper = await createWrapper({}, ['product_feature_sets.viewer', 'product_feature_sets.editor']);
         await flushPromises();
 
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
@@ -226,9 +213,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
     });
 
     it('should enable some fields when user has create acl privileges', async () => {
-        const wrapper = await createWrapper({}, [
-            'product_feature_sets.creator',
-        ]);
+        const wrapper = await createWrapper({}, ['product_feature_sets.creator']);
         await flushPromises();
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
 
@@ -248,9 +233,7 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
     });
 
     it('should enable some fields when user has delete acl privileges', async () => {
-        const wrapper = await createWrapper({}, [
-            'product_feature_sets.deleter',
-        ]);
+        const wrapper = await createWrapper({}, ['product_feature_sets.deleter']);
         await flushPromises();
         const createButton = wrapper.find('.sw-settings-product-feature-sets-list-grid__create-button');
 
@@ -371,5 +354,51 @@ describe('src/module/sw-settings-product-feature-sets/page/sw-settings-product-f
         ]);
 
         expect(wrapper.vm).toBeTruthy();
+    });
+
+    it('should delete the feature set whose delete action was clicked', async () => {
+        const wrapper = await createWrapper({}, ['product_feature_sets.deleter']);
+        await wrapper.setData({
+            productFeatureSets: new EntityCollection(
+                null,
+                'product_feature_set',
+                Shopware.Context.api,
+                {
+                    page: {},
+                },
+                [
+                    {
+                        id: 'firstFeatureSetId',
+                        name: 'First feature set',
+                        features: [],
+                    },
+                    {
+                        id: 'secondFeatureSetId',
+                        name: 'Second feature set',
+                        features: [],
+                    },
+                ],
+            ),
+        });
+        await flushPromises();
+
+        const deleteFunction = jest.fn(() => Promise.resolve());
+        wrapper.vm.productFeatureSetsRepository.delete = deleteFunction;
+
+        await wrapper.findAll('.sw-product-feature-sets-list__delete-action').at(0).trigger('click');
+        await flushPromises();
+
+        const deleteModals = wrapper.findAll('.sw-modal');
+        expect(deleteModals).toHaveLength(1);
+
+        const confirmButton = deleteModals
+            .at(0)
+            .findAll('button')
+            .find((button) => button.text() === 'global.default.delete');
+        await confirmButton.trigger('click');
+        await flushPromises();
+
+        expect(deleteFunction).toHaveBeenCalledTimes(1);
+        expect(deleteFunction).toHaveBeenCalledWith('firstFeatureSetId');
     });
 });

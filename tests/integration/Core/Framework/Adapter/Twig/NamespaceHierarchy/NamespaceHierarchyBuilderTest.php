@@ -74,6 +74,7 @@ class NamespaceHierarchyBuilderTest extends TestCase
             'Administration',
             'Framework',
             'Storefront',
+            'Content',
         ];
         // Remove not installed core bundles from hierarchy
         $coreHierarchy = array_intersect($coreHierarchy, array_keys(static::getContainer()->getParameter('kernel.bundles')));

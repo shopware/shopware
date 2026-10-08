@@ -50,9 +50,9 @@ export default class PluginRegistry {
         pluginMap.set('class', plugin);
         pluginMap.set('name', name);
 
-        if (async) {
-            pluginMap.set('async', true);
-        }
+        // Always write the flag: re-registering a plugin, for example via an override, must be able
+        // to turn a previously async plugin into a sync one.
+        pluginMap.set('async', async);
 
         if (!pluginMap.has('registrations')) pluginMap.set('registrations', new Map());
         if (!pluginMap.has('instances')) pluginMap.set('instances', []);

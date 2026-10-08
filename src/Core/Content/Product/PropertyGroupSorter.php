@@ -59,7 +59,6 @@ class PropertyGroupSorter extends AbstractPropertyGroupSorter
 
             $normalizedOption = $this->normalizeOption($option);
             $normalizedOption->setGroupId($groupId);
-            $normalizedOption->setGroup($sorted[$groupId]);
 
             \assert($sorted[$groupId]->getOptions() instanceof PropertyGroupOptionCollection);
 

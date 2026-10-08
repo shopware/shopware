@@ -6,6 +6,7 @@
         <sw-inheritance-switch
             v-if="supportsInheritance"
             :is-inherited="isInherited"
+            :disabled="isSystemDefaultLanguage"
             @inheritance-restore="showModal = true;"
             @inheritance-remove="onInheritanceRemove"
         />

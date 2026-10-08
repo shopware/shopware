@@ -5,9 +5,9 @@ namespace Shopware\Core\System\User\Api;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\ApiRouteScope;
-use Shopware\Core\Framework\Routing\RoutingException;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\User\Service\UserValidationService;
+use Shopware\Core\System\User\UserException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -24,15 +24,20 @@ class UserValidationController extends AbstractController
     {
     }
 
-    #[Route(path: 'api/_action/user/check-email-unique', name: 'api.action.check-email-unique', methods: ['POST'])]
+    #[Route(
+        path: 'api/_action/user/check-email-unique',
+        name: 'api.action.check-email-unique',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['user:read']],
+        methods: [Request::METHOD_POST]
+    )]
     public function isEmailUnique(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('email')) {
-            throw RoutingException::missingRequestParameter('email');
+            throw UserException::missingRequestParameter('email');
         }
 
         if (!$request->request->has('id')) {
-            throw RoutingException::missingRequestParameter('id');
+            throw UserException::missingRequestParameter('id');
         }
 
         $email = (string) $request->request->get('email');
@@ -43,15 +48,20 @@ class UserValidationController extends AbstractController
         );
     }
 
-    #[Route(path: 'api/_action/user/check-username-unique', name: 'api.action.check-username-unique', methods: ['POST'])]
+    #[Route(
+        path: 'api/_action/user/check-username-unique',
+        name: 'api.action.check-username-unique',
+        defaults: [PlatformRequest::ATTRIBUTE_ACL => ['user:read']],
+        methods: [Request::METHOD_POST]
+    )]
     public function isUsernameUnique(Request $request, Context $context): JsonResponse
     {
         if (!$request->request->has('username')) {
-            throw RoutingException::missingRequestParameter('username');
+            throw UserException::missingRequestParameter('username');
         }
 
         if (!$request->request->has('id')) {
-            throw RoutingException::missingRequestParameter('id');
+            throw UserException::missingRequestParameter('id');
         }
 
         $username = (string) $request->request->get('username');

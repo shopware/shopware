@@ -4,8 +4,7 @@ namespace Shopware\Storefront\Page\Account\Order;
 
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Cart\Exception\CustomerNotLoggedInException;
-use Shopware\Core\Checkout\Cart\Order\OrderConverter;
-use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
+use Shopware\Core\Checkout\Cart\Order\OrderRestorer;
 use Shopware\Core\Checkout\Gateway\SalesChannel\AbstractCheckoutGatewayRoute;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -20,7 +19,6 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\DataAbstractionLayer\Exception\InconsistentCriteriaIdsException;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Shopware\Core\Framework\DataAbstractionLayer\Search\Sorting\FieldSorting;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RoutingException;
@@ -46,10 +44,9 @@ class AccountEditOrderPageLoader
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly AbstractOrderRoute $orderRoute,
         private readonly AbstractCheckoutGatewayRoute $checkoutGatewayRoute,
-        private readonly OrderConverter $orderConverter,
+        private readonly OrderRestorer $orderRestorer,
         private readonly OrderService $orderService,
-        private readonly AbstractTranslator $translator,
-        private readonly CartService $cartService
+        private readonly AbstractTranslator $translator
     ) {
     }
 
@@ -84,9 +81,12 @@ class AccountEditOrderPageLoader
             throw OrderException::orderAlreadyPaid($order->getId());
         }
 
+        $paymentMethods = $this->getPaymentMethods($salesChannelContext, $request, $order);
+
         $page->setOrder($order);
         $page->setPaymentChangeable($this->isPaymentChangeable($orderRouteResponse, $page));
-        $page->setPaymentMethods($this->getPaymentMethods($salesChannelContext, $request, $order));
+        $page->setPaymentMethods($paymentMethods);
+        $page->setSelectedPaymentMethodId($this->getSelectedPaymentMethodId($request, $order, $paymentMethods));
         $page->setDeepLinkCode($request->query->get('deepLinkCode'));
 
         $this->eventDispatcher->dispatch(
@@ -156,7 +156,7 @@ class AccountEditOrderPageLoader
                 ->addAssociation('transactions.stateMachineState');
         }
 
-        $criteria->getAssociation('transactions')->addSorting(new FieldSorting('createdAt'));
+        $this->orderRestorer->addRequiredAssociations($criteria);
 
         if ($context->getCustomer()) {
             $criteria->addFilter(new EqualsFilter('order.orderCustomer.customerId', $context->getCustomerId()));
@@ -177,18 +177,31 @@ class AccountEditOrderPageLoader
         $event = new PaymentMethodRouteRequestEvent($request, $routeRequest, $context);
         $this->eventDispatcher->dispatch($event);
 
-        $cart = $this->orderConverter->convertToCart($order, $context->getContext());
-        $orderContext = $this->orderConverter->assembleSalesChannelContext($order, $context->getContext());
+        $restored = $this->orderRestorer->restore($order, $context->getContext());
 
-        $cart->setToken($orderContext->getToken());
-        $this->cartService->setCart($cart);
-
-        $options = $this->checkoutGatewayRoute->load($event->getStoreApiRequest(), $cart, $orderContext);
+        $options = $this->checkoutGatewayRoute->load($event->getStoreApiRequest(), $restored->cart, $restored->context);
 
         $paymentMethods = $options->getPaymentMethods()->filterByProperty('afterOrderEnabled', true);
         $paymentMethods->sortPaymentMethodsByPreference($context);
 
         return $paymentMethods;
+    }
+
+    private function getSelectedPaymentMethodId(Request $request, OrderEntity $order, PaymentMethodCollection $paymentMethods): ?string
+    {
+        $requestedPaymentMethodId = $request->query->get('paymentMethodId');
+
+        if (\is_string($requestedPaymentMethodId) && $paymentMethods->has($requestedPaymentMethodId)) {
+            return $requestedPaymentMethodId;
+        }
+
+        $transaction = $order->getPrimaryOrderTransaction();
+
+        if (!Feature::isActive('v6.8.0.0')) {
+            $transaction = $order->getTransactions()?->last();
+        }
+
+        return $transaction?->getPaymentMethodId();
     }
 
     private function isOrderCancelled(OrderEntity $order): bool

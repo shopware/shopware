@@ -113,12 +113,12 @@
             position: absolute;
 
             .mt-icon.sw-cms-sidebar__icon-cms-block-favorite {
-                color: var(--color-pink-700);
+                color: var(--color-icon-critical-default);
             }
 
             &:disabled {
                 .mt-icon.sw-cms-sidebar__icon-cms-block-favorite {
-                    color: var(--color-pink-300);
+                    color: var(--color-icon-critical-disabled);
                 }
             }
         }

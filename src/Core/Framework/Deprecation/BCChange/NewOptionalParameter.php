@@ -19,11 +19,13 @@ final class NewOptionalParameter implements ExtenderCompatibilityChange
 {
     /**
      * @param string $parameterName the name of the new parameter, without the leading `$`
+     * @param mixed $defaultValue the default value of the new parameter
      */
     public function __construct(
         public readonly string $version,
         public readonly string $parameterName,
         public readonly string $parameterType,
+        public readonly mixed $defaultValue = null,
         public readonly ?string $description = null,
     ) {
     }

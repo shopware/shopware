@@ -11,7 +11,6 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
  * @internal
@@ -33,24 +32,23 @@ class System extends Bundle
 
         $configLocator = new FileLocator(__DIR__ . '/DependencyInjection/');
 
-        $loader = new XmlFileLoader($container, $configLocator);
         $phpLoader = new PhpFileLoader($container, $configLocator);
         $phpLoader->load('sales_channel.php');
-        $loader->load('country.xml');
-        $loader->load('currency.xml');
+        $phpLoader->load('country.php');
+        $phpLoader->load('currency.php');
         $phpLoader->load('custom_entity.php');
-        $loader->load('locale.xml');
-        $loader->load('snippet.xml');
+        $phpLoader->load('locale.php');
+        $phpLoader->load('snippet.php');
         $phpLoader->load('salutation.php');
         $phpLoader->load('tax.php');
         $phpLoader->load('tax_provider.php');
-        $loader->load('unit.xml');
-        $loader->load('user.xml');
-        $loader->load('integration.xml');
+        $phpLoader->load('unit.php');
+        $phpLoader->load('user.php');
+        $phpLoader->load('integration.php');
         $phpLoader->load('state_machine.php');
         $phpLoader->load('configuration.php');
         $phpLoader->load('number_range.php');
-        $loader->load('tag.xml');
+        $phpLoader->load('tag.php');
 
         $phpLoader->load('consent.php');
         $phpLoader->load('usage_data.php');

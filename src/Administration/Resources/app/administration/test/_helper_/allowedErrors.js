@@ -38,3 +38,21 @@ export const deprecatedPopoverComponent = {
         return msg1.includes('The old usage of "sw-popover" is deprecated');
     },
 };
+
+// Vue 3 component resolution warnings for non-registered components in tests.
+// sw-block and sw-block-parent are excluded: they are registered globally by the Jest setup, and
+// silencing them is what let an unresolved <sw-block> add a DOM element the application does not have.
+export const unresolvedComponentWarning = {
+    method: 'warn',
+    msgCheck: (msg0) => {
+        if (typeof msg0 !== 'string') {
+            return false;
+        }
+
+        if (/Failed to resolve component: sw-block(-parent)?(?![-\w])/.test(msg0)) {
+            return false;
+        }
+
+        return msg0?.includes('Failed to resolve component');
+    },
+};

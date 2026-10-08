@@ -334,7 +334,6 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             array_merge(
                 $orgConnection->getParams(),
                 [
-                    'url' => $_SERVER['DATABASE_URL'],
                     'dbname' => $this->databaseName,
                 ]
             ),
@@ -342,8 +341,8 @@ class MigrationForeignDefaultLanguageTest extends TestCase
             $orgConnection->getConfiguration(),
         );
 
-        /** @var string $dumpFile */
         $dumpFile = file_get_contents(__DIR__ . '/../../../src/Core/schema.sql');
+        static::assertIsString($dumpFile);
 
         $connection->executeStatement($dumpFile);
 

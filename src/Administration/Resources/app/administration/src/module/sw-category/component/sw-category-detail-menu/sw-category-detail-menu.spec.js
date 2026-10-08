@@ -24,9 +24,7 @@ async function createWrapper({ mediaRepositoryMock = undefined } = {}) {
                     template: '<div class="sw-media-modal-v2"><button @click="onEmitSelection">Add media</button></div>',
                     methods: {
                         onEmitSelection() {
-                            this.$emit('media-modal-selection-change', [
-                                { id: 'id' },
-                            ]);
+                            this.$emit('media-modal-selection-change', [{ id: 'id' }]);
                         },
                     },
                 },

@@ -35,7 +35,8 @@ return static function (ContainerConfigurator $containerConfigurator): void {
             param('twig.cache'),
             param('kernel.debug'),
         ])
-        ->tag('kernel.event_subscriber');
+        ->tag('kernel.event_subscriber')
+        ->tag('kernel.reset', ['method' => 'reset']);
 
     $services->set(ScriptExecutor::class)
         ->public()

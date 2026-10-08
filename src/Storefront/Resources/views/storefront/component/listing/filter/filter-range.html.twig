@@ -49,11 +49,14 @@
 {% block component_filter_range %}
     <div class="filter-range filter-panel-item{% if sidebar %} d-grid{% else %} dropdown{% endif %}"
          role="listitem"
+         aria-busy="true"
          data-filter-range="true"
          data-filter-range-options="{{ filterRangeOptions|json_encode }}">
         {% block component_filter_range_toggle %}
             <button class="filter-panel-item-toggle btn"
                     aria-expanded="false"
+                    disabled
+                    data-filter-loading
                     {% if ariaLabel %}
                     aria-label="{{ ariaLabel }}"
                     {% endif %}

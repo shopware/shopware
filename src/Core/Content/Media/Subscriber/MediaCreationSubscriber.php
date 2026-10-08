@@ -60,11 +60,7 @@ class MediaCreationSubscriber implements EventSubscriberInterface
                 return false;
             }
 
-            if ($command->hasField('path') && $command->getPayload()['path'] !== null) {
-                return true;
-            }
-
-            return false;
+            return $command->hasField('path') && $command->getPayload()['path'] !== null;
         });
     }
 }

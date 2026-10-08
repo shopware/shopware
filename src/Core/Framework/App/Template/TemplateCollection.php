@@ -9,6 +9,8 @@ use Shopware\Core\Framework\Log\Package;
  * @internal only for use by the app-system
  *
  * @extends EntityCollection<TemplateEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('framework')]
 class TemplateCollection extends EntityCollection

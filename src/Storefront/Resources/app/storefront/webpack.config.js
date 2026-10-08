@@ -171,6 +171,15 @@ const coreConfig = {
                     },
                 ],
             },
+            {
+                // three.js/DRACO ships a .wasm decoder that dive imports as a URL (`?url`).
+                // Emit it as an asset so its public URL can be fetched by the DRACOLoader at runtime.
+                test: /\.wasm$/,
+                type: 'asset/resource',
+                generator: {
+                    filename: 'assets/wasm/[name].[contenthash:8][ext]',
+                },
+            },
             ...(() => {
                 if (isHotMode) {
                     return [
@@ -381,6 +390,11 @@ const pluginConfigs = pluginEntries.map((plugin) => {
                 [plugin.technicalName]: plugin.filePath,
             },
             output: {
+                // Without an explicit unique name every build shares the default `webpackChunk` chunk
+                // loading global, which lets one build's runtime process another build's chunks and
+                // resolve a dynamic import to the wrong module. The core build keeps the default on
+                // purpose: renaming its global would change the runtime every shop already ships.
+                uniqueName: plugin.technicalName,
                 // In dev mode use same path as the core storefront to be able to access all files in multi-compiler-mode
                 path: isHotMode ? path.resolve(__dirname, 'dist') : path.resolve(plugin.path, '../dist/storefront'),
                 filename: isHotMode ? `./${plugin.technicalName}/[name].js` : `./js/${plugin.technicalName}/[name].js`,

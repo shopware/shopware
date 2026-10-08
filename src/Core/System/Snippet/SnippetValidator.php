@@ -2,6 +2,8 @@
 
 namespace Shopware\Core\System\Snippet;
 
+use Shopware\Core\DevOps\Environment\EnvironmentHelper;
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesInternal;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Snippet\Files\AbstractSnippetFile;
@@ -14,8 +16,6 @@ use Shopware\Core\System\Snippet\Struct\MissingSnippetStruct;
 use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
 
 /**
- * @deprecated tag:v6.8.0 - class will be marked internal - reason:becomes-internal
- *
  * @phpstan-type MissingSnippetsArray array<string, array<string, array{
  *      path: string,
  *      availableISO: string,
@@ -24,8 +24,12 @@ use Shopware\Core\System\Snippet\Struct\SnippetValidationStruct;
  * }>>
  */
 #[Package('discovery')]
+#[BecomesInternal(version: 'v6.8.0')]
 readonly class SnippetValidator implements SnippetValidatorInterface
 {
+    private const DOMAIN_ADMINISTRATION = 'administration';
+    private const DOMAIN_STOREFRONT = 'storefront';
+
     /**
      * @internal
      */
@@ -64,14 +68,42 @@ readonly class SnippetValidator implements SnippetValidatorInterface
 
     public function getValidation(): SnippetValidationStruct
     {
-        $files = $this->getAllFiles();
+        return $this->validateFiles($this->getAllFiles(), $this->projectDir);
+    }
 
+    /**
+     * Validates the snippet files below `$directory` (an extension root, for example) instead of the core bundles;
+     * the allow list is `$directory/snippet-validation.json`.
+     */
+    public function getDirValidation(string $directory): SnippetValidationStruct
+    {
+        $files = new SnippetFileCollection();
+        $this->hydrateFiles($this->snippetFileHandler->findAdministrationSnippetFilesBelow($directory), $files);
+        $this->hydrateFiles($this->snippetFileHandler->findStorefrontSnippetFilesBelow($directory), $files);
+
+        return $this->validateFiles($files, $directory);
+    }
+
+    protected function getAllFiles(): SnippetFileCollection
+    {
+        $snippetFiles = $this->loadedSnippetFiles->filter(static function (AbstractSnippetFile $snippetFile) {
+            return $snippetFile instanceof GenericSnippetFile;
+        });
+
+        $this->hydrateFiles($this->snippetFileHandler->findAdministrationSnippetFiles(), $snippetFiles);
+        $this->hydrateFiles($this->snippetFileHandler->findStorefrontSnippetFiles(), $snippetFiles);
+
+        return $snippetFiles;
+    }
+
+    private function validateFiles(SnippetFileCollection $files, string $rootDir): SnippetValidationStruct
+    {
         $invalidPluralization = new InvalidPluralizationCollection();
         $snippetFileMappings = [];
         foreach ($files as $snippetFile) {
-            if (!\array_key_exists($snippetFile->getIso(), $snippetFileMappings)) {
-                $snippetFileMappings[$snippetFile->getIso()] = [];
-            }
+            $domain = $this->getDomain($snippetFile);
+            $iso = $snippetFile->getIso();
+            $snippetFileMappings[$domain][$iso] ??= [];
 
             $json = $this->snippetFileHandler->openJsonFile($snippetFile->getPath());
 
@@ -82,9 +114,9 @@ readonly class SnippetValidator implements SnippetValidatorInterface
                 $value = array_shift($keyValue);
                 \assert(\is_string($value));
 
-                $path = str_ireplace($this->projectDir, '', $snippetFile->getPath());
+                $path = str_ireplace($rootDir, '', $snippetFile->getPath());
 
-                $snippetFileMappings[$snippetFile->getIso()][$key] = [
+                $snippetFileMappings[$domain][$iso][$key] = [
                     'path' => $path,
                     'availableValue' => $value,
                 ];
@@ -102,29 +134,31 @@ readonly class SnippetValidator implements SnippetValidatorInterface
             }
         }
 
-        /**
-         * @deprecated tag:v6.8.0 - Validation of legacy snippet locales will be removed
-         */
-        $legacyMissingSnippets = $this->findMissingSnippets($snippetFileMappings, ['en-GB', 'de-DE']);
+        $allowedEmptyKeys = $this->loadEmptyTranslationAllowList($rootDir);
 
-        $missingSnippets = $this->findMissingSnippets($snippetFileMappings, ['en', 'de']);
+        $missingSnippets = [];
+        foreach ($snippetFileMappings as $domain => $domainMappings) {
+            $allowedEmptyDomainKeys = $allowedEmptyKeys[$domain] ?? [];
 
-        return new SnippetValidationStruct(
-            new MissingSnippetCollection(array_merge($missingSnippets->getElements(), $legacyMissingSnippets->getElements())),
-            $invalidPluralization,
-        );
+            $missingSnippets = [...$missingSnippets, ...$this->findMissingSnippets($domainMappings, ['en', 'de'], $allowedEmptyDomainKeys)->getElements()];
+
+            /**
+             * @deprecated tag:v6.8.0 - Validation of legacy snippet locales will be removed
+             */
+            $missingSnippets = [...$missingSnippets, ...$this->findMissingSnippets($domainMappings, ['en-GB', 'de-DE'], $allowedEmptyDomainKeys)->getElements()];
+        }
+
+        return new SnippetValidationStruct(new MissingSnippetCollection($missingSnippets), $invalidPluralization);
     }
 
-    protected function getAllFiles(): SnippetFileCollection
+    /**
+     * Administration files are named `<locale>.json`, everything else (`<domain>.<locale>.json`) belongs to the Storefront.
+     */
+    private function getDomain(AbstractSnippetFile $snippetFile): string
     {
-        $snippetFiles = $this->loadedSnippetFiles->filter(static function (AbstractSnippetFile $snippetFile) {
-            return $snippetFile instanceof GenericSnippetFile;
-        });
-
-        $this->hydrateFiles($this->snippetFileHandler->findAdministrationSnippetFiles(), $snippetFiles);
-        $this->hydrateFiles($this->snippetFileHandler->findStorefrontSnippetFiles(), $snippetFiles);
-
-        return $snippetFiles;
+        return preg_match(SnippetPatterns::ADMIN_SNIPPET_FILE_PATTERN, $snippetFile->getName())
+            ? self::DOMAIN_ADMINISTRATION
+            : self::DOMAIN_STOREFRONT;
     }
 
     /**
@@ -203,10 +237,59 @@ readonly class SnippetValidator implements SnippetValidatorInterface
     }
 
     /**
+     * The `emptyTranslations` section of the root directory's `snippet-validation.json`, split into `administration`
+     * and `storefront` like the ESLint counterpart: snippet keys (or whole namespaces, `foo` covers `foo.bar`)
+     * that may stay empty in one locale while another locale carries a translation, each mapped to the reason.
+     * SNIPPET_ALLOW_LIST_DISABLED bypasses it.
+     *
+     * @return array<string, list<string>> allowed keys per domain
+     */
+    private function loadEmptyTranslationAllowList(string $rootDir): array
+    {
+        if (EnvironmentHelper::getVariable('SNIPPET_ALLOW_LIST_DISABLED')) {
+            return [];
+        }
+
+        $path = $rootDir . '/' . SnippetFileHandler::VALIDATION_CONFIG;
+        if (!$this->snippetFileHandler->exists($path)) {
+            return [];
+        }
+
+        $section = $this->snippetFileHandler->openJsonFile($path)['emptyTranslations'] ?? [];
+        if (!\is_array($section)) {
+            return [];
+        }
+
+        $allowedKeys = [];
+        foreach ($section as $domain => $entries) {
+            if (\is_string($domain) && \is_array($entries)) {
+                $allowedKeys[$domain] = array_map(strval(...), array_keys($entries));
+            }
+        }
+
+        return $allowedKeys;
+    }
+
+    /**
+     * @param list<string> $allowedEmptyKeys
+     */
+    private function isEmptyTranslationAllowed(array $allowedEmptyKeys, string $snippetKeyPath): bool
+    {
+        foreach ($allowedEmptyKeys as $allowedKey) {
+            if ($snippetKeyPath === $allowedKey || str_starts_with($snippetKeyPath, $allowedKey . '.')) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @param array<string, array<string, array<string, mixed>>> $snippetFileMappings
      * @param list<string> $availableISOs
+     * @param list<string> $allowedEmptyKeys
      */
-    private function findMissingSnippets(array $snippetFileMappings, array $availableISOs): MissingSnippetCollection
+    private function findMissingSnippets(array $snippetFileMappings, array $availableISOs, array $allowedEmptyKeys): MissingSnippetCollection
     {
         $missingSnippetsArray = [];
         foreach ($availableISOs as $isoKey => $availableISO) {
@@ -220,7 +303,19 @@ readonly class SnippetValidator implements SnippetValidatorInterface
                 unset($tempISOs[$isoKey]);
 
                 foreach ($tempISOs as $tempISO) {
-                    if (!isset($snippetFileMappings[$tempISO]) || \array_key_exists($snippetKeyPath, $snippetFileMappings[$tempISO])) {
+                    if (!isset($snippetFileMappings[$tempISO])) {
+                        continue;
+                    }
+
+                    // An empty value next to a translated one is a placeholder, not a translation
+                    $isTranslated = \array_key_exists($snippetKeyPath, $snippetFileMappings[$tempISO])
+                        && (
+                            $snippetFileMappings[$tempISO][$snippetKeyPath]['availableValue'] !== ''
+                            || $snippetFileMeta['availableValue'] === ''
+                            || $this->isEmptyTranslationAllowed($allowedEmptyKeys, $snippetKeyPath)
+                        );
+
+                    if ($isTranslated) {
                         continue;
                     }
 

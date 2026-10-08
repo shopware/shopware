@@ -49,10 +49,8 @@ class ProductStreamUpdaterTest extends TestCase
         $messageBusMock = $this->createMock(MessageBusInterface::class);
         $messageBusMock->expects($this->never())->method(static::anything());
 
-        /** @var StaticEntityRepository<ProductCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepo */
         $languageRepo = new StaticEntityRepository([]);
 
         $updater = new ProductStreamUpdater(
@@ -95,10 +93,8 @@ class ProductStreamUpdaterTest extends TestCase
             return new Envelope($message);
         });
 
-        /** @var StaticEntityRepository<ProductCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepo */
         $languageRepo = new StaticEntityRepository([]);
 
         $updater = new ProductStreamUpdater(
@@ -142,10 +138,8 @@ class ProductStreamUpdaterTest extends TestCase
         $messageBusMock = $this->createMock(MessageBusInterface::class);
         $messageBusMock->expects($this->never())->method('dispatch');
 
-        /** @var StaticEntityRepository<ProductCollection> $repo */
         $repo = new StaticEntityRepository([]);
 
-        /** @var StaticEntityRepository<LanguageCollection> $languageRepo */
         $languageRepo = new StaticEntityRepository([]);
 
         $updater = new ProductStreamUpdater(
@@ -222,8 +216,8 @@ class ProductStreamUpdaterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection
             ->expects($this->once())
-            ->method('fetchOne')
-            ->willReturn(current(array_column($filters, 'api_filter')));
+            ->method('fetchAssociative')
+            ->willReturn(['invalid' => 0, 'api_filter' => current(array_column($filters, 'api_filter'))]);
 
         $connection
             ->expects($this->once())
@@ -290,8 +284,8 @@ class ProductStreamUpdaterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection
             ->expects($this->once())
-            ->method('fetchOne')
-            ->willReturn($filters);
+            ->method('fetchAssociative')
+            ->willReturn(['invalid' => 0, 'api_filter' => $filters]);
 
         $connection
             ->expects($this->once())
@@ -353,8 +347,8 @@ class ProductStreamUpdaterTest extends TestCase
         $connection = $this->createMock(Connection::class);
         $connection
             ->expects($this->once())
-            ->method('fetchOne')
-            ->willReturn($filters);
+            ->method('fetchAssociative')
+            ->willReturn(['invalid' => 0, 'api_filter' => $filters]);
 
         $oldMatches = [Uuid::randomHex(), Uuid::randomHex()];
         $connection
@@ -609,7 +603,6 @@ class ProductStreamUpdaterTest extends TestCase
         $language = new LanguageEntity();
         $language->setId(Defaults::LANGUAGE_SYSTEM);
 
-        /** @var StaticEntityRepository<LanguageCollection> $repo */
         $repo = new StaticEntityRepository([new LanguageCollection([$language])]);
 
         return $repo;

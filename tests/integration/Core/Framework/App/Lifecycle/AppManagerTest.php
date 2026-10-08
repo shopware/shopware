@@ -16,6 +16,7 @@ use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonCollection;
 use Shopware\Core\Framework\App\Aggregate\ActionButton\ActionButtonEntity;
 use Shopware\Core\Framework\App\Aggregate\AppShippingMethod\AppShippingMethodEntity;
 use Shopware\Core\Framework\App\Aggregate\CmsBlock\AppCmsBlockCollection;
+use Shopware\Core\Framework\App\Aggregate\FlowAction\AppFlowActionCollection;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
 use Shopware\Core\Framework\App\AppException;
@@ -230,19 +231,37 @@ class AppManagerTest extends TestCase
 
     public function testInstallWithSystemDefaultLanguageNotProvidedByApp(): void
     {
-        $this->setNewSystemLanguage('nl-NL');
-        $this->setNewSystemLanguage('en-GB');
-        $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
+        $this->setNewSystemLanguage('en-US');
 
-        $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
+        try {
+            $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
 
-        $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+            $this->appManager->install($manifest, new AppInstallParameters(), $this->context);
 
-        static::assertCount(1, $apps);
-        $appEntity = $apps->first();
-        static::assertNotNull($appEntity);
-        static::assertSame('test', $appEntity->getName());
-        static::assertSame('Test for App System', $appEntity->getDescription());
+            $apps = $this->appRepository->search(new Criteria(), $this->context)->getEntities();
+
+            static::assertCount(1, $apps);
+            $appEntity = $apps->first();
+            static::assertNotNull($appEntity);
+            static::assertSame('test', $appEntity->getName());
+            static::assertSame('Test for App System', $appEntity->getDescription());
+
+            /** @var EntityRepository<AppFlowActionCollection> $flowActionRepository */
+            $flowActionRepository = static::getContainer()->get('app_flow_action.repository');
+            $criteria = (new Criteria())
+                ->addFilter(new EqualsFilter('appId', $appEntity->getId()))
+                ->addFilter(new EqualsFilter('name', 'telegram.send.message'));
+            $flowAction = $flowActionRepository->search($criteria, $this->context)->getEntities()->first();
+
+            static::assertNotNull($flowAction);
+            static::assertSame('Telegram send message', $flowAction->getLabel());
+            static::assertEquals(
+                [['en-GB' => 'Text', 'de-DE' => 'Text DE', 'en-US' => 'Text']],
+                array_column($flowAction->getConfig(), 'label')
+            );
+        } finally {
+            $this->setNewSystemLanguage('en-GB');
+        }
     }
 
     public function testInstallSavesConfig(): void
@@ -331,12 +350,12 @@ class AppManagerTest extends TestCase
             'webhooks' => [
                 [
                     'name' => 'hook1',
-                    'url' => 'oldUrl.com',
+                    'url' => 'https://old-url.example.com',
                     'eventName' => 'testEvent',
                 ],
                 [
                     'name' => 'shouldGetDeleted',
-                    'url' => 'test.com',
+                    'url' => 'https://test.example.com',
                     'eventName' => 'anotherTest',
                 ],
             ],
@@ -390,7 +409,6 @@ class AppManagerTest extends TestCase
 
         $app = [
             'id' => $id,
-            'roleId' => $roleId,
         ];
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
@@ -490,12 +508,12 @@ class AppManagerTest extends TestCase
             'webhooks' => [
                 [
                     'name' => 'hook1',
-                    'url' => 'oldUrl.com',
+                    'url' => 'https://old-url.example.com',
                     'eventName' => 'testEvent',
                 ],
                 [
                     'name' => 'shouldGetDeleted',
-                    'url' => 'test.com',
+                    'url' => 'https://test.example.com',
                     'eventName' => 'anotherTest',
                 ],
             ],
@@ -549,7 +567,6 @@ class AppManagerTest extends TestCase
 
         $app = [
             'id' => $id,
-            'roleId' => $roleId,
         ];
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
@@ -646,7 +663,6 @@ class AppManagerTest extends TestCase
 
         $app = [
             'id' => $id,
-            'roleId' => $roleId,
         ];
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
@@ -704,7 +720,6 @@ class AppManagerTest extends TestCase
 
         $app = [
             'id' => $id,
-            'roleId' => $roleId,
         ];
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
@@ -750,7 +765,6 @@ class AppManagerTest extends TestCase
 
         $app = [
             'id' => $id,
-            'roleId' => $roleId,
         ];
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/withConfig/manifest.xml');
@@ -792,7 +806,6 @@ class AppManagerTest extends TestCase
 
         $app = [
             'id' => $id,
-            'roleId' => $roleId,
         ];
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/test/manifest.xml');
@@ -837,7 +850,6 @@ class AppManagerTest extends TestCase
 
         $app = [
             'id' => $id,
-            'roleId' => $roleId,
         ];
 
         $manifest = Manifest::createFromXmlFile(__DIR__ . '/../Manifest/_fixtures/minimal/manifest.xml');
@@ -849,8 +861,8 @@ class AppManagerTest extends TestCase
         static::assertCount(1, $apps);
         $appEntity = $apps->first();
         static::assertNotNull($appEntity);
-        static::assertEmpty($appEntity->getModules());
-        static::assertEmpty($appEntity->getCookies());
+        static::assertCount(0, $appEntity->getModules());
+        static::assertCount(0, $appEntity->getCookies());
         static::assertNull($appEntity->getMainModule());
     }
 
@@ -898,7 +910,6 @@ class AppManagerTest extends TestCase
 
         $app = [
             'id' => $appId,
-            'roleId' => $roleId,
         ];
 
         $deletedAppIds = [];
@@ -1226,7 +1237,7 @@ class AppManagerTest extends TestCase
 
         $privileges = json_decode((string) $privileges, true, 512, \JSON_THROW_ON_ERROR);
 
-        static::assertCount(16, $privileges);
+        static::assertCount(17, $privileges);
 
         static::assertContains('product:read', $privileges);
         static::assertContains('product:create', $privileges);
@@ -1244,6 +1255,8 @@ class AppManagerTest extends TestCase
         static::assertContains('custom_field_set:update', $privileges);
         static::assertContains('order:read', $privileges);
         static::assertContains('user_change_me', $privileges);
+        // implied by the manifest's tax provider
+        static::assertContains('tax_processor', $privileges);
     }
 
     private function assertDefaultWebhooks(string $appId): void
@@ -1349,7 +1362,7 @@ class AppManagerTest extends TestCase
         static::assertSame('handler_app_test_mymethod', $paymentMethod->getFormattedHandlerIdentifier());
         static::assertNotNull($paymentMethod->getMediaId());
         $fileLoader = static::getContainer()->get(FileLoader::class);
-        static::assertNotEmpty($fileLoader->loadMediaFile($paymentMethod->getMediaId(), $this->context));
+        static::assertNotSame('', $fileLoader->loadMediaFile($paymentMethod->getMediaId(), $this->context));
         $appPaymentMethod = $paymentMethod->getAppPaymentMethod();
         static::assertNotNull($appPaymentMethod);
         static::assertSame('test', $appPaymentMethod->getAppName());

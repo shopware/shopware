@@ -7,10 +7,7 @@ import { mount } from '@vue/test-utils';
 // Turn off known errors
 import { unknownOptionError } from 'test/_helper_/allowedErrors';
 
-global.allowedErrors = [
-    ...global.allowedErrors,
-    unknownOptionError,
-];
+global.allowedErrors = [...global.allowedErrors, unknownOptionError];
 
 describe('src/module/sw-settings-product-feature-sets/component/sw-settings-product-feature-sets-modal', () => {
     const classes = {
@@ -130,9 +127,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
                         id: null,
                         name: null,
                         description: null,
-                        features: [
-                            {},
-                        ],
+                        features: [{}],
                         ...productFeatureSet,
                     },
                 },
@@ -253,12 +248,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
 
         await flushPromises();
 
-        wrapper.vm.selectedFeatures = new Map([
-            [
-                1,
-                { 'cf-id-1': { id: 'cf-id-1' }, 'cf-id-3': { id: 'cf-id-3' } },
-            ],
-        ]);
+        wrapper.vm.selectedFeatures = new Map([[1, { 'cf-id-1': { id: 'cf-id-1' }, 'cf-id-3': { id: 'cf-id-3' } }]]);
 
         wrapper.vm.$refs.customFieldGrid.selectItem = selectItemMock;
 
@@ -284,12 +274,7 @@ describe('src/module/sw-settings-product-feature-sets/component/sw-settings-prod
 
         await flushPromises();
 
-        wrapper.vm.selectedFeatures = new Map([
-            [
-                1,
-                { 'prop-id-2': { id: 'prop-id-2' } },
-            ],
-        ]);
+        wrapper.vm.selectedFeatures = new Map([[1, { 'prop-id-2': { id: 'prop-id-2' } }]]);
 
         wrapper.vm.$refs.propertyGroupGrid.selectItem = selectItemMock;
 

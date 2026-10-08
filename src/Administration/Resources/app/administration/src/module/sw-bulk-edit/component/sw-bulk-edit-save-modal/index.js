@@ -8,10 +8,7 @@ import './sw-bulk-edit-save-modal.scss';
 export default {
     template,
 
-    emits: [
-        'modal-close',
-        'bulk-save',
-    ],
+    emits: ['modal-close', 'bulk-save'],
 
     props: {
         itemTotal: {

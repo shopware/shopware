@@ -5,7 +5,7 @@ namespace Shopware\Core\Content\Seo;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * @phpstan-type ResolvedSeoUrlArray = array{id?: string, pathInfo: string, isCanonical: bool|string, canonicalPathInfo?: string, seoPathInfo?: string}
+ * @phpstan-type ResolvedSeoUrlArray = array{id?: string, pathInfo: string, isCanonical: bool|string, salesChannelId?: string|null, canonicalPathInfo?: string, seoPathInfo?: string}
  */
 #[Package('inventory')]
 abstract class AbstractSeoResolver

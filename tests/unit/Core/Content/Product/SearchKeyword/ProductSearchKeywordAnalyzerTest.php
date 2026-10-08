@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Filter\TokenFilter;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\Tokenizer;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Term\TokenizerInterface;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Util\HtmlSanitizer;
 use Shopware\Core\System\Tag\TagCollection;
 use Shopware\Core\System\Tag\TagEntity;
 
@@ -43,7 +44,7 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
         $product = new ProductEntity();
         $product->assign($productData);
 
-        $tokenizer = new Tokenizer(3, ['-', '_']);
+        $tokenizer = new Tokenizer(new HtmlSanitizer(cacheEnabled: false), 3, ['-', '_']);
         $tokenFilter = static::createStub(TokenFilter::class);
         $tokenFilter->method('filter')->willReturnCallback(static fn (array $tokens) => $tokens);
 
@@ -250,6 +251,26 @@ class ProductSearchKeywordAnalyzerTest extends TestCase
                 'physical',
                 'awesome product',
                 'part-a part-b',
+            ],
+        ];
+
+        yield 'a stray "<" in the product name does not swallow the words behind it' => [
+            [
+                'translated' => [
+                    'name' => 'I <3 Kisses Shirt',
+                ],
+            ],
+            [
+                [
+                    'field' => 'name',
+                    'tokenize' => true,
+                    'ranking' => 100,
+                ],
+            ],
+            [
+                'kisses',
+                'shirt',
+                'kisses shirt',
             ],
         ];
     }

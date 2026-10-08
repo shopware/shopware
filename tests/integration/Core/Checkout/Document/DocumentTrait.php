@@ -3,17 +3,19 @@
 namespace Shopware\Tests\Integration\Core\Checkout\Document;
 
 use Doctrine\DBAL\Connection;
+use PHPUnit\Framework\Attributes\After;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItemFactoryHandler\ProductLineItemFactory;
 use Shopware\Core\Checkout\Cart\PriceDefinitionFactory;
 use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
-use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentType\DocumentTypeCollection;
 use Shopware\Core\Checkout\Document\DocumentIdCollection;
 use Shopware\Core\Checkout\Document\FileGenerator\FileTypes;
+use Shopware\Core\Checkout\Document\Service\DocumentConfigLoader;
 use Shopware\Core\Checkout\Document\Service\DocumentGenerator;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
+use Shopware\Core\Checkout\DocumentV2\Aggregate\DocumentBaseConfig\DocumentBaseConfigEntity;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
@@ -37,6 +39,12 @@ trait DocumentTrait
 {
     use IntegrationTestBehaviour;
     use TaxAddToSalesChannelTestBehaviour;
+
+    #[After]
+    public function resetDocumentConfigLoader(): void
+    {
+        static::getContainer()->get(DocumentConfigLoader::class)->reset();
+    }
 
     private function persistCart(Cart $cart): string
     {
@@ -307,6 +315,16 @@ trait DocumentTrait
         /** @var EntityRepository<DocumentBaseConfigCollection> $documentBaseConfigRepository */
         $documentBaseConfigRepository = static::getContainer()->get('document_base_config.repository');
         $documentBaseConfigRepository->upsert([$data], Context::createDefaultContext());
+    }
+
+    private function upsertDocumentSellerAddress(string $documentType): void
+    {
+        $this->upsertBaseConfig([
+            'companyStreet' => 'Example Street 1',
+            'companyZipcode' => '12345',
+            'companyCity' => 'Example City',
+            'companyCountryId' => $this->getValidCountryId(),
+        ], $documentType);
     }
 
     private function orderVersionExists(string $orderId, string $orderVersionId): bool

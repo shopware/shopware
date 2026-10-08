@@ -13,14 +13,9 @@ export default {
 
     inject: ['repositoryFactory'],
 
-    emits: [
-        'edit-cancel',
-        'save',
-    ],
+    emits: ['edit-cancel', 'save'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         currencyCountryRounding: {

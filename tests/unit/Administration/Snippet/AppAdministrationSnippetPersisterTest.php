@@ -121,13 +121,11 @@ class AppAdministrationSnippetPersisterTest extends TestCase
 
     public function testSkipsSnippetsForNonExistingLocale(): void
     {
-        /** @var StaticEntityRepository<AppAdministrationSnippetCollection> $snippetRepository */
         $snippetRepository = new StaticEntityRepository([
             new AppAdministrationSnippetCollection([
                 (new AppAdministrationSnippetEntity())->assign(['id' => 'snippet-id', 'localeId' => 'en-GB', 'appId' => 'app-id']),
             ]),
         ]);
-        /** @var StaticEntityRepository<LocaleCollection> $localeRepository */
         $localeRepository = new StaticEntityRepository([
             new LocaleCollection([
                 (new LocaleEntity())->assign(['id' => 'en-GB', 'code' => 'en-GB']),

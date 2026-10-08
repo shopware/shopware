@@ -2,9 +2,11 @@
 
 namespace Shopware\Tests\Unit\Storefront\Theme;
 
+use League\Flysystem\Config;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\InMemory\InMemoryFilesystemAdapter;
+use League\Flysystem\UnableToWriteFile;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
@@ -14,6 +16,7 @@ use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput;
 use Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInputFactory;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Test\TestCaseBase\EnvTestBehaviour;
@@ -47,6 +50,7 @@ use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeCompiler::class)]
 class ThemeCompilerTest extends TestCase
 {
@@ -176,43 +180,30 @@ class ThemeCompilerTest extends TestCase
         );
     }
 
-    public function testFormatVariablesArrayConvertsToNonAssociativeArrayWithValidScssSyntax(): void
-    {
-        $formatVariables = new \ReflectionMethod(ThemeCompiler::class, 'formatVariables');
-
-        $variables = [
-            'sw-color-brand-primary' => '#008490',
-            'sw-color-brand-secondary' => '#526e7f',
-            'sw-border-color' => '#bcc1c7',
-        ];
-
-        $actual = $formatVariables->invoke($this->getThemeCompiler(), $variables);
-
-        $expected = [
-            '$sw-color-brand-primary: #008490;',
-            '$sw-color-brand-secondary: #526e7f;',
-            '$sw-border-color: #bcc1c7;',
-        ];
-
-        static::assertSame($expected, $actual);
-    }
-
     /**
      * @param array<string, mixed> $config
      */
     #[DataProvider('configForDumpVariables')]
     public function testDumpVariables(array $config, string $expected): void
     {
-        $dumpVariables = new \ReflectionMethod(ThemeCompiler::class, 'dumpVariables');
+        $themeConfig = new StorefrontPluginConfiguration('test');
+        $themeConfig->setThemeConfig($config);
 
-        $actual = $dumpVariables->invoke($this->getThemeCompiler(), $config, 'themeId', $this->mockSalesChannelId, Context::createDefaultContext());
+        $this->getThemeCompiler()->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'themeId',
+            $themeConfig,
+            new StorefrontPluginConfigurationCollection(),
+            false,
+            Context::createDefaultContext()
+        );
 
-        static::assertSame($expected, $actual);
+        static::assertSame($expected, $this->tempFilesystem->read('theme-variables.scss'));
+        static::assertSame($expected, $this->tempFilesystem->read('theme-variables/themeId.scss'));
     }
 
     public static function configForDumpVariables(): \Generator
     {
-        // The resulting color values will be #ffffff00 because the scsscompiler is just a mock and the fallback will replace the real values
         yield 'finds config fields and returns string with scss variables' => [
             [
                 'fields' => [
@@ -250,6 +241,11 @@ class ThemeCompilerTest extends TestCase
                         'name' => 'sw-custom-header',
                         'type' => 'switch',
                         'value' => true,
+                    ],
+                    'sw-text-field' => [
+                        'name' => 'sw-text-field',
+                        'type' => 'text',
+                        'value' => '2px solid #000',
                     ],
                     'sw-custom-textarea' => [
                         'name' => 'sw-custom-textarea',
@@ -312,6 +308,7 @@ class ThemeCompilerTest extends TestCase
 \$sw-custom-footer: 1;
 \$sw-custom-cart: 0;
 \$sw-custom-product-box: 1;
+\$sw-text-field: 2px solid #000;
 \$sw-custom-textarea: '123';
 \$sw-custom-url: 'https://www.shopware.com';
 \$sw-custom-media: '456';
@@ -456,6 +453,7 @@ PHP_EOL,
 
     public function testCompileWithoutAssets(): void
     {
+        $this->filesystem->write('theme/test/logo.png', 'existing logo');
         $this->themeFileResolver->method('resolveFiles')->willReturn([
             ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
             ThemeFileResolver::STYLE_FILES => new FileCollection(),
@@ -485,6 +483,89 @@ PHP_EOL,
         );
 
         static::assertTrue($this->filesystem->has('theme/9a11a759d278b4a55cb5e2c3414733c1'));
+        static::assertSame('existing logo', $this->filesystem->read('theme/test/logo.png'));
+    }
+
+    public function testFailedAssetCopyPreservesPreviousAssets(): void
+    {
+        $adapter = new class extends InMemoryFilesystemAdapter {
+            public function writeStream(string $path, $contents, Config $config): void
+            {
+                throw UnableToWriteFile::atLocation($path);
+            }
+        };
+        $this->filesystem = new Filesystem($adapter);
+        $this->filesystem->write('theme/test/logo.png', 'old logo');
+        $this->filesystem->write('theme/test/obsolete.png', 'old asset');
+        $this->tempFilesystem->write('logo.png', 'new logo');
+        $this->themeFileResolver->method('resolveFiles')->willReturn([
+            ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
+            ThemeFileResolver::STYLE_FILES => new FileCollection(),
+        ]);
+        $this->themeFilesystemResolver->method('getFilesystemForStorefrontConfig')
+            ->willReturn(new StaticFilesystem(['Resources/assets' => 'directory']));
+        $stream = $this->tempFilesystem->readStream('logo.png');
+        $this->copyBatchInputFactory->method('fromDirectory')->willReturn([
+            new CopyBatchInput($stream, ['theme/test/logo.png']),
+        ]);
+        $config = new StorefrontPluginConfiguration('test');
+        $config->setAssetPaths(['assets']);
+
+        try {
+            $this->getThemeCompiler()->compileTheme(
+                TestDefaults::SALES_CHANNEL,
+                'test',
+                $config,
+                new StorefrontPluginConfigurationCollection(),
+                true,
+                Context::createDefaultContext()
+            );
+            static::fail('The failed upload must not report a successful compile.');
+        } catch (UnableToWriteFile) {
+            static::assertSame('old logo', $this->filesystem->read('theme/test/logo.png'));
+            static::assertSame('old asset', $this->filesystem->read('theme/test/obsolete.png'));
+        } finally {
+            if (\is_resource($stream)) {
+                fclose($stream);
+            }
+        }
+    }
+
+    public function testThemeAssetsSurviveDelayedDeletes(): void
+    {
+        $adapter = new DelayedThemeAssetDeleteAdapter();
+        $this->filesystem = new Filesystem($adapter);
+        $this->filesystem->write('theme/test/images/logo.png', 'old logo');
+        $this->filesystem->write('theme/test/fonts/obsolete.woff', 'obsolete font');
+        $this->filesystem->write('theme/other/images/logo.png', 'other theme');
+        $this->tempFilesystem->write('logo.png', 'new logo');
+
+        $config = new StorefrontPluginConfiguration('test');
+        $config->setAssetPaths(['assets']);
+        $this->themeFilesystemResolver->method('getFilesystemForStorefrontConfig')
+            ->willReturn(new StaticFilesystem(['Resources/assets' => 'directory']));
+        $this->themeFileResolver->method('resolveFiles')->willReturn([
+            ThemeFileResolver::SCRIPT_FILES => new FileCollection(),
+            ThemeFileResolver::STYLE_FILES => new FileCollection(),
+        ]);
+        $this->copyBatchInputFactory->method('fromDirectory')->willReturn([
+            new CopyBatchInput($this->tempFilesystem->readStream('logo.png'), ['theme/test/images/logo.png']),
+        ]);
+
+        $this->getThemeCompiler()->compileTheme(
+            TestDefaults::SALES_CHANNEL,
+            'test',
+            $config,
+            new StorefrontPluginConfigurationCollection(),
+            true,
+            Context::createDefaultContext()
+        );
+        $adapter->completeDeletes();
+
+        static::assertTrue($this->filesystem->fileExists('theme/test/images/logo.png'));
+        static::assertSame('new logo', $this->filesystem->read('theme/test/images/logo.png'));
+        static::assertFalse($this->filesystem->fileExists('theme/test/fonts/obsolete.woff'));
+        static::assertSame('other theme', $this->filesystem->read('theme/other/images/logo.png'));
     }
 
     public function testAssetPathWillBeAbsoluteConverted(): void
@@ -859,5 +940,38 @@ PHP_EOL,
             [],
             false
         );
+    }
+}
+
+/**
+ * @internal
+ */
+class DelayedThemeAssetDeleteAdapter extends InMemoryFilesystemAdapter
+{
+    /**
+     * @var list<string>
+     */
+    private array $pendingDeletes = [];
+
+    public function deleteDirectory(string $path): void
+    {
+        foreach ($this->listContents($path, true) as $item) {
+            if ($item->isFile()) {
+                $this->delete($item->path());
+            }
+        }
+    }
+
+    public function delete(string $path): void
+    {
+        $this->pendingDeletes[] = $path;
+    }
+
+    public function completeDeletes(): void
+    {
+        foreach ($this->pendingDeletes as $path) {
+            parent::delete($path);
+        }
+        $this->pendingDeletes = [];
     }
 }

@@ -5,29 +5,53 @@
 >
 
     {% block sw_settings_logging_entry_info_tabs %}
-    <sw-tabs position-identifier="sw-settings-logging-entry-info">
-
-        {% block sw_settings_logging_entry_info_tab_items %}
-        <sw-tabs-item
-            :active="activeTab === 'raw'"
-            @click="activeTab = 'raw'"
-        >
-            {{ $t('sw-settings-logging.entryInfo.tabRaw') }}
-        </sw-tabs-item>
+    <template v-if="feature.isActive('v6.8.0.0')">
+        {% block sw_settings_logging_entry_info_mt_tabs %}
+        <mt-tabs
+            position-identifier="sw-settings-logging-entry-info"
+            :default-item="activeTab"
+            :items="entryInfoTabs"
+            :use-routes-for-extensions="false"
+            :small="true"
+            @new-item-active="activeTab = $event"
+        />
         {% endblock %}
 
-        <template #content>
-            {% block sw_settings_logging_entry_info_content %}
-            {% block sw_settings_logging_entry_info_raw_content %}
-            <mt-textarea
-                v-if="activeTab === 'raw'"
-                :model-value="displayString"
-            />
-            {% endblock %}
-            {% endblock %}
-        </template>
+        {% block sw_settings_logging_entry_info_mt_content %}
+        {% block sw_settings_logging_entry_info_mt_raw_content %}
+        <mt-textarea
+            v-if="activeTab === 'raw'"
+            :model-value="displayString"
+        />
+        {% endblock %}
+        {% endblock %}
+    </template>
 
-    </sw-tabs>
+    <template v-else>
+        <sw-tabs position-identifier="sw-settings-logging-entry-info">
+
+            {% block sw_settings_logging_entry_info_tab_items %}
+            <sw-tabs-item
+                :active="activeTab === 'raw'"
+                @click="activeTab = 'raw'"
+            >
+                {{ $t('sw-settings-logging.entryInfo.tabRaw') }}
+            </sw-tabs-item>
+            {% endblock %}
+
+            <template #content>
+                {% block sw_settings_logging_entry_info_content %}
+                {% block sw_settings_logging_entry_info_raw_content %}
+                <mt-textarea
+                    v-if="activeTab === 'raw'"
+                    :model-value="displayString"
+                />
+                {% endblock %}
+                {% endblock %}
+            </template>
+
+        </sw-tabs>
+    </template>
     {% endblock %}
 
     {% block sw_settings_logging_entry_info_footer %}

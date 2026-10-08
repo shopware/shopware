@@ -48,6 +48,7 @@ Jest                # Testing framework
 - Write Jest tests for all new features and bug fixes
   - Locate tests in the same folder as the code they are testing, using the `.spec.ts` suffix.
   - Split big tests (500+ lines) into a `.spec/` directory named after the original spec. Each file in that directory must cover a logical scenario or behavior group, similar to how related tests are grouped with `describe` blocks, for example `sw-component-name.spec/validation.spec.ts`. See `adr/2026-05-06-split-large-administration-test-files.md`.
+- When using feature flags in Jest tests, you must consult `adr/2026-08-06-administration-jest-feature-flag-helpers.md`
 - Use TypeScript for all new code
 - Do NOT introduce breaking changes to public APIs without prior discussion
 - Follow existing code style and patterns

@@ -189,9 +189,7 @@ describe('module/sw-settings-tax/component/sw-tax-rule-card', () => {
     });
 
     it('should have a tax rate field with a correct "digits" property', async () => {
-        const wrapper = await createWrapper([
-            'tax.editor',
-        ]);
+        const wrapper = await createWrapper(['tax.editor']);
 
         await wrapper.vm.$nextTick();
 

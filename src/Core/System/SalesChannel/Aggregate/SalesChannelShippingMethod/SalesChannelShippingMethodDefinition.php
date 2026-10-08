@@ -12,6 +12,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\MappingEntityDefinition;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class SalesChannelShippingMethodDefinition extends MappingEntityDefinition
 {

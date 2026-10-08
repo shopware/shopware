@@ -25,6 +25,9 @@ use Shopware\Storefront\Theme\Aggregate\ThemeMediaDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeSalesChannelDefinition;
 use Shopware\Storefront\Theme\Aggregate\ThemeTranslationDefinition;
 
+/**
+ * @codeCoverageIgnore
+ */
 #[Package('discovery')]
 class ThemeDefinition extends EntityDefinition
 {

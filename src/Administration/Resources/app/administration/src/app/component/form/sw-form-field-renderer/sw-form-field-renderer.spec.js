@@ -52,6 +52,10 @@ describe('components/form/sw-form-field-renderer', () => {
         global.repositoryFactoryMock.showError = false;
     });
 
+    beforeEach(() => {
+        jest.restoreAllMocks();
+    });
+
     it('should show the value from the label slot', async () => {
         const wrapper = await createWrapper({
             slots: {

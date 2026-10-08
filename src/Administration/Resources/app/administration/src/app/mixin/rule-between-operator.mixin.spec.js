@@ -21,9 +21,7 @@ async function createWrapper(data = defaultData) {
               <slot></slot>
             </div>
         `,
-            mixins: [
-                Shopware.Mixin.getByName(RULE_BETWEEN_OPERATOR_MIXIN_NAME),
-            ],
+            mixins: [Shopware.Mixin.getByName(RULE_BETWEEN_OPERATOR_MIXIN_NAME)],
             data() {
                 return data;
             },

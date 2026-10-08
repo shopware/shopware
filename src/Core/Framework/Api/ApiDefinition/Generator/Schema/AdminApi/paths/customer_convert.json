@@ -9,6 +9,7 @@
                 ],
                 "summary": "Convert guest customer to registered customer",
                 "description": "Converts an existing guest customer into a registered customer. If a password is provided, the customer can immediately log in using that password. If no password is provided, a password recovery email will be sent to the customer so they can set their password.",
+                "operationId": "convertGuestCustomer",
                 "parameters": [
                     {
                         "name": "customerId",

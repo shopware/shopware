@@ -4,10 +4,10 @@ namespace Shopware\Core\Content\ProductExport\Command;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
+use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Service\ProductExporterInterface;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
-use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -64,7 +64,7 @@ class ProductExportGenerateCommand extends Command
 
         $salesChannelContext = $this->salesChannelContextFactory->create(Uuid::randomHex(), $salesChannelId);
 
-        if ($salesChannelContext->getSalesChannel()->getTypeId() !== Defaults::SALES_CHANNEL_TYPE_STOREFRONT) {
+        if (!\in_array($salesChannelContext->getSalesChannel()->getTypeId(), ProductExportEntity::ALLOWED_SALES_CHANNEL_TYPE_IDS, true)) {
             throw ProductExportException::salesChannelNotAllowed();
         }
 

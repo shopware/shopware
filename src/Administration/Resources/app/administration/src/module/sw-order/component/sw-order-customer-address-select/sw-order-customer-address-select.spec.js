@@ -94,10 +94,7 @@ async function createWrapper({ availableAddresses = addresses, props = {} } = {}
                     'sw-loader': true,
                     'sw-field-error': true,
                     'sw-select-result': {
-                        props: [
-                            'item',
-                            'index',
-                        ],
+                        props: ['item', 'index'],
                         template: `<li class="sw-select-result" @click.stop="onClickResult">
                                     <slot></slot>
                             </li>`,
@@ -193,10 +190,7 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         await flushPromises();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual([
-            '1',
-            '2',
-        ]);
+        expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual(['1', '2']);
     });
 
     it('should find customer addresses beyond the first 25 entries', async () => {
@@ -239,10 +233,7 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         const resultItems = singleSelect.findAll('.sw-select-result');
 
         expect(resultItems).toHaveLength(2);
-        expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual([
-            '1',
-            '26',
-        ]);
+        expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual(['1', '26']);
         expect(wrapper.vm.customerAddresses[1].city).toBe('Needle City');
     });
 
@@ -306,10 +297,7 @@ describe('src/module/sw-order/component/sw-order-customer-address-select', () =>
         await flushPromises();
         await wrapper.vm.$nextTick();
 
-        expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual([
-            '30',
-            '26',
-        ]);
+        expect(wrapper.vm.customerAddresses.map((address) => address.id)).toEqual(['30', '26']);
 
         const selectionLabel = wrapper.find('.sw-single-select__selection-text');
         expect(selectionLabel.text()).toBe('Street 30, 10029, City 30, California, USA');

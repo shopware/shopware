@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Newsletter\SalesChannel;
 
+use Shopware\Core\Framework\Deprecation\BCChange\BecomesAbstract;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
@@ -19,20 +20,16 @@ abstract class AbstractNewsletterUnsubscribeRoute
     abstract public function getDecorated(): AbstractNewsletterUnsubscribeRoute;
 
     /**
-     * @deprecated tag:v6.8.0
-     * Use unsubscribeWithResponse() instead.
-     * Starting with v6.8.0, the API route response is changing.
-     * This method will be removed.
+     * @deprecated tag:v6.8.0 - Will be removed. Implement unsubscribeWithResponse() instead.
      *
      * @return StoreApiResponse<covariant Struct>
      */
     abstract public function unsubscribe(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse;
 
     /**
-     * @deprecated tag:v6.8.0 - Will become abstract with SuccessResponse return type in v6.8.0.
-     *
      * @return StoreApiResponse<covariant Struct>
      */
+    #[BecomesAbstract(version: 'v6.8.0', description: 'Implement it in your decorator; unsubscribe() is removed.')]
     public function unsubscribeWithResponse(RequestDataBag $dataBag, SalesChannelContext $context): StoreApiResponse
     {
         Feature::triggerDeprecationOrThrow(

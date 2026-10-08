@@ -5,6 +5,10 @@
         margin-bottom: 16px;
     }
 
+    .sw-theme-manager-detail__tabs {
+        margin-bottom: 16px;
+    }
+
     .sw-theme-manager-detail__inheritance {
         display: flex;
         padding: 20px;
@@ -46,7 +50,7 @@
         margin-top: 25px;
 
         .sw-theme-manager-detail__area {
-            .sw-card__content {
+            .sw-card-section {
                 padding: 0;
             }
         }
@@ -94,6 +98,7 @@
 
     .sw-theme-manager-detail__sales-channels-select {
         margin-top: 20px;
+        margin-bottom: 0;
     }
 
     .sw-theme-manager-detail__content-section-field {

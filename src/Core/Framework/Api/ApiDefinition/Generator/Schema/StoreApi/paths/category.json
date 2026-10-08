@@ -35,11 +35,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/Criteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/Criteria"
                             }
                         }
                     }
@@ -47,6 +43,14 @@
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/CategoryListResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -72,6 +76,14 @@
                 "responses": {
                     "200": {
                         "$ref": "#/components/responses/CategoryListResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/400",
+                        "description": "The `Criteria` sent with the request is invalid, e.g. an unknown filter field, sorting field or association."
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
                     }
                 },
                 "security": [
@@ -140,11 +152,7 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/components/schemas/ProductListingCriteria"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/ProductListingCriteria"
                             }
                         }
                     }
@@ -159,6 +167,14 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "The category does not exist, is not reachable in this sales channel, or the CMS page assigned to it was not found."
                     }
                 },
                 "security": [
@@ -217,6 +233,14 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/401",
+                        "description": "The `sw-access-key` header is missing."
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/404",
+                        "description": "The category does not exist, is not reachable in this sales channel, or the CMS page assigned to it was not found."
                     }
                 },
                 "security": [

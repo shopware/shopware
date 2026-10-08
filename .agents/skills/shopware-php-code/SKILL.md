@@ -12,8 +12,10 @@ Prefer the existing Shopware extension point over a new abstraction.
 
 - Keep application/domain services hexagonal: controllers, CLI commands, subscribers, and handlers translate infrastructure details (`Request`, IO, database, filesystem, HTTP) into plain inputs before calling services.
 - Services must not perform direct infrastructure work or depend on framework objects. Depend on narrow abstractions instead, such as repositories, filesystem interfaces, HTTP clients, or gateways.
+- Where code legitimately touches the local filesystem, inject and use the Symfony `Filesystem` component instead of raw PHP functions like `mkdir`, `file_put_contents`, `copy`, `unlink`, or `rmdir`. It throws `IOException` instead of warnings plus `false` returns, handles recursive operations, and keeps the dependency mockable.
 - Services must be unit-testable without external systems; test infrastructure adapters with integration tests.
 - Mark infrastructure adapters `@internal` by default.
+- Mark every new compiler pass with its own class-level `@internal` PHPDoc annotation, including abstract passes and subclasses inheriting `Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface`.
 - Mark supported/public concrete classes as `@final` when they are not intended for extension.
 - Use a real `final class` for simple value objects/structs that do not need extension, decoration, or mocking; use `@final` for supported services where tests or framework mechanics may still need to subclass/mock them.
 - Do not add `@final` to classes already marked `@internal`; the internal marker is enough for implementation details.
@@ -21,6 +23,7 @@ Prefer the existing Shopware extension point over a new abstraction.
 - Prefer existing Shopware extension mechanisms over new provider interfaces when they already express the contract, for example Twig inheritance, DAL entities, Admin API routes, or explicit Twig blocks.
 - Be conservative with DTOs/value objects. Add one only when it expresses a meaningful domain concept, crosses a real boundary, or simplifies a public contract. Prefer scalars or arrays for simple internal data, and do not create DTOs solely to model private handoffs inside one class.
 - For transparent struct-style value objects, prefer public readonly properties over private properties plus trivial getters.
+- Name the arguments when a call passes several values that do not describe themselves — `true`, `false`, `0`, `1`, `[]`, `null` — or when naming lets you skip defaults you only passed in order to reach a later argument. Leave a short, self-explaining call positional.
 
 ## Public Surface
 
@@ -34,6 +37,10 @@ Prefer the existing Shopware extension point over a new abstraction.
 
 ## Deprecations
 
+- Use a BC-change attribute from `Shopware\Core\Framework\Deprecation\BCChange` for a planned major-version change to supported API when there is no replacement to migrate to today. It is planning metadata, not a deprecation: keep the API usable until the announced version and do not use `@deprecated reason:*` markers.
+- Use the most specific attribute. `CallSiteCompatibilityChange` means calling the method can break (including `parent::` calls from subclasses); `ExtenderCompatibilityChange` means an overriding declaration or inheritance relationship can break. Attributes that implement both affect both audiences.
+- Use `@deprecated` only when functionality is actually removed or has a replacement that external code must migrate to. Executable deprecated paths need `Feature::triggerDeprecationOrThrow()`; when an attribute's legacy usage is detectable at runtime (`BecomesAbstract`, `NewRequiredParameter`, `ParameterRemoval`, or `ParameterTypeNarrowing`), add the same conditional signal unless the method is framework-invoked.
+- Keep attribute values machine-readable: use a `vX.Y.Z` version, parameter names without `$`, `::class` for class references, and the real default value for `NewOptionalParameter`.
 - Core code should never trigger self-deprecation notices. If core must keep calling deprecated behavior for BC, wrap that call with `Feature::silent($majorFlag, static fn () => ...)` so the deprecation notice is suppressed, the code path is explicitly tied to the major feature flag, and the branch will disappear when the flag is removed.
 - Do not mark DI service definitions as deprecated while Shopware core still references that service id anywhere. Internal DI references still trigger container deprecations and spam logs during warmup/compile. Deprecate the PHP API or class if needed, but only add the DI `<deprecated>` service tag once core no longer uses that service internally.
 - When adding an `@deprecated` annotation to executable PHP code, add a matching `Feature::triggerDeprecationOrThrow()` in the deprecated code path unless the deprecation uses an explicit exception reason supported by the PHPStan deprecation rule.
@@ -53,6 +60,8 @@ Prefer the existing Shopware extension point over a new abstraction.
 ## Detailed Guidelines
 
 - Read `coding-guidelines/core/internal.md` and `coding-guidelines/core/final-and-internal.md` when marking PHP API surface as internal, final, or supported for extension.
-- Read `coding-guidelines/core/extendability.md` and `coding-guidelines/core/decorator-pattern.md` when adding or changing extension points.
+- When creating or migrating Store API routes, follow `coding-guidelines/core/extendability.md`: new routes use extension events, not abstract route classes; existing public contracts remain subject to backward compatibility.
+- Read `coding-guidelines/core/extendability.md` when adding or changing extension points; read `coding-guidelines/core/decorator-pattern.md` when working on a supported service decorator contract.
 - Read `coding-guidelines/core/database-migations.md` when adding or changing migrations.
 - Read `coding-guidelines/core/feature-flags.md` when adding feature-flagged behavior, deprecations, or BC branches.
+- Read `coding-guidelines/core/6.5-new-php-language-features.md` when reaching for a newer language feature, named arguments included.

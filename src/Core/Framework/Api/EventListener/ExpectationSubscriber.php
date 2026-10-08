@@ -63,6 +63,16 @@ class ExpectationSubscriber implements EventSubscriberInterface
             return;
         }
 
+        // The failure messages disclose installed package versions, so the header is only evaluated on routes
+        // that validated a token.
+        if (!$request->attributes->get('auth_required', true)) {
+            if ((string) $request->headers->get(PlatformRequest::HEADER_EXPECT_PACKAGES) === '') {
+                return;
+            }
+
+            throw ApiException::expectationNotSupported();
+        }
+
         $expectations = $this->checkPackages($request);
 
         if ($expectations !== []) {

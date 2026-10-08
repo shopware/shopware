@@ -87,7 +87,7 @@ class ImportExportHandlerTest extends TestCase
     }
 
     /**
-     * @return iterable<string, array{activity: string}>
+     * @return iterable<string, array{activity: string, method: string}>
      */
     public static function dataProviderForTestImportExport(): iterable
     {

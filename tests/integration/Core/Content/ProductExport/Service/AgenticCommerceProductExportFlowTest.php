@@ -31,7 +31,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 /**
  * @internal
  */
-#[Package('discovery')]
+#[Package('inventory')]
 class AgenticCommerceProductExportFlowTest extends TestCase
 {
     use DatabaseTransactionBehaviour;

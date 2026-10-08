@@ -3,7 +3,6 @@
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures;
 
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
-use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderResult;
@@ -18,21 +17,14 @@ use Shopware\Core\Framework\Log\Package;
 readonly class StaticDocumentRenderer extends AbstractDocumentRenderer
 {
     /**
-     * @param list<string> $documentTypes
      * @param list<string> $dependencies
      */
     public function __construct(
         private DocumentFormat|string $format = DocumentFormat::PDF,
-        private array $documentTypes = [DocumentType::INVOICE->value],
         private array $dependencies = [],
         private ?string $fileExtension = null,
         private ?string $mimeType = null,
     ) {
-    }
-
-    public function getDocumentTypes(): array
-    {
-        return $this->documentTypes;
     }
 
     public function getFormat(): string

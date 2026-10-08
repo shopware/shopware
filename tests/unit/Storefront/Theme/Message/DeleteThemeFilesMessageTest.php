@@ -4,12 +4,14 @@ namespace Shopware\Tests\Unit\Storefront\Theme\Message;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Shopware\Storefront\Theme\Message\DeleteThemeFilesMessage;
 
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(DeleteThemeFilesMessage::class)]
 class DeleteThemeFilesMessageTest extends TestCase
 {

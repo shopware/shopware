@@ -14,9 +14,7 @@ export default {
 
     inject: ['feature'],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     props: {
         salesChannel: {
@@ -127,7 +125,7 @@ export default {
         },
 
         singleSelectClass() {
-            return `sw-sales-channel-detail__assign-${this.propertyNameKebabCase}`;
+            return `sw-sales-channel-detail__assign sw-sales-channel-detail__assign-${this.propertyNameKebabCase}`;
         },
 
         defaultsValueError() {

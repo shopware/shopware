@@ -9,46 +9,61 @@
     {% block sw_product_modal_variant_generation_sidebar %}
     <div class="sw-product-modal-variant-generation__sidebar">
         {% block sw_product_modal_variant_generation_sidebar_tabs %}
-        <sw-tabs
-            is-vertical
-            position-identifier="sw-product-modal-variant-generation"
-        >
-            {% block sw_product_modal_variant_generation_sidebar_tabs_items %}
+        <template v-if="feature.isActive('v6.8.0.0')">
+            {% block sw_product_modal_variant_generation_sidebar_mt_tabs %}
+            <mt-tabs
+                vertical
+                position-identifier="sw-product-modal-variant-generation"
+                :default-item="activeTab"
+                :items="variantGenerationTabs"
+                :small="true"
+                @new-item-active="activeTab = $event"
+            />
+            {% endblock %}
+        </template>
 
-            {% block sw_product_modal_variant_generation_sidebar_tabs_item_options %}
-            <sw-tabs-item
-                class="sw-variant-modal__option-selection"
-                :active="activeTab == 'options'"
-                @click="activeTab = 'options'"
+        <template v-else>
+            <sw-tabs
+                is-vertical
+                position-identifier="sw-product-modal-variant-generation"
             >
-                {{ $t('sw-product.variations.configuratorModal.selectOptions') }}
-            </sw-tabs-item>
-            {% endblock %}
+                {% block sw_product_modal_variant_generation_sidebar_tabs_items %}
 
-            {% block sw_product_modal_variant_generation_sidebar_tabs_item_prices %}
-            <sw-tabs-item
-                v-show="variantsNumber"
-                class="sw-variant-modal__surcharge-configuration"
-                :active="activeTab == 'prices'"
-                @click="activeTab = 'prices'"
-            >
-                {{ $t('sw-product.variations.configuratorModal.priceSurcharges') }}
-            </sw-tabs-item>
-            {% endblock %}
+                {% block sw_product_modal_variant_generation_sidebar_tabs_item_options %}
+                <sw-tabs-item
+                    class="sw-variant-modal__option-selection"
+                    :active="activeTab == 'options'"
+                    @click="activeTab = 'options'"
+                >
+                    {{ $t('sw-product.variations.configuratorModal.selectOptions') }}
+                </sw-tabs-item>
+                {% endblock %}
 
-            {% block sw_product_modal_variant_generation_sidebar_tabs_item_restrictions %}
-            <sw-tabs-item
-                v-show="variantsNumber"
-                class="sw-variant-modal__restriction-configuration"
-                :active="activeTab == 'restrictions'"
-                @click="activeTab = 'restrictions'"
-            >
-                {{ $t('sw-product.variations.configuratorModal.defineRestrictions') }}
-            </sw-tabs-item>
-            {% endblock %}
+                {% block sw_product_modal_variant_generation_sidebar_tabs_item_prices %}
+                <sw-tabs-item
+                    v-show="variantsNumber"
+                    class="sw-variant-modal__surcharge-configuration"
+                    :active="activeTab == 'prices'"
+                    @click="activeTab = 'prices'"
+                >
+                    {{ $t('sw-product.variations.configuratorModal.priceSurcharges') }}
+                </sw-tabs-item>
+                {% endblock %}
 
-            {% endblock %}
-        </sw-tabs>
+                {% block sw_product_modal_variant_generation_sidebar_tabs_item_restrictions %}
+                <sw-tabs-item
+                    v-show="variantsNumber"
+                    class="sw-variant-modal__restriction-configuration"
+                    :active="activeTab == 'restrictions'"
+                    @click="activeTab = 'restrictions'"
+                >
+                    {{ $t('sw-product.variations.configuratorModal.defineRestrictions') }}
+                </sw-tabs-item>
+                {% endblock %}
+
+                {% endblock %}
+            </sw-tabs>
+        </template>
         {% endblock %}
 
         {% block sw_product_modal_variant_generation_sidebar_descriptions %}

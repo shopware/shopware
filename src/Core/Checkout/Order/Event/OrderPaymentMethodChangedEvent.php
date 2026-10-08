@@ -20,6 +20,11 @@ use Shopware\Core\Framework\Event\SalesChannelAware;
 use Shopware\Core\Framework\Log\Package;
 use Symfony\Contracts\EventDispatcher\Event;
 
+/**
+ * @codeCoverageIgnore
+ *
+ * @see \Shopware\Tests\Integration\Core\Checkout\Order\SalesChannel\SetPaymentOrderRouteTest
+ */
 #[Package('checkout')]
 class OrderPaymentMethodChangedEvent extends Event implements SalesChannelAware, OrderAware, CustomerAware, MailAware, OrderTransactionAware, FlowEventAware
 {

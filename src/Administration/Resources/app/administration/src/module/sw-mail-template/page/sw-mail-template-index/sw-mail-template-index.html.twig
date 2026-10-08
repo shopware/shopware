@@ -89,28 +89,15 @@
         <sw-card-view>
             <template v-if="feature.isActive('v6.8.0.0')">
                 {% block sw_mail_template_list_tabs %}
-                <sw-tabs
+                {% block sw_mail_template_list_mt_tabs %}
+                <mt-tabs
                     class="sw-mail-template-list__tabs"
                     position-identifier="sw-mail-template-index"
-                >
-                    {% block sw_mail_template_list_tabs_templates %}
-                    <sw-tabs-item
-                        class="sw-mail-template-list__tab-templates"
-                        :route="{ name: 'sw.mail.template.index.templates' }"
-                    >
-                        {{ $t('sw-mail-template.list.tabMailTemplates') }}
-                    </sw-tabs-item>
-                    {% endblock %}
-
-                    {% block sw_mail_template_list_tabs_header_footer %}
-                    <sw-tabs-item
-                        class="sw-mail-template-list__tab-header-footer"
-                        :route="{ name: 'sw.mail.template.index.header_footer' }"
-                    >
-                        {{ $t('sw-mail-template.list.tabHeaderFooter') }}
-                    </sw-tabs-item>
-                    {% endblock %}
-                </sw-tabs>
+                    :default-item="$route.name"
+                    :items="mailTemplateTabs"
+                    :small="true"
+                />
+                {% endblock %}
                 {% endblock %}
 
                 {% block sw_mail_template_list_router_view %}

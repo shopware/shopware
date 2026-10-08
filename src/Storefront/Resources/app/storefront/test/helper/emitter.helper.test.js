@@ -119,6 +119,18 @@ describe('NativeEventEmitter tests', () => {
             emitter.unsubscribe(`${eventName}.Test`);
             expect(emitter.listeners.length).toBe(1);
         });
+
+        test('unsubscribe logs warning if subscriber function is passed', () => {
+            const eventName = 'my-custom-event';
+            const noop = jest.fn();
+            const consoleSpy = jest.spyOn(console, 'warn');
+
+            emitter.subscribe(eventName, noop);
+            emitter.unsubscribe(eventName, noop);
+
+            expect(consoleSpy).toHaveBeenCalled();
+            expect(consoleSpy).toHaveBeenCalledWith(`[NativeEventEmitter] Unsubscribing by passing the subscriber function as a second argument is not supported. By default, all listeners for the event will be removed. Use a suffix (separated by a dot) on the event name when subscribing/unsubscribing to identify/target your specific listener only, e.g. "${eventName}.MyCustomPlugin"`);
+        });
     });
 
     describe('element specific tests', () => {

@@ -86,10 +86,7 @@ export default {
             required: false,
             default: 'circle',
             validator: (value) => {
-                return [
-                    'circle',
-                    'square',
-                ].includes(value);
+                return ['circle', 'square'].includes(value);
             },
         },
     },

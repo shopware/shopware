@@ -2,12 +2,14 @@
 
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\ScheduledTask;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\ParameterType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ScheduledTask\ProductExportGenerateTaskHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -23,7 +25,7 @@ use Symfony\Component\Clock\NativeClock;
 class ProductExportGenerateTaskHandlerTest extends TestCase
 {
     /**
-     * @param array{id: string, generated_at: ?string, interval: int, is_running: bool, updated_at: ?string, created_at: ?string} $productExportRow
+     * @param array{id: string, generated_at: ?string, next_generation_at: ?string, interval: int, is_running: bool, updated_at: ?string, created_at: ?string} $productExportRow
      */
     #[DataProvider('shouldBeRunDataProvider')]
     public function testShouldBeRun(array $productExportRow, bool $expectedResult, bool $expectsReset): void
@@ -67,11 +69,41 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         }
     }
 
+    public function testFetchesStorefrontAndHeadlessSalesChannels(): void
+    {
+        $connection = $this->createMock(Connection::class);
+
+        $connection->expects($this->once())
+            ->method('fetchFirstColumn')
+            ->with(
+                static::stringContains('`type_id` IN (:typeIds)'),
+                ['typeIds' => Uuid::fromHexToBytesList(ProductExportEntity::ALLOWED_SALES_CHANNEL_TYPE_IDS)],
+                ['typeIds' => ArrayParameterType::BINARY]
+            )
+            ->willReturn([]);
+
+        $handler = new ProductExportGenerateTaskHandler(
+            static::createStub(EntityRepository::class),
+            static::createStub(LoggerInterface::class),
+            $connection,
+            new CollectingMessageBus(),
+            new NativeClock(),
+        );
+
+        $handler->run();
+    }
+
     public static function shouldBeRunDataProvider(): \Generator
     {
         yield 'next generation not reached' => [
             // Should not run because: next generation time not reached (time + interval > now)
             self::productExportRow(false, '3022-07-18 10:59:30', 45),
+            false,
+            false,
+        ];
+        yield 'next generation timestamp not reached' => [
+            // Should not run because: next generation baseline is explicitly in the future
+            self::productExportRow(false, '1022-07-18 10:59:30', 45, null, '3022-07-18 10:59:30'),
             false,
             false,
         ];
@@ -99,6 +131,12 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
             true,
             false,
         ];
+        yield 'next generation timestamp is due' => [
+            // Should run because: explicit next generation baseline is due even though generatedAt still reflects completion time
+            self::productExportRow(false, '3022-07-18 10:59:30', 10, null, '1022-07-18 10:59:30'),
+            true,
+            false,
+        ];
         yield 'already running but stale' => [
             // Should run because: isRunning is true but last activity is stale
             self::productExportRow(true, null, 10, '-1 hour'),
@@ -108,13 +146,14 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
     }
 
     /**
-     * @return array{id: string, generated_at: ?string, interval: int, is_running: bool, updated_at: ?string, created_at: ?string}
+     * @return array{id: string, generated_at: ?string, next_generation_at: ?string, interval: int, is_running: bool, updated_at: ?string, created_at: ?string}
      */
-    private static function productExportRow(bool $isRunning, ?string $generatedAt, int $interval, ?string $updatedAt = null, ?string $createdAt = null): array
+    private static function productExportRow(bool $isRunning, ?string $generatedAt, int $interval, ?string $updatedAt = null, ?string $nextGenerationAt = null, ?string $createdAt = null): array
     {
         return [
             'id' => 'afdd4e21be6b4ad59656fb856d0375e5',
             'generated_at' => $generatedAt,
+            'next_generation_at' => $nextGenerationAt,
             'interval' => $interval,
             'is_running' => $isRunning,
             'updated_at' => $updatedAt,

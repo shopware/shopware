@@ -209,7 +209,7 @@ EOF;
         static::assertNotNull($orderAfter->getUpdatedAt());
     }
 
-    public function testStateMachineTransitionStoresUserAndIntegrationIdAndInternalComment(): void
+    public function testStateMachineTransitionStoresTheActorTheSourceAndTheInternalComment(): void
     {
         $ids = new IdsCollection();
 
@@ -251,7 +251,7 @@ EOF;
         $connection = self::getContainer()->get(Connection::class);
         static::assertInstanceOf(Connection::class, $connection);
 
-        $historyData = $connection->fetchAssociative('SELECT LOWER(HEX(integration_id)) as integration_id, LOWER(HEX(user_id)) as user_id, internal_comment FROM `state_machine_history` WHERE referenced_id = :id AND referenced_version_id = :version ORDER BY created_at DESC LIMIT 1', [
+        $historyData = $connection->fetchAssociative('SELECT LOWER(HEX(integration_id)) as integration_id, LOWER(HEX(user_id)) as user_id, source_type, internal_comment FROM `state_machine_history` WHERE referenced_id = :id AND referenced_version_id = :version ORDER BY created_at DESC LIMIT 1', [
             'id' => Uuid::fromHexToBytes($ids->get('o-1')),
             'version' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION),
         ]);
@@ -260,6 +260,7 @@ EOF;
         static::assertSame([
             'integration_id' => $ids->get('integration-1'),
             'user_id' => $userId,
+            'source_type' => 'admin-api',
             'internal_comment' => 'internal comment',
         ], $historyData);
     }

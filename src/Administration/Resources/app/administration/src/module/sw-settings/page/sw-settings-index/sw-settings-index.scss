@@ -9,6 +9,18 @@
             margin: -16px auto 32px;
             align-items: center;
         }
+
+        .sw-settings__content-change-notices {
+            margin: -16px auto 32px;
+
+            .sw-dismissible-notices__notice {
+                align-items: center;
+
+                &:not(:last-child) {
+                    margin-bottom: var(--scale-size-16);
+                }
+            }
+        }
     }
 
     .sw-settings__card--hero {

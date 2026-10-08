@@ -159,7 +159,7 @@ class TreeUpdaterTest extends TestCase
         }
 
         $definition = new TestTreeDefinitionWithoutVersion();
-        $registry = $this->createMock(DefinitionInstanceRegistry::class);
+        $registry = static::createStub(DefinitionInstanceRegistry::class);
         $registry->method('getByEntityName')->willReturn($definition);
         $definition->compile($registry);
 

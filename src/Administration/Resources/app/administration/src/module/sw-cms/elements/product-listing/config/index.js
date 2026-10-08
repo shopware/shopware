@@ -3,8 +3,8 @@ import './sw-cms-el-config-product-listing.scss';
 
 const { Mixin } = Shopware;
 const { Criteria, EntityCollection } = Shopware.Data;
-
-const { has, set, unset } = Shopware.Utils.object;
+const { get, set, unset, has, cloneDeep } = Shopware.Utils.object;
+const { isEmpty } = Shopware.Utils.types;
 
 /**
  * @private
@@ -13,19 +13,16 @@ const { has, set, unset } = Shopware.Utils.object;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
-    mixins: [
-        Mixin.getByName('cms-element'),
-    ],
+    mixins: [Mixin.getByName('cms-element')],
 
     data() {
         return {
+            activeTab: 'content',
             productSortings: new EntityCollection('/product-sorting', 'product_sorting', Shopware.Context.api),
             defaultSorting: {},
+            defaultSortingId: null,
             filters: [],
             filterPropertiesTerm: '',
             properties: [],
@@ -36,6 +33,23 @@ export default {
     },
 
     computed: {
+        tabs() {
+            return [
+                {
+                    label: this.$t('sw-cms.elements.general.config.tab.content'),
+                    name: 'content',
+                },
+                {
+                    label: this.$t('sw-cms.elements.productListing.config.tab.sorting'),
+                    name: 'sorting',
+                },
+                {
+                    label: this.$t('sw-cms.elements.productListing.config.tab.filter'),
+                    name: 'filter',
+                },
+            ];
+        },
+
         showSortingGrid() {
             return this.element.config.useCustomSorting.value;
         },
@@ -55,11 +69,7 @@ export default {
         productSortingsCriteria() {
             const criteria = new Criteria(1, 25);
 
-            criteria.addFilter(
-                Criteria.equalsAny('id', [
-                    ...Object.keys(this.productSortingsConfigValue),
-                ]),
-            );
+            criteria.addFilter(Criteria.equalsAny('id', [...Object.keys(this.productSortingsConfigValue)]));
             criteria.addSorting(Criteria.sort('priority', 'desc'));
 
             return criteria;
@@ -88,11 +98,7 @@ export default {
             const criteria = new Criteria(1, 25);
 
             if (this.defaultSorting.id) {
-                criteria.addFilter(
-                    Criteria.not('AND', [
-                        Criteria.equals('id', this.defaultSorting.id),
-                    ]),
-                );
+                criteria.addFilter(Criteria.not('AND', [Criteria.equals('id', this.defaultSorting.id)]));
             }
 
             criteria.addFilter(Criteria.equals('locked', false));
@@ -152,6 +158,10 @@ export default {
 
         showPropertySelection() {
             return !this.properties.length < 1;
+        },
+
+        showProductSortingsSelection() {
+            return this.productSortings.length > 0;
         },
 
         gridColumns() {
@@ -237,11 +247,8 @@ export default {
     },
 
     watch: {
-        productSortings: {
-            deep: true,
-            handler() {
-                this.onUpdateProductSortings();
-            },
+        productSortings() {
+            this.onUpdateProductSortings();
         },
         defaultSorting() {
             if (Object.keys(this.defaultSorting).length === 0) {
@@ -249,6 +256,9 @@ export default {
             } else {
                 this.element.config.defaultSorting.value = this.defaultSorting.id;
             }
+        },
+        'element.config.filters.value'() {
+            this.unpackFilters();
         },
     },
 
@@ -267,29 +277,36 @@ export default {
         },
 
         onUpdateProductSortings() {
-            const path = 'config.availableSortings.value';
+            const newValue = {};
 
             this.productSortings.forEach((item) => {
-                if (has(this.element, `${path}.${item.id}`)) {
-                    return;
-                }
-
-                set(this.element, `${path}.${item.id}`, item.priority);
+                newValue[item.id] = item.priority;
             });
 
-            Object.keys(this.element.config.availableSortings.value).forEach((id) => {
-                const exists = this.productSortings.find((sorting) => sorting.id === id);
+            // add the default sorting to available sortings, so it won't break logic
+            if (this.defaultSorting.id && !this.productSortings.has(this.defaultSorting.id)) {
+                newValue[this.defaultSorting.id] = this.defaultSorting.priority;
 
-                if (exists) {
-                    return;
-                }
+                const collection = EntityCollection.fromCollection(this.productSortings);
+                collection.add(this.defaultSorting);
+                this.productSortings = collection;
+            }
 
-                unset(this.element, `${path}.${id}`);
-            });
+            this.element.config.availableSortings.value = newValue;
+        },
+
+        onSortingPrioritySave() {
+            this.onUpdateProductSortings();
+        },
+
+        onSortingPriorityCancel(productSorting) {
+            productSorting.priority = this.productSortingsConfigValue[productSorting.id];
         },
 
         async initProductSorting() {
             if (Object.keys(this.productSortingsConfigValue).length === 0) {
+                this.productSortings = new EntityCollection('/product-sorting', 'product_sorting', Shopware.Context.api);
+
                 return;
             }
 
@@ -303,20 +320,15 @@ export default {
         },
 
         updateValuesFromConfig(productSortings) {
-            Object.entries(this.productSortingsConfigValue).forEach(
-                ([
-                    id,
-                    value,
-                ]) => {
-                    const matchingProductSorting = productSortings.find((productSorting) => productSorting.id === id);
+            Object.entries(this.productSortingsConfigValue).forEach(([id, value]) => {
+                const matchingProductSorting = productSortings.find((productSorting) => productSorting.id === id);
 
-                    if (!matchingProductSorting) {
-                        return;
-                    }
+                if (!matchingProductSorting) {
+                    return;
+                }
 
-                    matchingProductSorting.priority = value;
-                },
-            );
+                matchingProductSorting.priority = value;
+            });
 
             return productSortings;
         },
@@ -341,14 +353,30 @@ export default {
 
         initDefaultSorting() {
             const defaultSortingId = this.element.config.defaultSorting.value;
-            if (defaultSortingId !== '') {
-                const criteria = new Criteria(1, 25);
+            if (!defaultSortingId) {
+                this.defaultSorting = {};
+                this.defaultSortingId = null;
 
-                criteria.addFilter(Criteria.equals('id', defaultSortingId));
+                return;
+            }
 
-                this.productSortingRepository.search(criteria).then((response) => {
-                    this.defaultSorting = response.first() || {};
-                });
+            const criteria = new Criteria(1, 25);
+
+            criteria.addFilter(Criteria.equals('id', defaultSortingId));
+
+            return this.productSortingRepository.search(criteria).then((response) => {
+                this.defaultSorting = response.first() || {};
+                this.defaultSortingId = this.defaultSorting.id ?? null;
+            });
+        },
+
+        async restoreDefaultSorting() {
+            await this.initDefaultSorting();
+
+            if (this.defaultSorting.id && !this.productSortings.has(this.defaultSorting.id)) {
+                const collection = EntityCollection.fromCollection(this.productSortings);
+                collection.add(this.defaultSorting);
+                this.productSortings = collection;
             }
         },
 
@@ -395,7 +423,9 @@ export default {
 
             // add the default sorting to available sortings, so it won't break logic
             if (!this.productSortings.has(defaultSorting.id)) {
-                this.productSortings.add(defaultSorting);
+                const collection = EntityCollection.fromCollection(this.productSortings);
+                collection.add(defaultSorting);
+                this.productSortings = collection;
             }
 
             this.defaultSorting = defaultSorting;
@@ -411,20 +441,14 @@ export default {
 
         updateFilters(item, active) {
             if (active) {
-                this.filters = [
-                    ...this.filters,
-                    item,
-                ];
+                this.filters = [...this.filters, item];
             } else {
                 this.filters = this.filters.reduce((acc, current) => {
                     if (current === item) {
                         return acc;
                     }
 
-                    return [
-                        ...acc,
-                        current,
-                    ];
+                    return [...acc, current];
                 }, []);
             }
 
@@ -439,6 +463,7 @@ export default {
             const filters = this.element.config.filters.value;
 
             if (filters === null || filters === '') {
+                this.filters = [];
                 return;
             }
 
@@ -464,10 +489,7 @@ export default {
 
             if (enable) {
                 // eslint-disable-next-line inclusive-language/use-inclusive-words
-                this.element.config.propertyWhitelist.value = [
-                    ...allowlist,
-                    id,
-                ];
+                this.element.config.propertyWhitelist.value = [...allowlist, id];
 
                 return;
             }
@@ -478,11 +500,47 @@ export default {
                     return acc;
                 }
 
-                return [
-                    ...acc,
-                    current,
-                ];
+                return [...acc, current];
             }, []);
+        },
+
+        onFilterInheritanceRemove() {
+            const childConfig = this.contentEntity?.slotConfig?.[this.element.id];
+
+            if (!childConfig || has(childConfig, 'propertyWhitelist')) {
+                return;
+            }
+
+            const inherited = get(this.inheritedSlotConfig?.[this.element.id], 'propertyWhitelist') ?? {
+                source: 'static',
+                value: [],
+            };
+            set(childConfig, 'propertyWhitelist', cloneDeep(inherited));
+        },
+
+        onFilterInheritanceRestore() {
+            const contentEntity = this.contentEntity;
+            const slotConfig = contentEntity?.slotConfig;
+
+            if (slotConfig?.[this.element.id]) {
+                unset(slotConfig[this.element.id], 'propertyWhitelist');
+
+                if (isEmpty(slotConfig[this.element.id])) {
+                    unset(slotConfig, this.element.id);
+                }
+
+                if (isEmpty(slotConfig)) {
+                    set(contentEntity, 'slotConfig', null);
+                }
+            }
+
+            const inherited = get(this.inheritedSlotConfig?.[this.element.id], 'propertyWhitelist') ?? {
+                source: 'static',
+                value: [],
+            };
+            set(this.element.config, 'propertyWhitelist', cloneDeep(inherited));
+            this.unpackFilters();
+            this.sortProperties(this.properties);
         },
     },
 };

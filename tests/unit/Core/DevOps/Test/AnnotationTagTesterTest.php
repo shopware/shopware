@@ -139,12 +139,84 @@ class AnnotationTagTesterTest extends TestCase
         );
     }
 
+    public function testParameterDefaultValueChangeWithLiveVersionThrowsException(): void
+    {
+        $this->expectExceptionObject(new \InvalidArgumentException('The version you used for deprecation or experimental annotation is already live.'));
+
+        $this->annotationTagTester->validateBCChangeAttributeVersions(
+            '#[ParameterDefaultValueChange(version: \'v6.4.0\', parameterName: \'value\', newDefaultValue: \'new\')]'
+        );
+    }
+
     public function testBCChangeAttributeWithMalformedVersionThrowsException(): void
     {
         $this->expectExceptionObject(new \InvalidArgumentException('The tag version should start with `v` and comprise 3 digits separated by periods.'));
 
         $this->annotationTagTester->validateBCChangeAttributeVersions(
             '#[BecomesInternal(version: \'6.5.0\')]'
+        );
+    }
+
+    #[DoesNotPerformAssertions]
+    public function testExperimentalReplacementWithFutureVersionDoesNotThrowException(): void
+    {
+        $this->annotationTagTester->validateBCChangeAttributeVersions(
+            <<<'PHP'
+            #[ExperimentalReplacement(
+                version: 'v6.5.0',
+                feature: 'MY_FEATURE',
+                replacement: Replacement::class,
+            )]
+            PHP
+        );
+    }
+
+    public function testExperimentalReplacementWithLiveVersionThrowsException(): void
+    {
+        $this->expectExceptionObject(new \InvalidArgumentException('The version you used for deprecation or experimental annotation is already live.'));
+
+        $this->annotationTagTester->validateBCChangeAttributeVersions(
+            '#[ExperimentalReplacement(version: \'v6.4.0\', feature: \'MY_FEATURE\', description: \'Superseded.\')]'
+        );
+    }
+
+    #[DoesNotPerformAssertions]
+    public function testSilentUntilMarkerWithFutureFlagDoesNotThrowException(): void
+    {
+        $this->annotationTagTester->validateSilentUntilMarkers(
+            <<<'PHP'
+            Feature::triggerDeprecationOrThrow(
+                'v6.6.0.0',
+                'Method is removed with the legacy implementation',
+                silentUntil: 'v6.5.0.0',
+            );
+            PHP
+        );
+    }
+
+    public function testSilentUntilMarkerWithLiveFlagThrowsException(): void
+    {
+        $this->expectExceptionObject(new \InvalidArgumentException('The version you used for deprecation or experimental annotation is already live.'));
+
+        $this->annotationTagTester->validateSilentUntilMarkers(
+            'Feature::triggerDeprecationOrThrow(\'v6.5.0.0\', \'test\', silentUntil: \'v6.4.0.0\');'
+        );
+    }
+
+    public function testSilentUntilMarkerWithDeprecationTagVersionThrowsException(): void
+    {
+        $this->expectExceptionObject(new \InvalidArgumentException('The silentUntil marker must reference a major feature flag, starting with `v` and comprising 4 digits separated by periods.'));
+
+        $this->annotationTagTester->validateSilentUntilMarkers(
+            'Feature::triggerDeprecationOrThrow(\'v6.6.0.0\', \'test\', silentUntil: \'v6.5.0\');'
+        );
+    }
+
+    #[DoesNotPerformAssertions]
+    public function testContentWithoutSilentUntilMarkerDoesNotThrowException(): void
+    {
+        $this->annotationTagTester->validateSilentUntilMarkers(
+            'Feature::triggerDeprecationOrThrow(\'v6.4.0.0\', \'test\');'
         );
     }
 

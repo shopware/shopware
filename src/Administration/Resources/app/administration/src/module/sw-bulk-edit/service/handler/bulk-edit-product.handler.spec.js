@@ -53,21 +53,12 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             }),
         );
 
-        const result = await handler.bulkEdit(
-            [
-                'abc',
-                'xyz',
-            ],
-            [],
-        );
+        const result = await handler.bulkEdit(['abc', 'xyz'], []);
 
         expect(bulkEditProductHandler).toHaveBeenCalledTimes(1);
         expect(bulkEditProductHandler).toHaveBeenCalledWith([]);
         expect(handler.entityName).toBe('product');
-        expect(handler.entityIds).toEqual([
-            'abc',
-            'xyz',
-        ]);
+        expect(handler.entityIds).toEqual(['abc', 'xyz']);
         expect(result).toBe(true);
     });
 
@@ -82,9 +73,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             .mockImplementation(() => Promise.resolve(payload));
         const syncMethod = jest.spyOn(handler.syncService, 'sync').mockImplementation(() => Promise.resolve(true));
 
-        const changes = [
-            { type: 'overwrite', field: 'description', value: 'test' },
-        ];
+        const changes = [{ type: 'overwrite', field: 'description', value: 'test' }];
 
         const result = await handler.bulkEdit([], changes);
 
@@ -214,18 +203,11 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 delete: {},
             };
             handler.entityName = 'product';
-            handler.entityIds = [
-                'product_1',
-                'product_2',
-            ];
+            handler.entityIds = ['product_1', 'product_2'];
         });
 
         const cases = [
-            [
-                'empty changes',
-                [],
-                {},
-            ],
+            ['empty changes', [], {}],
             [
                 'invalid field',
                 [
@@ -413,10 +395,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'overwrite',
                         field: 'invalidField',
-                        value: [
-                            'category_1',
-                            'category_2',
-                        ],
+                        value: ['category_1', 'category_2'],
                     },
                 ],
                 {},
@@ -427,10 +406,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'overwrite',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {
@@ -467,10 +443,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'overwrite',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {
@@ -531,10 +504,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         type: 'overwrite',
                         field: 'media',
                         mappingReferenceField: 'mediaId',
-                        value: [
-                            { mediaId: 'media_1' },
-                            { mediaId: 'media_2' },
-                        ],
+                        value: [{ mediaId: 'media_1' }, { mediaId: 'media_2' }],
                     },
                 ],
                 {
@@ -657,16 +627,203 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                 },
             ],
             [
+                'remove a variant visibility per variant (inheriting vs overriding)',
+                [
+                    {
+                        type: 'remove',
+                        field: 'visibilities',
+                        mappingReferenceField: 'salesChannelId',
+                        // The kept selection is irrelevant for the handler; it routes on the flags below.
+                        value: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                            { salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                        removedSalesChannelIds: ['scn_3'],
+                        inheritedVisibilities: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                            { salesChannelId: 'scn_2', visibility: 30 },
+                            { salesChannelId: 'scn_3', visibility: 20 },
+                        ],
+                    },
+                ],
+                {
+                    // product_1 inherits → materialize the inherited set minus scn_3.
+                    'upsert-product_visibility': {
+                        action: 'upsert',
+                        entity: 'product_visibility',
+                        payload: [
+                            { productId: 'product_1', salesChannelId: 'scn_1', visibility: 30 },
+                            { productId: 'product_1', salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                    },
+                    // product_2 overrides (scn_g, scn_3) → only its own scn_3 row is dropped, scn_g stays.
+                    'delete-product_visibility': {
+                        action: 'delete',
+                        entity: 'product_visibility',
+                        payload: [{ id: 'pv_2_3' }],
+                    },
+                },
+                {
+                    product_visibility: [
+                        {
+                            id: 'pv_2_g',
+                            productId: 'product_2',
+                            salesChannelId: 'scn_g',
+                            visibility: 30,
+                        },
+                        {
+                            id: 'pv_2_3',
+                            productId: 'product_2',
+                            salesChannelId: 'scn_3',
+                            visibility: 20,
+                        },
+                    ],
+                },
+            ],
+            [
+                'remove a variant visibility leaves variants untouched when nothing is removed',
+                [
+                    {
+                        type: 'remove',
+                        field: 'visibilities',
+                        mappingReferenceField: 'salesChannelId',
+                        value: [{ salesChannelId: 'scn_1', visibility: 30 }],
+                        removedSalesChannelIds: [],
+                        inheritedVisibilities: [{ salesChannelId: 'scn_1', visibility: 30 }],
+                    },
+                ],
+                {},
+            ],
+            [
+                'add a variant visibility keeps the inherited set per variant',
+                [
+                    {
+                        type: 'add',
+                        field: 'visibilities',
+                        mappingReferenceField: 'salesChannelId',
+                        value: [{ salesChannelId: 'scn_1', visibility: 30 }],
+                        removedSalesChannelIds: [],
+                        // Adding scn_1 which is already inherited must not drop scn_2.
+                        addedVisibilities: [{ salesChannelId: 'scn_1', visibility: 30 }],
+                        inheritedVisibilities: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                            { salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                    },
+                ],
+                {
+                    'upsert-product_visibility': {
+                        action: 'upsert',
+                        entity: 'product_visibility',
+                        payload: [
+                            // product_1 inherits → materialize the whole inherited set.
+                            { productId: 'product_1', salesChannelId: 'scn_1', visibility: 30 },
+                            { productId: 'product_1', salesChannelId: 'scn_2', visibility: 30 },
+                            // product_2 overrides (owns scn_2) → only scn_1 is added, scn_2 kept.
+                            { productId: 'product_2', salesChannelId: 'scn_1', visibility: 30 },
+                        ],
+                    },
+                },
+                {
+                    product_visibility: [
+                        {
+                            id: 'pv_2_2',
+                            productId: 'product_2',
+                            salesChannelId: 'scn_2',
+                            visibility: 30,
+                        },
+                    ],
+                },
+            ],
+            [
+                'add a brand-new sales channel to a variant keeps its effective set',
+                [
+                    {
+                        type: 'add',
+                        field: 'visibilities',
+                        mappingReferenceField: 'salesChannelId',
+                        value: [{ salesChannelId: 'scn_9', visibility: 10 }],
+                        removedSalesChannelIds: [],
+                        addedVisibilities: [{ salesChannelId: 'scn_9', visibility: 10 }],
+                        inheritedVisibilities: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                            { salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                    },
+                ],
+                {
+                    // Both variants inherit → materialize the inherited set plus the new channel.
+                    'upsert-product_visibility': {
+                        action: 'upsert',
+                        entity: 'product_visibility',
+                        payload: [
+                            { productId: 'product_1', salesChannelId: 'scn_1', visibility: 30 },
+                            { productId: 'product_1', salesChannelId: 'scn_2', visibility: 30 },
+                            { productId: 'product_1', salesChannelId: 'scn_9', visibility: 10 },
+                            { productId: 'product_2', salesChannelId: 'scn_1', visibility: 30 },
+                            { productId: 'product_2', salesChannelId: 'scn_2', visibility: 30 },
+                            { productId: 'product_2', salesChannelId: 'scn_9', visibility: 10 },
+                        ],
+                    },
+                },
+                {
+                    product_visibility: [],
+                },
+            ],
+            [
+                'remove all channels makes a variant inherit the parent again',
+                [
+                    {
+                        type: 'remove',
+                        field: 'visibilities',
+                        mappingReferenceField: 'salesChannelId',
+                        value: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                            { salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                        removedSalesChannelIds: ['scn_1', 'scn_2'],
+                        inheritedVisibilities: [
+                            { salesChannelId: 'scn_1', visibility: 30 },
+                            { salesChannelId: 'scn_2', visibility: 30 },
+                        ],
+                    },
+                ],
+                {
+                    // The final set is empty for every variant. An inheriting variant
+                    // (product_1) already has no own rows, so nothing happens and it keeps
+                    // inheriting. An overriding variant (product_2) has its own rows deleted,
+                    // dropping to zero rows — which means it inherits the parent again.
+                    'delete-product_visibility': {
+                        action: 'delete',
+                        entity: 'product_visibility',
+                        payload: [{ id: 'pv_2_1' }, { id: 'pv_2_2' }],
+                    },
+                },
+                {
+                    product_visibility: [
+                        {
+                            id: 'pv_2_1',
+                            productId: 'product_2',
+                            salesChannelId: 'scn_1',
+                            visibility: 30,
+                        },
+                        {
+                            id: 'pv_2_2',
+                            productId: 'product_2',
+                            salesChannelId: 'scn_2',
+                            visibility: 30,
+                        },
+                    ],
+                },
+            ],
+            [
                 'add an oneToMany association with mapping reference field',
                 [
                     {
                         type: 'add',
                         field: 'media',
                         mappingReferenceField: 'mediaId',
-                        value: [
-                            { mediaId: 'media_1' },
-                            { mediaId: 'media_2' },
-                        ],
+                        value: [{ mediaId: 'media_1' }, { mediaId: 'media_2' }],
                     },
                 ],
                 {
@@ -708,10 +865,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'add',
                         field: 'productLocations',
-                        value: [
-                            { name: 'location 2' },
-                            { name: 'location 3' },
-                        ],
+                        value: [{ name: 'location 2' }, { name: 'location 3' }],
                     },
                 ],
                 {
@@ -755,10 +909,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                         type: 'clear',
                         field: 'media',
                         mappingReferenceField: 'mediaId',
-                        value: [
-                            { mediaId: 'media_1' },
-                            { mediaId: 'media_2' },
-                        ],
+                        value: [{ mediaId: 'media_1' }, { mediaId: 'media_2' }],
                     },
                 ],
                 {
@@ -826,10 +977,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'overwrite',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {},
@@ -860,10 +1008,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'overwrite',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {
@@ -901,11 +1046,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'add',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                            { id: 'category_3' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }, { id: 'category_3' }],
                     },
                 ],
                 {
@@ -955,10 +1096,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'remove',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {
@@ -1004,10 +1142,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
                     {
                         type: 'add',
                         field: 'categories',
-                        value: [
-                            { id: 'category_1' },
-                            { id: 'category_2' },
-                        ],
+                        value: [{ id: 'category_1' }, { id: 'category_2' }],
                     },
                 ],
                 {
@@ -1472,11 +1607,7 @@ describe('module/sw-bulk-edit/service/handler/bulk-edit-product.handler', () => 
             const scopedHandler = getBulkEditProductHandler();
             scopedHandler.groupedPayload = { upsert: {}, delete: {} };
             scopedHandler.entityName = 'product';
-            scopedHandler.entityIds = [
-                'product_1',
-                'product_2',
-                'product_3',
-            ];
+            scopedHandler.entityIds = ['product_1', 'product_2', 'product_3'];
 
             Shopware.EntityDefinition = EntityDefinitionFactory;
             Shopware.EntityDefinition.add('product', {

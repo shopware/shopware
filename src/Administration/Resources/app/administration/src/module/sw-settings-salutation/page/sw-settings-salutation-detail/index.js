@@ -13,11 +13,7 @@ const utils = Shopware.Utils;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'acl',
-        'customFieldDataProviderService',
-    ],
+    inject: ['repositoryFactory', 'acl', 'customFieldDataProviderService'],
 
     mixins: [
         Mixin.getByName('notification'),
@@ -225,9 +221,7 @@ export default {
             criteria.addFilter(
                 Criteria.multi('AND', [
                     Criteria.equals('salutationKey', this.salutation.salutationKey),
-                    Criteria.not('AND', [
-                        Criteria.equals('id', this.salutation.id),
-                    ]),
+                    Criteria.not('AND', [Criteria.equals('id', this.salutation.id)]),
                 ]),
             );
 

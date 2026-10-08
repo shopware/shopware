@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Storefront\Framework\Twig\Extension;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
@@ -17,6 +18,7 @@ use Twig\TwigFunction;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ConfigExtension::class)]
 class ConfigExtensionTest extends TestCase
 {

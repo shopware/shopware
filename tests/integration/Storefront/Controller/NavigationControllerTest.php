@@ -9,6 +9,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
@@ -20,6 +21,7 @@ use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 /**
  * @internal
  */
+#[Package('discovery')]
 class NavigationControllerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -39,7 +41,7 @@ class NavigationControllerTest extends TestCase
         $response = $this->request('GET', '/', []);
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(NavigationPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -50,7 +52,7 @@ class NavigationControllerTest extends TestCase
 
         static::assertSame(200, $response->getStatusCode(), print_r($response->getContent(), true));
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(NavigationPageLoadedHook::HOOK_NAME, $traces);
     }
@@ -60,7 +62,7 @@ class NavigationControllerTest extends TestCase
         $response = $this->request('GET', '/widgets/menu/offcanvas', []);
         static::assertSame(200, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $this->getStorefrontRequestContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey(MenuOffcanvasPageletLoadedHook::HOOK_NAME, $traces);
     }
@@ -95,7 +97,7 @@ class NavigationControllerTest extends TestCase
         static::assertStringNotContainsString('p=', $location);
     }
 
-    public function testStorefrontInRangePaginationStillReturns200(): void
+    public function testStorefrontInRangePaginationStillReturns200AndRendersCanonicalUrl(): void
     {
         // 6 products, limit=2 → lastPage = 3; p=2 must succeed.
         $seoPath = $this->createCategoryWithProducts(6);
@@ -103,6 +105,14 @@ class NavigationControllerTest extends TestCase
         $response = $this->request('GET', $seoPath . '?p=2&limit=2', []);
 
         static::assertSame(200, $response->getStatusCode());
+
+        $canonicalUrl = $this->extractCanonicalUrl((string) $response->getContent());
+        static::assertStringEndsWith('/' . $seoPath . '?p=2', $canonicalUrl);
+
+        $firstPageResponse = $this->request('GET', $seoPath . '?p=1&limit=2', []);
+
+        static::assertSame(200, $firstPageResponse->getStatusCode());
+        static::assertStringEndsWith('/' . $seoPath, $this->extractCanonicalUrl((string) $firstPageResponse->getContent()));
     }
 
     public function testOffcanvasBackLinkAtFooterRootReturnsToMainEntry(): void
@@ -302,6 +312,15 @@ class NavigationControllerTest extends TestCase
         );
 
         static::assertSame(1, $matched, 'No back-link rendered in offcanvas response.');
+
+        return html_entity_decode($matches[1]);
+    }
+
+    private function extractCanonicalUrl(string $html): string
+    {
+        $matched = preg_match('#<link rel="canonical" href="(.*)"#', $html, $matches);
+
+        static::assertSame(1, $matched, 'No canonical link rendered in storefront response.');
 
         return html_entity_decode($matches[1]);
     }

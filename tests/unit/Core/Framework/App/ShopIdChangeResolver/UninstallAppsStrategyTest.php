@@ -39,7 +39,6 @@ class UninstallAppsStrategyTest extends TestCase
                 self::assertSame($context, $passedContext);
             });
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
 
         $strategy = new UninstallAppsStrategy($appRepository, $shopIdProvider, $appManager);

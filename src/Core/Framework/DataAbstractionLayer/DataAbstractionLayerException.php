@@ -28,6 +28,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Write\Command\WriteTypeIntendEx
 use Shopware\Core\Framework\DataAbstractionLayer\Write\FieldException\ExpectedArrayException;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolation;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\Validation\RestrictDeleteViolationException;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
@@ -50,6 +51,7 @@ class DataAbstractionLayerException extends HttpException
     public const INVALID_CRITERIA_IDS = 'FRAMEWORK__INVALID_CRITERIA_IDS';
     public const INVALID_API_CRITERIA_IDS = 'FRAMEWORK__INVALID_API_CRITERIA_IDS';
     public const CANNOT_CREATE_NEW_VERSION = 'FRAMEWORK__CANNOT_CREATE_NEW_VERSION';
+    public const CLONE_PROTECTED = 'FRAMEWORK__CLONE_PROTECTED';
     public const VERSION_MERGE_ALREADY_LOCKED = 'FRAMEWORK__VERSION_MERGE_ALREADY_LOCKED';
     public const VERSION_MERGE_SAME_VERSION = 'FRAMEWORK__VERSION_MERGE_SAME_VERSION';
     public const INVALID_LANGUAGE_ID = 'FRAMEWORK__INVALID_LANGUAGE_ID';
@@ -324,6 +326,19 @@ class DataAbstractionLayerException extends HttpException
             self::CANNOT_CREATE_NEW_VERSION,
             'Cannot create new version. {{ entity }} by id {{ id }} not found.',
             ['entity' => $entity, 'id' => $id]
+        );
+    }
+
+    public static function cloneProtected(string $entity, string $scope): self
+    {
+        return new self(
+            Response::HTTP_FORBIDDEN,
+            self::CLONE_PROTECTED,
+            'The entity "{{ entity }}" is clone protected for your scope "{{ scope }}".',
+            [
+                'entity' => $entity,
+                'scope' => $scope,
+            ],
         );
     }
 
@@ -965,10 +980,9 @@ class DataAbstractionLayerException extends HttpException
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self
-     *
      * @phpstan-ignore phpat.restrictNamespacesInCore (Don't do that! This will be fixed with the next major version as it is not used anymore)
      */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function configNotFound(): self|ElasticsearchProductException
     {
         /** @phpstan-ignore phpat.restrictNamespacesInCore */
@@ -984,9 +998,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return Exception\UnmappedFieldException
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unmappedField(string $field, EntityDefinition $definition): self|UnmappedFieldException
     {
         if (!Feature::isActive('v6.8.0.0')) {
@@ -996,9 +1008,7 @@ class DataAbstractionLayerException extends HttpException
         return new Exception\UnmappedFieldException($field, $definition);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function unexpectedFieldType(string $field, string $expectedField): self|\RuntimeException
     {
         return new self(
@@ -1012,20 +1022,18 @@ class DataAbstractionLayerException extends HttpException
     public static function invalidIdentifier(string $identifier): self|\InvalidArgumentException
     {
         if (!Feature::isActive('v6.8.0.0')) {
-            return new \InvalidArgumentException('Backtick not allowed in identifier');
+            return new \InvalidArgumentException('Backtick, question mark, colon, or control character not allowed in identifier');
         }
 
         return new self(
             Response::HTTP_BAD_REQUEST,
             self::DBAL_INVALID_IDENTIFIER,
-            'Backtick not allowed in identifier "{{ identifier }}"',
+            'Backtick, question mark, colon, or control character not allowed in identifier "{{ identifier }}"',
             ['identifier' => $identifier]
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function missingVersionField(string $definitionClass): self|\RuntimeException
     {
         return new self(
@@ -1054,9 +1062,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function noTranslationDefinition(string $entityName): self|\RuntimeException
     {
         return new self(
@@ -1067,9 +1073,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function missingTranslatedStorageAwareProperty(string $propertyName, string $translationEntityName): self|\RuntimeException
     {
         return new self(
@@ -1080,9 +1084,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function primaryKeyNotStorageAware(): self|\RuntimeException
     {
         return new self(
@@ -1092,9 +1094,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function onlyStorageAwareFieldsInReadCondition(): self|\RuntimeException
     {
         return new self(
@@ -1104,9 +1104,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function onlyStorageAwareFieldsAsTranslated(): self|\RuntimeException
     {
         return new self(
@@ -1130,9 +1128,7 @@ class DataAbstractionLayerException extends HttpException
         );
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return self only
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function cannotBuildAccessor(string $propertyName, string $root): self|\RuntimeException
     {
         return new self(
@@ -1202,9 +1198,7 @@ class DataAbstractionLayerException extends HttpException
         return new RestrictDeleteViolationException($definition, [new RestrictDeleteViolation($restrictions)]);
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - Will return only self
-     */
+    #[ReturnTypeNarrowing(version: 'v6.8.0', newType: 'self')]
     public static function invalidSyncOperationException(string $message): self|InvalidSyncOperationException
     {
         if (!Feature::isActive('v6.8.0.0')) {

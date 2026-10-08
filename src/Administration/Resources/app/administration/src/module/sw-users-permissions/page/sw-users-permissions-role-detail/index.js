@@ -11,6 +11,7 @@ export default {
     template,
 
     inject: [
+        'feature',
         'repositoryFactory',
         'privileges',
         'userService',
@@ -20,9 +21,7 @@ export default {
         'ssoSettingsService',
     ],
 
-    mixins: [
-        Mixin.getByName('notification'),
-    ],
+    mixins: [Mixin.getByName('notification')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -73,6 +72,31 @@ export default {
         roleId() {
             return this.$route.params.id?.toLowerCase();
         },
+
+        roleDetailTabs() {
+            const createRouteTab = (label, routeName) => {
+                const route = {
+                    name: routeName,
+                    params: { id: this.$route.params.id },
+                };
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    onClick: () => {
+                        void this.$router.push(route);
+                    },
+                };
+            };
+
+            return [
+                createRouteTab('sw-users-permissions.roles.tabs.general', 'sw.users.permissions.role.detail.general'),
+                createRouteTab(
+                    'sw-users-permissions.roles.tabs.detailed',
+                    'sw.users.permissions.role.detail.detailed-privileges',
+                ),
+            ];
+        },
     },
 
     watch: {
@@ -116,6 +140,7 @@ export default {
             this.role.name = '';
             this.role.description = '';
             this.role.privileges = [];
+            this.detailedPrivileges = [...this.privileges.getDefaultUserPrivileges()];
 
             this.isLoading = false;
         },
@@ -127,13 +152,9 @@ export default {
 
             const filteredPrivileges = this.privileges.filterPrivilegesRoles(this.role.privileges);
             const allGeneralPrivileges = this.privileges.getPrivilegesForAdminPrivilegeKeys(filteredPrivileges);
-            const defaultUserPrivileges = this.privileges.getDefaultUserPrivileges();
 
             this.detailedPrivileges = this.role.privileges.filter((privilege) => {
-                return ![
-                    ...allGeneralPrivileges,
-                    ...defaultUserPrivileges,
-                ].includes(privilege);
+                return !allGeneralPrivileges.includes(privilege);
             });
             this.role.privileges = filteredPrivileges;
         },

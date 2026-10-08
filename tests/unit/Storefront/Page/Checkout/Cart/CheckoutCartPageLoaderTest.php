@@ -17,6 +17,7 @@ use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearchResult;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Country\CountryCollection;
 use Shopware\Core\System\Country\CountryDefinition;
@@ -36,6 +37,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * @internal
  */
+#[Package('checkout')]
 #[CoversClass(CheckoutCartPageLoader::class)]
 class CheckoutCartPageLoaderTest extends TestCase
 {

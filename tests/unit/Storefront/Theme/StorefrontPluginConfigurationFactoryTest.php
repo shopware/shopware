@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Storefront\Theme;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Plugin\KernelPluginLoader\KernelPluginLoader;
 use Shopware\Core\Framework\Util\Filesystem;
@@ -16,6 +17,7 @@ use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(StorefrontPluginConfigurationFactory::class)]
 class StorefrontPluginConfigurationFactoryTest extends TestCase
 {

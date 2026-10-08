@@ -6,6 +6,7 @@ use Shopware\Core\Content\Category\CategoryEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeWidening;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 
@@ -60,11 +61,10 @@ class MainCategoryEntity extends Entity
         $this->categoryId = $categoryId;
     }
 
-    /**
-     * @deprecated tag:v6.8.0 - reason:return-type-change - return type will be nullable and condition will be removed
-     */
+    #[ReturnTypeWidening(version: 'v6.8.0', newType: '?' . CategoryEntity::class)]
     public function getCategory(): CategoryEntity
     {
+        /** @deprecated tag:v6.8.0 - remove this fallback condition */
         if ($this->category === null) {
             return new CategoryEntity();
         }

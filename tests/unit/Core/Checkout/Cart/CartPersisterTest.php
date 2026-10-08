@@ -7,6 +7,7 @@ use Doctrine\DBAL\Statement;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\CartBehavior;
 use Shopware\Core\Checkout\Cart\CartCompressor;
 use Shopware\Core\Checkout\Cart\CartPersister;
 use Shopware\Core\Checkout\Cart\CartSerializationCleaner;
@@ -14,6 +15,7 @@ use Shopware\Core\Checkout\Cart\Event\CartSavedEvent;
 use Shopware\Core\Checkout\Cart\Event\CartVerifyPersistEvent;
 use Shopware\Core\Checkout\Cart\Exception\CartTokenNotFoundException;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\CheckoutPermissions;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Test\Generator;
@@ -82,6 +84,52 @@ class CartPersisterTest extends TestCase
         static::assertCount(2, $eventDispatcher->getEvents());
         static::assertInstanceOf(CartVerifyPersistEvent::class, $eventDispatcher->getEvents()[0]);
         static::assertInstanceOf(CartSavedEvent::class, $eventDispatcher->getEvents()[1]);
+    }
+
+    public function testSaveOfEmptiedPersistedCartResetsPersistedState(): void
+    {
+        $cart = new Cart('token');
+        $cart->setPersisted(true);
+
+        $statement = $this->createMock(Statement::class);
+        $statement->expects($this->once())
+            ->method('executeStatement')
+            ->willReturn(1);
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())
+            ->method('prepare')
+            ->with(static::stringContains('DELETE FROM `cart`'))
+            ->willReturn($statement);
+
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
+        $persister = new CartPersister($connection, new CollectingEventDispatcher(), $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
+
+        $persister->save($cart, Generator::generateSalesChannelContext());
+
+        static::assertFalse($cart->isPersisted());
+    }
+
+    public function testSaveWithSkipCartPersistencePermissionLeavesStorageUntouched(): void
+    {
+        // an emptied cart would fall into the delete branch without the permission
+        $cart = new Cart('token');
+        $cart->setPersisted(true);
+        $cart->setBehavior(new CartBehavior([CheckoutPermissions::SKIP_CART_PERSISTENCE => true]));
+
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->never())
+            ->method('prepare');
+
+        $eventDispatcher = new CollectingEventDispatcher();
+        $cartSerializationCleaner = static::createStub(CartSerializationCleaner::class);
+        $persister = new CartPersister($connection, $eventDispatcher, $cartSerializationCleaner, new CartCompressor(false, 'gzip'), new NativeClock());
+
+        $persister->save($cart, Generator::generateSalesChannelContext());
+
+        static::assertTrue($cart->isPersisted());
+        static::assertCount(1, $eventDispatcher->getEvents());
+        static::assertContainsOnlyInstancesOf(CartVerifyPersistEvent::class, $eventDispatcher->getEvents());
     }
 
     public function testSaveDoesNotDispatchSavedEventWhenPersistedCartUpdateAffectsZeroRows(): void

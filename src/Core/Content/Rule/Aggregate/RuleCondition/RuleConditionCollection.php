@@ -7,6 +7,8 @@ use Shopware\Core\Framework\Log\Package;
 
 /**
  * @extends EntityCollection<RuleConditionEntity>
+ *
+ * @codeCoverageIgnore
  */
 #[Package('fundamentals@after-sales')]
 class RuleConditionCollection extends EntityCollection

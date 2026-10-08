@@ -14,6 +14,7 @@ use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\Framework\Validation\Exception\ConstraintViolationException;
 use Shopware\Core\Test\Generator;
 use Shopware\Storefront\Controller\FormController;
+use Shopware\Tests\Unit\Storefront\Controller\Stub\FormControllerStub;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Validator\ConstraintViolation;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -30,7 +31,7 @@ class FormControllerTest extends TestCase
 
     public function testContactFormTranslatesViolationCode(): void
     {
-        $contactFormRoute = $this->createMock(AbstractContactFormRoute::class);
+        $contactFormRoute = static::createStub(AbstractContactFormRoute::class);
         $contactFormRoute->method('load')->willThrowException($this->createViolationException());
 
         $controller = $this->createController(contactFormRoute: $contactFormRoute);
@@ -42,7 +43,7 @@ class FormControllerTest extends TestCase
 
     public function testContactFormTranslatesCustomViolationMessage(): void
     {
-        $contactFormRoute = $this->createMock(AbstractContactFormRoute::class);
+        $contactFormRoute = static::createStub(AbstractContactFormRoute::class);
         $contactFormRoute->method('load')->willThrowException($this->createViolationException(
             new ConstraintViolation(
                 'error.urlNotAllowed',
@@ -65,7 +66,7 @@ class FormControllerTest extends TestCase
 
     public function testContactFormFallsBackToSymfonyViolationMessageWhenTranslationIsMissing(): void
     {
-        $contactFormRoute = $this->createMock(AbstractContactFormRoute::class);
+        $contactFormRoute = static::createStub(AbstractContactFormRoute::class);
         $contactFormRoute->method('load')->willThrowException($this->createViolationException(
             new ConstraintViolation(
                 'This value is not valid.',
@@ -94,7 +95,7 @@ class FormControllerTest extends TestCase
 
     public function testRevocationRequestTranslatesViolationCode(): void
     {
-        $revocationRequestRoute = $this->createMock(AbstractRevocationRequestRoute::class);
+        $revocationRequestRoute = static::createStub(AbstractRevocationRequestRoute::class);
         $revocationRequestRoute->method('request')->willThrowException($this->createViolationException());
 
         $controller = $this->createController(abstractRevocationRequestRoute: $revocationRequestRoute);
@@ -106,8 +107,7 @@ class FormControllerTest extends TestCase
 
     public function testNewsletterSubscribeTranslatesViolationCode(): void
     {
-        $subscribeRoute = $this->createMock(AbstractNewsletterSubscribeRoute::class);
-        $subscribeRoute->method('subscribe')->willThrowException($this->createViolationException());
+        $subscribeRoute = static::createStub(AbstractNewsletterSubscribeRoute::class);
         $subscribeRoute->method('subscribeWithResponse')->willThrowException($this->createViolationException());
 
         $controller = $this->createController(subscribeRoute: $subscribeRoute);
@@ -123,8 +123,8 @@ class FormControllerTest extends TestCase
 
     public function testNewsletterUnsubscribeTranslatesViolationCode(): void
     {
-        $unsubscribeRoute = $this->createMock(AbstractNewsletterUnsubscribeRoute::class);
-        $unsubscribeRoute->method('unsubscribe')->willThrowException($this->createViolationException());
+        $unsubscribeRoute = static::createStub(AbstractNewsletterUnsubscribeRoute::class);
+        $unsubscribeRoute->method('unsubscribeWithResponse')->willThrowException($this->createViolationException());
 
         $controller = $this->createController(unsubscribeRoute: $unsubscribeRoute);
 
@@ -147,7 +147,7 @@ class FormControllerTest extends TestCase
         );
     }
 
-    private function assertTranslatedViolation(FormControllerTestClass $controller): void
+    private function assertTranslatedViolation(FormControllerStub $controller): void
     {
         static::assertSame(['translated:error.' . self::VIOLATION_CODE], $controller->renderViewParameters['list']);
     }
@@ -158,38 +158,18 @@ class FormControllerTest extends TestCase
         ?AbstractNewsletterUnsubscribeRoute $unsubscribeRoute = null,
         ?AbstractRevocationRequestRoute $abstractRevocationRequestRoute = null,
         ?ConstraintViolationTranslator $constraintViolationTranslator = null,
-    ): FormControllerTestClass {
+    ): FormControllerStub {
         $translator = static::createStub(TranslatorInterface::class);
         $translator->method('trans')->willReturnCallback(
             static fn (string $id): string => str_starts_with($id, 'error.') ? 'translated:' . $id : $id
         );
 
-        return new FormControllerTestClass(
+        return new FormControllerStub(
             $contactFormRoute ?? static::createStub(AbstractContactFormRoute::class),
             $subscribeRoute ?? static::createStub(AbstractNewsletterSubscribeRoute::class),
             $unsubscribeRoute ?? static::createStub(AbstractNewsletterUnsubscribeRoute::class),
             $abstractRevocationRequestRoute ?? static::createStub(AbstractRevocationRequestRoute::class),
             $constraintViolationTranslator ?? new ConstraintViolationTranslator($translator),
         );
-    }
-}
-
-/**
- * @internal
- */
-class FormControllerTestClass extends FormController
-{
-    use StorefrontControllerMockTrait;
-
-    /**
-     * @var array<string, mixed>
-     */
-    public array $renderViewParameters = [];
-
-    protected function renderView(string $view, array $parameters = []): string
-    {
-        $this->renderViewParameters = $parameters;
-
-        return 'rendered';
     }
 }

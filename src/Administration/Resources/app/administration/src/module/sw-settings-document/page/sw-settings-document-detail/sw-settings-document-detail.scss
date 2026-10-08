@@ -32,7 +32,46 @@
     }
 
     &__settings_card-form {
-        > :nth-last-child(-n+3) {
+        > :nth-last-child(-n+2) {
+            margin-bottom: 0;
+
+            .mt-field {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    &__filename_pattern {
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-8);
+        margin-bottom: var(--scale-size-32);
+        color: var(--color-text-secondary-default);
+    }
+
+    &__filename_card-form {
+        > * {
+            margin-bottom: 0;
+
+            .mt-field {
+                margin-bottom: 0;
+            }
+        }
+    }
+
+    &__filename_infix_headline {
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-4);
+        margin: var(--scale-size-32) 0;
+
+        h3 {
+            margin: 0;
+        }
+    }
+
+    &__filename_infix_fields {
+        > :nth-last-child(-n+2) {
             margin-bottom: 0;
 
             .mt-field {

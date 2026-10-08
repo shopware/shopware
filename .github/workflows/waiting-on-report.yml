@@ -1,0 +1,68 @@
+name: Waiting-on report
+
+# Reports who each open pull request is waiting for, into the job summary, and sets the
+# matching `waiting-on/*` label. It comments nowhere and closes nothing — the rule and its
+# rationale live in .github/bin/js/waiting-on.ts.
+#
+# The labels are written with GITHUB_TOKEN on purpose: its events start no workflow runs, so
+# a sweep over every open pull request does not fan out into the `labeled` workflows.
+#
+# With the repository variable WAITING_ON_PROJECT_NUMBER set, the verdicts are also mirrored
+# into that organization project, written with the ManageProjects octo-sts identity.
+#
+# Teams listed in WAITING_ON_SLACK_CHANNELS get a Slack reminder about external pull requests
+# that have been waiting on us for too long; see .github/bin/js/waiting-on-slack.ts.
+#
+# A daily sweep rather than pull_request events, for two reasons: the state changes as time
+# passes and not only when something happens, and a fork pull request event carries a
+# read-only token that could not write a label later on anyway.
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # every day at 06:00 UTC, before the European working day
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Only report, change no labels
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}
+
+jobs:
+  report:
+    name: Report and label who is waiting for whom
+    if: github.repository == 'shopware/shopware'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github/bin/js
+      - id: sts
+        if: vars.WAITING_ON_PROJECT_NUMBER != ''
+        uses: shopware/octo-sts-action@main
+        with:
+          scope: shopware
+          identity: ManageProjects
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        env:
+          DRY_RUN: ${{ inputs.dry-run || false }}
+          PROJECT_NUMBER: ${{ vars.WAITING_ON_PROJECT_NUMBER }}
+          PROJECT_TOKEN: ${{ steps.sts.outputs.token }}
+          SLACK_TOKEN: ${{ secrets.SLACK_TOKEN_PRODUCT_NOTIFICATIONS }}
+          SLACK_CHANNELS: ${{ vars.WAITING_ON_SLACK_CHANNELS }}
+        with:
+          script: |
+            const { reportWaitingOn } = await import('${{ github.workspace }}/.github/bin/js/waiting-on.ts')
+            const project = process.env.PROJECT_NUMBER
+              ? { github: getOctokit(process.env.PROJECT_TOKEN), number: Number(process.env.PROJECT_NUMBER) }
+              : undefined
+            const reminders = { slack: { token: process.env.SLACK_TOKEN }, channels: process.env.SLACK_CHANNELS }
+            await reportWaitingOn({ github, core, context }, { dryRun: process.env.DRY_RUN === 'true', project, reminders })

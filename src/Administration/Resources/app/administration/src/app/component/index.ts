@@ -11,6 +11,10 @@ export default () => {
     );
     Shopware.Component.register('sw-wizard', () => import('src/app/component/wizard/sw-wizard/index'));
     Shopware.Component.register('sw-vnode-renderer', () => import('src/app/component/utils/sw-vnode-renderer/index'));
+    Shopware.Component.register(
+        'sw-dismissible-notices',
+        () => import('src/app/component/utils/sw-dismissible-notices/index'),
+    );
     Shopware.Component.register('sw-verify-user-modal', () => import('src/app/component/utils/sw-verify-user-modal/index'));
     Shopware.Component.register('sw-upload-listener', () => import('src/app/component/utils/sw-upload-listener/index'));
     Shopware.Component.register('sw-time-ago', () => import('src/app/component/utils/sw-time-ago/index'));
@@ -483,6 +487,10 @@ export default () => {
     Shopware.Component.register('sw-media-folder-content', () => import('src/app/component/media/sw-media-folder-content'));
     Shopware.Component.register('sw-media-folder-item', () => import('src/app/component/media/sw-media-folder-item'));
     Shopware.Component.register(
+        'sw-media-folder-thumbnail',
+        () => import('src/app/component/media/sw-media-folder-thumbnail'),
+    );
+    Shopware.Component.register(
         'sw-media-list-selection-item-v2',
         () => import('src/app/component/media/sw-media-list-selection-item-v2'),
     );
@@ -524,6 +532,8 @@ export default () => {
         () => import('src/app/component/structure/sw-media-modal-renderer/index'),
     );
     Shopware.Component.register('sw-request-consent-modal', () => import('./structure/sw-request-consent-modal'));
+    // @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
+    Shopware.Component.register('sw-ui-shell-update-2026-modal', () => import('./structure/sw-ui-shell-update-2026-modal'));
     Shopware.Component.extend('sw-sidebar-collapse', 'sw-collapse', () => import('./sidebar/sw-sidebar-collapse/index'));
     Shopware.Component.extend(
         'sw-condition-is-net-select',

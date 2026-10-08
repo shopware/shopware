@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Storefront\Framework\Seo\SeoUrl;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryDefinition;
@@ -476,6 +477,13 @@ class SeoUrlTest extends TestCase
     {
         $seoUrlId1 = Uuid::randomHex();
         $seoUrlId2 = Uuid::randomHex();
+
+        // The default test sales channel is a headless channel; mark its domain as an external storefront so
+        // SEO URLs are generated for it (otherwise reindexing sweeps the inserted canonical URLs as deleted).
+        static::getContainer()->get(Connection::class)->executeStatement(
+            'UPDATE `sales_channel_domain` SET `is_external_storefront` = 1 WHERE `sales_channel_id` = :id',
+            ['id' => Uuid::fromHexToBytes(TestDefaults::SALES_CHANNEL)]
+        );
 
         $id = Uuid::randomHex();
         $this->upsertProduct([

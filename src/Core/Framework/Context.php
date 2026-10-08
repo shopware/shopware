@@ -8,6 +8,7 @@ use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\Api\Context\ContextSource;
 use Shopware\Core\Framework\Api\Context\SystemSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Pricing\CashRoundingConfig;
+use Shopware\Core\Framework\Deprecation\BCChange\NewOptionalParameter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\StateAwareTrait;
 use Shopware\Core\Framework\Struct\Struct;
@@ -192,14 +193,13 @@ class Context extends Struct
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $states will be added. It accepts temporary states that should exist only for this scope; nested scopes do not inherit them unless they pass the same states again.
-     *
      * @template TReturn of mixed
      *
      * @param \Closure(Context): TReturn $callback
      *
      * @return TReturn the return value of the provided callback function
      */
+    #[NewOptionalParameter(version: 'v6.8.0', parameterName: 'states', parameterType: 'array', defaultValue: [], description: 'Temporary states that should exist only for this scope; nested scopes do not inherit them unless they pass the same states again.')]
     public function scope(string $scope, \Closure $callback/* , array $states = [] */): mixed
     {
         $currentScope = $this->getScope();

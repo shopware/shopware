@@ -57,7 +57,7 @@ class AccountProfileControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('account-overview-page-loaded', $traces);
     }
@@ -74,7 +74,7 @@ class AccountProfileControllerTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
-        $traces = static::getContainer()->get(ScriptTraces::class)->getTraces();
+        $traces = $browser->getContainer()->get(ScriptTraces::class)->getTraces();
 
         static::assertArrayHasKey('account-profile-page-loaded', $traces);
     }

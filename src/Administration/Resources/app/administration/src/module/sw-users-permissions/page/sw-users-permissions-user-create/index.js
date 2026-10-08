@@ -11,9 +11,7 @@ export default {
     template,
 
     computed: {
-        ...mapPropertyErrors('user', [
-            'password',
-        ]),
+        ...mapPropertyErrors('user', ['password']),
     },
 
     methods: {
@@ -25,7 +23,6 @@ export default {
             return new Promise((resolve) => {
                 this.user = this.userRepository.create(this.context);
                 this.user.active = true;
-                this.user.admin = false;
                 resolve();
             });
         },

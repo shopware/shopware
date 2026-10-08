@@ -12,6 +12,7 @@ use Shopware\Core\Framework\App\Lifecycle\Context\AppPersistContext;
 use Shopware\Core\Framework\App\Lifecycle\Context\AppRemovalContext;
 use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Test\Stub\Framework\Util\StaticFilesystem;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\AbstractStorefrontPluginConfigurationFactory;
 use Shopware\Storefront\Theme\StorefrontPluginConfiguration\StorefrontPluginConfiguration;
@@ -24,6 +25,7 @@ use Shopware\Storefront\Theme\ThemeLifecycleService;
 /**
  * @internal
  */
+#[Package('discovery')]
 #[CoversClass(ThemeAppLifecycleHandler::class)]
 class ThemeAppLifecycleHandlerTest extends TestCase
 {

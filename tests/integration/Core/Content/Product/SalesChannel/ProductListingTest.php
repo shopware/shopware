@@ -464,7 +464,7 @@ class ProductListingTest extends TestCase
     }
 
     /**
-     * @return array<array{id: string, productNumber: string, width: string, stock: int, name: string}>
+     * @return array<array{id: string, productNumber: string, width: string, stock: int, name: string, price: array<array{currencyId: string, gross: int, net: int, linked: bool}>, manufacturer: array{id: string, name: string}, tax: array{id: string, taxRate: int, name: string}, visibilities: array<array{salesChannelId: string, visibility: int}>}>
      */
     private function createProducts(): array
     {

@@ -13,7 +13,7 @@ use Shopware\Core\Migration\V6_7\Migration1754892246FixWordingMistakeInEmailTemp
 /**
  * @internal
  */
-#[Package('framework')]
+#[Package('after-sales')]
 #[CoversClass(Migration1754892246FixWordingMistakeInEmailTemplates::class)]
 class Migration1754892246FixWordingMistakeInEmailTemplatesTest extends TestCase
 {

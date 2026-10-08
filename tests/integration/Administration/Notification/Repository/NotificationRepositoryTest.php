@@ -4,12 +4,12 @@ namespace Shopware\Tests\Integration\Administration\Notification\Repository;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Shopware\Administration\Notification\NotificationCollection;
-use Shopware\Administration\Notification\NotificationEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Notification\NotificationCollection;
+use Shopware\Core\Framework\Notification\NotificationEntity;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;

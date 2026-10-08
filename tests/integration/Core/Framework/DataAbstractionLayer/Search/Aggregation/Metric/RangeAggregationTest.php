@@ -37,26 +37,6 @@ class RangeAggregationTest extends TestCase
     }
 
     /**
-     * @return iterable<string, mixed>
-     */
-    public static function buildRangeKeyDataProvider(): iterable
-    {
-        yield 'empty from and empty to' => [null, null, '*-*'];
-        yield 'empty from and to' => [null, 10, '*-10'];
-        yield 'from and empty to' => [10, null, '10-*'];
-    }
-
-    #[DataProvider('buildRangeKeyDataProvider')]
-    public function testBuildRangeKey(?float $from, ?float $to, string $expectedKey): void
-    {
-        $method = new \ReflectionMethod(RangeAggregation::class, 'buildRangeKey');
-
-        $aggregation = new RangeAggregation('test', 'test', []);
-
-        static::assertSame($expectedKey, $method->invoke($aggregation, $from, $to));
-    }
-
-    /**
      * @return iterable<string, array{rangesDefinition: mixed, rangesExpectedResult: mixed}>
      */
     public static function rangeAggregationDataProvider(): iterable

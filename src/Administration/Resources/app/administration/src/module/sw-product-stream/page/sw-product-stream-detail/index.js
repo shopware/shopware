@@ -76,10 +76,7 @@ export default {
             showModalPreview: false,
             languageId: null,
             customFieldSets: null,
-            productTypes: [
-                'physical',
-                'digital',
-            ],
+            productTypes: ['physical', 'digital'],
         };
     },
 
@@ -191,10 +188,7 @@ export default {
             });
             this.languageId = Context.api.languageId;
 
-            const promises = [
-                this.loadCustomFieldSets(),
-                this.loadProductTypes(),
-            ];
+            const promises = [this.loadCustomFieldSets(), this.loadProductTypes()];
 
             if (this.productStreamId) {
                 promises.push(this.getProductCustomFields());
@@ -221,6 +215,7 @@ export default {
             this.getProductCustomFields().then(() => {
                 Context.api.languageId = Context.api.systemLanguageId;
                 this.productStream = this.productStreamRepository.create(Context.api);
+                this.productStream.displayAsGroup = true;
                 this.productStreamFilters = this.productStream.filters;
             });
         },
@@ -320,6 +315,7 @@ export default {
                             params: { id: this.productStream.id },
                         });
                         this.isSaveSuccessful = true;
+                        this.isSaving = false;
                     })
                     .catch(() => {
                         this.showErrorNotification();
@@ -436,10 +432,7 @@ export default {
 
         updateFilterTree({ conditions, deletedIds }) {
             this.productStreamFiltersTree = conditions;
-            this.deletedProductStreamFilters = [
-                ...this.deletedProductStreamFilters,
-                ...deletedIds,
-            ];
+            this.deletedProductStreamFilters = [...this.deletedProductStreamFilters, ...deletedIds];
         },
 
         getNoPermissionsTooltip(role, showOnDisabledElements = true) {

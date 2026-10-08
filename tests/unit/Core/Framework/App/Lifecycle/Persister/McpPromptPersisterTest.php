@@ -6,6 +6,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptCollection;
+use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptDefinition;
 use Shopware\Core\Framework\App\Aggregate\AppMcpPrompt\AppMcpPromptEntity;
 use Shopware\Core\Framework\App\Lifecycle\Persister\AbstractMcpCapabilityPersister;
 use Shopware\Core\Framework\App\Lifecycle\Persister\McpPromptPersister;
@@ -52,7 +53,7 @@ class McpPromptPersisterTest extends TestCase
 
         $collection = new AppMcpPromptCollection([$existingEntity]);
         $searchResult = new EntitySearchResult(
-            AppMcpPromptEntity::class,
+            AppMcpPromptDefinition::ENTITY_NAME,
             1,
             $collection,
             null,
@@ -83,7 +84,7 @@ class McpPromptPersisterTest extends TestCase
 
         $collection = new AppMcpPromptCollection([$existingEntity]);
         $searchResult = new EntitySearchResult(
-            AppMcpPromptEntity::class,
+            AppMcpPromptDefinition::ENTITY_NAME,
             1,
             $collection,
             null,
@@ -126,7 +127,7 @@ class McpPromptPersisterTest extends TestCase
     public function testUpdatePromptsWithNewPromptCallsUpsertWithoutId(): void
     {
         $searchResult = new EntitySearchResult(
-            AppMcpPromptEntity::class,
+            AppMcpPromptDefinition::ENTITY_NAME,
             0,
             new AppMcpPromptCollection([]),
             null,

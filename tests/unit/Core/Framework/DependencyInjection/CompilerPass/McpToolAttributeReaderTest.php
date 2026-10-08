@@ -100,6 +100,46 @@ class McpToolAttributeReaderTest extends TestCase
         static::assertSame('reader-class-level-tool', $result['name']);
         static::assertNull($result['nonExistentField']);
     }
+
+    public function testResolveAttributeReturnsNullForNonExistentClass(): void
+    {
+        static::assertNull(McpToolAttributeReader::resolveAttribute('App\\NonExistent\\ToolClass', McpTool::class));
+    }
+
+    public function testResolveAttributeReturnsNullWhenAttributeAbsent(): void
+    {
+        static::assertNull(McpToolAttributeReader::resolveAttribute(McpAttributeReaderTestNoAttribute::class, McpTool::class));
+    }
+
+    public function testResolveAttributeReturnsNullWhenClassHasNoInvokeAndNoAttribute(): void
+    {
+        static::assertNull(McpToolAttributeReader::resolveAttribute(McpAttributeReaderTestNoInvokeNoAttribute::class, McpTool::class));
+    }
+
+    public function testResolveAttributeReturnsClassLevelInstance(): void
+    {
+        $tool = McpToolAttributeReader::resolveAttribute(McpAttributeReaderTestClassLevel::class, McpTool::class);
+
+        static::assertInstanceOf(McpTool::class, $tool);
+        static::assertSame('reader-class-level-tool', $tool->name);
+        static::assertSame('class-level description', $tool->description);
+    }
+
+    public function testResolveAttributeFallsBackToInvokeLevel(): void
+    {
+        $tool = McpToolAttributeReader::resolveAttribute(McpAttributeReaderTestMethodLevel::class, McpTool::class);
+
+        static::assertInstanceOf(McpTool::class, $tool);
+        static::assertSame('reader-method-level-tool', $tool->name);
+    }
+
+    public function testResolveAttributePrefersClassLevelOverInvokeLevel(): void
+    {
+        $tool = McpToolAttributeReader::resolveAttribute(McpAttributeReaderTestBothLevels::class, McpTool::class);
+
+        static::assertInstanceOf(McpTool::class, $tool);
+        static::assertSame('reader-class-wins', $tool->name);
+    }
 }
 
 /**

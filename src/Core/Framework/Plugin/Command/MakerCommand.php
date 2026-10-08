@@ -35,16 +35,11 @@ class MakerCommand extends Command
         $this
             ->addArgument('plugin-name', InputArgument::OPTIONAL, 'Plugin name (PascalCase)');
 
-        if (!$this->generator->hasCommandOption()) {
-            return;
-        }
+        $option = $this->generator->getCommandOption();
 
-        $this->addOption(
-            $this->generator->getCommandOptionName(),
-            null,
-            null,
-            $this->generator->getCommandOptionDescription(),
-        );
+        if ($option !== null) {
+            $this->getDefinition()->addOption($option);
+        }
     }
 
     protected function interact(InputInterface $input, OutputInterface $output): void
@@ -100,7 +95,7 @@ class MakerCommand extends Command
 
             $this->generator->addScaffoldConfig($configuration, $input, $io);
 
-            $stubCollection = $this->scaffoldingCollector->collect($configuration);
+            $stubCollection = $this->scaffoldingCollector->collect($configuration, $this->generator);
 
             $this->scaffoldingWriter->write($stubCollection, $configuration);
 

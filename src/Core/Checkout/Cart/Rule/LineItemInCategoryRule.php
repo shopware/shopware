@@ -44,6 +44,10 @@ class LineItemInCategoryRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('categoryIds', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchesOneOfCategory($lineItem)) {
                 return true;
             }

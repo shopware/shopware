@@ -27,7 +27,28 @@
                         "pattern": "^[0-9a-f]{32}$"
                     },
                     "fieldConfig": {
-                        "type": "object"
+                        "description": "Resolved configuration of the slot fields.",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "source": {
+                                    "type": "string",
+                                    "enum": ["static", "mapped", "default", "product_stream"]
+                                },
+                                "value": {
+                                    "description": "Configured value; its type depends on the field (string, number, boolean, array or null)."
+                                },
+                                "apiAlias": {
+                                    "type": "string",
+                                    "const": "cms_data_resolver_field_config"
+                                }
+                            },
+                            "required": ["name", "source", "value", "apiAlias"]
+                        }
                     },
                     "type": {
                         "description": "It indicates the types of content that can be defined within the slot which includes `image`, `text`, `form`, `product-listing`, `category-navigation`, `product-box`, `buy-box`, `sidebar-filter`, etc.",

@@ -4,9 +4,10 @@ namespace Shopware\Tests\Integration\Core\Checkout\Document\Renderer;
 
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
-use Shopware\Core\Checkout\Document\Renderer\RenderedDocument;
+use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer;
 use Shopware\Core\Checkout\Document\Renderer\ZugferdRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
+use Shopware\Core\Checkout\DocumentV2\Struct\RenderedDocument;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -66,6 +67,7 @@ class ZugferdRendererTest extends TestCase
         $this->salesChannelContext->setRuleIds([$priceRuleId]);
 
         $this->renderer = static::getContainer()->get(ZugferdRenderer::class);
+        $this->upsertDocumentSellerAddress(InvoiceRenderer::TYPE);
     }
 
     public function testDocumentSnapshot(): void

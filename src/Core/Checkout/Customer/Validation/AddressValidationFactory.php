@@ -5,6 +5,7 @@ namespace Shopware\Core\Checkout\Customer\Validation;
 use Shopware\Core\Checkout\Customer\Aggregate\CustomerAddress\CustomerAddressDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Validation\EntityExists;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Validation\Constraint\NoHtml;
 use Shopware\Core\Framework\Validation\DataValidationDefinition;
 use Shopware\Core\Framework\Validation\DataValidationFactoryInterface;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -58,7 +59,16 @@ class AddressValidationFactory implements DataValidationFactoryInterface
             ->add('firstName', new Length(max: CustomerAddressDefinition::MAX_LENGTH_FIRST_NAME, exactMessage: 'VIOLATION::FIRST_NAME_IS_TOO_LONG'))
             ->add('lastName', new Length(max: CustomerAddressDefinition::MAX_LENGTH_LAST_NAME, exactMessage: 'VIOLATION::LAST_NAME_IS_TOO_LONG'))
             ->add('title', new Length(max: CustomerAddressDefinition::MAX_LENGTH_TITLE, exactMessage: 'VIOLATION::TITLE_IS_TOO_LONG'))
-            ->add('zipcode', new Length(max: CustomerAddressDefinition::MAX_LENGTH_ZIPCODE, exactMessage: 'VIOLATION::ZIPCODE_IS_TOO_LONG'));
+            ->add('zipcode', new Length(max: CustomerAddressDefinition::MAX_LENGTH_ZIPCODE, exactMessage: 'VIOLATION::ZIPCODE_IS_TOO_LONG'))
+            ->add('firstName', new NoHtml(message: 'VIOLATION::CONTAINS_HTML_ERROR'))
+            ->add('lastName', new NoHtml(message: 'VIOLATION::CONTAINS_HTML_ERROR'))
+            ->add('title', new NoHtml(message: 'VIOLATION::CONTAINS_HTML_ERROR'))
+            ->add('company', new NoHtml(message: 'VIOLATION::CONTAINS_HTML_ERROR'))
+            ->add('department', new NoHtml(message: 'VIOLATION::CONTAINS_HTML_ERROR'))
+            ->add('street', new NoHtml(message: 'VIOLATION::CONTAINS_HTML_ERROR'))
+            ->add('additionalAddressLine1', new NoHtml(message: 'VIOLATION::CONTAINS_HTML_ERROR'))
+            ->add('additionalAddressLine2', new NoHtml(message: 'VIOLATION::CONTAINS_HTML_ERROR'))
+            ->add('city', new NoHtml(message: 'VIOLATION::CONTAINS_HTML_ERROR'));
 
         if ($this->systemConfigService->get('core.loginRegistration.showAdditionalAddressField1', $salesChannelId)
             && $this->systemConfigService->get('core.loginRegistration.additionalAddressField1Required', $salesChannelId)) {

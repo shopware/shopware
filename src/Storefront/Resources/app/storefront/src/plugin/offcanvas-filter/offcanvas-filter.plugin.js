@@ -24,7 +24,6 @@ export default class OffCanvasFilter extends Plugin {
         // move filter back to original place
         filterContent.innerHTML = oldChildNode.innerHTML;
 
-        document.$emitter.unsubscribe('onCloseOffcanvas', this._onCloseOffCanvas.bind(this));
         window.PluginManager.getPluginInstances('Listing')[0].refreshRegistry();
     }
 
@@ -57,7 +56,7 @@ export default class OffCanvasFilter extends Plugin {
         filterContent.innerHTML = '';
 
         window.PluginManager.getPluginInstances('Listing')[0].refreshRegistry();
-        document.$emitter.subscribe('onCloseOffcanvas', this._onCloseOffCanvas.bind(this));
+        document.$emitter.subscribe('onCloseOffcanvas', this._onCloseOffCanvas.bind(this), { once: true });
 
         this.$emitter.publish('onClickOffCanvasFilter');
     }

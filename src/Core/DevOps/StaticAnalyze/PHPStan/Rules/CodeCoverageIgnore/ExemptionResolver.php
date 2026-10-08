@@ -9,7 +9,8 @@ use Shopware\Core\Framework\Log\Package;
 /**
  * Decides whether a docblock's @see references exempt the annotated symbol
  * from the coverage-ignore rule. A reference exempts when it resolves to an
- * existing class whose FQCN contains \Tests\Integration\. Short-form names
+ * existing class whose FQCN contains \Tests\Integration\ or \Tests\DevOps\ —
+ * the two suites that exercise behaviour the unit lane cannot. Short-form names
  * are resolved through the file's use map; fully qualified or relative refs
  * are taken as-is.
  *
@@ -53,7 +54,7 @@ final class ExemptionResolver
                 $resolved = $useMap[$candidate] ?? $candidate;
             }
 
-            if (!str_contains($resolved, '\\Tests\\Integration\\')) {
+            if (!str_contains($resolved, '\\Tests\\Integration\\') && !str_contains($resolved, '\\Tests\\DevOps\\')) {
                 continue;
             }
 

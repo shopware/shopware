@@ -104,7 +104,13 @@ final class ManufacturerAdminSearchIndexer extends AbstractAdminIndexer
     }
 
     /**
-     * @return array<string, array{id:string, text:string}>
+     * @return array<string, array{
+     *     id: string,
+     *     text: string,
+     *     completion: list<string>,
+     *     name?: array<string, string>,
+     *     createdAt?: string|null
+     * }>
      */
     public function fetch(array $ids): array
     {

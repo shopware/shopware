@@ -123,23 +123,15 @@ class ErrorResponseFactoryTest extends TestCase
 
     public function testConvertExceptionToErrorCoversUnitEnum(): void
     {
-        $enum = TestEnum::FOO;
-
-        $errorArray = [
-            'paramOne' => 1,
-            'paramTwo' => 2,
-        ];
-
-        $simpleShopwareHttpException = new SimpleShopwareHttpException($errorArray);
+        $exception = new EnumMetaShopwareHttpException(['paramOne' => 1, 'paramTwo' => 2]);
 
         $errorResponseFactory = new ErrorResponseFactory();
-        $error = $errorResponseFactory->getErrorsFromException($simpleShopwareHttpException, true)[0];
+        // A non-backed enum has no JSON representation, so serializing the response only works
+        // because the factory converted the enum to its class name beforehand.
+        $response = $errorResponseFactory->getResponseFromException($exception, true);
+        $responseBody = json_decode((string) $response->getContent(), true, 512, \JSON_THROW_ON_ERROR);
 
-        $error['meta']['enumValue'] = $enum;
-        $converted = (new \ReflectionMethod(ErrorResponseFactory::class, 'convert'))
-            ->invoke(new ErrorResponseFactory(), $error);
-
-        static::assertSame(TestEnum::class, $converted['meta']['enumValue']);
+        static::assertSame(TestEnum::class, $responseBody['errors'][0]['meta']['enumValue']);
     }
 
     public function testItOverridesWithStatusCodeFromHttpException(): void
@@ -375,6 +367,25 @@ class SimpleShopwareHttpException extends ShopwareHttpException
     public function getStatusCode(): int
     {
         return Response::HTTP_I_AM_A_TEAPOT;
+    }
+}
+
+/**
+ * Exposes a \UnitEnum in the error meta data, so that the enum conversion of the
+ * ErrorResponseFactory can be observed through the public error API.
+ *
+ * @internal
+ */
+class EnumMetaShopwareHttpException extends SimpleShopwareHttpException
+{
+    public function getErrors(bool $withTrace = false): \Generator
+    {
+        foreach (parent::getErrors($withTrace) as $error) {
+            $error['meta']['enumValue'] = TestEnum::FOO;
+
+            /** @phpstan-ignore generator.valueType (Adding the undocumented meta value for testing purpose) */
+            yield $error;
+        }
     }
 }
 

@@ -46,10 +46,7 @@ export default class TagApiService extends ApiService {
         await tagRepository.save(tag);
         tag._isNew = false;
 
-        for (const [
-            propertyName,
-            property,
-        ] of Object.entries(definitionProperties)) {
+        for (const [propertyName, property] of Object.entries(definitionProperties)) {
             if (property.relation !== 'many_to_many') {
                 continue;
             }

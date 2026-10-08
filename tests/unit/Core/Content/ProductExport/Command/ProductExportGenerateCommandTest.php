@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\ProductExport\Command;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\Stub;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -73,11 +74,15 @@ class ProductExportGenerateCommandTest extends TestCase
         ]);
     }
 
-    public function testExecuteWithValidData(): void
+    /**
+     * @param Defaults::SALES_CHANNEL_TYPE_* $typeId
+     */
+    #[DataProvider('allowedSalesChannelTypeProvider')]
+    public function testExecuteWithValidData(string $typeId): void
     {
         $salesChannelId = Uuid::randomHex();
         $context = Context::createDefaultContext();
-        $salesChannelContext = $this->createSalesChannelContextStub($salesChannelId, $context);
+        $salesChannelContext = $this->createSalesChannelContextStub($salesChannelId, $context, $typeId);
 
         $this->salesChannelContextFactory->method('create')->willReturn($salesChannelContext);
         $this->productExportRepository->method('search')->willReturn($this->createSearchResult([], $context));
@@ -94,6 +99,15 @@ class ProductExportGenerateCommandTest extends TestCase
 
         static::assertSame(0, $commandTester->getStatusCode());
         static::assertStringNotContainsString('scheduler', $commandTester->getDisplay());
+    }
+
+    /**
+     * @return iterable<string, array{0: string}>
+     */
+    public static function allowedSalesChannelTypeProvider(): iterable
+    {
+        yield 'storefront' => [Defaults::SALES_CHANNEL_TYPE_STOREFRONT];
+        yield 'headless' => [Defaults::SALES_CHANNEL_TYPE_API];
     }
 
     public function testExecuteWarnsAboutSchedulerManagedExportAndStillGenerates(): void
@@ -161,15 +175,18 @@ class ProductExportGenerateCommandTest extends TestCase
         static::assertStringNotContainsString('scheduler', $commandTester->getDisplay());
     }
 
-    private function createSalesChannelContextStub(string $salesChannelId, Context $context): SalesChannelContext&Stub
-    {
+    private function createSalesChannelContextStub(
+        string $salesChannelId,
+        Context $context,
+        string $typeId = Defaults::SALES_CHANNEL_TYPE_STOREFRONT
+    ): SalesChannelContext&Stub {
         $salesChannelContext = static::createStub(SalesChannelContext::class);
         $salesChannelContext->method('getContext')->willReturn($context);
         $salesChannelContext->method('getSalesChannelId')->willReturn($salesChannelId);
 
         $salesChannelEntity = new SalesChannelEntity();
         $salesChannelEntity->setId($salesChannelId);
-        $salesChannelEntity->setTypeId(Defaults::SALES_CHANNEL_TYPE_STOREFRONT);
+        $salesChannelEntity->setTypeId($typeId);
         $salesChannelContext->method('getSalesChannel')->willReturn($salesChannelEntity);
 
         return $salesChannelContext;

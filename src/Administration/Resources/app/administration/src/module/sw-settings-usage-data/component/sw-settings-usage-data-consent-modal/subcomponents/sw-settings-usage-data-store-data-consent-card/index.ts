@@ -11,10 +11,7 @@ export default Shopware.Component.wrapComponentConfig({
     template,
     name: 'SwSettingsUsageDataStoreDataConsentCard',
 
-    emits: [
-        'update:consent',
-        'legal-link-clicked',
-    ],
+    emits: ['update:consent', 'legal-link-clicked'],
 
     props: {
         consent: {
@@ -22,6 +19,11 @@ export default Shopware.Component.wrapComponentConfig({
             required: true,
         },
         isLoading: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        hideSwitch: {
             type: Boolean,
             required: false,
             default: false,

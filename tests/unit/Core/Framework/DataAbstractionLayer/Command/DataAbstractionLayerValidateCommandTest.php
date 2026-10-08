@@ -7,7 +7,6 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\DataAbstractionLayer\Command\DataAbstractionLayerValidateCommand;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionValidator;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Console\Tester\CommandTester;
 
@@ -18,8 +17,6 @@ use Symfony\Component\Console\Tester\CommandTester;
 #[CoversClass(DataAbstractionLayerValidateCommand::class)]
 class DataAbstractionLayerValidateCommandTest extends TestCase
 {
-    use KernelTestBehaviour;
-
     public function testValidationErrors(): void
     {
         $validator = static::createStub(DefinitionValidator::class);

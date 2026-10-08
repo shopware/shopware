@@ -27,7 +27,6 @@ class ReinstallAppsStrategyTest extends TestCase
 {
     public function testNameAndDescription(): void
     {
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([]);
 
         $strategy = new ReinstallAppsStrategy(
@@ -38,7 +37,7 @@ class ReinstallAppsStrategyTest extends TestCase
         );
 
         static::assertSame(ReinstallAppsStrategy::STRATEGY_NAME, $strategy->getName());
-        static::assertNotEmpty($strategy->getDescription());
+        static::assertNotSame('', $strategy->getDescription());
     }
 
     public function testDeletesShopIdAndReregistersEveryApp(): void
@@ -59,7 +58,6 @@ class ReinstallAppsStrategyTest extends TestCase
                 self::assertSame($context, $passedContext);
             });
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
 
         $strategy = new ReinstallAppsStrategy(
@@ -95,7 +93,6 @@ class ReinstallAppsStrategyTest extends TestCase
 
         $logger = new TestHandler();
 
-        /** @var StaticEntityRepository<AppCollection> $appRepository */
         $appRepository = new StaticEntityRepository([new AppCollection([$appOne, $appTwo])]);
 
         $strategy = new ReinstallAppsStrategy(

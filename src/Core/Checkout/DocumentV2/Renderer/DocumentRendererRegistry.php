@@ -12,97 +12,53 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class DocumentRendererRegistry
 {
     /**
-     * @var array<string, array<string, AbstractDocumentRenderer>>
+     * @var array<string, AbstractDocumentRenderer>
      */
-    private array $renderersByDocumentType;
-
-    /**
-     * @var array<string, string>
-     */
-    private array $fileExtensionsByFormat;
+    private array $renderersByFormat;
 
     /**
      * @param iterable<AbstractDocumentRenderer> $documentRenderers
      */
     public function __construct(iterable $documentRenderers)
     {
-        $renderersByDocumentType = [];
-        $fileExtensionsByFormat = [];
+        $renderersByFormat = [];
 
         foreach ($documentRenderers as $renderer) {
             $format = $renderer->getFormat();
-            $fileExtensionsByFormat[$format] = $renderer->getFileExtension();
 
-            foreach ($renderer->getDocumentTypes() as $documentType) {
-                if (isset($renderersByDocumentType[$documentType][$format])) {
-                    throw DocumentV2Exception::duplicateRenderer($format, $documentType);
-                }
-
-                $renderersByDocumentType[$documentType][$format] = $renderer;
+            // tagged_iterator yields the highest-priority service first. the first per format wins
+            if (isset($renderersByFormat[$format])) {
+                continue;
             }
+
+            $renderersByFormat[$format] = $renderer;
         }
 
-        $this->renderersByDocumentType = $renderersByDocumentType;
-        $this->fileExtensionsByFormat = $fileExtensionsByFormat;
+        $this->renderersByFormat = $renderersByFormat;
     }
 
     /**
-     * Returns the renderer used for one exact format and document type combination.
-     *
      * @throws DocumentV2Exception
      */
-    public function getRenderer(string $format, string $documentType): AbstractDocumentRenderer
+    public function getRenderer(string $format): AbstractDocumentRenderer
     {
-        $renderers = $this->mapRenderersByFormat($documentType);
-
-        if (!isset($renderers[$format])) {
-            throw DocumentV2Exception::rendererNotFound($format, $documentType);
+        if (!isset($this->renderersByFormat[$format])) {
+            throw DocumentV2Exception::rendererNotFound($format);
         }
 
-        return $renderers[$format];
+        return $this->renderersByFormat[$format];
     }
 
     /**
-     * Builds a format => renderer map for all renderers that support the given document type.
-     *
      * @return array<string, AbstractDocumentRenderer>
      */
-    public function mapRenderersByFormat(string $documentType): array
+    public function getRenderers(): array
     {
-        return $this->renderersByDocumentType[$documentType] ?? [];
-    }
-
-    /**
-     * Returns a map of document types to the list of formats they support.
-     * eg. ['invoice' => ['pdf', 'html'], 'credit_note' => ['pdf']]
-     *
-     * @return array<string, list<string>>
-     */
-    public function getSupportedFormatsByDocumentType(): array
-    {
-        return array_map(function ($renderers) {
-            return array_keys($renderers);
-        }, $this->renderersByDocumentType);
+        return $this->renderersByFormat;
     }
 
     public function getFileExtension(string $format): ?string
     {
-        return $this->fileExtensionsByFormat[$format] ?? null;
-    }
-
-    /**
-     * @param list<string> $formats
-     *
-     * @throws DocumentV2Exception
-     */
-    public function validateFormats(string $documentType, array $formats): void
-    {
-        $supportedFormats = array_keys($this->mapRenderersByFormat($documentType));
-
-        foreach ($formats as $format) {
-            if (!\in_array($format, $supportedFormats, true)) {
-                throw DocumentV2Exception::unsupportedDocumentFormat($format, $documentType);
-            }
-        }
+        return ($this->renderersByFormat[$format] ?? null)?->getFileExtension();
     }
 }

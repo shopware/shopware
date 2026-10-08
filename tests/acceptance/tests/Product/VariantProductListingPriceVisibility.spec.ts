@@ -56,25 +56,23 @@ test(
             price: prices,
         });
 
-        await ShopCustomer.expects(async () => {
-            await test.step('Wait for products to be visible on storefront.', async () => {
-                await TestDataService.clearCaches();
-                await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
-                const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
-                await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
-            });
-        }).toPass({
-            intervals: [
-                1_000,
-                2_500,
-            ],
+        await TestDataService.clearCaches();
+
+        await test.step('Product is visible on storefront.', async () => {
+            await ShopCustomer.goesTo(StorefrontHome.url());
+            const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
+            await ShopCustomer.expects(productItemLocators.productName).toBeVisible();
         });
 
         await test.step('Validating listing price is available on product listing page for base variant product.', async () => {
-            await ShopCustomer.goesTo(`${StorefrontHome.url()}?a=${Date.now()}`);
+            await ShopCustomer.goesTo(StorefrontHome.url());
             const productItemLocators = await StorefrontHome.getListingItemByProductName(parentProduct.name);
             await ShopCustomer.expects(productItemLocators.productPrice).toContainText(formatPrice(10.0));
             await ShopCustomer.expects(productItemLocators.productListingPrice).toContainText(formatPrice(20.0));
+            await ShopCustomer.expects(productItemLocators.productListingPrice).toHaveCSS(
+                'text-decoration-line',
+                'line-through',
+            );
             await ShopCustomer.expects(productItemLocators.productListingPricePercentage).toContainText('(50% saved)');
             await ShopCustomer.expects(productItemLocators.productListingPriceBadge).toContainText('%');
         });
@@ -85,6 +83,10 @@ test(
                 await ShopCustomer.expects(StorefrontProductDetail.productSinglePrice).toContainText(formatPrice(10.0));
                 await ShopCustomer.expects(StorefrontProductDetail.productListingPriceBadge).toContainText('%');
                 await ShopCustomer.expects(StorefrontProductDetail.productListingPrice).toContainText(formatPrice(20.0));
+                await ShopCustomer.expects(StorefrontProductDetail.productListingPrice).toHaveCSS(
+                    'text-decoration-line',
+                    'line-through',
+                );
                 await ShopCustomer.expects(StorefrontProductDetail.productListingPricePercentage).toContainText(
                     '(50% saved)',
                 );

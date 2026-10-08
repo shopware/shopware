@@ -67,6 +67,9 @@ class ProductExportHydrator extends EntityHydrator
         if (isset($row[$root . '.generatedAt'])) {
             $entity->generatedAt = new \DateTimeImmutable($row[$root . '.generatedAt']);
         }
+        if (isset($row[$root . '.nextGenerationAt'])) {
+            $entity->nextGenerationAt = new \DateTimeImmutable($row[$root . '.nextGenerationAt']);
+        }
         if (isset($row[$root . '.interval'])) {
             $entity->interval = (int) $row[$root . '.interval'];
         }

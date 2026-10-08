@@ -114,11 +114,7 @@ async function createWrapper() {
                 },
                 productStreamConditionService: ProductStreamConditionService(),
                 productTypeService: {
-                    fetchProductTypes: () =>
-                        Promise.resolve([
-                            'digital',
-                            'physical',
-                        ]),
+                    fetchProductTypes: () => Promise.resolve(['digital', 'physical']),
                 },
             },
         },
@@ -133,6 +129,26 @@ describe('src/module/sw-product-stream/page/sw-product-stream-detail', () => {
 
         const relatedCustomFields = wrapper.vm.productCustomFields;
         expect(relatedCustomFields).toHaveProperty('custom_field_1');
+    });
+
+    it('should default displayAsGroup to true when creating a new product stream', async () => {
+        const wrapper = await createWrapper();
+
+        await flushPromises();
+
+        expect(wrapper.vm.productStream.displayAsGroup).toBe(true);
+    });
+
+    it('should stop the save button spinner after successfully creating a new product stream', async () => {
+        const wrapper = await createWrapper();
+
+        await flushPromises();
+
+        wrapper.vm.saveProductStream = jest.fn(() => Promise.resolve());
+
+        await wrapper.vm.onSave();
+
+        expect(wrapper.vm.isSaving).toBe(false);
     });
 
     it('should show warning banner when indexing is disabled', async () => {

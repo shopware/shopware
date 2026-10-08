@@ -4,7 +4,7 @@ namespace Shopware\Elasticsearch\Admin\Indexer;
 
 use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
-use Shopware\Core\Checkout\Document\DocumentDefinition;
+use Shopware\Core\Checkout\DocumentV2\DocumentDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryDefinition;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTag\OrderTagDefinition;
@@ -178,7 +178,60 @@ final class OrderAdminSearchIndexer extends AbstractAdminIndexer
     }
 
     /**
-     * @return array<string, array{id:string, text:string}>
+     * @return array<string, array{
+     *     id: string,
+     *     text: string,
+     *     completion: list<string>,
+     *     orderNumber?: mixed,
+     *     amountTotal?: float|null,
+     *     orderDate?: string|null,
+     *     orderDateTime?: string|null,
+     *     stateId?: mixed,
+     *     stateMachineState?: array{
+     *         id: mixed,
+     *         _count: int
+     *     }|null,
+     *     salesChannelId?: mixed,
+     *     affiliateCode?: mixed,
+     *     campaignCode?: mixed,
+     *     tags?: list<array{id: string, _count: int}>,
+     *     billingAddress?: array{
+     *         id: string,
+     *         _count: int,
+     *         countryId: string
+     *     }|null,
+     *     orderCustomer?: array{
+     *         id: string,
+     *         _count: int,
+     *         customer: array{
+     *             id: string,
+     *             _count: int,
+     *             groupId: string,
+     *             customerNumber: string
+     *         }|null
+     *     }|null,
+     *     lineItems?: list<array{
+     *         id: string,
+     *         _count: int,
+     *         productId: string|null,
+     *         payload: array{code: string|null}
+     *     }>,
+     *     primaryOrderTransaction?: array{
+     *         id: string,
+     *         _count: int,
+     *         stateMachineState: array{id: string, _count: int},
+     *         paymentMethodId: string
+     *     }|null,
+     *     primaryOrderDelivery?: array{
+     *         id: string,
+     *         _count: int,
+     *         stateMachineState: array{id: string, _count: int},
+     *         shippingMethodId: string,
+     *         shippingOrderAddress: array{id: string, _count: int, countryId: string}
+     *     }|null,
+     *     documents?: list<array{id: string, _count: int}>,
+     *     createdAt?: string|null
+     * }>
      */
     public function fetch(array $ids): array
     {

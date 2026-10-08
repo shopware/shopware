@@ -284,7 +284,7 @@ class CustomEntityTest extends TestCase
     public function testInvalidDefaultTypesParsedCorrectly(): void
     {
         static::expectException(CustomEntityXmlParsingException::class);
-        CustomEntityXmlSchema::createFromXmlFile(__DIR__ . '/_fixtures/default-value/Resources/invalid-default-value-entities.xml');
+        CustomEntityXmlSchema::createFromXmlFile(__DIR__ . '/_fixtures/default-value/custom-entity-test/Resources/invalid-default-value-entities.xml');
     }
 
     public function testDefaultValueIsRegistered(): void
@@ -477,9 +477,9 @@ class CustomEntityTest extends TestCase
         $event = $container->get('product.repository')
             ->upsert([$product], Context::createDefaultContext());
 
-        static::assertNotEmpty($event->getPrimaryKeys('product'));
-        static::assertNotEmpty($event->getPrimaryKeys('custom_entity_blog'));
-        static::assertNotEmpty($event->getPrimaryKeys('custom_entity_blog_inherited_products'));
+        static::assertNotCount(0, $event->getPrimaryKeys('product'));
+        static::assertNotCount(0, $event->getPrimaryKeys('custom_entity_blog'));
+        static::assertNotCount(0, $event->getPrimaryKeys('custom_entity_blog_inherited_products'));
 
         static::assertContains($ids->get('inh.blog.1'), $event->getPrimaryKeys('custom_entity_blog'));
         static::assertContains($ids->get('inh.blog.2'), $event->getPrimaryKeys('custom_entity_blog'));
@@ -555,8 +555,8 @@ class CustomEntityTest extends TestCase
         $event = $container->get('product.repository')
             ->upsert([$product], Context::createDefaultContext());
 
-        static::assertNotEmpty($event->getPrimaryKeys('product'));
-        static::assertNotEmpty($event->getPrimaryKeys('custom_entity_blog'));
+        static::assertNotCount(0, $event->getPrimaryKeys('product'));
+        static::assertNotCount(0, $event->getPrimaryKeys('custom_entity_blog'));
 
         static::assertContains($ids->get('inh.one-to-one.1'), $event->getPrimaryKeys('custom_entity_blog'));
         static::assertContains($ids->get('inh.one-to-one.2'), $event->getPrimaryKeys('custom_entity_blog'));
@@ -625,8 +625,8 @@ class CustomEntityTest extends TestCase
         $event = $container->get('product.repository')
             ->upsert([$product], Context::createDefaultContext());
 
-        static::assertNotEmpty($event->getPrimaryKeys('product'));
-        static::assertNotEmpty($event->getPrimaryKeys('custom_entity_blog'));
+        static::assertNotCount(0, $event->getPrimaryKeys('product'));
+        static::assertNotCount(0, $event->getPrimaryKeys('custom_entity_blog'));
 
         static::assertContains($ids->get('inh.many-to-one.1'), $event->getPrimaryKeys('custom_entity_blog'));
         static::assertContains($ids->get('inh.many-to-one.2'), $event->getPrimaryKeys('custom_entity_blog'));
@@ -998,7 +998,7 @@ class CustomEntityTest extends TestCase
 
         static::assertSame(Response::HTTP_OK, $browser->getResponse()->getStatusCode(), print_r($response, true));
 
-        $traces = $this->getScriptTraces();
+        $traces = $this->getScriptTraces($browser->getContainer());
         static::assertArrayHasKey('store-api-blog::response', $traces);
         static::assertCount(1, $traces['store-api-blog::response']);
         static::assertSame('some debug information', $traces['store-api-blog::response'][0]['output'][0]);

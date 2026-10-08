@@ -4,6 +4,7 @@ namespace Shopware\Tests\Unit\Core\System\SalesChannel\File;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Content\Product\Aggregate\ProductCategory\ProductCategoryDefinition;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\App\Event\AppActivatedEvent;
 use Shopware\Core\Framework\App\Event\AppDeactivatedEvent;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Plugin\Event\PluginPostUpdateEvent;
 use Shopware\Core\Framework\Update\Event\UpdatePostFinishEvent;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\File\SalesChannelFileCacheInvalidator;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 
 /**
  * @internal
@@ -64,6 +66,25 @@ class SalesChannelFileCacheInvalidatorTest extends TestCase
         $event = new EntityDeletedEvent('sales_channel_file', [
             new EntityWriteResult($id, [], 'sales_channel_file', EntityWriteResult::OPERATION_DELETE),
         ], Context::createDefaultContext());
+
+        (new SalesChannelFileCacheInvalidator($cacheInvalidator))->invalidate($event);
+    }
+
+    public function testItThrowsOnCombinedPrimaryKey(): void
+    {
+        $event = new EntityWrittenEvent(ProductCategoryDefinition::ENTITY_NAME, [
+            new EntityWriteResult(
+                ['productId' => Uuid::randomHex(), 'categoryId' => Uuid::randomHex()],
+                [],
+                ProductCategoryDefinition::ENTITY_NAME,
+                EntityWriteResult::OPERATION_UPDATE
+            ),
+        ], Context::createDefaultContext());
+
+        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
+        $cacheInvalidator->expects($this->never())->method('invalidate');
+
+        $this->expectExceptionObject(SalesChannelException::unexpectedCombinedPrimaryKey(ProductCategoryDefinition::ENTITY_NAME));
 
         (new SalesChannelFileCacheInvalidator($cacheInvalidator))->invalidate($event);
     }

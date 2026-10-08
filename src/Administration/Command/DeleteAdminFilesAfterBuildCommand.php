@@ -22,9 +22,13 @@ class DeleteAdminFilesAfterBuildCommand extends Command
 {
     /**
      * @internal
+     *
+     * @param string|null $administrationDir defaults to the shipped administration bundle
      */
-    public function __construct(private readonly Filesystem $filesystem)
-    {
+    public function __construct(
+        private readonly Filesystem $filesystem,
+        private readonly ?string $administrationDir = null,
+    ) {
         parent::__construct();
     }
 
@@ -45,7 +49,7 @@ class DeleteAdminFilesAfterBuildCommand extends Command
             return Command::SUCCESS;
         }
 
-        $adminDir = \dirname((string) (new \ReflectionClass(Administration::class))->getFileName());
+        $adminDir = $this->administrationDir ?? \dirname((string) (new \ReflectionClass(Administration::class))->getFileName());
         $output->writeln('Deleting unnecessary files of the administration after the build process...');
         $progressBar = new ProgressBar($output, 100);
 
@@ -132,31 +136,43 @@ class DeleteAdminFilesAfterBuildCommand extends Command
     }
 
     /**
-     * Recursively deletes a directory and all its contents.
-     * Prevents deletion of directories containing '/snippet' in their path.
+     * Recursively deletes a directory and all its contents, except directories containing
+     * '/snippet' in their path. A directory is only deleted itself when everything inside it was,
+     * so a surviving snippet directory also keeps its ancestors.
+     *
+     * @return bool whether the directory is gone
      */
-    private function removeDirectory(string $dir): void
+    private function removeDirectory(string $dir): bool
     {
-        if (!is_dir($dir) || str_contains($dir, '/snippet')) {
-            return;
+        if (!is_dir($dir)) {
+            return true;
+        }
+
+        if (str_contains($dir, '/snippet')) {
+            return false;
         }
 
         try {
             $finder = new Finder();
             $finder->in($dir)->depth(0);
 
+            $allRemoved = true;
             foreach ($finder as $item) {
                 if ($item->isDir()) {
-                    $this->removeDirectory($item->getRealPath());
+                    $allRemoved = $this->removeDirectory($item->getRealPath()) && $allRemoved;
                 } else {
                     $this->filesystem->remove($item->getRealPath());
                 }
             }
 
-            $this->filesystem->remove($dir);
+            if ($allRemoved) {
+                $this->filesystem->remove($dir);
+            }
+
+            return $allRemoved;
         } catch (\UnexpectedValueException) {
             // Directory is not readable or accessible
-            return;
+            return false;
         }
     }
 }

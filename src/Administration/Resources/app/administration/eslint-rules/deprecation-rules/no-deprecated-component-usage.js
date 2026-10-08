@@ -12,7 +12,6 @@ const { handleMtTabs } = require("./no-deprecated-component-usage-checks/mt-tabs
 const { handleMtSelect } = require("./no-deprecated-component-usage-checks/mt-select.check");
 const { handleMtTextarea } = require("./no-deprecated-component-usage-checks/mt-textarea.check");
 const { handleMtBanner } = require("./no-deprecated-component-usage-checks/mt-banner.check");
-const { handleMtExternalLink } = require("./no-deprecated-component-usage-checks/mt-external-link.check");
 const { handleMtDatepicker } = require("./no-deprecated-component-usage-checks/mt-datepicker.check");
 const { handleMtColorpicker } = require("./no-deprecated-component-usage-checks/mt-colorpicker.check");
 const { handleMtEmailField } = require("./no-deprecated-component-usage-checks/mt-email-field.check");
@@ -73,8 +72,6 @@ module.exports = {
                     handleMtTextarea(context, node);
                     // Handle mt-banner
                     handleMtBanner(context, node);
-                    // Handle mt-external-link
-                    handleMtExternalLink(context, node);
                     // Handle mt-datepicker
                     handleMtDatepicker(context, node);
                     // Handle mt-colorpicker

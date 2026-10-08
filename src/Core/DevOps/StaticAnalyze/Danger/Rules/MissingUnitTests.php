@@ -56,9 +56,11 @@ class MissingUnitTests
             ->matches('phpunit.xml.dist')
             ->first();
 
+        $phpUnitConfigFromPullRequestContent = $phpUnitConfigFromPullRequest?->getContent();
         $phpUnitConfig = $phpUnitConfigFromPullRequest->name ?? $this->phpunitConfigPath;
-        $domLoad = $phpUnitConfigFromPullRequest
-            ? $dom->loadXML($phpUnitConfigFromPullRequest->getContent())
+        \assert($phpUnitConfig !== '');
+        $domLoad = $phpUnitConfigFromPullRequestContent !== null && $phpUnitConfigFromPullRequestContent !== ''
+            ? $dom->loadXML($phpUnitConfigFromPullRequestContent)
             : $dom->load($phpUnitConfig);
 
         if ($domLoad) {

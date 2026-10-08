@@ -10,6 +10,7 @@ use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Api\Util\AccessKeyHelper;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenContainerEvent;
+use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Routing\RequestTransformer as CoreRequestTransformer;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -19,6 +20,7 @@ use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Routing\DomainLoader;
 use Shopware\Storefront\Framework\Routing\Exception\SalesChannelMappingException;
 use Shopware\Storefront\Framework\Routing\RequestTransformer;
+use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
 use Shopware\Storefront\Test\Framework\Routing\Helper\ExpectedRequest;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -27,6 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * @phpstan-type SalesChannel array{id: string, name: string, active: bool, languages: array{id: string}[], domains: array{id: string, url: string, languageId: string, currencyId: string, snippetSetId: string}[]}
  */
+#[Package('discovery')]
 class RequestTransformerTest extends TestCase
 {
     use IntegrationTestBehaviour;
@@ -42,12 +45,15 @@ class RequestTransformerTest extends TestCase
     {
         /** @var list<string> $registeredApiPrefixes */
         $registeredApiPrefixes = static::getContainer()->getParameter('shopware.routing.registered_api_prefixes');
+        /** @var list<string> $apiContextRoutePrefixes */
+        $apiContextRoutePrefixes = static::getContainer()->getParameter('shopware.routing.api_context_route_prefixes');
 
         $this->requestTransformer = new RequestTransformer(
             new CoreRequestTransformer(),
             static::getContainer()->get(SeoResolver::class),
             $registeredApiPrefixes,
-            static::getContainer()->get(DomainLoader::class)
+            static::getContainer()->get(DomainLoader::class),
+            $apiContextRoutePrefixes,
         );
 
         $this->deLanguageId = $this->getDeDeLanguageId();
@@ -90,6 +96,18 @@ class RequestTransformerTest extends TestCase
             static::assertSame($expectedRequest->resolvedUrl, $resolved->attributes->get(RequestTransformer::SALES_CHANNEL_RESOLVED_URI));
             static::assertSame($expectedLanguageId, $resolved->headers->get(PlatformRequest::HEADER_LANGUAGE_ID));
         }
+    }
+
+    public function testAdministrationBelowVirtualDomainPathIsNotTransformed(): void
+    {
+        $this->createSalesChannels([
+            self::getGermanSalesChannel(Uuid::randomHex(), Uuid::randomHex(), 'http://german.test/de'),
+        ]);
+
+        $resolved = $this->requestTransformer->transform(Request::create('http://german.test/de/admin'));
+
+        static::assertFalse($resolved->attributes->has(PlatformRequest::ATTRIBUTE_SALES_CHANNEL_ID));
+        static::assertFalse($resolved->attributes->has(SalesChannelRequest::ATTRIBUTE_IS_SALES_CHANNEL_REQUEST));
     }
 
     /**
@@ -316,7 +334,7 @@ class RequestTransformerTest extends TestCase
                 'language_id' => Uuid::fromHexToBytes($this->deLanguageId),
                 'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
                 'foreign_key' => Uuid::randomBytes(),
-                'route_name' => 'frontend.detail.page',
+                'route_name' => ProductPageSeoUrlRoute::ROUTE_NAME,
                 'path_info' => '/detail/87a78cf58f114d5587ae23c140825694',
                 'seo_path_info' => 'Main-product/SWDEMO10001?test=123',
                 'is_canonical' => 1,
@@ -354,7 +372,7 @@ class RequestTransformerTest extends TestCase
                 'language_id' => Uuid::fromHexToBytes($this->deLanguageId),
                 'sales_channel_id' => Uuid::fromHexToBytes($salesChannelId),
                 'foreign_key' => Uuid::randomBytes(),
-                'route_name' => 'frontend.detail.page',
+                'route_name' => ProductPageSeoUrlRoute::ROUTE_NAME,
                 'path_info' => '/detail/87a78cf58f114d5587ae23c140825694',
                 'seo_path_info' => 'Main-product/SWDEMO10001',
                 'is_canonical' => 1,

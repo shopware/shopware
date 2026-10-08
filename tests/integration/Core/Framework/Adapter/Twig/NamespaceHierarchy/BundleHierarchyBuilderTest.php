@@ -169,6 +169,7 @@ class BundleHierarchyBuilderTest extends TestCase
             'Administration',
             'Framework',
             'Storefront',
+            'Content',
         ];
 
         // Remove not installed core bundles from hierarchy

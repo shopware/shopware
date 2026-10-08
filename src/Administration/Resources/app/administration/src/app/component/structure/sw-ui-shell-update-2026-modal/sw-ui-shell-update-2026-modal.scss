@@ -1,0 +1,236 @@
+// @deprecated tag:v6.9.0 - Will be removed together with the one-time ui-shell-update-2026 announcement modal
+$compare-max-width: 300px;
+$glass-padding: 16px;
+$glass-border-width: 2px;
+$glass-max-width: $compare-max-width + 2 * ($glass-padding + $glass-border-width);
+$compare-radius: 16px;
+$handle-width: 3px;
+$handle-resting-scale: 0.5;
+
+// Wide enough that the seam can be grabbed without pixel hunting.
+$handle-hit-width: 32px;
+
+// Concentric corners: the outer radius grows by the gap, or the curves are not parallel.
+$glass-radius: $compare-radius + $glass-padding;
+$glass-gradient: linear-gradient(
+    79.32deg,
+    rgba(255, 255, 255, 25%) 5.524%,
+    rgba(255, 255, 255, 30%) 27.645%,
+    rgba(255, 255, 255, 25%) 60.183%
+);
+
+// Registered so the idle hint and the eased slide can interpolate it.
+@property --sw-ui-shell-update-2026-modal-split {
+    syntax: "<percentage>";
+    inherits: true;
+    initial-value: 50%;
+}
+
+@keyframes sw-ui-shell-update-2026-modal-hint {
+    0%,
+    100% {
+        --sw-ui-shell-update-2026-modal-split: 50%;
+    }
+
+    25% {
+        --sw-ui-shell-update-2026-modal-split: 45%;
+    }
+
+    75% {
+        --sw-ui-shell-update-2026-modal-split: 55%;
+    }
+}
+
+.sw-ui-shell-update-2026-modal {
+    &__media {
+        position: relative;
+        aspect-ratio: 14 / 9;
+        background: var(--color-elevation-surface-sunken);
+        overflow: hidden;
+    }
+
+    &__media-image,
+    &__compare-image {
+        position: absolute;
+        inset: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top center;
+        pointer-events: none;
+    }
+
+    &__glass {
+        position: absolute;
+        inset: 32px 20px 0;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        max-width: $glass-max-width;
+        margin: 0 auto;
+        padding: $glass-padding $glass-padding 0;
+        border: $glass-border-width solid rgba(255, 255, 255, 10%);
+        border-bottom: 0;
+        border-radius: $glass-radius $glass-radius 0 0;
+        background-image: $glass-gradient;
+        backdrop-filter: blur(48px);
+        box-shadow: 0 0 124px rgba(94, 24, 16, 25%);
+    }
+
+    &__compare {
+        position: relative;
+        width: 100%;
+        max-width: $compare-max-width;
+        border-radius: $compare-radius $compare-radius 0 0;
+        background: var(--color-static-white);
+        box-shadow: 0 0 16px rgba(94, 24, 16, 5%);
+        overflow: hidden;
+
+        // A selection sweeping across the images must not highlight them mid-drag.
+        user-select: none;
+
+        // Runs once as an invitation; it replays whenever the reveal is handed back.
+        animation: sw-ui-shell-update-2026-modal-hint 1.6s ease-in-out;
+
+        @media (prefers-reduced-motion: reduce) {
+            animation: none;
+        }
+    }
+
+    // Once a position has been set the hint must not fight it for the property.
+    &__compare--settled {
+        animation: none;
+    }
+
+    // The grabbable strip on the seam: only it takes the pointer, not the images.
+    &__compare-handle {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: calc(var(--sw-ui-shell-update-2026-modal-split, 50%) - #{$handle-hit-width * 0.5});
+        width: $handle-hit-width;
+        cursor: ew-resize;
+
+        // A touch drag must move the seam, not scroll the modal.
+        touch-action: none;
+    }
+
+    // The visible seam line, centred by the offset alone; transform stays free for the thinning below.
+    &__compare-handle::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: calc(50% - #{$handle-width * 0.5});
+        width: $handle-width;
+        background: var(--color-static-white);
+        box-shadow: 0 0 4px rgba(0, 0, 0, 25%);
+        opacity: 0;
+        transform: scaleX($handle-resting-scale);
+        transform-origin: center;
+        transition:
+            opacity 200ms ease-out,
+            transform 200ms ease-out;
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    // Held for the whole drag, so the pointer is free to leave the images while dragging.
+    &__compare:hover &__compare-handle::before,
+    &__compare--dragging &__compare-handle::before {
+        opacity: 1;
+        transform: scaleX(1);
+    }
+
+    // Paging eases the reveal; dragging stays immediate.
+    &__compare--eased {
+        // The disable is a false positive: this names the property, it does not read it.
+        /* stylelint-disable-next-line custom-property-no-missing-var-function */
+        transition: --sw-ui-shell-update-2026-modal-split 300ms ease-in-out;
+
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+        }
+    }
+
+    // Revealed from the left edge, so moving right slides the new UI in over the old one.
+    &__compare-image--after {
+        clip-path: inset(0 calc(100% - var(--sw-ui-shell-update-2026-modal-split, 50%)) 0 0);
+    }
+
+    &__media-image--dark,
+    &__compare-image--after-dark {
+        display: none;
+    }
+
+    &__text {
+        padding: var(--scale-size-24);
+    }
+
+    &__headline {
+        display: flex;
+        align-items: center;
+        gap: var(--scale-size-8);
+        margin-bottom: var(--scale-size-8);
+    }
+
+    &__description {
+        margin-bottom: 0;
+    }
+
+    &__theme-select {
+        margin-top: var(--scale-size-16);
+        margin-bottom: var(--scale-size-16);
+    }
+
+    &__theme-hint {
+        margin-top: var(--scale-size-8);
+        margin-bottom: 0;
+    }
+
+    // Takes the size of the surrounding text instead of the link default.
+    &__inline-link {
+        font-size: inherit;
+        line-height: inherit;
+    }
+
+    &__footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    &__footer-left,
+    &__footer-right {
+        display: flex;
+        min-width: 80px;
+    }
+
+    &__footer-right {
+        justify-content: flex-end;
+    }
+}
+
+// Unnested: the attribute sits on the document element, an ancestor of the teleported modal.
+[data-theme="dark"] .sw-ui-shell-update-2026-modal__media-image--light {
+    display: none;
+}
+
+[data-theme="dark"] .sw-ui-shell-update-2026-modal__media-image--dark {
+    display: block;
+}
+
+// The sidebar shot only follows the theme on the page announcing it.
+[data-theme="dark"] .sw-ui-shell-update-2026-modal__media--dark-mode {
+    .sw-ui-shell-update-2026-modal__compare-image--after-light {
+        display: none;
+    }
+
+    .sw-ui-shell-update-2026-modal__compare-image--after-dark {
+        display: block;
+    }
+}

@@ -79,10 +79,12 @@
                         "type": "string"
                     },
                     "payload": {
-                        "type": "object",
+                        "description": "Snapshot data of the referenced item. Product line items contain the product data listed below; other line item types may carry different keys or an empty array.",
+                        "type": ["object", "array"],
+                        "maxItems": 0,
                         "properties": {
                             "categoryIds": {
-                                "type": "array",
+                                "type": ["array", "null"],
                                 "items": {
                                     "type": "string",
                                     "pattern": "^[0-9a-f]{32}$"
@@ -90,12 +92,21 @@
                                 "readOnly": true
                             },
                             "createdAt": {
-                                "type": "string",
-                                "format": "date-time",
+                                "type": ["string", "null"],
+                                "description": "Date in the storage format `Y-m-d H:i:s.v`, not RFC 3339.",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}$",
                                 "readOnly": true
                             },
                             "customFields": {
-                                "type": "object"
+                                "anyOf": [
+                                    {
+                                        "type": "object"
+                                    },
+                                    {
+                                        "type": "array",
+                                        "maxItems": 0
+                                    }
+                                ]
                             },
                             "features": {
                                 "type": "array"
@@ -107,14 +118,14 @@
                                 "type": "boolean"
                             },
                             "manufacturerId": {
-                                "type": "string",
+                                "type": ["string", "null"],
                                 "pattern": "^[0-9a-f]{32}$"
                             },
                             "markAsTopseller": {
                                 "type": "boolean"
                             },
                             "optionIds": {
-                                "type": "array",
+                                "type": ["array", "null"],
                                 "items": {
                                     "type": "string",
                                     "pattern": "^[0-9a-f]{32}$"
@@ -122,20 +133,30 @@
                                 "readOnly": true
                             },
                             "options": {
+                                "description": "Variant options of the product as group and option name pairs.",
                                 "type": "array",
                                 "items": {
-                                    "$ref": "#/components/schemas/PropertyGroupOption"
+                                    "type": "object",
+                                    "properties": {
+                                        "group": {
+                                            "type": "string"
+                                        },
+                                        "option": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": ["group", "option"]
                                 }
                             },
                             "parentId": {
-                                "type": "string",
+                                "type": ["string", "null"],
                                 "pattern": "^[0-9a-f]{32}$"
                             },
                             "productNumber": {
                                 "type": "string"
                             },
                             "propertyIds": {
-                                "type": "array",
+                                "type": ["array", "null"],
                                 "items": {
                                     "type": "string",
                                     "pattern": "^[0-9a-f]{32}$"
@@ -143,15 +164,16 @@
                                 "readOnly": true
                             },
                             "releaseDate": {
-                                "type": "string",
-                                "format": "date-time"
+                                "type": ["string", "null"],
+                                "description": "Date in the storage format `Y-m-d H:i:s.v`, not RFC 3339.",
+                                "pattern": "^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}$"
                             },
                             "stock": {
                                 "type": "integer",
                                 "format": "int64"
                             },
                             "streamIds": {
-                                "type": "array",
+                                "type": ["array", "null"],
                                 "items": {
                                     "type": "string",
                                     "pattern": "^[0-9a-f]{32}$"
@@ -159,7 +181,7 @@
                                 "readOnly": true
                             },
                             "tagIds": {
-                                "type": "array",
+                                "type": ["array", "null"],
                                 "items": {
                                     "type": "string",
                                     "pattern": "^[0-9a-f]{32}$"
@@ -282,7 +304,9 @@
                         "type": "object"
                     },
                     "translated": {
-                        "type": "object"
+                        "description": "Order line items have no translatable fields, so this is an empty array.",
+                        "type": ["object", "array"],
+                        "maxItems": 0
                     }
                 },
                 "type": "object"

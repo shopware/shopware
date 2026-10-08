@@ -43,6 +43,10 @@ class LineItemPurchasePriceRule extends Rule
         }
 
         foreach ($scope->getCart()->getLineItems()->filterGoodsFlat() as $lineItem) {
+            if (!\array_key_exists('purchasePrices', $lineItem->getPayload())) {
+                continue;
+            }
+
             if ($this->matchPurchasePriceCondition($lineItem)) {
                 return true;
             }

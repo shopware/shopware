@@ -22,9 +22,7 @@ const REQUIRED_BASE_FIELDS = [
     'navigationCategoryId',
 ];
 
-const REQUIRED_PRODUCT_EXPORT_FIELDS = [
-    'name',
-];
+const REQUIRED_PRODUCT_EXPORT_FIELDS = ['name'];
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
@@ -36,6 +34,7 @@ export default {
         'systemConfigApiService',
         'acl',
         'feature',
+        'customFieldDataProviderService',
     ],
 
     provide() {
@@ -45,10 +44,7 @@ export default {
         };
     },
 
-    mixins: [
-        Mixin.getByName('notification'),
-        Mixin.getByName('placeholder'),
-    ],
+    mixins: [Mixin.getByName('notification'), Mixin.getByName('placeholder')],
 
     shortcuts: {
         'SYSTEMKEY+S': 'onSave',
@@ -150,14 +146,87 @@ export default {
             return this.isProductComparison || this.isAgenticCommerce;
         },
 
+        salesChannelDetailTabs() {
+            const createRouteTab = (label, routeName, additionalProperties = {}) => {
+                const route = {
+                    name: routeName,
+                    params: { id: this.$route.params.id },
+                };
+
+                return {
+                    label: this.$t(label),
+                    name: route.name,
+                    ...additionalProperties,
+                    onClick: () => {
+                        void this.$router.push(route);
+                    },
+                };
+            };
+
+            const tabs = [createRouteTab('sw-sales-channel.detail.tabBase', 'sw.sales.channel.detail.base')];
+
+            if (this.isAgenticCommerce && !this.isLoading) {
+                tabs.push(
+                    createRouteTab(
+                        'sw-sales-channel.detail.productExport.tabInsights',
+                        'sw.sales.channel.detail.productExportInsights',
+                    ),
+                );
+            }
+
+            if (this.isHeadless || this.isStorefront) {
+                tabs.push(createRouteTab('sw-sales-channel.detail.tabProducts', 'sw.sales.channel.detail.products'));
+            }
+
+            if (!this.isProductExportChannel) {
+                tabs.push(
+                    createRouteTab('sw-sales-channel.detail.tabTheme', 'sw.sales.channel.detail.theme', {
+                        disabled: this.isLoading,
+                    }),
+                );
+            }
+
+            if (this.isAgenticCommerce && !this.isLoading) {
+                tabs.push(
+                    createRouteTab(
+                        'sw-sales-channel.detail.agenticCommerce.tabIntegration',
+                        'sw.sales.channel.detail.agenticCommerceIntegration',
+                    ),
+                );
+            }
+
+            if (this.isProductExportChannel && !this.isLoading) {
+                tabs.push(
+                    createRouteTab(
+                        'sw-sales-channel.detail.tabProductComparison',
+                        'sw.sales.channel.detail.productComparison',
+                    ),
+                );
+            }
+
+            if (this.isStorefront) {
+                tabs.push(createRouteTab('sw-sales-channel.detail.tabAnalytics', 'sw.sales.channel.detail.analytics'));
+            }
+
+            if (this.isHeadless || this.isStorefront) {
+                tabs.push(createRouteTab('sw-sales-channel.detail.tabAgenticFiles', 'sw.sales.channel.detail.agenticFiles'));
+            }
+
+            return tabs;
+        },
+
         salesChannelRepository() {
-            return this.repositoryFactory.create('sales_channel');
+            // Sync keeps removed language mappings and the new languageId in one write, so the
+            // default language validation sees the post-write state instead of rejecting the
+            // removal of the previous default.
+            return this.repositoryFactory.create('sales_channel', null, { useSync: true });
         },
 
         salesChannelAnalyticsRepository() {
             return this.repositoryFactory.create('sales_channel_analytics');
         },
 
+        // @deprecated tag:v6.8.0 - Use customFieldDataProviderService instead.
         customFieldRepository() {
             return this.repositoryFactory.create('custom_field_set');
         },
@@ -169,7 +238,9 @@ export default {
         storefrontSalesChannelCriteria() {
             const criteria = new Criteria(1, 25);
 
-            return criteria.addFilter(Criteria.equals('typeId', Defaults.storefrontSalesChannelTypeId));
+            return criteria.addFilter(
+                Criteria.equalsAny('typeId', [Defaults.storefrontSalesChannelTypeId, Defaults.apiSalesChannelTypeId]),
+            );
         },
 
         tooltipSave() {
@@ -370,12 +441,7 @@ export default {
         },
 
         loadCustomFieldSets() {
-            const criteria = new Criteria(1, 100);
-
-            criteria.addFilter(Criteria.equals('relations.entityName', 'sales_channel'));
-            criteria.getAssociation('customFields').addSorting(Criteria.sort('config.customFieldPosition', 'ASC', true));
-
-            this.customFieldRepository.search(criteria, Context.api).then((searchResult) => {
+            this.customFieldDataProviderService.getCustomFieldSets('sales_channel', false, 100).then((searchResult) => {
                 this.customFieldSets = searchResult;
             });
         },
@@ -532,10 +598,7 @@ export default {
                     configEntry.isLoading = true;
 
                     try {
-                        const [
-                            config,
-                            values,
-                        ] = await Promise.all([
+                        const [config, values] = await Promise.all([
                             this.systemConfigApiService.getConfig(configEntry.systemConfigDomain),
                             this.systemConfigApiService.getValues(configEntry.systemConfigDomain, this.salesChannel.id),
                         ]);

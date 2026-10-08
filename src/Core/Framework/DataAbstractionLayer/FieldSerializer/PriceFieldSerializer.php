@@ -41,6 +41,9 @@ class PriceFieldSerializer extends AbstractFieldSerializer
         $value = json_decode(json_encode($data->getValue(), \JSON_PRESERVE_ZERO_FRACTION | \JSON_THROW_ON_ERROR), true, 512, \JSON_THROW_ON_ERROR);
 
         if ($this->requiresValidation($field, $existence, $value, $parameters)) {
+            // everything below expects a list of price structs, a scalar would fatal
+            $this->validate([new Type('array')], new KeyValuePair($data->getKey(), $value, false), $parameters->getPath());
+
             if ($value !== null) {
                 foreach ($value as &$row) {
                     if (isset($row['extensions'])) {

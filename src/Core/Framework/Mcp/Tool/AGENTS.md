@@ -17,6 +17,7 @@ Each file in this directory is a single MCP tool -- an action that AI clients ca
 - Use `McpContextProvider` to get the authenticated `Context`
 - Write operations must accept a `bool $dryRun = true` parameter. The `executeWithDryRun` helper adds `SKIP_TRIGGER_FLOW` to the context to prevent Flow Builder actions from firing during preview, and rolls back the transaction afterward
 - Entity tools must validate entity existence with `$this->registry->has($entity)` before ACL checks to provide clear "entity not found" messages
+- Entity tools that accept criteria JSON must validate the built `Criteria` with `AclCriteriaValidator` before DAL access — the top-level `requirePrivilege()` check does not cover association reads (see `EntityReadTool`/`EntitySearchTool`/`EntityAggregateTool`)
 - Entity tools that return DAL data must inject `JsonEntityEncoder` and use it instead of `jsonSerialize()` to respect `includes`/`excludes`
 - Entity tools returning DAL data should use the `McpEntityIncludes` trait and call `applyDefaultIncludes()` to keep responses compact (see below)
 
@@ -29,6 +30,10 @@ The `description` argument on `#[McpTool]` is what the agent reads to pick a too
 - **Do not reference other tools as prerequisites unless they truly are.** Phrases like "Use shopware-foo-read to check current values first" train the agent to call the read tool even when the user explicitly asked to write. Declare prerequisites with `#[McpToolDependsOn]`, not in prose.
 - **Mention the use cases the user will name.** If a prompt is "upload this image as a product cover", the description should contain the phrase "product cover" and clarify that no extra parameter is needed for that case. Otherwise the agent often returns no tool selection at all.
 - **Make required parameters truly required.** A parameter without a PHP default ends up `required: true` in the JSON schema. If users frequently won't supply it (a sales channel UUID, a tax ID), give it a default of `''` or `null` and validate inside `__invoke()`. GPT-4o refuses to call tools when required parameters are missing from the prompt — even when the description says they are optional.
+
+### Parameter descriptions
+
+Parameter contracts belong in `#[Schema(description: ...)]` (`Mcp\Capability\Attribute\Schema`) on the `__invoke()` parameter, not in docblock `@param` tags. The SDK renders them into the tool's public `inputSchema`, so they are part of the routing surface the agent reads when it fills in arguments. Do not add `@param` blocks that only restate the native type; keep docblocks for what static analysis needs (array shapes). The same `cache:clear` caveat as for tool descriptions applies.
 
 ### Cache after description changes
 
@@ -48,7 +53,7 @@ class EntityDeleteTool extends McpToolResponse { ... }
 
 - The attribute is **repeatable** — add multiple `#[McpToolDependsOn]` lines if the tool depends on several others.
 - Dependencies are **tool-only** — tools can only depend on other tools, not on prompts or resources.
-- The `McpToolCompilerPass` resolves dependencies transitively and stores the result in the `shopware.mcp.tool_dependencies` container parameter, which the allowlist provider uses at runtime.
+- `McpToolAnalysisCompilerPass` resolves dependencies transitively and stores the result in the `shopware.mcp.tool_dependencies` container parameter, which the allowlist provider uses at runtime.
 - **Allowlist auto-expansion:** when a user enables a tool in the Admin integration UI, all its declared dependencies (and their transitive dependencies) are automatically added to the allowlist. Removing a tool does **not** auto-remove its dependencies — they may be intentionally enabled independently.
 - `bin/console debug:mcp` shows the resolved dependencies in a **Dependencies** column.
 
@@ -214,6 +219,7 @@ Tools extending `McpToolResponse` benefit from built-in error handling:
 - `executeWithDryRun()` catches any `\Throwable` and returns it as a structured `$this->error()` response
 - Unhandled exceptions from `__invoke()` produce a generic MCP error (`-32603`). Prefer catching known exceptions and returning `$this->error($message)` instead.
 - Write tools should validate inputs before the operation (e.g., `SystemConfigWriteTool` rejects null values, entity tools validate entity existence)
+- `invalidCriteriaError()` renders a `RequestCriteriaBuilder::fromArray()` failure as an actionable message. Wrap **only** the `fromArray()` call and catch `ShopwareHttpException`: the builder reports bad payloads through several unrelated classes (`SearchRequestException` with one pointer per rejected element, `DataAbstractionLayerException` directly, `FrameworkException::associationNotFound()`, and `ApiProtectionException` / `RuntimeFieldInCriteriaException` from `ApiCriteriaValidator`). Keep the following read/search/aggregate call outside the `try`, so a real DAL failure still reaches the log instead of being reported as bad input.
 
 ## Adding a new tool
 1. Create a class in this directory
@@ -232,11 +238,11 @@ How registration works differs between core tools and plugin tools:
 
 | Tool location | Registration mechanism | What can go wrong |
 |---|---|---|
-| Core (`src/Core/Framework/Mcp/Tool/`) | `mcp.tool` DI tag + directory in `mcp.yaml` `scan_dirs` | Missing tag **or** missing scan_dir silently drops the tool |
-| Plugin (`shopware.mcp.tool` DI tag) | `McpToolCompilerPass` calls `addTool()` at compile time | Missing tag; wrong tag name; attribute on method instead of class |
+| Core (`src/Core/Framework/Mcp/Tool/`) | `mcp.tool` DI tag; the namespace is covered by the Admin API server's `registry` prefixes in `packages/mcp.php` | Missing tag; a class moved outside the configured namespaces is assigned to no server |
+| Plugin (`shopware.mcp.tool` DI tag) | `McpToolDiscoveryCompilerPass` re-tags it and assigns it to the Admin API server | Missing tag; wrong tag name; attribute on method instead of class |
 
 **For core tools**, `McpCapabilityDiscoveryTest` (`tests/integration/Core/Framework/Mcp/McpCapabilityDiscoveryTest.php`) is the authoritative check. It boots the full kernel, calls the live `/api/_mcp` endpoint, and asserts every expected capability name is present. Add new core tool names to its `expectedTools()` list.
 
-**For plugin tools**, the `McpToolCompilerPass` handles HTTP registration automatically from the DI tag — no `scan_dirs` entry is needed. A missing `#[McpTool]` attribute (or attribute placed on `__invoke()` instead of the class) means the compiler pass cannot extract the tool name and the tool is silently skipped.
+**For plugin tools**, `McpToolDiscoveryCompilerPass` handles registration automatically from the DI tag. A missing `#[McpTool]` attribute (or attribute placed on `__invoke()` instead of the class) means the tool name cannot be extracted and the tool is silently skipped.
 
 Quick manual check: `bin/console debug:mcp` uses the same registry as the HTTP endpoint and shows core tools, plugin tools, and app tools in one view.

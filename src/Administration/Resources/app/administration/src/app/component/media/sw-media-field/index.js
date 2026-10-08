@@ -16,20 +16,14 @@ const { Criteria } = Shopware.Data;
 export default {
     template,
 
-    inject: [
-        'repositoryFactory',
-        'feature',
-    ],
+    inject: ['repositoryFactory', 'feature'],
 
     emits: ['update:value'],
 
     props: {
         // need to be "value" instead of "modelValue" because of the compat build
         value: {
-            type: [
-                String,
-                null,
-            ],
+            type: [String, null],
             required: false,
             default: null,
         },

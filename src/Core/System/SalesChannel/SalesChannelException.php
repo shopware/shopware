@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\SalesChannel;
 
+use Mcp\Exception\ResourceNotFoundException;
 use Shopware\Core\Checkout\Cart\CartException;
 use Shopware\Core\Checkout\Customer\Exception\CustomerNotFoundByIdException;
 use Shopware\Core\Checkout\Order\OrderException;
@@ -11,6 +12,7 @@ use Shopware\Core\Framework\Deprecation\BCChange\ReturnTypeNarrowing;
 use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\HttpException;
 use Shopware\Core\Framework\Log\Package;
+use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Shopware\Core\System\SalesChannel\Exception\NoContextDataException;
 use Symfony\Component\HttpFoundation\Response;
@@ -379,5 +381,13 @@ class SalesChannelException extends HttpException
             'Expected a single field primary key for entity "{{ entityName }}", but got a combined primary key.',
             ['entityName' => $entityName]
         );
+    }
+
+    /**
+     * The Store API MCP server reports a missing tool result like the Admin API server does.
+     */
+    public static function mcpToolResultNotFound(string $id): ResourceNotFoundException
+    {
+        return McpException::toolResultNotFound($id);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Framework\Mcp\Result;
 
+use Mcp\Schema\Content\ResourceLink;
 use Mcp\Schema\Content\TextContent;
 use Mcp\Schema\Enum\ProtocolVersion;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -10,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Mcp\Result\McpToolError;
 use Shopware\Core\Framework\Mcp\Result\McpToolResult;
+use Shopware\Core\Framework\Mcp\Result\McpToolResultLink;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultRenderer;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
 use Symfony\Component\Clock\MockClock;
@@ -185,6 +187,49 @@ class McpToolResultRendererTest extends TestCase
 
         static::assertSame('Rejected', $this->text($result->content[0]));
         static::assertSame('{"_meta":{"dryRun":true}}', $this->text($result->content[1]));
+    }
+
+    #[DisabledFeatures(['v6.8.0.0'])]
+    public function testRendersALinkAsResourceLinkAfterTheText(): void
+    {
+        $result = $this->renderer()->render($this->linkedResult(), ProtocolVersion::latestHandshake(), '{"success":true,"data":null}');
+
+        static::assertCount(2, $result->content);
+        static::assertInstanceOf(TextContent::class, $result->content[0]);
+        static::assertSame('{"success":true,"data":null}', $result->content[0]->text);
+
+        $link = $result->content[1];
+        static::assertInstanceOf(ResourceLink::class, $link);
+        static::assertSame('shopware://tool-result/abc', $link->uri);
+        static::assertSame('tool-result', $link->name);
+        static::assertSame('application/json', $link->mimeType);
+        static::assertSame(123456, $link->size);
+        static::assertSame('2026-09-28T11:00:00+00:00', $result->meta['shopware/expiresAt'] ?? null);
+    }
+
+    public function testLeavesOutTheLinkForClientsThatPredateResourceLinks(): void
+    {
+        $result = $this->renderer()->render($this->linkedResult(), ProtocolVersion::V2025_03_26);
+
+        static::assertCount(1, $result->content);
+    }
+
+    public function testSpecOnlyModeSendsTheSummaryNextToTheLink(): void
+    {
+        $result = $this->renderer()->render($this->linkedResult(), ProtocolVersion::latestHandshake());
+
+        static::assertInstanceOf(TextContent::class, $result->content[0]);
+        static::assertSame('Too large to return inline.', $result->content[0]->text);
+        static::assertInstanceOf(ResourceLink::class, $result->content[1]);
+    }
+
+    private function linkedResult(): McpToolResult
+    {
+        return new McpToolResult(
+            summary: 'Too large to return inline.',
+            expiresAt: new \DateTimeImmutable('2026-09-28T11:00:00+00:00'),
+            links: [new McpToolResultLink('shopware://tool-result/abc', 'tool-result', 'Too large to return inline.', 'application/json', 123456)],
+        );
     }
 
     private function renderer(): McpToolResultRenderer

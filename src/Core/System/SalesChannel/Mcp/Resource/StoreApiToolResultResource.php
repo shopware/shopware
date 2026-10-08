@@ -1,22 +1,20 @@
 <?php declare(strict_types=1);
 
-namespace Shopware\Core\Framework\Mcp\Resource;
+namespace Shopware\Core\System\SalesChannel\Mcp\Resource;
 
 use Mcp\Capability\Attribute\McpResourceTemplate;
-use Mcp\Server\RequestContext;
 use Shopware\Core\Framework\Log\Package;
-use Shopware\Core\Framework\Mcp\McpException;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultPointer;
 use Shopware\Core\Framework\Mcp\Result\McpToolResultPrincipal;
 use Shopware\Core\Framework\Mcp\ToolResultCacheStorage;
+use Shopware\Core\System\SalesChannel\SalesChannelException;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * @experimental stableVersion:v6.8.0
  *
- * Serves a large tool result that a previous tool call stored. The id in the URI is a signed pointer
- * that only the integration or user who stored the result can read. A plain id, as issued before the
- * pointers were signed, is still served to the session that stored it.
+ * The Store API counterpart of {@see \Shopware\Core\Framework\Mcp\Resource\ToolResultResource}. The
+ * signed pointer only works in the sales-channel context that stored the result.
  */
 #[Package('framework')]
 #[McpResourceTemplate(
@@ -25,7 +23,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
     description: 'A large tool result that a previous tool call stored instead of returning it inline. Tool results point here with a resource_link. The link expires after an hour.',
     mimeType: 'application/json',
 )]
-class ToolResultResource
+class StoreApiToolResultResource
 {
     /**
      * @internal
@@ -39,18 +37,14 @@ class ToolResultResource
     /**
      * @return array{uri: string, mimeType: string, text: string}
      */
-    public function __invoke(string $id, RequestContext $context): array
+    public function __invoke(string $id): array
     {
-        if (str_contains($id, '.')) {
-            $request = $this->requestStack->getCurrentRequest();
-            $principal = $request !== null ? McpToolResultPrincipal::fromRequest($request) : null;
-            $result = $principal !== null ? $this->storage->readFor($id, $principal) : null;
-        } else {
-            $result = $this->storage->read($id, $context->getSession()->getId()->toString());
-        }
+        $request = $this->requestStack->getCurrentRequest();
+        $principal = $request !== null ? McpToolResultPrincipal::fromRequest($request) : null;
+        $result = $principal !== null ? $this->storage->readFor($id, $principal) : null;
 
         if ($result === null) {
-            throw McpException::toolResultNotFound($id);
+            throw SalesChannelException::mcpToolResultNotFound($id);
         }
 
         return [
